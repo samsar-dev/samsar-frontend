@@ -1,0 +1,136 @@
+{
+  "common": {
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "selectLanguage": "اختر اللغة",
+    "try_again": "حاول مرة أخرى",
+    "saving": "جاري الحفظ..."
+  },
+  "theme": {
+    "light": "التبديل إلى الوضع الفاتح",
+    "dark": "التبديل إلى الوضع الداكن"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "unread": "{{count}} إشعارات غير مقروءة",
+    "no_unread": "لا توجد إشعارات غير مقروءة",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "clear_all": "مسح الكل"
+  },
+  "search": {
+    "placeholder": "البحث في القوائم...",
+    "advanced": "بحث متقدم",
+    "results_for": "نتائج البحث عن",
+    "no_results": "لم يتم العثور على قوائم تطابق بحثك",
+    "filters": {
+      "title": "التصفية",
+      "category": "الفئة",
+      "price": "نطاق السعر",
+      "location": "الموقع",
+      "apply": "تطبيق التصفية",
+      "clear": "مسح التصفية"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "preferences": "التفضيلات",
+    "language": "اللغة",
+    "languageSettings": "إعدادات اللغة",
+    "selectLanguage": "اختر لغتك المفضلة",
+    "save": "حفظ التغييرات",
+    "settingsDescription": "تخصيص إعدادات وتفضيلات حسابك",
+    "notifications": "الإشعارات",
+    "security": "الأمان",
+    "privacy": "الخصوصية",
+    "messageNotifications": "إشعارات الرسائل",
+    "listingNotifications": "إشعارات القوائم",
+    "systemNotifications": "إشعارات النظام",
+    "emailNotifications": "إشعارات البريد الإلكتروني",
+    "pushNotifications": "الإشعارات المنبثقة",
+    "profileVisibility": "رؤية الملف الشخصي",
+    "public": "عام",
+    "private": "خاص"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "browse": "تصفح",
+    "vehicles": "المركبات",
+    "real_estate": "العقارات",
+    "messages": "الرسائل",
+    "create_listing": "إنشاء قائمة",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "logout": "تسجيل الخروج",
+    "listings": "إدارة القوائم"
+  },
+  "footer": {
+    "about_marketplace": "عن السوق",
+    "marketplace_description": "منصتك الموثوقة لبيع وشراء المنتجات في مجتمعك المحلي.",
+    "quick_links": "روابط سريعة",
+    "categories": "الفئات",
+    "contact_us": "اتصل بنا",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "all_rights_reserved": "جميع الحقوق محفوظة."
+  },
+  "home": {
+    "find_perfect": "ابحث عن",
+    "vehicle": "مركبتك",
+    "property": "عقارك",
+    "discover_vehicle": "اكتشف مركبة أحلامك من مجموعتنا الواسعة",
+    "discover_property": "اعثر على العقار المثالي الذي يناسب نمط حياتك",
+    "trending_now": "الأكثر رواجاً",
+    "view_all": "عرض الكل"
+  },
+  "errors": {
+    "server_offline": "الخادم غير متصل حالياً. يرجى المحاولة مرة أخرى لاحقاً.",
+    "fetch_failed": "فشل في جلب القوائم",
+    "search_failed": "فشل البحث",
+    "no_listings_category": "لا توجد قوائم متاحة في هذه الفئة.",
+    "no_search_results": "لم يتم العثور على قوائم تطابق معايير البحث."
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "info": "معلومات الملف الشخصي",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "bio": "نبذة",
+    "change_password": "تغيير كلمة المرور",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_password": "تأكيد كلمة المرور",
+    "save_changes": "حفظ التغييرات",
+    "my_listings": "قوائمي",
+    "total_listings": "إجمالي القوائم: {{count}}",
+    "no_listings": "لم تقم بإنشاء أي قوائم بعد",
+    "loading_more": "جاري التحميل...",
+    "load_more": "تحميل المزيد",
+    "listing_deleted": "تم حذف القائمة بنجاح",
+    "delete_error": "خطأ في حذف القائمة",
+    "fetch_error": "فشل في تحميل القوائم",
+    "updated": "تم تحديث الملف الشخصي بنجاح",
+    "update_error": "فشل في تحديث الملف الشخصي",
+    "load_error": "فشل في تحميل الملف الشخصي",
+    "password_mismatch": "كلمات المرور غير متطابقة",
+    "password_updated": "تم تحديث كلمة المرور بنجاح",
+    "confirm_delete": "هل أنت متأكد من حذف هذه القائمة؟"
+  },
+  "listings": {
+    "image_alt": "{{make}} {{model}} {{year}}",
+    "add_favorite": "إضافة إلى المفضلة",
+    "remove_favorite": "إزالة من المفضلة",
+    "price": "${price}",
+    "no_image": "لا تتوفر صورة",
+    "created_at": "تم النشر منذ {{time}}",
+    "views": "{{count}} مشاهدة",
+    "contact_seller": "التواصل مع البائع",
+    "report_listing": "الإبلاغ عن القائمة",
+    "share_listing": "مشاركة القائمة",
+    "mileage": "المسافة المقطوعة",
+    "posted_on": "تاريخ النشر",
+    "location": "الموقع"
+  }
+}

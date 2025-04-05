@@ -1,0 +1,65 @@
+{
+  "fields": {
+    "fuelType": "Fuel Type",
+    "transmission": "Transmission",
+    "propertyType": "Property Type",
+    "totalArea": "Total Area",
+    "condition": "Condition",
+    "mileage": "Mileage",
+    "yearBuilt": "Year Built",
+    "fuelTypes": {
+      "gasoline": "Gasoline",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    },
+    "transmissionTypes": {
+      "manual": "Manual",
+      "automatic": "Automatic",
+      "cvt": "CVT"
+    },
+    "propertyTypes": {
+      "apartment": "Apartment",
+      "house": "House",
+      "villa": "Villa",
+      "townhouse": "Townhouse"
+    },
+    "conditions": {
+      "new": "New",
+      "likeNew": "Like New",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "needsRepair": "Needs Repair"
+    }
+  },
+  "features": {
+    "title": "Features",
+    "comfort": "Comfort Features",
+    "safety": "Safety Features",
+    "amenities": "Amenities",
+    "items": {
+      "leatherSeats": "Leather Seats",
+      "heatedSeats": "Heated Seats",
+      "sunroof": "Sunroof",
+      "climateControl": "Climate Control",
+      "parkingSensors": "Parking Sensors",
+      "camera360": "360° Camera",
+      "laneAssist": "Lane Assist",
+      "blindSpot": "Blind Spot Monitor",
+      "pool": "Swimming Pool",
+      "gym": "Gym",
+      "parking": "Parking",
+      "security": "Security"
+    }
+  },
+  "tooltips": {
+    "fuelType": "Select the type of fuel your vehicle uses",
+    "transmission": "Choose your vehicle's transmission type",
+    "propertyType": "Select the type of property",
+    "totalArea": "Enter the total area in square meters"
+  },
+  "errors": {
+    "invalidCategory": "Invalid category selected"
+  }
+}

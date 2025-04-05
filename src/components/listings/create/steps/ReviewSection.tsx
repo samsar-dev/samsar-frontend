@@ -1,0 +1,683 @@
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
+import type { FormState } from "@/types/forms";
+import {
+  ListingCategory,
+  VehicleType,
+  PropertyType,
+  FuelType,
+  TransmissionType,
+  Condition,
+} from "@/types/enums";
+import {
+  FaEdit,
+  FaCheck,
+  FaCar,
+  FaHome,
+  FaImages,
+  FaHistory,
+  FaTag,
+} from "react-icons/fa";
+import { 
+  ChevronLeft,
+  AlertCircle,
+  DollarSign,
+  MapPin,
+  Calendar,
+  Tag
+} from 'lucide-react';
+import type { VehicleDetails, RealEstateDetails, ListingFieldSchema } from '@/types/listings';
+import { listingsAdvancedFieldSchema } from '../advanced/listingsAdvancedFieldSchema';
+
+interface ReviewSectionProps {
+  formData: FormState;
+  onSubmit: (data: FormState) => void;
+  onBack: () => void;
+  onEdit: (section: string) => void;
+  isSubmitting?: boolean;
+  error?: string | null;
+}
+
+const pageTransition = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.3 },
+};
+
+const ReviewSection: React.FC<ReviewSectionProps> = ({
+  formData,
+  onSubmit,
+  onBack,
+  onEdit,
+  isSubmitting,
+  error,
+}) => {
+  const { t } = useTranslation();
+  const [listingAction, setListingAction] = useState<'SELL' | 'RENT'>('SELL');
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const validateForm = () => {
+    const newErrors: string[] = [];
+
+    // Basic details validation
+    if (!formData.title?.trim()) {
+      newErrors.push(t('listings.create.errors.titleRequired'));
+    }
+    if (!formData.description?.trim()) {
+      newErrors.push(t('listings.create.errors.descriptionRequired'));
+    }
+    
+    // Price validation
+    const price = formData.price;
+    if (price === undefined || price === '') {
+      newErrors.push(t('listings.create.errors.priceRequired'));
+    } else {
+      const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+      if (isNaN(numericPrice) || numericPrice <= 0) {
+        newErrors.push(t('listings.create.errors.invalidPrice'));
+      }
+    }
+
+    if (!formData.location?.trim()) {
+      newErrors.push(t('listings.create.errors.locationRequired'));
+    }
+    if (!formData.category?.subCategory) {
+      newErrors.push(t('listings.create.errors.subCategoryRequired'));
+    }
+
+    // Category-specific validation
+    if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
+      const vehicleDetails = formData.details?.vehicles;
+      if (!vehicleDetails?.make) newErrors.push(t('listings.create.errors.makeRequired'));
+      if (!vehicleDetails?.model) newErrors.push(t('listings.create.errors.modelRequired'));
+      if (!vehicleDetails?.year) newErrors.push(t('listings.create.errors.yearRequired'));
+      if (!vehicleDetails?.mileage) newErrors.push(t('listings.create.errors.mileageRequired'));
+      if (!vehicleDetails?.fuelType) newErrors.push(t('listings.create.errors.fuelTypeRequired'));
+      if (!vehicleDetails?.transmissionType) newErrors.push(t('listings.create.errors.transmissionRequired'));
+      if (!vehicleDetails?.color) newErrors.push(t('listings.create.errors.colorRequired'));
+      if (!vehicleDetails?.condition) newErrors.push(t('listings.create.errors.conditionRequired'));
+
+      // Additional required fields from schema
+      const vehicleSchema = listingsAdvancedFieldSchema['cars'] || [];
+      const requiredVehicleFields = vehicleSchema.filter((field: ListingFieldSchema) => field.required);
+      
+      requiredVehicleFields.forEach((field: ListingFieldSchema) => {
+        const value = vehicleDetails?.[field.name as keyof VehicleDetails];
+        if (!value && value !== 0) {
+          newErrors.push(t(`listings.create.errors.${field.name}Required`));
+        }
+      });
+    } else if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
+      const realEstateDetails = formData.details?.realEstate;
+      if (!realEstateDetails?.propertyType) newErrors.push(t('listings.create.errors.propertyTypeRequired'));
+      if (!realEstateDetails?.size) newErrors.push(t('listings.create.errors.sizeRequired'));
+      if (!realEstateDetails?.bedrooms) newErrors.push(t('listings.create.errors.bedroomsRequired'));
+      if (!realEstateDetails?.bathrooms) newErrors.push(t('listings.create.errors.bathroomsRequired'));
+
+      // Additional required fields from schema
+      const realEstateSchema = listingsAdvancedFieldSchema['realEstate'] || [];
+      const requiredRealEstateFields = realEstateSchema.filter((field: ListingFieldSchema) => field.required);
+      
+      requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
+        const value = realEstateDetails?.[field.name as keyof RealEstateDetails];
+        if (!value && value !== 0) {
+          newErrors.push(t(`listings.create.errors.${field.name}Required`));
+        }
+      });
+    }
+
+    // Image validation
+    if (!formData.images || formData.images.length === 0) {
+      newErrors.push(t('listings.create.errors.imagesRequired'));
+    }
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const isValid = validateForm();
+    if (isValid) {
+      // Update form data with the selected listing action
+      const updatedFormData = {
+        ...formData,
+        listingAction: listingAction.toLowerCase() as 'sell' | 'rent',
+        // Ensure all required fields are present
+        title: formData.title || '',
+        description: formData.description || '',
+        price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
+        location: formData.location || '',
+        category: {
+          mainCategory: formData.category?.mainCategory || ListingCategory.VEHICLES,
+          subCategory: formData.category?.subCategory || VehicleType.CAR
+        },
+        details: {
+          vehicles: formData.category?.mainCategory === ListingCategory.VEHICLES ? {
+            ...formData.details?.vehicles,
+            vehicleType: formData.details?.vehicles?.vehicleType || VehicleType.CAR,
+            make: formData.details?.vehicles?.make || '',
+            model: formData.details?.vehicles?.model || '',
+            year: formData.details?.vehicles?.year || new Date().getFullYear().toString(),
+            mileage: formData.details?.vehicles?.mileage || '0',
+            fuelType: formData.details?.vehicles?.fuelType || FuelType.GASOLINE,
+            transmissionType: formData.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
+            color: formData.details?.vehicles?.color || '',
+            condition: formData.details?.vehicles?.condition || Condition.GOOD,
+            features: formData.details?.vehicles?.features || [],
+            interiorColor: formData.details?.vehicles?.interiorColor || '',
+            warranty: formData.details?.vehicles?.warranty || '',
+            serviceHistory: formData.details?.vehicles?.serviceHistory || '',
+            previousOwners: formData.details?.vehicles?.previousOwners || 0,
+            registrationStatus: formData.details?.vehicles?.registrationStatus || ''
+          } : undefined,
+          realEstate: formData.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
+            ...formData.details?.realEstate,
+            propertyType: formData.details?.realEstate?.propertyType || PropertyType.HOUSE,
+            size: formData.details?.realEstate?.size || '',
+            yearBuilt: formData.details?.realEstate?.yearBuilt || '',
+            bedrooms: formData.details?.realEstate?.bedrooms || '',
+            bathrooms: formData.details?.realEstate?.bathrooms || '',
+            condition: formData.details?.realEstate?.condition || Condition.GOOD,
+            features: formData.details?.realEstate?.features || []
+          } : undefined
+        },
+        images: formData.images || []
+      };
+
+      console.log('Submitting form data:', updatedFormData);
+      onSubmit(updatedFormData);
+    } else {
+      // Scroll to the first error message
+      const errorElement = document.querySelector('.text-red-500');
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
+  const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === "string" ? parseFloat(price) : price;
+    if (isNaN(numPrice)) return "$0.00";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(numPrice);
+  };
+
+  const renderSection = (
+    title: string,
+    icon: React.ReactNode,
+    children: React.ReactNode,
+  ) => (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 flex justify-between items-center">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+          {icon}
+          <span className="ml-2">{title}</span>
+        </h3>
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:underline"
+        >
+          <FaEdit className="mr-1" />
+          {t("edit")}
+        </button>
+      </div>
+      {children}
+    </div>
+  );
+
+  const renderBasicDetails = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-start">
+        <div className="flex-grow">
+          <h3 className="text-lg font-medium">{formData.title}</h3>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            {formData.description}
+          </p>
+          <div className="flex items-center mt-2 space-x-4">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <DollarSign className="w-4 h-4 mr-1" />
+              {formatPrice(formData.price)}
+            </div>
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <MapPin className="w-4 h-4 mr-1" />
+              {formData.location}
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => onEdit('basic')}
+          className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
+          aria-label={t("editBasicDetails")}
+        >
+          <FaEdit className="w-5 h-5" />
+          <span className="text-sm">{t("edit")}</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderVehicleDetails = () => {
+    const vehicleDetails = formData.details?.vehicles;
+    if (!vehicleDetails) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* Essential Details Section */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("essentialDetails")}</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-sm text-gray-500">{t("make")}</div>
+              <div className="font-medium">
+                {vehicleDetails.make || t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("model")}</div>
+              <div className="font-medium">
+                {vehicleDetails.model || t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("year")}</div>
+              <div className="font-medium">
+                {vehicleDetails.year || t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("vehicleType")}</div>
+              <div className="font-medium">
+                {vehicleDetails.vehicleType
+                  ? t(`vehicleTypes.${vehicleDetails.vehicleType}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("mileage")}</div>
+              <div className="font-medium">
+                {vehicleDetails.mileage
+                  ? `${vehicleDetails.mileage} ${t("miles")}`
+                  : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("fuelType")}</div>
+              <div className="font-medium">
+                {vehicleDetails.fuelType
+                  ? t(`fuelTypes.${vehicleDetails.fuelType}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("transmission")}</div>
+              <div className="font-medium">
+                {vehicleDetails.transmissionType
+                  ? t(`transmissionTypes.${vehicleDetails.transmissionType}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Advanced Details Section */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("advancedDetails")}</h4>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Colors */}
+            <div>
+              <div className="text-sm text-gray-500">{t("exteriorColor")}</div>
+              <div className="font-medium flex items-center gap-2">
+                {vehicleDetails.color || t("notProvided")}
+                {vehicleDetails.color && (
+                  <div
+                    className="w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: vehicleDetails.color }}
+                  />
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("interiorColor")}</div>
+              <div className="font-medium flex items-center gap-2">
+                {vehicleDetails.interiorColor || t("notProvided")}
+                {vehicleDetails.interiorColor && (
+                  <div
+                    className="w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: vehicleDetails.interiorColor }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Performance */}
+            <div>
+              <div className="text-sm text-gray-500">{t("engine")}</div>
+              <div className="font-medium">
+                {vehicleDetails.engine || t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("horsepower")}</div>
+              <div className="font-medium">
+                {vehicleDetails.horsepower ? `${vehicleDetails.horsepower} hp` : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("torque")}</div>
+              <div className="font-medium">
+                {vehicleDetails.torque ? `${vehicleDetails.torque} Nm` : t("notProvided")}
+              </div>
+            </div>
+
+            {/* Condition & History */}
+            <div>
+              <div className="text-sm text-gray-500">{t("condition")}</div>
+              <div className="font-medium">
+                {vehicleDetails.condition
+                  ? t(`conditions.${vehicleDetails.condition}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("warranty")}</div>
+              <div className="font-medium">
+                {vehicleDetails.warranty ? `${vehicleDetails.warranty} ${t("months")}` : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("serviceHistory")}</div>
+              <div className="font-medium">
+                {vehicleDetails.serviceHistory
+                  ? t(`serviceHistory.${vehicleDetails.serviceHistory}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("previousOwners")}</div>
+              <div className="font-medium">
+                {vehicleDetails.previousOwners || t("notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">{t("registrationStatus")}</div>
+              <div className="font-medium">
+                {vehicleDetails.registrationStatus
+                  ? t(`registrationStatus.${vehicleDetails.registrationStatus}`)
+                  : t("notProvided")}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        {formData.features && formData.features.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("features")}</h4>
+            <div className="flex flex-wrap gap-2">
+              {formData.features.map((feature: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderRealEstateDetails = () => {
+    const realEstateDetails = formData.details?.realEstate;
+    if (!realEstateDetails) return null;
+
+    return (
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className="text-sm text-gray-500">{t("propertyType")}</div>
+            <div className="font-medium">
+              {realEstateDetails.propertyType
+                ? t(`propertyTypes.${realEstateDetails.propertyType}`)
+                : t("notProvided")}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-500">{t("size")}</div>
+            <div className="font-medium">
+              {realEstateDetails.size
+                ? `${realEstateDetails.size} ${t("sqft")}`
+                : t("notProvided")}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-500">{t("yearBuilt")}</div>
+            <div className="font-medium">
+              {realEstateDetails.yearBuilt || t("notProvided")}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-500">{t("bedrooms")}</div>
+            <div className="font-medium">
+              {realEstateDetails.bedrooms || t("notProvided")}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-500">{t("bathrooms")}</div>
+            <div className="font-medium">
+              {realEstateDetails.bathrooms || t("notProvided")}
+            </div>
+          </div>
+          {formData.features && formData.features.length > 0 && (
+            <div className="col-span-2">
+              <div className="text-sm text-gray-500">{t("features")}</div>
+              <div className="font-medium">{formData.features.join(", ")}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderImages = () => {
+    // Create object URLs for File objects
+    const imageUrls = formData.images.map((image: File | string) => {
+      if (image instanceof File) {
+        return URL.createObjectURL(image);
+      }
+      return image;
+    });
+
+    // Cleanup function to revoke object URLs when component unmounts
+    useEffect(() => {
+      return () => {
+        imageUrls.forEach((url: string) => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
+      };
+    }, [imageUrls]);
+
+    return (
+      <div>
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-medium">
+            {t("uploadedImages")} ({formData.images.length})
+          </h3>
+          <button
+            type="button"
+            onClick={() => onEdit('images')}
+            className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
+            aria-label={t("editImages")}
+          >
+            <FaEdit className="w-5 h-5" />
+            <span className="text-sm">{t("edit")}</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {formData.images.map((_: File | string, index: number) => (
+            <div
+              key={index}
+              className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
+            >
+              <img
+                src={imageUrls[index]}
+                alt={`${t("image")} ${index + 1}`}
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-image.jpg';
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <motion.div {...pageTransition} className="space-y-6">
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+          <p className="text-red-700 dark:text-red-300">{error}</p>
+        </div>
+      )}
+
+      {/* Basic Information */}
+      {renderSection(
+        t("basicDetails"),
+        <FaTag className="w-5 h-5 text-blue-500" />,
+        renderBasicDetails()
+      )}
+
+      {/* Listing Action */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 md:p-6 mb-6">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          {t("listingAction")}
+        </h3>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            type="button"
+            onClick={() => setListingAction("SELL")}
+            className={`flex-1 p-4 rounded-lg border-2 transition-colors flex flex-col items-center ${
+              listingAction === "SELL"
+                ? "bg-blue-100 border-blue-500 dark:bg-blue-900/50 dark:border-blue-500"
+                : "bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+            }`}
+            aria-pressed={listingAction === "SELL"}
+          >
+            <FaCheck
+              className={`w-8 h-8 mb-2 ${
+                listingAction === "SELL" ? "text-blue-500" : "text-gray-400"
+              }`}
+            />
+            <span className="text-lg font-medium">{t("sell")}</span>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
+              {t("sellDescription")}
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setListingAction("RENT")}
+            className={`flex-1 p-4 rounded-lg border-2 transition-colors flex flex-col items-center ${
+              listingAction === "RENT"
+                ? "bg-green-100 border-green-500 dark:bg-green-900/50 dark:border-green-500"
+                : "bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+            }`}
+            aria-pressed={listingAction === "RENT"}
+          >
+            <FaHistory
+              className={`w-8 h-8 mb-2 ${
+                listingAction === "RENT" ? "text-green-500" : "text-gray-400"
+              }`}
+            />
+            <span className="text-lg font-medium">{t("rent")}</span>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
+              {t("rentDescription")}
+            </p>
+          </button>
+        </div>
+      </div>
+
+      {/* Category-specific Details */}
+      {formData.category?.mainCategory === ListingCategory.VEHICLES
+        ? renderSection(
+            t("vehicleDetails"),
+            <FaCar className="w-5 h-5 text-blue-500" />,
+            renderVehicleDetails(),
+          )
+        : renderSection(
+            t("propertyDetails"),
+            <FaHome className="w-5 h-5 text-blue-500" />,
+            renderRealEstateDetails(),
+          )}
+
+      {/* Images */}
+      {renderSection(
+        t("images"),
+        <FaImages className="w-5 h-5 text-blue-500" />,
+        renderImages()
+      )}
+
+      {/* Error Messages */}
+      {errors.length > 0 && (
+        <div className="space-y-2">
+          {errors.map((error, index) => (
+            <p key={index} className="text-red-500 text-sm flex items-center">
+              <AlertCircle className="w-4 h-4 mr-1" />
+              {error}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {/* Submit Button */}
+      <form onSubmit={handleSubmit} className="mt-6">
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            disabled={isSubmitting}
+          >
+            <ChevronLeft className="w-4 h-4 inline-block mr-2" />
+            {t("back")}
+          </button>
+          <button
+            type="submit"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <FaHistory className="animate-spin" />
+                <span>{t("submitting")}</span>
+              </>
+            ) : (
+              <>
+                <FaCheck className="w-4 h-4 mr-2" />
+                <span>{t("submit")}</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </motion.div>
+  );
+};
+
+export default ReviewSection;
