@@ -8,7 +8,6 @@ import type {
 import TokenManager from "../utils/tokenManager";
 import { toast } from "react-toastify";
 
-// Auth API Class
 class AuthAPI {
   /**
    * Logs in a user with email and password
@@ -18,7 +17,7 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("auth/login", {
+      const response = await apiClient.post<AuthResponse>("/auth/login", {
         email,
         password,
       });
@@ -56,9 +55,13 @@ class AuthAPI {
    * @param name User's name
    * @returns Authentication response
    */
-  static async register(email: string, password: string, name: string): Promise<AuthResponse> {
+  static async register(
+    email: string,
+    password: string,
+    name: string
+  ): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("auth/register", {
+      const response = await apiClient.post<AuthResponse>("/auth/register", {
         email,
         password,
         name,
@@ -89,6 +92,7 @@ class AuthAPI {
       };
     }
   }
+
 
   /**
    * Refreshes the authentication tokens
