@@ -1,5 +1,9 @@
 import { apiClient } from "./apiClient";
-import type { Listing, ListingsResponse, ListingDetails } from "@/types/listings";
+import type {
+  Listing,
+  ListingsResponse,
+  ListingDetails,
+} from "@/types/listings";
 import type { ListingParams } from "@/types/params";
 import { AxiosError } from "axios";
 import type {
@@ -8,7 +12,7 @@ import type {
   VehicleType,
   PropertyType,
 } from "@/types/enums";
-import type{ FormState } from "@/types/forms";
+import type { FormState } from "@/types/forms";
 import { API_URL } from "@/config";
 
 interface FavoriteItem {
@@ -332,41 +336,51 @@ export const listingsAPI = {
       if (!response.data.success || !response.data.data) {
         throw new Error("No data received from API");
       }
-      
+
       const responseData = response.data.data;
-      
+
       // Transform vehicle details if present with all fields
       const details: ListingDetails = {
-        vehicles: responseData.details.vehicles ? {
-          vehicleType: responseData.subCategory as VehicleType,
-          make: responseData.details.vehicles.make,
-          model: responseData.details.vehicles.model,
-          year: responseData.details.vehicles.year,
-          // Essential fields
-          mileage: responseData.details.vehicles.mileage || "0",
-          fuelType: responseData.details.vehicles.fuelType || "gasoline",
-          transmissionType: responseData.details.vehicles.transmissionType || "automatic",
-          // Appearance fields
-          color: responseData.details.vehicles.color || "#000000",
-          interiorColor: responseData.details.vehicles.interiorColor || "#000000",
-          condition: responseData.details.vehicles.condition || "good",
-          // Technical fields
-          engine: responseData.details.vehicles.engine || "Not provided",
-          warranty: responseData.details.vehicles.warranty?.toString() || "0",
-          serviceHistory: responseData.details.vehicles.serviceHistory || "none",
-          previousOwners: responseData.details.vehicles.previousOwners || 0,
-          registrationStatus: responseData.details.vehicles.registrationStatus || "unregistered",
-          features: responseData.details.vehicles.features || [],
-        } : undefined,
-        realEstate: responseData.details.realEstate ? {
-          propertyType: responseData.subCategory as PropertyType,
-          size: responseData.details.realEstate.size,
-          yearBuilt: responseData.details.realEstate.yearBuilt,
-          bedrooms: responseData.details.realEstate.bedrooms,
-          bathrooms: responseData.details.realEstate.bathrooms,
-          condition: responseData.details.realEstate.condition,
-          features: responseData.details.realEstate.features || []
-        } : undefined
+        vehicles: responseData.details.vehicles
+          ? {
+              vehicleType: responseData.category.subCategory as VehicleType,
+              make: responseData.details.vehicles.make,
+              model: responseData.details.vehicles.model,
+              year: responseData.details.vehicles.year,
+              // Essential fields
+              mileage: responseData.details.vehicles.mileage || "0",
+              fuelType: responseData.details.vehicles.fuelType || "gasoline",
+              transmissionType:
+                responseData.details.vehicles.transmissionType || "automatic",
+              // Appearance fields
+              color: responseData.details.vehicles.color || "#000000",
+              interiorColor:
+                responseData.details.vehicles.interiorColor || "#000000",
+              condition: responseData.details.vehicles.condition || "good",
+              // Technical fields
+              engine: responseData.details.vehicles.engine || "Not provided",
+              warranty:
+                responseData.details.vehicles.warranty?.toString() || "0",
+              serviceHistory:
+                responseData.details.vehicles.serviceHistory || "none",
+              previousOwners: responseData.details.vehicles.previousOwners || 0,
+              registrationStatus:
+                responseData.details.vehicles.registrationStatus ||
+                "unregistered",
+              features: responseData.details.vehicles.features || [],
+            }
+          : undefined,
+        realEstate: responseData.details.realEstate
+          ? {
+              propertyType: responseData.category.subCategory as PropertyType,
+              size: responseData.details.realEstate.size,
+              yearBuilt: responseData.details.realEstate.yearBuilt,
+              bedrooms: responseData.details.realEstate.bedrooms,
+              bathrooms: responseData.details.realEstate.bathrooms,
+              condition: responseData.details.realEstate.condition,
+              features: responseData.details.realEstate.features || [],
+            }
+          : undefined,
       };
 
       // Transform the response data to match the Listing type
@@ -375,23 +389,24 @@ export const listingsAPI = {
         title: responseData.title,
         description: responseData.description,
         price: responseData.price,
-        category: {
-          mainCategory: responseData.mainCategory,
-          subCategory: responseData.subCategory
-        },
+        category: responseData.category,
         location: responseData.location,
-        images: responseData.images.map(img => typeof img === 'string' ? img : img.url),
+        images: responseData.images.map((img) =>
+          typeof img === "string" ? img : img.url
+        ),
         createdAt: responseData.createdAt,
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction.toLowerCase() as 'sell' | 'rent'
+        listingAction: responseData.listingAction.toLowerCase() as
+          | "sell"
+          | "rent",
       };
-      
+
       return {
         success: true,
         data: transformedData,
-        error: undefined
+        error: undefined,
       };
     } catch (error: any) {
       console.error("Error fetching listing:", error);
