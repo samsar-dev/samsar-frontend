@@ -1,5 +1,5 @@
 import { apiClient } from "./apiClient";
-import type { Listing, ListingsResponse } from "@/types/listings";
+import type { Listing, ListingsResponse, ListingDetails } from "@/types/listings";
 import type { ListingParams } from "@/types/params";
 import { AxiosError } from "axios";
 import type {
@@ -306,7 +306,7 @@ export const listingsAPI = {
   },
 
   // Get listing by id
-  async getById(id: string): Promise<APIResponse<SingleListingResponse>> {
+  async getById(id: string): Promise<APIResponse<Listing>> {
     try {
       console.log('Fetching listing with ID:', id);
       const response = await apiClient.get<{
@@ -321,9 +321,61 @@ export const listingsAPI = {
         throw new Error('No data received from API');
       }
       
+      const responseData = response.data.data;
+      
+      // Transform vehicle details if present
+      const details: ListingDetails = {
+        vehicles: responseData.details.vehicles ? {
+          vehicleType: responseData.subCategory as VehicleType,
+          make: responseData.details.vehicles.make,
+          model: responseData.details.vehicles.model,
+          year: responseData.details.vehicles.year,
+          mileage: responseData.details.vehicles.mileage || "0",
+          fuelType: responseData.details.vehicles.fuelType || "gasoline",
+          transmissionType: responseData.details.vehicles.transmissionType || "automatic",
+          color: responseData.details.vehicles.color || "",
+          condition: responseData.details.vehicles.condition || "good",
+          features: responseData.details.vehicles.features || [],
+          interiorColor: responseData.details.vehicles.interiorColor,
+          engine: responseData.details.vehicles.engine,
+          warranty: responseData.details.vehicles.warranty,
+          serviceHistory: responseData.details.vehicles.serviceHistory,
+          previousOwners: responseData.details.vehicles.previousOwners,
+          registrationStatus: responseData.details.vehicles.registrationStatus
+        } : undefined,
+        realEstate: responseData.details.realEstate ? {
+          propertyType: responseData.subCategory as PropertyType,
+          size: responseData.details.realEstate.size,
+          yearBuilt: responseData.details.realEstate.yearBuilt,
+          bedrooms: responseData.details.realEstate.bedrooms,
+          bathrooms: responseData.details.realEstate.bathrooms,
+          condition: responseData.details.realEstate.condition,
+          features: responseData.details.realEstate.features || []
+        } : undefined
+      };
+
+      // Transform the response data to match the Listing type
+      const transformedData: Listing = {
+        id: responseData.id,
+        title: responseData.title,
+        description: responseData.description,
+        price: responseData.price,
+        category: {
+          mainCategory: responseData.mainCategory,
+          subCategory: responseData.subCategory
+        },
+        location: responseData.location,
+        images: responseData.images.map(img => typeof img === 'string' ? img : img.url),
+        createdAt: responseData.createdAt,
+        updatedAt: responseData.updatedAt,
+        userId: responseData.userId,
+        details: details,
+        listingAction: responseData.listingAction.toLowerCase() as 'sell' | 'rent'
+      };
+      
       return {
         success: true,
-        data: response.data.data,
+        data: transformedData,
         error: undefined
       };
     } catch (error: any) {

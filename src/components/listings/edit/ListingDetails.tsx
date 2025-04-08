@@ -279,7 +279,7 @@ const ListingDetails: React.FC = () => {
             <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
             <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
               {formatCurrency(listing.price)}
-              {listing.listingAction?.toLowerCase() === 'rent' && "/month"}
+              {listing.listingAction === 'rent' && "/month"}
             </p>
           </div>
 
@@ -294,7 +294,7 @@ const ListingDetails: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">{t("listings.price")}</p>
-                  <p className="font-medium">${listing.price.toLocaleString()}</p>
+                  <p className="font-medium">{formatCurrency(listing.price)}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">{t("listings.location")}</p>
@@ -302,62 +302,20 @@ const ListingDetails: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">{t("listings.listingAction")}</p>
-                  <p className="font-medium capitalize">{listing.listingAction || t("common.notProvided")}</p>
+                  <p className="font-medium capitalize">{t(`listings.actions.${listing.listingAction}`) || t("common.notProvided")}</p>
                 </div>
-                {listing.listingAction === 'sell' && listing.description && (
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.sellDescription")}</p>
-                    <p className="font-medium">{listing.description}</p>
+                {listing.description && (
+                  <div className="col-span-2">
+                    <p className="text-gray-600 dark:text-gray-400">{t("listings.description")}</p>
+                    <p className="font-medium whitespace-pre-wrap">{listing.description}</p>
                   </div>
-                )}
-                {listing.listingAction === 'rent' && listing.description && (
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.rentDescription")}</p>
-                    <p className="font-medium">{listing.description}</p>
-                  </div>
-                )}
-
-                {/* Advanced Vehicle Details */}
-                {isVehicle && listing.details.vehicles && (
-                  <>
-                    {listing.details.vehicles.engine && (
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</p>
-                        <p className="font-medium">{listing.details.vehicles.engine}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.interiorColor && (
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">{t("listings.interiorColor")}</p>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-6 h-6 rounded-full border border-gray-200" 
-                            style={{ backgroundColor: listing.details.vehicles.interiorColor }} 
-                          />
-                          <p className="font-medium">{listing.details.vehicles.interiorColor}</p>
-                        </div>
-                      </div>
-                    )}
-                    {listing.details.vehicles.serviceHistory && (
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">{t("listings.serviceHistory")}</p>
-                        <p className="font-medium">{listing.details.vehicles.serviceHistory}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.warranty && (
-                      <div>
-                        <p className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</p>
-                        <p className="font-medium">{listing.details.vehicles.warranty} {t("listings.months")}</p>
-                      </div>
-                    )}
-                  </>
                 )}
               </div>
             </div>
 
             {/* Vehicle Details */}
             {isVehicle && listing.details.vehicles && (
-              <div className="space-y-6 mt-6">
+              <div className="space-y-6">
                 <h2 className="text-xl font-semibold">{t("listings.vehicleDetails")}</h2>
                 
                 {/* Essential Details */}
@@ -366,27 +324,27 @@ const ListingDetails: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.make")}</span>
-                      <p className="font-medium">{listing.details.vehicles.make || t("common.notProvided")}</p>
+                      <p className="font-medium">{listing.details.vehicles.make}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.model")}</span>
-                      <p className="font-medium">{listing.details.vehicles.model || t("common.notProvided")}</p>
+                      <p className="font-medium">{listing.details.vehicles.model}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.year")}</span>
-                      <p className="font-medium">{listing.details.vehicles.year || t("common.notProvided")}</p>
+                      <p className="font-medium">{listing.details.vehicles.year}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.mileage")}</span>
-                      <p className="font-medium">{listing.details.vehicles.mileage || t("common.notProvided")} km</p>
+                      <p className="font-medium">{listing.details.vehicles.mileage} km</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.fuelType")}</span>
-                      <p className="font-medium">{listing.details.vehicles.fuelType || t("common.notProvided")}</p>
+                      <p className="font-medium capitalize">{t(`listings.fuelTypes.${listing.details.vehicles.fuelType}`)}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.transmission")}</span>
-                      <p className="font-medium">{listing.details.vehicles.transmissionType || t("common.notProvided")}</p>
+                      <p className="font-medium capitalize">{t(`listings.transmissionTypes.${listing.details.vehicles.transmissionType}`)}</p>
                     </div>
                   </div>
                 </div>
@@ -404,7 +362,7 @@ const ListingDetails: React.FC = () => {
                             style={{ backgroundColor: listing.details.vehicles.color }}
                           />
                         )}
-                        <p className="font-medium">{listing.details.vehicles.color || t("common.notProvided")}</p>
+                        <p className="font-medium">{listing.details.vehicles.color}</p>
                       </div>
                     </div>
                     <div>
@@ -416,12 +374,12 @@ const ListingDetails: React.FC = () => {
                             style={{ backgroundColor: listing.details.vehicles.interiorColor }}
                           />
                         )}
-                        <p className="font-medium">{listing.details.vehicles.interiorColor || t("common.notProvided")}</p>
+                        <p className="font-medium">{listing.details.vehicles.interiorColor}</p>
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
-                      <p className="font-medium">{listing.details.vehicles.condition || t("common.notProvided")}</p>
+                      <p className="font-medium capitalize">{t(`listings.conditions.${listing.details.vehicles.condition}`)}</p>
                     </div>
                   </div>
                 </div>
@@ -457,21 +415,9 @@ const ListingDetails: React.FC = () => {
                     {listing.details.vehicles.registrationStatus && (
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">{t("listings.registrationStatus")}</span>
-                        <p className="font-medium">{listing.details.vehicles.registrationStatus}</p>
+                        <p className="font-medium capitalize">{t(`listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`)}</p>
                       </div>
                     )}
-                  </div>
-                </div>
-
-                {/* Debug Information - will show all fields */}
-                <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
-                  <h3 className="text-sm font-semibold mb-2">All Vehicle Fields (Debug)</h3>
-                  <div className="text-xs">
-                    {Object.entries(listing.details.vehicles).map(([key, value]) => (
-                      <div key={key} className="mb-1">
-                        <span className="font-medium">{key}:</span> {JSON.stringify(value)}
-                      </div>
-                    ))}
                   </div>
                 </div>
 
@@ -485,7 +431,7 @@ const ListingDetails: React.FC = () => {
                           key={index}
                           className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
                         >
-                          {feature}
+                          {t(`listings.features.${feature}`)}
                         </span>
                       ))}
                     </div>
@@ -494,106 +440,45 @@ const ListingDetails: React.FC = () => {
               </div>
             )}
 
-            {/* Real Estate Details */}
-            {isRealEstate && listing.details.realEstate && (
-              <div className="space-y-6">
-                {/* Basic Property Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{t("listings.propertyDetails")}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.propertyType")}</span>
-                      <p>{t(`listings.propertyTypes.${listing.details.realEstate.propertyType.toLowerCase()}`)}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.size")}</span>
-                      <p>{listing.details.realEstate.size} m²</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.bedrooms")}</span>
-                      <p>{listing.details.realEstate.bedrooms}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.bathrooms")}</span>
-                      <p>{listing.details.realEstate.bathrooms}</p>
-                    </div>
-                    {listing.details.realEstate.yearBuilt && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.yearBuilt")}</span>
-                        <p>{listing.details.realEstate.yearBuilt}</p>
-                      </div>
-                    )}
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
-                      <p>{t(`listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Features */}
-                {listing.details.realEstate.features && listing.details.realEstate.features.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">{t("listings.features")}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {listing.details.realEstate.features.map((feature, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
-                        >
-                          {feature}
-                        </span>
-                      ))}
+            {/* Contact Section */}
+            {!isOwner && (
+              <div className="mt-8">
+                {!showContactForm ? (
+                  <button
+                    onClick={() => setShowContactForm(true)}
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {t("listings.contactSeller")}
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder={t("messages.enterMessage")}
+                      className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                      rows={4}
+                    />
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleContactSeller}
+                        disabled={!message.trim() || isSending}
+                        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                      >
+                        {isSending ? t("common.sending") : t("messages.send")}
+                      </button>
+                      <button
+                        onClick={() => setShowContactForm(false)}
+                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        {t("common.cancel")}
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             )}
-
-            {/* Description */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">{t("listings.description")}</h3>
-              <p className="whitespace-pre-wrap">{listing.description}</p>
-            </div>
           </div>
-
-          {/* Contact Section */}
-          {!isOwner && (
-            <div className="mt-8">
-              {!showContactForm ? (
-                <button
-                  onClick={() => setShowContactForm(true)}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {t("listings.contactSeller")}
-                </button>
-              ) : (
-                <div className="space-y-4">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={t("messages.enterMessage")}
-                    className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
-                    rows={4}
-                  />
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleContactSeller}
-                      disabled={!message.trim() || isSending}
-                      className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
-                    >
-                      {isSending ? t("common.sending") : t("messages.send")}
-                    </button>
-                    <button
-                      onClick={() => setShowContactForm(false)}
-                      className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      {t("common.cancel")}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>
