@@ -23,35 +23,8 @@ interface ListingImage {
   url: string;
 }
 
-interface ListingDetails {
-  vehicles?: {
-    vehicleType: VehicleType;
-    make: string;
-    model: string;
-    year: string;
-    mileage?: string;
-    fuelType?: FuelType;
-    transmissionType?: TransmissionType;
-    color?: string;
-    condition?: Condition;
-    features?: string[];
-    interiorColor?: string;
-    engine?: string;
-    warranty?: string | number;
-    serviceHistory?: string;
-    previousOwners?: number;
-    registrationStatus?: string;
-  };
-  realEstate?: {
-    propertyType: PropertyType;
-    size?: string;
-    yearBuilt?: string;
-    bedrooms?: string | number;
-    bathrooms?: string | number;
-    condition?: Condition;
-    features?: string[];
-  };
-}
+// Using types directly from listings.ts
+import type { ListingDetails as IListingDetails } from "@/types/listings";
 
 const ListingDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -100,6 +73,7 @@ const ListingDetails: React.FC = () => {
         console.log('Got response:', response);
         
         // Log the full response data for debugging advanced details
+        console.log('FULL Response Data:', JSON.stringify(response.data, null, 2));
         console.log('Response data details:', JSON.stringify(response.data?.details, null, 2));
         if (response.data?.details?.vehicles) {
           console.log('Vehicle details:', JSON.stringify(response.data.details.vehicles, null, 2));
@@ -138,21 +112,30 @@ const ListingDetails: React.FC = () => {
         const { mainCategory, subCategory, details, listingAction, status, ...rest } = listing;
         
         // Log all the details to debug what's available
+        console.log('FULL Details:', JSON.stringify(details, null, 2));
         console.log('Details before transformation:', JSON.stringify(details, null, 2));
         console.log('Vehicle details before:', details.vehicles ? JSON.stringify(details.vehicles, null, 2) : 'No vehicle details');
         
-        // Transform vehicle details if present
-        const transformedDetails = {
+        // Transform vehicle details if present with comprehensive defaults
+        const transformedDetails: IListingDetails = {
           vehicles: details.vehicles ? {
             ...details.vehicles,
             vehicleType: subCategory as VehicleType,
             features: details.vehicles.features || [],
-            // Ensure all required fields are present
-            mileage: details.vehicles.mileage || "0",
+            // Essential fields with defaults
+            mileage: details.vehicles.mileage?.toString() || "0",
             fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
             transmissionType: details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
-            color: details.vehicles.color || "",
-            condition: details.vehicles.condition || Condition.GOOD
+            // Appearance fields with defaults
+            color: details.vehicles.color || "#000000",
+            interiorColor: details.vehicles.interiorColor || "#000000",
+            condition: details.vehicles.condition || Condition.GOOD,
+            // Technical fields with defaults
+            engine: details.vehicles.engine || t("common.notProvided"),
+            warranty: details.vehicles.warranty?.toString() || "0",
+            serviceHistory: details.vehicles.serviceHistory || "none",
+            previousOwners: details.vehicles.previousOwners || 0,
+            registrationStatus: details.vehicles.registrationStatus || "unregistered"
           } : undefined,
           realEstate: details.realEstate ? {
             ...details.realEstate,
@@ -161,6 +144,8 @@ const ListingDetails: React.FC = () => {
           } : undefined
         };
         
+        console.log('Vehicles Details:', JSON.stringify(details.vehicles, null, 2));
+        console.log('Raw Vehicle Details from API:', JSON.stringify(response.data.details.vehicles, null, 2));
         console.log('Vehicle details after transformation:', transformedDetails.vehicles ? JSON.stringify(transformedDetails.vehicles, null, 2) : 'No vehicle details');
 
         setListing({
@@ -356,30 +341,26 @@ const ListingDetails: React.FC = () => {
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.exteriorColor")}</span>
                       <div className="flex items-center gap-2">
-                        {listing.details.vehicles.color && (
-                          <div 
-                            className="w-6 h-6 rounded-full border border-gray-200" 
-                            style={{ backgroundColor: listing.details.vehicles.color }}
-                          />
-                        )}
-                        <p className="font-medium">{listing.details.vehicles.color}</p>
+                        <div 
+                          className="w-6 h-6 rounded-full border border-gray-200" 
+                          style={{ backgroundColor: listing.details.vehicles.color || "#000000" }}
+                        />
+                        <p className="font-medium">{listing.details.vehicles.color || t("common.notProvided")}</p>
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.interiorColor")}</span>
                       <div className="flex items-center gap-2">
-                        {listing.details.vehicles.interiorColor && (
-                          <div 
-                            className="w-6 h-6 rounded-full border border-gray-200" 
-                            style={{ backgroundColor: listing.details.vehicles.interiorColor }}
-                          />
-                        )}
-                        <p className="font-medium">{listing.details.vehicles.interiorColor}</p>
+                        <div 
+                          className="w-6 h-6 rounded-full border border-gray-200" 
+                          style={{ backgroundColor: listing.details.vehicles.interiorColor || "#000000" }}
+                        />
+                        <p className="font-medium">{listing.details.vehicles.interiorColor || t("common.notProvided")}</p>
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
-                      <p className="font-medium capitalize">{t(`listings.conditions.${listing.details.vehicles.condition}`)}</p>
+                      <p className="font-medium capitalize">{t(`listings.conditions.${listing.details.vehicles.condition || "good"}`)}</p>
                     </div>
                   </div>
                 </div>
@@ -388,36 +369,26 @@ const ListingDetails: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">{t("listings.technicalDetails")}</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {listing.details.vehicles.engine && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</span>
-                        <p className="font-medium">{listing.details.vehicles.engine}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.warranty !== undefined && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</span>
-                        <p className="font-medium">{listing.details.vehicles.warranty} {t("listings.months")}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.serviceHistory && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.serviceHistory")}</span>
-                        <p className="font-medium">{listing.details.vehicles.serviceHistory}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.previousOwners !== undefined && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.previousOwners")}</span>
-                        <p className="font-medium">{listing.details.vehicles.previousOwners}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.registrationStatus && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.registrationStatus")}</span>
-                        <p className="font-medium capitalize">{t(`listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`)}</p>
-                      </div>
-                    )}
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</span>
+                      <p className="font-medium">{listing.details.vehicles.engine || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</span>
+                      <p className="font-medium">{listing.details.vehicles.warranty || "0"} {t("listings.months")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.serviceHistory")}</span>
+                      <p className="font-medium">{listing.details.vehicles.serviceHistory || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.previousOwners")}</span>
+                      <p className="font-medium">{listing.details.vehicles.previousOwners || "0"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.registrationStatus")}</span>
+                      <p className="font-medium capitalize">{listing.details.vehicles.registrationStatus || t("common.notProvided")}</p>
+                    </div>
                   </div>
                 </div>
 

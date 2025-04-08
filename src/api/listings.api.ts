@@ -323,25 +323,28 @@ export const listingsAPI = {
       
       const responseData = response.data.data;
       
-      // Transform vehicle details if present
+      // Transform vehicle details if present with all fields
       const details: ListingDetails = {
         vehicles: responseData.details.vehicles ? {
           vehicleType: responseData.subCategory as VehicleType,
           make: responseData.details.vehicles.make,
           model: responseData.details.vehicles.model,
           year: responseData.details.vehicles.year,
+          // Essential fields
           mileage: responseData.details.vehicles.mileage || "0",
           fuelType: responseData.details.vehicles.fuelType || "gasoline",
           transmissionType: responseData.details.vehicles.transmissionType || "automatic",
-          color: responseData.details.vehicles.color || "",
+          // Appearance fields
+          color: responseData.details.vehicles.color || "#000000",
+          interiorColor: responseData.details.vehicles.interiorColor || "#000000",
           condition: responseData.details.vehicles.condition || "good",
+          // Technical fields
+          engine: responseData.details.vehicles.engine || "Not provided",
+          warranty: responseData.details.vehicles.warranty?.toString() || "0",
+          serviceHistory: responseData.details.vehicles.serviceHistory || "none",
+          previousOwners: responseData.details.vehicles.previousOwners || 0,
+          registrationStatus: responseData.details.vehicles.registrationStatus || "unregistered",
           features: responseData.details.vehicles.features || [],
-          interiorColor: responseData.details.vehicles.interiorColor,
-          engine: responseData.details.vehicles.engine,
-          warranty: responseData.details.vehicles.warranty,
-          serviceHistory: responseData.details.vehicles.serviceHistory,
-          previousOwners: responseData.details.vehicles.previousOwners,
-          registrationStatus: responseData.details.vehicles.registrationStatus
         } : undefined,
         realEstate: responseData.details.realEstate ? {
           propertyType: responseData.subCategory as PropertyType,
