@@ -1,128 +1,154 @@
-import React from "react";
-// Replace the missing heroicons import with a simple SVG component
-const ExclamationCircleIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="w-6 h-6"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-2.78-1.5-3.646 0L2.697 16.126z"
-    />
-  </svg>
-);
-import { twMerge } from "tailwind-merge";
+import React from 'react';
+import clsx from 'clsx';
+import Select from 'react-select';
+
+export type FormFieldValue = string | number | boolean | string[];
 
 export interface FormFieldProps {
-  id: string;
+  name: string;
   label: string;
-  type?:
-    | "text"
-    | "number"
-    | "email"
-    | "password"
-    | "select"
-    | "textarea"
-    | "checkbox"
-    | "radio"
-    | "date";
-  value: string | number | boolean | undefined;
-  onChange: (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => void;
-  onBlur?: (
-    e: React.FocusEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => void;
+  type: 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color';
+  value: FormFieldValue;
+  onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
-  placeholder?: string;
   required?: boolean;
-  options?: { value: string; label: string }[];
+  placeholder?: string;
+  options?: Array<{ value: string; label: string }>;
+  disabled?: boolean;
   min?: number;
   max?: number;
-  step?: number;
-  disabled?: boolean;
-  className?: string;
-  inputClassName?: string;
-  labelClassName?: string;
-  children?: React.ReactNode;
-  showErrorIcon?: boolean;
-  helpText?: string;
+  prefix?: string;
+  customValidation?: (value: string) => string | undefined;
+  isSearchable?: boolean;
 }
 
-const FormField: React.FC<FormFieldProps> = ({
-  id,
-  label,
-  type = "text",
-  value,
-  onChange,
-  onBlur,
-  error,
-  placeholder,
-  required = false,
-  options = [],
-  min,
-  max,
-  step,
-  disabled = false,
-  className = "",
-  inputClassName = "",
-  labelClassName = "",
-  children,
-  showErrorIcon = true,
-  helpText,
-}) => {
-  // Handle checkbox value specifically
-  const isChecked = type === "checkbox" ? !!value : false;
+export const FormField = React.forwardRef<
+  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
+  FormFieldProps
+>((props, ref) => {
+  const {
+    name,
+    label,
+    type,
+    value,
+    onChange,
+    error,
+    required,
+    placeholder,
+    options,
+    disabled,
+    min,
+    max,
+    prefix,
+    customValidation,
+    isSearchable,
+  } = props;
 
-  // Base input class - customizable through inputClassName prop
-  const baseInputClass = `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors`;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { value: string; label: string }
+  ) => {
+    let newValue;
+    
+    // Handle react-select change
+    if ('value' in e && 'label' in e) {
+      newValue = e.value;
+    } else {
+      // Handle standard form input change
+      newValue = type === 'checkbox' 
+        ? (e as React.ChangeEvent<HTMLInputElement>).target.checked
+        : (e as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>).target.value;
+    }
+    
+    // Run validation
+    let validationError: string | undefined;
+    
+    // First check if required field is empty
+    if (required && (newValue === undefined || newValue === null || newValue === '')) {
+      validationError = `${label} is required`;
+    }
+    // Then run custom validation if exists and no required error
+    else if (customValidation && !validationError) {
+      validationError = customValidation(String(newValue));
+    }
+    
+    onChange(newValue, validationError);
+  };
 
-  // Calculate final input class based on error state and custom className
-  const inputClass = twMerge(
-    baseInputClass,
-    error
-      ? "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
-      : "border-gray-300 focus:border-blue-500 text-gray-900",
-    disabled ? "bg-gray-100 cursor-not-allowed" : "",
-    inputClassName,
+  const inputClasses = clsx(
+    'block w-full rounded-lg border py-2 px-3 text-gray-900 shadow-sm transition-colors duration-200',
+    'focus:outline-none focus:ring-2 focus:ring-offset-2',
+    {
+      'border-gray-300 focus:border-blue-500 focus:ring-blue-500': !error,
+      'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500': error,
+      'opacity-50 cursor-not-allowed': disabled,
+      'pl-10': prefix,
+    }
   );
 
-  // Special class for checkbox/radio
-  const checkboxClass = twMerge(
-    "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
-    error ? "border-red-300" : "",
-    disabled ? "bg-gray-100 cursor-not-allowed" : "",
-    inputClassName,
-  );
-
-  // Render appropriate input based on type
   const renderInput = () => {
     switch (type) {
-      case "select":
+      case 'textarea':
+        return (
+          <textarea
+            ref={ref as React.Ref<HTMLTextAreaElement>}
+            id={name}
+            name={name}
+            value={value as string}
+            onChange={handleChange}
+            className={inputClasses}
+            placeholder={placeholder}
+            required={required}
+            disabled={disabled}
+            rows={4}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${name}-error` : undefined}
+          />
+        );
+
+      case 'select':
+        if (isSearchable) {
+          const selectedOption = options?.find(opt => opt.value === value);
+          return (
+            <Select
+              id={name}
+              name={name}
+              value={selectedOption}
+              onChange={handleChange}
+              options={options}
+              isDisabled={disabled}
+              placeholder={placeholder || 'Select an option'}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              isSearchable={true}
+              styles={{
+                control: (base, state) => ({
+                  ...base,
+                  borderColor: error ? 'var(--red-300)' : state.isFocused ? 'var(--blue-500)' : 'var(--gray-300)',
+                  backgroundColor: error ? 'var(--red-50)' : 'white',
+                  boxShadow: state.isFocused ? `0 0 0 1px ${error ? 'var(--red-500)' : 'var(--blue-500)'}` : 'none',
+                  '&:hover': {
+                    borderColor: error ? 'var(--red-400)' : 'var(--blue-400)',
+                  },
+                }),
+              }}
+            />
+          );
+        }
         return (
           <select
-            id={id}
+            ref={ref as React.Ref<HTMLSelectElement>}
+            id={name}
+            name={name}
             value={value as string}
-            onChange={onChange}
-            onBlur={onBlur}
-            className={inputClass}
+            onChange={handleChange}
+            className={inputClasses}
+            required={required}
             disabled={disabled}
             aria-invalid={!!error}
-            aria-describedby={error ? `${id}-error` : undefined}
+            aria-describedby={error ? `${name}-error` : undefined}
           >
-            {!required && (
-              <option value="">{placeholder || "Select an option"}</option>
-            )}
-            {options.map((option) => (
+            <option value="">{placeholder || 'Select an option'}</option>
+            {options?.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -130,158 +156,73 @@ const FormField: React.FC<FormFieldProps> = ({
           </select>
         );
 
-      case "textarea":
+      case 'checkbox':
         return (
-          <textarea
-            id={id}
-            value={value as string}
-            onChange={onChange as any}
-            onBlur={onBlur as any}
-            placeholder={placeholder}
-            className={twMerge(inputClass, "resize-vertical min-h-[100px]")}
+          <input
+            ref={ref as React.Ref<HTMLInputElement>}
+            type="checkbox"
+            id={name}
+            name={name}
+            checked={value as boolean}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             disabled={disabled}
             aria-invalid={!!error}
-            aria-describedby={error ? `${id}-error` : undefined}
+            aria-describedby={error ? `${name}-error` : undefined}
           />
-        );
-
-      case "checkbox":
-        return (
-          <div className="flex items-center">
-            <input
-              id={id}
-              type="checkbox"
-              checked={isChecked}
-              onChange={onChange}
-              onBlur={onBlur}
-              className={checkboxClass}
-              disabled={disabled}
-              aria-invalid={!!error}
-              aria-describedby={error ? `${id}-error` : undefined}
-            />
-            <label
-              htmlFor={id}
-              className={twMerge(
-                "ml-2 text-sm text-gray-700",
-                error ? "text-red-600" : "",
-                labelClassName,
-              )}
-            >
-              {label}
-            </label>
-          </div>
-        );
-
-      case "radio":
-        return (
-          <>
-            <div className="flex items-center space-x-4">
-              {options.map((option) => (
-                <div key={option.value} className="flex items-center">
-                  <input
-                    id={`${id}-${option.value}`}
-                    type="radio"
-                    name={id}
-                    value={option.value}
-                    checked={value === option.value}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    className={twMerge(
-                      "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
-                      error ? "border-red-300" : "",
-                      disabled ? "bg-gray-100 cursor-not-allowed" : "",
-                      inputClassName,
-                    )}
-                    disabled={disabled}
-                    aria-invalid={!!error}
-                    aria-describedby={error ? `${id}-error` : undefined}
-                  />
-                  <label
-                    htmlFor={`${id}-${option.value}`}
-                    className="ml-2 text-sm text-gray-700"
-                  >
-                    {option.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </>
         );
 
       default:
         return (
-          <div className="relative">
-            <input
-              id={id}
-              type={type}
-              value={value as string}
-              onChange={onChange}
-              onBlur={onBlur}
-              placeholder={placeholder}
-              min={min}
-              max={max}
-              step={step}
-              className={inputClass}
-              disabled={disabled}
-              aria-invalid={!!error}
-              aria-describedby={error ? `${id}-error` : undefined}
-              required={required}
-            />
-            {error && showErrorIcon && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ExclamationCircleIcon />
+          <div className="relative rounded-md shadow-sm">
+            {prefix && (
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">{prefix}</span>
               </div>
             )}
+            <input
+              ref={ref as React.Ref<HTMLInputElement>}
+              type={type}
+              id={name}
+              name={name}
+              value={value as string}
+              onChange={handleChange}
+              className={inputClasses}
+              placeholder={placeholder}
+              required={required}
+              disabled={disabled}
+              min={min}
+              max={max}
+              aria-invalid={!!error}
+              aria-describedby={error ? `${name}-error` : undefined}
+            />
           </div>
         );
     }
   };
 
   return (
-    <div
-      className={twMerge(
-        "mb-4",
-        type === "checkbox" ? "" : "flex flex-col",
-        className,
-      )}
-    >
-      {/* Render label except for checkbox which is rendered alongside the input */}
-      {type !== "checkbox" && (
-        <label
-          htmlFor={id}
-          className={twMerge(
-            "block text-sm font-medium mb-1",
-            error ? "text-red-700" : "text-gray-700",
-            labelClassName,
-          )}
-        >
-          {label}
-          {required && <span className="text-red-600 ml-1">*</span>}
-        </label>
-      )}
-
-      {/* Render the input or custom children if provided */}
-      {children || renderInput()}
-
-      {/* Help text */}
-      {helpText && !error && (
-        <p className="mt-1 text-sm text-gray-500" id={`${id}-description`}>
-          {helpText}
-        </p>
-      )}
-
-      {/* Error message */}
+    <div className="space-y-2">
+      <label
+        htmlFor={name}
+        className={clsx('block text-sm font-medium', {
+          'text-gray-900': !error,
+          'text-red-600': error,
+        })}
+      >
+        {label}
+        {required && <span className="text-red-600 ml-1">*</span>}
+      </label>
+      {renderInput()}
       {error && (
-        <p
-          className="mt-1 text-sm text-red-600"
-          id={`${id}-error`}
-          role="alert"
-        >
+        <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>
           {error}
         </p>
       )}
     </div>
   );
-};
+});
+
+FormField.displayName = 'FormField';
 
 export default FormField;

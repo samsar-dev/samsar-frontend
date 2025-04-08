@@ -20,7 +20,7 @@ export interface FormFieldProps {
     | "multiselect"
     | "colorpicker";
   value?: FormFieldValue;
-  onChange: (value: FormFieldValue) => void;
+  onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
   helpText?: string;
   required?: boolean;
@@ -119,19 +119,25 @@ const FormField = forwardRef<
           }
         }
 
-        onChange(newValue);
+        // Clear error on change
+        if (error && typeof value === "string" && value !== newValue) {
+          onChange(newValue, undefined);
+        } else {
+          onChange(newValue);
+        }
       },
-      [onChange, options, type, value],
+      [onChange, options, type, value, error],
     );
 
     const handleBlur = useCallback(() => {
       if (validateOnBlur && customValidation && typeof value === "string") {
         const validationError = customValidation(value);
         if (validationError) {
-          console.error(validationError);
+          // Instead of just logging, we need to update the error state
+          onChange(value, validationError);
         }
       }
-    }, [validateOnBlur, customValidation, value]);
+    }, [validateOnBlur, customValidation, value, onChange]);
 
     const inputClasses = clsx(
       "block w-full rounded-md border-gray-300 shadow-sm",

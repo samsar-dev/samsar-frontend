@@ -1,13 +1,13 @@
 import { apiClient } from "./apiClient";
+import type { Listing, ListingsResponse } from "@/types/listings";
+import type { ListingParams } from "@/types/params";
+import { AxiosError } from "axios";
 import type {
-  Listing,
-  ListingParams,
-  ListingsResponse,
   ListingCategory,
   Condition,
   VehicleType,
   PropertyType,
-} from "@/types";
+} from "@/types/enums";
 import { FormState } from "@/types/forms";
 import { API_URL } from "@/config";
 
@@ -76,28 +76,32 @@ export interface ListingCreateInput extends Omit<FormState, "images"> {
 
 export const createListing = async (formData: FormData) => {
   try {
-    const response = await fetch(`${API_URL}/listings`, {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ error: "Unknown error occurred" }));
-      throw new Error(
-        errorData.error || `HTTP error! status: ${response.status}`,
-      );
+    // Log the form data for debugging
+    console.log('FormData entries:');
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, typeof value === 'string' ? value : 'File object');
     }
 
-    return data;
+    const response = await apiClient.post('/listings', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      // Add timeout to prevent long-running requests
+      timeout: 30000,
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.error?.message || 'Failed to create listing');
+    }
+
+    return response.data;
   } catch (error) {
-    console.error("Error creating listing:", error);
+    console.error('Error creating listing:', error);
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      throw new Error('Please log in to create a listing');
+    }
     throw new Error(
-      error instanceof Error ? error.message : "Failed to create listing",
+      error instanceof Error ? error.message : 'Failed to create listing'
     );
   }
 };
@@ -107,14 +111,12 @@ export const listingsAPI = {
     try {
       const queryParams = new URLSearchParams();
 
-      // Update category handling to match backend schema
-      if (params.category) {
-        if (params.category.mainCategory) {
-          queryParams.append("mainCategory", params.category.mainCategory);
-        }
-        if (params.category.subCategory) {
-          queryParams.append("subCategory", params.category.subCategory);
-        }
+      // Add category filters if present
+      if (params.mainCategory) {
+        queryParams.append("mainCategory", params.mainCategory);
+      }
+      if (params.subCategory) {
+        queryParams.append("subCategory", params.subCategory);
       }
       
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);

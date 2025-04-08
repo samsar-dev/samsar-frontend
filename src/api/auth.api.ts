@@ -8,7 +8,29 @@ import type {
 import TokenManager from "../utils/tokenManager";
 import { toast } from "react-toastify";
 
+const RETRY_DELAY = 1000; // 1 second
+const MAX_RETRIES = 3;
+
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 class AuthAPI {
+  protected static async retryRequest<T>(
+    requestFn: () => Promise<T>,
+    retries = MAX_RETRIES,
+    delay = RETRY_DELAY
+  ): Promise<T> {
+    try {
+      return await requestFn();
+    } catch (error: any) {
+      if (error.response?.status === 429 && retries > 0) {
+        const retryAfter = parseInt(error.response.headers['retry-after']) * 1000 || delay;
+        await wait(retryAfter);
+        return this.retryRequest(requestFn, retries - 1, delay * 2);
+      }
+      throw error;
+    }
+  }
+
   /**
    * Logs in a user with email and password
    * @param email User's email
@@ -17,10 +39,12 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/login", {
-        email,
-        password,
-      });
+      const response = await this.retryRequest(() =>
+        apiClient.post<AuthResponse>("/auth/login", {
+          email,
+          password,
+        })
+      );
 
       if (!response.data) {
         throw new Error("No response data received");
@@ -33,6 +57,27 @@ class AuthAPI {
       return response.data;
     } catch (error: any) {
       console.error("Login error:", error.response?.data || error);
+
+      // Handle specific error cases
+      if (error.response?.status === 429) {
+        return {
+          success: false,
+          error: {
+            code: "RATE_LIMIT",
+            message: "Too many login attempts. Please try again later.",
+          },
+        };
+      }
+
+      if (error.response?.status === 401) {
+        return {
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid email or password",
+          },
+        };
+      }
 
       if (error.response?.data?.error) {
         return error.response.data;
@@ -61,11 +106,13 @@ class AuthAPI {
     name: string
   ): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/register", {
-        email,
-        password,
-        name,
-      });
+      const response = await this.retryRequest(() =>
+        apiClient.post<AuthResponse>("/auth/register", {
+          email,
+          password,
+          name,
+        })
+      );
 
       if (!response.data) {
         throw new Error("No response data received");
@@ -78,6 +125,16 @@ class AuthAPI {
       return response.data;
     } catch (error: any) {
       console.error("Registration error:", error.response?.data || error);
+
+      if (error.response?.status === 429) {
+        return {
+          success: false,
+          error: {
+            code: "RATE_LIMIT",
+            message: "Too many registration attempts. Please try again later.",
+          },
+        };
+      }
 
       if (error.response?.data?.error) {
         return error.response.data;
@@ -93,7 +150,6 @@ class AuthAPI {
     }
   }
 
-
   /**
    * Refreshes the authentication tokens
    * @returns Authentication response
@@ -105,9 +161,11 @@ class AuthAPI {
         throw new Error("No refresh token available");
       }
 
-      const response = await apiClient.post<AuthResponse>("auth/refresh", {
-        refreshToken,
-      });
+      const response = await this.retryRequest(() =>
+        apiClient.post<AuthResponse>("auth/refresh", {
+          refreshToken,
+        })
+      );
 
       if (!response.data) {
         throw new Error("No response data received");
@@ -120,6 +178,11 @@ class AuthAPI {
       return response.data;
     } catch (error: any) {
       console.error("Token refresh error:", error.response?.data || error);
+
+      if (error.response?.status === 401) {
+        // Clear tokens if they're invalid
+        TokenManager.clearTokens();
+      }
 
       if (error.response?.data?.error) {
         return error.response.data;
@@ -156,16 +219,9 @@ class AuthAPI {
       // Clear tokens even if the request fails
       TokenManager.clearTokens();
 
-      if (error.response?.data?.error) {
-        return error.response.data;
-      }
-
       return {
-        success: false,
-        error: {
-          code: "NETWORK_ERROR",
-          message: error.message || "Failed to logout",
-        },
+        success: true, // Always return success for logout
+        data: { message: "Logged out successfully" },
       };
     }
   }
@@ -176,7 +232,9 @@ class AuthAPI {
    */
   static async getMe(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.get<AuthResponse>("auth/me");
+      const response = await this.retryRequest(() =>
+        apiClient.get<AuthResponse>("auth/me")
+      );
 
       if (!response.data) {
         throw new Error("No response data received");
@@ -185,6 +243,15 @@ class AuthAPI {
       return response.data;
     } catch (error: any) {
       console.error("Get profile error:", error.response?.data || error);
+
+      if (error.response?.status === 401) {
+        // Token might be expired, try to refresh
+        const refreshResponse = await this.refreshTokens();
+        if (refreshResponse.success) {
+          // Retry the original request
+          return this.getMe();
+        }
+      }
 
       if (error.response?.data?.error) {
         return error.response.data;
@@ -204,13 +271,15 @@ class AuthAPI {
 /**
  * Handles user-related API requests
  */
-class UserAPI {
+class UserAPI extends AuthAPI {
   /**
    * Updates user profile
    */
   static async updateProfile(data: FormData): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      const response = await apiClient.put<{ success: boolean; data: AuthUser }>("users/profile", data);
+      const response = await this.retryRequest(() =>
+        apiClient.put<{ success: boolean; data: AuthUser }>("users/profile", data)
+      );
       return response.data;
     } catch (error: any) {
       return {
@@ -228,7 +297,9 @@ class UserAPI {
    */
   static async getProfile(userId: string): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      const response = await apiClient.get<{ success: boolean; data: AuthUser }>(`/users/${userId}`);
+      const response = await this.retryRequest(() =>
+        apiClient.get<{ success: boolean; data: AuthUser }>(`/users/${userId}`)
+      );
       return response.data;
     } catch (error: any) {
       return {
@@ -246,7 +317,9 @@ class UserAPI {
    */
   static async updateSettings(settings: Record<string, any>): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      const response = await apiClient.put<{ success: boolean; data: AuthUser }>("users/settings", settings);
+      const response = await this.retryRequest(() =>
+        apiClient.put<{ success: boolean; data: AuthUser }>("users/settings", settings)
+      );
       return response.data;
     } catch (error: any) {
       return {

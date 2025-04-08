@@ -96,7 +96,7 @@ function Settings() {
               {t("settings.preferences")}
             </h2>
             <PreferenceSettings
-              settings={settings?.preferences ?? {}}
+              settings={settings?.preferences || {}}
               onUpdate={handlePreferenceUpdate}
               isRTL={isRTL}
             />
@@ -204,7 +204,7 @@ function Settings() {
               {t("settings.security")}
             </h2>
             <SecuritySettings
-              settings={settings?.security ?? {}}
+              settings={settings?.security || {}}
               onUpdate={handleSecurityUpdate}
               isRTL={isRTL}
             />

@@ -11,6 +11,7 @@ export interface NotificationPreferences {
   email: boolean;
   push: boolean;
   desktop: boolean;
+  enabledTypes?: string[];
 }
 
 export interface PreferenceSettings {
@@ -24,6 +25,14 @@ export interface SecuritySettings {
   twoFactorEnabled: boolean;
   loginNotifications: boolean;
   securityQuestions: boolean;
+  twoFactorMethod?: string;
+  autoLogoutTime?: number;
+  connectedAccounts: string[];
+  loginActivity: Array<{
+    date: string;
+    device: string;
+    location: string;
+  }>;
 }
 
 export interface Settings {
@@ -34,6 +43,7 @@ export interface Settings {
     showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
+    profileVisibility?: "public" | "private";
   };
 }
 

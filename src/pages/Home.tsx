@@ -198,7 +198,7 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {listings.all.map((listing) => (
             <ListingCard
               key={listing.id}
@@ -233,7 +233,7 @@ const Home: React.FC = () => {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               {t("home.trending_now")}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {listings.popular.map((listing) => (
                 <ListingCard
                   key={listing.id}
@@ -250,22 +250,22 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-5xl font-bold text-white mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
               {t("home.find_perfect")}{" "}
               {selectedCategory === ListingCategory.VEHICLES
                 ? t("home.vehicle")
                 : t("home.property")}
             </h1>
-            <p className="text-blue-100 text-xl mb-8">
+            <p className="text-sm sm:text-base md:text-lg text-blue-100 mb-8">
               {selectedCategory === ListingCategory.VEHICLES
                 ? t("home.discover_vehicle")
                 : t("home.discover_property")}
             </p>
-            <div className="flex justify-center space-x-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
               <button
                 onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
                 className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
@@ -291,7 +291,7 @@ const Home: React.FC = () => {
                 {t("navigation.real_estate")}
               </button>
             </div>
-            <SearchBar onSearch={debouncedSearch} />
+            <SearchBar onSearch={debouncedSearch} className="mt-4" />
           </div>
         </div>
       </div>

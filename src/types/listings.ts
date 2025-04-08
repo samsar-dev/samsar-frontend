@@ -14,6 +14,8 @@ export interface ListingFieldSchema {
   section: string;
   required?: boolean;
   options?: string[];
+  dependsOn?: string;
+  validate?: (value: any) => string | null;
 }
 
 export interface VehicleDetails {
@@ -79,7 +81,8 @@ export interface ListingsResponse {
   limit: number;
 }
 
-export interface FormState {
+// Base form state with all fields optional for form handling
+export interface BaseFormState {
   title?: string;
   description?: string;
   price?: number | string;
@@ -92,7 +95,13 @@ export interface FormState {
     vehicles?: VehicleDetails;
     realEstate?: RealEstateDetails;
   };
-  images?: File[];
+  images?: Array<string | File>;
+  features?: string[];
+  listingAction?: 'sell' | 'rent';
+}
+
+// Complete form state with required fields for final submission
+export interface FormState extends Required<Omit<BaseFormState, 'features' | 'listingAction'>> {
   features?: string[];
   listingAction?: 'sell' | 'rent';
 }

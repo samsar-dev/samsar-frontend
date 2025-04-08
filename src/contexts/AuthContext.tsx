@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthAPI } from '../api/auth.api';
 import TokenManager from '../utils/tokenManager';
-import type { AuthState, AuthContextType } from '../types/auth.types';
+import type { AuthState, AuthContextType, AuthError } from '../types/auth.types';
+import { toast } from 'react-toastify';
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: true,
   error: null,
+  retryAfter: null,
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -16,7 +18,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [state, setState] = useState<AuthState>(initialState);
 
   const clearError = () => {
-    setState(prev => ({ ...prev, error: null }));
+    setState(prev => ({ ...prev, error: null, retryAfter: null }));
+  };
+
+  const handleAuthError = (error: AuthError | null) => {
+    if (error?.code === 'RATE_LIMIT') {
+      toast.error(error.message);
+      setState(prev => ({
+        ...prev,
+        error,
+        retryAfter: new Date(Date.now() + 30000), // Default 30s if no retry-after header
+      }));
+    } else if (error) {
+      toast.error(error.message);
+      setState(prev => ({ ...prev, error }));
+    }
   };
 
   const checkAuth = async () => {
@@ -72,7 +88,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: true,
         isLoading: false,
-        error: null
+        error: null,
+        retryAfter: null
       }));
     } catch (error) {
       TokenManager.clearTokens();
@@ -95,12 +112,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      // Check if we're still in rate limit cooldown
+      if (state.retryAfter && state.retryAfter > new Date()) {
+        const secondsLeft = Math.ceil((state.retryAfter.getTime() - Date.now()) / 1000);
+        toast.error(`Please wait ${secondsLeft} seconds before trying again`);
+        return false;
+      }
+
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
       const response = await AuthAPI.login(email, password);
 
       if (!response?.success) {
-        throw new Error(response?.error?.message || "Login failed");
+        handleAuthError(response?.error || null);
+        return false;
       }
 
       const { user, tokens } = response.data as { user: AuthState['user'], tokens: any };
@@ -124,7 +149,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: true,
         isLoading: false,
-        error: null
+        error: null,
+        retryAfter: null
       }));
       return true;
     } catch (error) {
@@ -142,12 +168,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     try {
+      // Check if we're still in rate limit cooldown
+      if (state.retryAfter && state.retryAfter > new Date()) {
+        const secondsLeft = Math.ceil((state.retryAfter.getTime() - Date.now()) / 1000);
+        toast.error(`Please wait ${secondsLeft} seconds before trying again`);
+        return false;
+      }
+
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
       const response = await AuthAPI.register(username, email, password);
 
       if (!response?.success) {
-        throw new Error(response?.error?.message || "Registration failed");
+        handleAuthError(response?.error || null);
+        return false;
       }
 
       const { user, tokens } = response.data as { user: AuthState['user'], tokens: any };
@@ -171,7 +205,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: true,
         isLoading: false,
-        error: null
+        error: null,
+        retryAfter: null
       }));
       return true;
     } catch (error) {

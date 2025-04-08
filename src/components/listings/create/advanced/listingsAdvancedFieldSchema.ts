@@ -15,149 +15,168 @@ export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> =
       // Essential Section
       {
         name: "color",
-        label: "Exterior Color",
+        label: "listings.exteriorColor",
         type: "colorpicker",
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Exterior color is required" : null,
       },
       {
         name: "interiorColor",
-        label: "Interior Color",
+        label: "listings.interiorColor",
         type: "colorpicker",
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Interior color is required" : null,
       },
       {
         name: "condition",
-        label: "Condition",
+        label: "listings.condition",
         type: "select",
         options: [
           "new",
-          "like_new",
+          "likeNew",
           "excellent",
-          "very_good",
           "good",
           "fair",
-          "needs_work",
+          "poor",
+          "salvage"
         ],
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Condition is required" : null,
       },
       {
         name: "warranty",
-        label: "Warranty (months)",
+        label: "listings.warranty",
         type: "number",
         section: "essential",
         required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Warranty months is required";
+          if (value < 0) return "Warranty months must be 0 or greater";
+          return null;
+        },
       },
       {
         name: "serviceHistory",
-        label: "Service History",
+        label: "listings.serviceHistory",
         type: "select",
         options: [
-          "full_dealer",
-          "partial_dealer",
-          "full_independent",
-          "partial_independent",
-          "none",
+          "full",
+          "partial",
+          "none"
         ],
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Service history is required" : null,
       },
       {
         name: "previousOwners",
-        label: "Number of Previous Owners",
+        label: "listings.previousOwners",
         type: "number",
         section: "essential",
         required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Number of previous owners is required";
+          if (value < 0) return "Number of previous owners must be 0 or greater";
+          return null;
+        },
       },
       {
         name: "registrationStatus",
-        label: "Registration Status",
+        label: "listings.registrationStatus",
         type: "select",
-        options: ["registered", "unregistered", "imported", "classic"],
+        options: ["registered", "unregistered", "expired"],
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Registration status is required" : null,
       },
       {
         name: "transmissionType",
-        label: "Transmission",
+        label: "listings.transmission",
         type: "select",
-        options: ["automatic", "manual", "cvt", "dct", "semi_automatic"],
+        options: ["automatic", "manual", "semiAutomatic", "continuouslyVariable", "dualClutch"],
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Transmission type is required" : null,
       },
       {
         name: "mileage",
-        label: "Mileage",
+        label: "listings.mileage",
         type: "number",
         section: "essential",
         required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Mileage is required";
+          if (value < 0) return "Mileage must be 0 or greater";
+          return null;
+        },
       },
 
       // Performance Section
       {
         name: "engine",
-        label: "Engine Size (L)",
+        label: "listings.engine",
         type: "text",
         section: "performance",
         required: false,
       },
       {
         name: "horsepower",
-        label: "Horsepower",
+        label: "performance.horsepower",
         type: "number",
         section: "performance",
         required: false,
       },
       {
         name: "torque",
-        label: "Torque (Nm)",
+        label: "performance.torque",
         type: "number",
         section: "performance",
       },
       {
         name: "drivetrain",
-        label: "Drivetrain",
+        label: "performance.drivetrain",
         type: "select",
         options: ["FWD", "RWD", "AWD", "4WD"],
         section: "performance",
       },
       {
         name: "fuelEfficiency",
-        label: "Fuel Efficiency (L/100km)",
+        label: "performance.fuelEfficiency",
         type: "number",
         section: "performance",
       },
       {
         name: "engineConfiguration",
-        label: "Engine Configuration",
+        label: "performance.engineConfiguration",
         type: "select",
         options: ["inline", "v_type", "flat", "rotary"],
         section: "performance",
       },
       {
         name: "turbocharger",
-        label: "Turbocharger",
+        label: "performance.turbocharger",
         type: "checkbox",
         section: "performance",
       },
       {
         name: "supercharger",
-        label: "Supercharger",
+        label: "performance.supercharger",
         type: "checkbox",
         section: "performance",
       },
       {
         name: "tires",
-        label: "Tire Type",
+        label: "performance.tires",
         type: "select",
         options: ["summer", "winter", "all_season", "performance", "run_flat"],
         section: "performance",
       },
       {
         name: "brakeType",
-        label: "Brake System",
+        label: "performance.brakeSystem",
         type: "select",
         options: [
           "disc_all",
@@ -171,7 +190,7 @@ export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> =
       // Comfort Section
       {
         name: "airConditioning",
-        label: "Climate Control",
+        label: "comfort.climateControl",
         type: "select",
         options: [
           "manual",
@@ -345,52 +364,77 @@ export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> =
     realEstate: [
       // Essential Section
       {
-        name: "propertyStyle",
-        label: "Property Style",
+        name: "propertyType",
+        label: "listings.propertyType",
         type: "select",
-        options: [
-          "modern",
-          "contemporary",
-          "traditional",
-          "mediterranean",
-          "colonial",
-          "victorian",
-        ],
+        options: ["house", "apartment", "condo", "land", "commercial", "other"],
         section: "essential",
         required: true,
+        validate: (value: string) => !value ? "Property type is required" : null,
       },
       {
         name: "size",
-        label: "Size (m²)",
+        label: "listings.size",
         type: "number",
         section: "essential",
         required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Size is required";
+          if (value <= 0) return "Size must be greater than 0";
+          return null;
+        },
+      },
+      {
+        name: "yearBuilt",
+        label: "listings.yearBuilt",
+        type: "number",
+        section: "essential",
+        required: false,
+        validate: (value: number) => {
+          if (value && value > new Date().getFullYear()) {
+            return "Year built cannot be in the future";
+          }
+          return null;
+        },
+      },
+      {
+        name: "bedrooms",
+        label: "listings.bedrooms",
+        type: "number",
+        section: "essential",
+        required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Number of bedrooms is required";
+          if (value < 0) return "Number of bedrooms cannot be negative";
+          return null;
+        },
+      },
+      {
+        name: "bathrooms",
+        label: "listings.bathrooms",
+        type: "number",
+        section: "essential",
+        required: true,
+        validate: (value: number) => {
+          if (value === undefined || value === null) return "Number of bathrooms is required";
+          if (value < 0) return "Number of bathrooms cannot be negative";
+          return null;
+        },
+      },
+      {
+        name: "condition",
+        label: "listings.condition",
+        type: "select",
+        options: ["new", "likeNew", "excellent", "good", "fair", "poor"],
+        section: "essential",
+        required: true,
+        validate: (value: string) => !value ? "Condition is required" : null,
       },
       {
         name: "lotSize",
         label: "Lot Size (m²)",
         type: "number",
         section: "essential",
-      },
-      {
-        name: "yearBuilt",
-        label: "Year Built",
-        type: "number",
-        section: "essential",
-      },
-      {
-        name: "bedrooms",
-        label: "Bedrooms",
-        type: "number",
-        section: "essential",
-        required: true,
-      },
-      {
-        name: "bathrooms",
-        label: "Bathrooms",
-        type: "number",
-        section: "essential",
-        required: true,
       },
       {
         name: "halfBathrooms",

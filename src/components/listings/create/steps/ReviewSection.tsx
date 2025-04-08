@@ -64,41 +64,41 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
     // Basic details validation
     if (!formData.title?.trim()) {
-      newErrors.push(t('listings.create.errors.titleRequired'));
+      newErrors.push(t('errors.titleRequired'));
     }
     if (!formData.description?.trim()) {
-      newErrors.push(t('listings.create.errors.descriptionRequired'));
+      newErrors.push(t('errors.descriptionRequired'));
     }
     
     // Price validation
     const price = formData.price;
     if (price === undefined || price === '') {
-      newErrors.push(t('listings.create.errors.priceRequired'));
+      newErrors.push(t('errors.priceRequired'));
     } else {
       const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
       if (isNaN(numericPrice) || numericPrice <= 0) {
-        newErrors.push(t('listings.create.errors.invalidPrice'));
+        newErrors.push(t('errors.invalidPriceFormat'));
       }
     }
 
     if (!formData.location?.trim()) {
-      newErrors.push(t('listings.create.errors.locationRequired'));
+      newErrors.push(t('errors.locationRequired'));
     }
     if (!formData.category?.subCategory) {
-      newErrors.push(t('listings.create.errors.subCategoryRequired'));
+      newErrors.push(t('errors.subcategoryRequired'));
     }
 
     // Category-specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
       const vehicleDetails = formData.details?.vehicles;
-      if (!vehicleDetails?.make) newErrors.push(t('listings.create.errors.makeRequired'));
-      if (!vehicleDetails?.model) newErrors.push(t('listings.create.errors.modelRequired'));
-      if (!vehicleDetails?.year) newErrors.push(t('listings.create.errors.yearRequired'));
-      if (!vehicleDetails?.mileage) newErrors.push(t('listings.create.errors.mileageRequired'));
-      if (!vehicleDetails?.fuelType) newErrors.push(t('listings.create.errors.fuelTypeRequired'));
-      if (!vehicleDetails?.transmissionType) newErrors.push(t('listings.create.errors.transmissionRequired'));
-      if (!vehicleDetails?.color) newErrors.push(t('listings.create.errors.colorRequired'));
-      if (!vehicleDetails?.condition) newErrors.push(t('listings.create.errors.conditionRequired'));
+      if (!vehicleDetails?.make) newErrors.push(t('errors.makeRequired'));
+      if (!vehicleDetails?.model) newErrors.push(t('errors.modelRequired'));
+      if (!vehicleDetails?.year) newErrors.push(t('errors.yearRequired'));
+      if (!vehicleDetails?.mileage) newErrors.push(t('errors.mileageRequired'));
+      if (!vehicleDetails?.fuelType) newErrors.push(t('errors.fuelTypeRequired'));
+      if (!vehicleDetails?.transmissionType) newErrors.push(t('errors.transmissionRequired'));
+      if (!vehicleDetails?.color) newErrors.push(t('errors.colorRequired'));
+      if (!vehicleDetails?.condition) newErrors.push(t('errors.conditionRequired'));
 
       // Additional required fields from schema
       const vehicleSchema = listingsAdvancedFieldSchema['cars'] || [];
@@ -107,15 +107,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       requiredVehicleFields.forEach((field: ListingFieldSchema) => {
         const value = vehicleDetails?.[field.name as keyof VehicleDetails];
         if (!value && value !== 0) {
-          newErrors.push(t(`listings.create.errors.${field.name}Required`));
+          newErrors.push(t(`errors.${field.name}Required`));
         }
       });
     } else if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
       const realEstateDetails = formData.details?.realEstate;
-      if (!realEstateDetails?.propertyType) newErrors.push(t('listings.create.errors.propertyTypeRequired'));
-      if (!realEstateDetails?.size) newErrors.push(t('listings.create.errors.sizeRequired'));
-      if (!realEstateDetails?.bedrooms) newErrors.push(t('listings.create.errors.bedroomsRequired'));
-      if (!realEstateDetails?.bathrooms) newErrors.push(t('listings.create.errors.bathroomsRequired'));
+      if (!realEstateDetails?.propertyType) newErrors.push(t('errors.propertyTypeRequired'));
+      if (!realEstateDetails?.size) newErrors.push(t('errors.sizeRequired'));
+      if (!realEstateDetails?.bedrooms) newErrors.push(t('errors.bedroomsRequired'));
+      if (!realEstateDetails?.bathrooms) newErrors.push(t('errors.bathroomsRequired'));
 
       // Additional required fields from schema
       const realEstateSchema = listingsAdvancedFieldSchema['realEstate'] || [];
@@ -123,15 +123,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       
       requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
         const value = realEstateDetails?.[field.name as keyof RealEstateDetails];
-        if (!value && value !== 0) {
-          newErrors.push(t(`listings.create.errors.${field.name}Required`));
+        if (!value) {
+          newErrors.push(t(`errors.${field.name}Required`));
         }
       });
     }
 
     // Image validation
     if (!formData.images || formData.images.length === 0) {
-      newErrors.push(t('listings.create.errors.imagesRequired'));
+      newErrors.push(t('errors.atLeastOneImage'));
     }
 
     setErrors(newErrors);
@@ -225,7 +225,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:underline"
         >
           <FaEdit className="mr-1" />
-          {t("edit")}
+          {t("common.edit")}
         </button>
       </div>
       {children}
@@ -255,10 +255,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           type="button"
           onClick={() => onEdit('basic')}
           className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
-          aria-label={t("editBasicDetails")}
+          aria-label={t("common.basicDetails")}
         >
           <FaEdit className="w-5 h-5" />
-          <span className="text-sm">{t("edit")}</span>
+          <span className="text-sm">{t("common.edit")}</span>
         </button>
       </div>
     </div>
@@ -272,56 +272,56 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       <div className="space-y-4">
         {/* Essential Details Section */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("essentialDetails")}</h4>
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.essentialDetails")}</h4>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-sm text-gray-500">{t("make")}</div>
+              <div className="text-sm text-gray-500">{t("listings.make")}</div>
               <div className="font-medium">
-                {vehicleDetails.make || t("notProvided")}
+                {vehicleDetails.make || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("model")}</div>
+              <div className="text-sm text-gray-500">{t("listings.model")}</div>
               <div className="font-medium">
-                {vehicleDetails.model || t("notProvided")}
+                {vehicleDetails.model || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("year")}</div>
+              <div className="text-sm text-gray-500">{t("listings.year")}</div>
               <div className="font-medium">
-                {vehicleDetails.year || t("notProvided")}
+                {vehicleDetails.year || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("vehicleType")}</div>
+              <div className="text-sm text-gray-500">{t("listings.vehicleType")}</div>
               <div className="font-medium">
                 {vehicleDetails.vehicleType
-                  ? t(`vehicleTypes.${vehicleDetails.vehicleType}`)
-                  : t("notProvided")}
+                  ? t(`listings.vehicleTypes.${vehicleDetails.vehicleType}`)
+                  : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("mileage")}</div>
+              <div className="text-sm text-gray-500">{t("listings.mileage")}</div>
               <div className="font-medium">
                 {vehicleDetails.mileage
-                  ? `${vehicleDetails.mileage} ${t("miles")}`
-                  : t("notProvided")}
+                  ? `${vehicleDetails.mileage} ${t("listings.miles")}`
+                  : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("fuelType")}</div>
+              <div className="text-sm text-gray-500">{t("listings.fuelType")}</div>
               <div className="font-medium">
                 {vehicleDetails.fuelType
-                  ? t(`fuelTypes.${vehicleDetails.fuelType}`)
-                  : t("notProvided")}
+                  ? t(`listings.fuelTypes.${vehicleDetails.fuelType}`)
+                  : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("transmission")}</div>
+              <div className="text-sm text-gray-500">{t("listings.transmission")}</div>
               <div className="font-medium">
                 {vehicleDetails.transmissionType
-                  ? t(`transmissionTypes.${vehicleDetails.transmissionType}`)
-                  : t("notProvided")}
+                  ? t(`listings.transmissionTypes.${vehicleDetails.transmissionType}`)
+                  : t("common.notProvided")}
               </div>
             </div>
           </div>
@@ -329,13 +329,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
         {/* Advanced Details Section */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("advancedDetails")}</h4>
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.advancedDetails")}</h4>
           <div className="grid grid-cols-2 gap-3">
             {/* Colors */}
             <div>
-              <div className="text-sm text-gray-500">{t("exteriorColor")}</div>
+              <div className="text-sm text-gray-500">{t("listings.exteriorColor")}</div>
               <div className="font-medium flex items-center gap-2">
-                {vehicleDetails.color || t("notProvided")}
+                {vehicleDetails.color || t("common.notProvided")}
                 {vehicleDetails.color && (
                   <div
                     className="w-4 h-4 rounded-full border border-gray-300"
@@ -345,9 +345,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("interiorColor")}</div>
+              <div className="text-sm text-gray-500">{t("listings.interiorColor")}</div>
               <div className="font-medium flex items-center gap-2">
-                {vehicleDetails.interiorColor || t("notProvided")}
+                {vehicleDetails.interiorColor || t("common.notProvided")}
                 {vehicleDetails.interiorColor && (
                   <div
                     className="w-4 h-4 rounded-full border border-gray-300"
@@ -359,70 +359,70 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
             {/* Performance */}
             <div>
-              <div className="text-sm text-gray-500">{t("engine")}</div>
+              <div className="text-sm text-gray-500">{t("listings.engine")}</div>
               <div className="font-medium">
-                {vehicleDetails.engine || t("notProvided")}
+                {vehicleDetails.engine || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("horsepower")}</div>
+              <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
               <div className="font-medium">
-                {vehicleDetails.horsepower ? `${vehicleDetails.horsepower} hp` : t("notProvided")}
+                {vehicleDetails.horsepower ? `${vehicleDetails.horsepower} hp` : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("torque")}</div>
+              <div className="text-sm text-gray-500">{t("listings.torque")}</div>
               <div className="font-medium">
-                {vehicleDetails.torque ? `${vehicleDetails.torque} Nm` : t("notProvided")}
+                {vehicleDetails.torque ? `${vehicleDetails.torque} Nm` : t("common.notProvided")}
               </div>
             </div>
 
             {/* Condition & History */}
             <div>
-              <div className="text-sm text-gray-500">{t("condition")}</div>
+              <div className="text-sm text-gray-500">{t("listings.condition")}</div>
               <div className="font-medium">
                 {vehicleDetails.condition
-                  ? t(`conditions.${vehicleDetails.condition}`)
-                  : t("notProvided")}
+                  ? t(`listings.conditions.${vehicleDetails.condition}`)
+                  : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("warranty")}</div>
+              <div className="text-sm text-gray-500">{t("listings.warranty")}</div>
               <div className="font-medium">
-                {vehicleDetails.warranty ? `${vehicleDetails.warranty} ${t("months")}` : t("notProvided")}
+                {vehicleDetails.warranty ? `${vehicleDetails.warranty} ${t("common.months")}` : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("serviceHistory")}</div>
+              <div className="text-sm text-gray-500">{t("listings.serviceHistory")}</div>
               <div className="font-medium">
                 {vehicleDetails.serviceHistory
-                  ? t(`serviceHistory.${vehicleDetails.serviceHistory}`)
-                  : t("notProvided")}
+                  ? t(`listings.serviceHistory.${vehicleDetails.serviceHistory}`)
+                  : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("previousOwners")}</div>
+              <div className="text-sm text-gray-500">{t("listings.previousOwners")}</div>
               <div className="font-medium">
-                {vehicleDetails.previousOwners || t("notProvided")}
+                {vehicleDetails.previousOwners || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("registrationStatus")}</div>
+              <div className="text-sm text-gray-500">{t("listings.registrationStatus")}</div>
               <div className="font-medium">
                 {vehicleDetails.registrationStatus
-                  ? t(`registrationStatus.${vehicleDetails.registrationStatus}`)
-                  : t("notProvided")}
+                  ? t(`listings.registrationStatus.${vehicleDetails.registrationStatus}`)
+                  : t("common.notProvided")}
               </div>
             </div>
           </div>
         </div>
 
         {/* Features Section */}
-        {formData.features && formData.features.length > 0 && (
+        {formData.details?.vehicles?.features && formData.details?.vehicles?.features.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("features")}</h4>
+            <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.features")}</h4>
             <div className="flex flex-wrap gap-2">
-              {formData.features.map((feature: string, index: number) => (
+              {formData.details?.vehicles?.features.map((feature: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
@@ -445,43 +445,43 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <div className="text-sm text-gray-500">{t("propertyType")}</div>
+            <div className="text-sm text-gray-500">{t("listings.propertyType")}</div>
             <div className="font-medium">
               {realEstateDetails.propertyType
-                ? t(`propertyTypes.${realEstateDetails.propertyType}`)
-                : t("notProvided")}
+                ? t(`listings.propertyTypes.${realEstateDetails.propertyType}`)
+                : t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("size")}</div>
+            <div className="text-sm text-gray-500">{t("listings.size")}</div>
             <div className="font-medium">
               {realEstateDetails.size
-                ? `${realEstateDetails.size} ${t("sqft")}`
-                : t("notProvided")}
+                ? `${realEstateDetails.size} ${t("listings.sqft")}`
+                : t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("yearBuilt")}</div>
+            <div className="text-sm text-gray-500">{t("listings.yearBuilt")}</div>
             <div className="font-medium">
-              {realEstateDetails.yearBuilt || t("notProvided")}
+              {realEstateDetails.yearBuilt || t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("bedrooms")}</div>
+            <div className="text-sm text-gray-500">{t("listings.bedrooms")}</div>
             <div className="font-medium">
-              {realEstateDetails.bedrooms || t("notProvided")}
+              {realEstateDetails.bedrooms || t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("bathrooms")}</div>
+            <div className="text-sm text-gray-500">{t("listings.bathrooms")}</div>
             <div className="font-medium">
-              {realEstateDetails.bathrooms || t("notProvided")}
+              {realEstateDetails.bathrooms || t("common.notProvided")}
             </div>
           </div>
-          {formData.features && formData.features.length > 0 && (
+          {formData.details?.realEstate?.features && formData.details?.realEstate?.features.length > 0 && (
             <div className="col-span-2">
-              <div className="text-sm text-gray-500">{t("features")}</div>
-              <div className="font-medium">{formData.features.join(", ")}</div>
+              <div className="text-sm text-gray-500">{t("listings.features")}</div>
+              <div className="font-medium">{formData.details?.realEstate?.features.join(", ")}</div>
             </div>
           )}
         </div>
@@ -513,16 +513,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       <div>
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-lg font-medium">
-            {t("uploadedImages")} ({formData.images.length})
+            {t("listings.uploadedImages")} ({formData.images.length})
           </h3>
           <button
             type="button"
             onClick={() => onEdit('images')}
             className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
-            aria-label={t("editImages")}
+            aria-label={t("listings.editImages")}
           >
             <FaEdit className="w-5 h-5" />
-            <span className="text-sm">{t("edit")}</span>
+            <span className="text-sm">{t("common.edit")}</span>
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -533,7 +533,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             >
               <img
                 src={imageUrls[index]}
-                alt={`${t("image")} ${index + 1}`}
+                alt={`${t("listings.image")} ${index + 1}`}
                 className="object-cover w-full h-full"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -557,7 +557,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
       {/* Basic Information */}
       {renderSection(
-        t("basicDetails"),
+        t("common.basicDetails"),
         <FaTag className="w-5 h-5 text-blue-500" />,
         renderBasicDetails()
       )}
@@ -565,7 +565,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       {/* Listing Action */}
       <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 md:p-6 mb-6">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          {t("listingAction")}
+          {t("listings.listingAction")}
         </h3>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -584,9 +584,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 listingAction === "SELL" ? "text-blue-500" : "text-gray-400"
               }`}
             />
-            <span className="text-lg font-medium">{t("sell")}</span>
+            <span className="text-lg font-medium">{t("listings.sell")}</span>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-              {t("sellDescription")}
+              {t("listings.sellDescription")}
             </p>
           </button>
 
@@ -605,9 +605,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 listingAction === "RENT" ? "text-green-500" : "text-gray-400"
               }`}
             />
-            <span className="text-lg font-medium">{t("rent")}</span>
+            <span className="text-lg font-medium">{t("listings.rent")}</span>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-              {t("rentDescription")}
+              {t("listings.rentDescription")}
             </p>
           </button>
         </div>
@@ -616,19 +616,19 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       {/* Category-specific Details */}
       {formData.category?.mainCategory === ListingCategory.VEHICLES
         ? renderSection(
-            t("vehicleDetails"),
+            t("listings.vehicleDetails"),
             <FaCar className="w-5 h-5 text-blue-500" />,
             renderVehicleDetails(),
           )
         : renderSection(
-            t("propertyDetails"),
+            t("listings.propertyDetails"),
             <FaHome className="w-5 h-5 text-blue-500" />,
             renderRealEstateDetails(),
           )}
 
       {/* Images */}
       {renderSection(
-        t("images"),
+        t("listings.images"),
         <FaImages className="w-5 h-5 text-blue-500" />,
         renderImages()
       )}
@@ -655,7 +655,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             disabled={isSubmitting}
           >
             <ChevronLeft className="w-4 h-4 inline-block mr-2" />
-            {t("back")}
+            {t("common.back")}
           </button>
           <button
             type="submit"
@@ -665,12 +665,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             {isSubmitting ? (
               <>
                 <FaHistory className="animate-spin" />
-                <span>{t("submitting")}</span>
+                <span>{t("common.submitting")}</span>
               </>
             ) : (
               <>
                 <FaCheck className="w-4 h-4 mr-2" />
-                <span>{t("submit")}</span>
+                <span>{t("common.submit")}</span>
               </>
             )}
           </button>

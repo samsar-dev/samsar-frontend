@@ -12,7 +12,8 @@ export type AuthErrorCode =
   | "TOKEN_EXPIRED"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
-  | "SERVER_ERROR";
+  | "SERVER_ERROR"
+  | "RATE_LIMIT";
 
 export interface AuthError {
   code: AuthErrorCode;
@@ -51,11 +52,12 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: AuthError | null;
+  retryAfter: Date | null;
 }
 
 export interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
+  register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 }

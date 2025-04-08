@@ -25,6 +25,7 @@ interface ListingImage {
 
 interface ListingDetails {
   vehicles?: {
+    vehicleType: VehicleType;
     make: string;
     model: string;
     year: string;
@@ -34,13 +35,19 @@ interface ListingDetails {
     color?: string;
     condition?: Condition;
     features?: string[];
+    interiorColor?: string;
+    engine?: string;
+    warranty?: string | number;
+    serviceHistory?: string;
+    previousOwners?: number;
+    registrationStatus?: string;
   };
   realEstate?: {
     propertyType: PropertyType;
     size?: string;
     yearBuilt?: string;
-    bedrooms?: string;
-    bathrooms?: string;
+    bedrooms?: string | number;
+    bathrooms?: string | number;
     condition?: Condition;
     features?: string[];
   };
@@ -91,6 +98,12 @@ const ListingDetails: React.FC = () => {
         console.log('Fetching listing data...');
         const response = await listingsAPI.getById(id);
         console.log('Got response:', response);
+        
+        // Log the full response data for debugging advanced details
+        console.log('Response data details:', JSON.stringify(response.data?.details, null, 2));
+        if (response.data?.details?.vehicles) {
+          console.log('Vehicle details:', JSON.stringify(response.data.details.vehicles, null, 2));
+        }
 
         if (!response.success || !response.data) {
           const error = response.error || "Failed to load listing";
@@ -124,12 +137,22 @@ const ListingDetails: React.FC = () => {
         
         const { mainCategory, subCategory, details, listingAction, status, ...rest } = listing;
         
+        // Log all the details to debug what's available
+        console.log('Details before transformation:', JSON.stringify(details, null, 2));
+        console.log('Vehicle details before:', details.vehicles ? JSON.stringify(details.vehicles, null, 2) : 'No vehicle details');
+        
         // Transform vehicle details if present
         const transformedDetails = {
           vehicles: details.vehicles ? {
             ...details.vehicles,
             vehicleType: subCategory as VehicleType,
-            features: details.vehicles.features || []
+            features: details.vehicles.features || [],
+            // Ensure all required fields are present
+            mileage: details.vehicles.mileage || "0",
+            fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
+            transmissionType: details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
+            color: details.vehicles.color || "",
+            condition: details.vehicles.condition || Condition.GOOD
           } : undefined,
           realEstate: details.realEstate ? {
             ...details.realEstate,
@@ -137,6 +160,8 @@ const ListingDetails: React.FC = () => {
             features: details.realEstate.features || []
           } : undefined
         };
+        
+        console.log('Vehicle details after transformation:', transformedDetails.vehicles ? JSON.stringify(transformedDetails.vehicles, null, 2) : 'No vehicle details');
 
         setListing({
           ...rest,
@@ -176,7 +201,7 @@ const ListingDetails: React.FC = () => {
       const messageInput: ListingMessageInput = {
         content: message.trim(),
         listingId: id || '',
-        recipientId: listing.userId
+        recipientId: listing.userId || ''
       };
 
       const response = await MessagesAPI.sendMessage(messageInput);
@@ -268,10 +293,6 @@ const ListingDetails: React.FC = () => {
                   <p className="font-medium">{listing.title}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400">{t("listings.description")}</p>
-                  <p className="font-medium">{listing.description}</p>
-                </div>
-                <div>
                   <p className="text-gray-600 dark:text-gray-400">{t("listings.price")}</p>
                   <p className="font-medium">${listing.price.toLocaleString()}</p>
                 </div>
@@ -283,73 +304,183 @@ const ListingDetails: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400">{t("listings.listingAction")}</p>
                   <p className="font-medium capitalize">{listing.listingAction || t("common.notProvided")}</p>
                 </div>
-                {listing.listingAction === 'sell' && listing.sellDescription && (
+                {listing.listingAction === 'sell' && listing.description && (
                   <div>
                     <p className="text-gray-600 dark:text-gray-400">{t("listings.sellDescription")}</p>
-                    <p className="font-medium">{listing.sellDescription}</p>
+                    <p className="font-medium">{listing.description}</p>
                   </div>
                 )}
-                {listing.listingAction === 'rent' && listing.rentDescription && (
+                {listing.listingAction === 'rent' && listing.description && (
                   <div>
                     <p className="text-gray-600 dark:text-gray-400">{t("listings.rentDescription")}</p>
-                    <p className="font-medium">{listing.rentDescription}</p>
+                    <p className="font-medium">{listing.description}</p>
                   </div>
+                )}
+
+                {/* Advanced Vehicle Details */}
+                {isVehicle && listing.details.vehicles && (
+                  <>
+                    {listing.details.vehicles.engine && (
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</p>
+                        <p className="font-medium">{listing.details.vehicles.engine}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.interiorColor && (
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400">{t("listings.interiorColor")}</p>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-200" 
+                            style={{ backgroundColor: listing.details.vehicles.interiorColor }} 
+                          />
+                          <p className="font-medium">{listing.details.vehicles.interiorColor}</p>
+                        </div>
+                      </div>
+                    )}
+                    {listing.details.vehicles.serviceHistory && (
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400">{t("listings.serviceHistory")}</p>
+                        <p className="font-medium">{listing.details.vehicles.serviceHistory}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.warranty && (
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</p>
+                        <p className="font-medium">{listing.details.vehicles.warranty} {t("listings.months")}</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
 
             {/* Vehicle Details */}
-            {listing.category.mainCategory === ListingCategory.VEHICLES && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">{t("listings.vehicleDetails")}</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.make")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.make || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.model")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.model || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.year")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.year || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.vehicleType")}</p>
-                    <p className="font-medium">{listing.category.subCategory || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.mileage")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.mileage || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.fuelType")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.fuelType || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.transmission")}</p>
-                    <p className="font-medium">{listing.details.vehicles?.transmissionType || t("common.notProvided")}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 dark:text-gray-400">{t("listings.color")}</p>
-                    <div className="flex items-center gap-2">
-                      {listing.details.vehicles?.color && (
-                        <div 
-                          className="w-6 h-6 rounded-full border border-gray-200" 
-                          style={{ backgroundColor: listing.details.vehicles.color }}
-                        />
-                      )}
-                      <p className="font-medium">{listing.details.vehicles?.color || t("common.notProvided")}</p>
+            {isVehicle && listing.details.vehicles && (
+              <div className="space-y-6 mt-6">
+                <h2 className="text-xl font-semibold">{t("listings.vehicleDetails")}</h2>
+                
+                {/* Essential Details */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{t("listings.essentialDetails")}</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.make")}</span>
+                      <p className="font-medium">{listing.details.vehicles.make || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.model")}</span>
+                      <p className="font-medium">{listing.details.vehicles.model || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.year")}</span>
+                      <p className="font-medium">{listing.details.vehicles.year || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.mileage")}</span>
+                      <p className="font-medium">{listing.details.vehicles.mileage || t("common.notProvided")} km</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.fuelType")}</span>
+                      <p className="font-medium">{listing.details.vehicles.fuelType || t("common.notProvided")}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.transmission")}</span>
+                      <p className="font-medium">{listing.details.vehicles.transmissionType || t("common.notProvided")}</p>
                     </div>
                   </div>
                 </div>
-                {/* Additional Vehicle Details */}
-                {(listing.details.vehicles?.features ?? []).length > 0 && (
-                  <div className="col-span-2 mt-4">
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">{t("listings.features")}</p>
+                
+                {/* Appearance */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{t("listings.appearance")}</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.exteriorColor")}</span>
+                      <div className="flex items-center gap-2">
+                        {listing.details.vehicles.color && (
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-200" 
+                            style={{ backgroundColor: listing.details.vehicles.color }}
+                          />
+                        )}
+                        <p className="font-medium">{listing.details.vehicles.color || t("common.notProvided")}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.interiorColor")}</span>
+                      <div className="flex items-center gap-2">
+                        {listing.details.vehicles.interiorColor && (
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-200" 
+                            style={{ backgroundColor: listing.details.vehicles.interiorColor }}
+                          />
+                        )}
+                        <p className="font-medium">{listing.details.vehicles.interiorColor || t("common.notProvided")}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
+                      <p className="font-medium">{listing.details.vehicles.condition || t("common.notProvided")}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Technical Details */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{t("listings.technicalDetails")}</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {listing.details.vehicles.engine && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</span>
+                        <p className="font-medium">{listing.details.vehicles.engine}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.warranty !== undefined && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</span>
+                        <p className="font-medium">{listing.details.vehicles.warranty} {t("listings.months")}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.serviceHistory && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">{t("listings.serviceHistory")}</span>
+                        <p className="font-medium">{listing.details.vehicles.serviceHistory}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.previousOwners !== undefined && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">{t("listings.previousOwners")}</span>
+                        <p className="font-medium">{listing.details.vehicles.previousOwners}</p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.registrationStatus && (
+                      <div>
+                        <span className="text-gray-600 dark:text-gray-400">{t("listings.registrationStatus")}</span>
+                        <p className="font-medium">{listing.details.vehicles.registrationStatus}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Debug Information - will show all fields */}
+                <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
+                  <h3 className="text-sm font-semibold mb-2">All Vehicle Fields (Debug)</h3>
+                  <div className="text-xs">
+                    {Object.entries(listing.details.vehicles).map(([key, value]) => (
+                      <div key={key} className="mb-1">
+                        <span className="font-medium">{key}:</span> {JSON.stringify(value)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Features */}
+                {listing.details.vehicles.features && listing.details.vehicles.features.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">{t("listings.features")}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {listing.details.vehicles?.features?.map((feature, index) => (
+                      {listing.details.vehicles.features.map((feature, index) => (
                         <span 
                           key={index}
                           className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
@@ -357,142 +488,6 @@ const ListingDetails: React.FC = () => {
                           {feature}
                         </span>
                       ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-            {listing.details.realEstate?.features?.length > 0 && (
-              <div className="col-span-2 mt-4">
-                <p className="text-gray-600 dark:text-gray-400 mb-2">{t("listings.features")}</p>
-                <div className="flex flex-wrap gap-2">
-                  {listing.details.realEstate?.features?.map((feature, index) => (
-                    <span 
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
-                    >
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-            </div>
-
-            {/* Vehicle Details */}
-            {isVehicle && listing.details.vehicles && (
-              <div className="space-y-6">
-                {/* Essential Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{t("listings.vehicleDetails")}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.make")}</span>
-                      <p>{listing.details.vehicles.make}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.model")}</span>
-                      <p>{listing.details.vehicles.model}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.year")}</span>
-                      <p>{listing.details.vehicles.year}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
-                      <p>{listing.details.vehicles.condition}</p>
-                    </div>
-                    {listing.details.vehicles.mileage && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.mileage")}</span>
-                        <p>{listing.details.vehicles.mileage} km</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.warranty && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.warranty")}</span>
-                        <p>{listing.details.vehicles.warranty} {t("listings.months")}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Performance Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{t("listings.performance")}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {listing.details.vehicles.engine && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.engine")}</span>
-                        <p>{listing.details.vehicles.engine}L</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.horsepower && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.horsepower")}</span>
-                        <p>{listing.details.vehicles.horsepower} HP</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.fuelType && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.fuelType")}</span>
-                        <p>{t(`listings.fuelTypes.${listing.details.vehicles.fuelType.toLowerCase()}`)}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.transmissionType && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.transmission")}</span>
-                        <p>{t(`listings.transmissionTypes.${listing.details.vehicles.transmissionType.toLowerCase()}`)}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.drivetrain && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.drivetrain")}</span>
-                        <p>{listing.details.vehicles.drivetrain}</p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.fuelEfficiency && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.fuelEfficiency")}</span>
-                        <p>{listing.details.vehicles.fuelEfficiency} L/100km</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Comfort & Features */}
-                {(listing.details.vehicles.airConditioning || 
-                  listing.details.vehicles.seatingMaterial || 
-                  listing.details.vehicles.seatHeating || 
-                  listing.details.vehicles.seatVentilation) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">{t("listings.comfort")}</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {listing.details.vehicles.airConditioning && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.airConditioning")}</span>
-                          <p>{t(`listings.climateControl.${listing.details.vehicles.airConditioning}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.vehicles.seatingMaterial && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.seatingMaterial")}</span>
-                          <p>{t(`listings.seatMaterial.${listing.details.vehicles.seatingMaterial}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.vehicles.seatHeating && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.seatHeating")}</span>
-                          <p>{t(`listings.heating.${listing.details.vehicles.seatHeating}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.vehicles.seatVentilation && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.seatVentilation")}</span>
-                          <p>{t(`listings.ventilation.${listing.details.vehicles.seatVentilation}`)}</p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
@@ -530,99 +525,27 @@ const ListingDetails: React.FC = () => {
                     )}
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">{t("listings.condition")}</span>
-                      <p>{t(`listings.conditions.${listing.details.realEstate.condition?.toLowerCase()}`)}</p>
+                      <p>{t(`listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`)}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Property Style & Features */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{t("listings.propertyStyle")}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {listing.details.realEstate.propertyStyle && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.style")}</span>
-                        <p>{t(`listings.propertyStyles.${listing.details.realEstate.propertyStyle}`)}</p>
-                      </div>
-                    )}
-                    {listing.details.realEstate.floor && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.floor")}</span>
-                        <p>{listing.details.realEstate.floor}</p>
-                      </div>
-                    )}
-                    {listing.details.realEstate.totalFloors && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.totalFloors")}</span>
-                        <p>{listing.details.realEstate.totalFloors}</p>
-                      </div>
-                    )}
-                    {listing.details.realEstate.parking && (
-                      <div>
-                        <span className="text-gray-600 dark:text-gray-400">{t("listings.parking")}</span>
-                        <p>{t(`listings.parkingTypes.${listing.details.realEstate.parking}`)}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Additional Features */}
-                {(listing.details.realEstate.heating || 
-                  listing.details.realEstate.cooling || 
-                  listing.details.realEstate.pool || 
-                  listing.details.realEstate.furnished) && (
+                {/* Features */}
+                {listing.details.realEstate.features && listing.details.realEstate.features.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t("listings.additionalFeatures")}</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {listing.details.realEstate.heating && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.heating")}</span>
-                          <p>{t(`listings.heatingTypes.${listing.details.realEstate.heating}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.realEstate.cooling && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.cooling")}</span>
-                          <p>{t(`listings.coolingTypes.${listing.details.realEstate.cooling}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.realEstate.pool && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.pool")}</span>
-                          <p>{t(`listings.poolTypes.${listing.details.realEstate.pool}`)}</p>
-                        </div>
-                      )}
-                      {listing.details.realEstate.furnished && (
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">{t("listings.furnished")}</span>
-                          <p>{t(listing.details.realEstate.furnished ? "common.yes" : "common.no")}</p>
-                        </div>
-                      )}
+                    <h3 className="text-lg font-semibold mb-2">{t("listings.features")}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {listing.details.realEstate.features.map((feature, index) => (
+                        <span 
+                          key={index}
+                          className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm"
+                        >
+                          {feature}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Features */}
-            {((isVehicle && listing.details.vehicles?.features?.length) ||
-              (isRealEstate && listing.details.realEstate?.features?.length)) && (
-              <div>
-                <h3 className="text-lg font-semibold mb-2">{t("listings.features")}</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {isVehicle &&
-                    listing.details.vehicles?.features?.map((feature, index) => (
-                      <div key={index} className="flex items-center">
-                        <span className="text-gray-600 dark:text-gray-400">{feature}</span>
-                      </div>
-                    ))}
-                  {isRealEstate &&
-                    listing.details.realEstate?.features?.map((feature, index) => (
-                      <div key={index} className="flex items-center">
-                        <span className="text-gray-600 dark:text-gray-400">{feature}</span>
-                      </div>
-                    ))}
-                </div>
               </div>
             )}
 
@@ -672,6 +595,8 @@ const ListingDetails: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+    </div>
   );
 };
 

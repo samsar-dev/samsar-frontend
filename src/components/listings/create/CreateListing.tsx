@@ -113,7 +113,8 @@ const CreateListing: React.FC = () => {
               condition: data.details?.vehicles?.condition || Condition.GOOD,
               features: data.details?.vehicles?.features || [],
               interiorColor: data.details?.vehicles?.interiorColor || prev.details?.vehicles?.interiorColor || "#000000",
-              warranty: data.details?.vehicles?.warranty ?? prev.details?.vehicles?.warranty ?? 0,
+              engine: data.details?.vehicles?.engine || "",
+              warranty: data.details?.vehicles?.warranty?.toString() || "",
               serviceHistory: data.details?.vehicles?.serviceHistory || prev.details?.vehicles?.serviceHistory || "none",
               previousOwners: data.details?.vehicles?.previousOwners ?? prev.details?.vehicles?.previousOwners ?? 0,
               registrationStatus: data.details?.vehicles?.registrationStatus || prev.details?.vehicles?.registrationStatus || "unregistered",
@@ -147,45 +148,66 @@ const CreateListing: React.FC = () => {
     }
   };
 
-  const handleAdvancedDetailsSubmit = (data: FormState, isValid: boolean) => {
+  const handleAdvancedDetailsSubmit = (data: any, isValid: boolean) => {
     if (isValid) {
+      console.log("Advanced details submitted:", data);
+      
       setFormData((prev) => {
-        // Merge the new data with the existing data, preserving all fields
+        // Deep merge the details objects
+        const mergedVehicles = data.category.mainCategory === ListingCategory.VEHICLES 
+          ? { 
+            
+              vehicleType: (prev.details?.vehicles?.vehicleType || data.details?.vehicles?.vehicleType || VehicleType.CAR) as VehicleType,
+              make: data.details?.vehicles?.make || prev.details?.vehicles?.make || "",
+              model: data.details?.vehicles?.model || prev.details?.vehicles?.model || "",
+              year: prev.details?.vehicles?.year || data.details?.vehicles?.year || new Date().getFullYear().toString(),
+              mileage: prev.details?.vehicles?.mileage || data.details?.vehicles?.mileage || "",
+              fuelType: (prev.details?.vehicles?.fuelType || data.details?.vehicles?.fuelType || FuelType.GASOLINE) as FuelType,
+              transmissionType: (prev.details?.vehicles?.transmissionType || data.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC) as TransmissionType,
+              color: prev.details?.vehicles?.color || data.details?.vehicles?.color || "",
+              condition: (prev.details?.vehicles?.condition || data.details?.vehicles?.condition || Condition.GOOD) as Condition,
+              features: prev.details?.vehicles?.features || data.details?.vehicles?.features || [],
+              interiorColor: prev.details?.vehicles?.interiorColor || data.details?.vehicles?.interiorColor || "",
+              engine: prev.details?.vehicles?.engine || data.details?.vehicles?.engine || "",
+              warranty: prev.details?.vehicles?.warranty || data.details?.vehicles?.warranty || "",
+              serviceHistory: prev.details?.vehicles?.serviceHistory || data.details?.vehicles?.serviceHistory || "",
+              previousOwners: prev.details?.vehicles?.previousOwners || data.details?.vehicles?.previousOwners || 0,
+              registrationStatus: prev.details?.vehicles?.registrationStatus || data.details?.vehicles?.registrationStatus || ""
+            }
+          : undefined;
+          
+        const mergedRealEstate = data.category.mainCategory === ListingCategory.REAL_ESTATE
+          ? { 
+              propertyType: (prev.details?.realEstate?.propertyType || data.details?.realEstate?.propertyType || PropertyType.HOUSE) as PropertyType,
+              size: prev.details?.realEstate?.size || data.details?.realEstate?.size || "",
+              yearBuilt: prev.details?.realEstate?.yearBuilt || data.details?.realEstate?.yearBuilt || "",
+              bedrooms: prev.details?.realEstate?.bedrooms || data.details?.realEstate?.bedrooms || "",
+              bathrooms: prev.details?.realEstate?.bathrooms || data.details?.realEstate?.bathrooms || "",
+              condition: (prev.details?.realEstate?.condition || data.details?.realEstate?.condition || Condition.GOOD) as Condition,
+              features: prev.details?.realEstate?.features || data.details?.realEstate?.features || []
+            }
+          : undefined;
+        
+        // Log the merged data objects
+        console.log("Merged vehicles data:", mergedVehicles);
+        console.log("Merged real estate data:", mergedRealEstate);
+        
+        // Updated form data with merged details
         const updatedData: FormState = {
           ...prev,
           details: {
-            vehicles: data.category.mainCategory === ListingCategory.VEHICLES ? {
-              vehicleType: data.details?.vehicles?.vehicleType || prev.details?.vehicles?.vehicleType || VehicleType.CAR,
-              make: data.details?.vehicles?.make || prev.details?.vehicles?.make || "",
-              model: data.details?.vehicles?.model || prev.details?.vehicles?.model || "",
-              year: data.details?.vehicles?.year || prev.details?.vehicles?.year || new Date().getFullYear().toString(),
-              mileage: data.details?.vehicles?.mileage || "",
-              fuelType: data.details?.vehicles?.fuelType || FuelType.GASOLINE,
-              transmissionType: data.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
-              color: data.details?.vehicles?.color || "",
-              condition: data.details?.vehicles?.condition || Condition.GOOD,
-              features: data.details?.vehicles?.features || [],
-              interiorColor: data.details?.vehicles?.interiorColor || prev.details?.vehicles?.interiorColor || "#000000",
-              warranty: data.details?.vehicles?.warranty ?? prev.details?.vehicles?.warranty ?? 0,
-              serviceHistory: data.details?.vehicles?.serviceHistory || prev.details?.vehicles?.serviceHistory || "none",
-              previousOwners: data.details?.vehicles?.previousOwners ?? prev.details?.vehicles?.previousOwners ?? 0,
-              registrationStatus: data.details?.vehicles?.registrationStatus || prev.details?.vehicles?.registrationStatus || "unregistered",
-            } : undefined,
-            realEstate: data.category.mainCategory === ListingCategory.REAL_ESTATE ? {
-              propertyType: data.details?.realEstate?.propertyType || prev.details?.realEstate?.propertyType || PropertyType.HOUSE,
-              size: data.details?.realEstate?.size || "",
-              yearBuilt: data.details?.realEstate?.yearBuilt || "",
-              bedrooms: data.details?.realEstate?.bedrooms || "",
-              bathrooms: data.details?.realEstate?.bathrooms || "",
-              condition: data.details?.realEstate?.condition || Condition.GOOD,
-              features: data.details?.realEstate?.features || [],
-            } : undefined,
+            vehicles: mergedVehicles,
+            realEstate: mergedRealEstate,
           },
         };
+        
+        console.log("Updated form data after advanced details:", updatedData);
+        
         // Save to session storage
         sessionStorage.setItem('createListingFormData', JSON.stringify(updatedData));
         return updatedData;
       });
+      
       setStep((prev) => prev + 1);
       toast.success(t("stepSaved"), {
         id: "step-saved",
@@ -216,50 +238,47 @@ const CreateListing: React.FC = () => {
       formData.append('price', data.price?.toString() || '0');
       formData.append('location', data.location || '');
       formData.append('listingAction', (data.listingAction || 'sell').toUpperCase());
+      formData.append('mainCategory', data.category?.mainCategory || '');
+      formData.append('subCategory', data.category?.subCategory || '');
       
-      // Add category information
-      if (data.category) {
-        const category = {
-          mainCategory: data.category.mainCategory,
-          subCategory: data.category.subCategory
-        };
-        formData.append('category', JSON.stringify(category));
-      }
-      
-      // Add details based on category
+      // Add details
       if (data.details) {
-        const details = data.category?.mainCategory === ListingCategory.VEHICLES
-          ? {
-              vehicles: {
-                vehicleType: data.details.vehicles?.vehicleType || VehicleType.CAR,
-                make: data.details.vehicles?.make || '',
-                model: data.details.vehicles?.model || '',
-                year: data.details.vehicles?.year || new Date().getFullYear().toString(),
-                mileage: data.details.vehicles?.mileage || '0',
-                fuelType: data.details.vehicles?.fuelType || FuelType.GASOLINE,
-                transmissionType: data.details.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
-                color: data.details.vehicles?.color || '',
-                condition: data.details.vehicles?.condition || Condition.GOOD,
-                features: data.details.vehicles?.features || [],
-                interiorColor: data.details.vehicles?.interiorColor || '',
-                engine: data.details.vehicles?.engine || '',
-                warranty: data.details.vehicles?.warranty || '',
-                serviceHistory: data.details.vehicles?.serviceHistory || '',
-                previousOwners: data.details.vehicles?.previousOwners || 0,
-                registrationStatus: data.details.vehicles?.registrationStatus || ''
-              }
-            }
-          : {
-              realEstate: {
-                propertyType: data.details.realEstate?.propertyType || PropertyType.HOUSE,
-                size: data.details.realEstate?.size || '',
-                yearBuilt: data.details.realEstate?.yearBuilt || '',
-                bedrooms: data.details.realEstate?.bedrooms || '',
-                bathrooms: data.details.realEstate?.bathrooms || '',
-                condition: data.details.realEstate?.condition || Condition.GOOD,
-                features: data.details.realEstate?.features || []
-              }
-            };
+        const details = {
+          vehicles: data.details.vehicles ? {
+            vehicleType: data.details.vehicles.vehicleType,
+            make: data.details.vehicles.make,
+            model: data.details.vehicles.model,
+            year: parseInt(data.details.vehicles.year || '0'),
+            mileage: parseInt(data.details.vehicles.mileage || '0'),
+            fuelType: data.details.vehicles.fuelType,
+            transmissionType: data.details.vehicles.transmissionType,
+            color: data.details.vehicles.color && /^#[0-9A-F]{6}$/i.test(data.details.vehicles.color) 
+              ? data.details.vehicles.color 
+              : (typeof data.details.vehicles.color === 'string' && data.details.vehicles.color.startsWith('#') 
+                ? data.details.vehicles.color 
+                : '#000000'),
+            condition: data.details.vehicles.condition,
+            interiorColor: data.details.vehicles.interiorColor && /^#[0-9A-F]{6}$/i.test(data.details.vehicles.interiorColor) 
+              ? data.details.vehicles.interiorColor 
+              : (typeof data.details.vehicles.interiorColor === 'string' && data.details.vehicles.interiorColor.startsWith('#') 
+                ? data.details.vehicles.interiorColor 
+                : '#000000'),
+            engine: data.details.vehicles.engine || '',
+            warranty: data.details.vehicles.warranty ? parseInt(data.details.vehicles.warranty.toString()) : 0,
+            serviceHistory: data.details.vehicles.serviceHistory || 'none',
+            previousOwners: data.details.vehicles.previousOwners ? parseInt(data.details.vehicles.previousOwners.toString()) : 0,
+            registrationStatus: data.details.vehicles.registrationStatus || 'unregistered',
+            features: data.details.vehicles.features || []
+          } : undefined,
+          realEstate: data.details.realEstate ? {
+            propertyType: data.details.realEstate.propertyType,
+            size: data.details.realEstate.size,
+            yearBuilt: data.details.realEstate.yearBuilt,
+            bedrooms: data.details.realEstate.bedrooms,
+            bathrooms: data.details.realEstate.bathrooms,
+            condition: data.details.realEstate.condition
+          } : undefined
+        };
         formData.append('details', JSON.stringify(details));
       }
       
@@ -291,7 +310,7 @@ const CreateListing: React.FC = () => {
       // Reset form and navigate
       setFormData(initialFormState);
       setStep(1);
-      toast.success(t("success.listingCreated"), {
+      toast.success(t("listings.createListing"), {
         duration: 3000,
         icon: "🎉",
       });
@@ -301,7 +320,7 @@ const CreateListing: React.FC = () => {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create listing";
       setError(errorMessage);
-      toast.error(t("errors.listingCreationFailed", { error: errorMessage }));
+      toast.error(t("errors.failedToCreateListing"));
     } finally {
       setIsSubmitting(false);
     }
@@ -332,14 +351,14 @@ const CreateListing: React.FC = () => {
         return (
           <BasicDetailsForm
             initialData={formData}
-            onSubmit={(data: FormState) => handleBasicDetailsSubmit(data, true)}
+            onSubmit={(data, isValid) => handleBasicDetailsSubmit(data as unknown as FormState, isValid)}
           />
         );
       case 2:
         return (
           <AdvancedDetailsForm
-            initialData={formData}
-            onSubmit={(data: FormState) => handleAdvancedDetailsSubmit(data, true)}
+            formData={formData}
+            onSubmit={(data, isValid) => handleAdvancedDetailsSubmit(data, isValid)}
             onBack={handleBack}
           />
         );
@@ -372,14 +391,14 @@ const CreateListing: React.FC = () => {
         role="alert"
       >
         <h2 className="text-lg font-medium text-red-800 dark:text-red-300">
-          {t("errors.submissionFailed")}
+          {t("errors.failedToCreateListing")}
         </h2>
         <p className="mt-2 text-sm text-red-700 dark:text-red-400">{error}</p>
         <button
           onClick={() => setError(null)}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
-          {t("tryAgain")}
+          {t("common.try_again")}
         </button>
       </div>
     );
@@ -398,10 +417,10 @@ const CreateListing: React.FC = () => {
             className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
             tabIndex={0}
           >
-            {t("createListing")}
+            {t("listings.createListing")}
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400" tabIndex={0}>
-            {t("createListingDescription")}
+            {t("create.subtitle")}
           </p>
 
           {/* Accessible step indicator */}
@@ -409,7 +428,7 @@ const CreateListing: React.FC = () => {
             className="mt-8 mb-6"
             aria-label={`Step ${step} of 3: ${stepIcons[step - 1].label}`}
           >
-            <div className="flex justify-between mb-2">
+            <div className="flex justify-between overflow-x-auto gap-4 sm:gap-6">
               {stepIcons.map((stepInfo, idx) => (
                 <div
                   key={idx}
@@ -434,7 +453,7 @@ const CreateListing: React.FC = () => {
                   >
                     <stepInfo.icon className="w-5 h-5" />
                   </div>
-                  <span className="text-xs md:text-sm font-medium whitespace-nowrap">
+                  <span className="text-[10px] sm:text-xs md:text-sm font-medium text-center">
                     {stepInfo.label}
                   </span>
                 </div>
@@ -459,7 +478,9 @@ const CreateListing: React.FC = () => {
         <div className={isSubmitting ? "opacity-60 pointer-events-none" : ""}>
           <AnimatePresence mode="wait">
             <motion.div key={step} {...pageTransition}>
+            <div className="pb-10">
               {renderStep()}
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>

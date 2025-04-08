@@ -23,16 +23,43 @@ import { FormState } from "@/types/forms";
 import type { VehicleDetails, RealEstateDetails, ListingFieldSchema } from "@/types/listings";
 import { listingsAdvancedFieldSchema } from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "../common/FormField";
-import { toast } from "@/components/ui/toast";
+import ColorPickerField from "@/components/listings/forms/ColorPickerField";
+import { toast } from "react-hot-toast";
 
-interface ExtendedFormState extends FormState {
+// Define a more flexible interface that can handle both vehicle and real estate details
+interface ExtendedFormState extends Omit<FormState, 'details'> {
   category: {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
   };
   details: {
-    vehicles?: VehicleDetails;
-    realEstate?: RealEstateDetails;
+    vehicles?: {
+      vehicleType: VehicleType;
+      make?: string;
+      model?: string;
+      year?: string;
+      mileage?: string;
+      fuelType?: FuelType;
+      transmissionType?: TransmissionType;
+      color?: string;
+      condition?: Condition;
+      features?: string[];
+      interiorColor?: string;
+      engine?: string;
+      warranty?: string;
+      serviceHistory?: string;
+      previousOwners?: number;
+      registrationStatus?: string;
+    };
+    realEstate?: {
+      propertyType: PropertyType;
+      size?: string;
+      yearBuilt?: string;
+      bedrooms?: string | number;
+      bathrooms?: string | number;
+      condition?: Condition;
+      features?: string[];
+    };
   };
 }
 
@@ -51,20 +78,57 @@ type FormFieldType =
   | "tel";
 
 interface AdvancedDetailsFormProps {
-  initialData: Partial<FormState>;
-  onSubmit: (data: FormState) => void;
+  formData: any; // Use any to avoid type conflicts
+  onSubmit: (data: any, isValid: boolean) => void;
   onBack: () => void;
 }
 
 const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
-  initialData,
+  formData,
   onSubmit,
   onBack,
 }) => {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<ExtendedFormState>(() => {
+  
+  // Debug log
+  console.log("AdvancedDetailsForm received formData:", formData);
+  
+  const [form, setForm] = useState<ExtendedFormState>(() => {
+    // Initialize with defaults if formData is empty or undefined
+    if (!formData || !formData.category) {
+      return {
+        title: "",
+        description: "",
+        price: 0,
+        category: {
+          mainCategory: ListingCategory.VEHICLES,
+          subCategory: VehicleType.CAR
+        },
+        location: "",
+        details: {
+          vehicles: {
+            vehicleType: VehicleType.CAR,
+            make: "",
+            model: "",
+            year: new Date().getFullYear().toString(),
+            mileage: "",
+            fuelType: FuelType.GASOLINE,
+            transmissionType: TransmissionType.AUTOMATIC,
+            color: "",
+            condition: Condition.GOOD,
+            features: [],
+            interiorColor: "#000000", // Default black
+            warranty: "0",
+            serviceHistory: "none",
+            previousOwners: 0,
+            registrationStatus: "unregistered",
+          }
+        }
+      };
+    }
+    
     // Start with the initial data
-    const baseData = initialData as ExtendedFormState;
+    const baseData = formData as ExtendedFormState;
     
     // Get the category type
     const mainCategory = baseData?.category?.mainCategory || ListingCategory.VEHICLES;
@@ -92,7 +156,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
           condition: baseData?.details?.vehicles?.condition || Condition.GOOD,
           features: baseData?.details?.vehicles?.features || [],
           interiorColor: baseData?.details?.vehicles?.interiorColor || "#000000", // Default black
-          warranty: baseData?.details?.vehicles?.warranty || 0,
+          warranty: baseData?.details?.vehicles?.warranty || "0",
           serviceHistory: baseData?.details?.vehicles?.serviceHistory || "none",
           previousOwners: baseData?.details?.vehicles?.previousOwners || 0,
           registrationStatus: baseData?.details?.vehicles?.registrationStatus || "unregistered",
@@ -114,7 +178,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Ensure we have a valid category
-  const isVehicle = formData?.category?.mainCategory === ListingCategory.VEHICLES;
+  const isVehicle = form?.category?.mainCategory === ListingCategory.VEHICLES;
   const categoryType = isVehicle
     ? "cars" // Always use "cars" for vehicle listings since that's our schema key
     : "realEstate";
@@ -137,9 +201,9 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
-    const isVehicle = formData.category.mainCategory === ListingCategory.VEHICLES;
+    const isVehicle = form.category.mainCategory === ListingCategory.VEHICLES;
     
-    console.log('Validating form data:', { formData, isVehicle });
+    console.log('Validating form data:', { form, isVehicle });
 
     // Get all fields from the schema
     const allFields = listingsAdvancedFieldSchema[isVehicle ? 'cars' : 'realEstate'] || [];
@@ -149,8 +213,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     requiredFields.forEach(field => {
       const value = isVehicle
-        ? formData.details?.vehicles?.[field.name as keyof VehicleDetails]
-        : formData.details?.realEstate?.[field.name as keyof RealEstateDetails];
+        ? form.details?.vehicles?.[field.name as keyof typeof form.details.vehicles]
+        : form.details?.realEstate?.[field.name as keyof typeof form.details.realEstate];
 
       console.log(`Checking field ${field.name}:`, { value, required: field.required });
 
@@ -162,17 +226,9 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     // Additional vehicle-specific validations
     if (isVehicle) {
-      const vehicleDetails = formData.details?.vehicles;
+      const vehicleDetails = form.details?.vehicles;
       console.log('Vehicle details:', vehicleDetails);
 
-      if (!vehicleDetails?.make) {
-        newErrors["details.vehicles.make"] = t("listings.create.errors.makeRequired");
-        console.warn('Make is missing');
-      }
-      if (!vehicleDetails?.model) {
-        newErrors["details.vehicles.model"] = t("listings.create.errors.modelRequired");
-        console.warn('Model is missing');
-      }
       if (!vehicleDetails?.year) {
         newErrors["details.vehicles.year"] = t("listings.create.errors.yearRequired");
         console.warn('Year is missing');
@@ -198,7 +254,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     field: string,
     value: string | number | boolean | string[],
   ) => {
-    setFormData((prev) => {
+    setForm((prev) => {
       const newFormData = { ...prev };
 
       // Initialize the details object if it doesn't exist
@@ -221,7 +277,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
             condition: Condition.GOOD,
             features: [],
             interiorColor: "#000000", // Default black
-            warranty: 0,
+            warranty: "0",
             serviceHistory: "none",
             previousOwners: 0,
             registrationStatus: "unregistered",
@@ -265,6 +321,12 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const renderFields = () => {
+    // Ensure form has necessary properties
+    if (!form || !form.category || !form.details) {
+      console.error("Form structure is invalid:", form);
+      return null;
+    }
+
     const fields = listingsAdvancedFieldSchema[categoryType] || [];
     const sectionFields = fields.filter(
       (field) => field.section === activeSection,
@@ -272,28 +334,33 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sectionFields.map((field: ListingFieldSchema) => (
-          <FormField
-            key={field.name}
-            name={field.name}
-            label={t(field.label)}
-            type={field.type as FormFieldType}
-            options={field.options?.map((opt: string) => ({
-              value: opt,
-              label: t(`options.${opt}`),
-            }))}
-            value={
-              isVehicle
-                ? formData.details?.vehicles?.[field.name as keyof VehicleDetails] || ""
-                : formData.details?.realEstate?.[field.name as keyof RealEstateDetails] || ""
-            }
-            onChange={(value) => handleInputChange(field.name, value)}
-            error={errors[`details.${field.name}`]}
-            required={field.required}
-            disabled={isSubmitting}
-            className={errors[`details.${field.name}`] ? "border-red-500" : ""}
-          />
-        ))}
+        {sectionFields.map((field: ListingFieldSchema) => {
+          // Get the current value for this field
+          const currentValue = isVehicle
+            ? form.details?.vehicles?.[field.name as keyof typeof form.details.vehicles]
+            : form.details?.realEstate?.[field.name as keyof typeof form.details.realEstate];
+          
+          console.log(`Rendering field ${field.name} with value:`, currentValue);
+          
+          return (
+            <FormField
+              key={field.name}
+              name={field.name}
+              label={t(field.label)}
+              type={field.type as FormFieldType}
+              options={field.options?.map((opt: string) => ({
+                value: opt,
+                label: t(`options.${opt}`),
+              }))}
+              value={currentValue || ""}
+              onChange={(value) => handleInputChange(field.name, value)}
+              error={errors[`details.${field.name}`]}
+              required={field.required}
+              disabled={isSubmitting}
+              className={errors[`details.${field.name}`] ? "border-red-500" : ""}
+            />
+          );
+        })}
       </div>
     );
   };
@@ -322,13 +389,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       }
 
       // Call the parent's onSubmit with the complete form data
-      await onSubmit({
-        ...formData,
-        details: {
-          vehicles: formData.category.mainCategory === ListingCategory.VEHICLES ? formData.details.vehicles : undefined,
-          realEstate: formData.category.mainCategory === ListingCategory.REAL_ESTATE ? formData.details.realEstate : undefined,
-        }
-      });
+      await onSubmit(form, true);
       toast.success(t("success.detailsSaved"));
     } catch (error) {
       console.error("Error submitting advanced details:", error);

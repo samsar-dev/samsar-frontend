@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { Listing, Location, ListingUpdateInput } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
 import FormField from "@/components/listings/create/common/FormField";
@@ -21,6 +22,7 @@ interface EditFormData {
 }
 
 const EditListing: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -55,14 +57,14 @@ const EditListing: React.FC = () => {
         }
       } catch (error) {
         console.error("Error fetching listing:", error);
-        toast.error("Failed to fetch listing details");
+        toast.error(t("errors.fetch_failed"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchListing();
-  }, [id]);
+  }, [id, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,11 +81,11 @@ const EditListing: React.FC = () => {
       };
 
       await listingsAPI.updateListing(id, updateData);
-      toast.success("Listing updated successfully");
+      toast.success(t("edit.updatedSuccessfully"));
       navigate(`/listings/${id}`);
     } catch (error) {
       console.error("Error updating listing:", error);
-      toast.error("Failed to update listing");
+      toast.error(t("edit.updateFailed"));
     } finally {
       setSaving(false);
     }
@@ -100,18 +102,18 @@ const EditListing: React.FC = () => {
   if (!listing) {
     return (
       <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-800">Listing not found</h2>
+        <h2 className="text-2xl font-bold text-gray-800">{t("errors.no_listings_category")}</h2>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Edit Listing</h1>
+      <h1 className="text-3xl font-bold mb-8">{t("edit.title")}</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <div className="space-y-6">
           <FormField
-            label="Title"
+            label={t("listings.title")}
             name="title"
             type="text"
             value={formData.title}
@@ -122,7 +124,7 @@ const EditListing: React.FC = () => {
           />
 
           <FormField
-            label="Description"
+            label={t("listings.description")}
             name="description"
             type="textarea"
             value={formData.description}
@@ -133,7 +135,7 @@ const EditListing: React.FC = () => {
           />
 
           <FormField
-            label="Price"
+            label={t("listings.price")}
             name="price"
             type="number"
             value={formData.price.toString()}
@@ -147,9 +149,9 @@ const EditListing: React.FC = () => {
           />
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Location</h3>
+            <h3 className="text-lg font-semibold">{t("listings.location")}</h3>
             <FormField
-              label="Address"
+              label={t("create.locationPlaceholder")}
               name="address"
               type="text"
               value={formData.location.address}
@@ -163,7 +165,7 @@ const EditListing: React.FC = () => {
             />
 
             <FormField
-              label="City"
+              label={t("cities.DAMASCUS")}
               name="city"
               type="text"
               value={formData.location.city}
@@ -177,7 +179,7 @@ const EditListing: React.FC = () => {
             />
 
             <FormField
-              label="State"
+              label={t("listings.location")}
               name="state"
               type="text"
               value={formData.location.state}
@@ -191,7 +193,7 @@ const EditListing: React.FC = () => {
             />
 
             <FormField
-              label="Country"
+              label={t("listings.location")}
               name="country"
               type="text"
               value={formData.location.country}
@@ -205,7 +207,7 @@ const EditListing: React.FC = () => {
             />
 
             <FormField
-              label="Postal Code"
+              label={t("listings.location")}
               name="postalCode"
               type="text"
               value={formData.location.postalCode}
@@ -229,10 +231,10 @@ const EditListing: React.FC = () => {
             variant="outline"
             onClick={() => navigate(`/listings/${id}`)}
           >
-            Cancel
+            {t("edit.cancel")}
           </Button>
           <Button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("common.saving") : t("edit.save")}
           </Button>
         </div>
       </form>

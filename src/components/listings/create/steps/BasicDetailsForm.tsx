@@ -23,6 +23,7 @@ import {
   FaAlignLeft,
   FaCarAlt,
   FaHome,
+  FaSearch
 } from "react-icons/fa";
 import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
 import FormField from "@/components/common/FormField";
@@ -36,6 +37,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+import Select from 'react-select';
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -43,31 +45,28 @@ import {
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
 
-interface BasicDetailsFormProps {
-  initialData?: Partial<FormState>;
-  onSubmit: (data: Partial<FormState>) => void;
+interface ExtendedVehicleDetails extends VehicleDetails {
+  vehicleType: VehicleType;
+  make: string;
+  model: string;
+  year: string;
 }
 
-const vehicleSubcategories = [
-  { value: VehicleType.CAR, label: "Cars", icon: FaCar },
-  { value: VehicleType.MOTORCYCLE, label: "Motorcycles", icon: FaMotorcycle },
-  { value: VehicleType.TRUCK, label: "Trucks", icon: FaTruck },
-  { value: VehicleType.RV, label: "RVs", icon: FaShuttleVan },
-  { value: VehicleType.BOAT, label: "Boats", icon: FaShip },
-  { value: VehicleType.OTHER, label: "Other Vehicles", icon: FaTruckPickup },
-] as const;
+interface ExtendedFormState extends Omit<FormState, 'details'> {
+  details: {
+    vehicles?: ExtendedVehicleDetails;
+    realEstate?: RealEstateDetails;
+  };
+}
 
-const realEstateSubcategories = [
-  { value: PropertyType.HOUSE, label: "Houses", icon: BiBuildingHouse },
-  { value: PropertyType.APARTMENT, label: "Apartments", icon: BiBuildings },
-  { value: PropertyType.LAND, label: "Land", icon: BiLandscape },
-  { value: PropertyType.COMMERCIAL, label: "Commercial", icon: BiBuildings },
-  { value: PropertyType.OTHER, label: "Other", icon: BiBuildings },
-] as const;
+interface BasicDetailsFormProps {
+  initialData: Partial<ExtendedFormState>;
+  onSubmit: (data: ExtendedFormState, isValid: boolean) => void;
+}
 
 const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubmit }) => {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<Partial<FormState>>({
+  const [formData, setFormData] = useState<ExtendedFormState>({
     title: '',
     description: '',
     price: 0,
@@ -85,11 +84,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
 
   // Add new state for make and model fields
-  const [makeValue, setMakeValue] = useState<string>("");
-  const [modelValue, setModelValue] = useState<string>("");
-  const [yearValue, setYearValue] = useState<string>(
-    new Date().getFullYear().toString(),
-  );
+  const [makeValue, setMakeValue] = useState(formData.details?.vehicles?.make || "");
+  const [modelValue, setModelValue] = useState(formData.details?.vehicles?.model || "");
+  const [yearValue, setYearValue] = useState(formData.details?.vehicles?.year || new Date().getFullYear().toString());
 
   // Initialize make, model, and year values from initialData
   useEffect(() => {
@@ -158,89 +155,64 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     return options;
   };
 
-const handleMakeChange = (value: string) => {
-    setMakeValue(value);
-    setFormData((prev: FormState) => ({
-      ...prev,
-      details: {
-        ...prev.details,
-        vehicles: {
-          ...prev.details?.vehicles,
-          make: value,
-        }
-      }
-    }));
-    // Reset customMake if not "Other"
-    if (value !== "OTHER_MAKE") {
-      setFormData((prev: FormState) => ({
-        ...prev,
-        details: {
-          ...prev.details,
-          vehicles: {
-            ...prev.details?.vehicles,
-            customMake: ""
-          }
-        }
-      }));
-    }
-};
-
-  // Handle model selection
-  const handleModelChange = (value: string) => {
-    setModelValue(value);
+  const handleMakeChange = (value: FormFieldValue) => {
+    const makeStr = typeof value === 'object' && value !== null ? value.value : String(value);
+    setMakeValue(makeStr);
     setFormData((prev) => ({
       ...prev,
       details: {
         ...prev.details,
         vehicles: {
-          ...(prev.details?.vehicles || {}),
-          model: value
-        }
+          ...prev.details?.vehicles,
+          make: makeStr,
+          model: '', // Reset model when make changes
+          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
+        } as ExtendedVehicleDetails
       }
     }));
   };
 
-  // Modified handleInputChange to also update make/model/year state when those fields change directly
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: FormState) => {
-      const newFormData = { ...prev };
-      
-      // Handle nested fields
-      if (field.startsWith("details.")) {
-        const parts = field.split(".");
-        const category = parts[1];
-        const subField = parts[2];
-        
-        if (!newFormData.details) {
-          newFormData.details = {};
-        }
-        
-        if (!newFormData.details[category]) {
-          newFormData.details[category] = {};
-        }
-        
-        newFormData.details[category][subField] = value;
-      } else {
-        newFormData[field] = value;
+  const handleModelChange = (value: FormFieldValue) => {
+    const modelStr = typeof value === 'object' && value !== null ? value.value : String(value);
+    setModelValue(modelStr);
+    setFormData((prev) => ({
+      ...prev,
+      details: {
+        ...prev.details,
+        vehicles: {
+          ...prev.details?.vehicles,
+          model: modelStr,
+          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
+        } as ExtendedVehicleDetails
       }
+    }));
 
-      return newFormData;
-    });
-
-    // Reset model when make changes
-    if (field === "details.vehicles.make") {
-      setFormData((prev: FormState) => ({
-        ...prev,
-        details: {
-          ...prev.details,
-          vehicles: {
-            ...prev.details?.vehicles,
-            model: "",
-            customModel: "",
-          },
-        },
-      }));
+    // Auto-generate title if all fields are filled
+    if (formData.details?.vehicles?.make && modelStr && yearValue) {
+      const autoTitle = `${formData.details.vehicles.make} ${modelStr} ${yearValue}`;
+      handleInputChange("title", autoTitle);
     }
+  };
+
+  const handleInputChange = (path: keyof ExtendedFormState | string, value: string | number) => {
+    setFormData((prev) => {
+      const newState = { ...prev };
+      if (path.includes('.')) {
+        const [parent, child, subChild] = path.split('.');
+        if (parent && child && subChild && parent in newState) {
+          const parentObj = newState[parent as keyof ExtendedFormState];
+          if (typeof parentObj === 'object' && parentObj !== null) {
+            (parentObj as any)[child] = {
+              ...(parentObj as any)[child],
+              [subChild]: value
+            };
+          }
+        }
+      } else {
+        (newState as any)[path] = value;
+      }
+      return newState;
+    });
   };
 
   // Initialize make/model/year values from formData
@@ -302,7 +274,7 @@ const handleMakeChange = (value: string) => {
         formData?.category?.mainCategory === ListingCategory.VEHICLES &&
         formData?.details?.vehicles
       ) {
-        setFormData((prev: FormState) => ({
+        setFormData((prev: ExtendedFormState) => ({
           ...prev,
           details: {
             ...prev.details,
@@ -357,50 +329,49 @@ const handleMakeChange = (value: string) => {
     subCategory: VehicleType | PropertyType,
   ) => {
     // Update the category in form data
-    setFormData((prev: FormState) => {
-  const updatedData: FormState = {
-    ...prev,
-    category: {
-      mainCategory,
-      subCategory,
-    },
-    details: {
-      ...prev.details, // <-- Preserve existing nested state
-    },
-  };
+    setFormData((prev: ExtendedFormState) => {
+      const updatedData: ExtendedFormState = {
+        ...prev,
+        category: {
+          mainCategory,
+          subCategory,
+        },
+        details: {
+          ...prev.details, // <-- Preserve existing nested state
+        },
+      };
 
-  if (mainCategory === ListingCategory.VEHICLES) {
-    updatedData.details.vehicles = {
-      ...prev.details?.vehicles, // Keep existing values if any
-      vehicleType: subCategory as VehicleType,
-      make: "",
-      model: "",
-      year: new Date().getFullYear().toString(),
-      mileage: "",
-      fuelType: FuelType.GASOLINE,
-      transmissionType: TransmissionType.AUTOMATIC,
-      color: "",
-      condition: Condition.GOOD,
-      features: [],
-    };
-    delete updatedData.details?.realEstate; // Clear real estate if switching
-  } else if (mainCategory === ListingCategory.REAL_ESTATE) {
-    updatedData.details.realEstate = {
-      ...updatedData.details?.realEstate,
-      propertyType: subCategory as PropertyType,
-      size: "",
-      yearBuilt: "",
-      bedrooms: "",
-      bathrooms: "",
-      condition: Condition.GOOD,
-      features: [],
-    };
-    delete updatedData.details?.vehicles; // Clear vehicles if switching
-  }
+      if (mainCategory === ListingCategory.VEHICLES) {
+        updatedData.details.vehicles = {
+          ...prev.details?.vehicles, // Keep existing values if any
+          vehicleType: subCategory as VehicleType,
+          make: "",
+          model: "",
+          year: new Date().getFullYear().toString(),
+          mileage: "",
+          fuelType: FuelType.GASOLINE,
+          transmissionType: TransmissionType.AUTOMATIC,
+          color: "",
+          condition: Condition.GOOD,
+          features: [],
+        };
+        delete updatedData.details?.realEstate; // Clear real estate if switching
+      } else if (mainCategory === ListingCategory.REAL_ESTATE) {
+        updatedData.details.realEstate = {
+          ...updatedData.details?.realEstate,
+          propertyType: subCategory as PropertyType,
+          size: "",
+          yearBuilt: "",
+          bedrooms: "",
+          bathrooms: "",
+          condition: Condition.GOOD,
+          features: [],
+        };
+        delete updatedData.details?.vehicles; // Clear vehicles if switching
+      }
 
-  return updatedData;
-});
-
+      return updatedData;
+    });
 
     // Clear any category-related errors
     setErrors((prev) => {
@@ -719,33 +690,7 @@ const handleMakeChange = (value: string) => {
           </div>
 
           <div className="md:col-span-1">
-            <FormField
-              id="field-model"
-              label={t("model")}
-              type="select"
-              value={modelValue}
-              onChange={(e) => handleModelChange(e.target.value)}
-              onBlur={() =>
-                setTouched((prev) => ({
-                  ...prev,
-                  "details.vehicles.model": true,
-                }))
-              }
-              error={
-                touched["details.vehicles.model"]
-                  ? errors["details.vehicles.model"]
-                  : undefined
-              }
-              options={models}
-              required={true}
-              placeholder={t("selectModel")}
-              disabled={
-                !makeValue ||
-                (makeValue === "OTHER_MAKE" &&
-                  !formData.details?.vehicles?.make)
-              }
-            />
-
+            {renderModelField()}
             {modelValue === "CUSTOM_MODEL" && (
               <div className="mt-2">
                 <FormField
@@ -788,69 +733,24 @@ const handleMakeChange = (value: string) => {
           </div>
 
           <div className="md:col-span-1">
-            <FormField
-              id="field-year"
-              label={t("year")}
-              type="select"
-              value={yearValue.toString()}
-              onChange={(e) => {
-                const year = e.target.value;
-                handleInputChange("details.vehicles.year", year);
-
-                // Update title if make and model already selected
-                const make =
-                  makeValue === "OTHER_MAKE"
-                    ? formData.details?.vehicles?.make || ""
-                    : makeValue;
-                const model =
-                  modelValue === "CUSTOM_MODEL"
-                    ? formData.details?.vehicles?.model || ""
-                    : modelValue;
-
-                if (make && model) {
-                  const autoTitle = `${make} ${model} ${year}`;
-                  handleInputChange("title", autoTitle);
-                }
-              }}
-              onBlur={() =>
-                setTouched((prev) => ({
-                  ...prev,
-                  "details.vehicles.year": true,
-                }))
-              }
-              error={
-                touched["details.vehicles.year"]
-                  ? errors["details.vehicles.year"]
-                  : undefined
-              }
-              options={years}
-              required={true}
-              placeholder={t("selectYear")}
-            />
+            {renderYearField()}
           </div>
         </div>
       </div>
     );
   };
 
-  // Render the make field
   const renderMakeField = () => {
     const makeValue = formData.details?.vehicles?.make || "";
     const makes = generateMakeOptions();
 
     return (
       <FormField
-        id="field-make"
+        name="field-make"
         label={t("make")}
         type="select"
         value={makeValue}
-        onChange={(e) => handleMakeChange(e.target.value)}
-        onBlur={() =>
-          setTouched((prev) => ({
-            ...prev,
-            "details.vehicles.make": true,
-          }))
-        }
+        onChange={(value) => handleMakeChange(value as string)}
         error={
           touched["details.vehicles.make"]
             ? errors["details.vehicles.make"]
@@ -859,6 +759,65 @@ const handleMakeChange = (value: string) => {
         options={makes}
         required={true}
         placeholder={t("selectMake")}
+        isSearchable={true}
+      />
+    );
+  };
+
+  const renderModelField = () => {
+    const modelValue = formData.details?.vehicles?.model || "";
+    const models = getModelOptions(formData.details?.vehicles?.make || "");
+
+    return (
+      <FormField
+        name="field-model"
+        label={t("model")}
+        type="select"
+        value={modelValue}
+        onChange={(value) => handleModelChange(value as string)}
+        error={
+          touched["details.vehicles.model"]
+            ? errors["details.vehicles.model"]
+            : undefined
+        }
+        options={models}
+        required={true}
+        placeholder={t("selectModel")}
+        isSearchable={true}
+      />
+    );
+  };
+
+  const renderYearField = () => {
+    const yearValue = formData.details?.vehicles?.year || new Date().getFullYear().toString();
+    const years = getYearOptions();
+
+    return (
+      <FormField
+        name="field-year"
+        label={t("year")}
+        type="select"
+        value={yearValue}
+        onChange={(value) => {
+          const yearStr = value as string;
+          setYearValue(yearStr);
+          handleInputChange("details.vehicles.year", yearStr);
+          
+          // Auto-generate title if all fields are filled
+          if (formData.details?.vehicles?.make && formData.details?.vehicles?.model) {
+            const autoTitle = `${formData.details.vehicles.make} ${formData.details.vehicles.model} ${yearStr}`;
+            handleInputChange("title", autoTitle);
+          }
+        }}
+        error={
+          touched["details.vehicles.year"]
+            ? errors["details.vehicles.year"]
+            : undefined
+        }
+        options={years}
+        required={true}
+        placeholder={t("selectYear")}
+        isSearchable={true}
       />
     );
   };
@@ -945,7 +904,6 @@ const handleMakeChange = (value: string) => {
     );
   };
 
-  // Fixed renderFormField function to properly handle React icons and number vs string type for helpText
   const renderFormField = (
     label: string,
     fieldName: string,
@@ -959,60 +917,65 @@ const handleMakeChange = (value: string) => {
     required: boolean = true,
     helpText?: string,
   ) => {
-    const fieldId = `field-${fieldName}`;
-    const fieldPath = fieldName.includes(".")
-      ? fieldName.split(".")
-      : [fieldName];
-
-    // Get the value from nested objects if needed
-    let fieldValue: any = formData;
-    for (const path of fieldPath) {
-      if (fieldValue && typeof fieldValue === "object") {
-        fieldValue = fieldValue[path];
-      } else {
-        fieldValue = undefined;
-        break;
-      }
-    }
-
-    // Get error for this field
-    const fieldError = errors[fieldName];
-    const isTouched = touched[fieldName];
-
-    const handleChange = (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >,
-    ) => {
-      const newValue =
-        type === "checkbox"
-          ? (e.target as HTMLInputElement).checked
-          : e.target.value;
-
-      handleInputChange(fieldName, newValue);
-    };
+    const fieldValue = fieldName.split('.').reduce((obj: any, key) => obj?.[key], formData);
+    const errorMessage = errors[fieldName];
+    const isFieldTouched = touched[fieldName];
 
     return (
-      <div className={`relative ${icon ? "pl-8" : ""}`}>
-        {icon && (
-          <div className="absolute left-0 top-8 text-gray-400">{icon}</div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <div className="relative">
+          {icon && (
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              {icon}
+            </div>
+          )}
+          {type === 'select' && options ? (
+            <Select
+              value={options.find(opt => opt.value === fieldValue)}
+              onChange={(selected: any) => handleInputChange(fieldName, selected?.value || '')}
+              options={options}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder={placeholder || `Select ${label.toLowerCase()}`}
+              isClearable
+            />
+          ) : type === 'textarea' ? (
+            <textarea
+              value={fieldValue || ''}
+              onChange={(e) => handleInputChange(fieldName, e.target.value)}
+              onBlur={() => setTouched({ ...touched, [fieldName]: true })}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                icon ? 'pl-10' : ''
+              } ${errorMessage && isFieldTouched ? 'border-red-500' : ''}`}
+              placeholder={placeholder}
+              rows={4}
+            />
+          ) : (
+            <input
+              type={type}
+              value={fieldValue || ''}
+              onChange={(e) => handleInputChange(fieldName, type === 'number' ? parseFloat(e.target.value) : e.target.value)}
+              onBlur={() => setTouched({ ...touched, [fieldName]: true })}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                icon ? 'pl-10' : ''
+              } ${errorMessage && isFieldTouched ? 'border-red-500' : ''}`}
+              placeholder={placeholder}
+              min={min}
+              max={max}
+              step={step}
+            />
+          )}
+        </div>
+        {helpText && (
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helpText}</p>
         )}
-        <FormField
-          id={fieldId}
-          label={label}
-          type={type as any}
-          value={fieldValue || ""}
-          onChange={handleChange}
-          onBlur={() => setTouched((prev) => ({ ...prev, [fieldName]: true }))}
-          error={isTouched ? fieldError : undefined}
-          placeholder={placeholder}
-          options={options}
-          required={required}
-          min={min}
-          max={max}
-          step={step}
-          helpText={helpText}
-        />
+        {errorMessage && isFieldTouched && (
+          <p className="mt-1 text-sm text-red-500">{errorMessage}</p>
+        )}
       </div>
     );
   };
@@ -1087,6 +1050,79 @@ const handleMakeChange = (value: string) => {
         </div>
         {errors.category && touched.category && (
           <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+        )}
+      </div>
+    );
+  };
+
+  // Syrian cities data
+  const syrianCities = [
+    { value: 'DAMASCUS', label: t('cities.DAMASCUS') },
+    { value: 'ALEPPO', label: t('cities.ALEPPO') },
+    { value: 'HOMS', label: t('cities.HOMS') },
+    { value: 'HAMA', label: t('cities.HAMA') },
+    { value: 'LATTAKIA', label: t('cities.LATTAKIA') },
+    { value: 'DEIR_EZZOR', label: t('cities.DEIR_EZZOR') },
+    { value: 'HASEKEH', label: t('cities.HASEKEH') },
+    { value: 'QAMISHLI', label: t('cities.QAMISHLI') },
+    { value: 'RAQQA', label: t('cities.RAQQA') },
+    { value: 'TARTOUS', label: t('cities.TARTOUS') },
+    { value: 'IDLIB', label: t('cities.IDLIB') },
+    { value: 'DARA', label: t('cities.DARA') },
+    { value: 'SWEDIA', label: t('cities.SWEDIA') },
+    { value: 'QUNEITRA', label: t('cities.QUNEITRA') },
+  ];
+
+  const renderLocationField = () => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {t('location')}
+          <span className="text-red-500 ml-1">*</span>
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MapPin className="h-5 w-5 text-gray-400" />
+          </div>
+          <Select
+            value={syrianCities.find(city => city.value === formData.location)}
+            onChange={(selected: any) => handleInputChange('location', selected?.value || '')}
+            options={syrianCities}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder={t('selectLocation')}
+            isClearable
+            styles={{
+              control: (baseStyles, state) => ({
+                ...baseStyles,
+                backgroundColor: state.isFocused ? 'var(--blue-50)' : 'var(--gray-50)',
+                borderColor: state.isFocused ? 'var(--blue-500)' : 'var(--gray-300)',
+                borderRadius: '0.5rem',
+                boxShadow: state.isFocused ? '0 0 0 1px var(--blue-500)' : 'none',
+                '&:hover': {
+                  borderColor: state.isFocused ? 'var(--blue-500)' : 'var(--gray-400)',
+                },
+              }),
+              menu: (baseStyles) => ({
+                ...baseStyles,
+                backgroundColor: 'var(--white)',
+                borderRadius: '0.5rem',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              }),
+              option: (baseStyles, { isSelected }) => ({
+                ...baseStyles,
+                backgroundColor: isSelected ? 'var(--blue-50)' : 'var(--white)',
+                color: isSelected ? 'var(--blue-500)' : 'var(--gray-900)',
+                '&:hover': {
+                  backgroundColor: 'var(--blue-50)',
+                  color: 'var(--blue-500)',
+                },
+              }),
+            }}
+          />
+        </div>
+        {errors.location && touched.location && (
+          <p className="mt-1 text-sm text-red-500">{errors.location}</p>
         )}
       </div>
     );
@@ -1195,14 +1231,7 @@ const handleMakeChange = (value: string) => {
               t("pricePlaceholder"),
               0,
             )}
-            {renderFormField(
-              t("location"),
-              "location",
-              "text",
-              undefined,
-              <FaMapMarkerAlt className="w-4 h-4" />,
-              t("locationPlaceholder"),
-            )}
+            {renderLocationField()}
           </div>
 
           {renderFormField(
@@ -1262,13 +1291,13 @@ const handleMakeChange = (value: string) => {
             </div>
 
             {/* Preview of uploaded images */}
-            {formData.images.length > 0 && (
+            {formData?.images?.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t("uploadedImages")} ({formData.images.length})
+                  {t("uploadedImages")} ({formData?.images?.length || 0})
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {formData.images.map((image: File | string, index: number) => (
+                  {formData?.images?.map((image: File | string, index: number) => (
                     <div
                       key={index}
                       className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden h-24"
