@@ -1,4 +1,4 @@
-import {
+import type {
   ListingCategory,
   VehicleType,
   PropertyType,
@@ -97,11 +97,12 @@ export interface BaseFormState {
   };
   images?: Array<string | File>;
   features?: string[];
-  listingAction?: 'sell' | 'rent';
+  listingAction?: "sell" | "rent";
 }
 
 // Complete form state with required fields for final submission
-export interface FormState extends Required<Omit<BaseFormState, 'features' | 'listingAction'>> {
+export interface FormState
+  extends Required<Omit<BaseFormState, "features" | "listingAction">> {
   features?: string[];
-  listingAction?: 'sell' | 'rent';
+  listingAction?: "sell" | "rent";
 }
