@@ -135,7 +135,9 @@ const ListingDetails: React.FC = () => {
         
         console.log('Processed images:', processedImages);
         
-        const { mainCategory, subCategory, details, listingAction, status, ...rest } = listing;
+        const { category, details, listingAction, status, ...rest } = listing;
+
+        console.log('Listing category:', category);
         
         // Log all the details to debug what's available
         console.log('Details before transformation:', JSON.stringify(details, null, 2));
@@ -145,7 +147,7 @@ const ListingDetails: React.FC = () => {
         const transformedDetails = {
           vehicles: details.vehicles ? {
             ...details.vehicles,
-            vehicleType: subCategory as VehicleType,
+            vehicleType: category.subCategory as VehicleType,
             features: details.vehicles.features || [],
             // Ensure all required fields are present
             mileage: details.vehicles.mileage || "0",
@@ -156,7 +158,7 @@ const ListingDetails: React.FC = () => {
           } : undefined,
           realEstate: details.realEstate ? {
             ...details.realEstate,
-            propertyType: subCategory as PropertyType,
+            propertyType: category.subCategory as PropertyType,
             features: details.realEstate.features || []
           } : undefined
         };
@@ -166,8 +168,8 @@ const ListingDetails: React.FC = () => {
         setListing({
           ...rest,
           category: {
-            mainCategory: mainCategory as ListingCategory,
-            subCategory: subCategory as VehicleType | PropertyType
+            mainCategory: category.mainCategory as ListingCategory,
+            subCategory: category.subCategory as VehicleType | PropertyType
           },
           details: transformedDetails,
           listingAction: listingAction?.toLowerCase() as 'sell' | 'rent',
