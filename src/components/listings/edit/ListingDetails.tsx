@@ -23,35 +23,8 @@ interface ListingImage {
   url: string;
 }
 
-interface ListingDetails {
-  vehicles?: {
-    vehicleType: VehicleType;
-    make: string;
-    model: string;
-    year: string;
-    mileage?: string;
-    fuelType?: FuelType;
-    transmissionType?: TransmissionType;
-    color?: string;
-    condition?: Condition;
-    features?: string[];
-    interiorColor?: string;
-    engine?: string;
-    warranty?: string | number;
-    serviceHistory?: string;
-    previousOwners?: number;
-    registrationStatus?: string;
-  };
-  realEstate?: {
-    propertyType: PropertyType;
-    size?: string;
-    yearBuilt?: string;
-    bedrooms?: string | number;
-    bathrooms?: string | number;
-    condition?: Condition;
-    features?: string[];
-  };
-}
+// Using types directly from listings.ts
+import type { ListingDetails as IListingDetails } from "@/types/listings";
 
 const ListingDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -104,6 +77,8 @@ const ListingDetails: React.FC = () => {
           "Response data details:",
           JSON.stringify(response.data?.details, null, 2)
         );
+        console.log('FULL Response Data:', JSON.stringify(response.data, null, 2));
+        console.log('Response data details:', JSON.stringify(response.data?.details, null, 2));
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details:",

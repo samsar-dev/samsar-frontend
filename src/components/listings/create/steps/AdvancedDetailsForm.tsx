@@ -105,6 +105,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
           subCategory: VehicleType.CAR
         },
         location: "",
+        images: [],
         details: {
           vehicles: {
             vehicleType: VehicleType.CAR,
@@ -143,6 +144,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         mainCategory,
         subCategory,
       },
+      images: baseData.images || [],
       details: {
         vehicles: mainCategory === ListingCategory.VEHICLES ? {
           vehicleType: baseData?.details?.vehicles?.vehicleType || VehicleType.CAR,
@@ -165,8 +167,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
           propertyType: baseData?.details?.realEstate?.propertyType || PropertyType.HOUSE,
           size: baseData?.details?.realEstate?.size || "",
           yearBuilt: baseData?.details?.realEstate?.yearBuilt || "",
-          bedrooms: baseData?.details?.realEstate?.bedrooms || 0,
-          bathrooms: baseData?.details?.realEstate?.bathrooms || 0,
+          bedrooms: baseData?.details?.realEstate?.bedrooms || "0",
+          bathrooms: baseData?.details?.realEstate?.bathrooms || "0",
           condition: baseData?.details?.realEstate?.condition || Condition.GOOD,
           features: baseData?.details?.realEstate?.features || [],
         } : undefined,
