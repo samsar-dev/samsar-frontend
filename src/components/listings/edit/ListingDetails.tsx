@@ -77,8 +77,14 @@ const ListingDetails: React.FC = () => {
           "Response data details:",
           JSON.stringify(response.data?.details, null, 2)
         );
-        console.log('FULL Response Data:', JSON.stringify(response.data, null, 2));
-        console.log('Response data details:', JSON.stringify(response.data?.details, null, 2));
+        console.log(
+          "FULL Response Data:",
+          JSON.stringify(response.data, null, 2)
+        );
+        console.log(
+          "Response data details:",
+          JSON.stringify(response.data?.details, null, 2)
+        );
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details:",
@@ -520,6 +526,18 @@ const ListingDetails: React.FC = () => {
                     )}
                   </div>
                 </div>
+
+                {/* Debug Information - will show all fields */}
+                {/* <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
+                  <h3 className="text-sm font-semibold mb-2">All Vehicle Fields (Debug)</h3>
+                  <div className="text-xs">
+                    {Object.entries(listing.details.vehicles).map(([key, value]) => (
+                      <div key={key} className="mb-1">
+                        <span className="font-medium">{key}:</span> {JSON.stringify(value)}
+                      </div>
+                    ))}
+                  </div>
+                </div> */}
 
                 {/* Features */}
                 {listing.details.vehicles.features &&

@@ -19,13 +19,19 @@ interface RequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration
+const baseURL = import.meta.env.MODE === 'production'
+  ? import.meta.env.VITE_API_URL_PROD
+  : import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+console.log('API Base URL:', baseURL); // For debugging
+
 export const apiConfig = {
-  baseURL: import.meta.env.MODE === 'production'
-    ? import.meta.env.VITE_API_URL_PROD
-    : import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL,
   timeout: 15000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
 };
 
