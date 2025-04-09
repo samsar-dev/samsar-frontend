@@ -16,6 +16,20 @@ export type RequiredKeys<T> = {
   [K in keyof T]-?: unknown extends Pick<T, K> ? never : K;
 }[keyof T];
 
+/**
+ * Makes all properties in T optional recursively
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+/**
+ * Makes all properties in T required recursively
+ */
+export type DeepRequired<T> = {
+  [P in keyof T]-?: T[P] extends object ? DeepRequired<T[P]> : T[P];
+};
+
 // Form Types
 export type FormErrors = {
   [key: string]: string;

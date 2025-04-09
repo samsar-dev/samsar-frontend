@@ -77,8 +77,8 @@ export enum Condition {
 }
 
 export enum ListingAction {
-  SELL = 'SELL',
-  RENT = 'RENT'
+  SELL = 'sell',
+  RENT = 'rent'
 }
 
 export enum ListingStatus {

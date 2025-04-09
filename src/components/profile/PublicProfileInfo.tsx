@@ -6,17 +6,13 @@ import type { UserProfile } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-toastify";
 
-interface ProfileInfoProps {
-  userId: string;
-}
-
 interface FormData {
   username: string;
   email: string;
   bio?: string;
 }
 
-export const ProfileInfo: React.FC<ProfileInfoProps> = ({ userId }) => {
+export const ProfileInfo = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);

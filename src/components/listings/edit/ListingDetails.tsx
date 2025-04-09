@@ -10,6 +10,7 @@ import {
   FuelType,
   TransmissionType,
   Condition,
+  ListingAction,
 } from "@/types/enums";
 import type { ListingMessageInput } from "@/types/messaging";
 import { toast } from "react-toastify";
@@ -21,10 +22,21 @@ import TokenManager from "@/utils/tokenManager";
 
 interface ListingImage {
   url: string;
+  id?: string;
+  listingId?: string;
+  order?: number;
+}
+
+interface ExtendedListing extends Listing {
+  seller?: {
+    id: string;
+    username: string;
+    profilePicture: string | null;
+  };
 }
 
 // Using types directly from listings.ts
-import type { ListingDetails as IListingDetails } from "@/types/listings";
+import type { ListingDetails } from "@/types/listings";
 
 const ListingDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -32,7 +44,7 @@ const ListingDetails: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
-  const [listing, setListing] = useState<Listing | null>(null);
+  const [listing, setListing] = useState<ExtendedListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showContactForm, setShowContactForm] = useState(false);
@@ -109,24 +121,21 @@ const ListingDetails: React.FC = () => {
 
         // Ensure images are in the correct format
         const processedImages = (listing.images || [])
-          .map((img) => {
+          .map((img: string | ListingImage) => {
             console.log("Processing image:", img);
             if (typeof img === "string") return img;
-            if (img && typeof img === "object") {
-              if ("url" in img) return img.url;
-              // If image is an object but doesn't have url property, try to find a string property
-              const stringProps = Object.values(img).find(
-                (val) => typeof val === "string"
-              );
-              return stringProps || "";
-            }
-            return "";
+            if (img && typeof img === "object" && "url" in img) return img.url;
+            // If image is an object but doesn't have url property, try to find a string property
+            const stringProps = Object.values(img as Record<string, unknown>).find(
+              (val) => typeof val === "string"
+            );
+            return stringProps || "";
           })
           .filter(Boolean);
 
         console.log("Processed images:", processedImages);
 
-        const { category, details, listingAction, status, ...rest } = listing;
+        const { category, details = {}, listingAction, status, ...rest } = listing;
 
         console.log("Listing category:", category);
 
@@ -183,8 +192,12 @@ const ListingDetails: React.FC = () => {
           },
           details: transformedDetails,
           listingAction: listingAction?.toLowerCase() as "sell" | "rent",
-
           images: processedImages,
+          seller: {
+            id: listing.userId,
+            username: listing.seller?.username || "Unknown Seller",
+            profilePicture: listing.seller?.profilePicture || null
+          }
         });
       } catch (error) {
         console.error("Error fetching listing:", error);
@@ -282,7 +295,7 @@ const ListingDetails: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images Section */}
         <div className="w-full">
-          <ImageGallery images={listing.images} />
+          <ImageGallery images={listing?.images || []} />
         </div>
 
         {/* Details Section */}
@@ -290,13 +303,36 @@ const ListingDetails: React.FC = () => {
           {/* Title and Price Section */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
             <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
-              {listing.title}
+              {listing?.title}
             </h1>
             <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
-              {formatCurrency(listing.price)}
-              {listing.listingAction?.toLowerCase() === "rent" && "/month"}
+              {listing?.price && formatCurrency(listing.price)}
+              {listing?.listingAction?.toLowerCase() === ListingAction.RENT && "/month"}
             </p>
           </div>
+
+          {/* Seller Information */}
+          {listing?.seller && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+              <div className="flex items-center space-x-4">
+                <img
+                  src={listing.seller.profilePicture || "/default-avatar.png"}
+                  alt={listing.seller.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <button
+                      onClick={() => navigate(`/profile/${listing.seller.id}`)}
+                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                      {listing.seller.username}
+                    </button>
+                  </h3>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Basic Information */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
@@ -341,7 +377,7 @@ const ListingDetails: React.FC = () => {
           </div>
 
           {/* Vehicle Details */}
-          {isVehicle && listing.details.vehicles && (
+          {isVehicle && listing?.details?.vehicles && (
             <div className=" ">
               {/* <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
                         {t("listings.vehicleDetails")}
@@ -565,7 +601,7 @@ const ListingDetails: React.FC = () => {
           )}
 
           {/* Real Estate Details */}
-          {isRealEstate && listing.details.realEstate && (
+          {isRealEstate && listing?.details?.realEstate && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
                 {t("listings.propertyDetails")}
@@ -578,51 +614,51 @@ const ListingDetails: React.FC = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `listings.propertyTypes.${listing.details.realEstate.propertyType.toLowerCase()}`
+                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`
                     )}
                   </p>
                 </div>
-                {listing.details.realEstate.size && (
+                {listing?.details?.realEstate?.size && (
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("listings.size")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.realEstate.size} m²
+                      {listing?.details?.realEstate?.size} m²
                     </p>
                   </div>
                 )}
-                {listing.details.realEstate.bedrooms && (
+                {listing?.details?.realEstate?.bedrooms && (
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("listings.bedrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.realEstate.bedrooms}
+                      {listing?.details?.realEstate?.bedrooms}
                     </p>
                   </div>
                 )}
-                {listing.details.realEstate.bathrooms && (
+                {listing?.details?.realEstate?.bathrooms && (
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("listings.bathrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.realEstate.bathrooms}
+                      {listing?.details?.realEstate?.bathrooms}
                     </p>
                   </div>
                 )}
-                {listing.details.realEstate.yearBuilt && (
+                {listing?.details?.realEstate?.yearBuilt && (
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("listings.yearBuilt")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.realEstate.yearBuilt}
+                      {listing?.details?.realEstate?.yearBuilt}
                     </p>
                   </div>
                 )}
-                {listing.details.realEstate.condition && (
+                {listing?.details?.realEstate?.condition && (
                   <div className="space-y-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {t("listings.condition")}
@@ -636,8 +672,8 @@ const ListingDetails: React.FC = () => {
                 )}
               </div>
 
-              {listing.details.realEstate.features &&
-                listing.details.realEstate.features.length > 0 && (
+              {listing?.details?.realEstate?.features &&
+                listing?.details?.realEstate?.features?.length > 0 && (
                   <div className="mt-6 space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {t("listings.features")}

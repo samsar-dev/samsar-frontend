@@ -26,11 +26,6 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
       component: <MyListings />,
     },
     {
-      id: "settings",
-      path: "/settings",
-      label: "⚙️ " + t("profile.settings"),
-    },
-    {
       id: "password",
       path: "/profile/password",
       label: "🔒 " + t("profile.change_password"),

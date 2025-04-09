@@ -87,6 +87,12 @@ export enum ListingStatus {
   PENDING = "pending",
 }
 
+// 🌟 Listing Action Types
+export enum ListingAction {
+  SELL = "sell",
+  RENT = "rent"
+}
+
 // 🌟 Report System Enums
 export enum ReportType {
   USER = "user",
@@ -117,7 +123,17 @@ export interface FormState {
   // Add properties as needed
 }
 
-export enum ListingAction {
-  SELL = "sell",
-  RENT = "rent",
+export enum SocketEvent {
+  CONNECT = "connect",
+  DISCONNECT = "disconnect",
+  CONNECT_ERROR = "connect_error",
+  MESSAGE = "message",
+  ERROR = "error",
+  NOTIFICATION_NEW = "notification:new",
+  MESSAGE_NEW = "message:new",
+  MESSAGE_READ = "message:read",
+  MESSAGE_SEND = "message:send",
+  NOTIFICATION_READ = "notification:read",
+  JOIN = "join",
+  LEAVE = "leave"
 }
