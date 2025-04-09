@@ -1,108 +1,122 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listingsAPI } from "@/api/listings.api";
-import type { Listing, VehicleDetails, RealEstateDetails } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 import MyListingCard from "@/components/listings/details/MyListingCard";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 
-interface ListingsResponse {
-  listings: Listing[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+interface MyListingsProps {
+  userId: string;
 }
 
-export const MyListings: React.FC = () => {
+export default function MyListings({ userId }: MyListingsProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, isLoading: isAuthLoading, isInitialized } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const limit = 10;
 
-  const fetchListings = useCallback(async () => {
+  useEffect(() => {
+    // Only redirect if auth is initialized and user is not authenticated
+    if (isInitialized && !isAuthLoading && !isAuthenticated) {
+      toast.error(t("auth.requiresLogin"));
+      navigate("/auth/login", { 
+        state: { from: location.pathname + location.search }
+      });
+      return;
+    }
+  }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
+
+  const fetchListings = async () => {
+    if (!isAuthenticated || !isInitialized) return;
+    
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
-      const response = await listingsAPI.getUserListings({ page });
+      const response = await listingsAPI.getUserListings({ page, limit });
+      console.log('API Response:', response);
 
-      if (response.data && response.success) {
-        const data = response.data as unknown as ListingsResponse;
-        if (data.listings) {
-          setListings((prev) =>
-            page === 1 ? data.listings : [...prev, ...data.listings],
-          );
-          setHasMore(data.hasMore);
-          setTotal(data.total);
-        } else {
-          setListings([]);
-          setHasMore(false);
-          setTotal(0);
-        }
+      if (response.success && response.data) {
+        const listingsData = response.data.listings || [];
+        const totalItems = response.data.total || 0;
+        
+        setListings(prev => page === 1 ? listingsData : [...prev, ...listingsData]);
+        setTotal(totalItems);
+        setHasMore(listingsData.length === limit);
       } else {
+        console.error('API Error:', response.error);
         throw new Error(response.error || "Failed to fetch listings");
       }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch listings";
-      setError(errorMessage);
-      toast.error(errorMessage);
-      setListings([]);
-      setHasMore(false);
-      setTotal(0);
+    } catch (err) {
+      console.error('Fetch Error:', err);
+      setError(err instanceof Error ? err.message : "Failed to fetch listings");
+      if (page === 1) {
+        setListings([]);
+        setHasMore(false);
+        setTotal(0);
+      }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [page]);
+  };
 
   const handleDelete = async (listingId: string) => {
     try {
-      const response = await listingsAPI.deleteListing(listingId);
+      const response = await listingsAPI.delete(listingId);
       if (response.success) {
-        setListings((prev) => prev.filter((listing) => listing.id !== listingId));
-        setTotal((prev) => prev - 1);
         toast.success(t("listings.deleted"));
+        // Remove the deleted listing from the current state
+        setListings(prev => prev.filter(listing => listing.id !== listingId));
+        setTotal(prev => prev - 1);
       } else {
-        throw new Error(response.error || "Failed to delete listing");
+        toast.error(response.error || t("listings.delete_error"));
       }
-    } catch (error: any) {
-      console.error("Error deleting listing:", error);
-      const errorMessage = error.response?.data?.error || error.message || "Failed to delete listing";
-      toast.error(errorMessage);
+    } catch (err) {
+      console.error("Error deleting listing:", err);
+      toast.error(err instanceof Error ? err.message : t("listings.delete_error"));
     }
   };
 
   useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
+    if (isAuthenticated && !isAuthLoading && isInitialized) {
+      fetchListings();
+    }
+  }, [page, isAuthenticated, isAuthLoading, isInitialized]);
 
-  const loadMore = () => {
-    if (!loading && hasMore) {
-      setPage((prev) => prev + 1);
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      setPage(prev => prev + 1);
     }
   };
 
-  if (loading && page === 1) {
+  if (isAuthLoading || (isLoading && page === 1)) {
     return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center min-h-[200px]">
+        <Spinner />
       </div>
     );
   }
 
-  if (error && listings.length === 0) {
+  if (error && page === 1) {
     return (
-      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+      <div className="text-center text-red-500 py-4">
         {error}
       </div>
     );
   }
 
-  if (!listings || listings.length === 0) {
+  if (!isLoading && listings.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+      <div className="text-center py-4">
         {t("listings.no_listings")}
       </div>
     );
@@ -110,42 +124,32 @@ export const MyListings: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
-          {t("listings.my_listings")} ({total})
-        </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {listings.map((listing) => (
+          <MyListingCard
+            key={listing.id}
+            listing={listing}
+            onDelete={handleDelete}
+          />
+        ))}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {listings.map((listing) => {
-          const vehicleDetails = listing.details?.vehicles as VehicleDetails | undefined;
-          const realEstateDetails = listing.details?.realEstate as RealEstateDetails | undefined;
-          
-          return (
-            <MyListingCard
-              key={listing.id}
-              listing={{
-                ...listing,
-                vehicleDetails,
-                realEstateDetails,
-              }}
-              onDelete={handleDelete}
-            />
-          );
-        })}
-      </div>
-      {hasMore && (
-        <div className="flex justify-center mt-8">
+      
+      {isLoading && page > 1 && (
+        <div className="flex justify-center py-4">
+          <Spinner />
+        </div>
+      )}
+      
+      {hasMore && !isLoading && (
+        <div className="flex justify-center py-4">
           <button
-            onClick={loadMore}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            onClick={handleLoadMore}
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
           >
-            {loading ? t("common.loading") : t("common.load_more")}
+            {t("common.load_more")}
           </button>
         </div>
       )}
     </div>
   );
-};
-
-export default MyListings;
+}

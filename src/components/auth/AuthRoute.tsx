@@ -2,6 +2,7 @@ import type { PropsWithChildren } from "react";
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Spinner } from "@/components/ui/Spinner";
 
 interface AuthRouteProps {
   roles?: string[];
@@ -13,13 +14,26 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   redirectTo = "/login",
   children,
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading, isInitialized } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  // Show loading spinner while auth is initializing
+  if (isLoading || !isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    // Preserve the full URL including search params and hash
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to={redirectTo} state={{ from: returnTo }} replace />;
+  }
+
+  // Check role-based access
   if (roles.length > 0 && (!user?.role || !roles.includes(user.role))) {
     return <Navigate to="/unauthorized" replace />;
   }

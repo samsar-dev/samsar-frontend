@@ -3,10 +3,6 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { UIProvider } from "@/contexts/UIContext";
-import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import { SavedListingsProvider } from "@/contexts/SavedListingsContext";
 import "./config/i18n"; // Import i18n configuration
 import "./assets/css/index.css";
 
@@ -21,15 +17,7 @@ root.render(
   <React.StrictMode>
     <HelmetProvider>
       <BrowserRouter>
-        <UIProvider>
-          <AuthProvider>
-            <NotificationsProvider>
-              <SavedListingsProvider>
-                <App />
-              </SavedListingsProvider>
-            </NotificationsProvider>
-          </AuthProvider>
-        </UIProvider>
+        <App />
       </BrowserRouter>
     </HelmetProvider>
   </React.StrictMode>,
