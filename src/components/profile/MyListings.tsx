@@ -1,9 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { listingsAPI } from "@/api/listings.api";
-import type { Listing, ListingsResponseType } from "@/types";
-import ListingCard from "@/components/listings/details/ListingCard";
+import type { Listing, VehicleDetails, RealEstateDetails } from "@/types/listings";
+import MyListingCard from "@/components/listings/details/MyListingCard";
 import { toast } from "react-toastify";
+
+interface ListingsResponse {
+  listings: Listing[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
 
 export const MyListings: React.FC = () => {
   const { t } = useTranslation();
@@ -17,21 +25,33 @@ export const MyListings: React.FC = () => {
   const fetchListings = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await listingsAPI.getUserListings({ page });
 
       if (response.data && response.success) {
-        const data = response.data;
-        setListings((prev) =>
-          page === 1 ? data.listings : [...prev, ...data.listings],
-        );
-        setHasMore(data.hasMore);
-        setTotal(data.total);
+        const data = response.data as unknown as ListingsResponse;
+        if (data.listings) {
+          setListings((prev) =>
+            page === 1 ? data.listings : [...prev, ...data.listings],
+          );
+          setHasMore(data.hasMore);
+          setTotal(data.total);
+        } else {
+          setListings([]);
+          setHasMore(false);
+          setTotal(0);
+        }
+      } else {
+        throw new Error(response.error || "Failed to fetch listings");
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to fetch listings";
       setError(errorMessage);
       toast.error(errorMessage);
+      setListings([]);
+      setHasMore(false);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -64,7 +84,7 @@ export const MyListings: React.FC = () => {
     }
   };
 
-  if (loading && listings.length === 0) {
+  if (loading && page === 1) {
     return (
       <div className="flex justify-center py-8">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -80,7 +100,7 @@ export const MyListings: React.FC = () => {
     );
   }
 
-  if (listings.length === 0) {
+  if (!listings || listings.length === 0) {
     return (
       <div className="text-center py-8 text-gray-600 dark:text-gray-400">
         {t("listings.no_listings")}
@@ -95,16 +115,23 @@ export const MyListings: React.FC = () => {
           {t("listings.my_listings")} ({total})
         </h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {listings.map((listing) => (
-          <ListingCard
-            key={listing.id}
-            listing={listing}
-            onDelete={() => handleDelete(listing.id!)}
-            editable
-            deletable
-          />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {listings.map((listing) => {
+          const vehicleDetails = listing.details?.vehicles as VehicleDetails | undefined;
+          const realEstateDetails = listing.details?.realEstate as RealEstateDetails | undefined;
+          
+          return (
+            <MyListingCard
+              key={listing.id}
+              listing={{
+                ...listing,
+                vehicleDetails,
+                realEstateDetails,
+              }}
+              onDelete={handleDelete}
+            />
+          );
+        })}
       </div>
       {hasMore && (
         <div className="flex justify-center mt-8">
