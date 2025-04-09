@@ -11,6 +11,8 @@ import {
   TransmissionType,
   PropertyType,
   Condition,
+  ListingAction,
+  ListingStatus,
 } from "@/types/enums";
 import { FormState } from "@/types/forms";
 import BasicDetailsForm from "./steps/BasicDetailsForm";
@@ -56,10 +58,16 @@ const initialFormState: FormState = {
       warranty: "",
       serviceHistory: "",
       previousOwners: 0,
-      registrationStatus: ""
+      registrationStatus: "",
+      seatingCapacity: 0,
+      // Van specific fields
+      vanType: "",
+      cargoVolume: 0,
+      payloadCapacity: 0
     },
   },
-  listingAction: "sell"
+  listingAction: ListingAction.SELL,
+  status: ListingStatus.ACTIVE
 };
 
 const CreateListing: React.FC = () => {
@@ -157,7 +165,6 @@ const CreateListing: React.FC = () => {
         // Deep merge the details objects
         const mergedVehicles = data.category.mainCategory === ListingCategory.VEHICLES 
           ? { 
-            
               vehicleType: (prev.details?.vehicles?.vehicleType || data.details?.vehicles?.vehicleType || VehicleType.CAR) as VehicleType,
               make: data.details?.vehicles?.make || prev.details?.vehicles?.make || "",
               model: data.details?.vehicles?.model || prev.details?.vehicles?.model || "",
@@ -175,7 +182,12 @@ const CreateListing: React.FC = () => {
               warranty: prev.details?.vehicles?.warranty || data.details?.vehicles?.warranty || "",
               serviceHistory: prev.details?.vehicles?.serviceHistory || data.details?.vehicles?.serviceHistory || "",
               previousOwners: prev.details?.vehicles?.previousOwners || data.details?.vehicles?.previousOwners || 0,
-              registrationStatus: prev.details?.vehicles?.registrationStatus || data.details?.vehicles?.registrationStatus || ""
+              registrationStatus: prev.details?.vehicles?.registrationStatus || data.details?.vehicles?.registrationStatus || "",
+              seatingCapacity: data.details?.vehicles?.seatingCapacity || prev.details?.vehicles?.seatingCapacity || 0,
+              // Van specific fields
+              vanType: data.details?.vehicles?.vanType || prev.details?.vehicles?.vanType || "",
+              cargoVolume: data.details?.vehicles?.cargoVolume || prev.details?.vehicles?.cargoVolume || 0,
+              payloadCapacity: data.details?.vehicles?.payloadCapacity || prev.details?.vehicles?.payloadCapacity || 0
             }
           : undefined;
           
