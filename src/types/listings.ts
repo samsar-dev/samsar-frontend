@@ -33,15 +33,28 @@ export interface VehicleDetails {
   color: string;
   condition: Condition;
   features: string[];
+  // Required fields for bus
+  seatingCapacity: number;
+  // Required fields for van
+  vanType: string;
+  cargoVolume: number;
+  payloadCapacity: number;
   // Additional fields
   interiorColor?: string;
   engine?: string;
   horsepower?: number;
   torque?: number;
-  warranty?: string;
-  serviceHistory?: string;
   previousOwners?: number;
   registrationStatus?: string;
+  serviceHistory?: string;
+  // Van-specific optional fields
+  roofHeight?: string;
+  loadingFeatures?: string[];
+  refrigeration?: boolean;
+  temperatureRange?: string;
+  interiorHeight?: string;
+  interiorLength?: string;
+  drivingAssistance?: string[];
 }
 
 export interface RealEstateDetails {

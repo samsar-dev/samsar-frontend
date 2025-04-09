@@ -51,39 +51,26 @@ export const vanSchema: ListingFieldSchema[] = [
   {
     name: 'cargoVolume',
     label: 'listings.cargoVolume',
-    type: 'text',
-    section: 'essential',
-    required: true,
-    validate: (value: string) => /^\d+(\.\d+)?$/.test(value) ? null : 'Invalid volume format'
-  },
-  {
-    name: 'payloadCapacity',
-    label: 'listings.payloadCapacity',
-    type: 'text',
-    section: 'essential',
-    required: true,
-    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid capacity format'
-  },
-  {
-    name: 'previousOwners',
-    label: 'listings.previousOwners',
     type: 'number',
     section: 'essential',
     required: true,
     validate: (value: number) => {
-      if (value === undefined || value === null) return 'Previous owners is required';
-      if (value < 0) return 'Previous owners must be 0 or greater';
+      if (value === undefined || value === null) return 'Cargo volume is required';
+      if (value < 0) return 'Cargo volume must be 0 or greater';
       return null;
     },
   },
   {
-    name: 'registrationStatus',
-    label: 'listings.registrationStatus',
-    type: 'select',
-    options: ['registered', 'unregistered', 'expired'],
+    name: 'payloadCapacity',
+    label: 'listings.payloadCapacity',
+    type: 'number',
     section: 'essential',
     required: true,
-    validate: (value: string) => !value ? 'Registration status is required' : null,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return 'Payload capacity is required';
+      if (value < 0) return 'Payload capacity must be 0 or greater';
+      return null;
+    },
   },
   {
     name: 'fuelType',
@@ -103,8 +90,81 @@ export const vanSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string) => !value ? 'Transmission type is required' : null,
   },
+  {
+    name: 'features',
+    label: 'listings.features',
+    type: 'multiselect',
+    options: [
+      'Air Conditioning',
+      'Power Steering',
+      'Power Windows',
+      'Power Locks',
+      'Anti-lock Brakes',
+      'Navigation System',
+      'Bluetooth',
+      'Cruise Control',
+      'Other'
+    ],
+    section: 'essential',
+    required: true,
+    validate: (value: string[]) => !value || value.length === 0 ? 'At least one feature is required' : null,
+  },
 
   // Advanced Section
+  {
+    name: 'interiorColor',
+    label: 'listings.interiorColor',
+    type: 'colorpicker',
+    section: 'advanced',
+    required: false
+  },
+  {
+    name: 'engine',
+    label: 'listings.engine',
+    type: 'text',
+    section: 'advanced',
+    required: false
+  },
+  {
+    name: 'horsepower',
+    label: 'listings.horsepower',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => value && value < 0 ? 'Horsepower must be 0 or greater' : null,
+  },
+  {
+    name: 'torque',
+    label: 'listings.torque',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => value && value < 0 ? 'Torque must be 0 or greater' : null,
+  },
+  {
+    name: 'previousOwners',
+    label: 'listings.previousOwners',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => value && value < 0 ? 'Previous owners must be 0 or greater' : null,
+  },
+  {
+    name: 'registrationStatus',
+    label: 'listings.registrationStatus',
+    type: 'select',
+    options: ['registered', 'unregistered', 'expired'],
+    section: 'advanced',
+    required: false
+  },
+  {
+    name: 'serviceHistory',
+    label: 'listings.serviceHistory',
+    type: 'select',
+    options: ['full', 'partial', 'none'],
+    section: 'advanced',
+    required: false
+  },
   {
     name: 'roofHeight',
     label: 'listings.roofHeight',
@@ -146,7 +206,7 @@ export const vanSchema: ListingFieldSchema[] = [
     type: 'text',
     section: 'advanced',
     required: false,
-    validate: (value: string) => /^-?\d+(\.\d+)?$/.test(value) ? null : 'Invalid temperature format'
+    validate: (value: string) => value && !/^-?\d+(\.\d+)?$/.test(value) ? 'Invalid temperature format' : null
   },
   {
     name: 'interiorHeight',
@@ -154,7 +214,7 @@ export const vanSchema: ListingFieldSchema[] = [
     type: 'text',
     section: 'advanced',
     required: false,
-    validate: (value: string) => /^\d+(\.\d+)?$/.test(value) ? null : 'Invalid height format'
+    validate: (value: string) => value && !/^\d+(\.\d+)?$/.test(value) ? 'Invalid height format' : null
   },
   {
     name: 'interiorLength',
@@ -162,15 +222,7 @@ export const vanSchema: ListingFieldSchema[] = [
     type: 'text',
     section: 'advanced',
     required: false,
-    validate: (value: string) => /^\d+(\.\d+)?$/.test(value) ? null : 'Invalid length format'
-  },
-  {
-    name: 'serviceHistory',
-    label: 'listings.serviceHistory',
-    type: 'select',
-    options: ['full', 'partial', 'none'],
-    section: 'advanced',
-    required: false
+    validate: (value: string) => value && !/^\d+(\.\d+)?$/.test(value) ? 'Invalid length format' : null
   },
   {
     name: 'drivingAssistance',
