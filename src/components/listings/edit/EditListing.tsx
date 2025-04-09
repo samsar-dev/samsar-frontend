@@ -94,12 +94,17 @@ const EditListing: React.FC = () => {
         description: formData.description,
         price: formData.price,
         category: listing.category,
-        location: `${formData.location.city}, ${formData.location.state}, ${formData.location.country}`,
+        location: formData.location.city,
         details: formData.details,
         status: listing.status,
       };
 
       const formDataObj = new FormData();
+      
+      if (listing.images) {
+        formDataObj.append('existingImages', JSON.stringify(listing.images));
+      }
+
       Object.entries(updateData).forEach(([key, value]) => {
         formDataObj.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
       });
@@ -109,11 +114,17 @@ const EditListing: React.FC = () => {
         toast.success(t("listings.updateSuccess"));
         navigate("/profile/listings");
       } else {
-        toast.error(t("listings.updateFailed"));
+        const errorMessage = response.error || t("listings.updateFailed");
+        console.error("Update failed:", errorMessage);
+        toast.error(errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating listing:", error);
-      toast.error(t("listings.updateFailed"));
+      const errorMessage = error.response?.data?.error?.message 
+        || error.response?.data?.error 
+        || error.message 
+        || t("listings.updateFailed");
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }

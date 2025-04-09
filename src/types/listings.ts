@@ -32,11 +32,11 @@ export interface VehicleDetails {
   condition: Condition;
   features: string[];
   // Required fields for bus
-  seatingCapacity: number;
+  seatingCapacity?: number;
   // Required fields for van
-  vanType: string;
-  cargoVolume: number;
-  payloadCapacity: number;
+  vanType?: string;
+  cargoVolume?: number;
+  payloadCapacity?: number;
   // Additional fields
   interiorColor?: string;
   engine?: string;
@@ -45,6 +45,7 @@ export interface VehicleDetails {
   previousOwners?: number;
   registrationStatus?: string;
   serviceHistory?: string;
+  warranty?: string;
   // Van-specific optional fields
   roofHeight?: string;
   loadingFeatures?: string[];
@@ -96,10 +97,7 @@ export interface Listing {
   userId: string;
   listingAction: ListingAction;
   status: ListingStatus;
-  details?: {
-    vehicles?: Record<string, any>;
-    realEstate?: Record<string, any>;
-  };
+  details?: ListingDetails;
 }
 
 export interface ListingUpdateInput {
@@ -122,9 +120,19 @@ export interface ListingResponse {
 }
 
 export interface ListingsResponse {
-  success: boolean;
-  data?: Listing[];
-  message?: string;
+  items: Listing[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface UserListingsResponse {
+  listings: Listing[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
 }
 
 // Base form state with all fields optional for form handling

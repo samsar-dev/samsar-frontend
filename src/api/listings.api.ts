@@ -114,6 +114,14 @@ export const createListing = async (formData: FormData) => {
   }
 };
 
+interface UserListingsResponse {
+  listings: Listing[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
 export const listingsAPI = {
   async getAll(params: ListingParams): Promise<APIResponse<ListingsResponse>> {
     try {
@@ -191,28 +199,24 @@ export const listingsAPI = {
     formData: FormData
   ): Promise<APIResponse<Listing>> {
     try {
-      const response = await fetch(`${API_URL}/listings/${id}`, {
-        method: "PUT",
-        credentials: "include",
-        body: formData,
+      const response = await apiClient.put(`/listings/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to update listing');
       }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      return response.data;
+    } catch (error: any) {
       console.error("Error updating listing:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update listing"
-      );
+      const errorMessage = error.response?.data?.error?.message 
+        || error.response?.data?.error 
+        || error.message 
+        || "Failed to update listing";
+      throw new Error(errorMessage);
     }
   },
 
@@ -295,20 +299,16 @@ export const listingsAPI = {
   },
 
   // Get listings by user
-  async getUserListings(params?: ListingParams): Promise<APIResponse<Listing>> {
+  async getUserListings(params?: ListingParams): Promise<APIResponse<UserListingsResponse>> {
     try {
       const queryString = params
         ? new URLSearchParams(params as any).toString()
         : "";
-      const response = await apiClient.get<APIResponse<Listing>>(
+      const response = await apiClient.get<APIResponse<UserListingsResponse>>(
         `/listings/user${queryString ? `?${queryString}` : ""}`
       );
 
-      return {
-        success: true,
-        data: response.data.data,
-        error: undefined,
-      };
+      return response.data;
     } catch (error: any) {
       console.error("Error fetching user listings:", error);
       return {
