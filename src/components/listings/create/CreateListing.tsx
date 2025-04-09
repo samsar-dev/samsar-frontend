@@ -149,6 +149,7 @@ const CreateListing: React.FC = () => {
   };
 
   const handleAdvancedDetailsSubmit = (data: any, isValid: boolean) => {
+    console.log("Advanced details form data:", data)
     if (isValid) {
       console.log("Advanced details submitted:", data);
       
@@ -164,8 +165,10 @@ const CreateListing: React.FC = () => {
               mileage: prev.details?.vehicles?.mileage || data.details?.vehicles?.mileage || "",
               fuelType: (prev.details?.vehicles?.fuelType || data.details?.vehicles?.fuelType || FuelType.GASOLINE) as FuelType,
               transmissionType: (prev.details?.vehicles?.transmissionType || data.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC) as TransmissionType,
+              brakeType: prev.details?.vehicles?.brakeType || data.details?.vehicles?.brakeType || "",
               color: prev.details?.vehicles?.color || data.details?.vehicles?.color || "",
               condition: (prev.details?.vehicles?.condition || data.details?.vehicles?.condition || Condition.GOOD) as Condition,
+              engineSize: prev.details?.vehicles?.engineSize || data.details?.vehicles?.engineSize || "",
               features: prev.details?.vehicles?.features || data.details?.vehicles?.features || [],
               interiorColor: prev.details?.vehicles?.interiorColor || data.details?.vehicles?.interiorColor || "",
               engine: prev.details?.vehicles?.engine || data.details?.vehicles?.engine || "",
