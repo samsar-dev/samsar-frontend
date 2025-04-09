@@ -10,6 +10,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import TokenManager from "@/utils/tokenManager";
 import AppRoutes from "./routes/Routes";
 import { Spinner } from "@/components/ui/Spinner";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -39,17 +40,19 @@ const App: () => ReactElement = () => {
   return (
     <UIProvider>
       <AuthProvider>
-        <FavoritesProvider>
-          <ListingsProvider>
-            <SettingsProvider>
-              <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                <Layout>
-                  <AppRoutes />
-                </Layout>
-              </div>
-            </SettingsProvider>
-          </ListingsProvider>
-        </FavoritesProvider>
+        <NotificationsProvider>
+          <FavoritesProvider>
+            <ListingsProvider>
+              <SettingsProvider>
+                <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
+                  <Layout>
+                    <AppRoutes />
+                  </Layout>
+                </div>
+              </SettingsProvider>
+            </ListingsProvider>
+          </FavoritesProvider>
+        </NotificationsProvider>
       </AuthProvider>
     </UIProvider>
   );
