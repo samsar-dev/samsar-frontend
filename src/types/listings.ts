@@ -5,6 +5,8 @@ import type {
   FuelType,
   TransmissionType,
   Condition,
+  ListingAction,
+  ListingStatus,
 } from "./enums";
 
 export interface ListingFieldSchema {
@@ -57,30 +59,61 @@ export interface ListingDetails {
   realEstate?: RealEstateDetails;
 }
 
+export interface Location {
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+}
+
+export interface Category {
+  mainCategory: ListingCategory;
+  subCategory: string;
+}
+
 export interface Listing {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   price: number;
-  category: {
-    mainCategory: ListingCategory;
-    subCategory: VehicleType | PropertyType;
-  };
   location: string;
-  images: Array<string | File>;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  userId?: string;
-  details: ListingDetails;
-  favorite?: boolean;
-  listingAction?: "sell" | "rent";
+  category: Category;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  listingAction: ListingAction;
+  status: ListingStatus;
+  details?: {
+    vehicles?: Record<string, any>;
+    realEstate?: Record<string, any>;
+  };
+}
+
+export interface ListingUpdateInput {
+  title: string;
+  description: string;
+  price: number;
+  location: string;
+  category: Category;
+  details?: {
+    vehicles?: Record<string, any>;
+    realEstate?: Record<string, any>;
+  };
+  status?: ListingStatus;
+}
+
+export interface ListingResponse {
+  success: boolean;
+  data?: Listing;
+  message?: string;
 }
 
 export interface ListingsResponse {
-  listings: Listing[];
-  total: number;
-  page: number;
-  limit: number;
+  success: boolean;
+  data?: Listing[];
+  message?: string;
 }
 
 // Base form state with all fields optional for form handling

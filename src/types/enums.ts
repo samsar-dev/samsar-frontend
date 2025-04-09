@@ -1,7 +1,7 @@
 // 🌟 Listing Categories
 export enum ListingCategory {
-  VEHICLES = "VEHICLES",
-  REAL_ESTATE = "REAL_ESTATE",
+  VEHICLES = "vehicles",
+  REAL_ESTATE = "realEstate",
 }
 
 // 🌟 Vehicle Types
@@ -81,10 +81,10 @@ export type ColorScheme = "blue" | "green" | "purple" | "orange";
 // 🌟 Listing Status
 export enum ListingStatus {
   ACTIVE = "active",
+  INACTIVE = "inactive",
   SOLD = "sold",
   RENTED = "rented",
-  EXPIRED = "expired",
-  ARCHIVED = "archived",
+  PENDING = "pending",
 }
 
 // 🌟 Report System Enums
@@ -115,4 +115,9 @@ export enum ReportReason {
 export interface FormState {
   price?: number | string;
   // Add properties as needed
+}
+
+export enum ListingAction {
+  SELL = "sell",
+  RENT = "rent",
 }
