@@ -39,35 +39,123 @@ const MyListingCard: React.FC<MyListingCardProps> = ({
         : "/placeholder.jpg"
       : "/placeholder.jpg";
 
-  const renderDetails = () => {
+  const renderVehicleDetails = () => {
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
       return (
-        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>{vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}</p>
-          {vehicleDetails.mileage && (
-            <p>{vehicleDetails.mileage} km</p>
-          )}
-          {vehicleDetails.transmissionType && vehicleDetails.fuelType && (
-            <p>{t(`enums.transmission.${vehicleDetails.transmissionType}`)} • {t(`enums.fuel.${vehicleDetails.fuelType}`)}</p>
+        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+          {/* Essential Details */}
+          <div>
+            <p className="font-medium">{vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+              {vehicleDetails.mileage && (
+                <p>{vehicleDetails.mileage} km</p>
+              )}
+              {vehicleDetails.transmissionType && (
+                <p>{t(`enums.transmission.${vehicleDetails.transmissionType}`)}</p>
+              )}
+              {vehicleDetails.fuelType && (
+                <p>{t(`enums.fuel.${vehicleDetails.fuelType}`)}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Details */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {vehicleDetails.engine && (
+              <p>{vehicleDetails.engine}</p>
+            )}
+            {vehicleDetails.color && (
+              <p>{t("listings.color")}: {vehicleDetails.color}</p>
+            )}
+            {vehicleDetails.condition && (
+              <p>{t("listings.condition")}: {vehicleDetails.condition}</p>
+            )}
+            {vehicleDetails.warranty !== undefined && (
+              <p>{t("listings.warranty")}: {vehicleDetails.warranty} {t("listings.months")}</p>
+            )}
+            {vehicleDetails.serviceHistory && (
+              <p>{t("listings.serviceHistory")}: {vehicleDetails.serviceHistory}</p>
+            )}
+            {vehicleDetails.previousOwners !== undefined && (
+              <p>{t("listings.previousOwners")}: {vehicleDetails.previousOwners}</p>
+            )}
+            {vehicleDetails.registrationStatus && (
+              <p>{t("listings.registrationStatus")}: {vehicleDetails.registrationStatus}</p>
+            )}
+          </div>
+
+          {/* Features */}
+          {vehicleDetails.features && vehicleDetails.features.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {vehicleDetails.features.slice(0, 3).map((feature, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
+                >
+                  {feature}
+                </span>
+              ))}
+              {vehicleDetails.features.length > 3 && (
+                <span className="text-xs text-gray-500">
+                  +{vehicleDetails.features.length - 3} more
+                </span>
+              )}
+            </div>
           )}
         </div>
       );
     }
+    return null;
+  };
 
+  const renderRealEstateDetails = () => {
     if (category.mainCategory === ListingCategory.REAL_ESTATE && realEstateDetails) {
       return (
-        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>{t(`enums.propertyType.${realEstateDetails.propertyType}`)}</p>
-          {realEstateDetails.size && (
-            <p>{realEstateDetails.size} m²</p>
-          )}
-          {realEstateDetails.bedrooms && realEstateDetails.bathrooms && (
-            <p>{realEstateDetails.bedrooms} {t('common.beds')} • {realEstateDetails.bathrooms} {t('common.baths')}</p>
+        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+          {/* Essential Details */}
+          <div>
+            <p className="font-medium">{t(`enums.propertyType.${realEstateDetails.propertyType}`)}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+              {realEstateDetails.size && (
+                <p>{realEstateDetails.size} m²</p>
+              )}
+              {realEstateDetails.bedrooms && realEstateDetails.bathrooms && (
+                <p>{realEstateDetails.bedrooms} {t('common.beds')} • {realEstateDetails.bathrooms} {t('common.baths')}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Details */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {realEstateDetails.yearBuilt && (
+              <p>{t("listings.yearBuilt")}: {realEstateDetails.yearBuilt}</p>
+            )}
+            {realEstateDetails.condition && (
+              <p>{t("listings.condition")}: {t(`listings.conditions.${realEstateDetails.condition.toLowerCase()}`)}</p>
+            )}
+          </div>
+
+          {/* Features */}
+          {realEstateDetails.features && realEstateDetails.features.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {realEstateDetails.features.slice(0, 3).map((feature, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
+                >
+                  {feature}
+                </span>
+              ))}
+              {realEstateDetails.features.length > 3 && (
+                <span className="text-xs text-gray-500">
+                  +{realEstateDetails.features.length - 3} more
+                </span>
+              )}
+            </div>
           )}
         </div>
       );
     }
-
     return null;
   };
 
@@ -131,7 +219,11 @@ const MyListingCard: React.FC<MyListingCardProps> = ({
           {formatCurrency(price)}
           {listingAction === 'rent' && <span className="text-sm ml-1">/mo</span>}
         </p>
-        {renderDetails()}
+        
+        {/* Render category-specific details */}
+        {renderVehicleDetails()}
+        {renderRealEstateDetails()}
+
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
           {location}
         </p>
