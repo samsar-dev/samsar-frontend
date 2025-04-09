@@ -60,6 +60,13 @@ const Home: React.FC = () => {
       const allListingsParams: ListingParams = {
         category: {
           mainCategory: selectedCategory as ListingCategory,
+          // Only include subcategories if a specific category is selected
+          ...(selectedCategory === ListingCategory.VEHICLES && {
+            subCategory: VehicleType.CAR, // Default to CAR for vehicles
+          }),
+          ...(selectedCategory === ListingCategory.REAL_ESTATE && {
+            subCategory: PropertyType.HOUSE, // Default to HOUSE for real estate
+          }),
         },
         limit: 8,
         page: 1,
@@ -68,6 +75,13 @@ const Home: React.FC = () => {
       const popularListingsParams: ListingParams = {
         category: {
           mainCategory: selectedCategory as ListingCategory,
+          // Only include subcategories if a specific category is selected
+          ...(selectedCategory === ListingCategory.VEHICLES && {
+            subCategory: VehicleType.CAR, // Default to CAR for vehicles
+          }),
+          ...(selectedCategory === ListingCategory.REAL_ESTATE && {
+            subCategory: PropertyType.HOUSE, // Default to HOUSE for real estate
+          }),
         },
         sortBy: "favorites",
         sortOrder: "desc",
