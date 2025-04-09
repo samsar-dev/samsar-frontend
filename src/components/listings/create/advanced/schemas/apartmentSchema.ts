@@ -1,6 +1,7 @@
 import { ListingFieldSchema } from "@/types/listings";
 
 export const apartmentSchema: ListingFieldSchema[] = [
+  // Essential Section
   {
     name: "condition",
     label: "listings.condition",
@@ -29,44 +30,53 @@ export const apartmentSchema: ListingFieldSchema[] = [
     type: "select",
     options: ["garage", "underground", "street", "none"],
     section: "essential",
+    required: true,
   },
   {
     name: "elevator",
     label: "listings.elevator",
     type: "checkbox",
-    section: "features",
+    section: "essential",
+    required: true,
   },
+
+  // Advanced Section
   {
     name: "balcony",
     label: "listings.balcony",
     type: "checkbox",
-    section: "features",
+    section: "advanced",
+    required: false,
   },
   {
     name: "storage",
     label: "listings.storage",
     type: "checkbox",
-    section: "features",
+    section: "advanced",
+    required: false,
   },
   {
     name: "heating",
     label: "listings.heating",
     type: "select",
     options: ["central", "individual", "district", "none"],
-    section: "features",
+    section: "advanced",
+    required: false,
   },
   {
     name: "cooling",
     label: "listings.cooling",
     type: "select",
     options: ["central", "split", "window", "none"],
-    section: "features",
+    section: "advanced",
+    required: false,
   },
   {
     name: "buildingAmenities",
     label: "listings.buildingAmenities",
     type: "multiselect",
     options: ["gym", "pool", "sauna", "playground", "security"],
-    section: "features",
+    section: "advanced",
+    required: false,
   },
 ];

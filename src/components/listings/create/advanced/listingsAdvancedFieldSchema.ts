@@ -1,6 +1,6 @@
 // src/components/listings/create/advanced/listingsAdvancedFieldSchema.ts
 import { ListingFieldSchema } from "@/types/listings";
-import { VehicleType, PropertyType, Condition, FuelType, TransmissionType } from "@/types/enums";
+import { VehicleType, PropertyType, Condition } from "@/types/enums";
 
 // Import individual schemas
 import { carSchema } from './schemas/carSchema';
@@ -11,6 +11,31 @@ import { vanSchema } from './schemas/vanSchema';
 import { busSchema } from './schemas/busSchema';
 import { houseSchema } from './schemas/houseSchema';
 import { apartmentSchema } from './schemas/apartmentSchema';
+
+// Define section configuration type
+export type SectionId = 
+  | 'essential'
+  | 'advanced';
+
+export interface SectionConfig {
+  order: number;
+  icon: string;
+  label: string;
+}
+
+// Define section order and metadata
+export const SECTION_CONFIG: Record<SectionId, SectionConfig> = {
+  essential: {
+    order: 1,
+    icon: 'FaCarSide',
+    label: 'sections.essential'
+  },
+  advanced: {
+    order: 2,
+    icon: 'FaCog',
+    label: 'sections.advanced'
+  }
+};
 
 // Common fields
 const colorField: ListingFieldSchema = {
@@ -27,7 +52,7 @@ const conditionField: ListingFieldSchema = {
   label: 'listings.condition',
   type: 'select',
   options: Object.values(Condition),
-  section: 'details',
+  section: 'essential',
   required: true,
   validate: (value: string) => Object.values(Condition).includes(value as Condition) ? null : 'Invalid condition value'
 };
@@ -38,21 +63,21 @@ const baseVehicleSchema: ListingFieldSchema[] = [
     name: 'make',
     label: 'listings.make',
     type: 'text',
-    section: 'details',
+    section: 'essential',
     required: true
   },
   {
     name: 'model',
     label: 'listings.model',
     type: 'text',
-    section: 'details',
+    section: 'essential',
     required: true
   },
   {
     name: 'year',
     label: 'listings.year',
     type: 'text',
-    section: 'details',
+    section: 'essential',
     required: true
   },
   {
@@ -60,7 +85,7 @@ const baseVehicleSchema: ListingFieldSchema[] = [
     label: 'listings.condition',
     type: 'select',
     options: Object.values(Condition),
-    section: 'details',
+    section: 'essential',
     required: true
   }
 ];
@@ -71,7 +96,7 @@ const baseRealEstateSchema: ListingFieldSchema[] = [
     label: 'listings.propertyType',
     type: 'select',
     options: Object.values(PropertyType),
-    section: 'details',
+    section: 'essential',
     required: true
   },
   {
@@ -79,7 +104,7 @@ const baseRealEstateSchema: ListingFieldSchema[] = [
     label: 'listings.condition',
     type: 'select',
     options: Object.values(Condition),
-    section: 'details',
+    section: 'essential',
     required: true
   }
 ];

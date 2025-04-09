@@ -7,6 +7,12 @@ import {
   FaShieldAlt,
   FaBuilding,
   FaCog,
+  FaList,
+  FaTachometerAlt,
+  FaWheelchair,
+  FaPaintBrush,
+  FaTree,
+  FaClock,
 } from "react-icons/fa";
 import {
   ListingCategory,
@@ -15,7 +21,7 @@ import {
 } from "@/types/enums";
 import { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
-import { listingsAdvancedFieldSchema } from "../advanced/listingsAdvancedFieldSchema";
+import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId } from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "../common/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import { toast } from "react-hot-toast";
@@ -54,6 +60,14 @@ interface AdvancedDetailsFormProps {
   onBack: () => void;
 }
 
+interface Section {
+  id: SectionId;
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  order: number;
+  fields: ListingFieldSchema[];
+}
+
 const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   formData,
   onSubmit,
@@ -62,7 +76,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeSection, setActiveSection] = useState("details");
+  const [activeSection, setActiveSection] = useState<SectionId>("essential");
 
   const [form, setForm] = useState<ExtendedFormState>(() => {
     if (!formData || !formData.category) {
@@ -88,35 +102,36 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   const isVehicle = form.category.mainCategory === ListingCategory.VEHICLES;
   const currentSchema = listingsAdvancedFieldSchema[form.category.subCategory] || [];
 
-  // Group fields by section, ensuring unique sections
+  // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
     new Set(currentSchema.map((field) => field.section))
   )
+    .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
     .map((sectionId) => ({
       id: sectionId,
-      title: `sections.${sectionId}`,
-      icon: getSectionIcon(sectionId),
+      title: SECTION_CONFIG[sectionId].label,
+      icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
+      order: SECTION_CONFIG[sectionId].order,
       fields: currentSchema.filter((field) => field.section === sectionId),
     }))
-    // Optional: Sort sections in a logical order
-    .sort((a, b) => {
-      const sectionOrder = ['essential', 'details', 'features', 'outdoor'];
-      return sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id);
-    });
+    .sort((a, b) => a.order - b.order);
 
-  function getSectionIcon(sectionId: string) {
-    const iconMap: Record<string, any> = {
-      details: FaCarSide,
-      specifications: FaCogs,
-      features: FaCouch,
-      safety: FaShieldAlt,
-      appearance: FaBuilding,
-      equipment: FaCogs,
-      maintenance: FaCog,
-      accessibility: FaShieldAlt,
-      usage: FaCarSide,
+  function getIconComponent(iconName: string) {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+      FaCarSide,
+      FaCogs,
+      FaCouch,
+      FaShieldAlt,
+      FaBuilding,
+      FaCog,
+      FaList,
+      FaTachometerAlt,
+      FaWheelchair,
+      FaPaintBrush,
+      FaTree,
+      FaClock,
     };
-    return iconMap[sectionId] || FaCog;
+    return iconMap[iconName] || FaCog;
   }
 
   const validateAllFields = () => {
@@ -259,22 +274,25 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="flex flex-wrap gap-4 mb-6">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            type="button"
-            onClick={() => setActiveSection(section.id)}
-            disabled={isSubmitting}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-              activeSection === section.id
-                ? "bg-primary text-white"
-                : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
-            } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {React.createElement(section.icon, { className: "w-5 h-5" })}
-            <span>{t(section.title)}</span>
-          </button>
-        ))}
+        {sections.map((section) => {
+          const Icon = section.icon;
+          return (
+            <button
+              key={section.id}
+              type="button"
+              onClick={() => setActiveSection(section.id)}
+              disabled={isSubmitting}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                activeSection === section.id
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+              } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{t(section.title)}</span>
+            </button>
+          );
+        })}
       </div>
 
       {renderFields()}
@@ -291,7 +309,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+          className="px-6 py-2 bg-primary text-blue-500 rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
         >
           {isSubmitting ? (
             <>

@@ -1,6 +1,7 @@
 import { ListingFieldSchema } from "@/types/listings";
 
 export const houseSchema: ListingFieldSchema[] = [
+  // Essential Section
   {
     name: "condition",
     label: "listings.condition",
@@ -43,47 +44,56 @@ export const houseSchema: ListingFieldSchema[] = [
     type: "select",
     options: ["garage", "carport", "street", "none"],
     section: "essential",
-  },
-  {
-    name: "heating",
-    label: "listings.heating",
-    type: "select",
-    options: ["central", "forcedAir", "radiant", "heatPump"],
-    section: "features",
-  },
-  {
-    name: "cooling",
-    label: "listings.cooling",
-    type: "select",
-    options: ["central", "window", "split", "none"],
-    section: "features",
-  },
-  {
-    name: "basement",
-    label: "listings.basement",
-    type: "select",
-    options: ["finished", "unfinished", "partial", "none"],
-    section: "features",
+    required: true,
   },
   {
     name: "constructionType",
     label: "listings.constructionType",
     type: "select",
     options: ["brick", "wood", "concrete", "steelFrame"],
-    section: "features",
+    section: "essential",
+    required: true,
+  },
+
+  // Advanced Section
+  {
+    name: "heating",
+    label: "listings.heating",
+    type: "select",
+    options: ["central", "forcedAir", "radiant", "heatPump"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "cooling",
+    label: "listings.cooling",
+    type: "select",
+    options: ["central", "window", "split", "none"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "basement",
+    label: "listings.basement",
+    type: "select",
+    options: ["finished", "unfinished", "partial", "none"],
+    section: "advanced",
+    required: false,
   },
   {
     name: "roofType",
     label: "listings.roofType",
     type: "select",
     options: ["shingle", "metal", "tile", "flat"],
-    section: "features",
+    section: "advanced",
+    required: false,
   },
   {
     name: "outdoorFeatures",
     label: "listings.outdoorFeatures",
     type: "multiselect",
     options: ["pool", "patio", "deck", "garden", "sprinklers"],
-    section: "outdoor",
+    section: "advanced",
+    required: false,
   },
 ];

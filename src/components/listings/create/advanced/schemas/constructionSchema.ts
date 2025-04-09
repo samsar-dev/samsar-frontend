@@ -1,6 +1,7 @@
 import { ListingFieldSchema } from '@/types/listings';
 
 export const constructionSchema: ListingFieldSchema[] = [
+  // Essential Section
   {
     name: 'equipmentType',
     label: 'listings.equipmentType',
@@ -15,30 +16,32 @@ export const constructionSchema: ListingFieldSchema[] = [
       'Dump Truck',
       'Other'
     ],
-    section: 'details',
-    required: true
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Equipment type is required' : null,
+  },
+  {
+    name: 'condition',
+    label: 'listings.condition',
+    type: 'select',
+    options: ['new', 'likeNew', 'excellent', 'good', 'fair', 'poor', 'salvage'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Condition is required' : null,
   },
   {
     name: 'operatingWeight',
     label: 'listings.operatingWeight',
     type: 'text',
-    section: 'specifications',
+    section: 'essential',
     required: true,
     validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid weight format'
-  },
-  {
-    name: 'maxLiftingCapacity',
-    label: 'listings.maxLiftingCapacity',
-    type: 'text',
-    section: 'specifications',
-    required: false,
-    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid capacity format'
   },
   {
     name: 'enginePower',
     label: 'listings.enginePower',
     type: 'text',
-    section: 'specifications',
+    section: 'essential',
     required: true,
     validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid power format'
   },
@@ -46,15 +49,55 @@ export const constructionSchema: ListingFieldSchema[] = [
     name: 'hoursUsed',
     label: 'listings.hoursUsed',
     type: 'text',
-    section: 'usage',
+    section: 'essential',
     required: true,
     validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid hours format'
+  },
+  {
+    name: 'previousOwners',
+    label: 'listings.previousOwners',
+    type: 'number',
+    section: 'essential',
+    required: true,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return 'Previous owners is required';
+      if (value < 0) return 'Previous owners must be 0 or greater';
+      return null;
+    },
+  },
+  {
+    name: 'registrationStatus',
+    label: 'listings.registrationStatus',
+    type: 'select',
+    options: ['registered', 'unregistered', 'expired'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Registration status is required' : null,
+  },
+  {
+    name: 'serviceHistory',
+    label: 'listings.serviceHistory',
+    type: 'select',
+    options: ['full', 'partial', 'none'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Service history is required' : null,
+  },
+
+  // Advanced Section
+  {
+    name: 'maxLiftingCapacity',
+    label: 'listings.maxLiftingCapacity',
+    type: 'text',
+    section: 'advanced',
+    required: false,
+    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid capacity format'
   },
   {
     name: 'maintenanceHistory',
     label: 'listings.maintenanceHistory',
     type: 'textarea',
-    section: 'maintenance',
+    section: 'advanced',
     required: false
   },
   {
@@ -70,14 +113,14 @@ export const constructionSchema: ListingFieldSchema[] = [
       'Blade',
       'Other'
     ],
-    section: 'equipment',
+    section: 'advanced',
     required: false
   },
   {
     name: 'hydraulicSystem',
     label: 'listings.hydraulicSystem',
     type: 'text',
-    section: 'specifications',
+    section: 'advanced',
     required: false
   },
   {
@@ -93,7 +136,7 @@ export const constructionSchema: ListingFieldSchema[] = [
       'Fire Suppression',
       'Other'
     ],
-    section: 'safety',
+    section: 'advanced',
     required: false
   }
 ];

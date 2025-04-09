@@ -1,176 +1,133 @@
 import { ListingFieldSchema } from '@/types/listings';
-import { FuelType, TransmissionType, Condition } from '@/types/enums';
 
 export const busSchema: ListingFieldSchema[] = [
+  // Essential Section
   {
-    name: 'busType',
-    label: 'listings.busType',
-    type: 'select',
-    options: [
-      'School Bus',
-      'Transit Bus',
-      'Coach Bus',
-      'Mini Bus',
-      'Double Decker',
-      'Shuttle Bus',
-      'Other'
-    ],
-    section: 'details',
-    required: true
-  },
-  {
-    name: 'make',
-    label: 'listings.make',
-    type: 'text',
-    section: 'details',
+    name: 'color',
+    label: 'listings.exteriorColor',
+    type: 'colorpicker',
+    section: 'essential',
     required: true,
-    validate: (value: string) => value.length > 0 ? null : 'Make is required'
-  },
-  {
-    name: 'model',
-    label: 'listings.model',
-    type: 'text',
-    section: 'details',
-    required: true,
-    validate: (value: string) => value.length > 0 ? null : 'Model is required'
-  },
-  {
-    name: 'year',
-    label: 'listings.year',
-    type: 'text',
-    section: 'details',
-    required: true,
-    validate: (value: string) => /^\d{4}$/.test(value) ? null : 'Invalid year format'
-  },
-  {
-    name: 'mileage',
-    label: 'listings.mileage',
-    type: 'text',
-    section: 'details',
-    required: false,
-    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid mileage format'
-  },
-  {
-    name: 'fuelType',
-    label: 'listings.fuelType',
-    type: 'select',
-    options: Object.values(FuelType),
-    section: 'details',
-    required: false
-  },
-  {
-    name: 'transmissionType',
-    label: 'listings.transmissionType',
-    type: 'select',
-    options: Object.values(TransmissionType),
-    section: 'details',
-    required: false
-  },
-  {
-    name: 'seatingCapacity',
-    label: 'listings.seatingCapacity',
-    type: 'text',
-    section: 'specifications',
-    required: true,
-    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid capacity format'
-  },
-  {
-    name: 'wheelchairSpaces',
-    label: 'listings.wheelchairSpaces',
-    type: 'text',
-    section: 'accessibility',
-    required: false,
-    validate: (value: string) => /^\d+$/.test(value) ? null : 'Invalid number format'
-  },
-  {
-    name: 'accessibilityFeatures',
-    label: 'listings.accessibilityFeatures',
-    type: 'multiselect',
-    options: [
-      'Wheelchair Lift',
-      'Low Floor',
-      'Kneeling System',
-      'Wide Doors',
-      'Priority Seating',
-      'Other'
-    ],
-    section: 'accessibility',
-    required: false
-  },
-  {
-    name: 'engineLocation',
-    label: 'listings.engineLocation',
-    type: 'select',
-    options: [
-      'Front',
-      'Rear',
-      'Mid'
-    ],
-    section: 'specifications',
-    required: false
-  },
-  {
-    name: 'luggageCapacity',
-    label: 'listings.luggageCapacity',
-    type: 'text',
-    section: 'specifications',
-    required: false,
-    validate: (value: string) => /^\d+(\.\d+)?$/.test(value) ? null : 'Invalid capacity format'
-  },
-  {
-    name: 'amenities',
-    label: 'listings.amenities',
-    type: 'multiselect',
-    options: [
-      'Air Conditioning',
-      'Restroom',
-      'WiFi',
-      'Entertainment System',
-      'USB Ports',
-      'Reclining Seats',
-      'Storage Compartments',
-      'Other'
-    ],
-    section: 'features',
-    required: false
-  },
-  {
-    name: 'safetyFeatures',
-    label: 'listings.safetyFeatures',
-    type: 'multiselect',
-    options: [
-      'ABS',
-      'Electronic Stability Control',
-      'Emergency Braking',
-      'Lane Departure Warning',
-      'Backup Camera',
-      'Fire Suppression',
-      'Other'
-    ],
-    section: 'safety',
-    required: false
-  },
-  {
-    name: 'routeType',
-    label: 'listings.routeType',
-    type: 'select',
-    options: [
-      'City',
-      'Intercity',
-      'Tour',
-      'School',
-      'Charter',
-      'Other'
-    ],
-    section: 'usage',
-    required: false
+    validate: (value: string) => !value ? 'Exterior color is required' : null,
   },
   {
     name: 'condition',
     label: 'listings.condition',
     type: 'select',
-    options: Object.values(Condition),
-    section: 'details',
-    required: true
-  }
+    options: ['new', 'likeNew', 'excellent', 'good', 'fair', 'poor', 'salvage'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Condition is required' : null,
+  },
+  {
+    name: 'mileage',
+    label: 'listings.mileage',
+    type: 'number',
+    section: 'essential',
+    required: true,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return 'Mileage is required';
+      if (value < 0) return 'Mileage must be 0 or greater';
+      return null;
+    },
+  },
+  {
+    name: 'seatingCapacity',
+    label: 'listings.seatingCapacity',
+    type: 'number',
+    section: 'essential',
+    required: true,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return 'Seating capacity is required';
+      if (value < 1) return 'Seating capacity must be greater than 0';
+      return null;
+    },
+  },
+  {
+    name: 'previousOwners',
+    label: 'listings.previousOwners',
+    type: 'number',
+    section: 'essential',
+    required: true,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return 'Previous owners is required';
+      if (value < 0) return 'Previous owners must be 0 or greater';
+      return null;
+    },
+  },
+  {
+    name: 'registrationStatus',
+    label: 'listings.registrationStatus',
+    type: 'select',
+    options: ['registered', 'unregistered', 'expired'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Registration status is required' : null,
+  },
+  {
+    name: 'engine',
+    label: 'listings.engine',
+    type: 'text',
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Engine details are required' : null,
+  },
+  {
+    name: 'fuelType',
+    label: 'listings.fuelType',
+    type: 'select',
+    options: ['diesel', 'gasoline', 'electric', 'hybrid', 'cng'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Fuel type is required' : null,
+  },
+  {
+    name: 'transmissionType',
+    label: 'listings.transmission',
+    type: 'select',
+    options: ['manual', 'automatic', 'semi_automatic'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Transmission type is required' : null,
+  },
+  {
+    name: 'serviceHistory',
+    label: 'listings.serviceHistory',
+    type: 'select',
+    options: ['full', 'partial', 'none'],
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Service history is required' : null,
+  },
+
+  // Advanced Section
+  {
+    name: 'airConditioning',
+    label: 'comfort.airConditioning',
+    type: 'select',
+    options: ['none', 'front', 'full'],
+    section: 'advanced',
+    required: false,
+  },
+  {
+    name: 'luggageSpace',
+    label: 'listings.luggageSpace',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+  },
+  {
+    name: 'wheelchairAccessible',
+    label: 'accessibility.wheelchairAccessible',
+    type: 'boolean',
+    section: 'advanced',
+    required: false,
+  },
+  {
+    name: 'emergencyExits',
+    label: 'safety.emergencyExits',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+  },
 ];
