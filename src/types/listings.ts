@@ -26,6 +26,8 @@ export interface VehicleDetails {
   mileage: string;
   fuelType: FuelType;
   transmissionType: TransmissionType;
+  brakeType: string;
+  engineSize: string;
   color: string;
   condition: Condition;
   features: string[];
