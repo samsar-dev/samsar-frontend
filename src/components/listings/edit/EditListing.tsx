@@ -10,6 +10,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import ListingCard from "@/components/listings/details/ListingCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface EditFormData {
   title: string;
@@ -26,6 +27,7 @@ const EditListing: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [listing, setListing] = useState<Listing | null>(null);
@@ -47,41 +49,51 @@ const EditListing: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        if (!id) return;
-        const response = await listingsAPI.getListing(id);
-        if (response.success && response.data) {
-          setListing(response.data);
-          // Parse the location string into components
-          const locationParts = response.data.location.split(", ");
-          const [city = "", state = "", country = ""] = locationParts;
-          
-          setFormData({
-            title: response.data.title,
-            description: response.data.description,
-            price: response.data.price,
-            location: {
-              address: response.data.location,
-              city,
-              state,
-              country,
-              postalCode: "",
-            },
-            details: response.data.details,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching listing:", error);
-        toast.error(t("errors.fetchFailed"));
-        navigate("/profile/listings");
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Redirect if not authenticated after auth is initialized
+    if (!isAuthLoading && !isAuthenticated) {
+      toast.error(t("auth.requiresLogin"));
+      navigate("/auth/login", { state: { from: `/listings/${id}/edit` } });
+      return;
+    }
 
-    fetchListing();
-  }, [id, t, navigate]);
+    // Only fetch if authenticated and we have an ID
+    if (isAuthenticated && id) {
+      const fetchListing = async () => {
+        try {
+          setLoading(true);
+          const response = await listingsAPI.getListing(id);
+          if (response.success && response.data) {
+            setListing(response.data);
+            // Parse the location string into components
+            const locationParts = response.data.location.split(", ");
+            const [city = "", state = "", country = ""] = locationParts;
+            
+            setFormData({
+              title: response.data.title,
+              description: response.data.description,
+              price: response.data.price,
+              location: {
+                address: response.data.location,
+                city,
+                state,
+                country,
+                postalCode: "",
+              },
+              details: response.data.details,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching listing:", error);
+          toast.error(t("errors.fetchFailed"));
+          navigate("/profile/listings");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchListing();
+    }
+  }, [id, isAuthenticated, isAuthLoading, t, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,7 +157,7 @@ const EditListing: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (isAuthLoading || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <LoadingSpinner />

@@ -56,6 +56,7 @@ export interface AuthState {
 }
 
 export interface AuthContextType extends AuthState {
+  isInitialized: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;

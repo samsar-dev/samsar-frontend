@@ -5,6 +5,8 @@ import type { Listing } from "@/types/listings";
 import MyListingCard from "@/components/listings/details/MyListingCard";
 import { toast } from "react-hot-toast";
 import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface MyListingsProps {
   userId: string;
@@ -12,6 +14,9 @@ interface MyListingsProps {
 
 export default function MyListings({ userId }: MyListingsProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, isLoading: isAuthLoading, isInitialized } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,15 +25,27 @@ export default function MyListings({ userId }: MyListingsProps) {
   const [total, setTotal] = useState(0);
   const limit = 10;
 
+  useEffect(() => {
+    // Only redirect if auth is initialized and user is not authenticated
+    if (isInitialized && !isAuthLoading && !isAuthenticated) {
+      toast.error(t("auth.requiresLogin"));
+      navigate("/auth/login", { 
+        state: { from: location.pathname + location.search }
+      });
+      return;
+    }
+  }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
+
   const fetchListings = async () => {
+    if (!isAuthenticated || !isInitialized) return;
+    
     try {
       setIsLoading(true);
       setError(null);
       const response = await listingsAPI.getUserListings({ page, limit });
-      console.log('API Response:', response); // Debug log
+      console.log('API Response:', response);
 
       if (response.success && response.data) {
-        // Handle the response data structure from the backend
         const listingsData = response.data.listings || [];
         const totalItems = response.data.total || 0;
         
@@ -70,8 +87,10 @@ export default function MyListings({ userId }: MyListingsProps) {
   };
 
   useEffect(() => {
-    fetchListings();
-  }, [page]);
+    if (isAuthenticated && !isAuthLoading && isInitialized) {
+      fetchListings();
+    }
+  }, [page, isAuthenticated, isAuthLoading, isInitialized]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
@@ -79,7 +98,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     }
   };
 
-  if (isLoading && page === 1) {
+  if (isAuthLoading || (isLoading && page === 1)) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
         <Spinner />

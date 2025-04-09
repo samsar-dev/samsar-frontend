@@ -16,6 +16,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AuthState>(initialState);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const clearError = () => {
     setState(prev => ({ ...prev, error: null, retryAfter: null }));
@@ -27,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setState(prev => ({
         ...prev,
         error,
-        retryAfter: new Date(Date.now() + 30000), // Default 30s if no retry-after header
+        retryAfter: new Date(Date.now() + 30000),
       }));
     } else if (error) {
       toast.error(error.message);
@@ -40,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Initialize token manager first
       await TokenManager.initialize();
 
+      // If we don't have valid tokens, just mark as not authenticated
       if (!TokenManager.hasValidTokens()) {
         setState(prev => ({
           ...prev,
@@ -47,12 +49,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isAuthenticated: false,
           user: null
         }));
+        setIsInitialized(true);
         return;
+      }
+
+      // Try to refresh the token if needed
+      const needsRefresh = TokenManager.needsRefresh();
+      if (needsRefresh) {
+        const refreshed = await TokenManager.refreshTokens();
+        if (!refreshed) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            isAuthenticated: false,
+            user: null
+          }));
+          setIsInitialized(true);
+          return;
+        }
       }
 
       const response = await AuthAPI.getMe();
       
-      // Early return if response is invalid
       if (!response?.success || !response?.data) {
         TokenManager.clearTokens();
         setState(prev => ({
@@ -62,10 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isLoading: false,
           error: null
         }));
+        setIsInitialized(true);
         return;
       }
 
-      // Type assertion to ensure response.data.user exists
       const { user } = response.data as { user: AuthState['user'] };
       
       if (!user) {
@@ -80,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             message: "Invalid user data received"
           }
         }));
+        setIsInitialized(true);
         return;
       }
 
@@ -91,7 +110,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
         retryAfter: null
       }));
+      setIsInitialized(true);
     } catch (error) {
+      console.error('Auth check error:', error);
       TokenManager.clearTokens();
       setState(prev => ({
         ...prev,
@@ -103,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message: error instanceof Error ? error.message : "Failed to authenticate"
         }
       }));
+      setIsInitialized(true);
     }
   };
 
@@ -234,7 +256,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     logout,
     clearError,
+    isInitialized,
   };
+
+  // Don't render children until auth is initialized
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={value}>
