@@ -72,12 +72,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     
     // Price validation
     const price = formData.price;
-    if (price === undefined || price === '') {
+    if (price === undefined || price === 0 || (typeof price === 'string' && price === '')) {
       newErrors.push(t('errors.priceRequired'));
     } else {
       const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
       if (isNaN(numericPrice) || numericPrice <= 0) {
-        newErrors.push(t('errors.invalidPriceFormat'));
+        newErrors.push(t('errors.invalidPrice'));
       }
     }
 
@@ -101,7 +101,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       if (!vehicleDetails?.condition) newErrors.push(t('errors.conditionRequired'));
 
       // Additional required fields from schema
-      const vehicleSchema = listingsAdvancedFieldSchema['cars'] || [];
+      const subcategory = formData.category?.subCategory || VehicleType.CAR;
+      const vehicleSchema = listingsAdvancedFieldSchema[subcategory] || [];
       const requiredVehicleFields = vehicleSchema.filter((field: ListingFieldSchema) => field.required);
       
       requiredVehicleFields.forEach((field: ListingFieldSchema) => {

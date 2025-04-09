@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
@@ -75,28 +75,21 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       subCategory: VehicleType.CAR
     },
     location: '',
+    details: {
+      vehicles: {
+        vehicleType: VehicleType.CAR,
+        make: '',
+        model: '',
+        year: new Date().getFullYear().toString()
+      }
+    },
+    images: [],
     ...initialData
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [uploadingImages, setUploadingImages] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
-
-  // Add new state for make and model fields
-  const [makeValue, setMakeValue] = useState(formData.details?.vehicles?.make || "");
-  const [modelValue, setModelValue] = useState(formData.details?.vehicles?.model || "");
-  const [yearValue, setYearValue] = useState(formData.details?.vehicles?.year || new Date().getFullYear().toString());
-
-  // Initialize make, model, and year values from initialData
-  useEffect(() => {
-    if (initialData?.details?.vehicles) {
-      const { make, model, year } = initialData.details.vehicles;
-      if (make) setMakeValue(make);
-      if (model) setModelValue(model);
-      if (year) setYearValue(year);
-    }
-  }, [initialData]);
 
   // Helper function to convert VehicleType enum to string
   const getVehicleDataType = (vehicleType: VehicleType): VehicleType => {
@@ -157,7 +150,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
   const handleMakeChange = (value: FormFieldValue) => {
     const makeStr = typeof value === 'object' && value !== null ? value.value : String(value);
-    setMakeValue(makeStr);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -174,7 +166,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
   const handleModelChange = (value: FormFieldValue) => {
     const modelStr = typeof value === 'object' && value !== null ? value.value : String(value);
-    setModelValue(modelStr);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -188,8 +179,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     }));
 
     // Auto-generate title if all fields are filled
-    if (formData.details?.vehicles?.make && modelStr && yearValue) {
-      const autoTitle = `${formData.details.vehicles.make} ${modelStr} ${yearValue}`;
+    if (formData.details?.vehicles?.make && modelStr && formData.details.vehicles.year) {
+      const autoTitle = `${formData.details.vehicles.make} ${modelStr} ${formData.details.vehicles.year}`;
       handleInputChange("title", autoTitle);
     }
   };
@@ -199,13 +190,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       const newState = { ...prev };
       if (path.includes('.')) {
         const [parent, child, subChild] = path.split('.');
-        if (parent && child && subChild && parent in newState) {
-          const parentObj = newState[parent as keyof ExtendedFormState];
+        if (parent && child && parent in newState) {
+          const parentObj = newState[parent as keyof ExtendedFormState] as any;
           if (typeof parentObj === 'object' && parentObj !== null) {
-            (parentObj as any)[child] = {
-              ...(parentObj as any)[child],
-              [subChild]: value
-            };
+            if (!parentObj[child]) {
+              parentObj[child] = {};
+            }
+            if (subChild) {
+              parentObj[child] = {
+                ...parentObj[child],
+                [subChild]: value
+              };
+            } else {
+              parentObj[child] = value;
+            }
           }
         }
       } else {
@@ -213,116 +211,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       }
       return newState;
     });
-  };
 
-  // Initialize make/model/year values from formData
-  useEffect(() => {
-    if (formData?.details?.vehicles) {
-      // Set make value from form data
-      if (formData.details.vehicles.make) {
-        setMakeValue(formData.details.vehicles.make);
-      }
-
-      // Set model value from form data
-      if (formData.details.vehicles.model) {
-        setModelValue(formData.details.vehicles.model);
-      }
-
-      // Set year value from form data
-      if (formData?.details?.vehicles?.year) {
-        setYearValue(formData.details.vehicles.year);
-      }
-    }
-  }, [
-    formData?.details?.vehicles?.make,
-    formData?.details?.vehicles?.model,
-    formData?.details?.vehicles?.year,
-  ]);
-
-  // Effect to update title when make, model, or year changes
-  useEffect(() => {
-    if (makeValue && modelValue) {
-      // Get the selected make and model labels
-      const vehicleType = formData?.category?.subCategory as VehicleType;
-      const makes = getMakesForType(vehicleType);
-      const models = getModelsForMakeAndType(makeValue, vehicleType);
-
-      // Find the make and model with proper capitalization
-      const makeLabel =
-        makes.find((m) => m === makeValue) ||
-        makeValue;
-      const modelLabel =
-        models.find((m) => m === modelValue) ||
-        modelValue;
-
-      // Generate the title
-      const autoTitle = `${makeLabel} ${modelLabel} ${yearValue}`;
-
-      // Only update if title is empty or previously auto-generated
-      if (
-        autoTitle &&
-        (!formData.title ||
-          formData.title === "" ||
-          formData.title.startsWith("🚗") ||
-          formData.title.startsWith("🏠"))
-      ) {
-        handleInputChange("title", autoTitle);
-      }
-
-      // Also update the vehicle details in formData
-      if (
-        formData?.category?.mainCategory === ListingCategory.VEHICLES &&
-        formData?.details?.vehicles
-      ) {
-        setFormData((prev: ExtendedFormState) => ({
-          ...prev,
-          details: {
-            ...prev.details,
-            vehicles: {
-              ...prev.details.vehicles!,
-              make: makeLabel,
-              model: modelLabel,
-              year: yearValue,
-            },
-          },
-        }));
-      }
-    }
-  }, [
-    makeValue,
-    modelValue,
-    yearValue,
-    formData?.location,
-    formData?.category?.subCategory,
-  ]);
-
-  // Add a debug log for make and model values
-  useEffect(() => {
-    console.log("Current vehicle data:", {
-      vehicleType: formData?.category?.subCategory,
-      makeValue,
-      modelValue,
-      yearValue,
-      formDataMake: formData?.details?.vehicles?.make,
-      formDataModel: formData?.details?.vehicles?.model,
-      formDataYear: formData?.details?.vehicles?.year,
-      title: formData?.title,
+    // Clear any errors for this field
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[path];
+      return newErrors;
     });
-  }, [
-    makeValue,
-    modelValue,
-    yearValue,
-    formData?.details?.vehicles,
-    formData?.title,
-    formData?.category?.subCategory,
-  ]);
 
-  // Initialize the form with defaults if needed
-  useEffect(() => {
-    if (!formData?.category?.mainCategory) {
-      handleCategoryChange(ListingCategory.VEHICLES, VehicleType.CAR);
-    }
-  }, []);
+    // Mark field as touched
+    setTouched((prev) => ({
+      ...prev,
+      [path]: true
+    }));
+  };
 
   const handleCategoryChange = (
     mainCategory: ListingCategory,
@@ -580,38 +482,24 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     console.log("Form validation result:", isValid);
 
     // Prepare the data to be submitted
-    const dataToSubmit = {
+    const dataToSubmit: ExtendedFormState = {
       ...formData,
       details: {
         ...formData.details,
         vehicles: formData?.category?.mainCategory === ListingCategory.VEHICLES ? {
           ...(formData.details?.vehicles || {}),
-          make: makeValue,
-          model: modelValue,
-          year: yearValue,
           vehicleType: formData?.category?.subCategory as VehicleType,
+          make: formData.details?.vehicles?.make || '',
+          model: formData.details?.vehicles?.model || '',
+          year: formData.details?.vehicles?.year || ''
         } : undefined,
         realEstate: formData?.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
           ...(formData.details?.realEstate || {}),
           propertyType: formData?.category?.subCategory as PropertyType,
-        } : undefined,
+        } : undefined
       },
-      images: formData?.images?.filter((image: File | string) => image instanceof File),
       existingImages: formData?.images?.filter((image: File | string) => typeof image === 'string')
     };
-
-    // Log the final submission data
-    console.log("Current vehicle data:", {
-      vehicleType: formData?.category?.subCategory,
-      makeValue,
-      modelValue,
-      yearValue,
-      formDataMake: formData?.details?.vehicles?.make,
-      formDataModel: formData?.details?.vehicles?.model,
-    });
-
-    // Log the final submission data
-    console.log("Submitting FormData with images");
 
     // Call the parent's onSubmit function with prepared data and validation status
     onSubmit(dataToSubmit, isValid);
@@ -629,10 +517,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
     // If we don't have a selected make or model, just provide a reasonable range of years
     if (
-      !makeValue ||
-      !modelValue ||
-      makeValue === "OTHER_MAKE" ||
-      modelValue === "CUSTOM_MODEL"
+      !formData.details?.vehicles?.make ||
+      !formData.details?.vehicles?.model ||
+      formData.details?.vehicles?.make === "OTHER_MAKE" ||
+      formData.details?.vehicles?.model === "CUSTOM_MODEL"
     ) {
       // Default range: 30 years back to next year
       const currentYear = new Date().getFullYear();
@@ -668,17 +556,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     const vehicleType = formData?.category?.subCategory as VehicleType;
     const vehicleDataType = getVehicleDataType(vehicleType);
 
-    // Log current state
-    console.log("Current vehicle data:", {
-      vehicleType,
-      makeValue,
-      modelValue,
-      yearValue,
-      formDataMake: formData.details?.vehicles?.make,
-      formDataModel: formData.details?.vehicles?.model,
-    });
     const makes = generateMakeOptions();
-    const models = getModelOptions(makeValue);
+    const models = getModelOptions(formData.details?.vehicles?.make || "");
     const years = getYearOptions();
 
     return (
@@ -691,7 +570,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
           <div className="md:col-span-1">
             {renderModelField()}
-            {modelValue === "CUSTOM_MODEL" && (
+            {formData.details?.vehicles?.model === "CUSTOM_MODEL" && (
               <div className="mt-2">
                 <FormField
                   id="field-custom-model"
@@ -800,7 +679,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
         value={yearValue}
         onChange={(value) => {
           const yearStr = value as string;
-          setYearValue(yearStr);
           handleInputChange("details.vehicles.year", yearStr);
           
           // Auto-generate title if all fields are filled
@@ -1003,6 +881,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
               onClick={() =>
                 handleCategoryChange(ListingCategory.VEHICLES, type)
               }
+              aria-pressed={
+                formData?.category?.subCategory === type
+              }
             >
               <FaCarAlt className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
@@ -1034,11 +915,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
               type="button"
               className={`flex flex-col items-center p-3 border rounded-lg ${
                 formData?.category?.subCategory === type
-                  ? "bg-green-50 border-green-500 text-green-700"
+                  ? "bg-green-500 text-white"
                   : "border-gray-200 hover:bg-gray-50"
               }`}
               onClick={() =>
                 handleCategoryChange(ListingCategory.REAL_ESTATE, type)
+              }
+              aria-pressed={
+                formData?.category?.subCategory === type
               }
             >
               <FaHome className="h-6 w-6 mb-2" />
@@ -1210,7 +1094,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             t("titlePlaceholder"),
             undefined,
             undefined,
-            makeValue && modelValue ? t("autoGeneratedFromDetails") : undefined,
+            formData.details?.vehicles?.make && formData.details?.vehicles?.model ? t("autoGeneratedFromDetails") : undefined,
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}
