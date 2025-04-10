@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { Profile } from "@/pages/Profile";
+import { UserProfile } from "@/pages/UserProfile";
 import Search from "@/pages/Search";
 import ListingDetails from "@/components/listings/edit/ListingDetails";
 import CreateListing from "@/components/listings/create/CreateListing";
@@ -43,10 +44,16 @@ const Routes = (): JSX.Element => {
           </PrivateRoute>
         }
       >
-        <Route path="/profile" element={<Profile />}>
+        {/* Profile Routes */}
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>}>
           <Route path="listings" element={<MyListings />} />
           <Route path="password" element={<ChangePassword />} />
         </Route>
+
+        {/* Public User Profile */}
+        <Route path="/users/:userId" element={<UserProfile />} />
+
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route
           path="/listings/create"

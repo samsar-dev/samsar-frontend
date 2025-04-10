@@ -63,6 +63,10 @@ export interface SingleListingResponse {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  seller?: {
+    username: string;
+    profilePicture: string | null;
+  };
 }
 
 // Define API response types
@@ -401,6 +405,11 @@ export const listingsAPI = {
         listingAction: responseData.listingAction.toLowerCase() as
           | "sell"
           | "rent",
+        seller: {
+          id: responseData.userId,
+          username: responseData.seller?.username || "Unknown Seller",
+          profilePicture: responseData.seller?.profilePicture || null
+        }
       };
 
       return {

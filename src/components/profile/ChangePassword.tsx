@@ -9,7 +9,7 @@ interface FormData {
   confirmPassword: string;
 }
 
-export const ChangePassword = () => {
+const ChangePassword = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -129,3 +129,5 @@ export const ChangePassword = () => {
     </form>
   );
 };
+
+export default ChangePassword;

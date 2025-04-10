@@ -96,13 +96,13 @@ const Navbar: React.FC = () => {
                 to="/vehicles"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 transition-colors"
               >
-                {t("navigation.vehicles")}
+                {t('navigation.vehicles')}
               </Link>
               <Link
-                to="/real-estate"
+                to="/properties"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 transition-colors"
               >
-                {t("navigation.real_estate")}
+                {t('navigation.properties')}
               </Link>
             </div>
           </div>
@@ -112,7 +112,7 @@ const Navbar: React.FC = () => {
             <div className="w-full">
               <SearchBar
                 onSearch={handleSearch}
-                placeholder={t("search.placeholder")}
+                placeholder={t("common.search")}
               />
             </div>
           </div>
@@ -145,14 +145,14 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaPlus className="mr-3" />
-                      {t("listings.create")}
+                      {t("navigation.create_listing")}
                     </Link>
                     <Link
-                      to="/listings/my"
+                      to="/profile/listings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt className="mr-3" />
-                      {t("listings.my_listings")}
+                      {t("My Listings")}
                     </Link>
                   </div>
                 </div>
@@ -187,17 +187,18 @@ const Navbar: React.FC = () => {
                   >
                     <Link
                       to="/profile"
+                      onClick={() => setShowProfileMenu(false)}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaUser className="mr-3" />
-                      {t("profile.view")}
+                      {t("navigation.profile")}
                     </Link>
                     <Link
                       to="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaCog className="mr-3" />
-                      {t("settings.title")}
+                      {t("navigation.settings")}
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -209,7 +210,7 @@ const Navbar: React.FC = () => {
                       ) : (
                         <FaSignOutAlt className="mr-3" />
                       )}
-                      {isLoggingOut ? t("auth.logging_out") : t("logout")}
+                      {isLoggingOut ? t("auth.logging_out") : t("navigation.logout")}
                     </button>
                   </div>
                 </div>
@@ -220,13 +221,13 @@ const Navbar: React.FC = () => {
                   to="/login"
                   className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  {t("login")}
+                  {t("auth.login")}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                 >
-                  {t("register")}
+                  {t("auth.register")}
                 </Link>
               </div>
             )}
