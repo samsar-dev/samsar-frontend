@@ -4,7 +4,7 @@ export const carSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "color",
-    label: "listings.exteriorColor",
+    label: "exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -12,15 +12,23 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "interiorColor",
-    label: "listings.interiorColor",
+    label: "interiorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
     validate: (value: string) => (!value ? "Interior color is required" : null),
   },
   {
+    name: "mileage",
+    label: "mileage",
+    type: "number",
+    section: "essential",
+    required: true,
+    validate: (value: number) => !value && value !== 0 ? "Mileage is required" : null,
+  },
+  {
     name: "condition",
-    label: "listings.condition",
+    label: "condition",
     type: "select",
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
@@ -29,7 +37,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "listings.registrationStatus",
+    label: "registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "essential",
@@ -44,21 +52,14 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "engine",
-    label: "listings.engine",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "mileage",
-    label: "listings.mileage",
+    label: "engine",
     type: "text",
     section: "essential",
     required: true,
   },
   {
     name: "warranty",
-    label: "listings.warranty",
+    label: "warranty",
     type: "number",
     section: "essential",
     required: true,
@@ -71,7 +72,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "serviceHistory",
-    label: "listings.serviceHistory",
+    label: "serviceHistory",
     type: "select",
     options: ["full", "partial", "none"],
     section: "essential",
@@ -83,14 +84,14 @@ export const carSchema: ListingFieldSchema[] = [
   // Advanced Section
   {
     name: "horsepower",
-    label: "performance.horsepower",
+    label: "horsepower",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "torque",
-    label: "performance.torque",
+    label: "torque",
     type: "number",
     section: "advanced",
     required: false,

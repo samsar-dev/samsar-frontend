@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { listingsAPI } from "@/api/listings.api";
 import type { Listing } from "@/types/listings";
@@ -25,18 +25,8 @@ export default function MyListings({ userId }: MyListingsProps) {
   const [total, setTotal] = useState(0);
   const limit = 10;
 
-  useEffect(() => {
-    // Only redirect if auth is initialized and user is not authenticated
-    if (isInitialized && !isAuthLoading && !isAuthenticated) {
-      toast.error(t("auth.requiresLogin"));
-      navigate("/auth/login", { 
-        state: { from: location.pathname + location.search }
-      });
-      return;
-    }
-  }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
-
-  const fetchListings = async () => {
+  // Memoize the fetchListings function to prevent unnecessary re-renders
+  const fetchListings = useCallback(async () => {
     if (!isAuthenticated || !isInitialized) return;
     
     try {
@@ -49,6 +39,12 @@ export default function MyListings({ userId }: MyListingsProps) {
         const listingsData = response.data.listings || [];
         const totalItems = response.data.total || 0;
         
+        console.log('Listings Data:', listingsData);
+        console.log('Total Items:', totalItems);
+        console.log('Current Page:', page);
+        console.log('Limit:', limit);
+        
+        // Only reset listings on first page
         setListings(prev => page === 1 ? listingsData : [...prev, ...listingsData]);
         setTotal(totalItems);
         setHasMore(listingsData.length === limit);
@@ -67,7 +63,29 @@ export default function MyListings({ userId }: MyListingsProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [page, limit, isAuthenticated, isInitialized]);
+
+  // Use a stable reference for the effect
+  const handleLoadMore = useCallback(() => {
+    if (!isLoading && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  }, [isLoading, hasMore]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (isInitialized && !isAuthLoading && !isAuthenticated) {
+      toast.error(t("auth.requiresLogin"));
+      navigate("/auth/login", { 
+        state: { from: location.pathname + location.search }
+      });
+    }
+  }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
+
+  // Fetch listings when dependencies change
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
 
   const handleDelete = async (listingId: string) => {
     try {
@@ -86,70 +104,85 @@ export default function MyListings({ userId }: MyListingsProps) {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated && !isAuthLoading && isInitialized) {
-      fetchListings();
-    }
-  }, [page, isAuthenticated, isAuthLoading, isInitialized]);
-
-  const handleLoadMore = () => {
-    if (!isLoading && hasMore) {
-      setPage(prev => prev + 1);
-    }
-  };
-
-  if (isAuthLoading || (isLoading && page === 1)) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error && page === 1) {
-    return (
-      <div className="text-center text-red-500 py-4">
-        {error}
-      </div>
-    );
-  }
-
-  if (!isLoading && listings.length === 0) {
-    return (
-      <div className="text-center py-4">
-        {t("listings.no_listings")}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {listings.map((listing) => (
-          <MyListingCard
-            key={listing.id}
-            listing={listing}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
-      
-      {isLoading && page > 1 && (
-        <div className="flex justify-center py-4">
+  // Memoize the render logic to prevent unnecessary re-renders
+  const renderContent = useMemo(() => {
+    if (isAuthLoading || (isLoading && page === 1)) {
+      return (
+        <div className="flex justify-center items-center min-h-[200px]">
           <Spinner />
         </div>
-      )}
-      
-      {hasMore && !isLoading && (
-        <div className="flex justify-center py-4">
-          <button
-            onClick={handleLoadMore}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-          >
-            {t("common.load_more")}
-          </button>
+      );
+    }
+
+    if (error && page === 1) {
+      return (
+        <div className="text-center text-red-500 py-4">
+          {error}
         </div>
-      )}
-    </div>
-  );
+      );
+    }
+
+    if (!isLoading && listings.length === 0 && total === 0) {
+      console.log('Rendering no listings:', {
+        isLoading,
+        listingsLength: listings.length,
+        total,
+        page,
+        isAuthenticated,
+        isAuthLoading,
+        isInitialized
+      });
+      return (
+        <div className="text-center py-4">
+          {t("listings.no_listings")}
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listings.map((listing) => (
+            <MyListingCard
+              key={listing.id}
+              listing={listing}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+        
+        {isLoading && page > 1 && (
+          <div className="flex justify-center py-4">
+            <Spinner />
+          </div>
+        )}
+        
+        {hasMore && !isLoading && (
+          <div className="flex justify-center py-4">
+            <button
+              onClick={handleLoadMore}
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+            >
+              {t("common.load_more")}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }, [
+    isAuthLoading, 
+    isLoading, 
+    page, 
+    error, 
+    listings, 
+    total, 
+    isAuthenticated, 
+    isInitialized, 
+    t, 
+    handleDelete, 
+    handleLoadMore, 
+    hasMore
+  ]);
+
+  return renderContent;
 }

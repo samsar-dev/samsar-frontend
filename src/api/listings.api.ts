@@ -13,7 +13,7 @@ import type {
   PropertyType,
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
-import { API_URL } from "@/config";
+import { ACTIVE_API_URL as API_URL } from "@/config";
 
 interface FavoriteItem {
   id: string;
@@ -158,11 +158,20 @@ export const listingsAPI = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch listings");
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch listings");
+        } catch (e) {
+          throw new Error(`Server error: ${response.status}`);
+        }
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        throw new Error("Invalid response from server");
+      }
       return {
         success: true,
         data: {
@@ -340,9 +349,18 @@ export const listingsAPI = {
       const queryString = params
         ? new URLSearchParams(params as any).toString()
         : "";
+      console.log('Fetching user listings with params:', { params, queryString });
+      
       const response = await apiClient.get<APIResponse<UserListingsResponse>>(
         `/listings/user${queryString ? `?${queryString}` : ""}`
       );
+
+      console.log('User listings API response:', {
+        success: response.data.success,
+        total: response.data.data?.total,
+        listings: response.data.data?.listings?.length,
+        page: response.data.data?.page
+      });
 
       return response.data;
     } catch (error: any) {

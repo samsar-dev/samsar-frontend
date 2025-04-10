@@ -16,6 +16,7 @@ import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import FormField, {
   FormFieldProps,
 } from "@/components/listings/create/common/FormField";
+import ImageManager from "@/components/listings/images/ImageManager";
 
 interface EditFormData {
   title: string;
@@ -26,6 +27,8 @@ interface EditFormData {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
   };
+  images: (string | File)[];
+  existingImages: string[];
 }
 
 const getIconComponent = (iconName: string) => {
@@ -64,6 +67,8 @@ const EditListing: React.FC = () => {
       vehicles: {},
       realEstate: {},
     },
+    images: [],
+    existingImages: [],
   });
 
   const advancedSchema =
@@ -108,6 +113,12 @@ const EditListing: React.FC = () => {
             // Parse the location string into components
             const locationParts = response.data.location.split(", ");
             const [city = "", state = "", country = ""] = locationParts;
+            
+            // Convert image URLs to strings for existing images
+            const existingImages = response.data.images.map((img: string | { url: string }) => 
+              typeof img === 'string' ? img : img.url
+            );
+
             setFormData({
               title: response.data.title,
               description: response.data.description,
@@ -123,6 +134,8 @@ const EditListing: React.FC = () => {
                 vehicles: response.data.details?.vehicles,
                 realEstate: response.data.details?.realEstate,
               },
+              images: existingImages,
+              existingImages: existingImages,
             });
             setIsVehicle(response.data.details?.vehicles ? true : false);
           }
@@ -154,20 +167,29 @@ const EditListing: React.FC = () => {
         details: {
           vehicles: isVehicle ? {
             ...formData.details.vehicles,
-            // Remove engineSize as it's not in the Prisma schema
-            engineSize: undefined
+            // Remove fields not in Prisma schema
+            engineSize: undefined,
+            features: undefined
           } : undefined,
-          realEstate: !isVehicle ? formData.details.realEstate : undefined
+          realEstate: !isVehicle ? {
+            ...formData.details.realEstate,
+            // Remove fields not in Prisma schema
+            features: undefined
+          } : undefined
         },
         status: listing.status,
       };
 
       const formDataObj = new FormData();
 
-      // Add existing images if present
-      if (listing.images) {
-        formDataObj.append("existingImages", JSON.stringify(listing.images));
-      }
+      // Add existing images
+      formDataObj.append("existingImages", JSON.stringify(formData.existingImages));
+
+      // Add new images
+      const newImages = formData.images.filter((img): img is File => img instanceof File);
+      newImages.forEach((image) => {
+        formDataObj.append("images", image);
+      });
 
       // Convert the updateData object to FormData, handling nested objects
       Object.entries(updateData).forEach(([key, value]) => {
@@ -222,21 +244,56 @@ const EditListing: React.FC = () => {
     field: string,
     value: string | number | boolean | string[]
   ) => {
-    // const isVehicle = formData.details?.vehicles ? true : false;
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
+      
+      // Convert numeric fields to numbers
+      let processedValue = value;
+      if (field === 'yearBuilt' || field === 'mileage' || field === 'cargoVolume' || field === 'payloadCapacity') {
+        processedValue = typeof value === 'string' ? parseInt(value, 10) : value;
+      }
+
       return {
         ...prevForm,
         details: {
           ...prevForm.details,
           [detailsKey]: {
             ...prevForm.details[detailsKey],
-            [field]: value.toString(),
+            [field]: processedValue,
           },
         },
       };
     });
-    console.log(formData);
+  };
+
+  const handleImageChange = (images: File[]) => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.existingImages, ...images]
+    }));
+  };
+
+  const handleImageDelete = (index: number) => {
+    setFormData(prev => {
+      const newImages = [...prev.images];
+      const deletedImage = newImages[index];
+      newImages.splice(index, 1);
+
+      // If the deleted image was an existing image (string URL), also remove it from existingImages
+      if (typeof deletedImage === 'string') {
+        const newExistingImages = prev.existingImages.filter(img => img !== deletedImage);
+        return {
+          ...prev,
+          images: newImages,
+          existingImages: newExistingImages
+        };
+      }
+
+      return {
+        ...prev,
+        images: newImages
+      };
+    });
   };
 
   if (isAuthLoading || loading) {
@@ -290,6 +347,25 @@ const EditListing: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t("listings.images")}
+            </h1>
+            <ImageManager
+              images={formData.images.filter((img): img is File => img instanceof File)}
+              onChange={handleImageChange}
+              maxImages={10}
+              existingImages={formData.existingImages}
+              onDeleteExisting={(url) => {
+                setFormData(prev => ({
+                  ...prev,
+                  images: prev.images.filter(img => img !== url),
+                  existingImages: prev.existingImages.filter(img => img !== url)
+                }));
+              }}
+            />
+          </div>
+
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Basic Details
