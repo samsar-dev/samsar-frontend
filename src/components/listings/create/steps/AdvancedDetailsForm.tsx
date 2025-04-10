@@ -68,6 +68,24 @@ interface Section {
   fields: ListingFieldSchema[];
 }
 
+export function getIconComponent(iconName: string) {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    FaCarSide,
+    FaCogs,
+    FaCouch,
+    FaShieldAlt,
+    FaBuilding,
+    FaCog,
+    FaList,
+    FaTachometerAlt,
+    FaWheelchair,
+    FaPaintBrush,
+    FaTree,
+    FaClock,
+  };
+  return iconMap[iconName] || FaCog;
+}
+
 const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   formData,
   onSubmit,
@@ -116,23 +134,6 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     }))
     .sort((a, b) => a.order - b.order);
 
-  function getIconComponent(iconName: string) {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-      FaCarSide,
-      FaCogs,
-      FaCouch,
-      FaShieldAlt,
-      FaBuilding,
-      FaCog,
-      FaList,
-      FaTachometerAlt,
-      FaWheelchair,
-      FaPaintBrush,
-      FaTree,
-      FaClock,
-    };
-    return iconMap[iconName] || FaCog;
-  }
 
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
