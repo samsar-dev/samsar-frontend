@@ -203,7 +203,42 @@ export const listingsAPI = {
     formData: FormData
   ): Promise<APIResponse<Listing>> {
     try {
-      const response = await apiClient.put(`/listings/${id}`, formData, {
+      // Convert numeric fields from FormData
+      const vehicleDetails: Record<string, number | string | string[]> = {};
+      const numericFields = ['warranty', 'previousOwners', 'mileage', 'year'];
+      
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('vehicleDetails.')) {
+          const field = key.split('.')[1];
+          if (numericFields.includes(field)) {
+            // Convert string numbers to integers
+            const numValue = parseInt(value as string, 10);
+            if (!isNaN(numValue)) {
+              vehicleDetails[field] = numValue;
+            }
+          } else if (field === 'features') {
+            // Handle features array
+            try {
+              vehicleDetails[field] = JSON.parse(value as string);
+            } catch {
+              vehicleDetails[field] = [];
+            }
+          } else {
+            vehicleDetails[field] = value as string;
+          }
+        }
+      }
+
+      // Create a new FormData instance with converted values
+      const newFormData = new FormData();
+      for (const [key, value] of formData.entries()) {
+        if (!key.startsWith('vehicleDetails.')) {
+          newFormData.append(key, value);
+        }
+      }
+      newFormData.append('vehicleDetails', JSON.stringify(vehicleDetails));
+
+      const response = await apiClient.put(`/listings/${id}`, newFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

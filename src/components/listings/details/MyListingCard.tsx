@@ -159,77 +159,75 @@ const MyListingCard: React.FC<MyListingCardProps> = ({
     return null;
   };
 
+  const renderDetails = () => {
+    if (category.mainCategory === ListingCategory.VEHICLES) {
+      return renderVehicleDetails();
+    } else if (category.mainCategory === ListingCategory.REAL_ESTATE) {
+      return renderRealEstateDetails();
+    }
+    return null;
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <div className="relative">
-        {/* Delete button in top right */}
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 relative">
+      <Link to={`/listings/${id}`} className="block">
+        <div className="relative aspect-video">
+          <img
+            src={firstImage}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-2 left-2">
+            <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
+              {t(`categories.${category.mainCategory}.${category.subCategory}`)}
+            </span>
+            {listingAction === 'rent' && (
+              <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                {t('common.forRent')}
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
+          <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
+            {formatCurrency(price)}
+            {listingAction === 'rent' && <span className="text-sm ml-1">/mo</span>}
+          </p>
+          {renderDetails()}
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            {location}
+          </p>
+          <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
+            {new Date(createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      </Link>
+      <div className="absolute top-2 right-2 flex gap-2">
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = `/listings/${id}/edit`;
+          }}
+          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+          title={t('common.edit')}
+        >
+          <FaEdit className="w-4 h-4" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (window.confirm(t('listings.deleteConfirmation'))) {
               onDelete?.(id);
             }
           }}
-          className="absolute top-2 right-2 z-10 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200"
+          className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200"
           title={t('common.delete')}
         >
           <FaTrash className="w-4 h-4" />
         </button>
-
-        {/* Edit button in top right, next to delete */}
-        <Link
-          to={`/listings/${id}/edit`}
-          className="absolute top-2 right-12 z-10 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors duration-200"
-          title={t('common.edit')}
-        >
-          <FaEdit className="w-4 h-4" />
-        </Link>
-
-        {/* Category badge */}
-        <div className="absolute top-2 left-2 z-10">
-          <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-            {t(`categories.${category.mainCategory}.${category.subCategory}`)}
-          </span>
-          {listingAction === 'rent' && (
-            <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
-              {t('common.forRent')}
-            </span>
-          )}
-        </div>
-
-        {/* Image */}
-        <Link to={`/listings/${id}`}>
-          <div className="aspect-video">
-            <img
-              src={firstImage}
-              alt={title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </Link>
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        <Link to={`/listings/${id}`}>
-          <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-            {title}
-          </h3>
-        </Link>
-        <p className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-          {formatCurrency(price)}
-          {listingAction === 'rent' && <span className="text-sm ml-1">/mo</span>}
-        </p>
-        
-        {/* Render category-specific details */}
-        {renderVehicleDetails()}
-        {renderRealEstateDetails()}
-
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          {location}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-          {new Date(createdAt).toLocaleDateString()}
-        </p>
       </div>
     </div>
   );
