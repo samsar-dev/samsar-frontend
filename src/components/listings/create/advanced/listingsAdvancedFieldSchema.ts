@@ -12,6 +12,8 @@ import { busSchema } from './schemas/busSchema';
 import { houseSchema } from './schemas/houseSchema';
 import { apartmentSchema } from './schemas/apartmentSchema';
 
+import { FaCarSide, FaCogs, FaCouch, FaShieldAlt, FaBuilding, FaCog, FaList, FaTachometerAlt, FaWheelchair, FaPaintBrush, FaTree, FaClock } from "react-icons/fa";
+
 // Define section configuration type
 export type SectionId = 
   | 'essential'
@@ -22,6 +24,24 @@ export interface SectionConfig {
   icon: string;
   label: string;
 }
+
+export const getIconComponent = (iconName: string) => {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    FaCarSide,
+    FaCogs,
+    FaCouch,
+    FaShieldAlt,
+    FaBuilding,
+    FaCog,
+    FaList,
+    FaTachometerAlt,
+    FaWheelchair,
+    FaPaintBrush,
+    FaTree,
+    FaClock,
+  };
+  return iconMap[iconName] || FaCog;
+};
 
 // Define section order and metadata
 export const SECTION_CONFIG: Record<SectionId, SectionConfig> = {

@@ -4,23 +4,18 @@ import { useTranslation } from "react-i18next";
 import type { Listing, Location, ListingUpdateInput } from "@/types/listings";
 import { ListingStatus } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import FormField, {
-  FormFieldProps,
-} from "@/components/listings/create/common/FormField";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
-import { FaArrowLeft, FaSave } from "react-icons/fa";
+import { FaArrowLeft, FaSave, FaCar, FaHome, FaInfo, FaTools, FaHistory, FaShieldAlt } from "react-icons/fa";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  listingsAdvancedFieldSchema,
-  SECTION_CONFIG,
-  SectionId,
-} from "../create/advanced/listingsAdvancedFieldSchema";
-import { getIconComponent } from "../create/steps/AdvancedDetailsForm";
+import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import { set } from "lodash";
-import ColorPickerField from "../forms/ColorPickerField";
+import ColorPickerField from "@/components/listings/forms/ColorPickerField";
+import FormField, {
+  FormFieldProps,
+} from "@/components/listings/create/common/FormField";
 
 interface EditFormData {
   title: string;
@@ -32,6 +27,18 @@ interface EditFormData {
     realEstate?: Record<string, any>;
   };
 }
+
+const getIconComponent = (iconName: string) => {
+  const iconMap: { [key: string]: React.ComponentType } = {
+    car: FaCar,
+    home: FaHome,
+    info: FaInfo,
+    tools: FaTools,
+    history: FaHistory,
+    shield: FaShieldAlt,
+  };
+  return iconMap[iconName] || FaInfo;
+};
 
 const EditListing: React.FC = () => {
   const { t } = useTranslation();
@@ -143,22 +150,35 @@ const EditListing: React.FC = () => {
         description: formData.description,
         price: formData.price,
         category: listing.category,
-        location: formData.location.city,
-        details: formData.details,
+        location: `${formData.location.city}, ${formData.location.state}, ${formData.location.country}`,
+        details: {
+          vehicles: isVehicle ? {
+            ...formData.details.vehicles,
+            // Remove engineSize as it's not in the Prisma schema
+            engineSize: undefined
+          } : undefined,
+          realEstate: !isVehicle ? formData.details.realEstate : undefined
+        },
         status: listing.status,
       };
 
       const formDataObj = new FormData();
 
+      // Add existing images if present
       if (listing.images) {
         formDataObj.append("existingImages", JSON.stringify(listing.images));
       }
 
+      // Convert the updateData object to FormData, handling nested objects
       Object.entries(updateData).forEach(([key, value]) => {
-        formDataObj.append(
-          key,
-          typeof value === "object" ? JSON.stringify(value) : String(value)
-        );
+        if (key === 'details') {
+          formDataObj.append(key, JSON.stringify(value));
+        } else {
+          formDataObj.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : String(value)
+          );
+        }
       });
 
       const response = await listingsAPI.updateListing(id, formDataObj);

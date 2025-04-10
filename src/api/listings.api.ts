@@ -203,6 +203,38 @@ export const listingsAPI = {
     formData: FormData
   ): Promise<APIResponse<Listing>> {
     try {
+      // Get the details from formData
+      const details = formData.get('details');
+      let parsedDetails;
+      
+      try {
+        parsedDetails = details ? JSON.parse(details as string) : {};
+      } catch (e) {
+        console.error('Error parsing details:', e);
+        parsedDetails = {};
+      }
+
+      // Extract vehicle details if they exist
+      const vehicleDetails = parsedDetails.vehicles;
+      if (vehicleDetails) {
+        // Remove fields that are not in the Prisma schema
+        delete vehicleDetails.engineSize;
+        
+        // Ensure numeric fields are properly converted
+        const numericFields = ['year', 'mileage', 'warranty', 'previousOwners'];
+        numericFields.forEach(field => {
+          if (field in vehicleDetails) {
+            vehicleDetails[field] = Number(vehicleDetails[field]);
+          }
+        });
+
+        // Update the formData with cleaned vehicle details
+        formData.set('details', JSON.stringify({
+          ...parsedDetails,
+          vehicles: vehicleDetails
+        }));
+      }
+
       const response = await apiClient.put(`/listings/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

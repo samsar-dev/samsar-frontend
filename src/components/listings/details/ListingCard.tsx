@@ -86,8 +86,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   };
 
   return (
-    <Link to={`/listings/${id}`} className="block">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      <Link to={`/listings/${id}`} className="block">
         <div className="relative aspect-video">
           <img
             src={firstImage}
@@ -124,38 +124,41 @@ const ListingCard: React.FC<ListingCardProps> = ({
               {new Date(createdAt).toLocaleDateString()}
             </p>
           )}
-          {showActions && (
-            <div className="flex justify-end gap-2 mt-4">
-              {editable && (
-                <Link
-                  to={`/listings/${id}/edit`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
-                >
-                  <FaEdit className="w-4 h-4" />
-                  {t('common.edit')}
-                </Link>
-              )}
-              {deletable && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (window.confirm(t('listings.deleteConfirmation'))) {
-                      onDelete?.(id);
-                    }
-                  }}
-                  className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
-                >
-                  <FaTrash className="w-4 h-4" />
-                  {t('common.delete')}
-                </button>
-              )}
-            </div>
+        </div>
+      </Link>
+      {showActions && (
+        <div className="flex justify-end gap-2 p-4 pt-0">
+          {editable && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = `/listings/${id}/edit`;
+              }}
+              className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
+            >
+              <FaEdit className="w-4 h-4" />
+              {t('common.edit')}
+            </button>
+          )}
+          {deletable && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (window.confirm(t('listings.deleteConfirmation'))) {
+                  onDelete?.(id);
+                }
+              }}
+              className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
+            >
+              <FaTrash className="w-4 h-4" />
+              {t('common.delete')}
+            </button>
           )}
         </div>
-      </div>
-    </Link>
+      )}
+    </div>
   );
 };
 
