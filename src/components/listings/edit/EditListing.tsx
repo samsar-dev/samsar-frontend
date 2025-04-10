@@ -10,12 +10,13 @@ import { toast } from "react-hot-toast";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId, getIconComponent } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
+import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import { set } from "lodash";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import FormField, {
   FormFieldProps,
 } from "@/components/listings/create/common/FormField";
+ 
 
 interface EditFormData {
   title: string;
@@ -133,35 +134,28 @@ const EditListing: React.FC = () => {
 
     try {
       setSaving(true);
-      
-      // Ensure numeric fields are properly typed
-      const vehicleDetails = formData.details.vehicles ? {
-        ...formData.details.vehicles,
-        mileage: parseInt(formData.details.vehicles.mileage?.toString() || '0', 10),
-        warranty: parseInt(formData.details.vehicles.warranty?.toString() || '0', 10),
-        previousOwners: parseInt(formData.details.vehicles.previousOwners?.toString() || '0', 10),
-        year: parseInt(formData.details.vehicles.year?.toString() || '0', 10)
-      } : undefined;
-
       const updateData: ListingUpdateInput = {
         title: formData.title,
         description: formData.description,
         price: formData.price,
         category: listing.category,
         location: formData.location.city,
-        details: {
-          vehicles: vehicleDetails,
-          realEstate: formData.details.realEstate
-        },
+        details: formData.details,
         status: listing.status,
       };
 
       const formDataObj = new FormData();
-      formDataObj.append('data', JSON.stringify(updateData));
 
-      if (listing.images && listing.images.length > 0) {
+      if (listing.images) {
         formDataObj.append("existingImages", JSON.stringify(listing.images));
       }
+
+      Object.entries(updateData).forEach(([key, value]) => {
+        formDataObj.append(
+          key,
+          typeof value === "object" ? JSON.stringify(value) : String(value)
+        );
+      });
 
       const response = await listingsAPI.updateListing(id, formDataObj);
       if (response.success) {
@@ -204,26 +198,21 @@ const EditListing: React.FC = () => {
     field: string,
     value: string | number | boolean | string[]
   ) => {
-    // Fields that should be converted to integers
-    const numericFields = ['mileage', 'warranty', 'previousOwners', 'year'];
-    
+    // const isVehicle = formData.details?.vehicles ? true : false;
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
-      const processedValue = numericFields.includes(field) 
-        ? parseInt(value.toString(), 10) || 0
-        : value;
-
       return {
         ...prevForm,
         details: {
           ...prevForm.details,
           [detailsKey]: {
             ...prevForm.details[detailsKey],
-            [field]: processedValue,
+            [field]: value.toString(),
           },
         },
       };
     });
+    console.log(formData);
   };
 
   if (isAuthLoading || loading) {
@@ -380,7 +369,7 @@ const EditListing: React.FC = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {advancedDetailFiels?.map((field) => {
+                {advancedDetailFiels.map((field) => {
                   const currentValue = isVehicle
                     ? formData.details?.vehicles?.[field.name]
                     : formData.details?.realEstate?.[field.name];
@@ -388,27 +377,32 @@ const EditListing: React.FC = () => {
                   if (field.type === "colorpicker") {
                     return (
                       <ColorPickerField
-                        key={`${field.name}-color`}
+                        key={field.name}
                         label={field.label}
                         value={(currentValue as string) || "#000000"}
-                        onChange={(value) => handleInputChange(field.name, value)}
+                        onChange={(value) =>
+                          handleInputChange(field.name, value)
+                        }
                         required={field.required}
                       />
                     );
                   }
                   return (
                     <FormField
-                      key={`${field.name}-field`}
                       label={field.label}
                       name={field.name}
                       type={field.type as FormFieldProps["type"]}
-                      value={currentValue?.toString() || ""}
+                      value={
+                        formData.details?.vehicles
+                          ? formData.details?.vehicles?.[field.name]
+                          : formData.details?.realEstate?.[field.name]
+                      }
                       options={field.options?.map((key) => ({
                         value: key,
                         label: key,
                       }))}
                       onChange={(value) => handleInputChange(field.name, value)}
-                      required={field.required}
+                      required
                     />
                   );
                 })}
