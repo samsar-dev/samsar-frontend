@@ -14,19 +14,19 @@ import {
   FaTree,
   FaClock,
 } from "react-icons/fa";
-import {
-  ListingCategory,
-  VehicleType,
-  PropertyType,
-} from "@/types/enums";
+import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
-import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId } from "../advanced/listingsAdvancedFieldSchema";
+import {
+  listingsAdvancedFieldSchema,
+  SECTION_CONFIG,
+  SectionId,
+} from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "../common/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import { toast } from "react-hot-toast";
 
-interface ExtendedFormState extends Omit<FormState, 'details'> {
+interface ExtendedFormState extends Omit<FormState, "details"> {
   category: {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
@@ -104,21 +104,24 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         price: 0,
         category: {
           mainCategory: ListingCategory.VEHICLES,
-          subCategory: VehicleType.CAR
+          subCategory: VehicleType.CAR,
         },
         location: "",
         images: [],
         details: {
-          vehicles: {}
-        }
+          vehicles: {},
+        },
       };
     }
-    
+
     return formData as ExtendedFormState;
   });
 
+  console.log("form", form);
+
   const isVehicle = form.category.mainCategory === ListingCategory.VEHICLES;
-  const currentSchema = listingsAdvancedFieldSchema[form.category.subCategory] || [];
+  const currentSchema =
+    listingsAdvancedFieldSchema[form.category.subCategory] || [];
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
@@ -134,10 +137,9 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     }))
     .sort((a, b) => a.order - b.order);
 
-
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
-    
+
     currentSchema.forEach((field) => {
       const value = isVehicle
         ? form.details?.vehicles?.[field.name]
@@ -160,11 +162,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[],
+    value: string | number | boolean | string[]
   ) => {
     setForm((prevForm) => {
-      const detailsKey = isVehicle ? 'vehicles' : 'realEstate';
-      
+      const detailsKey = isVehicle ? "vehicles" : "realEstate";
+
       return {
         ...prevForm,
         details: {
@@ -188,7 +190,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const renderFields = () => {
-    const activeFields = sections.find((s) => s.id === activeSection)?.fields || [];
+    const activeFields =
+      sections.find((s) => s.id === activeSection)?.fields || [];
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -196,13 +199,13 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
           const currentValue = isVehicle
             ? form.details?.vehicles?.[field.name]
             : form.details?.realEstate?.[field.name];
-          
-          if (field.type === 'colorpicker') {
+
+          if (field.type === "colorpicker") {
             return (
               <ColorPickerField
                 key={field.name}
                 label={t(field.label)}
-                value={currentValue as string || "#000000"}
+                value={(currentValue as string) || "#000000"}
                 onChange={(value) => handleInputChange(field.name, value)}
                 error={errors[`details.${field.name}`]}
                 required={field.required}
@@ -216,7 +219,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
           else if (field.type === "select") formFieldType = "select";
           else if (field.type === "textarea") formFieldType = "textarea";
           else if (field.type === "multiselect") formFieldType = "multiselect";
-          
+
           return (
             <FormField
               key={field.name}
@@ -232,7 +235,9 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
               error={errors[`details.${field.name}`]}
               required={field.required}
               disabled={isSubmitting}
-              className={errors[`details.${field.name}`] ? "border-red-500" : ""}
+              className={
+                errors[`details.${field.name}`] ? "border-red-500" : ""
+              }
             />
           );
         })}
@@ -248,14 +253,14 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       const isValid = validateAllFields();
 
       if (!isValid) {
-        const missingFields = Object.keys(errors).map(key => 
-          t(`fields.${key.split('.').pop()}`) || key.split('.').pop()
+        const missingFields = Object.keys(errors).map(
+          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop()
         );
 
         toast.error(
           t("errors.requiredFields", {
             fields: missingFields.join(", "),
-          }),
+          })
         );
 
         setIsSubmitting(false);
