@@ -88,6 +88,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       newErrors.push(t('errors.subcategoryRequired'));
     }
 
+    
+
     // Category-specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
       const vehicleDetails = formData.details?.vehicles;
@@ -138,6 +140,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     setErrors(newErrors);
     return newErrors.length === 0;
   };
+
+  console.log("review formdata", formData);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

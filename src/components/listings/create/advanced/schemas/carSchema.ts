@@ -8,7 +8,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Exterior color is required" : null,
+    validate: (value: string) => (!value ? "Exterior color is required" : null),
   },
   {
     name: "interiorColor",
@@ -16,7 +16,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Interior color is required" : null,
+    validate: (value: string) => (!value ? "Interior color is required" : null),
   },
   {
     name: "condition",
@@ -25,20 +25,20 @@ export const carSchema: ListingFieldSchema[] = [
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Condition is required" : null,
-  },
-  {
-    name: "previousOwners",
-    label: "listings.previousOwners",
-    type: "number",
-    section: "essential",
-    required: true,
+    validate: (value: string) => (!value ? "Condition is required" : null),
   },
   {
     name: "registrationStatus",
     label: "listings.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "previousOwners",
+    label: "listings.previousOwners",
+    type: "number",
     section: "essential",
     required: true,
   },
@@ -50,13 +50,21 @@ export const carSchema: ListingFieldSchema[] = [
     required: true,
   },
   {
+    name: "mileage",
+    label: "listings.mileage",
+    type: "text",
+    section: "essential",
+    required: true,
+  },
+  {
     name: "warranty",
     label: "listings.warranty",
     type: "number",
     section: "essential",
     required: true,
     validate: (value: number) => {
-      if (value === undefined || value === null) return "Warranty months is required";
+      if (value === undefined || value === null)
+        return "Warranty months is required";
       if (value < 0) return "Warranty months must be 0 or greater";
       return null;
     },
@@ -68,7 +76,8 @@ export const carSchema: ListingFieldSchema[] = [
     options: ["full", "partial", "none"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Service history is required" : null,
+    validate: (value: string) =>
+      !value ? "Service history is required" : null,
   },
 
   // Advanced Section
