@@ -150,22 +150,35 @@ const EditListing: React.FC = () => {
         description: formData.description,
         price: formData.price,
         category: listing.category,
-        location: formData.location.city,
-        details: formData.details,
+        location: `${formData.location.city}, ${formData.location.state}, ${formData.location.country}`,
+        details: {
+          vehicles: isVehicle ? {
+            ...formData.details.vehicles,
+            // Remove engineSize as it's not in the Prisma schema
+            engineSize: undefined
+          } : undefined,
+          realEstate: !isVehicle ? formData.details.realEstate : undefined
+        },
         status: listing.status,
       };
 
       const formDataObj = new FormData();
 
+      // Add existing images if present
       if (listing.images) {
         formDataObj.append("existingImages", JSON.stringify(listing.images));
       }
 
+      // Convert the updateData object to FormData, handling nested objects
       Object.entries(updateData).forEach(([key, value]) => {
-        formDataObj.append(
-          key,
-          typeof value === "object" ? JSON.stringify(value) : String(value)
-        );
+        if (key === 'details') {
+          formDataObj.append(key, JSON.stringify(value));
+        } else {
+          formDataObj.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : String(value)
+          );
+        }
       });
 
       const response = await listingsAPI.updateListing(id, formDataObj);

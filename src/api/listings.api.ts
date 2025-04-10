@@ -203,42 +203,39 @@ export const listingsAPI = {
     formData: FormData
   ): Promise<APIResponse<Listing>> {
     try {
-      // Convert numeric fields from FormData
-      const vehicleDetails: Record<string, number | string | string[]> = {};
-      const numericFields = ['warranty', 'previousOwners', 'mileage', 'year'];
+      // Get the details from formData
+      const details = formData.get('details');
+      let parsedDetails;
       
-      for (const [key, value] of formData.entries()) {
-        if (key.startsWith('vehicleDetails.')) {
-          const field = key.split('.')[1];
-          if (numericFields.includes(field)) {
-            // Convert string numbers to integers
-            const numValue = parseInt(value as string, 10);
-            if (!isNaN(numValue)) {
-              vehicleDetails[field] = numValue;
-            }
-          } else if (field === 'features') {
-            // Handle features array
-            try {
-              vehicleDetails[field] = JSON.parse(value as string);
-            } catch {
-              vehicleDetails[field] = [];
-            }
-          } else {
-            vehicleDetails[field] = value as string;
+      try {
+        parsedDetails = details ? JSON.parse(details as string) : {};
+      } catch (e) {
+        console.error('Error parsing details:', e);
+        parsedDetails = {};
+      }
+
+      // Extract vehicle details if they exist
+      const vehicleDetails = parsedDetails.vehicles;
+      if (vehicleDetails) {
+        // Remove fields that are not in the Prisma schema
+        delete vehicleDetails.engineSize;
+        
+        // Ensure numeric fields are properly converted
+        const numericFields = ['year', 'mileage', 'warranty', 'previousOwners'];
+        numericFields.forEach(field => {
+          if (field in vehicleDetails) {
+            vehicleDetails[field] = Number(vehicleDetails[field]);
           }
-        }
+        });
+
+        // Update the formData with cleaned vehicle details
+        formData.set('details', JSON.stringify({
+          ...parsedDetails,
+          vehicles: vehicleDetails
+        }));
       }
 
-      // Create a new FormData instance with converted values
-      const newFormData = new FormData();
-      for (const [key, value] of formData.entries()) {
-        if (!key.startsWith('vehicleDetails.')) {
-          newFormData.append(key, value);
-        }
-      }
-      newFormData.append('vehicleDetails', JSON.stringify(vehicleDetails));
-
-      const response = await apiClient.put(`/listings/${id}`, newFormData, {
+      const response = await apiClient.put(`/listings/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
