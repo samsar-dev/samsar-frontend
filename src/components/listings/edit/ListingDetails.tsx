@@ -127,16 +127,22 @@ const ListingDetails: React.FC = () => {
             if (typeof img === "string") return img;
             if (img && typeof img === "object" && "url" in img) return img.url;
             // If image is an object but doesn't have url property, try to find a string property
-            const stringProps = Object.values(img as Record<string, unknown>).find(
-              (val) => typeof val === "string"
-            );
+            const stringProps = Object.values(
+              img as Record<string, unknown>
+            ).find((val) => typeof val === "string");
             return stringProps || "";
           })
           .filter(Boolean);
 
         console.log("Processed images:", processedImages);
 
-        const { category, details = {}, listingAction, status, ...rest } = listing;
+        const {
+          category,
+          details = {},
+          listingAction,
+          status,
+          ...rest
+        } = listing;
 
         console.log("Listing category:", category);
 
@@ -160,9 +166,10 @@ const ListingDetails: React.FC = () => {
                 vehicleType: category.subCategory as VehicleType,
                 features: details.vehicles.features || [],
                 // Ensure all required fields are present with proper types
-                mileage: typeof details.vehicles.mileage === 'number' 
-                  ? details.vehicles.mileage.toString() 
-                  : "0",
+                mileage:
+                  typeof details.vehicles.mileage === "number"
+                    ? details.vehicles.mileage.toString()
+                    : "0",
                 fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
                 transmissionType:
                   details.vehicles.transmissionType ||
@@ -173,10 +180,12 @@ const ListingDetails: React.FC = () => {
                 engine: details.vehicles.engine || "Not provided",
                 warranty: details.vehicles.warranty || "",
                 serviceHistory: details.vehicles.serviceHistory || "none",
-                previousOwners: typeof details.vehicles.previousOwners === 'number' 
-                  ? details.vehicles.previousOwners 
-                  : 0,
-                registrationStatus: details.vehicles.registrationStatus || "unregistered"
+                previousOwners:
+                  typeof details.vehicles.previousOwners === "number"
+                    ? details.vehicles.previousOwners
+                    : 0,
+                registrationStatus:
+                  details.vehicles.registrationStatus || "unregistered",
               }
             : undefined,
           realEstate: details.realEstate
@@ -207,8 +216,8 @@ const ListingDetails: React.FC = () => {
           seller: {
             id: listing.userId,
             username: listing.seller?.username || "Unknown Seller",
-            profilePicture: listing.seller?.profilePicture || null
-          }
+            profilePicture: listing.seller?.profilePicture || null,
+          },
         });
       } catch (error) {
         console.error("Error fetching listing:", error);
@@ -296,9 +305,13 @@ const ListingDetails: React.FC = () => {
     );
   }
 
-  const isVehicle = listing.category.mainCategory === ListingCategory.VEHICLES;
+  const isVehicle =
+    listing.category.mainCategory.toLocaleLowerCase() ===
+    ListingCategory.VEHICLES.toLocaleLowerCase();
+
   const isRealEstate =
-    listing.category.mainCategory === ListingCategory.REAL_ESTATE;
+    listing.category.mainCategory.toLocaleLowerCase() ===
+    ListingCategory.REAL_ESTATE.toLocaleLowerCase();
   const isOwner = user?.id === listing.userId;
 
   return (
@@ -318,14 +331,15 @@ const ListingDetails: React.FC = () => {
             </h1>
             <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
               {listing?.price && formatCurrency(listing.price)}
-              {listing?.listingAction?.toLowerCase() === ListingAction.RENT && "/month"}
+              {listing?.listingAction?.toLowerCase() === ListingAction.RENT &&
+                "/month"}
             </p>
           </div>
 
           {/* Seller Information */}
           {listing?.seller && (
             <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <Link 
+              <Link
                 to={`/users/${listing.seller.id}`}
                 className="flex items-center space-x-3 hover:text-blue-600"
               >
@@ -337,12 +351,17 @@ const ListingDetails: React.FC = () => {
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <span className="text-xl">{listing.seller.username[0].toUpperCase()}</span>
+                    <span className="text-xl">
+                      {listing.seller.username[0].toUpperCase()}
+                    </span>
                   </div>
                 )}
                 <div>
                   <p className="font-medium">{listing.seller.username}</p>
-                  <p className="text-sm text-gray-500">{t("listings.posted_on")}: {new Date(listing.createdAt!).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-500">
+                    {t("listings.posted_on")}:{" "}
+                    {new Date(listing.createdAt!).toLocaleDateString()}
+                  </p>
                 </div>
               </Link>
             </div>
@@ -549,7 +568,9 @@ const ListingDetails: React.FC = () => {
                           {t("listings.serviceHistory")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t(`listings.serviceHistories.${listing.details.vehicles.serviceHistory}`)}
+                          {t(
+                            `listings.serviceHistories.${listing.details.vehicles.serviceHistory}`
+                          )}
                         </p>
                       </div>
                     )}
@@ -569,7 +590,9 @@ const ListingDetails: React.FC = () => {
                           {t("listings.registrationStatus")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t(`listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`)}
+                          {t(
+                            `listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`
+                          )}
                         </p>
                       </div>
                     )}
