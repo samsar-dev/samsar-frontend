@@ -59,7 +59,6 @@ const EditListing: React.FC = () => {
     },
   });
 
-  console.log("formData", formData);
   const advancedSchema =
     listingsAdvancedFieldSchema[
       isVehicle
@@ -82,8 +81,6 @@ const EditListing: React.FC = () => {
     .sort((a, b) => a.order - b.order);
 
   const advancedDetailFiels = advancedDetail[0]?.fields;
-
-  console.log("advancedDetailFiels", advancedDetailFiels);
 
   useEffect(() => {
     // Redirect if not authenticated after auth is initialized
@@ -214,7 +211,7 @@ const EditListing: React.FC = () => {
           ...prevForm.details,
           [detailsKey]: {
             ...prevForm.details[detailsKey],
-            [field]: value,
+            [field]: value.toString(),
           },
         },
       };
@@ -239,8 +236,6 @@ const EditListing: React.FC = () => {
       </div>
     );
   }
-
-  console.log(formData);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -377,7 +372,7 @@ const EditListing: React.FC = () => {
             </h1>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                 {advancedDetailFiels.map((field) => {
                   const currentValue = isVehicle
                     ? formData.details?.vehicles?.[field.name]
