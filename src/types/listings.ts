@@ -56,6 +56,16 @@ export interface VehicleDetails {
   interiorHeight?: string;
   interiorLength?: string;
   drivingAssistance?: string[];
+
+  // New fields
+  drivetrain?: string;
+  seatingMaterial?: string;
+  seatHeating?: string;
+  seatVentilation?: string;
+  sunroof?: string;
+  airbags?: string;
+  parkingSensors?: string;
+  backupCamera?: string;
 }
 
 export interface RealEstateDetails {
