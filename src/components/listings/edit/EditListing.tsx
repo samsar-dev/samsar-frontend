@@ -4,20 +4,30 @@ import { useTranslation } from "react-i18next";
 import type { Listing, Location, ListingUpdateInput } from "@/types/listings";
 import { ListingStatus } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import FormField from "@/components/listings/create/common/FormField";
+import FormField, {
+  FormFieldProps,
+} from "@/components/listings/create/common/FormField";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  listingsAdvancedFieldSchema,
+  SECTION_CONFIG,
+  SectionId,
+} from "../create/advanced/listingsAdvancedFieldSchema";
+import { getIconComponent } from "../create/steps/AdvancedDetailsForm";
+import { set } from "lodash";
+import ColorPickerField from "../forms/ColorPickerField";
 
 interface EditFormData {
   title: string;
   description: string;
   price: number;
   location: Location;
-  details?: {
+  details: {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
   };
@@ -30,6 +40,7 @@ const EditListing: React.FC = () => {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isVehicle, setIsVehicle] = useState(true);
   const [listing, setListing] = useState<Listing | null>(null);
   const [formData, setFormData] = useState<EditFormData>({
     title: "",
@@ -47,6 +58,32 @@ const EditListing: React.FC = () => {
       realEstate: {},
     },
   });
+
+  console.log("formData", formData);
+  const advancedSchema =
+    listingsAdvancedFieldSchema[
+      isVehicle
+        ? formData.details?.vehicles?.vehicleType
+        : formData.details?.realEstate?.propertyType
+    ] || [];
+
+  // Get unique sections from the schema and sort them according to SECTION_CONFIG
+  const advancedDetail = Array.from(
+    new Set(advancedSchema.map((field) => field.section))
+  )
+    .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
+    .map((sectionId) => ({
+      id: sectionId,
+      title: SECTION_CONFIG[sectionId].label || "",
+      icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
+      order: SECTION_CONFIG[sectionId].order,
+      fields: advancedSchema.filter((field) => field.section === sectionId),
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  const advancedDetailFiels = advancedDetail[0]?.fields;
+
+  console.log("advancedDetailFiels", advancedDetailFiels);
 
   useEffect(() => {
     // Redirect if not authenticated after auth is initialized
@@ -67,7 +104,6 @@ const EditListing: React.FC = () => {
             // Parse the location string into components
             const locationParts = response.data.location.split(", ");
             const [city = "", state = "", country = ""] = locationParts;
-            
             setFormData({
               title: response.data.title,
               description: response.data.description,
@@ -79,8 +115,12 @@ const EditListing: React.FC = () => {
                 country,
                 postalCode: "",
               },
-              details: response.data.details,
+              details: {
+                vehicles: response.data.details?.vehicles,
+                realEstate: response.data.details?.realEstate,
+              },
             });
+            setIsVehicle(response.data.details?.vehicles ? true : false);
           }
         } catch (error) {
           console.error("Error fetching listing:", error);
@@ -112,13 +152,16 @@ const EditListing: React.FC = () => {
       };
 
       const formDataObj = new FormData();
-      
+
       if (listing.images) {
-        formDataObj.append('existingImages', JSON.stringify(listing.images));
+        formDataObj.append("existingImages", JSON.stringify(listing.images));
       }
 
       Object.entries(updateData).forEach(([key, value]) => {
-        formDataObj.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        formDataObj.append(
+          key,
+          typeof value === "object" ? JSON.stringify(value) : String(value)
+        );
       });
 
       const response = await listingsAPI.updateListing(id, formDataObj);
@@ -132,10 +175,11 @@ const EditListing: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error updating listing:", error);
-      const errorMessage = error.response?.data?.error?.message 
-        || error.response?.data?.error 
-        || error.message 
-        || t("listings.updateFailed");
+      const errorMessage =
+        error.response?.data?.error?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        t("listings.updateFailed");
       toast.error(errorMessage);
     } finally {
       setSaving(false);
@@ -157,6 +201,27 @@ const EditListing: React.FC = () => {
     }
   };
 
+  const handleInputChange = (
+    field: string,
+    value: string | number | boolean | string[]
+  ) => {
+    // const isVehicle = formData.details?.vehicles ? true : false;
+    setFormData((prevForm) => {
+      const detailsKey = isVehicle ? "vehicles" : "realEstate";
+      return {
+        ...prevForm,
+        details: {
+          ...prevForm.details,
+          [detailsKey]: {
+            ...prevForm.details[detailsKey],
+            [field]: value,
+          },
+        },
+      };
+    });
+    console.log(formData);
+  };
+
   if (isAuthLoading || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -168,10 +233,14 @@ const EditListing: React.FC = () => {
   if (!listing) {
     return (
       <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-800">{t("listings.notFound")}</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          {t("listings.notFound")}
+        </h2>
       </div>
     );
   }
+
+  console.log(formData);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -190,7 +259,7 @@ const EditListing: React.FC = () => {
         </div>
 
         <div className="mb-6">
-          <ListingCard 
+          <ListingCard
             listing={{
               ...listing,
               vehicleDetails: listing.details?.vehicles,
@@ -207,12 +276,17 @@ const EditListing: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Basic Details
+            </h1>
             <FormField
               label={t("listings.title")}
               name="title"
               type="text"
               value={formData.title}
-              onChange={(value) => setFormData({ ...formData, title: value as string })}
+              onChange={(value) =>
+                setFormData({ ...formData, title: value as string })
+              }
               required
             />
 
@@ -221,7 +295,9 @@ const EditListing: React.FC = () => {
               name="description"
               type="textarea"
               value={formData.description}
-              onChange={(value) => setFormData({ ...formData, description: value as string })}
+              onChange={(value) =>
+                setFormData({ ...formData, description: value as string })
+              }
               required
             />
 
@@ -230,25 +306,31 @@ const EditListing: React.FC = () => {
               name="price"
               type="number"
               value={formData.price.toString()}
-              onChange={(value) => setFormData({
-                ...formData,
-                price: parseFloat(value as string) || 0,
-              })}
+              onChange={(value) =>
+                setFormData({
+                  ...formData,
+                  price: parseFloat(value as string) || 0,
+                })
+              }
               required
             />
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t("listings.location")}</h3>
+              <h3 className="text-lg font-semibold">
+                {t("listings.location")}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   label={t("listings.city")}
                   name="city"
                   type="text"
                   value={formData.location.city}
-                  onChange={(value) => setFormData({
-                    ...formData,
-                    location: { ...formData.location, city: value as string },
-                  })}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      location: { ...formData.location, city: value as string },
+                    })
+                  }
                   required
                 />
 
@@ -257,10 +339,15 @@ const EditListing: React.FC = () => {
                   name="state"
                   type="text"
                   value={formData.location.state}
-                  onChange={(value) => setFormData({
-                    ...formData,
-                    location: { ...formData.location, state: value as string },
-                  })}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      location: {
+                        ...formData.location,
+                        state: value as string,
+                      },
+                    })
+                  }
                   required
                 />
 
@@ -269,12 +356,65 @@ const EditListing: React.FC = () => {
                   name="country"
                   type="text"
                   value={formData.location.country}
-                  onChange={(value) => setFormData({
-                    ...formData,
-                    location: { ...formData.location, country: value as string },
-                  })}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      location: {
+                        ...formData.location,
+                        country: value as string,
+                      },
+                    })
+                  }
                   required
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Advanced Details
+            </h1>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {advancedDetailFiels.map((field) => {
+                  const currentValue = isVehicle
+                    ? formData.details?.vehicles?.[field.name]
+                    : formData.details?.realEstate?.[field.name];
+
+                  if (field.type === "colorpicker") {
+                    return (
+                      <ColorPickerField
+                        key={field.name}
+                        label={field.label}
+                        value={(currentValue as string) || "#000000"}
+                        onChange={(value) =>
+                          handleInputChange(field.name, value)
+                        }
+                        required={field.required}
+                      />
+                    );
+                  }
+                  return (
+                    <FormField
+                      label={field.label}
+                      name={field.name}
+                      type={field.type as FormFieldProps["type"]}
+                      value={
+                        formData.details?.vehicles
+                          ? formData.details?.vehicles?.[field.name]
+                          : formData.details?.realEstate?.[field.name]
+                      }
+                      options={field.options?.map((key) => ({
+                        value: key,
+                        label: key,
+                      }))}
+                      onChange={(value) => handleInputChange(field.name, value)}
+                      required
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
