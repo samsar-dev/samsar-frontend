@@ -13,11 +13,18 @@ import {
   FaPaintBrush,
   FaTree,
   FaClock,
+  FaMusic,
+  FaLightbulb,
+  FaCamera,
+  FaShieldVirus,
+  FaWind,
 } from "react-icons/fa";
 import {
   ListingCategory,
   VehicleType,
   PropertyType,
+  ListingAction,
+  ListingStatus,
 } from "@/types/enums";
 import { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
@@ -39,6 +46,8 @@ interface ExtendedFormState extends Omit<FormState, 'details'> {
       [key: string]: any;
     };
   };
+  listingAction: ListingAction;
+  status: ListingStatus;
 }
 
 type FormFieldType =
@@ -86,6 +95,72 @@ export function getIconComponent(iconName: string) {
   return iconMap[iconName] || FaCog;
 }
 
+const FeatureSection: React.FC<{
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  features: ListingFieldSchema[];
+  values: Record<string, boolean>;
+  onChange: (name: string, checked: boolean) => void;
+}> = ({ title, icon: Icon, features, values, onChange }) => {
+  const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+      >
+        <div className="flex items-center space-x-3">
+          <Icon className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-medium">{t(title)}</h3>
+        </div>
+        <FaCog className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isExpanded && (
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {features.map((feature) => (
+            feature.type === 'toggle' ? (
+              <div key={feature.name} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <span className="text-sm">{t(feature.label)}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={values[feature.name] || false}
+                  onClick={() => onChange(feature.name, !values[feature.name])}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                    values[feature.name] ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      values[feature.name] ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            ) : (
+              <div key={feature.name} className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id={feature.name}
+                  checked={values[feature.name] || false}
+                  onChange={(e) => onChange(feature.name, e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label htmlFor={feature.name} className="text-sm">
+                  {t(feature.label)}
+                </label>
+              </div>
+            )
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   formData,
   onSubmit,
@@ -110,7 +185,9 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         images: [],
         details: {
           vehicles: {}
-        }
+        },
+        listingAction: ListingAction.SELL,
+        status: ListingStatus.ACTIVE
       };
     }
     
@@ -187,57 +264,103 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     }
   };
 
+  const handleFeatureChange = (field: string, value: boolean) => {
+    setForm((prevForm) => {
+      const detailsKey = isVehicle ? 'vehicles' : 'realEstate';
+      return {
+        ...prevForm,
+        details: {
+          ...prevForm.details,
+          [detailsKey]: {
+            ...prevForm.details[detailsKey],
+            [field]: value,
+          },
+        },
+      };
+    });
+  };
+
   const renderFields = () => {
     const activeFields = sections.find((s) => s.id === activeSection)?.fields || [];
+    
+    // Group fields by their feature category
+    const featureGroups = activeFields.reduce((groups, field) => {
+      if (field.featureCategory) {
+        if (!groups[field.featureCategory]) {
+          groups[field.featureCategory] = [];
+        }
+        groups[field.featureCategory].push(field);
+      }
+      return groups;
+    }, {} as Record<string, ListingFieldSchema[]>);
+
+    const standardFields = activeFields.filter(field => !field.featureCategory);
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {activeFields.map((field: ListingFieldSchema) => {
-          const currentValue = isVehicle
-            ? form.details?.vehicles?.[field.name]
-            : form.details?.realEstate?.[field.name];
-          
-          if (field.type === 'colorpicker') {
+      <div className="space-y-6">
+        {/* Standard form fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {standardFields.map((field) => {
+            if (field.type === 'colorpicker') {
+              return (
+                <ColorPickerField
+                  key={field.name}
+                  label={t(field.label)}
+                  value={isVehicle ? form.details?.vehicles?.[field.name] : form.details?.realEstate?.[field.name] || "#000000"}
+                  onChange={(value) => handleInputChange(field.name, value)}
+                  error={errors[`details.${field.name}`]}
+                  required={field.required}
+                />
+              );
+            }
+
             return (
-              <ColorPickerField
+              <FormField
                 key={field.name}
+                name={field.name}
                 label={t(field.label)}
-                value={currentValue as string || "#000000"}
+                type={field.type as FormFieldType}
+                options={field.options?.map((opt: string) => ({
+                  value: opt,
+                  label: t(`options.${opt}`),
+                }))}
+                value={isVehicle ? form.details?.vehicles?.[field.name] : form.details?.realEstate?.[field.name] || ""}
                 onChange={(value) => handleInputChange(field.name, value)}
                 error={errors[`details.${field.name}`]}
                 required={field.required}
+                disabled={isSubmitting}
               />
             );
-          }
+          })}
+        </div>
 
-          // Transform the type to match FormFieldType
-          let formFieldType: FormFieldType = "text";
-          if (field.type === "number") formFieldType = "number";
-          else if (field.type === "select") formFieldType = "select";
-          else if (field.type === "textarea") formFieldType = "textarea";
-          else if (field.type === "multiselect") formFieldType = "multiselect";
-          
-          return (
-            <FormField
-              key={field.name}
-              name={field.name}
-              label={t(field.label)}
-              type={formFieldType}
-              options={field.options?.map((opt: string) => ({
-                value: opt,
-                label: t(`options.${opt}`),
-              }))}
-              value={currentValue || ""}
-              onChange={(value) => handleInputChange(field.name, value)}
-              error={errors[`details.${field.name}`]}
-              required={field.required}
-              disabled={isSubmitting}
-              className={errors[`details.${field.name}`] ? "border-red-500" : ""}
+        {/* Feature sections */}
+        <div className="space-y-4">
+          {Object.entries(featureGroups).map(([category, features]) => (
+            <FeatureSection
+              key={category}
+              title={t(`featureCategories.${category}`)}
+              icon={getFeatureIcon(category)}
+              features={features}
+              values={isVehicle ? form.details?.vehicles || {} : form.details?.realEstate || {}}
+              onChange={handleFeatureChange}
             />
-          );
-        })}
+          ))}
+        </div>
       </div>
     );
+  };
+
+  const getFeatureIcon = (category: string) => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+      entertainment: FaMusic,
+      lighting: FaLightbulb,
+      cameras: FaCamera,
+      safety: FaShieldVirus,
+      climate: FaWind,
+      default: FaCog,
+    };
+    return iconMap[category] || iconMap.default;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

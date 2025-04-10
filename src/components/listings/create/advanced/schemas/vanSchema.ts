@@ -4,7 +4,7 @@ export const vanSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: 'vanType',
-    label: 'listings.vanType',
+    label: 'vanType',
     type: 'select',
     options: [
       'Cargo',
@@ -21,7 +21,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'color',
-    label: 'listings.exteriorColor',
+    label: 'exteriorColor',
     type: 'colorpicker',
     section: 'essential',
     required: true,
@@ -29,7 +29,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'condition',
-    label: 'listings.condition',
+    label: 'condition',
     type: 'select',
     options: ['new', 'likeNew', 'excellent', 'good', 'fair', 'poor', 'salvage'],
     section: 'essential',
@@ -38,7 +38,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'mileage',
-    label: 'listings.mileage',
+    label: 'mileage',
     type: 'number',
     section: 'essential',
     required: true,
@@ -50,7 +50,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'cargoVolume',
-    label: 'listings.cargoVolume',
+    label: 'cargoVolume',
     type: 'number',
     section: 'essential',
     required: true,
@@ -62,7 +62,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'payloadCapacity',
-    label: 'listings.payloadCapacity',
+    label: 'payloadCapacity',
     type: 'number',
     section: 'essential',
     required: true,
@@ -74,7 +74,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'fuelType',
-    label: 'listings.fuelType',
+    label: 'fuelType',
     type: 'select',
     options: ['diesel', 'gasoline', 'electric', 'hybrid', 'cng'],
     section: 'essential',
@@ -83,7 +83,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'transmissionType',
-    label: 'listings.transmission',
+    label: 'transmission',
     type: 'select',
     options: ['manual', 'automatic', 'automated'],
     section: 'essential',
@@ -92,7 +92,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'features',
-    label: 'listings.features',
+    label: 'features',
     type: 'multiselect',
     options: [
       'Air Conditioning',

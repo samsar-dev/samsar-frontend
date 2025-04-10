@@ -12,12 +12,12 @@ import type {
 export interface ListingFieldSchema {
   name: string;
   label: string;
-  type: string;
+  type: 'text' | 'number' | 'select' | 'textarea' | 'checkbox' | 'date' | 'colorpicker' | 'multiselect' | 'toggle';
   section: string;
-  required?: boolean;
+  required: boolean;
   options?: string[];
-  dependsOn?: string;
   validate?: (value: any) => string | null;
+  featureCategory?: 'entertainment' | 'lighting' | 'cameras' | 'safety' | 'climate';
 }
 
 export interface VehicleDetails {

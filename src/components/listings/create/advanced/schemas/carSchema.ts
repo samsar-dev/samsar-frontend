@@ -1,4 +1,5 @@
 import { ListingFieldSchema } from "@/types/listings";
+import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 export const carSchema: ListingFieldSchema[] = [
   // Essential Section
@@ -8,7 +9,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Exterior color is required" : null,
+    validate: (value: string) => (!value ? "Exterior color is required" : null),
   },
   {
     name: "interiorColor",
@@ -16,146 +17,182 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Interior color is required" : null,
+    validate: (value: string) => (!value ? "Interior color is required" : null),
   },
   {
     name: "mileage",
-    label: "mileage",
+    label: "listings.mileage",
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => !value && value !== 0 ? "Mileage is required" : null,
+    validate: (value: number) => value >= 0 ? null : "Mileage must be a positive number"
   },
   {
     name: "condition",
-    label: "condition",
+    label: "listings.condition",
     type: "select",
-    options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
+    options: Object.values(Condition),
     section: "essential",
-    required: true,
-    validate: (value: string) => !value ? "Condition is required" : null,
+    required: true
   },
   {
-    name: "previousOwners",
-    label: "previousOwners",
-    type: "number",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "registrationStatus",
-    label: "registrationStatus",
+    name: "transmission",
+    label: "listings.transmission",
     type: "select",
-    options: ["registered", "unregistered", "expired"],
+    options: Object.values(TransmissionType),
     section: "essential",
-    required: true,
+    required: true
   },
   {
-    name: "engine",
-    label: "engine",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "warranty",
-    label: "warranty",
-    type: "number",
-    section: "essential",
-    required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Warranty months is required";
-      if (value < 0) return "Warranty months must be 0 or greater";
-      return null;
-    },
-  },
-  {
-    name: "serviceHistory",
-    label: "serviceHistory",
+    name: "fuelType",
+    label: "listings.fuelType",
     type: "select",
-    options: ["full", "partial", "none"],
+    options: Object.values(FuelType),
     section: "essential",
-    required: true,
-    validate: (value: string) => !value ? "Service history is required" : null,
+    required: true
   },
 
-  // Advanced Section
+  // Entertainment & Tech features
   {
-    name: "horsepower",
-    label: "horsepower",
-    type: "number",
+    name: "bluetooth",
+    label: "features.bluetooth",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "entertainment"
   },
   {
-    name: "torque",
-    label: "torque",
-    type: "number",
+    name: "appleCarPlay",
+    label: "features.appleCarPlay",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "entertainment"
   },
   {
-    name: "drivetrain",
-    label: "performance.drivetrain",
-    type: "select",
-    options: ["fwd", "rwd", "awd", "4wd"],
+    name: "androidAuto",
+    label: "features.androidAuto",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "entertainment"
   },
   {
-    name: "seatingMaterial",
-    label: "comfort.seatingMaterial",
-    type: "select",
-    options: ["cloth", "leather", "leatherette", "premium_leather"],
+    name: "premiumSound",
+    label: "features.premiumSound",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "entertainment"
   },
   {
-    name: "seatHeating",
-    label: "comfort.seatHeating",
-    type: "select",
-    options: ["front", "front_rear", "none"],
+    name: "wirelessCharging",
+    label: "features.wirelessCharging",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "entertainment"
+  },
+
+  // Lighting features
+  {
+    name: "ledHeadlights",
+    label: "features.ledHeadlights",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "lighting"
   },
   {
-    name: "seatVentilation",
-    label: "comfort.seatVentilation",
-    type: "select",
-    options: ["front", "front_rear", "none"],
+    name: "adaptiveHeadlights",
+    label: "features.adaptiveHeadlights",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "lighting"
   },
   {
-    name: "sunroof",
-    label: "comfort.sunroof",
-    type: "select",
-    options: ["none", "standard", "panoramic", "dual_panel"],
+    name: "ambientLighting",
+    label: "features.ambientLighting",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "lighting"
+  },
+
+  // Camera & Safety features
+  {
+    name: "rearCamera",
+    label: "features.rearCamera",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "cameras"
   },
   {
-    name: "airbags",
-    label: "safety.airbags",
-    type: "select",
-    options: ["front", "front_side", "full_curtain"],
+    name: "camera360",
+    label: "features.camera360",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "cameras"
   },
   {
     name: "parkingSensors",
-    label: "safety.parkingSensors",
-    type: "select",
-    options: ["front", "rear", "both", "none"],
+    label: "features.parkingSensors",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "cameras"
   },
   {
-    name: "backupCamera",
-    label: "safety.backupCamera",
-    type: "select",
-    options: ["standard", "360_view", "none"],
+    name: "blindSpotMonitor",
+    label: "features.blindSpotMonitor",
+    type: "toggle",
     section: "advanced",
     required: false,
+    featureCategory: "safety"
   },
+  {
+    name: "laneAssist",
+    label: "features.laneAssist",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "safety"
+  },
+  {
+    name: "adaptiveCruiseControl",
+    label: "features.adaptiveCruiseControl",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "safety"
+  },
+
+  // Climate features
+  {
+    name: "climateControl",
+    label: "features.climateControl",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "climate"
+  },
+  {
+    name: "heatedSeats",
+    label: "features.heatedSeats",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "climate"
+  },
+  {
+    name: "ventilatedSeats",
+    label: "features.ventilatedSeats",
+    type: "toggle",
+    section: "advanced",
+    required: false,
+    featureCategory: "climate"
+  }
 ];
