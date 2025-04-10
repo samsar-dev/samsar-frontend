@@ -148,11 +148,11 @@ const Navbar: React.FC = () => {
                       {t("navigation.create_listing")}
                     </Link>
                     <Link
-                      to="/listings/my"
+                      to="/profile/listings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt className="mr-3" />
-                      {t("navigation.my_listings")}
+                      {t("My Listings")}
                     </Link>
                   </div>
                 </div>
