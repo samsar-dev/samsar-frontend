@@ -6,17 +6,13 @@ import type { UserProfile } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-toastify";
 
-interface ProfileInfoProps {
-  userId: string;
-}
-
 interface FormData {
   username: string;
   email: string;
   bio?: string;
 }
 
-export const ProfileInfo: React.FC<ProfileInfoProps> = ({ userId }) => {
+const ProfileInfo = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -58,18 +54,18 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ userId }) => {
       const formDataToSend = new FormData();
       formDataToSend.append("username", formData.username);
       formDataToSend.append("email", formData.email);
-      if (formData.bio) formDataToSend.append("bio", formData.bio);
-      if (avatar) formDataToSend.append("profilePicture", avatar);
-
-      const response = await UserAPI.updateProfile(formDataToSend);
-      if (response.data) {
-        toast.success(t("profile.updated"));
+      if (formData.bio) {
+        formDataToSend.append("bio", formData.bio);
       }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t("profile.update_error");
-      setError(errorMessage);
-      toast.error(errorMessage);
+      if (avatar) {
+        formDataToSend.append("profilePicture", avatar);
+      }
+
+      await UserAPI.updateProfile(formDataToSend);
+      toast.success(t("profile.profile_updated"));
+    } catch (err) {
+      setError(t("profile.profile_error"));
+      toast.error(t("profile.profile_error"));
     } finally {
       setLoading(false);
     }
@@ -188,3 +184,5 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ userId }) => {
     </form>
   );
 };
+
+export default ProfileInfo;

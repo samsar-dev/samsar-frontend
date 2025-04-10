@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { formatCurrency } from "@/utils/format";
 import ImageGallery from "@/components/listings/images/ImageGallery";
 import TokenManager from "@/utils/tokenManager";
+import { Link } from "react-router-dom";
 
 interface ListingImage {
   url: string;
@@ -158,14 +159,24 @@ const ListingDetails: React.FC = () => {
                 ...details.vehicles,
                 vehicleType: category.subCategory as VehicleType,
                 features: details.vehicles.features || [],
-                // Ensure all required fields are present
-                mileage: details.vehicles.mileage || "0",
+                // Ensure all required fields are present with proper types
+                mileage: typeof details.vehicles.mileage === 'number' 
+                  ? details.vehicles.mileage.toString() 
+                  : "0",
                 fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
                 transmissionType:
                   details.vehicles.transmissionType ||
                   TransmissionType.AUTOMATIC,
                 color: details.vehicles.color || "",
                 condition: details.vehicles.condition || Condition.GOOD,
+                // Add all additional vehicle fields that exist
+                engine: details.vehicles.engine || "Not provided",
+                warranty: details.vehicles.warranty || "",
+                serviceHistory: details.vehicles.serviceHistory || "none",
+                previousOwners: typeof details.vehicles.previousOwners === 'number' 
+                  ? details.vehicles.previousOwners 
+                  : 0,
+                registrationStatus: details.vehicles.registrationStatus || "unregistered"
               }
             : undefined,
           realEstate: details.realEstate
@@ -313,24 +324,27 @@ const ListingDetails: React.FC = () => {
 
           {/* Seller Information */}
           {listing?.seller && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-              <div className="flex items-center space-x-4">
-                <img
-                  src={listing.seller.profilePicture || "/default-avatar.png"}
-                  alt={listing.seller.username}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
+            <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <Link 
+                to={`/users/${listing.seller.id}`}
+                className="flex items-center space-x-3 hover:text-blue-600"
+              >
+                {listing.seller.profilePicture ? (
+                  <img
+                    src={listing.seller.profilePicture}
+                    alt={listing.seller.username}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-xl">{listing.seller.username[0].toUpperCase()}</span>
+                  </div>
+                )}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    <button
-                      onClick={() => navigate(`/profile/${listing.seller.id}`)}
-                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      {listing.seller.username}
-                    </button>
-                  </h3>
+                  <p className="font-medium">{listing.seller.username}</p>
+                  <p className="text-sm text-gray-500">{t("listings.posted_on")}: {new Date(listing.createdAt!).toLocaleDateString()}</p>
                 </div>
-              </div>
+              </Link>
             </div>
           )}
 
@@ -497,6 +511,85 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {listing.details.vehicles.condition}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Additional Vehicle Details */}
+                <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {t("listings.additionalDetails")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {listing.details.vehicles.engine && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.engine")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.engine}
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.warranty && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.warranty")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.warranty} years
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.serviceHistory && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.serviceHistory")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {t(`listings.serviceHistories.${listing.details.vehicles.serviceHistory}`)}
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.previousOwners && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.previousOwners")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.previousOwners}
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.registrationStatus && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.registrationStatus")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {t(`listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`)}
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.horsepower && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.horsepower")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.horsepower} HP
+                        </p>
+                      </div>
+                    )}
+                    {listing.details.vehicles.torque && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.torque")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.torque} Nm
                         </p>
                       </div>
                     )}

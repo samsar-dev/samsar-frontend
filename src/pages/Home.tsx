@@ -2,9 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { FaCar, FaHome } from "react-icons/fa";
 import {
   type Listing,
-  type ListingParams,
   type ListingsResponse,
-  type APIResponse,
+  ListingStatus,
+  type ListingParams,
 } from "@/types/listings";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import ListingCard from "@/components/listings/details/ListingCard";
@@ -119,6 +119,7 @@ const Home: React.FC = () => {
         userId: listing.userId,
         details: listing.details || {},
         listingAction: listing.listingAction,
+        status: listing.status,
       });
 
       setListings({

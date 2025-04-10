@@ -1,3 +1,4 @@
 export { default as MyListings } from "@/components/profile/MyListings";
-export { ProfileInfo } from "@/components/profile/PublicProfileInfo";
-export { ChangePassword } from "@/components/profile/ChangePassword";
+export { default as ProfileInfo } from "@/components/profile/ProfileInfo";
+export { PublicProfileInfo } from "@/components/profile/PublicProfileInfo";
+export { default as ChangePassword } from "@/components/profile/ChangePassword";

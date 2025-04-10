@@ -43,7 +43,7 @@ const colorField: ListingFieldSchema = {
   label: 'listings.exteriorColor',
   type: 'colorpicker',
   section: 'appearance',
-  required: false,
+        required: false,
   validate: (value: string) => value.length <= 50 ? null : 'Color must be 50 characters or less'
 };
 
@@ -53,7 +53,7 @@ const conditionField: ListingFieldSchema = {
   type: 'select',
   options: Object.values(Condition),
   section: 'essential',
-  required: true,
+        required: true,
   validate: (value: string) => Object.values(Condition).includes(value as Condition) ? null : 'Invalid condition value'
 };
 
@@ -136,4 +136,4 @@ const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
 export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> = {
   ...vehicleSchemas,
   ...propertySchemas
-};
+  };
