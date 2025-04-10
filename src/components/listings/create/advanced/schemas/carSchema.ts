@@ -45,7 +45,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "previousOwners",
     type: "number",
     section: "essential",
     required: true,
