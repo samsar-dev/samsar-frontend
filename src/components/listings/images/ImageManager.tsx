@@ -11,6 +11,8 @@ interface ImageManagerProps {
   onChange: (images: File[]) => void;
   maxImages?: number;
   error?: string;
+  existingImages?: string[];
+  onDeleteExisting?: (url: string) => void;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -25,6 +27,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   onChange,
   maxImages = 10,
   error,
+  existingImages = [],
+  onDeleteExisting,
 }) => {
   const { t } = useTranslation();
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -101,7 +105,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   };
 
   const handleImageUpload = async (files: File[]) => {
-    if (images.length + files.length > maxImages) {
+    if (images.length + existingImages.length + files.length > maxImages) {
       toast.error(t("errors.maxImagesExceeded", { count: maxImages }));
       return;
     }
@@ -195,7 +199,44 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         </div>
       )}
 
-      {/* Image Preview Grid */}
+      {/* Existing Images */}
+      {existingImages.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {t("listings.existingImages")} ({existingImages.length})
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <AnimatePresence>
+              {existingImages.map((url, index) => (
+                <motion.div
+                  key={url}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="relative group aspect-square"
+                >
+                  <img
+                    src={url}
+                    alt={`Existing ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+                    <button
+                      onClick={() => onDeleteExisting?.(url)}
+                      className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
+                      title={t("delete")}
+                    >
+                      <FaTrash className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
+
+      {/* New Images Preview */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         <AnimatePresence>
           {previewUrls.map((url, index) => (
@@ -211,7 +252,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                 alt={`Preview ${index + 1}`}
                 className="w-full h-full object-cover rounded-lg"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center space-x-2">
+              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
                 <button
                   onClick={() => handleImageDelete(index)}
                   className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"

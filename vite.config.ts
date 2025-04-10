@@ -31,25 +31,33 @@ export default defineConfig({
         target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        ws: true,
         configure: (proxy, _options) => {
-          proxy.on("error", (err, _req, _res) => {
-            console.log("proxy error", err);
+          proxy.on("error", (err: Error & { code?: string }, _req, _res) => {
+            console.log("Proxy Error:", err.message);
+            if (err.code === 'ECONNREFUSED') {
+              console.log("Backend server is not running. Please start the backend server.");
+            }
           });
           proxy.on("proxyReq", (proxyReq, req, _res) => {
-            console.log("Sending Request to API:", req.method, req.url);
+            console.log(`[Proxy] ${req.method} ${req.url}`);
           });
           proxy.on("proxyRes", (proxyRes, req, _res) => {
-            console.log(
-              "Received Response from API:",
-              proxyRes.statusCode,
-              req.url,
-            );
+            console.log(`[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`);
           });
         },
       },
+      "/socket.io": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        ws: true,
+      },
     },
-    cors: true,
+    cors: {
+      origin: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      credentials: true,
+    },
   },
   build: {
     outDir: process.env.VITE_BUILD_DIR || "dist",
