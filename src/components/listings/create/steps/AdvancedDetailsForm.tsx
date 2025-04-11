@@ -227,10 +227,15 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         ? form.details?.vehicles?.[field.name]
         : form.details?.realEstate?.[field.name];
 
-      if (field.required && !value) {
+      // Skip validation for tractor-specific fields if not a tractor
+      if (field.name === 'horsepower' && form.category.subCategory !== VehicleType.TRACTOR) {
+        return;
+      }
+
+      if (field.required && (!value || value === '' || value === null)) {
         // Use a field-specific required error message
         newErrors[`details.${field.name}`] = t(`errors.${field.name}Required`);
-      } else if (field.validate && value) {
+      } else if (field.validate && value !== undefined) {
         const error = field.validate(value);
         if (error) {
           newErrors[`details.${field.name}`] = t(`errors.${error}`);

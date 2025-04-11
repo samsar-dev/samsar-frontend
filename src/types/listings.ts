@@ -58,6 +58,14 @@ export interface VehicleDetails {
   drivingAssistance?: string[];
 }
 
+export interface TractorDetails extends VehicleDetails {
+  horsepower: number;
+  attachments: string[];
+  fuelTankCapacity: string;
+  tires: string;
+  features: string[];
+}
+
 export interface RealEstateDetails {
   propertyType: PropertyType;
   size?: string;
@@ -69,7 +77,7 @@ export interface RealEstateDetails {
 }
 
 export interface ListingDetails {
-  vehicles?: VehicleDetails;
+  vehicles?: VehicleDetails | TractorDetails;
   realEstate?: RealEstateDetails;
 }
 
