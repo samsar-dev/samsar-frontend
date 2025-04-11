@@ -4,7 +4,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "color",
-    label: "listings.exteriorColor",
+    label: "exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -12,7 +12,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "condition",
-    label: "listings.condition",
+    label: "condition",
     type: "select",
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
@@ -21,7 +21,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "mileage",
-    label: "listings.mileage",
+    label: "mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -33,7 +33,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "engineSize",
-    label: "listings.engineSize",
+    label: "engineSize",
     type: "text",
     section: "essential",
     required: true,
@@ -41,7 +41,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "previousOwners",
     type: "number",
     section: "essential",
     required: true,
@@ -53,7 +53,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "listings.registrationStatus",
+    label: "registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "essential",
@@ -62,7 +62,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "brakeType",
-    label: "listings.brakeType",
+    label: "brakeType",
     type: "select",
     options: ["disc", "drum", "abs", "combined"],
     section: "essential",
@@ -71,7 +71,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "listings.fuelType",
+    label: "fuelType",
     type: "select",
     options: ["gasoline", "electric", "hybrid"],
     section: "essential",
@@ -79,8 +79,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     validate: (value: string) => !value ? "Fuel type is required" : null,
   },
   {
-    name: "transmissionType",
-    label: "listings.transmission",
+    name: "transmission",
+    label: "transmission",
     type: "select",
     options: ["manual", "automatic", "semi_automatic"],
     section: "essential",

@@ -12,12 +12,12 @@ import type {
 export interface ListingFieldSchema {
   name: string;
   label: string;
-  type: string;
+  type: 'text' | 'number' | 'select' | 'textarea' | 'checkbox' | 'date' | 'colorpicker' | 'multiselect' | 'toggle';
   section: string;
-  required?: boolean;
+  required: boolean;
   options?: string[];
-  dependsOn?: string;
   validate?: (value: any) => string | null;
+  featureCategory?: 'entertainment' | 'lighting' | 'cameras' | 'safety' | 'climate';
 }
 
 export interface VehicleDetails {
@@ -27,7 +27,7 @@ export interface VehicleDetails {
   year: string;
   mileage: string;
   fuelType: FuelType;
-  transmissionType: TransmissionType;
+  transmission: TransmissionType;
   brakeType: string;
   engineSize: string;
   color: string;
@@ -68,6 +68,14 @@ export interface VehicleDetails {
   backupCamera?: string;
 }
 
+export interface TractorDetails extends VehicleDetails {
+  horsepower: number;
+  attachments: string[];
+  fuelTankCapacity: string;
+  tires: string;
+  features: string[];
+}
+
 export interface RealEstateDetails {
   propertyType: PropertyType;
   size?: string;
@@ -79,7 +87,7 @@ export interface RealEstateDetails {
 }
 
 export interface ListingDetails {
-  vehicles?: VehicleDetails;
+  vehicles?: VehicleDetails | TractorDetails;
   realEstate?: RealEstateDetails;
 }
 

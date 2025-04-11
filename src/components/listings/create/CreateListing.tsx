@@ -49,7 +49,9 @@ const initialFormState: FormState = {
       year: new Date().getFullYear().toString(),
       mileage: "",
       fuelType: FuelType.GASOLINE,
-      transmissionType: TransmissionType.AUTOMATIC,
+      transmission: TransmissionType.AUTOMATIC,
+      brakeType: "Not provided",
+      engineSize: "Not provided",
       color: "",
       condition: Condition.GOOD,
       features: [],
@@ -114,63 +116,34 @@ const CreateListing: React.FC = () => {
             ...(data.category || {}),
           },
           details: {
-            vehicles:
-              data.category.mainCategory === ListingCategory.VEHICLES
-                ? {
-                    vehicleType:
-                      data.details?.vehicles?.vehicleType || VehicleType.CAR,
-                    make: data.details?.vehicles?.make || "",
-                    model: data.details?.vehicles?.model || "",
-                    year:
-                      data.details?.vehicles?.year ||
-                      new Date().getFullYear().toString(),
-                    mileage: data.details?.vehicles?.mileage || "",
-                    fuelType:
-                      data.details?.vehicles?.fuelType || FuelType.GASOLINE,
-                    transmissionType:
-                      data.details?.vehicles?.transmissionType ||
-                      TransmissionType.AUTOMATIC,
-                    color: data.details?.vehicles?.color || "",
-                    condition:
-                      data.details?.vehicles?.condition || Condition.GOOD,
-                    features: data.details?.vehicles?.features || [],
-                    interiorColor:
-                      data.details?.vehicles?.interiorColor ||
-                      prev.details?.vehicles?.interiorColor ||
-                      "#000000",
-                    engine: data.details?.vehicles?.engine || "",
-                    warranty:
-                      data.details?.vehicles?.warranty?.toString() || "",
-                    serviceHistory:
-                      data.details?.vehicles?.serviceHistory ||
-                      prev.details?.vehicles?.serviceHistory ||
-                      "none",
-                    previousOwners:
-                      data.details?.vehicles?.previousOwners ??
-                      prev.details?.vehicles?.previousOwners ??
-                      0,
-                    registrationStatus:
-                      data.details?.vehicles?.registrationStatus ||
-                      prev.details?.vehicles?.registrationStatus ||
-                      "unregistered",
-                  }
-                : undefined,
-            realEstate:
-              data.category.mainCategory === ListingCategory.REAL_ESTATE
-                ? {
-                    propertyType:
-                      data.details?.realEstate?.propertyType ||
-                      PropertyType.HOUSE,
-                    size: data.details?.realEstate?.size || "",
-                    yearBuilt: data.details?.realEstate?.yearBuilt || "",
-                    bedrooms: data.details?.realEstate?.bedrooms || "",
-                    bathrooms: data.details?.realEstate?.bathrooms || "",
-                    condition:
-                      data.details?.realEstate?.condition || Condition.GOOD,
-                    features: data.details?.realEstate?.features || [],
-                  }
-                : undefined,
-          },
+            vehicles: data.category.mainCategory === ListingCategory.VEHICLES ? {
+              vehicleType: data.details?.vehicles?.vehicleType || VehicleType.CAR,
+              make: data.details?.vehicles?.make || "",
+              model: data.details?.vehicles?.model || "",
+              year: data.details?.vehicles?.year || new Date().getFullYear().toString(),
+              mileage: data.details?.vehicles?.mileage || "",
+              fuelType: data.details?.vehicles?.fuelType || FuelType.GASOLINE,
+              transmissionType: data.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
+              color: data.details?.vehicles?.color || "",
+              condition: data.details?.vehicles?.condition || Condition.GOOD,
+              features: data.details?.vehicles?.features || [],
+              interiorColor: data.details?.vehicles?.interiorColor || prev.details?.vehicles?.interiorColor || "#000000",
+              engine: data.details?.vehicles?.engine || "",
+              warranty: data.details?.vehicles?.warranty?.toString() || "",
+              serviceHistory: data.details?.vehicles?.serviceHistory || prev.details?.vehicles?.serviceHistory || "none",
+              previousOwners: data.details?.vehicles?.previousOwners ?? prev.details?.vehicles?.previousOwners ?? 0,
+              registrationStatus: data.details?.vehicles?.registrationStatus || prev.details?.vehicles?.registrationStatus || "unregistered",
+            } : undefined,
+            realEstate: data.category.mainCategory === ListingCategory.REAL_ESTATE ? {
+              propertyType: data.details?.realEstate?.propertyType || PropertyType.HOUSE,
+              size: data.details?.realEstate?.size || "",
+              yearBuilt: data.details?.realEstate?.yearBuilt || "",
+              bedrooms: data.details?.realEstate?.bedrooms || "",
+              bathrooms: data.details?.realEstate?.bathrooms || "",
+              condition: data.details?.realEstate?.condition || Condition.GOOD,
+              features: data.details?.realEstate?.features || [],
+            } : undefined,
+          }
         };
         // Save to session storage
         sessionStorage.setItem(
@@ -265,13 +238,13 @@ const CreateListing: React.FC = () => {
                 fuelType: (prev.details?.vehicles?.fuelType ||
                   data.details?.vehicles?.fuelType ||
                   FuelType.GASOLINE) as FuelType,
-                transmissionType: (prev.details?.vehicles?.transmissionType ||
+                transmission: (prev.details?.vehicles?.transmission ||
                   data.details?.vehicles?.transmissionType ||
                   TransmissionType.AUTOMATIC) as TransmissionType,
                 brakeType:
                   prev.details?.vehicles?.brakeType ||
                   data.details?.vehicles?.brakeType ||
-                  "",
+                  "Not provided",
                 color:
                   prev.details?.vehicles?.color ||
                   data.details?.vehicles?.color ||
@@ -282,7 +255,7 @@ const CreateListing: React.FC = () => {
                 engineSize:
                   prev.details?.vehicles?.engineSize ||
                   data.details?.vehicles?.engineSize ||
-                  "",
+                  "Not provided",
                 features:
                   prev.details?.vehicles?.features ||
                   data.details?.vehicles?.features ||
@@ -433,7 +406,7 @@ const CreateListing: React.FC = () => {
                 year: parseInt(data.details.vehicles.year || "0"),
                 mileage: parseInt(data.details.vehicles.mileage || "0"),
                 fuelType: data.details.vehicles.fuelType,
-                transmissionType: data.details.vehicles.transmissionType,
+                transmissionType: data.details.vehicles.transmission,
                 color:
                   data.details.vehicles.color &&
                   /^#[0-9A-F]{6}$/i.test(data.details.vehicles.color)

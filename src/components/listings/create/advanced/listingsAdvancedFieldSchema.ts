@@ -6,6 +6,7 @@ import { VehicleType, PropertyType, Condition } from "@/types/enums";
 import { carSchema } from './schemas/carSchema';
 import { motorcycleSchema } from './schemas/motorcycleSchema';
 import { truckSchema } from './schemas/truckSchema';
+import { tractorSchema } from './schemas/tractorSchema';
 import { constructionSchema } from './schemas/constructionSchema';
 import { vanSchema } from './schemas/vanSchema';
 import { busSchema } from './schemas/busSchema';
@@ -133,7 +134,8 @@ const baseRealEstateSchema: ListingFieldSchema[] = [
 const vehicleSchemas: Partial<Record<VehicleType, ListingFieldSchema[]>> = {
   [VehicleType.CAR]: [...carSchema, colorField],
   [VehicleType.MOTORCYCLE]: [...motorcycleSchema, colorField],
-  [VehicleType.TRUCK]: [...truckSchema, colorField],
+  [VehicleType.TRUCK]: truckSchema,
+  [VehicleType.TRACTOR]: tractorSchema,
   [VehicleType.VAN]: [...vanSchema, colorField],
   [VehicleType.BUS]: [...busSchema, colorField],
   [VehicleType.CONSTRUCTION]: [...constructionSchema],

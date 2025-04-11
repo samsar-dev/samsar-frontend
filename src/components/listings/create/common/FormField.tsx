@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
-import { forwardRef, useCallback, useState } from "react";
+import { forwardRef, useCallback, useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
+import { ListingFieldSchema } from "@/types/listings";
 
 export type FormFieldValue = string | number | boolean | string[];
 
@@ -35,6 +36,7 @@ export interface FormFieldProps {
   suffix?: string;
   validateOnBlur?: boolean;
   customValidation?: (value: string) => string | undefined;
+  fieldSchema?: ListingFieldSchema;
 }
 
 const FormField = forwardRef<
@@ -46,98 +48,78 @@ const FormField = forwardRef<
       label,
       name,
       type = "text",
-      value,
+      value: propValue,
       onChange,
       error,
       helpText,
-      required = false,
+      required,
       placeholder,
-      disabled = false,
-      className = "",
+      options,
+      disabled,
+      className,
       min,
       max,
       step,
-      options = [],
       prefix,
       suffix,
       validateOnBlur = true,
       customValidation,
+      fieldSchema,
     },
-    ref,
+    ref
   ) => {
-    const [showColorPicker, setShowColorPicker] = useState(false);
-
-    const handleChange = useCallback(
-      (
-        e:
-          | React.ChangeEvent<
-              HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-            >
-          | string,
-      ) => {
-        let newValue: FormFieldValue =
-          typeof e === "string" ? e : e.target.value;
-
-        if (type === "number") {
-          newValue = newValue === "" ? "" : Number(newValue);
-          if (isNaN(newValue as number)) newValue = "";
-        }
-
-        if (type === "checkbox") {
-          if (options && options.length > 0) {
-            // Handle multi-checkbox
-            const currentValues = (
-              Array.isArray(value) ? value : []
-            ) as string[];
-            const clickedValue = typeof e === "string" ? e : e.target.value;
-            if (
-              typeof e !== "string" &&
-              (e.target as HTMLInputElement).checked
-            ) {
-              newValue = [...currentValues, clickedValue];
-            } else {
-              newValue = currentValues.filter((v) => v !== clickedValue);
-            }
-          } else {
-            // Handle single checkbox
-            newValue =
-              typeof e !== "string" && (e.target as HTMLInputElement).checked;
-          }
-        }
-
-        if (type === "select") {
-          if (
-            typeof e !== "string" &&
-            (e.target as HTMLSelectElement).multiple
-          ) {
-            const select = e.target as HTMLSelectElement;
-            newValue = Array.from(select.selectedOptions).map(
-              (opt) => opt.value,
-            );
-          } else {
-            newValue = typeof e === "string" ? e : e.target.value;
-          }
-        }
-
-        // Clear error on change
-        if (error && typeof value === "string" && value !== newValue) {
-          onChange(newValue, undefined);
-        } else {
-          onChange(newValue);
-        }
-      },
-      [onChange, options, type, value, error],
+    const [internalValue, setInternalValue] = useState<FormFieldValue>(
+      propValue !== undefined ? propValue : ''
     );
 
+    const handleChange = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        let newValue: FormFieldValue = event.target.value;
+
+        // Handle number type conversion
+        if (type === "number") {
+          newValue = event.target.value === "" ? null : Number(event.target.value);
+        }
+
+        // Set internal value
+        setInternalValue(newValue);
+
+        // Validate if needed
+        let validationError: string | undefined;
+        if (fieldSchema?.validate) {
+          validationError = fieldSchema.validate(newValue);
+        } else if (customValidation) {
+          validationError = customValidation(newValue as string);
+        }
+
+        // Call onChange with value and potential error
+        onChange(newValue, validationError);
+      },
+      [onChange, fieldSchema, customValidation]
+    );
+
+    useEffect(() => {
+      if (propValue !== undefined) {
+        setInternalValue(propValue);
+      }
+    }, [propValue]);
+
     const handleBlur = useCallback(() => {
-      if (validateOnBlur && customValidation && typeof value === "string") {
-        const validationError = customValidation(value);
+      if (validateOnBlur && (fieldSchema?.validate || customValidation)) {
+        const valueToValidate = internalValue as string;
+        let validationError: string | undefined;
+
+        if (fieldSchema?.validate) {
+          validationError = fieldSchema.validate(internalValue);
+        } else if (customValidation) {
+          validationError = customValidation(valueToValidate);
+        }
+
         if (validationError) {
-          // Instead of just logging, we need to update the error state
-          onChange(value, validationError);
+          onChange(internalValue, validationError);
         }
       }
-    }, [validateOnBlur, customValidation, value, onChange]);
+    }, [validateOnBlur, fieldSchema, customValidation, internalValue, onChange]);
 
     const inputClasses = clsx(
       "block w-full rounded-md border-gray-300 shadow-sm",
@@ -154,23 +136,13 @@ const FormField = forwardRef<
           <div className="relative">
             <div
               className="w-12 h-8 border rounded cursor-pointer"
-              style={{ backgroundColor: (value as string) || "#ffffff" }}
-              onClick={() => setShowColorPicker(!showColorPicker)}
+              style={{ backgroundColor: (internalValue as string) || "#ffffff" }}
+              onClick={() => setInternalValue("#ffffff")}
             />
-            {showColorPicker && (
-              <div className="absolute z-10 mt-2">
-                <div
-                  className="fixed inset-0"
-                  onClick={() => setShowColorPicker(false)}
-                />
-                <div className="relative">
-                  <HexColorPicker
-                    color={(value as string) || "#ffffff"}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            )}
+            <HexColorPicker
+              color={(internalValue as string) || "#ffffff"}
+              onChange={(color) => setInternalValue(color)}
+            />
           </div>
         );
       }
@@ -181,7 +153,7 @@ const FormField = forwardRef<
             ref={ref as React.Ref<HTMLTextAreaElement>}
             id={name}
             name={name}
-            value={value as string}
+            value={internalValue as string}
             onChange={handleChange}
             onBlur={handleBlur}
             className={clsx(
@@ -203,13 +175,13 @@ const FormField = forwardRef<
             ref={ref as React.Ref<HTMLSelectElement>}
             id={name}
             name={name}
-            value={value as string}
+            value={internalValue as string}
             onChange={handleChange}
             onBlur={handleBlur}
             className={inputClasses}
             disabled={disabled}
             required={required}
-            multiple={Array.isArray(value)}
+            multiple={Array.isArray(internalValue)}
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
@@ -233,8 +205,17 @@ const FormField = forwardRef<
                     type="checkbox"
                     name={name}
                     value={option.value}
-                    checked={(value as string[])?.includes(option.value)}
-                    onChange={handleChange}
+                    checked={(internalValue as string[])?.includes(option.value)}
+                    onChange={(event) => {
+                      const newValue = (internalValue as string[]) || [];
+                      if (event.target.checked) {
+                        newValue.push(option.value);
+                      } else {
+                        newValue = newValue.filter((v) => v !== option.value);
+                      }
+                      setInternalValue(newValue);
+                      onChange(newValue);
+                    }}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     disabled={disabled}
                   />
@@ -251,8 +232,11 @@ const FormField = forwardRef<
             type="checkbox"
             id={name}
             name={name}
-            checked={value as boolean}
-            onChange={handleChange}
+            checked={internalValue as boolean}
+            onChange={(event) => {
+              setInternalValue(event.target.checked);
+              onChange(event.target.checked);
+            }}
             onBlur={handleBlur}
             className={clsx(
               "rounded border-gray-300 text-blue-600 focus:ring-blue-500",
@@ -260,6 +244,27 @@ const FormField = forwardRef<
               disabled && "bg-gray-100 cursor-not-allowed",
             )}
             disabled={disabled}
+          />
+        );
+      }
+
+      if (type === "text" || type === "number" || type === "email" || type === "password" || type === "tel") {
+        return (
+          <input
+            ref={ref as React.Ref<HTMLInputElement>}
+            type={type}
+            id={name}
+            name={name}
+            value={internalValue as string}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className={inputClasses}
+            disabled={disabled}
+            required={required}
+            placeholder={placeholder}
+            min={min}
+            max={max}
+            step={step}
           />
         );
       }
@@ -276,7 +281,7 @@ const FormField = forwardRef<
             type={type}
             id={name}
             name={name}
-            value={value as string}
+            value={internalValue as string}
             onChange={handleChange}
             onBlur={handleBlur}
             className={clsx(inputClasses, prefix && "pl-7", suffix && "pr-7")}

@@ -10,6 +10,7 @@ import {
   FuelType,
   TransmissionType,
   Condition,
+  ListingAction,
 } from "@/types/enums";
 import {
   FaEdit,
@@ -28,7 +29,7 @@ import {
   Calendar,
   Tag
 } from 'lucide-react';
-import type { VehicleDetails, RealEstateDetails, ListingFieldSchema } from '@/types/listings';
+import type { VehicleDetails, RealEstateDetails, ListingFieldSchema, TractorDetails } from '@/types/listings';
 import { listingsAdvancedFieldSchema } from '../advanced/listingsAdvancedFieldSchema';
 
 interface ReviewSectionProps {
@@ -98,7 +99,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       if (!vehicleDetails?.year) newErrors.push(t('errors.yearRequired'));
       if (!vehicleDetails?.mileage) newErrors.push(t('errors.mileageRequired'));
       if (!vehicleDetails?.fuelType) newErrors.push(t('errors.fuelTypeRequired'));
-      if (!vehicleDetails?.transmissionType) newErrors.push(t('errors.transmissionRequired'));
+      if (!vehicleDetails?.transmission) newErrors.push(t('errors.transmissionRequired'));
       if (!vehicleDetails?.color) newErrors.push(t('errors.colorRequired'));
       if (!vehicleDetails?.condition) newErrors.push(t('errors.conditionRequired'));
 
@@ -113,6 +114,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           newErrors.push(t(`errors.${field.name}Required`));
         }
       });
+
+      // Special validation for tractors
+      if (subcategory === 'TRACTOR') {
+        const tractorDetails = vehicleDetails as TractorDetails;
+        if (!tractorDetails?.horsepower) {
+          newErrors.push(t('errors.horsepowerRequired'));
+        }
+      }
     } else if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
       const realEstateDetails = formData.details?.realEstate;
       if (!realEstateDetails?.propertyType) newErrors.push(t('errors.propertyTypeRequired'));
@@ -150,7 +159,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       // Update form data with the selected listing action
       const updatedFormData = {
         ...formData,
-        listingAction: listingAction.toLowerCase() as 'sell' | 'rent',
+        listingAction: listingAction as ListingAction,
         // Ensure all required fields are present
         title: formData.title || '',
         description: formData.description || '',
@@ -169,7 +178,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             year: formData.details?.vehicles?.year || new Date().getFullYear().toString(),
             mileage: formData.details?.vehicles?.mileage || '0',
             fuelType: formData.details?.vehicles?.fuelType || FuelType.GASOLINE,
-            transmissionType: formData.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
+            transmission: formData.details?.vehicles?.transmission || TransmissionType.AUTOMATIC,
             color: formData.details?.vehicles?.color || '',
             condition: formData.details?.vehicles?.condition || Condition.GOOD,
             features: formData.details?.vehicles?.features || [],
@@ -177,7 +186,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             warranty: formData.details?.vehicles?.warranty || '',
             serviceHistory: formData.details?.vehicles?.serviceHistory || '',
             previousOwners: formData.details?.vehicles?.previousOwners || 0,
-            registrationStatus: formData.details?.vehicles?.registrationStatus || ''
+            registrationStatus: formData.details?.vehicles?.registrationStatus || '',
+            brakeType: formData.details?.vehicles?.brakeType || '',
+            engineSize: formData.details?.vehicles?.engineSize || '',
+            // Add tractor-specific fields if it's a tractor
+            ...(formData.category?.subCategory === 'TRACTOR' ? {
+              horsepower: formData.details?.vehicles?.horsepower || 0,
+              attachments: (formData.details?.vehicles as TractorDetails)?.attachments || [],
+              fuelTankCapacity: (formData.details?.vehicles as TractorDetails)?.fuelTankCapacity || '',
+              tires: (formData.details?.vehicles as TractorDetails)?.tires || '',
+            } : {})
           } : undefined,
           realEstate: formData.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
             ...formData.details?.realEstate,
@@ -273,6 +291,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     const vehicleDetails = formData.details?.vehicles;
     if (!vehicleDetails) return null;
 
+    // Check if this is a tractor
+    const isTractor = formData.category?.subCategory === 'TRACTOR';
+    const tractorDetails = isTractor ? vehicleDetails as TractorDetails : null;
+
     return (
       <div className="space-y-4">
         {/* Essential Details Section */}
@@ -324,11 +346,19 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             <div>
               <div className="text-sm text-gray-500">{t("listings.transmission")}</div>
               <div className="font-medium">
-                {vehicleDetails.transmissionType
-                  ? t(`listings.transmissionTypes.${vehicleDetails.transmissionType}`)
+                {vehicleDetails.transmission
+                  ? t(`listings.transmissionTypes.${vehicleDetails.transmission}`)
                   : t("common.notProvided")}
               </div>
             </div>
+            {isTractor && (
+              <div>
+                <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
+                <div className="font-medium">
+                  {tractorDetails?.horsepower ? `${tractorDetails.horsepower} hp` : t("common.notProvided")}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -367,12 +397,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               <div className="text-sm text-gray-500">{t("listings.engine")}</div>
               <div className="font-medium">
                 {vehicleDetails.engine || t("common.notProvided")}
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
-              <div className="font-medium">
-                {vehicleDetails.horsepower ? `${vehicleDetails.horsepower} hp` : t("common.notProvided")}
               </div>
             </div>
             <div>

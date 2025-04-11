@@ -2,9 +2,26 @@ import { ListingFieldSchema } from '@/types/listings';
 
 export const vanSchema: ListingFieldSchema[] = [
   // Essential Section
+ 
+  {
+    name: 'color',
+    label: 'exteriorColor',
+    type: 'colorpicker',
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Exterior color is required' : null,
+  },
+  {
+    name: 'interiorColor',
+    label: 'interiorColor',
+    type: 'colorpicker',
+    section: 'essential',
+    required: true,
+    validate: (value: string) => !value ? 'Interior color is required' : null,
+  },
   {
     name: 'vanType',
-    label: 'listings.vanType',
+    label: 'vanType',
     type: 'select',
     options: [
       'Cargo',
@@ -20,16 +37,8 @@ export const vanSchema: ListingFieldSchema[] = [
     validate: (value: string) => !value ? 'Van type is required' : null,
   },
   {
-    name: 'color',
-    label: 'listings.exteriorColor',
-    type: 'colorpicker',
-    section: 'essential',
-    required: true,
-    validate: (value: string) => !value ? 'Exterior color is required' : null,
-  },
-  {
     name: 'condition',
-    label: 'listings.condition',
+    label: 'condition',
     type: 'select',
     options: ['new', 'likeNew', 'excellent', 'good', 'fair', 'poor', 'salvage'],
     section: 'essential',
@@ -38,7 +47,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'mileage',
-    label: 'listings.mileage',
+    label: 'mileage',
     type: 'number',
     section: 'essential',
     required: true,
@@ -50,7 +59,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'cargoVolume',
-    label: 'listings.cargoVolume',
+    label: 'cargoVolume',
     type: 'number',
     section: 'essential',
     required: true,
@@ -62,7 +71,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'payloadCapacity',
-    label: 'listings.payloadCapacity',
+    label: 'payloadCapacity',
     type: 'number',
     section: 'essential',
     required: true,
@@ -74,7 +83,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: 'fuelType',
-    label: 'listings.fuelType',
+    label: 'fuelType',
     type: 'select',
     options: ['diesel', 'gasoline', 'electric', 'hybrid', 'cng'],
     section: 'essential',
@@ -82,64 +91,13 @@ export const vanSchema: ListingFieldSchema[] = [
     validate: (value: string) => !value ? 'Fuel type is required' : null,
   },
   {
-    name: 'transmissionType',
-    label: 'listings.transmission',
+    name: 'transmission',
+    label: 'transmission',
     type: 'select',
     options: ['manual', 'automatic', 'automated'],
     section: 'essential',
     required: true,
     validate: (value: string) => !value ? 'Transmission type is required' : null,
-  },
-  {
-    name: 'features',
-    label: 'listings.features',
-    type: 'multiselect',
-    options: [
-      'Air Conditioning',
-      'Power Steering',
-      'Power Windows',
-      'Power Locks',
-      'Anti-lock Brakes',
-      'Navigation System',
-      'Bluetooth',
-      'Cruise Control',
-      'Other'
-    ],
-    section: 'essential',
-    required: true,
-    validate: (value: string[]) => !value || value.length === 0 ? 'At least one feature is required' : null,
-  },
-
-  // Advanced Section
-  {
-    name: 'interiorColor',
-    label: 'listings.interiorColor',
-    type: 'colorpicker',
-    section: 'advanced',
-    required: false
-  },
-  {
-    name: 'engine',
-    label: 'listings.engine',
-    type: 'text',
-    section: 'advanced',
-    required: false
-  },
-  {
-    name: 'horsepower',
-    label: 'listings.horsepower',
-    type: 'number',
-    section: 'advanced',
-    required: false,
-    validate: (value: number) => value && value < 0 ? 'Horsepower must be 0 or greater' : null,
-  },
-  {
-    name: 'torque',
-    label: 'listings.torque',
-    type: 'number',
-    section: 'advanced',
-    required: false,
-    validate: (value: number) => value && value < 0 ? 'Torque must be 0 or greater' : null,
   },
   {
     name: 'previousOwners',
@@ -164,6 +122,32 @@ export const vanSchema: ListingFieldSchema[] = [
     options: ['full', 'partial', 'none'],
     section: 'advanced',
     required: false
+  },
+
+  // Advanced Section
+  
+  {
+    name: 'engine',
+    label: 'listings.engine',
+    type: 'text',
+    section: 'advanced',
+    required: false
+  },
+  {
+    name: 'horsepower',
+    label: 'listings.horsepower',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => value && value < 0 ? 'Horsepower must be 0 or greater' : null,
+  },
+  {
+    name: 'torque',
+    label: 'listings.torque',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => value && value < 0 ? 'Torque must be 0 or greater' : null,
   },
   {
     name: 'roofHeight',
@@ -196,7 +180,8 @@ export const vanSchema: ListingFieldSchema[] = [
   {
     name: 'refrigeration',
     label: 'listings.refrigeration',
-    type: 'boolean',
+    type: 'select',
+    options: ['yes', 'no'],
     section: 'advanced',
     required: false
   },
@@ -238,5 +223,24 @@ export const vanSchema: ListingFieldSchema[] = [
     ],
     section: 'advanced',
     required: false
-  }
+  },
+  {
+    name: 'features',
+    label: 'features',
+    type: 'multiselect',
+    options: [
+      'Air Conditioning',
+    'Power Steering',
+    'Power Windows',
+    'Power Locks',
+    'Anti-lock Brakes',
+    'Navigation System',
+    'Bluetooth',
+    'Cruise Control',
+    'Other'
+  ],
+  section: 'advanced',
+  required: false,
+  validate: (value: string[]) => !value || value.length === 0 ? 'At least one feature is recommended' : null,
+},
 ];
