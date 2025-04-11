@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -14,13 +14,17 @@ import {
   FaTree,
   FaClock,
 } from "react-icons/fa";
-import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
-import { FormState } from "@/types/forms";
+import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import {
+  ListingCategory as ListingCategoryValue,
+  VehicleType as VehicleTypeValue,
+} from "@/types/enums";
+import type { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
+import type { SectionId } from "../advanced/listingsAdvancedFieldSchema";
 import {
   listingsAdvancedFieldSchema,
   SECTION_CONFIG,
-  SectionId,
 } from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "../common/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
@@ -103,14 +107,16 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         description: "",
         price: 0,
         category: {
-          mainCategory: ListingCategory.VEHICLES,
-          subCategory: VehicleType.CAR,
+          mainCategory: ListingCategoryValue.VEHICLES,
+          subCategory: VehicleTypeValue.CAR,
         },
         location: "",
         images: [],
         details: {
           vehicles: {},
         },
+        listingAction: null,
+        status: null,
       };
     }
 
@@ -119,7 +125,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   console.log("form", form);
 
-  const isVehicle = form.category.mainCategory === ListingCategory.VEHICLES;
+  const isVehicle =
+    form.category.mainCategory === ListingCategoryValue.VEHICLES;
   const currentSchema =
     listingsAdvancedFieldSchema[form.category.subCategory] || [];
 
