@@ -171,8 +171,8 @@ const ListingDetails: React.FC = () => {
                     ? details.vehicles.mileage.toString()
                     : "0",
                 fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
-                transmissionType:
-                  details.vehicles.transmissionType ||
+                transmission:
+                  details.vehicles.transmission ||
                   TransmissionType.AUTOMATIC,
                 color: details.vehicles.color || "",
                 condition: details.vehicles.condition || Condition.GOOD,
@@ -467,13 +467,13 @@ const ListingDetails: React.FC = () => {
                         </p>
                       </div>
                     )}
-                    {listing.details.vehicles.transmissionType && (
+                    {listing.details.vehicles.transmission && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.transmission")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.transmissionType}
+                          {listing.details.vehicles.transmission}
                         </p>
                       </div>
                     )}

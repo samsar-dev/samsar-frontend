@@ -79,7 +79,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     validate: (value: string) => !value ? "Fuel type is required" : null,
   },
   {
-    name: "transmissionType",
+    name: "transmission",
     label: "transmission",
     type: "select",
     options: ["manual", "automatic", "semi_automatic"],

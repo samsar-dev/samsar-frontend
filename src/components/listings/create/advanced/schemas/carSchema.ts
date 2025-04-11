@@ -41,7 +41,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(TransmissionType),
     section: "essential",
-    required: true
+    required: true,
+    validate: (value: string) => (!value ? "errors.transmissionRequired" : null)
   },
   {
     name: "fuelType",

@@ -15,6 +15,7 @@ import {
   FaMoon,
   FaSun,
   FaSpinner,
+  FaEnvelope
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
@@ -159,6 +160,16 @@ const Navbar: React.FC = () => {
 
                 {/* Notifications */}
                 <NotificationBell />
+
+                {/* Messages */}
+                <Tooltip content={t("navigation.messages")} position="bottom">
+                  <Link
+                    to="/messages"
+                    className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                  >
+                    <FaEnvelope className="h-5 w-5" />
+                  </Link>
+                </Tooltip>
 
                 {/* Profile Menu */}
                 <div className="relative profile-menu">

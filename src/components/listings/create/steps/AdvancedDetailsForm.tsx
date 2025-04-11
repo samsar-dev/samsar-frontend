@@ -18,6 +18,7 @@ import {
   FaCamera,
   FaShieldVirus,
   FaWind,
+  FaTractor,
 } from "react-icons/fa";
 import {
   ListingCategory,
@@ -91,6 +92,12 @@ export function getIconComponent(iconName: string) {
     FaPaintBrush,
     FaTree,
     FaClock,
+    FaMusic,
+    FaLightbulb,
+    FaCamera,
+    FaShieldVirus,
+    FaWind,
+    FaTractor,
   };
   return iconMap[iconName] || FaCog;
 }

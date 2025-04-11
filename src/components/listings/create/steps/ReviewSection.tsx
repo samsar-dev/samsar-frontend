@@ -96,7 +96,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       if (!vehicleDetails?.year) newErrors.push(t('errors.yearRequired'));
       if (!vehicleDetails?.mileage) newErrors.push(t('errors.mileageRequired'));
       if (!vehicleDetails?.fuelType) newErrors.push(t('errors.fuelTypeRequired'));
-      if (!vehicleDetails?.transmissionType) newErrors.push(t('errors.transmissionRequired'));
+      if (!vehicleDetails?.transmission) newErrors.push(t('errors.transmissionRequired'));
       if (!vehicleDetails?.color) newErrors.push(t('errors.colorRequired'));
       if (!vehicleDetails?.condition) newErrors.push(t('errors.conditionRequired'));
 
@@ -165,7 +165,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             year: formData.details?.vehicles?.year || new Date().getFullYear().toString(),
             mileage: formData.details?.vehicles?.mileage || '0',
             fuelType: formData.details?.vehicles?.fuelType || FuelType.GASOLINE,
-            transmissionType: formData.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
+            transmission: formData.details?.vehicles?.transmission || TransmissionType.AUTOMATIC,
             color: formData.details?.vehicles?.color || '',
             condition: formData.details?.vehicles?.condition || Condition.GOOD,
             features: formData.details?.vehicles?.features || [],
@@ -320,8 +320,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             <div>
               <div className="text-sm text-gray-500">{t("listings.transmission")}</div>
               <div className="font-medium">
-                {vehicleDetails.transmissionType
-                  ? t(`listings.transmissionTypes.${vehicleDetails.transmissionType}`)
+                {vehicleDetails.transmission
+                  ? t(`listings.transmissionTypes.${vehicleDetails.transmission}`)
                   : t("common.notProvided")}
               </div>
             </div>

@@ -404,14 +404,16 @@ export const listingsAPI = {
               // Essential fields
               mileage: responseData.details.vehicles.mileage || "0",
               fuelType: responseData.details.vehicles.fuelType || "gasoline",
-              transmissionType:
-                responseData.details.vehicles.transmissionType || "automatic",
+              transmission:
+                responseData.details.vehicles.transmission || "automatic",
               // Appearance fields
               color: responseData.details.vehicles.color || "#000000",
               interiorColor:
                 responseData.details.vehicles.interiorColor || "#000000",
               condition: responseData.details.vehicles.condition || "good",
               // Technical fields
+              brakeType: responseData.details.vehicles.brakeType || "Not provided",
+              engineSize: responseData.details.vehicles.engineSize || "Not provided",
               engine: responseData.details.vehicles.engine || "Not provided",
               warranty:
                 responseData.details.vehicles.warranty?.toString() || "0",

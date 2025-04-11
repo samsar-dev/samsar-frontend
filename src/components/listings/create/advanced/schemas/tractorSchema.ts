@@ -1,6 +1,6 @@
 import { ListingFieldSchema } from '@/types/listings';
 
-export const busSchema: ListingFieldSchema[] = [
+export const tractorSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: 'color',
@@ -40,14 +40,14 @@ export const busSchema: ListingFieldSchema[] = [
     },
   },
   {
-    name: 'seatingCapacity',
-    label: 'seatingCapacity',
+    name: 'horsepower',
+    label: 'horsepower',
     type: 'number',
     section: 'essential',
     required: true,
     validate: (value: number) => {
-      if (value === undefined || value === null) return 'Seating capacity is required';
-      if (value < 1) return 'Seating capacity must be greater than 0';
+      if (value === undefined || value === null) return 'Horsepower is required';
+      if (value < 0) return 'Horsepower must be 0 or greater';
       return null;
     },
   },
@@ -67,24 +67,16 @@ export const busSchema: ListingFieldSchema[] = [
     name: 'registrationStatus',
     label: 'registrationStatus',
     type: 'select',
-    options: ['registered', 'unregistered', 'expired'],
+    options: ['registered', 'notRegistered', 'other'],
     section: 'essential',
     required: true,
     validate: (value: string) => !value ? 'Registration status is required' : null,
   },
   {
-    name: 'engine',
-    label: 'engine',
-    type: 'text',
-    section: 'essential',
-    required: true,
-    validate: (value: string) => !value ? 'Engine details are required' : null,
-  },
-  {
     name: 'fuelType',
     label: 'fuelType',
     type: 'select',
-    options: ['diesel', 'gasoline', 'electric', 'hybrid', 'cng'],
+    options: ['diesel', 'gasoline', 'electric', 'hybrid'],
     section: 'essential',
     required: true,
     validate: (value: string) => !value ? 'Fuel type is required' : null,
@@ -93,48 +85,89 @@ export const busSchema: ListingFieldSchema[] = [
     name: 'transmission',
     label: 'transmission',
     type: 'select',
-    options: ['manual', 'automatic', 'semi_automatic'],
+    options: ['manual', 'automatic', 'hydrostatic'],
     section: 'essential',
     required: true,
     validate: (value: string) => !value ? 'Transmission type is required' : null,
+  },
+
+  // Advanced Section
+  {
+    name: 'torque',
+    label: 'torque',
+    type: 'number',
+    section: 'advanced',
+    required: false,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return null;
+      if (value < 0) return 'Torque must be 0 or greater';
+      return null;
+    },
+  },
+  {
+    name: 'engine',
+    label: 'engine',
+    type: 'text',
+    section: 'advanced',
+    required: false,
+    validate: (value: string) => !value ? null : null,
+  },
+  {
+    name: 'attachments',
+    label: 'attachments',
+    type: 'multiselect',
+    options: [
+      'Front Loader',
+      'Backhoe',
+      'Plow',
+      'Mower',
+      'Sprayer',
+      'Other'
+    ],
+    section: 'advanced',
+    required: false,
   },
   {
     name: 'serviceHistory',
     label: 'serviceHistory',
     type: 'select',
-    options: ['full', 'partial', 'none'],
-    section: 'essential',
-    required: true,
-    validate: (value: string) => !value ? 'Service history is required' : null,
-  },
-
-  // Advanced Section
-  {
-    name: 'airConditioning',
-    label: 'comfort.airConditioning',
-    type: 'select',
-    options: ['none', 'front', 'full'],
+    options: ['complete', 'partial', 'unknown'],
     section: 'advanced',
     required: false,
   },
   {
-    name: 'luggageSpace',
-    label: 'listings.luggageSpace',
+    name: 'fuelTankCapacity',
+    label: 'fuelTankCapacity',
     type: 'number',
     section: 'advanced',
     required: false,
+    validate: (value: number) => {
+      if (value === undefined || value === null) return null;
+      if (value < 0) return 'Fuel tank capacity must be 0 or greater';
+      return null;
+    },
   },
   {
-    name: 'wheelchairAccessible',
-    label: 'accessibility.wheelchairAccessible',
-    type: 'boolean',
+    name: 'tires',
+    label: 'tires',
+    type: 'text',
     section: 'advanced',
     required: false,
   },
   {
-    name: 'emergencyExits',
-    label: 'safety.emergencyExits',
-    type: 'number',
+    name: 'features',
+    label: 'features',
+    type: 'multiselect',
+    options: [
+      'CAB',
+      'Air Conditioning',
+      'Power Steering',
+      'Power Windows',
+      'Power Locks',
+      'Navigation System',
+      'Bluetooth',
+      'Other'
+    ],
     section: 'advanced',
     required: false,
   },

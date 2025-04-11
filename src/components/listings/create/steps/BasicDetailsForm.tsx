@@ -252,7 +252,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
           year: new Date().getFullYear().toString(),
           mileage: "",
           fuelType: FuelType.GASOLINE,
-          transmissionType: TransmissionType.AUTOMATIC,
+          transmission: TransmissionType.AUTOMATIC,
           color: "",
           condition: Condition.GOOD,
           features: [],
