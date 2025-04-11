@@ -1,5 +1,5 @@
 // src/components/listings/create/advanced/listingsAdvancedFieldSchema.ts
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 import { VehicleType, PropertyType, Condition } from "@/types/enums";
 
 // Import individual schemas

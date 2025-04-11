@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -20,21 +20,25 @@ import {
   FaWind,
   FaTractor,
 } from "react-icons/fa";
+import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import {
-  ListingCategory,
-  VehicleType,
-  PropertyType,
   ListingAction,
   ListingStatus,
+  ListingCategory as ListingCategoryValue,
+  VehicleType as VehicleTypeValue,
 } from "@/types/enums";
-import { FormState } from "@/types/forms";
+import type { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
-import { listingsAdvancedFieldSchema, SECTION_CONFIG, SectionId } from "../advanced/listingsAdvancedFieldSchema";
+import type { SectionId } from "../advanced/listingsAdvancedFieldSchema";
+import {
+  listingsAdvancedFieldSchema,
+  SECTION_CONFIG,
+} from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "../common/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import { toast } from "react-hot-toast";
 
-interface ExtendedFormState extends Omit<FormState, 'details'> {
+interface ExtendedFormState extends Omit<FormState, "details"> {
   category: {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
@@ -122,14 +126,19 @@ const FeatureSection: React.FC<{
           <Icon className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-medium">{t(title)}</h3>
         </div>
-        <FaCog className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+        <FaCog
+          className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+        />
       </button>
-      
+
       {isExpanded && (
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {features.map((feature) => (
-            feature.type === 'toggle' ? (
-              <div key={feature.name} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+          {features.map((feature) =>
+            feature.type === "toggle" ? (
+              <div
+                key={feature.name}
+                className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700"
+              >
                 <span className="text-sm">{t(feature.label)}</span>
                 <button
                   type="button"
@@ -137,12 +146,14 @@ const FeatureSection: React.FC<{
                   aria-checked={values[feature.name] || false}
                   onClick={() => onChange(feature.name, !values[feature.name])}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                    values[feature.name] ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'
+                    values[feature.name]
+                      ? "bg-primary"
+                      : "bg-gray-200 dark:bg-gray-600"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      values[feature.name] ? 'translate-x-6' : 'translate-x-1'
+                      values[feature.name] ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>
@@ -161,7 +172,7 @@ const FeatureSection: React.FC<{
                 </label>
               </div>
             )
-          ))}
+          )}
         </div>
       )}
     </div>
@@ -185,24 +196,28 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         description: "",
         price: 0,
         category: {
-          mainCategory: ListingCategory.VEHICLES,
-          subCategory: VehicleType.CAR
+          mainCategory: ListingCategoryValue.VEHICLES,
+          subCategory: VehicleTypeValue.CAR,
         },
         location: "",
         images: [],
         details: {
-          vehicles: {}
+          vehicles: {},
         },
         listingAction: ListingAction.SELL,
-        status: ListingStatus.ACTIVE
+        status: ListingStatus.ACTIVE,
       };
     }
-    
+
     return formData as ExtendedFormState;
   });
 
-  const isVehicle = form.category.mainCategory === ListingCategory.VEHICLES;
-  const currentSchema = listingsAdvancedFieldSchema[form.category.subCategory] || [];
+  console.log("form", form);
+
+  const isVehicle =
+    form.category.mainCategory === ListingCategoryValue.VEHICLES;
+  const currentSchema =
+    listingsAdvancedFieldSchema[form.category.subCategory] || [];
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
@@ -218,21 +233,23 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     }))
     .sort((a, b) => a.order - b.order);
 
-
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
-    
+
     currentSchema.forEach((field) => {
       const value = isVehicle
         ? form.details?.vehicles?.[field.name]
         : form.details?.realEstate?.[field.name];
 
       // Skip validation for tractor-specific fields if not a tractor
-      if (field.name === 'horsepower' && form.category.subCategory !== VehicleType.TRACTOR) {
+      if (
+        field.name === "horsepower" &&
+        form.category.subCategory !== VehicleTypeValue.TRACTOR
+      ) {
         return;
       }
 
-      if (field.required && (!value || value === '' || value === null)) {
+      if (field.required && (!value || value === "" || value === null)) {
         // Use a field-specific required error message
         newErrors[`details.${field.name}`] = t(`errors.${field.name}Required`);
       } else if (field.validate && value !== undefined) {
@@ -249,11 +266,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[],
+    value: string | number | boolean | string[]
   ) => {
     setForm((prevForm) => {
-      const detailsKey = isVehicle ? 'vehicles' : 'realEstate';
-      
+      const detailsKey = isVehicle ? "vehicles" : "realEstate";
+
       return {
         ...prevForm,
         details: {
@@ -278,7 +295,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const handleFeatureChange = (field: string, value: boolean) => {
     setForm((prevForm) => {
-      const detailsKey = isVehicle ? 'vehicles' : 'realEstate';
+      const detailsKey = isVehicle ? "vehicles" : "realEstate";
       return {
         ...prevForm,
         details: {
@@ -293,39 +310,48 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const renderFields = () => {
-    const activeFields = sections.find((s) => s.id === activeSection)?.fields || [];
-    
-    // Group fields by their feature category
-    const featureGroups = activeFields.reduce((groups, field) => {
-      if (field.featureCategory) {
-        if (!groups[field.featureCategory]) {
-          groups[field.featureCategory] = [];
-        }
-        groups[field.featureCategory].push(field);
-      }
-      return groups;
-    }, {} as Record<string, ListingFieldSchema[]>);
+    const activeFields =
+      sections.find((s) => s.id === activeSection)?.fields || [];
 
-    const standardFields = activeFields.filter(field => !field.featureCategory);
+    // Group fields by their feature category
+    const featureGroups = activeFields.reduce(
+      (groups, field) => {
+        if (field.featureCategory) {
+          if (!groups[field.featureCategory]) {
+            groups[field.featureCategory] = [];
+          }
+          groups[field.featureCategory].push(field);
+        }
+        return groups;
+      },
+      {} as Record<string, ListingFieldSchema[]>
+    );
+
+    const standardFields = activeFields.filter(
+      (field) => !field.featureCategory
+    );
 
     return (
       <div className="space-y-6">
         {/* Standard form fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {standardFields.map((field) => {
-            if (field.type === 'colorpicker') {
+            if (field.type === "colorpicker") {
               return (
                 <ColorPickerField
                   key={field.name}
                   label={t(field.label)}
-                  value={isVehicle ? form.details?.vehicles?.[field.name] : form.details?.realEstate?.[field.name] || "#000000"}
+                  value={
+                    isVehicle
+                      ? form.details?.vehicles?.[field.name]
+                      : form.details?.realEstate?.[field.name] || "#000000"
+                  }
                   onChange={(value) => handleInputChange(field.name, value)}
                   error={errors[`details.${field.name}`]}
                   required={field.required}
                 />
               );
             }
-
             return (
               <FormField
                 key={field.name}
@@ -336,7 +362,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                   value: opt,
                   label: t(`options.${opt}`),
                 }))}
-                value={isVehicle ? form.details?.vehicles?.[field.name] : form.details?.realEstate?.[field.name] || ""}
+                value={
+                  isVehicle
+                    ? form.details?.vehicles?.[field.name]
+                    : form.details?.realEstate?.[field.name] || ""
+                }
                 onChange={(value) => handleInputChange(field.name, value)}
                 error={errors[`details.${field.name}`]}
                 required={field.required}
@@ -354,7 +384,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
               title={t(`featureCategories.${category}`)}
               icon={getFeatureIcon(category)}
               features={features}
-              values={isVehicle ? form.details?.vehicles || {} : form.details?.realEstate || {}}
+              values={
+                isVehicle
+                  ? form.details?.vehicles || {}
+                  : form.details?.realEstate || {}
+              }
               onChange={handleFeatureChange}
             />
           ))}
@@ -364,7 +398,10 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const getFeatureIcon = (category: string) => {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    const iconMap: Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    > = {
       entertainment: FaMusic,
       lighting: FaLightbulb,
       cameras: FaCamera,
@@ -383,14 +420,14 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       const isValid = validateAllFields();
 
       if (!isValid) {
-        const missingFields = Object.keys(errors).map(key => 
-          t(`fields.${key.split('.').pop()}`) || key.split('.').pop()
+        const missingFields = Object.keys(errors).map(
+          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop()
         );
 
         toast.error(
           t("errors.requiredFields", {
             fields: missingFields.join(", "),
-          }),
+          })
         );
 
         setIsSubmitting(false);

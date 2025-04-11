@@ -56,6 +56,16 @@ export interface VehicleDetails {
   interiorHeight?: string;
   interiorLength?: string;
   drivingAssistance?: string[];
+
+  // New fields
+  drivetrain?: string;
+  seatingMaterial?: string;
+  seatHeating?: string;
+  seatVentilation?: string;
+  sunroof?: string;
+  airbags?: string;
+  parkingSensors?: string;
+  backupCamera?: string;
 }
 
 export interface TractorDetails extends VehicleDetails {
@@ -105,8 +115,8 @@ export interface Listing {
   createdAt: string;
   updatedAt: string;
   userId: string;
-  listingAction: ListingAction;
-  status: ListingStatus;
+  listingAction: ListingAction | null;
+  status: ListingStatus | null;
   details?: ListingDetails;
 }
 

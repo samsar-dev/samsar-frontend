@@ -17,7 +17,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Interior color is required" : null),
+    validate: (value: string) => !value ? "Interior color is required" : null,
   },
   {
     name: "mileage",
