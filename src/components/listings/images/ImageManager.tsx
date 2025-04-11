@@ -213,12 +213,16 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="relative group aspect-square"
+                  className="relative pt-[75%] group"
                 >
                   <img
                     src={url}
                     alt={`Existing ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.jpg";
+                      e.currentTarget.onerror = null;
+                    }}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
                     <button
@@ -245,12 +249,16 @@ const ImageManager: React.FC<ImageManagerProps> = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="relative group aspect-square"
+              className="relative pt-[75%] group"
             >
               <img
                 src={url}
                 alt={`Preview ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
+                className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.jpg";
+                  e.currentTarget.onerror = null;
+                }}
               />
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
                 <button

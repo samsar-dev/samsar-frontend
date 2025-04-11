@@ -69,14 +69,19 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
         {imageUrls.map((url, index) => (
           <div
             key={index}
-            className="aspect-w-16 aspect-h-9 cursor-pointer rounded-lg overflow-hidden"
+            className="relative pt-[75%] cursor-pointer rounded-lg overflow-hidden group"
             onClick={() => setSelectedImage(index)}
           >
             <img
               src={url}
               alt={`Image ${index + 1}`}
-              className="object-cover w-full h-full hover:opacity-90 transition-opacity"
+              className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 transition-transform duration-200 group-hover:scale-105"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.jpg";
+                e.currentTarget.onerror = null;
+              }}
             />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-200" />
           </div>
         ))}
       </div>
@@ -109,16 +114,24 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                 <FaChevronLeft size={24} />
               </button>
 
-              <motion.img
+              <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                src={imageUrls[selectedImage]}
-                alt={`Image ${selectedImage + 1}`}
-                className="max-h-[90vh] max-w-full object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
+                className="relative w-full h-full flex items-center justify-center"
+              >
+                <img
+                  src={imageUrls[selectedImage]}
+                  alt={`Image ${selectedImage + 1}`}
+                  className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.jpg";
+                    e.currentTarget.onerror = null;
+                  }}
+                />
+              </motion.div>
 
               <button
                 className="absolute right-4 text-white hover:text-gray-300 z-10"

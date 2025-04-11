@@ -88,18 +88,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <Link to={`/listings/${id}`} className="block">
-        <div className="relative aspect-video">
+        <div className="relative pt-[75%] overflow-hidden">
           <img
             src={firstImage}
             alt={title}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.jpg";
+              e.currentTarget.onerror = null;
+            }}
           />
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
             <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(`categories.${category.mainCategory}.${category.subCategory}`)}
+              {t(`categories.vehicles.${category.subCategory}`)}
             </span>
             {listingAction === 'rent' && (
-              <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
+              <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
                 {t('common.forRent')}
               </span>
             )}

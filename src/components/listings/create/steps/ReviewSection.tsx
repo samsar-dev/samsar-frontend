@@ -292,7 +292,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     if (!vehicleDetails) return null;
 
     // Check if this is a tractor
-    const isTractor = formData.category?.subCategory === 'TRACTOR';
+    const isTractor = formData.category?.subCategory === VehicleType.TRACTOR;
     const tractorDetails = isTractor ? vehicleDetails as TractorDetails : null;
 
     return (
@@ -351,13 +351,37 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   : t("common.notProvided")}
               </div>
             </div>
-            {isTractor && (
-              <div>
-                <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
-                <div className="font-medium">
-                  {tractorDetails?.horsepower ? `${tractorDetails.horsepower} hp` : t("common.notProvided")}
+            {isTractor && tractorDetails && (
+              <>
+                <div>
+                  <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
+                  <div className="font-medium">
+                    {tractorDetails.horsepower ? `${tractorDetails.horsepower} hp` : t("common.notProvided")}
+                  </div>
                 </div>
-              </div>
+                <div>
+                  <div className="text-sm text-gray-500">{t("listings.attachments")}</div>
+                  <div className="font-medium">
+                    {tractorDetails.attachments?.length > 0
+                      ? tractorDetails.attachments.join(", ")
+                      : t("common.notProvided")}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">{t("listings.fuelTankCapacity")}</div>
+                  <div className="font-medium">
+                    {tractorDetails.fuelTankCapacity
+                      ? `${tractorDetails.fuelTankCapacity} L`
+                      : t("common.notProvided")}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">{t("listings.tires")}</div>
+                  <div className="font-medium">
+                    {tractorDetails.tires || t("common.notProvided")}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -521,7 +545,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const renderImages = () => {
     // Create object URLs for File objects
     const imageUrls = formData.images.map((image: File | string) => {
-      if (image instanceof File) {
+      if (typeof image === 'object' && 'type' in image && image instanceof Blob) {
         return URL.createObjectURL(image);
       }
       return image;
@@ -530,8 +554,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     // Cleanup function to revoke object URLs when component unmounts
     useEffect(() => {
       return () => {
-        imageUrls.forEach((url: string) => {
-          if (url.startsWith('blob:')) {
+        imageUrls.forEach((url) => {
+          if (typeof url === 'string' && url.startsWith('blob:')) {
             URL.revokeObjectURL(url);
           }
         });
@@ -555,13 +579,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {formData.images.map((_: File | string, index: number) => (
+          {imageUrls.map((url, index) => (
             <div
               key={index}
               className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
             >
               <img
-                src={imageUrls[index]}
+                src={url}
                 alt={`${t("listings.image")} ${index + 1}`}
                 className="object-cover w-full h-full"
                 onError={(e) => {

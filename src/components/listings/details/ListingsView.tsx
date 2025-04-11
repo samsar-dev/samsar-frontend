@@ -167,18 +167,22 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
         onClick={() => handleListingClick(listing)}
       >
         {/* Image */}
-        <div className="relative aspect-w-16 aspect-h-9">
+        <div className="relative aspect-square">
           <img
-            src={listing.images[0] || "/placeholder.png"}
+            src={listing.images[0] || "/placeholder.jpg"}
             alt={listing.title}
-            className="object-cover w-full h-full"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.jpg";
+              e.currentTarget.onerror = null;
+            }}
           />
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
             <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(`categories.${listing.mainCategory}.${listing.subCategory}`)}
+              {t(`categories.vehicles.${listing.subCategory}`)}
             </span>
             {listing.listingAction === 'rent' && (
-              <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
+              <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
                 {t('common.forRent')}
               </span>
             )}

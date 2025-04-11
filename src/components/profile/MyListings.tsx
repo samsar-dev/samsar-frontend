@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface MyListingsProps {
-  userId: string;
+  userId?: string;
 }
 
 export default function MyListings({ userId }: MyListingsProps) {
@@ -33,23 +33,16 @@ export default function MyListings({ userId }: MyListingsProps) {
       setIsLoading(true);
       setError(null);
       const response = await listingsAPI.getUserListings({ page, limit });
-      console.log('API Response:', response);
 
       if (response.success && response.data) {
         const listingsData = response.data.listings || [];
         const totalItems = response.data.total || 0;
-        
-        console.log('Listings Data:', listingsData);
-        console.log('Total Items:', totalItems);
-        console.log('Current Page:', page);
-        console.log('Limit:', limit);
         
         // Only reset listings on first page
         setListings(prev => page === 1 ? listingsData : [...prev, ...listingsData]);
         setTotal(totalItems);
         setHasMore(listingsData.length === limit);
       } else {
-        console.error('API Error:', response.error);
         throw new Error(response.error || "Failed to fetch listings");
       }
     } catch (err) {
@@ -63,7 +56,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, isAuthenticated, isInitialized]);
+  }, [page, limit]);
 
   // Use a stable reference for the effect
   const handleLoadMore = useCallback(() => {
@@ -82,10 +75,12 @@ export default function MyListings({ userId }: MyListingsProps) {
     }
   }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
 
-  // Fetch listings when dependencies change
+  // Fetch listings only when auth state is ready
   useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
+    if (isAuthenticated && isInitialized) {
+      fetchListings();
+    }
+  }, [isAuthenticated, isInitialized, fetchListings]);
 
   const handleDelete = async (listingId: string) => {
     try {

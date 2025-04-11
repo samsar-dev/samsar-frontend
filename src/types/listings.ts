@@ -56,6 +56,21 @@ export interface VehicleDetails {
   interiorHeight?: string;
   interiorLength?: string;
   drivingAssistance?: string[];
+  // Tractor-specific fields
+  attachments?: string[];
+  fuelTankCapacity?: string;
+  tires?: string;
+  implementType?: string;
+  width?: number;
+  weight?: number;
+  maxLoadCapacity?: number;
+  wheelbase?: number;
+  turningRadius?: number;
+  powerTakeOff?: boolean;
+  frontLoader?: boolean;
+  rearLoader?: boolean;
+  hydraulicSystem?: string;
+  fuelEfficiency?: string;
 
   // New fields
   drivetrain?: string;
@@ -74,6 +89,25 @@ export interface TractorDetails extends VehicleDetails {
   fuelTankCapacity: string;
   tires: string;
   features: string[];
+  // Required base fields
+  vehicleType: VehicleType.TRACTOR;
+  make: string;
+  model: string;
+  year: string;
+  mileage: string;
+  fuelType: FuelType;
+  transmission: TransmissionType;
+  brakeType: string;
+  engineSize: string;
+  color: string;
+  condition: Condition;
+  // Optional fields
+  interiorColor?: string;
+  engine?: string;
+  warranty?: string;
+  serviceHistory?: string;
+  previousOwners?: number;
+  registrationStatus?: string;
 }
 
 export interface RealEstateDetails {
@@ -109,15 +143,22 @@ export interface Listing {
   title: string;
   description: string;
   price: number;
+  category: {
+    mainCategory: ListingCategory;
+    subCategory: VehicleType | PropertyType;
+  };
   location: string;
-  category: Category;
-  images: string[];
+  images: (string | File)[];
   createdAt: string;
   updatedAt: string;
   userId: string;
-  listingAction: ListingAction | null;
-  status: ListingStatus | null;
-  details?: ListingDetails;
+  details: ListingDetails;
+  listingAction: ListingAction;
+  seller?: {
+    id: string;
+    username: string;
+    profilePicture: string | null;
+  };
 }
 
 export interface ListingUpdateInput {
@@ -140,11 +181,11 @@ export interface ListingResponse {
 }
 
 export interface ListingsResponse {
-  items: Listing[];
+  listings: Listing[];
   total: number;
   page: number;
   limit: number;
-  hasMore: boolean;
+  hasMore?: boolean;
 }
 
 export interface UserListingsResponse {
