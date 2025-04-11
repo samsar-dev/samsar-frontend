@@ -107,8 +107,8 @@ export interface Listing {
   createdAt: string;
   updatedAt: string;
   userId: string;
-  listingAction: ListingAction;
-  status: ListingStatus;
+  listingAction: ListingAction | null;
+  status: ListingStatus | null;
   details?: ListingDetails;
 }
 
