@@ -53,7 +53,7 @@ const Routes = (): JSX.Element => {
         {/* Public User Profile */}
         <Route path="/users/:userId" element={<UserProfile />} />
 
-        <Route path="/profile/:userId" element={<Profile />} />
+        <Route path="/profile/:userId" element={<a />} />
         <Route path="/settings" element={<Settings />} />
         <Route
           path="/listings/create"

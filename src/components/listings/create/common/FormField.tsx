@@ -207,7 +207,7 @@ const FormField = forwardRef<
                     value={option.value}
                     checked={(internalValue as string[])?.includes(option.value)}
                     onChange={(event) => {
-                      const newValue = (internalValue as string[]) || [];
+                      let newValue = (internalValue as string[]) || [];
                       if (event.target.checked) {
                         newValue.push(option.value);
                       } else {
