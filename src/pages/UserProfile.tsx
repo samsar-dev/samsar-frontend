@@ -3,6 +3,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { CategoryFilter } from "@/types/listings";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -26,7 +27,7 @@ interface UserProfileData {
 
 const categoeryFillterOptions = ["ALL", "VEHICLES", "REAL_ESTATE"];
 
-type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";
+
 
 export const UserProfile = () => {
   const { t } = useTranslation();
@@ -218,7 +219,7 @@ export const UserProfile = () => {
         <motion.div className="mt-8">
           <motion.div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("profile.active_listings")}
+              {t("Posted Listings")}
             </h2>
 
             {/* Category Filters */}

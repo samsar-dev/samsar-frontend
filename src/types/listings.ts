@@ -221,3 +221,5 @@ export interface FormState
   features?: string[];
   listingAction?: "sell" | "rent";
 }
+
+export type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";
