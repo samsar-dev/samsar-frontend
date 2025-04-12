@@ -20,11 +20,8 @@ import Settings from "@/pages/Settings";
 import PrivateRoute from "@/components/auth/AuthRoute";
 import { ChangePassword } from "@/components/profile";
 import { MyListings } from "@/components/profile";
-import { useCreateListing } from "@/components/listings/hooks/useCreateListing";
 
 const Routes = (): JSX.Element => {
-  const { handleSubmit } = useCreateListing();
-
   return (
     <RouterRoutes>
       <Route path="/" element={<Home />} />
@@ -57,7 +54,7 @@ const Routes = (): JSX.Element => {
         <Route path="/settings" element={<Settings />} />
         <Route
           path="/listings/create"
-          element={<CreateListing onSubmit={handleSubmit} />}
+          element={<CreateListing />}
         />
         <Route path="/listings/:id/edit" element={<EditListing />} />
         <Route path="/saved" element={<SavedListings type="saved" />} />

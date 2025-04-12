@@ -414,5 +414,19 @@
   "safety": "Safety",
   "features": "Features",
   "outdoor": "Outdoor",
-  "security": "Security"
+  "security": "Security",
+  "categories": {
+    "vehicles": {
+      "TRACTOR": "Tractor",
+      "CAR": "Car",
+      "VAN": "Van",
+      "BUS": "Bus",
+      "TRUCK": "Truck",
+      "MOTORCYCLE": "Motorcycle",
+      "RV": "RV",
+      "BOAT": "Boat",
+      "CONSTRUCTION": "Construction",
+      "OTHER": "Other"
+    }
+  }
 }

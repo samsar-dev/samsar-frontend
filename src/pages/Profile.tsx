@@ -11,7 +11,7 @@ interface TabItem {
   id: string;
   path: string;
   label: string;
-  component: JSX.Element;
+  component?: React.ReactNode;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
@@ -39,7 +39,6 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
       id: "listings",
       path: isViewingOtherProfile ? `/profile/${userId}/listings` : "/profile/listings",
       label: "📂 " + t("profile.my_listings"),
-      component: <MyListings userId={userId} />,
     },
   ];
 
@@ -58,38 +57,27 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
   };
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isRTL ? "rtl" : "ltr"}`}>
-      <h1 className="text-3xl font-bold mb-6">
-        {isViewingOtherProfile 
-          ? t("profile.viewing", { username: "User" })
-          : t("profile.title")}
-      </h1>
-
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex space-x-8 px-4" aria-label="Tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabClick(tab.path)}
-                className={`${
-                  currentPath === tab.path
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col space-y-4">
+        <div className="flex space-x-4 border-b dark:border-gray-700">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.path)}
+              className={`py-2 px-4 ${
+                currentPath === tab.path
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-
-        <div className="p-4">
-          {tabs.find((tab) => tab.path === currentPath)?.component || tabs[0].component}
+        <div className="py-4">
+          <Outlet />
         </div>
       </div>
-
-      <Outlet />
     </div>
   );
 };

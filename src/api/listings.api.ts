@@ -3,14 +3,16 @@ import type {
   Listing,
   ListingsResponse,
   ListingDetails,
+  TractorDetails,
 } from "@/types/listings";
 import type { ListingParams } from "@/types/params";
 import { AxiosError } from "axios";
-import type {
+import {
   ListingCategory,
   Condition,
   VehicleType,
   PropertyType,
+  ListingAction,
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
@@ -92,18 +94,38 @@ export const createListing = async (formData: FormData) => {
       console.log(`${key}:`, typeof value === "string" ? value : "File object");
     }
 
+    // Get the details from formData and parse them
+    const detailsStr = formData.get('details');
+    if (detailsStr && typeof detailsStr === 'string') {
+      const details = JSON.parse(detailsStr);
+      
+      // If this is a tractor, ensure all required fields are present
+      if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
+        const tractorDetails = details.vehicles as TractorDetails;
+        
+        // Ensure required tractor fields
+        tractorDetails.horsepower = parseInt(tractorDetails.horsepower?.toString() || "0");
+        tractorDetails.attachments = tractorDetails.attachments || [];
+        tractorDetails.fuelTankCapacity = tractorDetails.fuelTankCapacity || "0";
+        tractorDetails.tires = tractorDetails.tires || "";
+        
+        // Update the formData with the validated tractor details
+        formData.set('details', JSON.stringify({
+          ...details,
+          vehicles: tractorDetails
+        }));
+      }
+    }
+
     const response = await apiClient.post("/listings", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      // Add timeout to prevent long-running requests
       timeout: 30000,
     });
 
     if (!response.data.success) {
-      throw new Error(
-        response.data.error?.message || "Failed to create listing"
-      );
+      throw new Error(response.data.error?.message || "Failed to create listing");
     }
 
     return response.data;
@@ -112,9 +134,7 @@ export const createListing = async (formData: FormData) => {
     if (error instanceof AxiosError && error.response?.status === 401) {
       throw new Error("Please log in to create a listing");
     }
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to create listing"
-    );
+    throw new Error(error instanceof Error ? error.message : "Failed to create listing");
   }
 };
 
@@ -454,9 +474,7 @@ export const listingsAPI = {
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction.toLowerCase() as
-          | "sell"
-          | "rent",
+        listingAction: responseData.listingAction === 'SELL' ? ListingAction.SELL : ListingAction.RENT,
         seller: {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",
@@ -540,6 +558,29 @@ export const listingsAPI = {
     formData: FormData
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
+      // Get the details from formData and parse them
+      const detailsStr = formData.get('details');
+      if (detailsStr && typeof detailsStr === 'string') {
+        const details = JSON.parse(detailsStr);
+        
+        // If this is a tractor, ensure all required fields are present
+        if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
+          const tractorDetails = details.vehicles as TractorDetails;
+          
+          // Ensure required tractor fields
+          tractorDetails.horsepower = parseInt(tractorDetails.horsepower?.toString() || "0");
+          tractorDetails.attachments = tractorDetails.attachments || [];
+          tractorDetails.fuelTankCapacity = tractorDetails.fuelTankCapacity || "0";
+          tractorDetails.tires = tractorDetails.tires || "";
+          
+          // Update the formData with the validated tractor details
+          formData.set('details', JSON.stringify({
+            ...details,
+            vehicles: tractorDetails
+          }));
+        }
+      }
+
       const response = await fetch(`${API_URL}/listings/${id}`, {
         method: "PUT",
         credentials: "include",
@@ -547,21 +588,15 @@ export const listingsAPI = {
       });
 
       if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        const errorData = await response.json().catch(() => ({ error: "Unknown error occurred" }));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
       console.error("Error updating listing:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update listing"
-      );
+      throw new Error(error instanceof Error ? error.message : "Failed to update listing");
     }
   },
 

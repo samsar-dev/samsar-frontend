@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
@@ -111,11 +110,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
           />
           <div className="absolute top-2 left-2 flex flex-wrap gap-1">
             <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(`${listing?.subCategory}`)}
+              {t(`categories.vehicles.${category.subCategory}`)}
             </span>
             {listingAction === "rent" && (
               <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
-                {t(`${listing?.listingAction}`)}
+                {t("common.forRent")}
               </span>
             )}
           </div>

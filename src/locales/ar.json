@@ -378,5 +378,19 @@
   "safety": "السلامة",
   "features": "الميزات",
   "outdoor": "الخارج",
-  "security": "الأمان"
+  "security": "الأمان",
+  "categories": {
+    "vehicles": {
+      "TRACTOR": "جرار",
+      "CAR": "سيارة",
+      "VAN": "شاحنة صغيرة",
+      "BUS": "حافلة",
+      "TRUCK": "شاحنة",
+      "MOTORCYCLE": "دراجة نارية",
+      "RV": "مركبة ترفيهية",
+      "BOAT": "قارب",
+      "CONSTRUCTION": "آلية إنشائية",
+      "OTHER": "أخرى"
+    }
+  }
 }

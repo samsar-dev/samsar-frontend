@@ -50,8 +50,8 @@ const initialFormState: FormState = {
       mileage: "",
       fuelType: FuelType.GASOLINE,
       transmission: TransmissionType.AUTOMATIC,
-      brakeType: "Not provided",
-      engineSize: "Not provided",
+      brakeType: "standard",
+      engineSize: "standard",
       color: "",
       condition: Condition.GOOD,
       features: [],
@@ -61,11 +61,10 @@ const initialFormState: FormState = {
       serviceHistory: "",
       previousOwners: 0,
       registrationStatus: "",
-      seatingCapacity: 0,
-      // Van specific fields
-      vanType: "",
-      cargoVolume: 0,
-      payloadCapacity: 0,
+      horsepower: 0,
+      attachments: [],
+      fuelTankCapacity: "",
+      tires: "",
     },
   },
   listingAction: ListingAction.SELL,
@@ -237,7 +236,7 @@ const CreateListing: React.FC = () => {
                   data.details?.vehicles?.fuelType ||
                   FuelType.GASOLINE) as FuelType,
                 transmission: (prev.details?.vehicles?.transmission ||
-                  data.details?.vehicles?.transmissionType ||
+                  data.details?.vehicles?.transmission ||
                   TransmissionType.AUTOMATIC) as TransmissionType,
                 brakeType:
                   prev.details?.vehicles?.brakeType ||
@@ -396,45 +395,56 @@ const CreateListing: React.FC = () => {
       // Add details
       if (data.details) {
         const details = {
-          vehicles: data.details.vehicles
+          vehicles: data.details.vehicles && data.category?.subCategory === 'TRACTOR'
             ? {
-                vehicleType: data.details.vehicles.vehicleType,
+                // Map TRACTOR to CONSTRUCTION for backend compatibility
+                vehicleType: VehicleType.CONSTRUCTION,
                 make: data.details.vehicles.make,
                 model: data.details.vehicles.model,
                 year: parseInt(data.details.vehicles.year || "0"),
                 mileage: parseInt(data.details.vehicles.mileage || "0"),
                 fuelType: data.details.vehicles.fuelType,
-                transmissionType: data.details.vehicles.transmission,
-                color:
-                  data.details.vehicles.color &&
-                  /^#[0-9A-F]{6}$/i.test(data.details.vehicles.color)
-                    ? data.details.vehicles.color
-                    : typeof data.details.vehicles.color === "string" &&
-                        data.details.vehicles.color.startsWith("#")
-                      ? data.details.vehicles.color
-                      : "#000000",
+                transmission: data.details.vehicles.transmission,
+                color: data.details.vehicles.color || "#000000",
                 condition: data.details.vehicles.condition,
-                interiorColor:
-                  data.details.vehicles.interiorColor &&
-                  /^#[0-9A-F]{6}$/i.test(data.details.vehicles.interiorColor)
-                    ? data.details.vehicles.interiorColor
-                    : typeof data.details.vehicles.interiorColor === "string" &&
-                        data.details.vehicles.interiorColor.startsWith("#")
-                      ? data.details.vehicles.interiorColor
-                      : "#000000",
-                engine: data.details.vehicles.engine || "",
-                warranty: data.details.vehicles.warranty
-                  ? parseInt(data.details.vehicles.warranty.toString())
-                  : 0,
-                serviceHistory: data.details.vehicles.serviceHistory || "none",
-                previousOwners: data.details.vehicles.previousOwners
-                  ? parseInt(data.details.vehicles.previousOwners.toString())
-                  : 0,
-                registrationStatus:
-                  data.details.vehicles.registrationStatus || "unregistered",
                 features: data.details.vehicles.features || [],
+                // Tractor specific fields
+                horsepower: parseInt(data.details.vehicles.horsepower?.toString() || "0"),
+                attachments: data.details.vehicles.attachments || [],
+                fuelTankCapacity: data.details.vehicles.fuelTankCapacity || "0",
+                tires: data.details.vehicles.tires || "",
+                // Required base fields
+                brakeType: data.details.vehicles.brakeType || "standard",
+                engineSize: data.details.vehicles.engineSize || "standard",
+                interiorColor: data.details.vehicles.interiorColor || "#000000",
+                engine: data.details.vehicles.engine || "",
+                warranty: parseInt(data.details.vehicles.warranty?.toString() || "0"),
+                serviceHistory: data.details.vehicles.serviceHistory || "none",
+                previousOwners: parseInt(data.details.vehicles.previousOwners?.toString() || "0"),
+                registrationStatus: data.details.vehicles.registrationStatus || "unregistered"
               }
-            : undefined,
+            : data.details.vehicles
+              ? {
+                  vehicleType: data.details.vehicles.vehicleType,
+                  make: data.details.vehicles.make,
+                  model: data.details.vehicles.model,
+                  year: parseInt(data.details.vehicles.year || "0"),
+                  mileage: parseInt(data.details.vehicles.mileage || "0"),
+                  fuelType: data.details.vehicles.fuelType,
+                  transmission: data.details.vehicles.transmission,
+                  color: data.details.vehicles.color || "#000000",
+                  condition: data.details.vehicles.condition,
+                  features: data.details.vehicles.features || [],
+                  interiorColor: data.details.vehicles.interiorColor || "#000000",
+                  engine: data.details.vehicles.engine || "",
+                  warranty: parseInt(data.details.vehicles.warranty?.toString() || "0"),
+                  serviceHistory: data.details.vehicles.serviceHistory || "none",
+                  previousOwners: parseInt(data.details.vehicles.previousOwners?.toString() || "0"),
+                  registrationStatus: data.details.vehicles.registrationStatus || "unregistered",
+                  brakeType: data.details.vehicles.brakeType || "standard",
+                  engineSize: data.details.vehicles.engineSize || "standard"
+                }
+              : undefined,
           realEstate: data.details.realEstate
             ? {
                 propertyType: data.details.realEstate.propertyType,
