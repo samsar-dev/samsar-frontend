@@ -5,6 +5,7 @@ import { UserAPI } from "@/api/auth.api";
 import { useParams, Navigate, Link } from "react-router-dom";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import {
   FaMapMarkerAlt,
   FaEnvelope,
@@ -82,6 +83,10 @@ export const UserProfile = () => {
     ?.map((listing) => ({
       ...listing,
       images: listing?.images?.map((image) => image.url),
+      category: {
+        mainCategory: listing.category,
+        subCategory: listing.subCategory,
+      },
     }))
     ?.filter((listing) => {
       if (categoryFilter === "ALL") return true;
@@ -108,9 +113,19 @@ export const UserProfile = () => {
         <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900" />
 
         <div className="p-6 -mt-20">
-          <div className="flex flex-col items-start gap-4 px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-start gap-4 px-4"
+          >
             {/* Profile Picture */}
-            <div className="relative">
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative"
+            >
               {profile.profilePicture ? (
                 <img
                   src={profile.profilePicture}
@@ -124,13 +139,23 @@ export const UserProfile = () => {
                   </span>
                 </div>
               )}
-              <span className="inline-flex text-center w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]">
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="inline-flex text-center w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]"
+              >
                 {profile.status === "ONLINE" ? t("online") : t("offline")}
-              </span>
-            </div>
+              </motion.span>
+            </motion.div>
 
             {/* Profile Info */}
-            <div className="flex flex-col gap-1">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="flex flex-col gap-1"
+            >
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {profile?.name ? profile?.name : "UserName"}
               </h1>
@@ -140,7 +165,7 @@ export const UserProfile = () => {
               <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                 <span>@{profile.username}</span>
               </div>
-            </div>
+            </motion.div>
 
             <div>
               {profile.email && (
@@ -169,11 +194,28 @@ export const UserProfile = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button variant="outline">Message</Button>
-              <Button>Share profile</Button>
-            </div>
-          </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex gap-2"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-1.5 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700"
+              >
+                Message
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm font-medium text-white"
+              >
+                Share profile
+              </motion.button>
+            </motion.div>
+          </motion.div>
 
           {/* Bio */}
           {profile.bio && (
@@ -188,47 +230,86 @@ export const UserProfile = () => {
 
       {/* Listings Section */}
       {profile.listings && profile.listings.length > 0 && (
-        <div className="mt-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8"
+        >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"
+          >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("Created Listings")}
+              {t("profile.active_listings")}
             </h2>
 
             {/* Category Filters */}
-            <div className="flex items-center gap-2">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="flex items-center gap-2"
+            >
               {categoeryFillterOptions.map((filter) => (
-                <Button
+                <motion.div
                   key={filter}
-                  variant={categoryFilter === filter ? "primary" : "outline"}
-                  onClick={() => setCategoryFilter(filter)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {filter}
-                </Button>
+                  <Button
+                    variant={categoryFilter === filter ? "primary" : "outline"}
+                    onClick={() => setCategoryFilter(filter as CategoryFilter)}
+                  >
+                    {filter}
+                  </Button>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Listings Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredListings?.map((listing) => (
-              <ListingCard
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {filteredListings?.map((listing, index) => (
+              <motion.div
                 key={listing.id}
-                listing={listing}
-                showPrice={true}
-                showLocation={true}
-                showDate={true}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.9 + index * 0.1,
+                  duration: 0.5,
+                }}
+              >
+                <ListingCard
+                  listing={listing}
+                  showPrice={true}
+                  showLocation={true}
+                  showDate={true}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {filteredListings?.length === 0 && (
-            <div className="text-center py-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="text-center py-8"
+            >
               <p className="text-gray-500 dark:text-gray-400">
                 {t("profile.no_listings_found")}
               </p>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       )}
     </div>
   );
