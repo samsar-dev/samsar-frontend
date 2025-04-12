@@ -7,11 +7,13 @@ import type {
 } from "../types/auth.types";
 import TokenManager from "../utils/tokenManager";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { API_URL_PROD } from "@/config";
 
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class AuthAPI {
   protected static async retryRequest<T>(
@@ -23,7 +25,8 @@ class AuthAPI {
       return await requestFn();
     } catch (error: any) {
       if (error.response?.status === 429 && retries > 0) {
-        const retryAfter = parseInt(error.response.headers['retry-after']) * 1000 || delay;
+        const retryAfter =
+          parseInt(error.response.headers["retry-after"]) * 1000 || delay;
         await wait(retryAfter);
         return this.retryRequest(requestFn, retries - 1, delay * 2);
       }
@@ -209,10 +212,12 @@ class AuthAPI {
       // Clear tokens regardless of response
       TokenManager.clearTokens();
 
-      return response.data || {
-        success: true,
-        data: { message: "Logged out successfully" },
-      };
+      return (
+        response.data || {
+          success: true,
+          data: { message: "Logged out successfully" },
+        }
+      );
     } catch (error: any) {
       console.error("Logout error:", error.response?.data || error);
 
@@ -275,10 +280,15 @@ class UserAPI extends AuthAPI {
   /**
    * Updates user profile
    */
-  static async updateProfile(data: FormData): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
+  static async updateProfile(
+    data: FormData
+  ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
-        apiClient.put<{ success: boolean; data: AuthUser }>("users/profile", data)
+        apiClient.put<{ success: boolean; data: AuthUser }>(
+          "users/profile",
+          data
+        )
       );
       return response.data;
     } catch (error: any) {
@@ -295,10 +305,12 @@ class UserAPI extends AuthAPI {
   /**
    * Gets a user's profile
    */
-  static async getProfile(userId: string): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
+  static async getProfile(
+    userId: string
+  ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      const response = await this.retryRequest(() =>
-        apiClient.get<{ success: boolean; data: AuthUser }>(`/users/${userId}`)
+      const response = await axios.get<{ success: boolean; data: AuthUser }>(
+        `${API_URL_PROD}/users/public-profile/${userId}`
       );
       return response.data;
     } catch (error: any) {
@@ -315,10 +327,15 @@ class UserAPI extends AuthAPI {
   /**
    * Updates user settings
    */
-  static async updateSettings(settings: Record<string, any>): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
+  static async updateSettings(
+    settings: Record<string, any>
+  ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
-        apiClient.put<{ success: boolean; data: AuthUser }>("users/settings", settings)
+        apiClient.put<{ success: boolean; data: AuthUser }>(
+          "users/settings",
+          settings
+        )
       );
       return response.data;
     } catch (error: any) {

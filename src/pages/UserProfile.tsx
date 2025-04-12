@@ -2,18 +2,41 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import {
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhone,
+  FaClock,
+  FaCircle,
+  FaEdit,
+  FaCar,
+  FaHome,
+} from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
+import ListingCard from "@/components/listings/details/ListingCard";
+import { Button } from "@/components/ui/Button";
+import { Listing } from "@/types";
 
 interface UserProfileData {
   id: string;
   username: string;
   email: string;
+  phone?: number;
   bio?: string;
   profilePicture?: string;
+  location?: string;
+  status?: "ONLINE" | "OFFLINE";
+  createdAt?: string;
   listings?: Array<any>;
 }
+
+const categoeryFillterOptions = ["ALL", "VEHICLES", "REAL_ESTATE"];
+
+type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";
 
 export const UserProfile = () => {
   const { t } = useTranslation();
@@ -22,6 +45,10 @@ export const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [profile, setProfile] = useState<UserProfileData | null>(null);
+
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL");
+
+  console.log(profile);
 
   // Redirect to profile page if trying to view own profile
   if (user && userId === user.id) {
@@ -37,6 +64,7 @@ export const UserProfile = () => {
         if (!userData) {
           throw new Error("User not found");
         }
+        console.log(userData);
         setProfile(userData);
       } catch (err) {
         setError(t("profile.load_error"));
@@ -51,6 +79,24 @@ export const UserProfile = () => {
     }
   }, [userId, t]);
 
+  const filteredListings = profile?.listings
+    ?.map((listing) => ({
+      ...listing,
+      images: listing?.images?.map((image) => image.url),
+      category: {
+        mainCategory: listing.category,
+        subCategory: listing.subCategory,
+      },
+    }))
+    ?.filter((listing) => {
+      if (categoryFilter === "ALL") return true;
+      if (categoryFilter === "VEHICLES")
+        return listing.mainCategory === "vehicles";
+      if (categoryFilter === "REAL_ESTATE")
+        return listing.mainCategory === "realEstate";
+      return true;
+    });
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -61,59 +107,210 @@ export const UserProfile = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-        <div className="flex items-center space-x-4 mb-6">
-          {profile.profilePicture ? (
-            <img
-              src={profile.profilePicture}
-              alt={profile.username}
-              className="w-20 h-20 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <span className="text-2xl">{profile.username[0].toUpperCase()}</span>
-            </div>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {profile.username}
-            </h1>
-            {profile.listings && (
-              <p className="text-gray-600 dark:text-gray-300">
-                {t("profile.total_listings", { count: profile.listings.length })}
-              </p>
-            )}
-          </div>
-        </div>
+      {/* Profile Header */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+        {/* Cover Image */}
+        <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900" />
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("profile.email")}
-            </label>
-            <p className="mt-1 text-gray-900 dark:text-white">{profile.email}</p>
-          </div>
+        <div className="p-6 -mt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-start gap-4 px-4"
+          >
+            {/* Profile Picture */}
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative"
+            >
+              {profile.profilePicture ? (
+                <img
+                  src={profile.profilePicture}
+                  alt={profile.username}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-800">
+                  <span className="text-3xl font-bold text-gray-500 dark:text-gray-400">
+                    {profile.username[0].toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="inline-flex text-center w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]"
+              >
+                {profile.status === "ONLINE" ? t("online") : t("offline")}
+              </motion.span>
+            </motion.div>
 
-          {profile.bio && (
+            {/* Profile Info */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="flex flex-col gap-1"
+            >
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {profile?.name ? profile?.name : "UserName"}
+              </h1>
+              <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
+                <span>{profile.location ? profile.location : "Location"}</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                <span>@{profile.username}</span>
+              </div>
+            </motion.div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t("profile.bio")}
-              </label>
-              <p className="mt-1 text-gray-900 dark:text-white">{profile.bio}</p>
+              {profile.email && (
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-200">
+                  <FaEnvelope className="w-4 h-4" />
+                  <span>{profile.email}</span>
+                </div>
+              )}
+              {profile.phone && (
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-200">
+                  <FaPhone className="w-4 h-4" />
+                  <span>{profile.phone}</span>
+                </div>
+              )}
+              {profile.createdAt && (
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                  <FaClock className="w-4 h-4" />
+                  <span>
+                    {t("Joined")}{" "}
+                    {formatDistanceToNow(new Date(profile.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex gap-2"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-1.5 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700"
+              >
+                Message
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm font-medium text-white"
+              >
+                Share profile
+              </motion.button>
+            </motion.div>
+          </motion.div>
+
+          {/* Bio */}
+          {profile.bio && (
+            <div className="mt-6">
+              <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                {profile.bio}
+              </p>
             </div>
           )}
         </div>
-
-        {/* User's Listings Section */}
-        {profile.listings && profile.listings.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">{t("profile.my_listings")}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Add listing cards here */}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Listings Section */}
+      {profile.listings && profile.listings.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8"
+        >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t("profile.active_listings")}
+            </h2>
+
+            {/* Category Filters */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="flex items-center gap-2"
+            >
+              {categoeryFillterOptions.map((filter) => (
+                <motion.div
+                  key={filter}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant={categoryFilter === filter ? "primary" : "outline"}
+                    onClick={() => setCategoryFilter(filter as CategoryFilter)}
+                  >
+                    {filter}
+                  </Button>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Listings Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {filteredListings?.map((listing, index) => (
+              <motion.div
+                key={listing.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.9 + index * 0.1,
+                  duration: 0.5,
+                }}
+              >
+                <ListingCard
+                  listing={listing}
+                  showPrice={true}
+                  showLocation={true}
+                  showDate={true}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {filteredListings?.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              className="text-center py-8"
+            >
+              <p className="text-gray-500 dark:text-gray-400">
+                {t("profile.no_listings_found")}
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
     </div>
   );
 };
