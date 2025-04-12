@@ -8,6 +8,7 @@ import type {
   RealEstateDetails,
 } from "@/types/listings";
 import { ListingCategory } from "@/types/enums";
+import { motion } from "framer-motion";
 
 export interface ListingCardProps {
   listing: Listing & {
@@ -96,7 +97,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <motion.div
+      initial={{ opacity: 0, y: 2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.4 }}
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
+    >
       <Link to={`/listings/${id}`} className="block">
         <div className="relative pt-[75%] overflow-hidden">
           <img
@@ -172,7 +178,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

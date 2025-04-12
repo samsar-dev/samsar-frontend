@@ -1,25 +1,16 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
-import { useParams, Navigate, Link } from "react-router-dom";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { toast } from "react-toastify";
-import { motion } from "framer-motion";
-import {
-  FaMapMarkerAlt,
-  FaEnvelope,
-  FaPhone,
-  FaClock,
-  FaCircle,
-  FaEdit,
-  FaCar,
-  FaHome,
-} from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { Button } from "@/components/ui/Button";
-import { Listing } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useAuth } from "@/contexts/AuthContext";
+import { CategoryFilter } from "@/types/listings";
+import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaClock, FaEnvelope, FaPhone } from "react-icons/fa";
+import { Navigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface UserProfileData {
   id: string;
@@ -36,7 +27,7 @@ interface UserProfileData {
 
 const categoeryFillterOptions = ["ALL", "VEHICLES", "REAL_ESTATE"];
 
-type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";
+
 
 export const UserProfile = () => {
   const { t } = useTranslation();
@@ -114,16 +105,16 @@ export const UserProfile = () => {
 
         <div className="p-6 -mt-20">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="flex flex-col items-start gap-4 px-4"
           >
             {/* Profile Picture */}
             <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 2 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
               className="relative"
             >
               {profile.profilePicture ? (
@@ -139,21 +130,16 @@ export const UserProfile = () => {
                   </span>
                 </div>
               )}
-              <motion.span
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="inline-flex text-center w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]"
-              >
+              <span className="w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]">
                 {profile.status === "ONLINE" ? t("online") : t("offline")}
-              </motion.span>
+              </span>
             </motion.div>
 
             {/* Profile Info */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 5 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
               className="flex flex-col gap-1"
             >
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -195,9 +181,9 @@ export const UserProfile = () => {
 
             {/* Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
               className="flex gap-2"
             >
               <motion.button
@@ -230,35 +216,16 @@ export const UserProfile = () => {
 
       {/* Listings Section */}
       {profile.listings && profile.listings.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-8"
-        >
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"
-          >
+        <motion.div className="mt-8">
+          <motion.div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("profile.active_listings")}
+              {t("Posted Listings")}
             </h2>
 
             {/* Category Filters */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="flex items-center gap-2"
-            >
+            <motion.div className="flex items-center gap-2">
               {categoeryFillterOptions.map((filter) => (
-                <motion.div
-                  key={filter}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.div>
                   <Button
                     variant={categoryFilter === filter ? "primary" : "outline"}
                     onClick={() => setCategoryFilter(filter as CategoryFilter)}
@@ -271,29 +238,14 @@ export const UserProfile = () => {
           </motion.div>
 
           {/* Listings Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredListings?.map((listing, index) => (
-              <motion.div
-                key={listing.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.9 + index * 0.1,
-                  duration: 0.5,
-                }}
-              >
-                <ListingCard
-                  listing={listing}
-                  showPrice={true}
-                  showLocation={true}
-                  showDate={true}
-                />
-              </motion.div>
+              <ListingCard
+                listing={listing}
+                showPrice={true}
+                showLocation={true}
+                showDate={true}
+              />
             ))}
           </motion.div>
 
@@ -301,7 +253,7 @@ export const UserProfile = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
               className="text-center py-8"
             >
               <p className="text-gray-500 dark:text-gray-400">

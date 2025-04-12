@@ -13,7 +13,10 @@ import { listingsAPI } from "@/api/listings.api";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { serverStatus } from "@/utils/serverStatus";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
+import { use } from "i18next";
+import { motion } from "framer-motion";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface ListingsState {
   all: Listing[];
@@ -26,16 +29,19 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     (localStorage.getItem("selectedCategory") as ListingCategory) ||
-      ListingCategory.VEHICLES,
+      ListingCategory.VEHICLES
   );
+  const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     popular: [],
     loading: true,
     error: null,
   });
+  console.log(listings);
   const [isServerOnline, setIsServerOnline] = useState(true);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  // const [selectMainCategory, setSelectMainCategory] = useState<Cate>(false);
 
   useEffect(() => {
     const unsubscribe = serverStatus.subscribe(setIsServerOnline);
@@ -57,6 +63,7 @@ const Home: React.FC = () => {
     }
 
     try {
+      // setLoading(true);
       const allListingsParams: ListingParams = {
         category: {
           mainCategory: selectedCategory as ListingCategory,
@@ -88,7 +95,7 @@ const Home: React.FC = () => {
         limit: 4,
         page: 1,
       };
-
+      
       const [allListingsResponse, popularListingsResponse] = await Promise.all([
         listingsAPI.getAll(allListingsParams),
         listingsAPI.getAll(popularListingsParams),
@@ -123,8 +130,14 @@ const Home: React.FC = () => {
       });
 
       setListings({
-        all: (allListingsResponse.data?.listings || []).map(transformListing),
-        popular: (popularListingsResponse.data?.listings || []).map(transformListing),
+        all: (allListingsResponse.data?.listings || [])
+          .map(transformListing)
+          .filter((listing) =>
+            listing.category.mainCategory === selectedCategory ? true : false
+          ),
+        popular: (popularListingsResponse.data?.listings || []).map(
+          transformListing
+        ),
         loading: false,
         error: null,
       });
@@ -133,12 +146,16 @@ const Home: React.FC = () => {
       setListings((prev) => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : t("errors.fetch_failed"),
+        error:
+          error instanceof Error ? error.message : t("errors.fetch_failed"),
       }));
 
       toast.error(
         error instanceof Error ? error.message : t("errors.fetch_failed")
       );
+    }
+    finally {
+      // setLoading(false);
     }
   };
 
@@ -178,7 +195,7 @@ const Home: React.FC = () => {
         }));
       }
     },
-    [t, isServerOnline],
+    [t, isServerOnline]
   );
 
   const debouncedSearch = debounce(handleSearch, 500);
@@ -213,7 +230,12 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {listings.all.map((listing) => (
             <ListingCard
               key={listing.id}
@@ -223,7 +245,12 @@ const Home: React.FC = () => {
             />
           ))}
           {listings.all.length === 0 && listings.error && (
-            <div className="col-span-full text-center py-8 text-gray-600 dark:text-gray-400">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="col-span-full text-center py-8 text-gray-600 dark:text-gray-400"
+            >
               {listings.error && (
                 <div className="text-red-500 whitespace-pre-wrap">
                   {typeof listings.error === "string"
@@ -232,23 +259,35 @@ const Home: React.FC = () => {
                 </div>
               )}
               {isServerOnline && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={fetchListings}
                   className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {t("common.try_again")}
-                </button>
+                </motion.button>
               )}
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {listings.popular.length > 0 && (
-          <div className="mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="mt-12"
+          >
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               {t("home.trending_now")}
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
               {listings.popular.map((listing) => (
                 <ListingCard
                   key={listing.id}
@@ -257,19 +296,23 @@ const Home: React.FC = () => {
                   showSaveButton={false}
                 />
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </>
     );
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
               {t("home.find_perfect")}{" "}
               {selectedCategory === ListingCategory.VEHICLES
                 ? t("home.vehicle")
@@ -284,7 +327,9 @@ const Home: React.FC = () => {
               <button
                 onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
                 className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.VEHICLES
+                  selectedCategory === ListingCategory.VEHICLES ||
+                  localStorage.getItem("selectedCategory") ===
+                    ListingCategory.VEHICLES
                     ? "bg-white text-blue-600"
                     : "bg-blue-700 text-white hover:bg-blue-600"
                 }`}
