@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { formatCurrency } from "@/utils/format";
-import type { Listing, VehicleDetails, RealEstateDetails } from "@/types/listings";
+import type {
+  Listing,
+  VehicleDetails,
+  RealEstateDetails,
+} from "@/types/listings";
 import { ListingCategory } from "@/types/enums";
 
 export interface ListingCardProps {
@@ -33,17 +37,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showDate = false,
 }) => {
   const { t } = useTranslation();
-  const { 
-    id, 
-    title, 
-    price, 
-    images = [], 
+  const {
+    id,
+    title,
+    price,
+    images = [],
     category,
-    location, 
-    createdAt, 
+    location,
+    createdAt,
     listingAction,
     vehicleDetails,
-    realEstateDetails 
+    realEstateDetails,
   } = listing;
 
   const firstImage =
@@ -57,26 +61,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
       return (
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>{vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}</p>
-          {vehicleDetails.mileage && (
-            <p>{vehicleDetails.mileage} km</p>
-          )}
-          {vehicleDetails.transmissionType && vehicleDetails.fuelType && (
-            <p>{t(`enums.transmission.${vehicleDetails.transmissionType}`)} • {t(`enums.fuel.${vehicleDetails.fuelType}`)}</p>
+          <p>
+            {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
+          </p>
+          {vehicleDetails.mileage && <p>{vehicleDetails.mileage} km</p>}
+          {vehicleDetails.transmission && vehicleDetails.fuelType && (
+            <p>
+              {t(`enums.transmission.${vehicleDetails.transmission}`)} •{" "}
+              {t(`enums.fuel.${vehicleDetails.fuelType}`)}
+            </p>
           )}
         </div>
       );
     }
 
-    if (category.mainCategory === ListingCategory.REAL_ESTATE && realEstateDetails) {
+    if (
+      category.mainCategory === ListingCategory.REAL_ESTATE &&
+      realEstateDetails
+    ) {
       return (
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
           <p>{t(`enums.propertyType.${realEstateDetails.propertyType}`)}</p>
-          {realEstateDetails.size && (
-            <p>{realEstateDetails.size} m²</p>
-          )}
+          {realEstateDetails.size && <p>{realEstateDetails.size} m²</p>}
           {realEstateDetails.bedrooms && realEstateDetails.bathrooms && (
-            <p>{realEstateDetails.bedrooms} {t('common.beds')} • {realEstateDetails.bathrooms} {t('common.baths')}</p>
+            <p>
+              {realEstateDetails.bedrooms} {t("common.beds")} •{" "}
+              {realEstateDetails.bathrooms} {t("common.baths")}
+            </p>
           )}
         </div>
       );
@@ -88,19 +99,23 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
       <Link to={`/listings/${id}`} className="block">
-        <div className="relative aspect-video">
+        <div className="relative pt-[75%] overflow-hidden">
           <img
             src={firstImage}
             alt={title}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-contain bg-white dark:bg-gray-800 bg-cover"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.jpg";
+              e.currentTarget.onerror = null;
+            }}
           />
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
             <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(`categories.${category.mainCategory}.${category.subCategory}`)}
+              {t(`${listing?.subCategory}`)}
             </span>
-            {listingAction === 'rent' && (
-              <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
-                {t('common.forRent')}
+            {listingAction === "rent" && (
+              <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
+                {t(`${listing?.listingAction}`)}
               </span>
             )}
           </div>
@@ -110,14 +125,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showPrice && (
             <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
               {formatCurrency(price)}
-              {listingAction === 'rent' && <span className="text-sm ml-1">/mo</span>}
+              {listingAction === "rent" && (
+                <span className="text-sm ml-1">/mo</span>
+              )}
             </p>
           )}
           {renderDetails()}
           {showLocation && (
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              {location}
-            </p>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">{location}</p>
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
@@ -138,7 +153,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
             >
               <FaEdit className="w-4 h-4" />
-              {t('common.edit')}
+              {t("common.edit")}
             </button>
           )}
           {deletable && (
@@ -146,14 +161,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (window.confirm(t('listings.deleteConfirmation'))) {
+                if (window.confirm(t("listings.deleteConfirmation"))) {
                   onDelete?.(id);
                 }
               }}
               className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
             >
               <FaTrash className="w-4 h-4" />
-              {t('common.delete')}
+              {t("common.delete")}
             </button>
           )}
         </div>
