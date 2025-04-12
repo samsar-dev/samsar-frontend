@@ -111,6 +111,7 @@ export interface Listing {
   price: number;
   location: string;
   category: Category;
+  subCategory: string;
   images: string[];
   createdAt: string;
   updatedAt: string;
