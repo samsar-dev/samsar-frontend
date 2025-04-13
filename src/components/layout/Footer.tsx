@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.company")}
+              {t("company")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
                   to="/about"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.about")}
+                  {t("about")}
                 </Link>
               </li>
               <li>
@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
                   to="/contact"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.contact")}
+                  {t("contact")}
                 </Link>
               </li>
               <li>
@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
                   to="/careers"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.careers")}
+                  {t("careers")}
                 </Link>
               </li>
             </ul>
@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
           {/* Legal */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.legal")}
+              {t("legal")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
                   to="/privacy"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.privacy")}
+                  {t("privacy")}
                 </Link>
               </li>
               <li>
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                   to="/terms"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.terms")}
+                  {t("terms")}
                 </Link>
               </li>
             </ul>
@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
           {/* Categories */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.categories")}
+              {t("categories")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
                   to="/vehicles"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.vehicles")}
+                  {t("vehicles")}
                 </Link>
               </li>
               <li>
@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
                   to="/real-estate"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.realEstate")}
+                  {t("realEstate")}
                 </Link>
               </li>
             </ul>
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
           {/* Social Links */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.followUs")}
+              {t("followUs")}
             </h3>
             <div className="flex space-x-4">
               <a
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-border-primary dark:border-border-primary-dark">
           <p className="text-center text-text-muted dark:text-text-muted-dark">
-            &copy; {currentYear} {t("common.appName")}. {t("footer.copyright")}
+            &copy; {currentYear} {t("common.appName")}. {t("copyright")}
           </p>
         </div>
       </div>
