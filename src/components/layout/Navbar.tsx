@@ -149,19 +149,20 @@ const Navbar: React.FC = () => {
                     }`}
                   >
                     <Link
-                      to="/listings/create"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaPlus className="mr-3" />
-                      {t("navigation.create_listing")}
-                    </Link>
-                    <Link
-                      to="/profile/listings"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaFileAlt className="mr-3" />
-                      {t("My Listings")}
-                    </Link>
+  to="/profile/listings"
+  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+>
+  <FaFileAlt className="mr-3" />
+  {t("My Listings")}
+</Link>
+
+<Link
+  to="/profile/saved"
+  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+>
+  <FaBookmark className="mr-3" />
+  Saved Listings
+</Link>
                   </div>
                 </div>
 
