@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import type { APIResponse } from "@/types";
 import { listingsAPI } from "@/api/listings.api";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 
 export interface FavoritesContextType {

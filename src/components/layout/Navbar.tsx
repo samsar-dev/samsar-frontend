@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks";
 import { useUI } from "@/contexts/UIContext";
 import { SearchBar, Tooltip } from "@/components/ui";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -15,7 +15,7 @@ import {
   FaMoon,
   FaSun,
   FaSpinner,
-  FaEnvelope
+  FaEnvelope,
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
@@ -32,14 +32,17 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.profile-menu') && !target.closest('.listings-menu')) {
+      if (
+        !target.closest(".profile-menu") &&
+        !target.closest(".listings-menu")
+      ) {
         setShowProfileMenu(false);
         setShowListingsMenu(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Close dropdowns on route change
@@ -76,9 +79,11 @@ const Navbar: React.FC = () => {
     if (showProfileMenu) setShowProfileMenu(false);
   };
 
-  const dropdownClasses = "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200";
+  const dropdownClasses =
+    "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200";
   const activeDropdownClasses = "transform opacity-100 scale-100";
-  const inactiveDropdownClasses = "transform opacity-0 scale-95 pointer-events-none";
+  const inactiveDropdownClasses =
+    "transform opacity-0 scale-95 pointer-events-none";
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-md">
@@ -97,13 +102,13 @@ const Navbar: React.FC = () => {
                 to="/vehicles"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 transition-colors"
               >
-                {t('navigation.vehicles')}
+                {t("navigation.vehicles")}
               </Link>
               <Link
                 to="/properties"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 transition-colors"
               >
-                {t('navigation.properties')}
+                {t("navigation.properties")}
               </Link>
             </div>
           </div>
@@ -138,7 +143,9 @@ const Navbar: React.FC = () => {
                   </Tooltip>
                   <div
                     className={`${dropdownClasses} ${
-                      showListingsMenu ? activeDropdownClasses : inactiveDropdownClasses
+                      showListingsMenu
+                        ? activeDropdownClasses
+                        : inactiveDropdownClasses
                     }`}
                   >
                     <Link
@@ -193,7 +200,9 @@ const Navbar: React.FC = () => {
                   </Tooltip>
                   <div
                     className={`${dropdownClasses} ${
-                      showProfileMenu ? activeDropdownClasses : inactiveDropdownClasses
+                      showProfileMenu
+                        ? activeDropdownClasses
+                        : inactiveDropdownClasses
                     }`}
                   >
                     <Link
@@ -221,7 +230,9 @@ const Navbar: React.FC = () => {
                       ) : (
                         <FaSignOutAlt className="mr-3" />
                       )}
-                      {isLoggingOut ? t("auth.logging_out") : t("navigation.logout")}
+                      {isLoggingOut
+                        ? t("auth.logging_out")
+                        : t("navigation.logout")}
                     </button>
                   </div>
                 </div>
@@ -248,7 +259,11 @@ const Navbar: React.FC = () => {
               onClick={toggleTheme}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
-              {theme === "dark" ? <FaSun className="h-5 w-5" /> : <FaMoon className="h-5 w-5" />}
+              {theme === "dark" ? (
+                <FaSun className="h-5 w-5" />
+              ) : (
+                <FaMoon className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>

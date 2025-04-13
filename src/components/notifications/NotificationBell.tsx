@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification } from "@/types";
 import { toast } from "react-toastify";
-import { useAuth } from "@/contexts/AuthContext";
 import { FaBell } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/ui";
+import { useAuth } from "@/hooks";
 
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;
@@ -28,7 +28,7 @@ export default function NotificationBell({
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
         setUnreadCount(
-          response.data.items.filter((n: Notification) => !n.read).length,
+          response.data.items.filter((n: Notification) => !n.read).length
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
@@ -57,8 +57,8 @@ export default function NotificationBell({
         if (response.success) {
           setNotifications((prev) =>
             prev.map((n) =>
-              n.id === notification.id ? { ...n, read: true } : n,
-            ),
+              n.id === notification.id ? { ...n, read: true } : n
+            )
           );
           setUnreadCount((prev) => Math.max(0, prev - 1));
         } else if (response.error) {

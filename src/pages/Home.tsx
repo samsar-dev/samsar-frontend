@@ -95,7 +95,7 @@ const Home: React.FC = () => {
         limit: 4,
         page: 1,
       };
-      
+
       const [allListingsResponse, popularListingsResponse] = await Promise.all([
         listingsAPI.getAll(allListingsParams),
         listingsAPI.getAll(popularListingsParams),
@@ -110,7 +110,7 @@ const Home: React.FC = () => {
       }
 
       // Transform the response to match the Listing type
-      const transformListing = (listing: any): Listing => ({
+      const transformListing = (listing: Listing): Listing => ({
         id: listing.id,
         title: listing.title,
         description: listing.description,
@@ -153,8 +153,7 @@ const Home: React.FC = () => {
       toast.error(
         error instanceof Error ? error.message : t("errors.fetch_failed")
       );
-    }
-    finally {
+    } finally {
       // setLoading(false);
     }
   };
