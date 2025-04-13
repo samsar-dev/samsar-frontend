@@ -248,13 +248,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   try {
     await AuthAPI.logout();
   } catch (error) {
-    console.error("Logout API failed:", error); // Log or handle if needed
+    console.error("Logout API failed:", error);
   } finally {
     TokenManager.clearTokens();
     setState({
-  ...initialState,
-  isLoading: false, // explicitly reset loading
-});
+      ...initialState,
+      isLoading: false, // explicitly reset loading
+    });
+  }
+};
 
   const value = {
     ...state,
