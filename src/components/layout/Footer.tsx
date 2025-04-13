@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
           {/* Legal */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.privacy")}
+              {t("privacy")}
             </h3>
             <ul className="space-y-2">
               <li>
