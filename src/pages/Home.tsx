@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { FaCar, FaHome } from "react-icons/fa";
 import {
   type Listing,
@@ -13,10 +13,10 @@ import { listingsAPI } from "@/api/listings.api";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { serverStatus } from "@/utils/serverStatus";
-import { debounce, set } from "lodash";
-import { use } from "i18next";
+import { debounce } from "lodash";
 import { motion } from "framer-motion";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { link } from "fs";
 
 interface ListingsState {
   all: Listing[];
@@ -31,24 +31,23 @@ const Home: React.FC = () => {
     (localStorage.getItem("selectedCategory") as ListingCategory) ||
       ListingCategory.VEHICLES
   );
-  const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     popular: [],
     loading: true,
     error: null,
   });
-  console.log(listings);
+  console.log("listings", listings);
   const [isServerOnline, setIsServerOnline] = useState(true);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
-  // const [selectMainCategory, setSelectMainCategory] = useState<Cate>(false);
 
+  // Memoize the server status subscription
   useEffect(() => {
     const unsubscribe = serverStatus.subscribe(setIsServerOnline);
     return () => unsubscribe();
-  }, []);
+  }, [isServerOnline]);
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     if (!isServerOnline) {
       setListings((prev) => ({
         ...prev,
@@ -63,16 +62,15 @@ const Home: React.FC = () => {
     }
 
     try {
-      // setLoading(true);
+      setListings((prev) => ({ ...prev, loading: true }));
       const allListingsParams: ListingParams = {
         category: {
           mainCategory: selectedCategory as ListingCategory,
-          // Only include subcategories if a specific category is selected
           ...(selectedCategory === ListingCategory.VEHICLES && {
-            subCategory: VehicleType.CAR, // Default to CAR for vehicles
+            subCategory: VehicleType.CAR,
           }),
           ...(selectedCategory === ListingCategory.REAL_ESTATE && {
-            subCategory: PropertyType.HOUSE, // Default to HOUSE for real estate
+            subCategory: PropertyType.HOUSE,
           }),
         },
         limit: 8,
@@ -80,20 +78,10 @@ const Home: React.FC = () => {
       };
 
       const popularListingsParams: ListingParams = {
-        category: {
-          mainCategory: selectedCategory as ListingCategory,
-          // Only include subcategories if a specific category is selected
-          ...(selectedCategory === ListingCategory.VEHICLES && {
-            subCategory: VehicleType.CAR, // Default to CAR for vehicles
-          }),
-          ...(selectedCategory === ListingCategory.REAL_ESTATE && {
-            subCategory: PropertyType.HOUSE, // Default to HOUSE for real estate
-          }),
-        },
+        ...allListingsParams,
         sortBy: "favorites",
         sortOrder: "desc",
         limit: 4,
-        page: 1,
       };
 
       const [allListingsResponse, popularListingsResponse] = await Promise.all([
@@ -109,7 +97,6 @@ const Home: React.FC = () => {
         );
       }
 
-      // Transform the response to match the Listing type
       const transformListing = (listing: Listing): Listing => ({
         id: listing.id,
         title: listing.title,
@@ -130,11 +117,7 @@ const Home: React.FC = () => {
       });
 
       setListings({
-        all: (allListingsResponse.data?.listings || [])
-          .map(transformListing)
-          .filter((listing) =>
-            listing.category.mainCategory === selectedCategory ? true : false
-          ),
+        all: (allListingsResponse.data?.listings || []).map(transformListing),
         popular: (popularListingsResponse.data?.listings || []).map(
           transformListing
         ),
@@ -149,19 +132,16 @@ const Home: React.FC = () => {
         error:
           error instanceof Error ? error.message : t("errors.fetch_failed"),
       }));
-
       toast.error(
         error instanceof Error ? error.message : t("errors.fetch_failed")
       );
-    } finally {
-      // setLoading(false);
     }
-  };
+  }, [selectedCategory, isServerOnline, t, hasAttemptedFetch]);
 
-  const handleCategoryChange = (category: ListingCategory) => {
+  const handleCategoryChange = useCallback((category: ListingCategory) => {
     setSelectedCategory(category);
     localStorage.setItem("selectedCategory", category);
-  };
+  }, []);
 
   const handleSearch = useCallback(
     async (query: string) => {
@@ -194,35 +174,36 @@ const Home: React.FC = () => {
         }));
       }
     },
-    [t, isServerOnline]
+    [isServerOnline, t, fetchListings]
   );
 
-  const debouncedSearch = debounce(handleSearch, 500);
+  // Memoize the debounced search function
+  const debouncedSearch = useMemo(
+    () => debounce(handleSearch, 500),
+    [handleSearch]
+  );
 
+  // Fetch listings when category changes
   useEffect(() => {
     fetchListings();
-  }, [selectedCategory]);
+  }, [fetchListings]);
 
+  const filteredListings: Listing[] = listings?.all?.filter(
+    (listing) => listing.category.mainCategory === selectedCategory
+  );
+
+  // Cleanup debounced function
   useEffect(() => {
-    const handleError = (error: Error) => {
-      console.error("Error in Home component:", error);
-      setListings((prev) => ({
-        ...prev,
-        loading: false,
-        error: error.message,
-      }));
+    return () => {
+      debouncedSearch.cancel();
     };
+  }, [debouncedSearch]);
 
-    window.addEventListener("error", (e) => handleError(e.error));
-    return () =>
-      window.removeEventListener("error", (e) => handleError(e.error));
-  }, []);
-
-  const renderContent = () => {
+  const renderContent = useCallback(() => {
     if (listings.loading && !hasAttemptedFetch) {
       return (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <LoadingSpinner size="lg" />
         </div>
       );
     }
@@ -235,7 +216,7 @@ const Home: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {listings.all.map((listing) => (
+          {filteredListings.map((listing) => (
             <ListingCard
               key={listing.id}
               listing={listing}
@@ -300,11 +281,7 @@ const Home: React.FC = () => {
         )}
       </>
     );
-  };
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  }, [listings, hasAttemptedFetch, isServerOnline, t, fetchListings]);
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
@@ -326,9 +303,7 @@ const Home: React.FC = () => {
               <button
                 onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
                 className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.VEHICLES ||
-                  localStorage.getItem("selectedCategory") ===
-                    ListingCategory.VEHICLES
+                  selectedCategory === ListingCategory.VEHICLES
                     ? "bg-white text-blue-600"
                     : "bg-blue-700 text-white hover:bg-blue-600"
                 }`}

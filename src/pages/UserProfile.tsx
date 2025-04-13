@@ -3,7 +3,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
-import { CategoryFilter } from "@/types/listings";
+import type { CategoryFilter } from "@/types/listings";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -36,8 +36,6 @@ export const UserProfile = () => {
    const [profile, setProfile] = useState<UserProfileData | null>(null);
 
    const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL");
-
-   console.log(profile);
 
    // Redirect to profile page if trying to view own profile
    if (user && userId === user.id) {
