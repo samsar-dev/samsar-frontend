@@ -26,12 +26,10 @@ export default function NotificationBell({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
-
     try {
       const response = await NotificationsAPI.getNotifications();
       if (response.success && response.data?.items) {
@@ -51,11 +49,10 @@ export default function NotificationBell({
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // every 30s
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -70,7 +67,6 @@ export default function NotificationBell({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close dropdown on route change
   useEffect(() => {
     setShowNotifications(false);
   }, [location.pathname]);
@@ -124,7 +120,22 @@ export default function NotificationBell({
   return (
     <div className="relative" ref={dropdownRef}>
       <Tooltip content={t("notifications.title")} position="bottom">
-        <button<div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">
+        <button
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="p-2 rounded-lg text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+          aria-label={t("notifications.toggle")}
+        >
+          <FaBell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none transform translate-x-1/2 -translate-y-1/2 bg-accent-red dark:bg-accent-red-dark text-white rounded-full">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      </Tooltip>
+
+      {showNotifications && (
+        <div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">
           <div className="p-4 max-h-96 overflow-y-auto">
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-2">
               {t("notifications.title")}
