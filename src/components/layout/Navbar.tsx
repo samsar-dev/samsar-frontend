@@ -16,7 +16,7 @@ import {
   FaSun,
   FaSpinner,
   FaEnvelope,
-  FaBookmark, 
+  FaHeart, 
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
@@ -133,39 +133,45 @@ const Navbar: React.FC = () => {
             ) : isAuthenticated && user ? (
               <>
                 {/* Listings Menu */}
-                <div className="relative listings-menu">
-                  <Tooltip content={t("navigation.listings")} position="bottom">
-                    <button
-                      onClick={toggleListingsMenu}
-                      className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-                    >
-                      <FaList className="h-5 w-5" />
-                    </button>
-                  </Tooltip>
-                  <div
-                    className={`${dropdownClasses} ${
-                      showListingsMenu
-                        ? activeDropdownClasses
-                        : inactiveDropdownClasses
-                    }`}
-                  >
-                    <Link
-  to="/profile/listings"
-  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
->
-  <FaFileAlt className="mr-3" />
-  {t("My Listings")}
-</Link>
+<div className="relative listings-menu">
+  <Tooltip content={t("navigation.listings")} position="bottom">
+    <button
+      onClick={toggleListingsMenu}
+      className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+    >
+      <FaList className="h-5 w-5" />
+    </button>
+  </Tooltip>
+  <div
+    className={`${dropdownClasses} ${
+      showListingsMenu ? activeDropdownClasses : inactiveDropdownClasses
+    }`}
+  >
+    <Link
+      to="/listings/create"
+      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      <FaPlus className="mr-3" />
+      {t("navigation.create_listing")}
+    </Link>
 
-<Link
-  to="/profile/saved"
-  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
->
-  <FaBookmark className="mr-3" />
-  Saved Listings
-</Link>
-                  </div>
-                </div>
+    <Link
+      to="/profile/listings"
+      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      <FaFileAlt className="mr-3" />
+      {t("My Listings")}
+    </Link>
+
+    <Link
+      to="/profile/saved"
+      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      <FaHeart className="mr-3 text-red-500" />
+      {t("Saved Listings")}
+    </Link>
+  </div>
+</div>>
 
                 {/* Notifications */}
                 <NotificationBell />
