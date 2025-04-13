@@ -13,13 +13,14 @@ import Search from "@/pages/Search";
 import ListingDetails from "@/components/listings/edit/ListingDetails";
 import CreateListing from "@/components/listings/create/CreateListing";
 import EditListing from "@/components/listings/edit/EditListing";
-import SavedListings from "@/components/listings/edit/favorites/ListingsCollection";
+// import SavedListings from "@/components/listings/edit/favorites/ListingsCollection";
 import Messages from "@/pages/Messages";
 import CategoryPage from "@/pages/CategoryPage";
 import Settings from "@/pages/Settings";
 import PrivateRoute from "@/components/auth/AuthRoute";
 import { ChangePassword } from "@/components/profile";
 import { MyListings } from "@/components/profile";
+import SavedListings from "@/components/profile/SavedListings";
 
 const Routes = (): JSX.Element => {
   return (
@@ -42,22 +43,25 @@ const Routes = (): JSX.Element => {
         }
       >
         {/* Profile Routes */}
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>}>
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        >
           <Route path="listings" element={<MyListings />} />
           <Route path="password" element={<ChangePassword />} />
         </Route>
 
         {/* Public User Profile */}
         <Route path="/users/:userId" element={<UserProfile />} />
-
         <Route path="/profile/:userId" element={<a />} />
         <Route path="/settings" element={<Settings />} />
-        <Route
-          path="/listings/create"
-          element={<CreateListing />}
-        />
+        <Route path="/listings/create" element={<CreateListing />} />
         <Route path="/listings/:id/edit" element={<EditListing />} />
-        <Route path="/saved" element={<SavedListings type="saved" />} />
+        <Route path="/saved-listings" element={<SavedListings />} />
         <Route path="/messages" element={<Messages />} />
       </Route>
     </RouterRoutes>
