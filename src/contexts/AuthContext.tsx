@@ -245,10 +245,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async (): Promise<void> => {
+  try {
     await AuthAPI.logout();
+  } catch (error) {
+    console.error("Logout API failed:", error); // Log or handle if needed
+  } finally {
     TokenManager.clearTokens();
     setState(initialState);
-  };
+  }
+};
 
   const value = {
     ...state,
