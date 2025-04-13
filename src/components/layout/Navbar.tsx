@@ -16,6 +16,7 @@ import {
   FaSun,
   FaSpinner,
   FaEnvelope,
+  FaBookmark, 
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
