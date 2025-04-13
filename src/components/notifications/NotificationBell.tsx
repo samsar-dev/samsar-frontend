@@ -1,4 +1,9 @@
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+import { useLocation } from "react-router-dom";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification } from "@/types";
 import { toast } from "react-toastify";
@@ -16,13 +21,15 @@ export default function NotificationBell({
 }: NotificationBellProps) {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
-
     try {
       const response = await NotificationsAPI.getNotifications();
       if (response.success && response.data?.items) {
@@ -42,11 +49,27 @@ export default function NotificationBell({
 
   useEffect(() => {
     fetchNotifications();
-    // Set up polling for notifications
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
-
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setShowNotifications(false);
+  }, [location.pathname]);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!isAuthenticated) return;
@@ -95,7 +118,7 @@ export default function NotificationBell({
   if (!isAuthenticated) return null;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <Tooltip content={t("notifications.title")} position="bottom">
         <button
           onClick={() => setShowNotifications(!showNotifications)}
@@ -112,8 +135,8 @@ export default function NotificationBell({
       </Tooltip>
 
       {showNotifications && (
-        <div className="absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-surface-primary dark:bg-surface-primary-dark border border-border-primary dark:border-border-primary-dark">
-          <div className="p-4">
+        <div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">
+          <div className="p-4 max-h-96 overflow-y-auto">
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-2">
               {t("notifications.title")}
             </h3>
@@ -127,8 +150,10 @@ export default function NotificationBell({
                   <li
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`p-2 hover:bg-background-secondary dark:hover:bg-background-secondary-dark rounded-md ${
-                      !notification.read ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                    className={`p-2 hover:bg-background-secondary dark:hover:bg-background-secondary-dark rounded-md cursor-pointer ${
+                      !notification.read
+                        ? "bg-blue-50 dark:bg-blue-900/20"
+                        : ""
                     }`}
                   >
                     <div className="flex items-start">
@@ -156,7 +181,7 @@ export default function NotificationBell({
                 onClick={handleMarkAllAsRead}
                 className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mt-2"
               >
-                Mark all as read
+                {t("notifications.mark_all_read")}
               </button>
             )}
           </div>
