@@ -171,7 +171,7 @@ const Navbar: React.FC = () => {
       {t("Saved Listings")}
     </Link>
   </div>
-</div>>
+</div>
 
                 {/* Notifications */}
                 <NotificationBell />
