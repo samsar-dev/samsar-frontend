@@ -244,14 +244,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const handleLogout = async () => {
+  setIsLoggingOut(true);
   try {
-    await AuthAPI.logout();
+    await logout();
+    navigate("/login"); // <-- safer than "/"
   } catch (error) {
-    console.error("Logout API failed:", error); // Log or handle if needed
+    console.error("Logout failed:", error);
   } finally {
-    TokenManager.clearTokens();
-    setState(initialState);
+    setIsLoggingOut(false);
+    // window.location.reload(); // Uncomment if UI still stuck
   }
 };
 
