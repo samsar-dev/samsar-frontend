@@ -112,7 +112,7 @@ export default function NotificationBell({
       </Tooltip>
 
       {showNotifications && (
-        <div className="absolute right-0 mt-2 w-80 rounded-lg shadow-lg bg-surface-primary dark:bg-surface-primary-dark border border-border-primary dark:border-border-primary-dark">
+        <div className="absolute right-2 mt-2 max-w-[90vw] sm:w-80 z-50 overflow-hidden rounded-lg shadow-lg bg-surface-primary dark:bg-surface-primary-dark border border-border-primary dark:border-border-primary-dark">
           <div className="p-4">
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-2">
               {t("notifications.title")}
