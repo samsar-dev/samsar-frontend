@@ -7,10 +7,10 @@ import { useLocation } from "react-router-dom";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification } from "@/types";
 import { toast } from "react-toastify";
-import { useAuth } from "@/contexts/AuthContext";
 import { FaBell } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/ui";
+import { useAuth } from "@/hooks";
 
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;

@@ -1,6 +1,6 @@
 // Export hooks and providers
 export { UIProvider, useUI } from "./UIContext";
-export { AuthProvider, useAuth } from "./AuthContext";
+export { AuthProvider } from "./AuthContext";
 export { NotificationsProvider } from "./NotificationsContext";
 export { useNotifications } from "@/hooks/useNotifications";
 export { FavoritesProvider, useFavorites } from "./FavoritesContext";

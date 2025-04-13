@@ -159,6 +159,7 @@ export interface Listing {
     username: string;
     profilePicture: string | null;
   };
+  status: string;
 }
 
 export interface ListingUpdateInput {
