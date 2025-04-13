@@ -14,11 +14,9 @@ if (!container) {
 const root = createRoot(container);
 
 root.render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </HelmetProvider>
-  </React.StrictMode>,
+  <HelmetProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </HelmetProvider>
 );
