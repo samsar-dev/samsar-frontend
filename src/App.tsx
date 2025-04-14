@@ -11,6 +11,7 @@ import TokenManager from "@/utils/tokenManager";
 import AppRoutes from "./routes/Routes";
 import { Spinner } from "@/components/ui/Spinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import SavedListingsProvider from "./contexts/SavedListingsContext";
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -20,7 +21,7 @@ const App: () => ReactElement = () => {
       try {
         await TokenManager.initialize();
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        console.error("Failed to initialize auth:", error);
       } finally {
         setIsInitializing(false);
       }
@@ -44,11 +45,13 @@ const App: () => ReactElement = () => {
           <FavoritesProvider>
             <ListingsProvider>
               <SettingsProvider>
-                <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                  <Layout>
-                    <AppRoutes />
-                  </Layout>
-                </div>
+                <SavedListingsProvider>
+                  <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
+                    <Layout>
+                      <AppRoutes />
+                    </Layout>
+                  </div>
+                </SavedListingsProvider>
               </SettingsProvider>
             </ListingsProvider>
           </FavoritesProvider>
