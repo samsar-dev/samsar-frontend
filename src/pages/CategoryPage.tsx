@@ -6,7 +6,7 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { listingsAPI } from "@/api/listings.api";
 import { toast } from "react-toastify";
 import { Spinner } from "@/components/ui/Spinner";
-import { FixedSizeGrid as Grid, GridChildComponentProps } from 'react-window';
+import type { FixedSizeGrid as Grid, GridChildComponentProps } from 'react-window';
 
 const CategoryPage: React.FC = () => {
   const { category } = useParams<{ category: string }>();

@@ -1,21 +1,19 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { FaCar, FaHome } from "react-icons/fa";
+import { listingsAPI } from "@/api/listings.api";
+import ListingCard from "@/components/listings/details/ListingCard";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { SearchBar } from "@/components/ui/SearchBar";
+import { ListingCategory } from "@/types/enums";
 import {
   type Listing,
-  type ListingsResponse,
-  ListingStatus,
-  type ListingParams,
+  type ListingParams
 } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
-import ListingCard from "@/components/listings/details/ListingCard";
-import { SearchBar } from "@/components/ui/SearchBar";
-import { listingsAPI } from "@/api/listings.api";
-import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 import { serverStatus } from "@/utils/serverStatus";
-import { debounce } from "lodash";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion } from "framer-motion";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaCar, FaHome } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 // Extended listing interface to include savedBy
 interface ExtendedListing extends Listing {
