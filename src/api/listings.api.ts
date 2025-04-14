@@ -16,6 +16,7 @@ import {
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
+import { api } from ".";
 
 interface FavoriteItem {
   id: string;
@@ -25,7 +26,7 @@ interface FavoriteItem {
 }
 
 interface FavoritesResponse {
-  items: FavoriteItem[];
+  items: SingleListingResponse[];
   total: number;
 }
 
@@ -333,27 +334,14 @@ export const listingsAPI = {
   },
 
   // Save a listing as favorite
-  async saveListing(id: string): Promise<APIResponse<Listing>> {
+  async saveListing(saveListingData: { userId: string, listingId: string }): Promise<APIResponse<Listing>> {
     try {
-      const response = await fetch(`${API_URL}/listings/${id}/save`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient.post(`/listings/save`, saveListingData);
 
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+      if (!response.data.success) {
+        throw new Error(response.data.error?.message || "Failed to save listing");
       }
-
-      const data = await response.json();
-      return data;
+      return response.data;
     } catch (error) {
       console.error("Error saving listing:", error);
       throw new Error(
@@ -808,7 +796,7 @@ export const listingsAPI = {
     try {
       const response =
         await apiClient.get<APIResponse<FavoritesResponse>>(
-          `/listings/favorites`
+          `/listings/save`
         );
 
       return {
