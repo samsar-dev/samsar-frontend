@@ -41,7 +41,6 @@ const Home: React.FC = () => {
     loading: true,
     error: null,
   });
-  console.log("listings", listings);
   const [isServerOnline, setIsServerOnline] = useState(true);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
@@ -49,28 +48,18 @@ const Home: React.FC = () => {
   const isFetching = useRef(false);
 
   const fetchListings = useCallback(async () => {
-    if (isFetching.current) return;
-    isFetching.current = true;
-
     if (!isServerOnline) {
       setListings((prev) => ({
         ...prev,
         loading: false,
         error: t("errors.server_offline"),
       }));
-      isFetching.current = false;
       return;
     }
 
     try {
-      // Keep previous listings while loading new ones
-      setListings((prev) => ({ 
-        ...prev,
-        loading: true,
-        error: null 
-      }));
+      setListings((prev) => ({ ...prev, loading: true }));
       
-      // Request only preview data
       const params: ListingParams = {
         category: {
           mainCategory: selectedCategory,
@@ -79,18 +68,18 @@ const Home: React.FC = () => {
         page: 1,
         sortBy: "createdAt",
         sortOrder: "desc",
-        preview: true
+        preview: true,
+        forceRefresh: Date.now().toString() // Force API to bypass cache
       };
 
       const response = await listingsAPI.getAll(params);
 
-      if (!response.success || !response.data) {
+      if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
-      const allListings = (response.data.listings || []) as ExtendedListing[];
+      const allListings = response.data.listings || [];
       
-      // Sort by popularity using savedBy length
       const popularListings = [...allListings]
         .sort((a, b) => (b.savedBy?.length ?? 0) - (a.savedBy?.length ?? 0))
         .slice(0, 4);
@@ -108,22 +97,24 @@ const Home: React.FC = () => {
         loading: false,
         error: error instanceof Error ? error.message : "Failed to fetch listings",
       }));
-    } finally {
-      isFetching.current = false;
-      setHasAttemptedFetch(true);
     }
   }, [selectedCategory, isServerOnline, t]);
 
-  // Update category and trigger fetch
+  // Fetch listings when component mounts
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
+
+  // Fetch listings when category changes
+  useEffect(() => {
+    fetchListings();
+  }, [selectedCategory, fetchListings]);
+
+  // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
     localStorage.setItem("selectedCategory", category);
     setSelectedCategory(category);
   }, []);
-
-  // Fetch listings when category changes or component mounts
-  useEffect(() => {
-    fetchListings();
-  }, [fetchListings, selectedCategory]);
 
   // Handle server status changes
   useEffect(() => {
