@@ -6,8 +6,15 @@ import type {
   TransmissionType,
   Condition,
   ListingAction,
-  ListingStatus,
 } from "./enums";
+
+export enum ListingStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  PENDING = "PENDING",
+  SOLD = "SOLD",
+  DELETED = "DELETED"
+}
 
 export interface ListingFieldSchema {
   name: string;
@@ -139,7 +146,7 @@ export interface Category {
 }
 
 export interface Listing {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   price: number;
@@ -148,18 +155,18 @@ export interface Listing {
     subCategory: VehicleType | PropertyType;
   };
   location: string;
-  images: (string | File)[];
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
+  images: Array<string | File>;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  userId?: string;
   details: ListingDetails;
-  listingAction: ListingAction;
+  listingAction?: 'SELL' | 'RENT';
+  status?: ListingStatus;
   seller?: {
     id: string;
     username: string;
     profilePicture: string | null;
   };
-  status: string;
 }
 
 export interface ListingUpdateInput {

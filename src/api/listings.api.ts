@@ -146,8 +146,36 @@ interface UserListingsResponse {
   hasMore: boolean;
 }
 
+// Cache implementation
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+const getCacheKey = (params: ListingParams) => {
+  return JSON.stringify(params);
+};
+
+const getFromCache = (key: string) => {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  
+  if (Date.now() - cached.timestamp > CACHE_DURATION) {
+    cache.delete(key);
+    return null;
+  }
+  
+  return cached.data;
+};
+
+const setInCache = (key: string, data: any) => {
+  cache.set(key, { data, timestamp: Date.now() });
+};
+
 export const listingsAPI = {
   async getAll(params: ListingParams): Promise<APIResponse<ListingsResponse>> {
+    const cacheKey = getCacheKey(params);
+    const cached = getFromCache(cacheKey);
+    if (cached) return { success: true, data: cached };
+
     try {
       const queryParams = new URLSearchParams();
 
@@ -192,6 +220,7 @@ export const listingsAPI = {
       } catch (e) {
         throw new Error("Invalid response from server");
       }
+      setInCache(cacheKey, data);
       return {
         success: true,
         data: {
