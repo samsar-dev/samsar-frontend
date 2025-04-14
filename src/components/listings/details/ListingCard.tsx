@@ -9,6 +9,9 @@ import type {
 } from "@/types/listings";
 import { ListingCategory } from "@/types/enums";
 import { motion } from "framer-motion";
+import { MdFavoriteBorder } from "react-icons/md";
+import { listingsAPI } from "@/api/listings.api";
+import { useAuth } from "@/hooks";
 
 export interface ListingCardProps {
   listing: Listing & {
@@ -48,7 +51,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
     listingAction,
     vehicleDetails,
     realEstateDetails,
+    favorites,
   } = listing;
+
+  const user = useAuth().user;
 
   const firstImage =
     Array.isArray(images) && images.length > 0
@@ -56,6 +62,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
         ? images[0]
         : "/placeholder.jpg"
       : "/placeholder.jpg";
+
+  const renderFavoriteButton = async () => {
+    await listingsAPI.saveListing({
+      userId: user?.id as string,
+      listingId: id as string,
+    });
+  };
 
   const renderDetails = () => {
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
@@ -101,7 +114,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group"
     >
       <Link to={`/listings/${id}`} className="block">
         <div className="relative pt-[75%] overflow-hidden">
@@ -118,19 +131,19 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
               {t(`categories.vehicles.${category.subCategory}`)}
             </span>
-            {listingAction === "rent" && (
+            {(listingAction as string) === "rent" && (
               <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
                 {t("common.forRent")}
               </span>
             )}
           </div>
         </div>
-        <div className="p-4">
-          <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
+        <div className="relative p-4">
+          <h3 className="text-lg font-semibold mb-2 pr-8 truncate">{title}</h3>
           {showPrice && (
             <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
               {formatCurrency(price)}
-              {listingAction === "rent" && (
+              {(listingAction as string) === "rent" && (
                 <span className="text-sm ml-1">/mo</span>
               )}
             </p>
@@ -141,9 +154,23 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-              {new Date(createdAt).toLocaleDateString()}
+              {new Date(createdAt as string).toLocaleDateString()}
             </p>
           )}
+          {
+            <div className="absolute bottom-2 right-2 translate-x-28 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  renderFavoriteButton();
+                }}
+                className="p-2 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-full dark:border-gray-700 hover:text-blue-700 hover:bg-blue-600/50 hover:border-blue-600/30 dark:hover:border-blue-600/20 dark:hover:text-blue-400 transition-colors duration-300"
+              >
+                <MdFavoriteBorder className="w-5 h-5" />
+              </button>
+            </div>
+          }
         </div>
       </Link>
       {showActions && (
@@ -167,7 +194,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 e.preventDefault();
                 e.stopPropagation();
                 if (window.confirm(t("listings.deleteConfirmation"))) {
-                  onDelete?.(id);
+                  onDelete?.(id as string);
                 }
               }}
               className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
