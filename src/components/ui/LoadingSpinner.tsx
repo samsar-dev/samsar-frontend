@@ -1,14 +1,14 @@
-import React from "react";
 import type { LoadingSpinnerProps } from "@/types/ui";
+import React from "react";
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = "medium",
+  size = "md",
   className = "",
-}) => {
+}: LoadingSpinnerProps) => {
   const sizeClasses = {
-    small: "w-4 h-4",
-    medium: "w-8 h-8",
-    large: "w-12 h-12",
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
   };
 
   return (
