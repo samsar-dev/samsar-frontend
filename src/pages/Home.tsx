@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { FaCar, FaHome } from "react-icons/fa";
 import {
   type Listing,
@@ -6,7 +6,7 @@ import {
   ListingStatus,
   type ListingParams,
 } from "@/types/listings";
-import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import { ListingCategory } from "@/types/enums";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { listingsAPI } from "@/api/listings.api";
@@ -14,13 +14,17 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { serverStatus } from "@/utils/serverStatus";
 import { debounce } from "lodash";
-import { motion } from "framer-motion";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { link } from "fs";
+import { motion } from "framer-motion";
+
+// Extended listing interface to include savedBy
+interface ExtendedListing extends Listing {
+  savedBy?: Array<{ id: string }>;
+}
 
 interface ListingsState {
-  all: Listing[];
-  popular: Listing[];
+  all: ExtendedListing[];
+  popular: ExtendedListing[];
   loading: boolean;
   error: string | null;
 }
@@ -37,15 +41,11 @@ const Home: React.FC = () => {
     loading: true,
     error: null,
   });
-  console.log("listings", listings);
   const [isServerOnline, setIsServerOnline] = useState(true);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
-  // Memoize the server status subscription
-  useEffect(() => {
-    const unsubscribe = serverStatus.subscribe(setIsServerOnline);
-    return () => unsubscribe();
-  }, [isServerOnline]);
+  // Prevents duplicate fetches
+  const isFetching = useRef(false);
 
   const fetchListings = useCallback(async () => {
     if (!isServerOnline) {
@@ -57,90 +57,69 @@ const Home: React.FC = () => {
       return;
     }
 
-    if (!hasAttemptedFetch) {
-      setHasAttemptedFetch(true);
-    }
-
     try {
       setListings((prev) => ({ ...prev, loading: true }));
-      const allListingsParams: ListingParams = {
+      
+      const params: ListingParams = {
         category: {
-          mainCategory: selectedCategory as ListingCategory,
-          ...(selectedCategory === ListingCategory.VEHICLES && {
-            subCategory: VehicleType.CAR,
-          }),
-          ...(selectedCategory === ListingCategory.REAL_ESTATE && {
-            subCategory: PropertyType.HOUSE,
-          }),
+          mainCategory: selectedCategory,
         },
-        limit: 8,
+        limit: 12,
         page: 1,
-      };
-
-      const popularListingsParams: ListingParams = {
-        ...allListingsParams,
-        sortBy: "favorites",
+        sortBy: "createdAt",
         sortOrder: "desc",
-        limit: 4,
+        preview: true,
+        forceRefresh: Date.now().toString() // Force API to bypass cache
       };
 
-      const [allListingsResponse, popularListingsResponse] = await Promise.all([
-        listingsAPI.getAll(allListingsParams),
-        listingsAPI.getAll(popularListingsParams),
-      ]);
+      const response = await listingsAPI.getAll(params);
 
-      if (!allListingsResponse.success || !popularListingsResponse.success) {
-        throw new Error(
-          allListingsResponse.error ||
-            popularListingsResponse.error ||
-            "Failed to fetch listings"
-        );
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch listings");
       }
 
-      const transformListing = (listing: Listing): Listing => ({
-        id: listing.id,
-        title: listing.title,
-        description: listing.description,
-        price: listing.price,
-        category: {
-          mainCategory: listing.category.mainCategory,
-          subCategory: listing.category.subCategory,
-        },
-        location: listing.location,
-        images: listing.images.map((img: any) => img.url || img),
-        createdAt: listing.createdAt,
-        updatedAt: listing.updatedAt,
-        userId: listing.userId,
-        details: listing.details || {},
-        listingAction: listing.listingAction,
-        status: listing.status,
-      });
+      const allListings = response.data.listings || [];
+      
+      const popularListings = [...allListings]
+        .sort((a, b) => (b.savedBy?.length ?? 0) - (a.savedBy?.length ?? 0))
+        .slice(0, 4);
 
       setListings({
-        all: (allListingsResponse.data?.listings || []).map(transformListing),
-        popular: (popularListingsResponse.data?.listings || []).map(
-          transformListing
-        ),
+        all: allListings,
+        popular: popularListings,
         loading: false,
-        error: null,
+        error: null
       });
     } catch (error) {
       console.error("Error fetching listings:", error);
       setListings((prev) => ({
         ...prev,
         loading: false,
-        error:
-          error instanceof Error ? error.message : t("errors.fetch_failed"),
+        error: error instanceof Error ? error.message : "Failed to fetch listings",
       }));
-      toast.error(
-        error instanceof Error ? error.message : t("errors.fetch_failed")
-      );
     }
-  }, [selectedCategory, isServerOnline, t, hasAttemptedFetch]);
+  }, [selectedCategory, isServerOnline, t]);
 
+  // Fetch listings when component mounts
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
+
+  // Fetch listings when category changes
+  useEffect(() => {
+    fetchListings();
+  }, [selectedCategory, fetchListings]);
+
+  // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
-    setSelectedCategory(category);
     localStorage.setItem("selectedCategory", category);
+    setSelectedCategory(category);
+  }, []);
+
+  // Handle server status changes
+  useEffect(() => {
+    const unsubscribe = serverStatus.subscribe(setIsServerOnline);
+    return () => unsubscribe();
   }, []);
 
   const handleSearch = useCallback(
@@ -183,12 +162,7 @@ const Home: React.FC = () => {
     [handleSearch]
   );
 
-  // Fetch listings when category changes
-  useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
-
-  const filteredListings: Listing[] = listings?.all?.filter(
+  const filteredListings: ExtendedListing[] = listings?.all?.filter(
     (listing) => listing.category.mainCategory === selectedCategory
   );
 

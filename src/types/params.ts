@@ -1,14 +1,21 @@
-import { ListingCategory } from './enums';
+import { ListingCategory, VehicleType, PropertyType } from "./enums";
+import { ListingStatus } from "./listings";
 
 export interface ListingParams {
-  page?: number;
+  category?: {
+    mainCategory?: ListingCategory;
+    subCategory?: VehicleType | PropertyType;
+  };
   limit?: number;
-  mainCategory?: ListingCategory;
-  subCategory?: string;
-  search?: string;
+  page?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  preview?: boolean; // Add preview flag to get minimal listing data
+  search?: string;
+  userId?: string;
+  status?: ListingStatus;
   minPrice?: number;
   maxPrice?: number;
   location?: string;
+  listingAction?: 'SELL' | 'RENT';
 }
