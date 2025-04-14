@@ -23,7 +23,6 @@ interface ExtendedListing extends Omit<Listing, "details"> {
 const SavedListings: React.FC = () => {
   const { t } = useTranslation();
   const [listings, setListings] = useState<ExtendedListing[]>([]);
-  console.log("Listings:", listings);
   const [loading, setLoading] = useState(true);
 
   const getCategoryLabel = (category: {
@@ -43,16 +42,15 @@ const SavedListings: React.FC = () => {
   const fetchListings = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await listingsAPI.getAll({
-        limit: 50,
-        page: 1,
-      });
+      const response = await listingsAPI.getFavorites();
+
+      console.log(response);
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
-      const transformedListings = (response.data?.listings || []).map(
+      const transformedListings = (response.data?.items || []).map(
         (listing) => ({
           ...listing,
           images: listing.images
@@ -123,13 +121,13 @@ const SavedListings: React.FC = () => {
                     <div className="absolute top-2 left-2 z-40">
                       <span
                         className={`px-3 py-1 text-sm font-medium rounded-sm border opacity-0 group-hover:opacity-100 transition-all duration-150 ${
-                          item.listingAction.toLocaleLowerCase() ===
+                          item.listingAction?.toLocaleLowerCase() ===
                           ListingAction.SELL.toLocaleLowerCase()
                             ? "bg-blue-600/90 text-white border-blue-700"
                             : "bg-green-600/90 text-white border-emerald-700"
                         }`}
                       >
-                        {item.listingAction.toLocaleLowerCase() ===
+                        {item.listingAction?.toLocaleLowerCase() ===
                         ListingAction.SELL.toLocaleLowerCase()
                           ? t("Sell")
                           : t("Rent")}
@@ -138,7 +136,7 @@ const SavedListings: React.FC = () => {
                     <div className="w-36 h-36 bg-gray-100 dark:bg-gray-700">
                       {item.images && item.images.length > 0 && (
                         <img
-                          src={item.images[0]}
+                          src={item?.images[0] as string}
                           alt={item.title}
                           className="inset-0 w-full h-full object-cover bg-white dark:bg-gray-800 bg-cover rounded-sm"
                         />

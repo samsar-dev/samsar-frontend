@@ -1,11 +1,10 @@
 import { useCallback, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
-import type { AuthContextType } from "../types/auth.types";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -22,7 +21,7 @@ export function useAuthForm() {
         throw error;
       }
     },
-    [login],
+    [login]
   );
 
   const handleSignup = useCallback(
@@ -34,7 +33,7 @@ export function useAuthForm() {
         throw error;
       }
     },
-    [register],
+    [register]
   );
 
   return {
