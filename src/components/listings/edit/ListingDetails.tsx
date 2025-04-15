@@ -18,7 +18,6 @@ import { listingsAPI } from "@/api/listings.api";
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "@/utils/format";
 import ImageGallery from "@/components/listings/images/ImageGallery";
-import TokenManager from "@/utils/tokenManager";
 import { Link } from "react-router-dom";
 
 interface ListingImage {
@@ -62,27 +61,6 @@ const ListingDetails: React.FC = () => {
       }
 
       try {
-        // Initialize token manager first
-        await TokenManager.initialize();
-
-        if (!isAuthenticated) {
-          // Redirect to login if not authenticated
-          toast.error(t("common.loginRequired"));
-          navigate("/login", { state: { from: `/listings/${id}` } });
-          return;
-        }
-
-        console.log("Initializing token manager...");
-        await TokenManager.initialize();
-
-        if (!isAuthenticated) {
-          console.log("User not authenticated, redirecting to login...");
-          toast.error(t("common.loginRequired"));
-          navigate("/login", { state: { from: `/listings/${id}` } });
-          return;
-        }
-
-        console.log("Fetching listing data...");
         const response = await listingsAPI.getById(id);
         console.log("Got response:", response);
 
@@ -231,16 +209,22 @@ const ListingDetails: React.FC = () => {
     };
 
     initializeAndFetchListing();
-  }, [id, navigate, t, isAuthenticated]);
+  }, [id, navigate, t]);
 
   const handleContactSeller = async () => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast.error(t("common.loginRequired"));
-      navigate("/login");
+      navigate("/login", { state: { from: `/listings/${id}` } });
       return;
     }
+    setShowContactForm(true);
+  };
 
-    if (!listing) return;
+  const handleSendMessage = async () => {
+    if (!isAuthenticated || !user || !listing) {
+      toast.error(t("common.loginRequired"));
+      return;
+    }
 
     setIsSending(true);
     try {
@@ -828,7 +812,7 @@ const ListingDetails: React.FC = () => {
             <div className="">
               {!showContactForm ? (
                 <button
-                  onClick={() => setShowContactForm(true)}
+                  onClick={handleContactSeller}
                   className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   {t("listings.contactSeller")}
@@ -844,7 +828,7 @@ const ListingDetails: React.FC = () => {
                   />
                   <div className="flex gap-4">
                     <button
-                      onClick={handleContactSeller}
+                      onClick={handleSendMessage}
                       disabled={!message.trim() || isSending}
                       className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
                     >

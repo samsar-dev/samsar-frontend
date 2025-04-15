@@ -6,6 +6,10 @@ export interface ListingParams {
     mainCategory?: ListingCategory;
     subCategory?: VehicleType | PropertyType;
   };
+  vehicleDetails?: {
+    make?: string;
+    model?: string;
+  };
   limit?: number;
   page?: number;
   sortBy?: string;
@@ -18,4 +22,5 @@ export interface ListingParams {
   maxPrice?: number;
   location?: string;
   listingAction?: 'SELL' | 'RENT';
+  forceRefresh?: boolean;
 }
