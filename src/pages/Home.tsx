@@ -196,6 +196,7 @@ const Home: React.FC = () => {
               showSaveButton={true}
               showPrice={true}
               showLocation={true}
+              showBadges={true}
             />
           ))}
           {listings.all.length === 0 && listings.error && (
@@ -250,6 +251,7 @@ const Home: React.FC = () => {
                   showSaveButton={true}
                   showPrice={true}
                   showLocation={true}
+                  showBadges={true}
                 />
               ))}
             </motion.div>

@@ -27,6 +27,7 @@ export interface ListingCardProps {
   showPrice?: boolean;
   showLocation?: boolean;
   showDate?: boolean;
+  showBadges?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -39,6 +40,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showPrice = false,
   showLocation = false,
   showDate = false,
+  showBadges = true,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -173,16 +175,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
               e.currentTarget.onerror = null;
             }}
           />
-          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-            <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(`categories.vehicles.${category.subCategory}`)}
-            </span>
-            {(listingAction as string) === "rent" && (
-              <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
-                {t("common.forRent")}
-              </span>
-            )}
-          </div>
+          {showBadges && (
+  <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+      {category.subCategory.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w)/g, c => c.toUpperCase())}
+    </span>
+    <span
+      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+        listingAction === "SELL"
+          ? "bg-blue-600 text-white"
+          : "bg-green-600 text-white"
+      }`}
+    >
+      {listingAction === "SELL" ? t("forSale") : t("forRent")}
+    </span>
+  </div>
+)}
+
+
           {showSaveButton && user && (
             <div className="absolute top-2 right-2">
               <button
