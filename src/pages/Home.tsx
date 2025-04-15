@@ -3,10 +3,9 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { SearchBar } from "@/components/ui/SearchBar";
-import { ListingCategory } from "@/types/enums";
+import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import {
-  type Listing,
-  type ListingParams
+  type ExtendedListing
 } from "@/types/listings";
 import { serverStatus } from "@/utils/serverStatus";
 import { motion } from "framer-motion";
@@ -17,9 +16,25 @@ import { FaCar, FaHome } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { MdFilterList } from "react-icons/md";
 
-// Extended listing interface to include savedBy
-interface ExtendedListing extends Listing {
-  savedBy?: Array<{ id: string }>;
+interface ListingParams {
+  category?: {
+    mainCategory: ListingCategory;
+    subCategory?: VehicleType | PropertyType;
+  };
+  vehicleDetails?: {
+    make?: string;
+    model?: string;
+  };
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  limit?: number;
+  page?: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  location?: string;
+  preview?: boolean;
+  forceRefresh?: boolean;
 }
 
 interface ListingsState {
@@ -31,6 +46,7 @@ interface ListingsState {
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const abortControllerRef = useRef<AbortController>();
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     (localStorage.getItem("selectedCategory") as ListingCategory) ||
       ListingCategory.VEHICLES
@@ -42,12 +58,34 @@ const Home: React.FC = () => {
     error: null,
   });
   const [isServerOnline, setIsServerOnline] = useState(true);
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
 
-  // Prevents duplicate fetches
-  const isFetching = useRef(false);
+  // Filter states
+  const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [selectedMake, setSelectedMake] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Cache for storing initial listings data
+  const listingsCache = useRef<{
+    [key in ListingCategory]?: ExtendedListing[];
+  }>({});
 
   const fetchListings = useCallback(async () => {
+    // If we have cached data for this category and it's not initial load, use it
+    if (!isInitialLoad && listingsCache.current[selectedCategory]) {
+      setListings(prev => ({
+        ...prev,
+        all: listingsCache.current[selectedCategory] || [],
+        loading: false,
+        error: null
+      }));
+      return;
+    }
+
     if (!isServerOnline) {
       setListings((prev) => ({
         ...prev,
@@ -57,6 +95,12 @@ const Home: React.FC = () => {
       return;
     }
 
+    // Abort previous request if it exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     try {
       setListings((prev) => ({ ...prev, loading: true }));
       
@@ -64,24 +108,26 @@ const Home: React.FC = () => {
         category: {
           mainCategory: selectedCategory,
         },
-        limit: 12,
+        limit: 100, // Increased limit to get more items for client-side filtering
         page: 1,
         sortBy: "createdAt",
         sortOrder: "desc",
-        preview: true,
-        forceRefresh: Date.now().toString() // Force API to bypass cache
+        preview: true
       };
 
-      const response = await listingsAPI.getAll(params);
+      const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
 
-      if (!response.success) {
+      if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
       const allListings = response.data.listings || [];
       
+      // Cache the results
+      listingsCache.current[selectedCategory] = allListings;
+
       const popularListings = [...allListings]
-        .sort((a, b) => (b.savedBy?.length ?? 0) - (a.savedBy?.length ?? 0))
+        .sort((a, b) => ((b as ExtendedListing).savedBy?.length ?? 0) - ((a as ExtendedListing).savedBy?.length ?? 0))
         .slice(0, 4);
 
       setListings({
@@ -90,25 +136,63 @@ const Home: React.FC = () => {
         loading: false,
         error: null
       });
-    } catch (error) {
-      console.error("Error fetching listings:", error);
-      setListings((prev) => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : "Failed to fetch listings",
-      }));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (
+          error.name === 'AbortError' ||
+          error.message.includes('signal is aborted') ||
+          error.message.includes('The user aborted a request') ||
+          error.message.includes('aborted without reason')
+        ) {
+          return;
+        }
+        console.error("Error fetching listings:", error);
+        setListings((prev) => ({
+          ...prev,
+          loading: false,
+          error: error.message,
+        }));
+      } else {
+        setListings((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Failed to fetch listings",
+        }));
+      }
     }
-  }, [selectedCategory, isServerOnline, t]);
+  }, [selectedCategory, isServerOnline, t, isInitialLoad]);
 
-  // Fetch listings when component mounts
+  // Single effect for fetching listings - only on category change or initial load
   useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
+    if (isServerOnline) {
+      fetchListings();
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
+    }
 
-  // Fetch listings when category changes
-  useEffect(() => {
-    fetchListings();
-  }, [selectedCategory, fetchListings]);
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [isServerOnline, selectedCategory, fetchListings, isInitialLoad]);
+
+  // Memoized filtered listings
+  const filteredListings = useMemo(() => {
+    setIsFiltering(true);
+    const filtered = listings?.all?.filter((listing) => {
+      const matchesCategory = listing.category.mainCategory === selectedCategory;
+      const matchesAction = selectedAction ? listing.listingAction === selectedAction : true;
+      const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
+      const matchesMake = selectedMake ? listing.details.vehicles?.make === selectedMake : true;
+      const matchesModel = selectedModel ? listing.details.vehicles?.model === selectedModel : true;
+      
+      return matchesCategory && matchesAction && matchesSubcategory && matchesMake && matchesModel;
+    });
+    setIsFiltering(false);
+    return filtered;
+  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel]);
 
   // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
@@ -162,10 +246,6 @@ const Home: React.FC = () => {
     [handleSearch]
   );
 
-  const [selectedAction, setSelectedAction] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [allSubcategories, setAllSubcategories] = useState(null);
-
   useEffect(() => {
     const subcategories = Array.from(
       new Set(
@@ -177,21 +257,19 @@ const Home: React.FC = () => {
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
 
-  const filteredListings: ExtendedListing[] = listings?.all?.filter((listing) => {
-    const matchesCategory = listing.category.mainCategory === selectedCategory;
-    const matchesAction = selectedAction ? listing.listingAction === selectedAction : true;
-    const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
-    return matchesCategory && matchesAction && matchesSubcategory;
-  });
+  // Reset filters when category changes
+  useEffect(() => {
+    setSelectedSubcategory(null);
+    setSelectedMake(null);
+    setSelectedModel(null);
+  }, [selectedCategory]);
 
   const toggleFilters = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const renderContent = useCallback(() => {
-    if (listings.loading && !hasAttemptedFetch) {
+    if (listings.loading) {
       return (
         <div className="flex justify-center items-center min-h-[50vh]">
           <LoadingSpinner size="lg" />
@@ -218,6 +296,11 @@ const Home: React.FC = () => {
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
             allSubcategories={allSubcategories}
+            selectedMake={selectedMake}
+            setSelectedMake={setSelectedMake}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            isLoading={isFiltering}
           />
         )}
 
@@ -298,7 +381,7 @@ const Home: React.FC = () => {
         )}
       </>
     );
-  }, [listings, hasAttemptedFetch, isServerOnline, t, fetchListings, filteredListings]);
+  }, [listings, isServerOnline, t, fetchListings, filteredListings, isFilterOpen, isFiltering, selectedAction, selectedSubcategory, selectedMake, selectedModel, allSubcategories]);
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">

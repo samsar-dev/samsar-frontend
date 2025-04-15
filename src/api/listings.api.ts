@@ -149,8 +149,39 @@ interface UserListingsResponse {
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const cache = new Map<string, { data: any; timestamp: number }>();
 
+// Update ListingParams interface
+interface ListingParams {
+  category?: {
+    mainCategory: ListingCategory;
+    subCategory?: VehicleType | PropertyType;
+  };
+  vehicleDetails?: {
+    make?: string;
+    model?: string;
+  };
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  limit?: number;
+  page?: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  location?: string;
+  preview?: boolean;
+  forceRefresh?: boolean;
+}
+
 const getCacheKey = (params: ListingParams, customKey?: string) => {
-  return customKey || JSON.stringify(params);
+  const sortedParams = Object.entries(params)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+    
+  return customKey || JSON.stringify(sortedParams);
 };
 
 const getFromCache = (key: string) => {
@@ -166,14 +197,25 @@ const getFromCache = (key: string) => {
 };
 
 const setInCache = (key: string, data: any) => {
+  // Limit cache size to prevent memory issues
+  if (cache.size > 100) {
+    const oldestKey = Array.from(cache.entries())
+      .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0][0];
+    cache.delete(oldestKey);
+  }
+  
   cache.set(key, { data, timestamp: Date.now() });
 };
 
 export const listingsAPI = {
-  async getAll(params: ListingParams, signal?: AbortSignal, customCacheKey?: string): Promise<APIResponse<ListingsResponse>> {
-    const cacheKey = getCacheKey(params, customCacheKey);
+  async getAll(params: ListingParams, signal?: AbortSignal): Promise<APIResponse<ListingsResponse>> {
+    const cacheKey = getCacheKey(params);
     const cached = getFromCache(cacheKey);
-    if (cached) return { success: true, data: cached };
+    
+    // Return cached data if available and not forcing refresh
+    if (cached && !params.forceRefresh) {
+      return { success: true, data: cached };
+    }
 
     try {
       const queryParams = new URLSearchParams();
@@ -186,15 +228,21 @@ export const listingsAPI = {
         queryParams.append("subCategory", params.category.subCategory);
       }
 
+      // Add vehicle details if present
+      if (params.vehicleDetails?.make) {
+        queryParams.append("make", params.vehicleDetails.make);
+      }
+      if (params.vehicleDetails?.model) {
+        queryParams.append("model", params.vehicleDetails.model);
+      }
+
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
       if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.page) queryParams.append("page", params.page.toString());
       if (params.search) queryParams.append("search", params.search);
-      if (params.minPrice)
-        queryParams.append("minPrice", params.minPrice.toString());
-      if (params.maxPrice)
-        queryParams.append("maxPrice", params.maxPrice.toString());
+      if (params.minPrice) queryParams.append("minPrice", params.minPrice.toString());
+      if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice.toString());
       if (params.location) queryParams.append("location", params.location);
 
       const response = await fetch(`${API_URL}/listings?${queryParams}`, {
@@ -229,23 +277,26 @@ export const listingsAPI = {
         limit: data.data?.limit || 10,
       };
       
-      setInCache(cacheKey, responseData);
+      // Only cache successful responses
+      if (data.success) {
+        setInCache(cacheKey, responseData);
+      }
+
       return {
         success: true,
         data: responseData,
         error: undefined,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       // Don't log aborted request errors
-      if (error.name !== 'AbortError') {
+      if (error instanceof Error && error.name !== 'AbortError') {
         console.error("Error fetching listings:", error);
       }
       
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error ? error.message : "Failed to fetch listings",
+        error: error instanceof Error ? error.message : "Failed to fetch listings",
       };
     }
   },

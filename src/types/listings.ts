@@ -231,3 +231,25 @@ export interface FormState
 }
 
 export type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";
+
+export interface ListingParams {
+  category: {
+    mainCategory: ListingCategory;
+    subCategory?: string;
+  };
+  vehicleDetails?: {
+    make?: string;
+    model?: string;
+  };
+  limit?: number;
+  page?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  preview?: boolean;
+  forceRefresh?: string;
+}
+
+// Extended listing interface to include savedBy
+export interface ExtendedListing extends Listing {
+  savedBy?: Array<{ id: string }>;
+}
