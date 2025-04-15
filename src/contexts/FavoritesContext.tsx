@@ -10,6 +10,14 @@ import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 
+// Define the favorite item type
+interface FavoriteItem {
+  id: string;
+  userId: string;
+  itemId: string;
+  createdAt: string;
+}
+
 export interface FavoritesContextType {
   favorites: string[];
   isLoading: boolean;
@@ -37,9 +45,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       setIsLoading(true);
-      const response = await listingsAPI.getFavorites();
+      const response = await listingsAPI.getSavedListings();
       if (response.success && response.data?.favorites) {
-        setFavorites(response.data.favorites.map((fav) => fav.id));
+        setFavorites(response.data.favorites.map((fav: FavoriteItem) => fav.id));
       } else {
         setFavorites([]);
       }
@@ -60,11 +68,19 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
         setFavorites((prev) => [...prev, itemId]);
         toast.success("Added to favorites");
       }
-      return response;
+      return {
+        success: response.success,
+        data: undefined,
+        error: response.error
+      };
     } catch (error) {
       console.error("Error adding favorite:", error);
       toast.error("Failed to add to favorites");
-      return { success: false, error: "Failed to add to favorites" };
+      return { 
+        success: false, 
+        data: undefined,
+        error: "Failed to add to favorites" 
+      };
     } finally {
       setIsLoading(false);
     }
@@ -78,11 +94,19 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
         setFavorites((prev) => prev.filter((id) => id !== itemId));
         toast.success("Removed from favorites");
       }
-      return response;
+      return {
+        success: response.success,
+        data: undefined,
+        error: response.error
+      };
     } catch (error) {
       console.error("Error removing favorite:", error);
       toast.error("Failed to remove from favorites");
-      return { success: false, error: "Failed to remove from favorites" };
+      return { 
+        success: false, 
+        data: undefined,
+        error: "Failed to remove from favorites" 
+      };
     } finally {
       setIsLoading(false);
     }

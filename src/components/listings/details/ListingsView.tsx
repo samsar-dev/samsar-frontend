@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { clsx } from "clsx";
 import type {
    ListingCategory,
-   ListingWithRelations,
+   Listing,
    VehicleDetails,
    RealEstateDetails,
 } from "@/types/listings";
@@ -17,7 +17,7 @@ export type ListingViewType = "grid" | "list" | "card" | "saved" | "compact";
 
 export interface ListingComponentProps extends BaseComponentProps {
    viewType?: ListingViewType;
-   listings: (ListingWithRelations & {
+   listings: (Listing & {
       vehicleDetails?: VehicleDetails;
       realEstateDetails?: RealEstateDetails;
    })[];
@@ -27,10 +27,10 @@ export interface ListingComponentProps extends BaseComponentProps {
    showPrice?: boolean;
    showDate?: boolean;
    showLocation?: boolean;
-   onEdit?: (listing: ListingWithRelations) => void;
+   onEdit?: (listing: Listing) => void;
    onDelete?: (listingId: string) => void;
-   onSave?: (listing: ListingWithRelations) => void;
-   onListingClick?: (listing: ListingWithRelations) => void;
+   onSave?: (listing: Listing) => void;
+   onListingClick?: (listing: Listing) => void;
 }
 
 export const ListingComponent: React.FC<ListingComponentProps> = ({
@@ -50,20 +50,18 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
 }) => {
    const { t } = useTranslation();
    const { user } = useAuth();
-   const { listings: hookListings, isLoading, error } = useListings();
-   const { savedListings, addToSaved, removeFromSaved, isSaved } =
-      useSavedListings();
+   const { listings: hookListings, loading: isLoading, error } = useListings();
+   const { savedListings, addToSaved, removeFromSaved, isSaved } = useSavedListings();
 
    const listings = useMemo(
-      () =>
-         propListings || (viewType === "saved" ? savedListings : hookListings),
+      () => propListings || (viewType === "saved" ? savedListings : hookListings),
       [propListings, viewType, savedListings, hookListings]
    );
 
    const filteredListings = useMemo(
       () =>
          category
-            ? listings.filter((listing) => listing.mainCategory === category)
+            ? listings.filter((listing) => listing.category.mainCategory === category)
             : listings,
       [category, listings]
    );
@@ -78,7 +76,7 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
       return clsx(baseClass, columnClasses[gridColumns]);
    }, [gridColumns]);
 
-   const handleSave = (listing: ListingWithRelations) => {
+   const handleSave = (listing: Listing) => {
       const isCurrentlySaved = isSaved(listing.id);
       if (isCurrentlySaved) {
          removeFromSaved(listing.id);
@@ -88,7 +86,7 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
       onSave?.(listing);
    };
 
-   const handleListingClick = (listing: ListingWithRelations) => {
+   const handleListingClick = (listing: Listing) => {
       onListingClick?.(listing);
    };
 
@@ -113,47 +111,40 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
    }
 
    const ListingCard: React.FC<{
-      listing: ListingWithRelations & {
+      listing: Listing & {
          vehicleDetails?: VehicleDetails;
          realEstateDetails?: RealEstateDetails;
       };
-   }> = ({ listing }) => {
+      showSaveButton?: boolean;
+      showPrice?: boolean;
+      showLocation?: boolean;
+   }> = ({ listing, showSaveButton = false, showPrice = true, showLocation = true }) => {
       const renderDetails = () => {
-         if (listing.mainCategory === "VEHICLES" && listing.vehicleDetails) {
+         if (listing.category.mainCategory === "vehicles" && listing.vehicleDetails) {
             const { vehicleDetails } = listing;
             return (
                <div className="space-y-1 text-sm">
                   <p className="font-medium">
-                     {vehicleDetails.year} {vehicleDetails.make}{" "}
-                     {vehicleDetails.model}
+                     {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
                   </p>
                   <div className="text-gray-600 dark:text-gray-400">
                      {vehicleDetails.mileage && (
-                        <span className="mr-2">
-                           {vehicleDetails.mileage} km
-                        </span>
+                        <span className="mr-2">{vehicleDetails.mileage} km</span>
                      )}
                      {vehicleDetails.transmissionType && (
                         <span className="mr-2">
-                           {t(
-                              `enums.transmission.${vehicleDetails.transmissionType}`
-                           )}
+                           {t(`enums.transmission.${vehicleDetails.transmissionType}`)}
                         </span>
                      )}
                      {vehicleDetails.fuelType && (
-                        <span>
-                           {t(`enums.fuel.${vehicleDetails.fuelType}`)}
-                        </span>
+                        <span>{t(`enums.fuel.${vehicleDetails.fuelType}`)}</span>
                      )}
                   </div>
                </div>
             );
          }
 
-         if (
-            listing.mainCategory === "REAL_ESTATE" &&
-            listing.realEstateDetails
-         ) {
+         if (listing.category.mainCategory === "realEstate" && listing.realEstateDetails) {
             const { realEstateDetails } = listing;
             return (
                <div className="space-y-1 text-sm">
@@ -162,17 +153,14 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
                   </p>
                   <div className="text-gray-600 dark:text-gray-400">
                      {realEstateDetails.size && (
-                        <span className="mr-2">
-                           {realEstateDetails.size} m²
+                        <span className="mr-2">{realEstateDetails.size} m²</span>
+                     )}
+                     {realEstateDetails.bedrooms && realEstateDetails.bathrooms && (
+                        <span>
+                           {realEstateDetails.bedrooms} {t("common.beds")} •{" "}
+                           {realEstateDetails.bathrooms} {t("common.baths")}
                         </span>
                      )}
-                     {realEstateDetails.bedrooms &&
-                        realEstateDetails.bathrooms && (
-                           <span>
-                              {realEstateDetails.bedrooms} {t("common.beds")} •{" "}
-                              {realEstateDetails.bathrooms} {t("common.baths")}
-                           </span>
-                        )}
                   </div>
                </div>
             );
@@ -200,7 +188,7 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
                />
                <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                   <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-                     {t(`categories.vehicles.${listing.subCategory}`)}
+                     {t(`categories.vehicles.${listing.category.subCategory}`)}
                   </span>
                   {listing.listingAction === "rent" && (
                      <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
@@ -229,56 +217,21 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
                      {listing.location}
                   </p>
                )}
-               {showDate && (
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                     {new Date(listing.createdAt).toLocaleDateString()}
-                  </p>
-               )}
-
-               {/* Actions */}
-               {showActions && (
-                  <div className="mt-4 flex justify-end space-x-2">
-                     {onEdit && user?.id === listing.userId && (
-                        <button
-                           onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(listing);
-                           }}
-                           className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md"
-                        >
-                           {t("common.edit")}
-                        </button>
+               {showSaveButton && (
+                  <button
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        handleSave(listing);
+                     }}
+                     className={clsx(
+                        "px-3 py-1 text-sm rounded-md",
+                        isSaved(listing.id)
+                           ? "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
                      )}
-                     {onDelete && user?.id === listing.userId && (
-                        <button
-                           onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(listing.id);
-                           }}
-                           className="px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
-                        >
-                           {t("common.delete")}
-                        </button>
-                     )}
-                     {onSave && (
-                        <button
-                           onClick={(e) => {
-                              e.stopPropagation();
-                              handleSave(listing);
-                           }}
-                           className={clsx(
-                              "px-3 py-1 text-sm rounded-md",
-                              isSaved(listing.id)
-                                 ? "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
-                           )}
-                        >
-                           {isSaved(listing.id)
-                              ? t("common.saved")
-                              : t("common.save")}
-                        </button>
-                     )}
-                  </div>
+                  >
+                     {isSaved(listing.id) ? t("common.saved") : t("common.save")}
+                  </button>
                )}
             </div>
          </div>
@@ -288,13 +241,25 @@ export const ListingComponent: React.FC<ListingComponentProps> = ({
    return viewType === "grid" ? (
       <div className={clsx(gridStyles, className)}>
          {filteredListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard
+               key={listing.id}
+               listing={listing}
+               showSaveButton={true}
+               showPrice={true}
+               showLocation={true}
+            />
          ))}
       </div>
    ) : (
       <div className={clsx("space-y-4", className)}>
          {filteredListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard
+               key={listing.id}
+               listing={listing}
+               showSaveButton={true}
+               showPrice={true}
+               showLocation={true}
+            />
          ))}
       </div>
    );

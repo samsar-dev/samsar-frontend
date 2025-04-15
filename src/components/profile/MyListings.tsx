@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { listingsAPI } from "@/api/listings.api";
 import type { Listing } from "@/types/listings";
@@ -29,14 +29,44 @@ export default function MyListings({ userId }: MyListingsProps) {
    const [total, setTotal] = useState(0);
    const limit = 10;
 
+   // Track if we've already attempted to fetch listings
+   const hasAttemptedFetch = useRef(false);
+   
+   // Reference to store abort controller
+   const abortControllerRef = useRef<AbortController | null>(null);
+   
+   // Keep track of active request ID
+   const activeRequestId = useRef<number | null>(null);
+
    // Memoize the fetchListings function to prevent unnecessary re-renders
    const fetchListings = useCallback(async () => {
       if (!isAuthenticated || !isInitialized) return;
-
+      
       try {
+         // Create a unique request ID to track the latest request
+         const requestId = Date.now();
+         activeRequestId.current = requestId;
+         
+         // Abort previous request if it exists
+         if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+         }
+         
+         // Create new abort controller
+         const controller = new AbortController();
+         abortControllerRef.current = controller;
+         const signal = controller.signal;
+         
          setIsLoading(true);
          setError(null);
-         const response = await listingsAPI.getUserListings({ page, limit });
+         
+         const response = await listingsAPI.getUserListings(
+            { page, limit }, 
+            signal
+         );
+         
+         // Cancel if this is not the latest request
+         if (activeRequestId.current !== requestId) return;
 
          if (response.success && response.data) {
             const listingsData = response.data.listings || [];
@@ -51,7 +81,10 @@ export default function MyListings({ userId }: MyListingsProps) {
          } else {
             throw new Error(response.error || "Failed to fetch listings");
          }
-      } catch (err) {
+      } catch (err: any) {
+         // Don't handle aborted request errors
+         if (err.name === 'AbortError') return;
+         
          console.error("Fetch Error:", err);
          setError(
             err instanceof Error ? err.message : "Failed to fetch listings"
@@ -64,7 +97,7 @@ export default function MyListings({ userId }: MyListingsProps) {
       } finally {
          setIsLoading(false);
       }
-   }, [page, limit]);
+   }, [page, limit, isAuthenticated, isInitialized]);
 
    // Use a stable reference for the effect
    const handleLoadMore = useCallback(() => {
@@ -83,12 +116,27 @@ export default function MyListings({ userId }: MyListingsProps) {
       }
    }, [isAuthenticated, isAuthLoading, isInitialized, navigate, t, location]);
 
-   // Fetch listings only when auth state is ready
+   // Single effect to handle all fetching of listings
    useEffect(() => {
+      // Only fetch if authenticated and initialized
       if (isAuthenticated && isInitialized) {
-         fetchListings();
+         // For initial load, mark as attempted
+         if (!hasAttemptedFetch.current) {
+            hasAttemptedFetch.current = true;
+         }
+         // Only fetch if it's the first page (initial load) or beyond (pagination)
+         if (page === 1 || hasAttemptedFetch.current) {
+            fetchListings();
+         }
       }
-   }, [isAuthenticated, isInitialized, fetchListings]);
+      
+      // Cleanup function to abort any pending requests when component unmounts
+      return () => {
+         if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+         }
+      };
+   }, [isAuthenticated, isInitialized, page, fetchListings]);
 
    const handleDelete = async (listingId: string) => {
       try {
@@ -126,15 +174,6 @@ export default function MyListings({ userId }: MyListingsProps) {
       }
 
       if (!isLoading && listings.length === 0 && total === 0) {
-         console.log("Rendering no listings:", {
-            isLoading,
-            listingsLength: listings.length,
-            total,
-            page,
-            isAuthenticated,
-            isAuthLoading,
-            isInitialized,
-         });
          return (
             <div className="text-center py-4">{t("listings.no_listings")}</div>
          );
@@ -177,8 +216,6 @@ export default function MyListings({ userId }: MyListingsProps) {
       error,
       listings,
       total,
-      isAuthenticated,
-      isInitialized,
       t,
       handleDelete,
       handleLoadMore,

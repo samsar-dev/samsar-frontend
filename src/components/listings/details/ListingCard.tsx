@@ -9,9 +9,10 @@ import type {
 } from "@/types/listings";
 import { ListingCategory } from "@/types/enums";
 import { motion } from "framer-motion";
-import { MdFavoriteBorder } from "react-icons/md";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
+import { useState, useEffect } from "react";
 
 export interface ListingCardProps {
   listing: Listing & {
@@ -40,6 +41,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showDate = false,
 }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
+
   const {
     id,
     title,
@@ -51,10 +55,34 @@ const ListingCard: React.FC<ListingCardProps> = ({
     listingAction,
     vehicleDetails,
     realEstateDetails,
-    favorites,
   } = listing;
 
-  const user = useAuth().user;
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (id && user) {
+        try {
+          const response = await listingsAPI.getSavedListings();
+          if (response.success && response.data) {
+            // Handle different potential response structures
+            const favorites = response.data.favorites || 
+                            response.data.items || 
+                            (Array.isArray(response.data) ? response.data : []);
+            
+            // Check if this listing is among saved listings
+            setIsFavorite(favorites.some((fav: any) => {
+              // Different possible structures to check
+              const favId = fav.id || fav.listingId || (fav.item && fav.item.id);
+              const itemId = fav.itemId || (fav.item && fav.item.id);
+              return favId === id || itemId === id;
+            }));
+          }
+        } catch (error) {
+          console.error('Error checking favorite status:', error);
+        }
+      }
+    };
+    checkFavoriteStatus();
+  }, [id, user]);
 
   const firstImage =
     Array.isArray(images) && images.length > 0
@@ -63,11 +91,29 @@ const ListingCard: React.FC<ListingCardProps> = ({
         : "/placeholder.jpg"
       : "/placeholder.jpg";
 
-  const renderFavoriteButton = async () => {
-    await listingsAPI.saveListing({
-      userId: user?.id as string,
-      listingId: id as string,
-    });
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!id || !user) {
+      console.error('Cannot save favorite: No listing ID or user not logged in');
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await listingsAPI.removeFavorite(id);
+      } else {
+        await listingsAPI.saveListing(id);
+      }
+      setIsFavorite(!isFavorite);
+      // Trigger a refresh of the saved listings context
+      if (window.location.pathname === '/saved-listings') {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const renderDetails = () => {
@@ -114,7 +160,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group relative"
     >
       <Link to={`/listings/${id}`} className="block">
         <div className="relative pt-[75%] overflow-hidden">
@@ -137,6 +183,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
               </span>
             )}
           </div>
+          {showSaveButton && user && (
+            <div className="absolute top-2 right-2">
+              <button
+                onClick={handleFavoriteClick}
+                className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
+                  isFavorite 
+                    ? "bg-red-500 text-white hover:bg-red-600" 
+                    : "bg-white text-gray-600 hover:text-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                }`}
+              >
+                {isFavorite ? (
+                  <MdFavorite className="w-6 h-6" />
+                ) : (
+                  <MdFavoriteBorder className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          )}
         </div>
         <div className="relative p-4">
           <h3 className="text-lg font-semibold mb-2 pr-8 truncate">{title}</h3>
@@ -157,20 +221,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
               {new Date(createdAt as string).toLocaleDateString()}
             </p>
           )}
-          {
-            <div className="absolute bottom-2 right-2 translate-x-28 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  renderFavoriteButton();
-                }}
-                className="p-2 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-full dark:border-gray-700 hover:text-blue-700 hover:bg-blue-600/50 hover:border-blue-600/30 dark:hover:border-blue-600/20 dark:hover:text-blue-400 transition-colors duration-300"
-              >
-                <MdFavoriteBorder className="w-5 h-5" />
-              </button>
-            </div>
-          }
         </div>
       </Link>
       {showActions && (

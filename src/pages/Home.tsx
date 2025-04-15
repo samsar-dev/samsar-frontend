@@ -164,8 +164,8 @@ const Home: React.FC = () => {
     (listing) => listing.category.mainCategory === selectedCategory
   );
 
-  // Cleanup debounced function
-  useEffect(() => {
+   // Cleanup debounced function
+   useEffect(() => {
     return () => {
       debouncedSearch.cancel();
     };
@@ -193,7 +193,9 @@ const Home: React.FC = () => {
               key={listing.id}
               listing={listing}
               showActions={false}
-              showSaveButton={false}
+              showSaveButton={true}
+              showPrice={true}
+              showLocation={true}
             />
           ))}
           {listings.all.length === 0 && listings.error && (
@@ -245,7 +247,9 @@ const Home: React.FC = () => {
                   key={listing.id}
                   listing={listing}
                   showActions={false}
-                  showSaveButton={false}
+                  showSaveButton={true}
+                  showPrice={true}
+                  showLocation={true}
                 />
               ))}
             </motion.div>

@@ -4,10 +4,12 @@ import React, {
    useState,
    useCallback,
    useEffect,
+   useRef,
 } from "react";
 import { listingsAPI } from "@/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
+import { Listing } from "@/types/listings";
 
 interface SavedListingsState {
    savedListings: string[];
@@ -46,17 +48,24 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
       error: null,
       lastUpdated: null,
    });
+   
+   // Use a ref to track if a refresh is in progress
+   const isRefreshing = useRef(false);
+   // Use a ref to store the abort controller
+   const abortControllerRef = useRef<AbortController | null>(null);
 
    const { user, isAuthenticated } = useAuth();
 
    const isSaved = useCallback(
       (id: string): boolean => {
+         if (!id) return false;
          return state.savedListings.includes(id);
       },
       [state.savedListings]
    );
 
    const addToSaved = useCallback((id: string): void => {
+      if (!id) return;
       setState((prev) => ({
          ...prev,
          savedListings: [...prev.savedListings, id],
@@ -64,6 +73,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
    }, []);
 
    const removeFromSaved = useCallback((id: string): void => {
+      if (!id) return;
       setState((prev) => ({
          ...prev,
          savedListings: prev.savedListings.filter((savedId) => savedId !== id),
@@ -72,6 +82,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
 
    const toggleSaved = useCallback(
       (id: string): void => {
+         if (!id) return;
          if (isSaved(id)) {
             removeFromSaved(id);
          } else {
@@ -91,16 +102,29 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
 
    const refresh = useCallback(async (): Promise<void> => {
       if (!isAuthenticated || !user?.id) return;
+      
+      // If already refreshing, don't start another refresh
+      if (isRefreshing.current) return;
+      
+      // Cancel any in-progress request
+      if (abortControllerRef.current) {
+         abortControllerRef.current.abort();
+      }
+      
+      // Create a new abort controller
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      isRefreshing.current = true;
 
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-         const response = await listingsAPI.getSavedListings(user.id);
+         const response = await listingsAPI.getSavedListings(user.id, controller.signal);
          if (response.success && response.data?.items) {
             setState((prev) => ({
                ...prev,
                savedListings: response.data.items
-                  .map((listing) => listing.id)
-                  .filter((id): id is string => id !== undefined),
+                  .map((listing: { id?: string }) => listing.id)
+                  .filter((id: string | undefined): id is string => id !== undefined),
                isLoading: false,
                lastUpdated: new Date(),
             }));
@@ -109,7 +133,10 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
                response.message || "Failed to fetch saved listings"
             );
          }
-      } catch (error) {
+      } catch (error: unknown) {
+         // Don't update state if the request was aborted
+         if (error instanceof Error && error.name === "AbortError") return;
+         
          setState((prev) => ({
             ...prev,
             isLoading: false,
@@ -119,16 +146,27 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
                   : "Failed to fetch saved listings",
          }));
          toast.error("Failed to fetch saved listings");
+      } finally {
+         isRefreshing.current = false;
+         abortControllerRef.current = null;
       }
    }, [isAuthenticated, user?.id]);
 
    useEffect(() => {
-      if (isAuthenticated && user?.id) {
+      // Only fetch if we're authenticated and haven't yet fetched
+      if (isAuthenticated && user?.id && !state.lastUpdated && !state.isLoading) {
          refresh();
-      } else {
+      } else if (!isAuthenticated) {
          clearSaved();
       }
-   }, [isAuthenticated, user?.id, refresh, clearSaved]);
+      
+      // Cleanup when the component unmounts
+      return () => {
+         if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+         }
+      };
+   }, [isAuthenticated, user?.id, refresh, clearSaved, state.lastUpdated, state.isLoading]);
 
    const value: SavedListingsContextType = {
       ...state,

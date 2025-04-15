@@ -12,11 +12,9 @@ import {
   Condition,
   VehicleType,
   PropertyType,
-  ListingAction,
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
-import { api } from ".";
 
 interface FavoriteItem {
   id: string;
@@ -147,12 +145,12 @@ interface UserListingsResponse {
   hasMore: boolean;
 }
 
-// Cache implementation
+// Improve cache implementation
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const cache = new Map<string, { data: any; timestamp: number }>();
 
-const getCacheKey = (params: ListingParams) => {
-  return JSON.stringify(params);
+const getCacheKey = (params: ListingParams, customKey?: string) => {
+  return customKey || JSON.stringify(params);
 };
 
 const getFromCache = (key: string) => {
@@ -172,8 +170,8 @@ const setInCache = (key: string, data: any) => {
 };
 
 export const listingsAPI = {
-  async getAll(params: ListingParams): Promise<APIResponse<ListingsResponse>> {
-    const cacheKey = getCacheKey(params);
+  async getAll(params: ListingParams, signal?: AbortSignal, customCacheKey?: string): Promise<APIResponse<ListingsResponse>> {
+    const cacheKey = getCacheKey(params, customCacheKey);
     const cached = getFromCache(cacheKey);
     if (cached) return { success: true, data: cached };
 
@@ -181,11 +179,11 @@ export const listingsAPI = {
       const queryParams = new URLSearchParams();
 
       // Add category filters if present
-      if (params.mainCategory) {
-        queryParams.append("mainCategory", params.mainCategory);
+      if (params.category?.mainCategory) {
+        queryParams.append("mainCategory", params.category.mainCategory);
       }
-      if (params.subCategory) {
-        queryParams.append("subCategory", params.subCategory);
+      if (params.category?.subCategory) {
+        queryParams.append("subCategory", params.category.subCategory);
       }
 
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
@@ -204,6 +202,7 @@ export const listingsAPI = {
         headers: {
           "Content-Type": "application/json",
         },
+        signal, // Pass abort signal to fetch
       });
 
       if (!response.ok) {
@@ -221,19 +220,27 @@ export const listingsAPI = {
       } catch (e) {
         throw new Error("Invalid response from server");
       }
-      setInCache(cacheKey, data);
+      
+      // Make sure data contains the necessary fields
+      const responseData = {
+        listings: data.data?.items || data.data?.listings || [],
+        total: data.data?.total || 0,
+        page: data.data?.page || 1,
+        limit: data.data?.limit || 10,
+      };
+      
+      setInCache(cacheKey, responseData);
       return {
         success: true,
-        data: {
-          listings: data.data?.items || [],
-          total: data.data?.total || 0,
-          page: data.data?.page || 1,
-          limit: data.data?.limit || 10,
-        },
+        data: responseData,
         error: undefined,
       };
     } catch (error) {
-      console.error("Error fetching listings:", error);
+      // Don't log aborted request errors
+      if (error.name !== 'AbortError') {
+        console.error("Error fetching listings:", error);
+      }
+      
       return {
         success: false,
         data: null,
@@ -333,32 +340,64 @@ export const listingsAPI = {
     }
   },
 
-  // Save a listing as favorite
-  async saveListing(saveListingData: { userId: string, listingId: string }): Promise<APIResponse<Listing>> {
-    try {
-      const response = await apiClient.post(`/listings/save`, saveListingData);
+// Save a listing as favorite
+async saveListing(listingId: string): Promise<APIResponse<Listing>> {
+  try {
+    // Ensure listingId is a string
+    const id = String(listingId);
+    
+    const response = await apiClient.post(`/listings/saved/${id}`);
 
-      if (!response.data.success) {
-        throw new Error(response.data.error?.message || "Failed to save listing");
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to save listing");
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error saving listing:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to save listing"
+    );
+  }
+},
+
+  // Get favorites with abort signal support
+  async getSavedListings(userId?: string, signal?: AbortSignal): Promise<APIResponse<any>> {
+    const cacheKey = `saved-listings-${userId || 'current'}`;
+    const cached = getFromCache(cacheKey);
+    if (cached) return { success: true, data: cached };
+    
+    try {
+      const response = await apiClient.get('/listings/saved', { signal });
+      
+      if (response.data.success && response.data.data) {
+        setInCache(cacheKey, response.data.data);
       }
+      
       return response.data;
     } catch (error) {
-      console.error("Error saving listing:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to save listing"
-      );
+      // Don't log aborted request errors
+      if (error.name !== 'AbortError') {
+        console.error("Error fetching saved listings:", error);
+      }
+      
+      return {
+        success: false,
+        data: null,
+        error: error instanceof Error ? error.message : "Failed to fetch saved listings",
+      };
     }
   },
 
-  // Remove a listing from favorites
-  async unsaveListing(id: string): Promise<APIResponse<Listing>> {
+  // Add favorite
+  async addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>> {
     try {
-      const response = await fetch(`${API_URL}/listings/${id}/unsave`, {
+      const response = await fetch(`${API_URL}/listings/saved`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ listingId }),
       });
 
       if (!response.ok) {
@@ -373,35 +412,47 @@ export const listingsAPI = {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error unsaving listing:", error);
+      console.error("Error adding favorite:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to unsave listing"
+        error instanceof Error ? error.message : "Failed to add favorite"
       );
     }
   },
 
-  // Get listings by user
-  async getUserListings(params?: ListingParams): Promise<APIResponse<UserListingsResponse>> {
+  // Remove favorite
+  async removeFavorite(listingId: string): Promise<APIResponse<void>> {
+    try {
+      const response = await apiClient.delete<APIResponse<void>>(`/listings/saved/${listingId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to remove favorite"
+      );
+    }
+  },
+
+  // Get user listings with abort signal support
+  async getUserListings(params?: ListingParams, signal?: AbortSignal): Promise<APIResponse<UserListingsResponse>> {
     try {
       const queryString = params
         ? new URLSearchParams(params as any).toString()
         : "";
-      console.log('Fetching user listings with params:', { params, queryString });
+      
+      const requestConfig = signal ? { signal } : {};
       
       const response = await apiClient.get<APIResponse<UserListingsResponse>>(
-        `/listings/user${queryString ? `?${queryString}` : ""}`
+        `/listings/user${queryString ? `?${queryString}` : ""}`,
+        requestConfig
       );
-
-      console.log('User listings API response:', {
-        success: response.data.success,
-        total: response.data.data?.total,
-        listings: response.data.data?.listings?.length,
-        page: response.data.data?.page
-      });
 
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching user listings:", error);
+      // Don't log aborted request errors
+      if (error.name !== 'AbortError') {
+        console.error("Error fetching user listings:", error);
+      }
+      
       return {
         success: false,
         data: null,
@@ -491,7 +542,7 @@ export const listingsAPI = {
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction === 'SELL' ? ListingAction.SELL : ListingAction.RENT,
+        listingAction: responseData.listingAction === 'SELL' ? "SELL" : "RENT",
         seller: {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",
@@ -791,85 +842,32 @@ export const listingsAPI = {
     }
   },
 
-  // Get favorites
-  async getFavorites(): Promise<APIResponse<FavoritesResponse>> {
+  // Get user's favorite listings
+  async getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>> {
     try {
-      const response =
-        await apiClient.get<APIResponse<FavoritesResponse>>(
-          `/listings/save`
-        );
-
-      return {
-        success: true,
-        data: response.data.data,
-        error: undefined,
-      };
+      const queryParams = new URLSearchParams();
+      if (userId) queryParams.append("userId", userId);
+      
+      const response = await apiClient.get<APIResponse<FavoritesResponse>>(
+        `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ''}`,
+      );
+      
+      return response.data;
     } catch (error: any) {
-      console.error("Error fetching favorites:", error);
+      if (error?.response?.status === 401) {
+        return {
+          success: false,
+          data: null,
+          error: "Please log in to view favorites"
+        };
+      }
+      
+      console.error("Error fetching favorite listings:", error);
       return {
         success: false,
         data: null,
-        error:
-          error.response?.data?.error?.message || "Failed to fetch favorites",
+        error: error?.response?.data?.error || "Failed to fetch favorite listings"
       };
-    }
-  },
-
-  // Add favorite
-  async addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>> {
-    try {
-      const response = await fetch(`${API_URL}/favorites`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ listingId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error adding favorite:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to add favorite"
-      );
-    }
-  },
-
-  // Remove favorite
-  async removeFavorite(listingId: string): Promise<APIResponse<void>> {
-    try {
-      const response = await fetch(`${API_URL}/favorites/${listingId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error removing favorite:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to remove favorite"
-      );
     }
   },
 };
