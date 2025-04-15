@@ -1,5 +1,6 @@
 import { listingsAPI } from "@/api/listings.api";
 import ListingCard from "@/components/listings/details/ListingCard";
+import ListingFilters from "@/components/filters/ListingFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { ListingCategory } from "@/types/enums";
@@ -14,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCar, FaHome } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { MdFilterList } from "react-icons/md";
 
 // Extended listing interface to include savedBy
 interface ExtendedListing extends Listing {
@@ -160,16 +162,33 @@ const Home: React.FC = () => {
     [handleSearch]
   );
 
-  const filteredListings: ExtendedListing[] = listings?.all?.filter(
-    (listing) => listing.category.mainCategory === selectedCategory
-  );
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [allSubcategories, setAllSubcategories] = useState(null);
 
-   // Cleanup debounced function
-   useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+  useEffect(() => {
+    const subcategories = Array.from(
+      new Set(
+        listings.all
+          .filter((l) => l.category.mainCategory === selectedCategory)
+          .map((l) => l.category.subCategory)
+      )
+    );
+    setAllSubcategories(subcategories);
+  }, [listings.all, selectedCategory]);
+
+  const filteredListings: ExtendedListing[] = listings?.all?.filter((listing) => {
+    const matchesCategory = listing.category.mainCategory === selectedCategory;
+    const matchesAction = selectedAction ? listing.listingAction === selectedAction : true;
+    const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
+    return matchesCategory && matchesAction && matchesSubcategory;
+  });
+
+  const toggleFilters = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const renderContent = useCallback(() => {
     if (listings.loading && !hasAttemptedFetch) {
@@ -182,6 +201,26 @@ const Home: React.FC = () => {
 
     return (
       <>
+        <div className="flex items-center justify-between mb-6">
+          <button 
+            onClick={toggleFilters}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          >
+            <MdFilterList className="w-5 h-5" />
+            <span className="text-sm">{t("Filters")}</span>
+          </button>
+        </div>
+
+        {isFilterOpen && (
+          <ListingFilters
+            selectedAction={selectedAction}
+            setSelectedAction={setSelectedAction}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
+            allSubcategories={allSubcategories}
+          />
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -259,11 +298,13 @@ const Home: React.FC = () => {
         )}
       </>
     );
-  }, [listings, hasAttemptedFetch, isServerOnline, t, fetchListings]);
+  }, [listings, hasAttemptedFetch, isServerOnline, t, fetchListings, filteredListings]);
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-20">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-10 md:py-12 min-h-[20vh] sm:min-h-[22vh] lg:min-h-[25vh]">
+
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
