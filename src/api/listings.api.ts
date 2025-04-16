@@ -151,6 +151,7 @@ const cache = new Map<string, { data: any; timestamp: number }>();
 
 // Update ListingParams interface
 interface ListingParams {
+  year?: number;
   category?: {
     mainCategory: ListingCategory;
     subCategory?: VehicleType | PropertyType;
@@ -167,6 +168,7 @@ interface ListingParams {
   minPrice?: number;
   maxPrice?: number;
   location?: string;
+  builtYear?: number;
   preview?: boolean;
   forceRefresh?: boolean;
 }
@@ -228,6 +230,11 @@ export const listingsAPI = {
         queryParams.append("subCategory", params.category.subCategory);
       }
 
+      // Add year filter if present
+      if (params.year !== undefined && params.year !== null) {
+        queryParams.append("year", params.year.toString());
+      }
+
       // Add vehicle details if present
       if (params.vehicleDetails?.make) {
         queryParams.append("make", params.vehicleDetails.make);
@@ -244,6 +251,9 @@ export const listingsAPI = {
       if (params.minPrice) queryParams.append("minPrice", params.minPrice.toString());
       if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice.toString());
       if (params.location) queryParams.append("location", params.location);
+      if (params.builtYear !== undefined && params.builtYear !== null) {
+        queryParams.append("builtYear", params.builtYear.toString());
+      }
 
       const response = await fetch(`${API_URL}/listings?${queryParams}`, {
         credentials: "include",

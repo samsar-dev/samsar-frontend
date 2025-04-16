@@ -8,6 +8,7 @@ import { VehicleType } from "@/types/enums";
 import { getMakesForType, getModelsForMakeAndType } from "@/components/listings/data/vehicleModels";
 
 interface ListingFiltersProps {
+  selectedCategory: string;
   selectedAction: "SELL" | "RENT" | null;
   setSelectedAction: (value: "SELL" | "RENT" | null) => void;
   selectedSubcategory: string | null;
@@ -17,6 +18,12 @@ interface ListingFiltersProps {
   setSelectedMake: (value: string | null) => void;
   selectedModel: string | null;
   setSelectedModel: (value: string | null) => void;
+  selectedYear: string | null;
+  setSelectedYear: (value: string | null) => void;
+  selectedLocation: string | null;
+  setSelectedLocation: (value: string | null) => void;
+  selectedBuiltYear: string | null;
+  setSelectedBuiltYear: (value: string | null) => void;
   isLoading?: boolean;
   sortBy: string;
   setSortBy: (value: string) => void;
@@ -59,6 +66,7 @@ const SubcategoryLabels: { [key: string]: string } = {
 };
 
 const ListingFilters: React.FC<ListingFiltersProps> = ({
+  selectedCategory,
   selectedAction,
   setSelectedAction,
   selectedSubcategory,
@@ -68,10 +76,18 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   setSelectedMake,
   selectedModel,
   setSelectedModel,
+  selectedYear,
+  setSelectedYear,
+  selectedLocation,
+  setSelectedLocation,
+  selectedBuiltYear,
+  setSelectedBuiltYear,
   isLoading = false,
   sortBy,
   setSortBy,
 }) => {
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) => (currentYear - i).toString());
   const { t } = useTranslation();
   const [localLoading, setLocalLoading] = useState(false);
 
@@ -231,6 +247,57 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           </Listbox>
         </div>
 
+        {/* Location Filter - Available for both vehicle and real estate */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t("filters.location")}
+          </label>
+          <select
+            name="location"
+            value={selectedLocation || ""}
+            onChange={e => setSelectedLocation(e.target.value || null)}
+            className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={localLoading}
+          >
+            <option value="">All Cities</option>
+            <option value="DAMASCUS">Damascus</option>
+            <option value="ALEPPO">Aleppo</option>
+            <option value="HOMS">Homs</option>
+            <option value="LATTAKIA">Latakia</option>
+            <option value="HAMA">Hama</option>
+            <option value="DEIR_EZZOR">Deir Ezzor</option>
+            <option value="HASEKEH">Hasekeh</option>
+            <option value="QAMISHLI">Qamishli</option>
+            <option value="RAQQA">Raqqa</option>
+            <option value="TARTOUS">Tartous</option>
+            <option value="IDLIB">Idlib</option>
+            <option value="DARA">Dara</option>
+            <option value="SWEDIA">Swedia</option>
+            <option value="QUNEITRA">Quneitra</option>
+          </select>
+        </div>
+
+        {/* Built Year Filter - Only for Real Estate */}
+        {selectedCategory === ListingCategory.REAL_ESTATE && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("filters.built_year")}
+            </label>
+            <select
+              name="builtYear"
+              value={selectedBuiltYear || ""}
+              onChange={e => setSelectedBuiltYear(e.target.value || null)}
+              className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              disabled={localLoading}
+            >
+              <option value="">Any</option>
+              <option value="2023">2023 and newer</option>
+              <option value="2010">2010 and newer</option>
+              <option value="2000">Before 2000</option>
+            </select>
+          </div>
+        )}
+
         {/* Make Filter - Only show for vehicle categories */}
         {isVehicleCategory(selectedSubcategory) && availableMakes.length > 0 && (
           <div className="space-y-2">
@@ -276,6 +343,81 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+        )}
+
+        {/* Year Filter - Show for VEHICLES category */}
+        {(selectedCategory === ListingCategory.VEHICLES || isVehicleCategory(selectedSubcategory)) && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("filters.year")}
+            </label>
+            <Listbox 
+              value={selectedYear || ""} 
+              onChange={setSelectedYear}
+              disabled={localLoading}
+            >
+              <div className="relative">
+                <Listbox.Button className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  localLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}>
+                  <span className="truncate">
+                    {selectedYear || t("filters.all_years")}
+                  </span>
+                </Listbox.Button>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+                    <Listbox.Option
+                      value=""
+                      className={({ active }) =>
+                        `${
+                          active
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300'
+                            : 'text-gray-900 dark:text-gray-100'
+                        }
+                        cursor-default select-none relative py-2 pl-3 pr-9`
+                      }
+                    >
+                      {t("filters.all_years")}
+                    </Listbox.Option>
+                    {yearOptions.map((year) => (
+                      <Listbox.Option
+                        key={year}
+                        value={year}
+                        className={({ active }) =>
+                          `${
+                            active
+                              ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300'
+                              : 'text-gray-900 dark:text-gray-100'
+                          }
+                          cursor-default select-none relative py-2 pl-3 pr-9`
+                        }
+                      >
+                        {({ selected }) => (
+                          <div className="flex items-center">
+                            <span className="truncate">{year}</span>
+                            {selected && (
+                              <span
+                                className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
+                                  selectedAction === "SELL" ? "text-blue-600" : "text-green-600"
+                                }`}
+                              >
+                                <MdCheck className="w-5 h-5" />
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </Listbox>
           </div>
         )}
       </div>

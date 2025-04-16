@@ -32,6 +32,7 @@ interface ListingParams {
   sortOrder?: 'asc' | 'desc';
   limit?: number;
   page?: number;
+  year?: number;
   search?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -51,7 +52,6 @@ const Home: React.FC = () => {
   // ...existing code...
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const { t } = useTranslation();
-  const abortControllerRef = useRef<AbortController>();
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     (localStorage.getItem("selectedCategory") as ListingCategory) ||
       ListingCategory.VEHICLES
@@ -66,12 +66,22 @@ const Home: React.FC = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const abortControllerRef = useRef<AbortController>(new AbortController());
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current.abort();
+    };
+  }, []);
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(null);
   const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -106,11 +116,59 @@ const Home: React.FC = () => {
           );
       }
 
+      // Apply filters
+      let filteredListings = sortedListings.filter(listing => {
+        if (selectedCategory === ListingCategory.VEHICLES) {
+          // Vehicle filtering
+          if (selectedYear && listing.details?.vehicles?.year) {
+            if (parseInt(listing.details.vehicles.year) !== parseInt(selectedYear)) return false;
+          }
+          if (selectedSubcategory && listing.details?.vehicles?.vehicleType) {
+            if (listing.details.vehicles.vehicleType !== selectedSubcategory) return false;
+          }
+          if (selectedMake && listing.details?.vehicles?.make) {
+            if (listing.details.vehicles.make !== selectedMake) return false;
+          }
+          if (selectedModel && listing.details?.vehicles?.model) {
+            if (listing.details.vehicles.model !== selectedModel) return false;
+          }
+        } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
+          // Real estate filtering
+          if (selectedSubcategory && listing.details?.realEstate?.propertyType) {
+            if (listing.details.realEstate.propertyType !== selectedSubcategory) return false;
+          }
+          if (selectedBuiltYear && listing.details?.realEstate?.yearBuilt) {
+            // Built year filter: "2023 and newer", "2010 and newer", "Before 2000"
+            const builtYear = parseInt(listing.details.realEstate.yearBuilt);
+            const filterYear = parseInt(selectedBuiltYear);
+            if (selectedBuiltYear === '2000') {
+              // Before 2000
+              if (builtYear >= 2000) return false;
+            } else if (!isNaN(filterYear)) {
+              // e.g. 2023 and newer, 2010 and newer
+              if (builtYear < filterYear) return false;
+            }
+          }
+        }
+        // Location filter for both categories
+        if (selectedLocation && listing.location) {
+          // Accept both uppercase and lowercase for legacy data
+          const listingLocUpper = listing.location.toUpperCase();
+          const selectedLocUpper = selectedLocation.toUpperCase();
+          const listingLocLower = listing.location.toLowerCase();
+          const selectedLocLower = selectedLocation.toLowerCase();
+          if (
+            listingLocUpper !== selectedLocUpper &&
+            listingLocLower !== selectedLocLower
+          ) return false;
+        }
+        return true;
+      });
+
       setListings(prev => ({
         ...prev,
-        all: sortedListings,
+        all: filteredListings,
         loading: false,
-        error: null
       }));
       return;
     }
@@ -124,34 +182,26 @@ const Home: React.FC = () => {
       return;
     }
 
-    // Abort previous request if it exists
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
-
     try {
-      setListings((prev) => ({ ...prev, loading: true }));
+      setListings(prev => ({ ...prev, loading: true }));
       
+      // Only create new abort controller if we need to abort the current request
+      if (abortControllerRef.current.signal.aborted) {
+        abortControllerRef.current = new AbortController();
+      }
+
       const params: ListingParams = {
         category: {
           mainCategory: selectedCategory,
+          ...(selectedSubcategory && { subCategory: selectedSubcategory as VehicleType | PropertyType }),
         },
-        limit: 100, // Increased limit to get more items for client-side filtering
-        page: 1,
-        sortBy: 
-          sortBy === "locationAsc" || sortBy === "locationDesc" 
-            ? "location" 
-            : sortBy === "priceAsc" || sortBy === "priceDesc"
-            ? "price"
-            : "createdAt",
-        sortOrder:
-          sortBy === "priceAsc" || sortBy === "locationAsc"
-            ? "asc"
-            : sortBy === "priceDesc" || sortBy === "locationDesc"
-            ? "desc"
-            : "desc",
-        preview: true
+        ...(selectedMake && { make: selectedMake }),
+        ...(selectedModel && { model: selectedModel }),
+        ...(selectedYear && { year: parseInt(selectedYear) }), // Convert string year to number
+        ...(selectedLocation && { location: selectedLocation }),
+        ...(selectedBuiltYear && { builtYear: parseInt(selectedBuiltYear) }),
+        sortBy,
+        sortOrder: sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
       };
 
       const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
@@ -160,46 +210,26 @@ const Home: React.FC = () => {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
-      const allListings = response.data.listings || [];
-      
       // Cache the results
-      listingsCache.current[selectedCategory] = allListings;
+      listingsCache.current[selectedCategory] = response.data.listings;
 
-      const popularListings = [...allListings]
-        .sort((a, b) => ((b as ExtendedListing).savedBy?.length ?? 0) - ((a as ExtendedListing).savedBy?.length ?? 0))
-        .slice(0, 4);
-
-      setListings({
-        all: allListings,
-        popular: popularListings,
+      setListings(prev => ({
+        ...prev,
+        all: response.data.listings,
         loading: false,
-        error: null
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (
-          error.name === 'AbortError' ||
-          error.message.includes('signal is aborted') ||
-          error.message.includes('The user aborted a request') ||
-          error.message.includes('aborted without reason')
-        ) {
-          return;
-        }
-        console.error("Error fetching listings:", error);
-        setListings((prev) => ({
-          ...prev,
-          loading: false,
-          error: error.message,
-        }));
-      } else {
-        setListings((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Failed to fetch listings",
-        }));
+      }));
+    } catch (error) {
+      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
+        return;
       }
+      console.error("Error fetching listings:", error);
+      setListings(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "Failed to fetch listings",
+        loading: false,
+      }));
     }
-  }, [selectedCategory, sortBy, isInitialLoad, isServerOnline, t]);
+  }, [selectedCategory, selectedSubcategory, selectedMake, selectedModel, selectedYear, selectedLocation, selectedBuiltYear, sortBy, isInitialLoad, isServerOnline, t]);
 
   // Single effect for fetching listings - only on category change or initial load
   useEffect(() => {
@@ -211,9 +241,7 @@ const Home: React.FC = () => {
     }
 
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      // No need to abort here, it's handled in the fetchListings function
     };
   }, [isServerOnline, selectedCategory, fetchListings, isInitialLoad]);
 
@@ -224,14 +252,23 @@ const Home: React.FC = () => {
       const matchesCategory = listing.category.mainCategory === selectedCategory;
       const matchesAction = selectedAction ? listing.listingAction === selectedAction : true;
       const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
+      
+      // Vehicle-specific filters
       const matchesMake = selectedMake ? listing.details.vehicles?.make === selectedMake : true;
       const matchesModel = selectedModel ? listing.details.vehicles?.model === selectedModel : true;
+      const matchesYear = selectedYear ? listing.details.vehicles?.year === parseInt(selectedYear) : true;
       
-      return matchesCategory && matchesAction && matchesSubcategory && matchesMake && matchesModel;
+      // Real estate-specific filters
+      const matchesLocation = selectedLocation ? listing.location.toLowerCase() === selectedLocation.toLowerCase() : true;
+      const matchesBuiltYear = selectedBuiltYear ? listing.details.realEstate?.yearBuilt === selectedBuiltYear : true;
+      
+      return matchesCategory && matchesAction && matchesSubcategory && 
+             ((selectedCategory === ListingCategory.VEHICLES && matchesMake && matchesModel && matchesYear) ||
+              (selectedCategory === ListingCategory.REAL_ESTATE && matchesLocation && matchesBuiltYear));
     });
     setIsFiltering(false);
     return filtered;
-  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel]);
+  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel, selectedYear]);
 
   // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
@@ -301,6 +338,8 @@ const Home: React.FC = () => {
     setSelectedSubcategory(null);
     setSelectedMake(null);
     setSelectedModel(null);
+    setSelectedLocation(null);
+    setSelectedBuiltYear(null);
   }, [selectedCategory]);
 
   const toggleFilters = () => {
@@ -371,8 +410,7 @@ const Home: React.FC = () => {
 
         {isFilterOpen && (
           <ListingFilters
-            sortBy={sortBy}
-            setSortBy={setSortBy}
+            selectedCategory={selectedCategory}
             selectedAction={selectedAction}
             setSelectedAction={setSelectedAction}
             selectedSubcategory={selectedSubcategory}
@@ -382,7 +420,15 @@ const Home: React.FC = () => {
             setSelectedMake={setSelectedMake}
             selectedModel={selectedModel}
             setSelectedModel={setSelectedModel}
-            isLoading={isFiltering}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            selectedBuiltYear={selectedBuiltYear}
+            setSelectedBuiltYear={setSelectedBuiltYear}
+            isLoading={listings.loading}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
           />
         )}
 

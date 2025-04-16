@@ -26,7 +26,7 @@ import {
   FaSearch
 } from "react-icons/fa";
 import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
-import FormField from "@/components/common/FormField";
+import FormField, { FormFieldValue } from "@/components/common/FormField";
 import {
   Car,
   Home,
@@ -944,8 +944,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     { value: 'DAMASCUS', label: t('cities.DAMASCUS') },
     { value: 'ALEPPO', label: t('cities.ALEPPO') },
     { value: 'HOMS', label: t('cities.HOMS') },
-    { value: 'HAMA', label: t('cities.HAMA') },
     { value: 'LATTAKIA', label: t('cities.LATTAKIA') },
+    { value: 'HAMA', label: t('cities.HAMA') },
     { value: 'DEIR_EZZOR', label: t('cities.DEIR_EZZOR') },
     { value: 'HASEKEH', label: t('cities.HASEKEH') },
     { value: 'QAMISHLI', label: t('cities.QAMISHLI') },
@@ -956,6 +956,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     { value: 'SWEDIA', label: t('cities.SWEDIA') },
     { value: 'QUNEITRA', label: t('cities.QUNEITRA') },
   ];
+
+  const handleLocationChange = (selected: any) => {
+    handleInputChange('location', selected?.value || '');
+  };
 
   const renderLocationField = () => {
     return (
@@ -970,7 +974,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
           </div>
           <Select
             value={syrianCities.find(city => city.value === formData.location)}
-            onChange={(selected: any) => handleInputChange('location', selected?.value || '')}
+            onChange={handleLocationChange}
             options={syrianCities}
             className="react-select-container"
             classNamePrefix="react-select"
