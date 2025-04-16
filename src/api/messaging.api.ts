@@ -12,6 +12,18 @@ export class MessagesAPI {
   private static readonly BASE_PATH = "/messages";
   private static readonly CONVERSATIONS_PATH = "/messages/conversations";
 
+  static async getConversations(
+    params?: PaginationParams,
+  ): Promise<APIResponse<PaginatedData<ConversationResponse>>> {
+    const response = await apiClient.get(this.CONVERSATIONS_PATH, {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 20,
+      },
+    });
+    return response.data;
+  }
+
   static async getMessages(
     conversationId: string,
     params?: PaginationParams,

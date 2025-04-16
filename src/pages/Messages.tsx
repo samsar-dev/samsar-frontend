@@ -37,11 +37,11 @@ const Messages: React.FC = () => {
         setLoading(true);
         const response = await MessagesAPI.getConversations();
         if (response.success && response.data) {
-          const conversationList = response.data.items || [];
-          setConversations(conversationList);
-          if (conversationList.length > 0) {
-            setActiveConversation(conversationList[0]);
-            await loadMessages(conversationList[0]._id);
+          const conversations = response.data.items || [];
+          setConversations(conversations);
+          if (conversations.length > 0) {
+            setActiveConversation(conversations[0]);
+            await loadMessages(conversations[0]._id);
           }
         }
       } catch (error) {

@@ -21,7 +21,7 @@ export interface Message {
 }
 
 export interface Conversation {
-  id: string;
+  _id: string;
   participants: User[];
   lastMessage?: Message;
   createdAt: string;
@@ -64,9 +64,12 @@ export interface MessagesResponse extends Omit<APIResponse<Message[]>, "data"> {
   data: Message[] | null;
 }
 
-export interface ConversationResponse
-  extends Omit<APIResponse<Conversation>, "data"> {
-  data: ({ id: string } & Conversation) | null;
+export interface ConversationResponse {
+  _id: string;
+  participants: User[];
+  lastMessage?: Message;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ConversationsResponse
