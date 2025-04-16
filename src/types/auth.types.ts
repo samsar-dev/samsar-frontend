@@ -1,9 +1,9 @@
-export type AuthErrorCode = 
-  | "INVALID_CREDENTIALS" 
-  | "ACCOUNT_DISABLED" 
-  | "EMAIL_NOT_VERIFIED" 
-  | "NETWORK_ERROR" 
-  | "UNKNOWN" 
+export type AuthErrorCode =
+  | "INVALID_CREDENTIALS"
+  | "ACCOUNT_DISABLED"
+  | "EMAIL_NOT_VERIFIED"
+  | "NETWORK_ERROR"
+  | "UNKNOWN"
   | "VALIDATION_ERROR"
   | "USER_EXISTS"
   | "REGISTRATION_ERROR"
@@ -62,7 +62,11 @@ export interface AuthState {
 export interface AuthContextType extends AuthState {
   isInitialized: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (username: string, email: string, password: string) => Promise<boolean>;
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
   updateAuthUser: (userData: AuthUser) => void;

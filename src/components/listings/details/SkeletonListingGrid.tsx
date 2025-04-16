@@ -1,8 +1,8 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 const SkeletonListingCard = () => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.5 }}
@@ -16,7 +16,7 @@ const SkeletonListingCard = () => (
 );
 
 export const SkeletonListingGrid = ({ count = 8 }: { count?: number }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.5 }}

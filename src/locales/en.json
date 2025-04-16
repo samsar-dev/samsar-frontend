@@ -440,50 +440,46 @@
       "outdoor": "Outdoor",
       "security": "Security"
     },
-  "cities": {
-    "DAMASCUS": "Damascus",
-    "ALEPPO": "Aleppo",
-    "HOMS": "Homs",
-    "HAMA": "Hama",
-    "LATTAKIA": "Lattakia",
-    "DEIR_EZZOR": "Deir Ezzor",
-    "HASEKEH": "Hasakeh",
-    "QAMISHLI": "Qamishli",
-    "RAQQA": "Raqqa",
-    "TARTOUS": "Tartous",
-    "IDLIB": "Idlib",
-    "DARA": "Daraa",
-    "SWEDIA": "Swedia",
-    "QUNEITRA": "Quneitra",
-  "types": {
-    "car": "Car",
-    "motorcycle": "Motorcycle",
-    "van": "Van",
-    "bus": "Bus",
-    "tractor": "Tractor",
-    "truck": "Truck",
-    "rv": "RV",
+    "cities": {
+      "DAMASCUS": "Damascus",
+      "ALEPPO": "Aleppo",
+      "HOMS": "Homs",
+      "HAMA": "Hama",
+      "LATTAKIA": "Lattakia",
+      "DEIR_EZZOR": "Deir Ezzor",
+      "HASEKEH": "Hasakeh",
+      "QAMISHLI": "Qamishli",
+      "RAQQA": "Raqqa",
+      "TARTOUS": "Tartous",
+      "IDLIB": "Idlib",
+      "DARA": "Daraa",
+      "SWEDIA": "Swedia",
+      "QUNEITRA": "Quneitra",
+      "types": {
+        "car": "Car",
+        "motorcycle": "Motorcycle",
+        "van": "Van",
+        "bus": "Bus",
+        "tractor": "Tractor",
+        "truck": "Truck",
+        "rv": "RV",
 
-    "construction": "Construction",
-    "other": "Other",
-    "house": "House",
-    "apartment": "Apartment",
-    "condo": "Condo",
-    "land": "Land",
-    "commercial": "Commercial"
-  },
-  "filters": {
-  "sort_by": "Sort by",
-  "newest": "Newest",
-  "price_low_high": "Price: Low to High",
-  "price_high_low": "Price: High to Low",
-  "location_a_z": "Location: A to Z",
-  "location_z_a": "Location: Z to A"
-}
-
+        "construction": "Construction",
+        "other": "Other",
+        "house": "House",
+        "apartment": "Apartment",
+        "condo": "Condo",
+        "land": "Land",
+        "commercial": "Commercial"
+      },
+      "filters": {
+        "sort_by": "Sort by",
+        "newest": "Newest",
+        "price_low_high": "Price: Low to High",
+        "price_high_low": "Price: High to Low",
+        "location_a_z": "Location: A to Z",
+        "location_z_a": "Location: Z to A"
+      }
+    }
   }
 }
-}
-
-
-

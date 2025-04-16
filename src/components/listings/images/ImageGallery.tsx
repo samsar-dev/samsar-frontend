@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 
 interface ImageGalleryProps {
   images?: (string | File)[];
@@ -9,36 +9,36 @@ interface ImageGalleryProps {
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
-  console.log('ImageGallery received images:', images);
+  console.log("ImageGallery received images:", images);
 
   const imageUrls = images
-    .filter(image => {
-      console.log('Filtering image:', image);
+    .filter((image) => {
+      console.log("Filtering image:", image);
       return image !== null && image !== undefined;
     })
-    .map(image => {
-      console.log('Processing image:', image);
-      if (typeof image === 'string') {
-        console.log('Image is string URL:', image);
+    .map((image) => {
+      console.log("Processing image:", image);
+      if (typeof image === "string") {
+        console.log("Image is string URL:", image);
         return image;
       }
       if (image instanceof File) {
-        console.log('Image is File object');
+        console.log("Image is File object");
         return URL.createObjectURL(image);
       }
-      if (image && typeof image === 'object' && 'url' in image) {
-        console.log('Image is object with url:', image.url);
+      if (image && typeof image === "object" && "url" in image) {
+        console.log("Image is object with url:", image.url);
         return image.url;
       }
-      console.log('Invalid image format:', image);
-      return '';
+      console.log("Invalid image format:", image);
+      return "";
     })
-    .filter(url => {
-      console.log('Filtering URL:', url);
+    .filter((url) => {
+      console.log("Filtering URL:", url);
       return Boolean(url);
     });
 
-  console.log('Final processed imageUrls:', imageUrls);
+  console.log("Final processed imageUrls:", imageUrls);
 
   useEffect(() => {
     if (selectedImage !== null && selectedImage >= imageUrls.length) {
@@ -47,14 +47,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   }, [imageUrls.length, selectedImage]);
 
   const handlePrevious = () => {
-    setSelectedImage(current => 
-      current === null || current === 0 ? imageUrls.length - 1 : current - 1
+    setSelectedImage((current) =>
+      current === null || current === 0 ? imageUrls.length - 1 : current - 1,
     );
   };
 
   const handleNext = () => {
-    setSelectedImage(current => 
-      current === null || current === imageUrls.length - 1 ? 0 : current + 1
+    setSelectedImage((current) =>
+      current === null || current === imageUrls.length - 1 ? 0 : current + 1,
     );
   };
 
@@ -103,7 +103,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
               >
                 <FaTimes size={24} />
               </button>
-              
+
               <button
                 className="absolute left-4 text-white hover:text-gray-300 z-10"
                 onClick={(e) => {

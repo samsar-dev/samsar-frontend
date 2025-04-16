@@ -1,8 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification } from "@/types";
@@ -35,7 +31,7 @@ export default function NotificationBell({
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
         setUnreadCount(
-          response.data.items.filter((n: Notification) => !n.read).length
+          response.data.items.filter((n: Notification) => !n.read).length,
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
@@ -63,8 +59,7 @@ export default function NotificationBell({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -80,8 +75,8 @@ export default function NotificationBell({
         if (response.success) {
           setNotifications((prev) =>
             prev.map((n) =>
-              n.id === notification.id ? { ...n, read: true } : n
-            )
+              n.id === notification.id ? { ...n, read: true } : n,
+            ),
           );
           setUnreadCount((prev) => Math.max(0, prev - 1));
         } else if (response.error) {
@@ -151,9 +146,7 @@ export default function NotificationBell({
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-2 hover:bg-background-secondary dark:hover:bg-background-secondary-dark rounded-md cursor-pointer ${
-                      !notification.read
-                        ? "bg-blue-50 dark:bg-blue-900/20"
-                        : ""
+                      !notification.read ? "bg-blue-50 dark:bg-blue-900/20" : ""
                     }`}
                   >
                     <div className="flex items-start">

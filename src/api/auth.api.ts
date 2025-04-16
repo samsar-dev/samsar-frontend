@@ -20,7 +20,7 @@ class AuthAPI {
     requestFn: () => Promise<T>,
     retries = MAX_RETRIES,
     delay = RETRY_DELAY,
-    skip429Retry = false
+    skip429Retry = false,
   ): Promise<T> {
     try {
       return await requestFn();
@@ -41,7 +41,12 @@ class AuthAPI {
           }
         }
         await wait(retryAfter);
-        return this.retryRequest(requestFn, retries - 1, delay * 2, skip429Retry);
+        return this.retryRequest(
+          requestFn,
+          retries - 1,
+          delay * 2,
+          skip429Retry,
+        );
       }
       throw error;
     }
@@ -59,7 +64,7 @@ class AuthAPI {
         () => apiClient.post<AuthResponse>("/auth/login", { email, password }),
         MAX_RETRIES,
         RETRY_DELAY,
-        true // skip429Retry = true for login
+        true, // skip429Retry = true for login
       );
 
       if (!response.data) {
@@ -119,7 +124,7 @@ class AuthAPI {
   static async register(
     email: string,
     password: string,
-    name: string
+    name: string,
   ): Promise<AuthResponse> {
     try {
       const response = await this.retryRequest(() =>
@@ -127,7 +132,7 @@ class AuthAPI {
           email,
           password,
           name,
-        })
+        }),
       );
 
       if (!response.data) {
@@ -180,7 +185,7 @@ class AuthAPI {
       const response = await this.retryRequest(() =>
         apiClient.post<AuthResponse>("auth/refresh", {
           refreshToken,
-        })
+        }),
       );
 
       if (!response.data) {
@@ -251,7 +256,7 @@ class AuthAPI {
   static async getMe(): Promise<AuthResponse> {
     try {
       const response = await this.retryRequest(() =>
-        apiClient.get<AuthResponse>("auth/me")
+        apiClient.get<AuthResponse>("auth/me"),
       );
 
       if (!response.data) {
@@ -294,7 +299,7 @@ class UserAPI extends AuthAPI {
    * Updates user profile
    */
   static async updateProfile(
-    data: FormData
+    data: FormData,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
@@ -302,8 +307,10 @@ class UserAPI extends AuthAPI {
           "users/profile",
           data,
           // Ensure Content-Type is not set so browser/axios sets multipart/form-data
-          data instanceof FormData ? { headers: { 'Content-Type': undefined } } : undefined
-        )
+          data instanceof FormData
+            ? { headers: { "Content-Type": undefined } }
+            : undefined,
+        ),
       );
       return response.data;
     } catch (error: any) {
@@ -321,11 +328,11 @@ class UserAPI extends AuthAPI {
    * Gets a user's profile
    */
   static async getProfile(
-    userId: string
+    userId: string,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await axios.get<{ success: boolean; data: AuthUser }>(
-        `${API_URL_PROD}/users/public-profile/${userId}`
+        `${API_URL_PROD}/users/public-profile/${userId}`,
       );
       return response.data;
     } catch (error: any) {
@@ -343,14 +350,14 @@ class UserAPI extends AuthAPI {
    * Updates user settings
    */
   static async updateSettings(
-    settings: Record<string, any>
+    settings: Record<string, any>,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
         apiClient.put<{ success: boolean; data: AuthUser }>(
           "users/settings",
-          settings
-        )
+          settings,
+        ),
       );
       return response.data;
     } catch (error: any) {

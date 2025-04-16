@@ -68,10 +68,10 @@ export const motorcycleModels: VehicleDataStructure = {
 export const getAllMakes = (): string[] => {
   const makes = new Set<string>();
   if (motorcycleModels.regular) {
-    Object.keys(motorcycleModels.regular).forEach(make => makes.add(make));
+    Object.keys(motorcycleModels.regular).forEach((make) => makes.add(make));
   }
   if (motorcycleModels.electric) {
-    Object.keys(motorcycleModels.electric).forEach(make => makes.add(make));
+    Object.keys(motorcycleModels.electric).forEach((make) => makes.add(make));
   }
   return Array.from(makes);
 };

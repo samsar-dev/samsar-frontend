@@ -9,7 +9,11 @@ import {
   TransmissionType,
   Condition,
 } from "@/types/enums";
-import type { FormState, RealEstateDetails, VehicleDetails } from "@/types/listings";
+import type {
+  FormState,
+  RealEstateDetails,
+  VehicleDetails,
+} from "@/types/listings";
 import {
   FaCar,
   FaMotorcycle,
@@ -23,7 +27,7 @@ import {
   FaAlignLeft,
   FaCarAlt,
   FaHome,
-  FaSearch
+  FaSearch,
 } from "react-icons/fa";
 import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
 import FormField, { FormFieldValue } from "@/components/common/FormField";
@@ -36,8 +40,8 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
-import Select from 'react-select';
+} from "lucide-react";
+import Select from "react-select";
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -52,7 +56,7 @@ interface ExtendedVehicleDetails extends VehicleDetails {
   year: string;
 }
 
-interface ExtendedFormState extends Omit<FormState, 'details'> {
+interface ExtendedFormState extends Omit<FormState, "details"> {
   details: {
     vehicles?: ExtendedVehicleDetails;
     realEstate?: RealEstateDetails;
@@ -64,27 +68,30 @@ interface BasicDetailsFormProps {
   onSubmit: (data: ExtendedFormState, isValid: boolean) => void;
 }
 
-const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubmit }) => {
+const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
+  initialData,
+  onSubmit,
+}) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<ExtendedFormState>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     price: 0,
     category: {
       mainCategory: ListingCategory.VEHICLES,
-      subCategory: VehicleType.CAR
+      subCategory: VehicleType.CAR,
     },
-    location: '',
+    location: "",
     details: {
       vehicles: {
         vehicleType: VehicleType.CAR,
-        make: '',
-        model: '',
-        year: new Date().getFullYear().toString()
-      }
+        make: "",
+        model: "",
+        year: new Date().getFullYear().toString(),
+      },
     },
     images: [],
-    ...initialData
+    ...initialData,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -122,8 +129,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
   };
 
   // Generate model options based on selected make
-  const getModelOptions = (make: string): { value: string; label: string }[] => {
-    if (!make || !formData?.category?.mainCategory || formData.category.mainCategory !== ListingCategory.VEHICLES) {
+  const getModelOptions = (
+    make: string,
+  ): { value: string; label: string }[] => {
+    if (
+      !make ||
+      !formData?.category?.mainCategory ||
+      formData.category.mainCategory !== ListingCategory.VEHICLES
+    ) {
       return [];
     }
 
@@ -131,7 +144,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     const models = getModelsForMakeAndType(make, vehicleType);
 
     if (!models || models.length === 0) {
-      console.warn(`No models found for make: ${make} and type: ${vehicleType}`);
+      console.warn(
+        `No models found for make: ${make} and type: ${vehicleType}`,
+      );
       return [];
     }
 
@@ -149,7 +164,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
   };
 
   const handleMakeChange = (value: FormFieldValue) => {
-    const makeStr = typeof value === 'object' && value !== null ? value.value : String(value);
+    const makeStr =
+      typeof value === "object" && value !== null ? value.value : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -157,15 +173,16 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
         vehicles: {
           ...prev.details?.vehicles,
           make: makeStr,
-          model: '', // Reset model when make changes
+          model: "", // Reset model when make changes
           vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
-        } as ExtendedVehicleDetails
-      }
+        } as ExtendedVehicleDetails,
+      },
     }));
   };
 
   const handleModelChange = (value: FormFieldValue) => {
-    const modelStr = typeof value === 'object' && value !== null ? value.value : String(value);
+    const modelStr =
+      typeof value === "object" && value !== null ? value.value : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -174,32 +191,39 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
           ...prev.details?.vehicles,
           model: modelStr,
           vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
-        } as ExtendedVehicleDetails
-      }
+        } as ExtendedVehicleDetails,
+      },
     }));
 
     // Auto-generate title if all fields are filled
-    if (formData.details?.vehicles?.make && modelStr && formData.details.vehicles.year) {
+    if (
+      formData.details?.vehicles?.make &&
+      modelStr &&
+      formData.details.vehicles.year
+    ) {
       const autoTitle = `${formData.details.vehicles.make} ${modelStr} ${formData.details.vehicles.year}`;
       handleInputChange("title", autoTitle);
     }
   };
 
-  const handleInputChange = (path: keyof ExtendedFormState | string, value: string | number) => {
+  const handleInputChange = (
+    path: keyof ExtendedFormState | string,
+    value: string | number,
+  ) => {
     setFormData((prev) => {
       const newState = { ...prev };
-      if (path.includes('.')) {
-        const [parent, child, subChild] = path.split('.');
+      if (path.includes(".")) {
+        const [parent, child, subChild] = path.split(".");
         if (parent && child && parent in newState) {
           const parentObj = newState[parent as keyof ExtendedFormState] as any;
-          if (typeof parentObj === 'object' && parentObj !== null) {
+          if (typeof parentObj === "object" && parentObj !== null) {
             if (!parentObj[child]) {
               parentObj[child] = {};
             }
             if (subChild) {
               parentObj[child] = {
                 ...parentObj[child],
-                [subChild]: value
+                [subChild]: value,
               };
             } else {
               parentObj[child] = value;
@@ -222,7 +246,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     // Mark field as touched
     setTouched((prev) => ({
       ...prev,
-      [path]: true
+      [path]: true,
     }));
   };
 
@@ -325,7 +349,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       console.log(`${validFiles.length} valid files to be added`);
 
       // Update the form data with the new images
-      const newImages = [...formData?.images || [], ...validFiles];
+      const newImages = [...(formData?.images || []), ...validFiles];
       setFormData({
         ...formData,
         images: newImages,
@@ -336,7 +360,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
   // Handle image removal function
   const handleRemoveImage = (index: number) => {
-    const newImages = [...formData?.images || []];
+    const newImages = [...(formData?.images || [])];
     newImages.splice(index, 1);
     setFormData({
       ...formData,
@@ -471,7 +495,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       if (formData.details?.vehicles?.model === "CUSTOM_MODEL") {
         allFieldsTouched["details.vehicles.customModel"] = true;
       }
-    } else if (formData?.category?.mainCategory === ListingCategory.REAL_ESTATE) {
+    } else if (
+      formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
+    ) {
       allFieldsTouched["details.realEstate.propertyType"] = true;
     }
 
@@ -486,19 +512,27 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
       ...formData,
       details: {
         ...formData.details,
-        vehicles: formData?.category?.mainCategory === ListingCategory.VEHICLES ? {
-          ...(formData.details?.vehicles || {}),
-          vehicleType: formData?.category?.subCategory as VehicleType,
-          make: formData.details?.vehicles?.make || '',
-          model: formData.details?.vehicles?.model || '',
-          year: formData.details?.vehicles?.year || ''
-        } : undefined,
-        realEstate: formData?.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
-          ...(formData.details?.realEstate || {}),
-          propertyType: formData?.category?.subCategory as PropertyType,
-        } : undefined
+        vehicles:
+          formData?.category?.mainCategory === ListingCategory.VEHICLES
+            ? {
+                ...(formData.details?.vehicles || {}),
+                vehicleType: formData?.category?.subCategory as VehicleType,
+                make: formData.details?.vehicles?.make || "",
+                model: formData.details?.vehicles?.model || "",
+                year: formData.details?.vehicles?.year || "",
+              }
+            : undefined,
+        realEstate:
+          formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
+            ? {
+                ...(formData.details?.realEstate || {}),
+                propertyType: formData?.category?.subCategory as PropertyType,
+              }
+            : undefined,
       },
-      existingImages: formData?.images?.filter((image: File | string) => typeof image === 'string')
+      existingImages: formData?.images?.filter(
+        (image: File | string) => typeof image === "string",
+      ),
     };
 
     // Call the parent's onSubmit function with prepared data and validation status
@@ -578,10 +612,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
                   type="text"
                   value={formData.details?.vehicles?.model || ""}
                   onChange={(e) => {
-                    handleInputChange(
-                      "details.vehicles.model",
-                      e.target.value,
-                    );
+                    handleInputChange("details.vehicles.model", e.target.value);
 
                     // Update title immediately when custom model changes
                     const make = formData.details?.vehicles?.make || "";
@@ -611,9 +642,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             )}
           </div>
 
-          <div className="md:col-span-1">
-            {renderYearField()}
-          </div>
+          <div className="md:col-span-1">{renderYearField()}</div>
         </div>
       </div>
     );
@@ -668,7 +697,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
   };
 
   const renderYearField = () => {
-    const yearValue = formData.details?.vehicles?.year || new Date().getFullYear().toString();
+    const yearValue =
+      formData.details?.vehicles?.year || new Date().getFullYear().toString();
     const years = getYearOptions();
 
     return (
@@ -680,9 +710,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
         onChange={(value) => {
           const yearStr = value as string;
           handleInputChange("details.vehicles.year", yearStr);
-          
+
           // Auto-generate title if all fields are filled
-          if (formData.details?.vehicles?.make && formData.details?.vehicles?.model) {
+          if (
+            formData.details?.vehicles?.make &&
+            formData.details?.vehicles?.model
+          ) {
             const autoTitle = `${formData.details.vehicles.make} ${formData.details.vehicles.model} ${yearStr}`;
             handleInputChange("title", autoTitle);
           }
@@ -714,10 +747,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             type="text"
             value={customMakeValue}
             onChange={(e) =>
-              handleInputChange(
-                "details.vehicles.customMake",
-                e.target.value,
-              )
+              handleInputChange("details.vehicles.customMake", e.target.value)
             }
             onBlur={() =>
               setTouched((prev) => ({
@@ -795,7 +825,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
     required: boolean = true,
     helpText?: string,
   ) => {
-    const fieldValue = fieldName.split('.').reduce((obj: any, key) => obj?.[key], formData);
+    const fieldValue = fieldName
+      .split(".")
+      .reduce((obj: any, key) => obj?.[key], formData);
     const errorMessage = errors[fieldName];
     const isFieldTouched = touched[fieldName];
 
@@ -811,36 +843,45 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
               {icon}
             </div>
           )}
-          {type === 'select' && options ? (
+          {type === "select" && options ? (
             <Select
-              value={options.find(opt => opt.value === fieldValue)}
-              onChange={(selected: any) => handleInputChange(fieldName, selected?.value || '')}
+              value={options.find((opt) => opt.value === fieldValue)}
+              onChange={(selected: any) =>
+                handleInputChange(fieldName, selected?.value || "")
+              }
               options={options}
               className="react-select-container"
               classNamePrefix="react-select"
               placeholder={placeholder || `Select ${label.toLowerCase()}`}
               isClearable
             />
-          ) : type === 'textarea' ? (
+          ) : type === "textarea" ? (
             <textarea
-              value={fieldValue || ''}
+              value={fieldValue || ""}
               onChange={(e) => handleInputChange(fieldName, e.target.value)}
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                icon ? 'pl-10' : ''
-              } ${errorMessage && isFieldTouched ? 'border-red-500' : ''}`}
+                icon ? "pl-10" : ""
+              } ${errorMessage && isFieldTouched ? "border-red-500" : ""}`}
               placeholder={placeholder}
               rows={4}
             />
           ) : (
             <input
               type={type}
-              value={fieldValue || ''}
-              onChange={(e) => handleInputChange(fieldName, type === 'number' ? parseFloat(e.target.value) : e.target.value)}
+              value={fieldValue || ""}
+              onChange={(e) =>
+                handleInputChange(
+                  fieldName,
+                  type === "number"
+                    ? parseFloat(e.target.value)
+                    : e.target.value,
+                )
+              }
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                icon ? 'pl-10' : ''
-              } ${errorMessage && isFieldTouched ? 'border-red-500' : ''}`}
+                icon ? "pl-10" : ""
+              } ${errorMessage && isFieldTouched ? "border-red-500" : ""}`}
               placeholder={placeholder}
               min={min}
               max={max}
@@ -849,7 +890,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
           )}
         </div>
         {helpText && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helpText}</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {helpText}
+          </p>
         )}
         {errorMessage && isFieldTouched && (
           <p className="mt-1 text-sm text-red-500">{errorMessage}</p>
@@ -881,9 +924,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
               onClick={() =>
                 handleCategoryChange(ListingCategory.VEHICLES, type)
               }
-              aria-pressed={
-                formData?.category?.subCategory === type
-              }
+              aria-pressed={formData?.category?.subCategory === type}
             >
               <FaCarAlt className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
@@ -921,9 +962,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
               onClick={() =>
                 handleCategoryChange(ListingCategory.REAL_ESTATE, type)
               }
-              aria-pressed={
-                formData?.category?.subCategory === type
-              }
+              aria-pressed={formData?.category?.subCategory === type}
             >
               <FaHome className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
@@ -941,31 +980,31 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
 
   // Syrian cities data
   const syrianCities = [
-    { value: 'DAMASCUS', label: t('cities.DAMASCUS') },
-    { value: 'ALEPPO', label: t('cities.ALEPPO') },
-    { value: 'HOMS', label: t('cities.HOMS') },
-    { value: 'LATTAKIA', label: t('cities.LATTAKIA') },
-    { value: 'HAMA', label: t('cities.HAMA') },
-    { value: 'DEIR_EZZOR', label: t('cities.DEIR_EZZOR') },
-    { value: 'HASEKEH', label: t('cities.HASEKEH') },
-    { value: 'QAMISHLI', label: t('cities.QAMISHLI') },
-    { value: 'RAQQA', label: t('cities.RAQQA') },
-    { value: 'TARTOUS', label: t('cities.TARTOUS') },
-    { value: 'IDLIB', label: t('cities.IDLIB') },
-    { value: 'DARA', label: t('cities.DARA') },
-    { value: 'SWEDIA', label: t('cities.SWEDIA') },
-    { value: 'QUNEITRA', label: t('cities.QUNEITRA') },
+    { value: "DAMASCUS", label: t("cities.DAMASCUS") },
+    { value: "ALEPPO", label: t("cities.ALEPPO") },
+    { value: "HOMS", label: t("cities.HOMS") },
+    { value: "LATTAKIA", label: t("cities.LATTAKIA") },
+    { value: "HAMA", label: t("cities.HAMA") },
+    { value: "DEIR_EZZOR", label: t("cities.DEIR_EZZOR") },
+    { value: "HASEKEH", label: t("cities.HASEKEH") },
+    { value: "QAMISHLI", label: t("cities.QAMISHLI") },
+    { value: "RAQQA", label: t("cities.RAQQA") },
+    { value: "TARTOUS", label: t("cities.TARTOUS") },
+    { value: "IDLIB", label: t("cities.IDLIB") },
+    { value: "DARA", label: t("cities.DARA") },
+    { value: "SWEDIA", label: t("cities.SWEDIA") },
+    { value: "QUNEITRA", label: t("cities.QUNEITRA") },
   ];
 
   const handleLocationChange = (selected: any) => {
-    handleInputChange('location', selected?.value || '');
+    handleInputChange("location", selected?.value || "");
   };
 
   const renderLocationField = () => {
     return (
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t('location')}
+          {t("location")}
           <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
@@ -973,37 +1012,47 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             <MapPin className="h-5 w-5 text-gray-400" />
           </div>
           <Select
-            value={syrianCities.find(city => city.value === formData.location)}
+            value={syrianCities.find(
+              (city) => city.value === formData.location,
+            )}
             onChange={handleLocationChange}
             options={syrianCities}
             className="react-select-container"
             classNamePrefix="react-select"
-            placeholder={t('selectLocation')}
+            placeholder={t("selectLocation")}
             isClearable
             styles={{
               control: (baseStyles, state) => ({
                 ...baseStyles,
-                backgroundColor: state.isFocused ? 'var(--blue-50)' : 'var(--gray-50)',
-                borderColor: state.isFocused ? 'var(--blue-500)' : 'var(--gray-300)',
-                borderRadius: '0.5rem',
-                boxShadow: state.isFocused ? '0 0 0 1px var(--blue-500)' : 'none',
-                '&:hover': {
-                  borderColor: state.isFocused ? 'var(--blue-500)' : 'var(--gray-400)',
+                backgroundColor: state.isFocused
+                  ? "var(--blue-50)"
+                  : "var(--gray-50)",
+                borderColor: state.isFocused
+                  ? "var(--blue-500)"
+                  : "var(--gray-300)",
+                borderRadius: "0.5rem",
+                boxShadow: state.isFocused
+                  ? "0 0 0 1px var(--blue-500)"
+                  : "none",
+                "&:hover": {
+                  borderColor: state.isFocused
+                    ? "var(--blue-500)"
+                    : "var(--gray-400)",
                 },
               }),
               menu: (baseStyles) => ({
                 ...baseStyles,
-                backgroundColor: 'var(--white)',
-                borderRadius: '0.5rem',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                backgroundColor: "var(--white)",
+                borderRadius: "0.5rem",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               }),
               option: (baseStyles, { isSelected }) => ({
                 ...baseStyles,
-                backgroundColor: isSelected ? 'var(--blue-50)' : 'var(--white)',
-                color: isSelected ? 'var(--blue-500)' : 'var(--gray-900)',
-                '&:hover': {
-                  backgroundColor: 'var(--blue-50)',
-                  color: 'var(--blue-500)',
+                backgroundColor: isSelected ? "var(--blue-50)" : "var(--white)",
+                color: isSelected ? "var(--blue-500)" : "var(--gray-900)",
+                "&:hover": {
+                  backgroundColor: "var(--blue-50)",
+                  color: "var(--blue-500)",
                 },
               }),
             }}
@@ -1062,12 +1111,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-r-md focus:outline-none focus:z-10 ${
-                  formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
+                  formData?.category?.mainCategory ===
+                  ListingCategory.REAL_ESTATE
                     ? "bg-green-500 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
                 }`}
                 aria-pressed={
-                  formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
+                  formData?.category?.mainCategory ===
+                  ListingCategory.REAL_ESTATE
                 }
               >
                 <BiBuildingHouse className="inline-block mr-2 -mt-1" />
@@ -1098,7 +1149,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             t("titlePlaceholder"),
             undefined,
             undefined,
-            formData.details?.vehicles?.make && formData.details?.vehicles?.model ? t("autoGeneratedFromDetails") : undefined,
+            formData.details?.vehicles?.make &&
+              formData.details?.vehicles?.model
+              ? t("autoGeneratedFromDetails")
+              : undefined,
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}
@@ -1185,47 +1239,49 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
                   {t("uploadedImages")} ({formData?.images?.length || 0})
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {formData?.images?.map((image: File | string, index: number) => (
-                    <div
-                      key={index}
-                      className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden h-24"
-                    >
-                      {image instanceof File ? (
-                        <img
-                          src={URL.createObjectURL(image)}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={image}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                      <button
-                        type="button"
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                        onClick={() => handleRemoveImage(index)}
-                        aria-label={t("removeImage")}
+                  {formData?.images?.map(
+                    (image: File | string, index: number) => (
+                      <div
+                        key={index}
+                        className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden h-24"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
+                        {image instanceof File ? (
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-full object-cover"
                           />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
+                        ) : (
+                          <img
+                            src={image}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                          onClick={() => handleRemoveImage(index)}
+                          aria-label={t("removeImage")}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ),
+                  )}
                 </div>
               </div>
             )}

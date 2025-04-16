@@ -1,6 +1,8 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+export const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+export const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 // Production URLs
 export const API_URL_PROD = import.meta.env.VITE_API_URL_PROD;
@@ -23,5 +25,5 @@ export const DEFAULT_SETTINGS = {
   denseMode: false,
   enableSoundEffects: false,
   toastPosition: "top-right",
-  theme: "light"
+  theme: "light",
 };

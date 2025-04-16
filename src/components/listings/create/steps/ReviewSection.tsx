@@ -21,16 +21,21 @@ import {
   FaHistory,
   FaTag,
 } from "react-icons/fa";
-import { 
+import {
   ChevronLeft,
   AlertCircle,
   DollarSign,
   MapPin,
   Calendar,
-  Tag
-} from 'lucide-react';
-import type { VehicleDetails, RealEstateDetails, ListingFieldSchema, TractorDetails } from '@/types/listings';
-import { listingsAdvancedFieldSchema } from '../advanced/listingsAdvancedFieldSchema';
+  Tag,
+} from "lucide-react";
+import type {
+  VehicleDetails,
+  RealEstateDetails,
+  ListingFieldSchema,
+  TractorDetails,
+} from "@/types/listings";
+import { listingsAdvancedFieldSchema } from "../advanced/listingsAdvancedFieldSchema";
 
 interface ReviewSectionProps {
   formData: FormState;
@@ -57,7 +62,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   error,
 }) => {
   const { t } = useTranslation();
-  const [listingAction, setListingAction] = useState<'SELL' | 'RENT'>('SELL');
+  const [listingAction, setListingAction] = useState<"SELL" | "RENT">("SELL");
   const [errors, setErrors] = useState<string[]>([]);
 
   const validateForm = () => {
@@ -65,49 +70,57 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
     // Basic details validation
     if (!formData.title?.trim()) {
-      newErrors.push(t('errors.titleRequired'));
+      newErrors.push(t("errors.titleRequired"));
     }
     if (!formData.description?.trim()) {
-      newErrors.push(t('errors.descriptionRequired'));
+      newErrors.push(t("errors.descriptionRequired"));
     }
-    
+
     // Price validation
     const price = formData.price;
-    if (price === undefined || price === 0 || (typeof price === 'string' && price === '')) {
-      newErrors.push(t('errors.priceRequired'));
+    if (
+      price === undefined ||
+      price === 0 ||
+      (typeof price === "string" && price === "")
+    ) {
+      newErrors.push(t("errors.priceRequired"));
     } else {
-      const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+      const numericPrice =
+        typeof price === "string" ? parseFloat(price) : price;
       if (isNaN(numericPrice) || numericPrice <= 0) {
-        newErrors.push(t('errors.invalidPrice'));
+        newErrors.push(t("errors.invalidPrice"));
       }
     }
 
     if (!formData.location?.trim()) {
-      newErrors.push(t('errors.locationRequired'));
+      newErrors.push(t("errors.locationRequired"));
     }
     if (!formData.category?.subCategory) {
-      newErrors.push(t('errors.subcategoryRequired'));
+      newErrors.push(t("errors.subcategoryRequired"));
     }
-
-    
 
     // Category-specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
       const vehicleDetails = formData.details?.vehicles;
-      if (!vehicleDetails?.make) newErrors.push(t('errors.makeRequired'));
-      if (!vehicleDetails?.model) newErrors.push(t('errors.modelRequired'));
-      if (!vehicleDetails?.year) newErrors.push(t('errors.yearRequired'));
-      if (!vehicleDetails?.mileage) newErrors.push(t('errors.mileageRequired'));
-      if (!vehicleDetails?.fuelType) newErrors.push(t('errors.fuelTypeRequired'));
-      if (!vehicleDetails?.transmission) newErrors.push(t('errors.transmissionRequired'));
-      if (!vehicleDetails?.color) newErrors.push(t('errors.colorRequired'));
-      if (!vehicleDetails?.condition) newErrors.push(t('errors.conditionRequired'));
+      if (!vehicleDetails?.make) newErrors.push(t("errors.makeRequired"));
+      if (!vehicleDetails?.model) newErrors.push(t("errors.modelRequired"));
+      if (!vehicleDetails?.year) newErrors.push(t("errors.yearRequired"));
+      if (!vehicleDetails?.mileage) newErrors.push(t("errors.mileageRequired"));
+      if (!vehicleDetails?.fuelType)
+        newErrors.push(t("errors.fuelTypeRequired"));
+      if (!vehicleDetails?.transmission)
+        newErrors.push(t("errors.transmissionRequired"));
+      if (!vehicleDetails?.color) newErrors.push(t("errors.colorRequired"));
+      if (!vehicleDetails?.condition)
+        newErrors.push(t("errors.conditionRequired"));
 
       // Additional required fields from schema
       const subcategory = formData.category?.subCategory || VehicleType.CAR;
       const vehicleSchema = listingsAdvancedFieldSchema[subcategory] || [];
-      const requiredVehicleFields = vehicleSchema.filter((field: ListingFieldSchema) => field.required);
-      
+      const requiredVehicleFields = vehicleSchema.filter(
+        (field: ListingFieldSchema) => field.required,
+      );
+
       requiredVehicleFields.forEach((field: ListingFieldSchema) => {
         const value = vehicleDetails?.[field.name as keyof VehicleDetails];
         if (!value && value !== 0) {
@@ -116,19 +129,24 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       });
 
       // Special validation for tractors
-      if (subcategory === 'TRACTOR') {
+      if (subcategory === "TRACTOR") {
         const tractorDetails = vehicleDetails as TractorDetails;
         if (!tractorDetails?.horsepower) {
-          newErrors.push(t('errors.horsepowerRequired'));
+          newErrors.push(t("errors.horsepowerRequired"));
         }
       }
-    } else if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
+    } else if (
+      formData.category?.mainCategory === ListingCategory.REAL_ESTATE
+    ) {
       const realEstateDetails = formData.details?.realEstate;
-      const realEstateSchema = listingsAdvancedFieldSchema['realEstate'] || [];
-      const requiredRealEstateFields = realEstateSchema.filter((field: ListingFieldSchema) => field.required);
-      
+      const realEstateSchema = listingsAdvancedFieldSchema["realEstate"] || [];
+      const requiredRealEstateFields = realEstateSchema.filter(
+        (field: ListingFieldSchema) => field.required,
+      );
+
       requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
-        const value = realEstateDetails?.[field.name as keyof RealEstateDetails];
+        const value =
+          realEstateDetails?.[field.name as keyof RealEstateDetails];
         if (!value) {
           newErrors.push(t(`errors.${field.name}Required`));
         }
@@ -137,7 +155,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
     // Image validation
     if (!formData.images || formData.images.length === 0) {
-      newErrors.push(t('errors.atLeastOneImage'));
+      newErrors.push(t("errors.atLeastOneImage"));
     }
 
     setErrors(newErrors);
@@ -155,63 +173,95 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         ...formData,
         listingAction: listingAction as ListingAction,
         // Ensure all required fields are present
-        title: formData.title || '',
-        description: formData.description || '',
-        price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price || 0,
-        location: formData.location || '',
+        title: formData.title || "",
+        description: formData.description || "",
+        price:
+          typeof formData.price === "string"
+            ? parseFloat(formData.price)
+            : formData.price || 0,
+        location: formData.location || "",
         category: {
-          mainCategory: formData.category?.mainCategory || ListingCategory.VEHICLES,
-          subCategory: formData.category?.subCategory || VehicleType.CAR
+          mainCategory:
+            formData.category?.mainCategory || ListingCategory.VEHICLES,
+          subCategory: formData.category?.subCategory || VehicleType.CAR,
         },
         details: {
-          vehicles: formData.category?.mainCategory === ListingCategory.VEHICLES ? {
-            ...formData.details?.vehicles,
-            vehicleType: formData.details?.vehicles?.vehicleType || VehicleType.CAR,
-            make: formData.details?.vehicles?.make || '',
-            model: formData.details?.vehicles?.model || '',
-            year: formData.details?.vehicles?.year || new Date().getFullYear().toString(),
-            mileage: formData.details?.vehicles?.mileage || '0',
-            fuelType: formData.details?.vehicles?.fuelType || FuelType.GASOLINE,
-            transmission: formData.details?.vehicles?.transmission || TransmissionType.AUTOMATIC,
-            color: formData.details?.vehicles?.color || '',
-            condition: formData.details?.vehicles?.condition || Condition.GOOD,
-            features: formData.details?.vehicles?.features || [],
-            interiorColor: formData.details?.vehicles?.interiorColor || '',
-            warranty: formData.details?.vehicles?.warranty || '',
-            serviceHistory: formData.details?.vehicles?.serviceHistory || '',
-            previousOwners: formData.details?.vehicles?.previousOwners || 0,
-            registrationStatus: formData.details?.vehicles?.registrationStatus || '',
-            brakeType: formData.details?.vehicles?.brakeType || '',
-            engineSize: formData.details?.vehicles?.engineSize || '',
-            // Add tractor-specific fields if it's a tractor
-            ...(formData.category?.subCategory === 'TRACTOR' ? {
-              horsepower: formData.details?.vehicles?.horsepower || 0,
-              attachments: (formData.details?.vehicles as TractorDetails)?.attachments || [],
-              fuelTankCapacity: (formData.details?.vehicles as TractorDetails)?.fuelTankCapacity || '',
-              tires: (formData.details?.vehicles as TractorDetails)?.tires || '',
-            } : {})
-          } : undefined,
-          realEstate: formData.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
-            ...formData.details?.realEstate,
-            propertyType: formData.details?.realEstate?.propertyType || PropertyType.HOUSE,
-            size: formData.details?.realEstate?.size || '',
-            yearBuilt: formData.details?.realEstate?.yearBuilt || '',
-            bedrooms: formData.details?.realEstate?.bedrooms || '',
-            bathrooms: formData.details?.realEstate?.bathrooms || '',
-            condition: formData.details?.realEstate?.condition || Condition.GOOD,
-            features: formData.details?.realEstate?.features || []
-          } : undefined
+          vehicles:
+            formData.category?.mainCategory === ListingCategory.VEHICLES
+              ? {
+                  ...formData.details?.vehicles,
+                  vehicleType:
+                    formData.details?.vehicles?.vehicleType || VehicleType.CAR,
+                  make: formData.details?.vehicles?.make || "",
+                  model: formData.details?.vehicles?.model || "",
+                  year:
+                    formData.details?.vehicles?.year ||
+                    new Date().getFullYear().toString(),
+                  mileage: formData.details?.vehicles?.mileage || "0",
+                  fuelType:
+                    formData.details?.vehicles?.fuelType || FuelType.GASOLINE,
+                  transmission:
+                    formData.details?.vehicles?.transmission ||
+                    TransmissionType.AUTOMATIC,
+                  color: formData.details?.vehicles?.color || "",
+                  condition:
+                    formData.details?.vehicles?.condition || Condition.GOOD,
+                  features: formData.details?.vehicles?.features || [],
+                  interiorColor:
+                    formData.details?.vehicles?.interiorColor || "",
+                  warranty: formData.details?.vehicles?.warranty || "",
+                  serviceHistory:
+                    formData.details?.vehicles?.serviceHistory || "",
+                  previousOwners:
+                    formData.details?.vehicles?.previousOwners || 0,
+                  registrationStatus:
+                    formData.details?.vehicles?.registrationStatus || "",
+                  brakeType: formData.details?.vehicles?.brakeType || "",
+                  engineSize: formData.details?.vehicles?.engineSize || "",
+                  // Add tractor-specific fields if it's a tractor
+                  ...(formData.category?.subCategory === "TRACTOR"
+                    ? {
+                        horsepower: formData.details?.vehicles?.horsepower || 0,
+                        attachments:
+                          (formData.details?.vehicles as TractorDetails)
+                            ?.attachments || [],
+                        fuelTankCapacity:
+                          (formData.details?.vehicles as TractorDetails)
+                            ?.fuelTankCapacity || "",
+                        tires:
+                          (formData.details?.vehicles as TractorDetails)
+                            ?.tires || "",
+                      }
+                    : {}),
+                }
+              : undefined,
+          realEstate:
+            formData.category?.mainCategory === ListingCategory.REAL_ESTATE
+              ? {
+                  ...formData.details?.realEstate,
+                  propertyType:
+                    formData.details?.realEstate?.propertyType ||
+                    PropertyType.HOUSE,
+                  size: formData.details?.realEstate?.size || "",
+                  yearBuilt: formData.details?.realEstate?.yearBuilt || "",
+                  bedrooms: formData.details?.realEstate?.bedrooms || "",
+                  bathrooms: formData.details?.realEstate?.bathrooms || "",
+                  condition:
+                    formData.details?.realEstate?.condition || Condition.GOOD,
+                  features: formData.details?.realEstate?.features || [],
+                }
+              : undefined,
         },
-        images: formData.images || []
+        images: formData.images || [],
       };
 
-      console.log('Submitting form data:', updatedFormData);
+      console.log("Submitting form data:", updatedFormData);
       onSubmit(updatedFormData);
     } else {
       // Scroll to the first error message
-      const errorElement = document.querySelector('.text-red-500');
+      const errorElement = document.querySelector(".text-red-500");
       if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
   };
@@ -270,7 +320,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         </div>
         <button
           type="button"
-          onClick={() => onEdit('basic')}
+          onClick={() => onEdit("basic")}
           className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
           aria-label={t("common.basicDetails")}
         >
@@ -287,13 +337,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
     // Check if this is a tractor
     const isTractor = formData.category?.subCategory === VehicleType.TRACTOR;
-    const tractorDetails = isTractor ? vehicleDetails as TractorDetails : null;
+    const tractorDetails = isTractor
+      ? (vehicleDetails as TractorDetails)
+      : null;
 
     return (
       <div className="space-y-4">
         {/* Essential Details Section */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.essentialDetails")}</h4>
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">
+            {t("listings.essentialDetails")}
+          </h4>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <div className="text-sm text-gray-500">{t("listings.make")}</div>
@@ -314,7 +368,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.vehicleType")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.vehicleType")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.vehicleType
                   ? t(`listings.vehicleTypes.${vehicleDetails.vehicleType}`)
@@ -322,7 +378,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.mileage")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.mileage")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.mileage
                   ? `${vehicleDetails.mileage} ${t("listings.miles")}`
@@ -330,7 +388,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.fuelType")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.fuelType")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.fuelType
                   ? t(`listings.fuelTypes.${vehicleDetails.fuelType}`)
@@ -338,23 +398,33 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.transmission")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.transmission")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.transmission
-                  ? t(`listings.transmissionTypes.${vehicleDetails.transmission}`)
+                  ? t(
+                      `listings.transmissionTypes.${vehicleDetails.transmission}`,
+                    )
                   : t("common.notProvided")}
               </div>
             </div>
             {isTractor && tractorDetails && (
               <>
                 <div>
-                  <div className="text-sm text-gray-500">{t("listings.horsepower")}</div>
+                  <div className="text-sm text-gray-500">
+                    {t("listings.horsepower")}
+                  </div>
                   <div className="font-medium">
-                    {tractorDetails.horsepower ? `${tractorDetails.horsepower} hp` : t("common.notProvided")}
+                    {tractorDetails.horsepower
+                      ? `${tractorDetails.horsepower} hp`
+                      : t("common.notProvided")}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">{t("listings.attachments")}</div>
+                  <div className="text-sm text-gray-500">
+                    {t("listings.attachments")}
+                  </div>
                   <div className="font-medium">
                     {tractorDetails.attachments?.length > 0
                       ? tractorDetails.attachments.join(", ")
@@ -362,7 +432,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">{t("listings.fuelTankCapacity")}</div>
+                  <div className="text-sm text-gray-500">
+                    {t("listings.fuelTankCapacity")}
+                  </div>
                   <div className="font-medium">
                     {tractorDetails.fuelTankCapacity
                       ? `${tractorDetails.fuelTankCapacity} L`
@@ -370,7 +442,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">{t("listings.tires")}</div>
+                  <div className="text-sm text-gray-500">
+                    {t("listings.tires")}
+                  </div>
                   <div className="font-medium">
                     {tractorDetails.tires || t("common.notProvided")}
                   </div>
@@ -382,11 +456,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
         {/* Advanced Details Section */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.advancedDetails")}</h4>
+          <h4 className="font-semibold text-gray-700 dark:text-gray-300">
+            {t("listings.advancedDetails")}
+          </h4>
           <div className="grid grid-cols-2 gap-3">
             {/* Colors */}
             <div>
-              <div className="text-sm text-gray-500">{t("listings.exteriorColor")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.exteriorColor")}
+              </div>
               <div className="font-medium flex items-center gap-2">
                 {vehicleDetails.color || t("common.notProvided")}
                 {vehicleDetails.color && (
@@ -398,7 +476,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.interiorColor")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.interiorColor")}
+              </div>
               <div className="font-medium flex items-center gap-2">
                 {vehicleDetails.interiorColor || t("common.notProvided")}
                 {vehicleDetails.interiorColor && (
@@ -412,21 +492,29 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
             {/* Performance */}
             <div>
-              <div className="text-sm text-gray-500">{t("listings.engine")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.engine")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.engine || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.torque")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.torque")}
+              </div>
               <div className="font-medium">
-                {vehicleDetails.torque ? `${vehicleDetails.torque} Nm` : t("common.notProvided")}
+                {vehicleDetails.torque
+                  ? `${vehicleDetails.torque} Nm`
+                  : t("common.notProvided")}
               </div>
             </div>
 
             {/* Condition & History */}
             <div>
-              <div className="text-sm text-gray-500">{t("listings.condition")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.condition")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.condition
                   ? t(`listings.conditions.${vehicleDetails.condition}`)
@@ -434,30 +522,44 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.warranty")}</div>
-              <div className="font-medium">
-                {vehicleDetails.warranty ? `${vehicleDetails.warranty} ${t("common.months")}` : t("common.notProvided")}
+              <div className="text-sm text-gray-500">
+                {t("listings.warranty")}
               </div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">{t("listings.serviceHistory")}</div>
               <div className="font-medium">
-                {vehicleDetails.serviceHistory
-                  ? t(`listings.serviceHistory.${vehicleDetails.serviceHistory}`)
+                {vehicleDetails.warranty
+                  ? `${vehicleDetails.warranty} ${t("common.months")}`
                   : t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.previousOwners")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.serviceHistory")}
+              </div>
+              <div className="font-medium">
+                {vehicleDetails.serviceHistory
+                  ? t(
+                      `listings.serviceHistory.${vehicleDetails.serviceHistory}`,
+                    )
+                  : t("common.notProvided")}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">
+                {t("listings.previousOwners")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.previousOwners || t("common.notProvided")}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">{t("listings.registrationStatus")}</div>
+              <div className="text-sm text-gray-500">
+                {t("listings.registrationStatus")}
+              </div>
               <div className="font-medium">
                 {vehicleDetails.registrationStatus
-                  ? t(`listings.registrationStatus.${vehicleDetails.registrationStatus}`)
+                  ? t(
+                      `listings.registrationStatus.${vehicleDetails.registrationStatus}`,
+                    )
                   : t("common.notProvided")}
               </div>
             </div>
@@ -465,21 +567,26 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         </div>
 
         {/* Features Section */}
-        {formData.details?.vehicles?.features && formData.details?.vehicles?.features.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t("listings.features")}</h4>
-            <div className="flex flex-wrap gap-2">
-              {formData.details?.vehicles?.features.map((feature: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {feature}
-                </span>
-              ))}
+        {formData.details?.vehicles?.features &&
+          formData.details?.vehicles?.features.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-700 dark:text-gray-300">
+                {t("listings.features")}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {formData.details?.vehicles?.features.map(
+                  (feature: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      {feature}
+                    </span>
+                  ),
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     );
   };
@@ -492,7 +599,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <div className="text-sm text-gray-500">{t("listings.propertyType")}</div>
+            <div className="text-sm text-gray-500">
+              {t("listings.propertyType")}
+            </div>
             <div className="font-medium">
               {realEstateDetails.propertyType
                 ? t(`listings.propertyTypes.${realEstateDetails.propertyType}`)
@@ -508,29 +617,40 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("listings.yearBuilt")}</div>
+            <div className="text-sm text-gray-500">
+              {t("listings.yearBuilt")}
+            </div>
             <div className="font-medium">
               {realEstateDetails.yearBuilt || t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("listings.bedrooms")}</div>
+            <div className="text-sm text-gray-500">
+              {t("listings.bedrooms")}
+            </div>
             <div className="font-medium">
               {realEstateDetails.bedrooms || t("common.notProvided")}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">{t("listings.bathrooms")}</div>
+            <div className="text-sm text-gray-500">
+              {t("listings.bathrooms")}
+            </div>
             <div className="font-medium">
               {realEstateDetails.bathrooms || t("common.notProvided")}
             </div>
           </div>
-          {formData.details?.realEstate?.features && formData.details?.realEstate?.features.length > 0 && (
-            <div className="col-span-2">
-              <div className="text-sm text-gray-500">{t("listings.features")}</div>
-              <div className="font-medium">{formData.details?.realEstate?.features.join(", ")}</div>
-            </div>
-          )}
+          {formData.details?.realEstate?.features &&
+            formData.details?.realEstate?.features.length > 0 && (
+              <div className="col-span-2">
+                <div className="text-sm text-gray-500">
+                  {t("listings.features")}
+                </div>
+                <div className="font-medium">
+                  {formData.details?.realEstate?.features.join(", ")}
+                </div>
+              </div>
+            )}
         </div>
       </div>
     );
@@ -539,7 +659,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const renderImages = () => {
     // Create object URLs for File objects
     const imageUrls = formData.images.map((image: File | string) => {
-      if (typeof image === 'object' && 'type' in image && image instanceof Blob) {
+      if (
+        typeof image === "object" &&
+        "type" in image &&
+        image instanceof Blob
+      ) {
         return URL.createObjectURL(image);
       }
       return image;
@@ -549,7 +673,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     useEffect(() => {
       return () => {
         imageUrls.forEach((url) => {
-          if (typeof url === 'string' && url.startsWith('blob:')) {
+          if (typeof url === "string" && url.startsWith("blob:")) {
             URL.revokeObjectURL(url);
           }
         });
@@ -564,7 +688,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           </h3>
           <button
             type="button"
-            onClick={() => onEdit('images')}
+            onClick={() => onEdit("images")}
             className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
             aria-label={t("listings.editImages")}
           >
@@ -584,7 +708,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 className="object-cover w-full h-full"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder-image.jpg';
+                  target.src = "/placeholder-image.jpg";
                 }}
               />
             </div>
@@ -606,7 +730,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       {renderSection(
         t("common.basicDetails"),
         <FaTag className="w-5 h-5 text-blue-500" />,
-        renderBasicDetails()
+        renderBasicDetails(),
       )}
 
       {/* Listing Action */}
@@ -677,7 +801,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       {renderSection(
         t("listings.images"),
         <FaImages className="w-5 h-5 text-blue-500" />,
-        renderImages()
+        renderImages(),
       )}
 
       {/* Error Messages */}

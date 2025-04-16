@@ -1,7 +1,8 @@
 // Get API URLs from environment variables
-export const API_URL = import.meta.env.MODE === 'development' 
-  ? '/api' 
-  : import.meta.env.VITE_API_URL;
+export const API_URL =
+  import.meta.env.MODE === "development"
+    ? "/api"
+    : import.meta.env.VITE_API_URL;
 export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 export const APP_NAME = import.meta.env.VITE_APP_NAME;

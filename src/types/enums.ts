@@ -6,15 +6,15 @@ export enum ListingCategory {
 
 // 🌟 Vehicle Types
 export enum VehicleType {
-  CAR = 'CAR',
-  TRUCK = 'TRUCK',
-  MOTORCYCLE = 'MOTORCYCLE',
-  RV = 'RV',
-  BUS = 'BUS',
-  VAN = 'VAN',
-  TRACTOR = 'TRACTOR',
-  CONSTRUCTION = 'CONSTRUCTION',
-  OTHER = 'OTHER',
+  CAR = "CAR",
+  TRUCK = "TRUCK",
+  MOTORCYCLE = "MOTORCYCLE",
+  RV = "RV",
+  BUS = "BUS",
+  VAN = "VAN",
+  TRACTOR = "TRACTOR",
+  CONSTRUCTION = "CONSTRUCTION",
+  OTHER = "OTHER",
 }
 
 // 🌟 Property Types
@@ -89,7 +89,7 @@ export enum ListingStatus {
 // 🌟 Listing Action Types
 export enum ListingAction {
   SELL = "sell",
-  RENT = "rent"
+  RENT = "rent",
 }
 
 // 🌟 Report System Enums
@@ -134,5 +134,5 @@ export enum SocketEvent {
   MESSAGE_SEND = "message:send",
   NOTIFICATION_READ = "notification:read",
   JOIN = "join",
-  LEAVE = "leave"
+  LEAVE = "leave",
 }

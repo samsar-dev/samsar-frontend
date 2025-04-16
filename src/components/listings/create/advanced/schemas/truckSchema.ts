@@ -8,7 +8,7 @@ export const truckSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Exterior color is required" : null,
+    validate: (value: string) => (!value ? "Exterior color is required" : null),
   },
   {
     name: "condition",
@@ -17,7 +17,7 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Condition is required" : null,
+    validate: (value: string) => (!value ? "Condition is required" : null),
   },
   {
     name: "mileage",
@@ -38,7 +38,7 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["regular", "extended", "crew", "sleeper"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Cab type is required" : null,
+    validate: (value: string) => (!value ? "Cab type is required" : null),
   },
   {
     name: "bedLength",
@@ -47,7 +47,7 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["short", "standard", "long"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Bed length is required" : null,
+    validate: (value: string) => (!value ? "Bed length is required" : null),
   },
   {
     name: "previousOwners",
@@ -56,7 +56,8 @@ export const truckSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
     validate: (value: number) => {
-      if (value === undefined || value === null) return "Previous owners is required";
+      if (value === undefined || value === null)
+        return "Previous owners is required";
       if (value < 0) return "Previous owners must be 0 or greater";
       return null;
     },
@@ -68,7 +69,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Registration status is required" : null,
+    validate: (value: string) =>
+      !value ? "Registration status is required" : null,
   },
   {
     name: "payload",
@@ -89,7 +91,7 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["diesel", "gasoline", "electric", "hybrid"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Fuel type is required" : null,
+    validate: (value: string) => (!value ? "Fuel type is required" : null),
   },
   {
     name: "transmission",
@@ -98,7 +100,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["manual", "automatic", "automated"],
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Transmission type is required" : null,
+    validate: (value: string) =>
+      !value ? "Transmission type is required" : null,
   },
 
   // Advanced Section

@@ -171,7 +171,7 @@ const FeatureSection: React.FC<{
                   {t(feature.label)}
                 </label>
               </div>
-            )
+            ),
           )}
         </div>
       )}
@@ -221,7 +221,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
-    new Set(currentSchema.map((field) => field.section))
+    new Set(currentSchema.map((field) => field.section)),
   )
     .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
     .map((sectionId) => ({
@@ -266,7 +266,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[]
+    value: string | number | boolean | string[],
   ) => {
     setForm((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -324,11 +324,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         }
         return groups;
       },
-      {} as Record<string, ListingFieldSchema[]>
+      {} as Record<string, ListingFieldSchema[]>,
     );
 
     const standardFields = activeFields.filter(
-      (field) => !field.featureCategory
+      (field) => !field.featureCategory,
     );
 
     return (
@@ -421,13 +421,13 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
       if (!isValid) {
         const missingFields = Object.keys(errors).map(
-          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop()
+          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop(),
         );
 
         toast.error(
           t("errors.requiredFields", {
             fields: missingFields.join(", "),
-          })
+          }),
         );
 
         setIsSubmitting(false);

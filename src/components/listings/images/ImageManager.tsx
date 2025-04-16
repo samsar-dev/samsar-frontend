@@ -74,7 +74,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     return true;
   };
 
-  const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+  const getImageDimensions = (
+    file: File,
+  ): Promise<{ width: number; height: number }> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve({ width: img.width, height: img.height });
@@ -91,12 +93,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       fileType: file.type as "image/jpeg" | "image/png" | "image/webp",
       initialQuality: 0.8,
     };
-    
+
     try {
       const compressedBlob = await imageCompression(file, options);
-      return new File([compressedBlob], file.name, { 
+      return new File([compressedBlob], file.name, {
         type: compressedBlob.type || file.type,
-        lastModified: new Date().getTime()
+        lastModified: new Date().getTime(),
       });
     } catch (error) {
       console.error("Error compressing image:", error);
@@ -121,7 +123,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           const compressed = await compressImage(file);
           validFiles.push(compressed);
         }
-        setUploadProgress((prev) => Math.min(prev + (100 / files.length), 100));
+        setUploadProgress((prev) => Math.min(prev + 100 / files.length, 100));
       }
 
       if (validFiles.length > 0) {
@@ -168,9 +170,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         <input {...getInputProps()} />
         <FaImage className="mx-auto h-12 w-12 text-gray-400" />
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          {isDragActive
-            ? t("dropzone.drop")
-            : t("dropzone.dragDrop")}
+          {isDragActive ? t("dropzone.drop") : t("dropzone.dragDrop")}
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           {t("dropzone.maxSize", { size: "5MB" })}
@@ -275,9 +275,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       </div>
 
       {/* Error Message */}
-      {error && (
-        <p className="text-red-500 text-sm mt-2">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
 };

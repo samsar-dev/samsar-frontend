@@ -35,15 +35,19 @@ export default defineConfig({
         configure: (proxy, _options) => {
           proxy.on("error", (err: Error & { code?: string }, _req, _res) => {
             console.log("Proxy Error:", err.message);
-            if (err.code === 'ECONNREFUSED') {
-              console.log("Backend server is not running. Please start the backend server.");
+            if (err.code === "ECONNREFUSED") {
+              console.log(
+                "Backend server is not running. Please start the backend server.",
+              );
             }
           });
           proxy.on("proxyReq", (proxyReq, req, _res) => {
             console.log(`[Proxy] ${req.method} ${req.url}`);
           });
           proxy.on("proxyRes", (proxyRes, req, _res) => {
-            console.log(`[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`);
+            console.log(
+              `[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`,
+            );
           });
         },
       },
@@ -55,7 +59,7 @@ export default defineConfig({
     },
     cors: {
       origin: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       credentials: true,
     },
   },

@@ -1,13 +1,13 @@
-import React from 'react';
-import clsx from 'clsx';
-import Select from 'react-select';
+import React from "react";
+import clsx from "clsx";
+import Select from "react-select";
 
 export type FormFieldValue = string | number | boolean | string[];
 
 export interface FormFieldProps {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color';
+  type: "text" | "number" | "textarea" | "select" | "checkbox" | "color";
   value: FormFieldValue;
   onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
@@ -45,49 +45,61 @@ export const FormField = React.forwardRef<
   } = props;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | { value: string; label: string }
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >
+      | { value: string; label: string },
   ) => {
     let newValue;
-    
+
     // Handle react-select change
-    if ('value' in e && 'label' in e) {
+    if ("value" in e && "label" in e) {
       newValue = e.value;
     } else {
       // Handle standard form input change
-      newValue = type === 'checkbox' 
-        ? (e as React.ChangeEvent<HTMLInputElement>).target.checked
-        : (e as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>).target.value;
+      newValue =
+        type === "checkbox"
+          ? (e as React.ChangeEvent<HTMLInputElement>).target.checked
+          : (
+              e as React.ChangeEvent<
+                HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+              >
+            ).target.value;
     }
-    
+
     // Run validation
     let validationError: string | undefined;
-    
+
     // First check if required field is empty
-    if (required && (newValue === undefined || newValue === null || newValue === '')) {
+    if (
+      required &&
+      (newValue === undefined || newValue === null || newValue === "")
+    ) {
       validationError = `${label} is required`;
     }
     // Then run custom validation if exists and no required error
     else if (customValidation && !validationError) {
       validationError = customValidation(String(newValue));
     }
-    
+
     onChange(newValue, validationError);
   };
 
   const inputClasses = clsx(
-    'block w-full rounded-lg border py-2 px-3 text-gray-900 shadow-sm transition-colors duration-200',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2',
+    "block w-full rounded-lg border py-2 px-3 text-gray-900 shadow-sm transition-colors duration-200",
+    "focus:outline-none focus:ring-2 focus:ring-offset-2",
     {
-      'border-gray-300 focus:border-blue-500 focus:ring-blue-500': !error,
-      'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500': error,
-      'opacity-50 cursor-not-allowed': disabled,
-      'pl-10': prefix,
-    }
+      "border-gray-300 focus:border-blue-500 focus:ring-blue-500": !error,
+      "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500": error,
+      "opacity-50 cursor-not-allowed": disabled,
+      "pl-10": prefix,
+    },
   );
 
   const renderInput = () => {
     switch (type) {
-      case 'textarea':
+      case "textarea":
         return (
           <textarea
             ref={ref as React.Ref<HTMLTextAreaElement>}
@@ -105,9 +117,9 @@ export const FormField = React.forwardRef<
           />
         );
 
-      case 'select':
+      case "select":
         if (isSearchable) {
-          const selectedOption = options?.find(opt => opt.value === value);
+          const selectedOption = options?.find((opt) => opt.value === value);
           return (
             <Select
               id={name}
@@ -116,18 +128,24 @@ export const FormField = React.forwardRef<
               onChange={handleChange}
               options={options}
               isDisabled={disabled}
-              placeholder={placeholder || 'Select an option'}
+              placeholder={placeholder || "Select an option"}
               className="react-select-container"
               classNamePrefix="react-select"
               isSearchable={true}
               styles={{
                 control: (base, state) => ({
                   ...base,
-                  borderColor: error ? 'var(--red-300)' : state.isFocused ? 'var(--blue-500)' : 'var(--gray-300)',
-                  backgroundColor: error ? 'var(--red-50)' : 'white',
-                  boxShadow: state.isFocused ? `0 0 0 1px ${error ? 'var(--red-500)' : 'var(--blue-500)'}` : 'none',
-                  '&:hover': {
-                    borderColor: error ? 'var(--red-400)' : 'var(--blue-400)',
+                  borderColor: error
+                    ? "var(--red-300)"
+                    : state.isFocused
+                      ? "var(--blue-500)"
+                      : "var(--gray-300)",
+                  backgroundColor: error ? "var(--red-50)" : "white",
+                  boxShadow: state.isFocused
+                    ? `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`
+                    : "none",
+                  "&:hover": {
+                    borderColor: error ? "var(--red-400)" : "var(--blue-400)",
                   },
                 }),
               }}
@@ -147,7 +165,7 @@ export const FormField = React.forwardRef<
             aria-invalid={!!error}
             aria-describedby={error ? `${name}-error` : undefined}
           >
-            <option value="">{placeholder || 'Select an option'}</option>
+            <option value="">{placeholder || "Select an option"}</option>
             {options?.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -156,7 +174,7 @@ export const FormField = React.forwardRef<
           </select>
         );
 
-      case 'checkbox':
+      case "checkbox":
         return (
           <input
             ref={ref as React.Ref<HTMLInputElement>}
@@ -205,9 +223,9 @@ export const FormField = React.forwardRef<
     <div className="space-y-2">
       <label
         htmlFor={name}
-        className={clsx('block text-sm font-medium', {
-          'text-gray-900': !error,
-          'text-red-600': error,
+        className={clsx("block text-sm font-medium", {
+          "text-gray-900": !error,
+          "text-red-600": error,
         })}
       >
         {label}
@@ -223,6 +241,6 @@ export const FormField = React.forwardRef<
   );
 });
 
-FormField.displayName = 'FormField';
+FormField.displayName = "FormField";
 
 export default FormField;

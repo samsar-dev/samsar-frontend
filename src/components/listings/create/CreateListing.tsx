@@ -145,39 +145,68 @@ const CreateListing: React.FC = () => {
             ...(data.category || {}),
           },
           details: {
-            vehicles: data.category.mainCategory === ListingCategory.VEHICLES ? {
-              vehicleType: data.details?.vehicles?.vehicleType || VehicleType.CAR,
-              make: data.details?.vehicles?.make || "",
-              model: data.details?.vehicles?.model || "",
-              year: data.details?.vehicles?.year || new Date().getFullYear().toString(),
-              mileage: data.details?.vehicles?.mileage || "",
-              fuelType: data.details?.vehicles?.fuelType || FuelType.GASOLINE,
-              transmission: data.details?.vehicles?.transmission || TransmissionType.AUTOMATIC,
-              color: data.details?.vehicles?.color || "",
-              condition: data.details?.vehicles?.condition || Condition.GOOD,
-              features: data.details?.vehicles?.features || [],
-              interiorColor: data.details?.vehicles?.interiorColor || prev.details?.vehicles?.interiorColor || "#000000",
-              engine: data.details?.vehicles?.engine || "",
-              warranty: data.details?.vehicles?.warranty?.toString() || "",
-              serviceHistory: data.details?.vehicles?.serviceHistory || prev.details?.vehicles?.serviceHistory || "none",
-              previousOwners: data.details?.vehicles?.previousOwners ?? prev.details?.vehicles?.previousOwners ?? 0,
-              registrationStatus: data.details?.vehicles?.registrationStatus || prev.details?.vehicles?.registrationStatus || "unregistered",
-            } : undefined,
-            realEstate: data.category.mainCategory === ListingCategory.REAL_ESTATE ? {
-              propertyType: data.details?.realEstate?.propertyType || PropertyType.HOUSE,
-              size: data.details?.realEstate?.size || "",
-              yearBuilt: data.details?.realEstate?.yearBuilt || "",
-              bedrooms: data.details?.realEstate?.bedrooms || "",
-              bathrooms: data.details?.realEstate?.bathrooms || "",
-              condition: data.details?.realEstate?.condition || Condition.GOOD,
-              features: data.details?.realEstate?.features || [],
-            } : undefined,
-          }
+            vehicles:
+              data.category.mainCategory === ListingCategory.VEHICLES
+                ? {
+                    vehicleType:
+                      data.details?.vehicles?.vehicleType || VehicleType.CAR,
+                    make: data.details?.vehicles?.make || "",
+                    model: data.details?.vehicles?.model || "",
+                    year:
+                      data.details?.vehicles?.year ||
+                      new Date().getFullYear().toString(),
+                    mileage: data.details?.vehicles?.mileage || "",
+                    fuelType:
+                      data.details?.vehicles?.fuelType || FuelType.GASOLINE,
+                    transmission:
+                      data.details?.vehicles?.transmission ||
+                      TransmissionType.AUTOMATIC,
+                    color: data.details?.vehicles?.color || "",
+                    condition:
+                      data.details?.vehicles?.condition || Condition.GOOD,
+                    features: data.details?.vehicles?.features || [],
+                    interiorColor:
+                      data.details?.vehicles?.interiorColor ||
+                      prev.details?.vehicles?.interiorColor ||
+                      "#000000",
+                    engine: data.details?.vehicles?.engine || "",
+                    warranty:
+                      data.details?.vehicles?.warranty?.toString() || "",
+                    serviceHistory:
+                      data.details?.vehicles?.serviceHistory ||
+                      prev.details?.vehicles?.serviceHistory ||
+                      "none",
+                    previousOwners:
+                      data.details?.vehicles?.previousOwners ??
+                      prev.details?.vehicles?.previousOwners ??
+                      0,
+                    registrationStatus:
+                      data.details?.vehicles?.registrationStatus ||
+                      prev.details?.vehicles?.registrationStatus ||
+                      "unregistered",
+                  }
+                : undefined,
+            realEstate:
+              data.category.mainCategory === ListingCategory.REAL_ESTATE
+                ? {
+                    propertyType:
+                      data.details?.realEstate?.propertyType ||
+                      PropertyType.HOUSE,
+                    size: data.details?.realEstate?.size || "",
+                    yearBuilt: data.details?.realEstate?.yearBuilt || "",
+                    bedrooms: data.details?.realEstate?.bedrooms || "",
+                    bathrooms: data.details?.realEstate?.bathrooms || "",
+                    condition:
+                      data.details?.realEstate?.condition || Condition.GOOD,
+                    features: data.details?.realEstate?.features || [],
+                  }
+                : undefined,
+          },
         };
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData)
+          JSON.stringify(updatedData),
         );
         return updatedData;
       });
@@ -377,13 +406,16 @@ const CreateListing: React.FC = () => {
                   "",
                 elevator:
                   prev.details?.realEstate?.elevator ??
-                  data.details?.realEstate?.elevator ?? false,
+                  data.details?.realEstate?.elevator ??
+                  false,
                 balcony:
                   prev.details?.realEstate?.balcony ??
-                  data.details?.realEstate?.balcony ?? false,
+                  data.details?.realEstate?.balcony ??
+                  false,
                 storage:
                   prev.details?.realEstate?.storage ??
-                  data.details?.realEstate?.storage ?? false,
+                  data.details?.realEstate?.storage ??
+                  false,
                 heating:
                   prev.details?.realEstate?.heating ||
                   data.details?.realEstate?.heating ||
@@ -394,10 +426,12 @@ const CreateListing: React.FC = () => {
                   "",
                 furnished:
                   prev.details?.realEstate?.furnished ??
-                  data.details?.realEstate?.furnished ?? false,
+                  data.details?.realEstate?.furnished ??
+                  false,
                 petsAllowed:
                   prev.details?.realEstate?.petsAllowed ??
-                  data.details?.realEstate?.petsAllowed ?? false,
+                  data.details?.realEstate?.petsAllowed ??
+                  false,
                 leaseDuration:
                   prev.details?.realEstate?.leaseDuration ||
                   data.details?.realEstate?.leaseDuration ||
@@ -425,20 +459,24 @@ const CreateListing: React.FC = () => {
                   "",
                 fenced:
                   prev.details?.realEstate?.fenced ??
-                  data.details?.realEstate?.fenced ?? false,
+                  data.details?.realEstate?.fenced ??
+                  false,
                 topography:
                   prev.details?.realEstate?.topography ||
                   data.details?.realEstate?.topography ||
                   "",
                 waterFeatures:
                   prev.details?.realEstate?.waterFeatures ??
-                  data.details?.realEstate?.waterFeatures ?? false,
+                  data.details?.realEstate?.waterFeatures ??
+                  false,
                 buildable:
                   prev.details?.realEstate?.buildable ??
-                  data.details?.realEstate?.buildable ?? false,
+                  data.details?.realEstate?.buildable ??
+                  false,
                 environmentalRestrictions:
                   prev.details?.realEstate?.environmentalRestrictions ??
-                  data.details?.realEstate?.environmentalRestrictions ?? false,
+                  data.details?.realEstate?.environmentalRestrictions ??
+                  false,
                 soilType:
                   prev.details?.realEstate?.soilType ||
                   data.details?.realEstate?.soilType ||
@@ -464,7 +502,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData)
+          JSON.stringify(updatedData),
         );
         return updatedData;
       });
@@ -500,7 +538,7 @@ const CreateListing: React.FC = () => {
       formData.append("location", data.location || "");
       formData.append(
         "listingAction",
-        (data.listingAction || "sell").toUpperCase()
+        (data.listingAction || "sell").toUpperCase(),
       );
       formData.append("mainCategory", data.category?.mainCategory || "");
       formData.append("subCategory", data.category?.subCategory || "");
@@ -508,37 +546,11 @@ const CreateListing: React.FC = () => {
       // Add details
       if (data.details) {
         const details = {
-          vehicles: data.details.vehicles && data.category?.subCategory === 'TRACTOR'
-            ? {
-                // Map TRACTOR to CONSTRUCTION for backend compatibility
-                vehicleType: VehicleType.CONSTRUCTION,
-                make: data.details.vehicles.make,
-                model: data.details.vehicles.model,
-                year: parseInt(data.details.vehicles.year || "0"),
-                mileage: parseInt(data.details.vehicles.mileage || "0"),
-                fuelType: data.details.vehicles.fuelType,
-                transmission: data.details.vehicles.transmission,
-                color: data.details.vehicles.color || "#000000",
-                condition: data.details.vehicles.condition,
-                features: data.details.vehicles.features || [],
-                // Tractor specific fields
-                horsepower: parseInt(data.details.vehicles.horsepower?.toString() || "0"),
-                attachments: data.details.vehicles.attachments || [],
-                fuelTankCapacity: data.details.vehicles.fuelTankCapacity || "0",
-                tires: data.details.vehicles.tires || "",
-                // Required base fields
-                brakeType: data.details.vehicles.brakeType || "standard",
-                engineSize: data.details.vehicles.engineSize || "standard",
-                interiorColor: data.details.vehicles.interiorColor || "#000000",
-                engine: data.details.vehicles.engine || "",
-                warranty: parseInt(data.details.vehicles.warranty?.toString() || "0"),
-                serviceHistory: data.details.vehicles.serviceHistory || "none",
-                previousOwners: parseInt(data.details.vehicles.previousOwners?.toString() || "0"),
-                registrationStatus: data.details.vehicles.registrationStatus || "unregistered"
-              }
-            : data.details.vehicles
+          vehicles:
+            data.details.vehicles && data.category?.subCategory === "TRACTOR"
               ? {
-                  vehicleType: data.details.vehicles.vehicleType,
+                  // Map TRACTOR to CONSTRUCTION for backend compatibility
+                  vehicleType: VehicleType.CONSTRUCTION,
                   make: data.details.vehicles.make,
                   model: data.details.vehicles.model,
                   year: parseInt(data.details.vehicles.year || "0"),
@@ -548,16 +560,61 @@ const CreateListing: React.FC = () => {
                   color: data.details.vehicles.color || "#000000",
                   condition: data.details.vehicles.condition,
                   features: data.details.vehicles.features || [],
-                  interiorColor: data.details.vehicles.interiorColor || "#000000",
-                  engine: data.details.vehicles.engine || "",
-                  warranty: parseInt(data.details.vehicles.warranty?.toString() || "0"),
-                  serviceHistory: data.details.vehicles.serviceHistory || "none",
-                  previousOwners: parseInt(data.details.vehicles.previousOwners?.toString() || "0"),
-                  registrationStatus: data.details.vehicles.registrationStatus || "unregistered",
+                  // Tractor specific fields
+                  horsepower: parseInt(
+                    data.details.vehicles.horsepower?.toString() || "0",
+                  ),
+                  attachments: data.details.vehicles.attachments || [],
+                  fuelTankCapacity:
+                    data.details.vehicles.fuelTankCapacity || "0",
+                  tires: data.details.vehicles.tires || "",
+                  // Required base fields
                   brakeType: data.details.vehicles.brakeType || "standard",
-                  engineSize: data.details.vehicles.engineSize || "standard"
+                  engineSize: data.details.vehicles.engineSize || "standard",
+                  interiorColor:
+                    data.details.vehicles.interiorColor || "#000000",
+                  engine: data.details.vehicles.engine || "",
+                  warranty: parseInt(
+                    data.details.vehicles.warranty?.toString() || "0",
+                  ),
+                  serviceHistory:
+                    data.details.vehicles.serviceHistory || "none",
+                  previousOwners: parseInt(
+                    data.details.vehicles.previousOwners?.toString() || "0",
+                  ),
+                  registrationStatus:
+                    data.details.vehicles.registrationStatus || "unregistered",
                 }
-              : undefined,
+              : data.details.vehicles
+                ? {
+                    vehicleType: data.details.vehicles.vehicleType,
+                    make: data.details.vehicles.make,
+                    model: data.details.vehicles.model,
+                    year: parseInt(data.details.vehicles.year || "0"),
+                    mileage: parseInt(data.details.vehicles.mileage || "0"),
+                    fuelType: data.details.vehicles.fuelType,
+                    transmission: data.details.vehicles.transmission,
+                    color: data.details.vehicles.color || "#000000",
+                    condition: data.details.vehicles.condition,
+                    features: data.details.vehicles.features || [],
+                    interiorColor:
+                      data.details.vehicles.interiorColor || "#000000",
+                    engine: data.details.vehicles.engine || "",
+                    warranty: parseInt(
+                      data.details.vehicles.warranty?.toString() || "0",
+                    ),
+                    serviceHistory:
+                      data.details.vehicles.serviceHistory || "none",
+                    previousOwners: parseInt(
+                      data.details.vehicles.previousOwners?.toString() || "0",
+                    ),
+                    registrationStatus:
+                      data.details.vehicles.registrationStatus ||
+                      "unregistered",
+                    brakeType: data.details.vehicles.brakeType || "standard",
+                    engineSize: data.details.vehicles.engineSize || "standard",
+                  }
+                : undefined,
           realEstate: data.details.realEstate
             ? {
                 propertyType: data.details.realEstate.propertyType,
@@ -575,7 +632,7 @@ const CreateListing: React.FC = () => {
       // Add images
       if (data.images && data.images.length > 0) {
         const fileImages = data.images.filter(
-          (image): image is File => image instanceof File
+          (image): image is File => image instanceof File,
         );
         if (fileImages.length === 0) {
           throw new Error("At least one image is required");
@@ -593,7 +650,7 @@ const CreateListing: React.FC = () => {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File object"
+          typeof pair[1] === "string" ? pair[1] : "File object",
         );
       }
 

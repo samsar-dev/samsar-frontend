@@ -66,20 +66,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
           const response = await listingsAPI.getSavedListings();
           if (response.success && response.data) {
             // Handle different potential response structures
-            const favorites = response.data.favorites || 
-                            response.data.items || 
-                            (Array.isArray(response.data) ? response.data : []);
-            
+            const favorites =
+              response.data.favorites ||
+              response.data.items ||
+              (Array.isArray(response.data) ? response.data : []);
+
             // Check if this listing is among saved listings
-            setIsFavorite(favorites.some((fav: any) => {
-              // Different possible structures to check
-              const favId = fav.id || fav.listingId || (fav.item && fav.item.id);
-              const itemId = fav.itemId || (fav.item && fav.item.id);
-              return favId === id || itemId === id;
-            }));
+            setIsFavorite(
+              favorites.some((fav: any) => {
+                // Different possible structures to check
+                const favId =
+                  fav.id || fav.listingId || (fav.item && fav.item.id);
+                const itemId = fav.itemId || (fav.item && fav.item.id);
+                return favId === id || itemId === id;
+              }),
+            );
           }
         } catch (error) {
-          console.error('Error checking favorite status:', error);
+          console.error("Error checking favorite status:", error);
         }
       }
     };
@@ -96,9 +100,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!id || !user) {
-      console.error('Cannot save favorite: No listing ID or user not logged in');
+      console.error(
+        "Cannot save favorite: No listing ID or user not logged in",
+      );
       return;
     }
 
@@ -110,11 +116,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
       }
       setIsFavorite(!isFavorite);
       // Trigger a refresh of the saved listings context
-      if (window.location.pathname === '/saved-listings') {
+      if (window.location.pathname === "/saved-listings") {
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      console.error("Error toggling favorite:", error);
     }
   };
 
@@ -176,30 +182,32 @@ const ListingCard: React.FC<ListingCardProps> = ({
             }}
           />
           {showBadges && (
-  <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-      {category.subCategory.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w)/g, c => c.toUpperCase())}
-    </span>
-    <span
-      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-        listingAction === "SELL"
-          ? "bg-blue-600 text-white"
-          : "bg-green-600 text-white"
-      }`}
-    >
-      {listingAction === "SELL" ? t("forSale") : t("forRent")}
-    </span>
-  </div>
-)}
-
+            <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+              <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+                {category.subCategory
+                  .replace(/_/g, " ")
+                  .toLowerCase()
+                  .replace(/(^\w|\s\w)/g, (c) => c.toUpperCase())}
+              </span>
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  listingAction === "SELL"
+                    ? "bg-blue-600 text-white"
+                    : "bg-green-600 text-white"
+                }`}
+              >
+                {listingAction === "SELL" ? t("forSale") : t("forRent")}
+              </span>
+            </div>
+          )}
 
           {showSaveButton && user && (
             <div className="absolute top-2 right-2">
               <button
                 onClick={handleFavoriteClick}
                 className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
-                  isFavorite 
-                    ? "bg-red-500 text-white hover:bg-red-600" 
+                  isFavorite
+                    ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-white text-gray-600 hover:text-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
                 }`}
               >

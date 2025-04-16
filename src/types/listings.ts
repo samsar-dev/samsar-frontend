@@ -13,18 +13,32 @@ export enum ListingStatus {
   INACTIVE = "INACTIVE",
   PENDING = "PENDING",
   SOLD = "SOLD",
-  DELETED = "DELETED"
+  DELETED = "DELETED",
 }
 
 export interface ListingFieldSchema {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'select' | 'textarea' | 'checkbox' | 'date' | 'colorpicker' | 'multiselect' | 'toggle';
+  type:
+    | "text"
+    | "number"
+    | "select"
+    | "textarea"
+    | "checkbox"
+    | "date"
+    | "colorpicker"
+    | "multiselect"
+    | "toggle";
   section: string;
   required: boolean;
   options?: string[];
   validate?: (value: any) => string | null;
-  featureCategory?: 'entertainment' | 'lighting' | 'cameras' | 'safety' | 'climate';
+  featureCategory?:
+    | "entertainment"
+    | "lighting"
+    | "cameras"
+    | "safety"
+    | "climate";
 }
 
 export interface VehicleDetails {
@@ -125,7 +139,7 @@ export interface RealEstateDetails {
   bathrooms?: string;
   condition?: Condition;
   features?: string[];
-  
+
   // Apartment fields
   floor?: string;
   totalFloors?: string;
@@ -139,7 +153,7 @@ export interface RealEstateDetails {
   petsAllowed?: boolean;
   leaseDuration?: string;
   monthlyRent?: string;
-  
+
   // Land fields
   zoning?: string;
   utilitiesAvailable?: string[];
@@ -270,7 +284,7 @@ export interface ListingParams {
   limit?: number;
   page?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   preview?: boolean;
   forceRefresh?: string;
 }

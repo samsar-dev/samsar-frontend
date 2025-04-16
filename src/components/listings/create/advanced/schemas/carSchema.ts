@@ -17,7 +17,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => !value ? "Interior color is required" : null,
+    validate: (value: string) => (!value ? "Interior color is required" : null),
   },
   {
     name: "mileage",
@@ -25,7 +25,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => value >= 0 ? null : "Mileage must be a positive number"
+    validate: (value: number) =>
+      value >= 0 ? null : "Mileage must be a positive number",
   },
   {
     name: "condition",
@@ -33,7 +34,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(Condition),
     section: "essential",
-    required: true
+    required: true,
   },
   {
     name: "transmission",
@@ -42,7 +43,8 @@ export const carSchema: ListingFieldSchema[] = [
     options: Object.values(TransmissionType),
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "errors.transmissionRequired" : null)
+    validate: (value: string) =>
+      !value ? "errors.transmissionRequired" : null,
   },
   {
     name: "fuelType",
@@ -50,7 +52,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(FuelType),
     section: "essential",
-    required: true
+    required: true,
   },
 
   // Entertainment & Tech features
@@ -60,7 +62,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "entertainment"
+    featureCategory: "entertainment",
   },
   {
     name: "appleCarPlay",
@@ -68,7 +70,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "entertainment"
+    featureCategory: "entertainment",
   },
   {
     name: "androidAuto",
@@ -76,7 +78,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "entertainment"
+    featureCategory: "entertainment",
   },
   {
     name: "premiumSound",
@@ -84,7 +86,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "entertainment"
+    featureCategory: "entertainment",
   },
   {
     name: "wirelessCharging",
@@ -92,7 +94,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "entertainment"
+    featureCategory: "entertainment",
   },
 
   // Lighting features
@@ -102,7 +104,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "lighting"
+    featureCategory: "lighting",
   },
   {
     name: "adaptiveHeadlights",
@@ -110,7 +112,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "lighting"
+    featureCategory: "lighting",
   },
   {
     name: "ambientLighting",
@@ -118,7 +120,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "lighting"
+    featureCategory: "lighting",
   },
 
   // Camera & Safety features
@@ -128,7 +130,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "cameras"
+    featureCategory: "cameras",
   },
   {
     name: "camera360",
@@ -136,7 +138,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "cameras"
+    featureCategory: "cameras",
   },
   {
     name: "parkingSensors",
@@ -144,7 +146,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "cameras"
+    featureCategory: "cameras",
   },
   {
     name: "blindSpotMonitor",
@@ -152,7 +154,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "safety"
+    featureCategory: "safety",
   },
   {
     name: "laneAssist",
@@ -160,7 +162,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "safety"
+    featureCategory: "safety",
   },
   {
     name: "adaptiveCruiseControl",
@@ -168,7 +170,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "safety"
+    featureCategory: "safety",
   },
 
   // Climate features
@@ -178,7 +180,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "climate"
+    featureCategory: "climate",
   },
   {
     name: "heatedSeats",
@@ -186,7 +188,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "climate"
+    featureCategory: "climate",
   },
   {
     name: "ventilatedSeats",
@@ -194,6 +196,6 @@ export const carSchema: ListingFieldSchema[] = [
     type: "toggle",
     section: "advanced",
     required: false,
-    featureCategory: "climate"
-  }
+    featureCategory: "climate",
+  },
 ];

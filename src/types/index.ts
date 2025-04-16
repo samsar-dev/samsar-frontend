@@ -25,68 +25,68 @@ export type {
 
 // 🌟 Listing Types
 export enum ListingCategory {
-  VEHICLES = 'VEHICLES',
-  REAL_ESTATE = 'REAL_ESTATE',
+  VEHICLES = "VEHICLES",
+  REAL_ESTATE = "REAL_ESTATE",
 }
 
 export enum VehicleType {
-  CAR = 'CAR',
-  TRUCK = 'TRUCK',
-  MOTORCYCLE = 'MOTORCYCLE',
-  RV = 'RV',
-  OTHER = 'OTHER',
+  CAR = "CAR",
+  TRUCK = "TRUCK",
+  MOTORCYCLE = "MOTORCYCLE",
+  RV = "RV",
+  OTHER = "OTHER",
 }
 
 export enum PropertyType {
-  HOUSE = 'HOUSE',
-  APARTMENT = 'APARTMENT',
-  CONDO = 'CONDO',
-  LAND = 'LAND',
-  COMMERCIAL = 'COMMERCIAL',
-  OTHER = 'OTHER',
+  HOUSE = "HOUSE",
+  APARTMENT = "APARTMENT",
+  CONDO = "CONDO",
+  LAND = "LAND",
+  COMMERCIAL = "COMMERCIAL",
+  OTHER = "OTHER",
 }
 
 export enum FuelType {
-  GASOLINE = 'gasoline',
-  DIESEL = 'diesel',
-  ELECTRIC = 'electric',
-  HYBRID = 'hybrid',
-  PLUGIN_HYBRID = 'pluginHybrid',
-  LPG = 'lpg',
-  CNG = 'cng',
-  OTHER = 'other'
+  GASOLINE = "gasoline",
+  DIESEL = "diesel",
+  ELECTRIC = "electric",
+  HYBRID = "hybrid",
+  PLUGIN_HYBRID = "pluginHybrid",
+  LPG = "lpg",
+  CNG = "cng",
+  OTHER = "other",
 }
 
 export enum TransmissionType {
-  AUTOMATIC = 'automatic',
-  MANUAL = 'manual',
-  SEMI_AUTOMATIC = 'semiAutomatic',
-  CONTINUOUSLY_VARIABLE = 'continuouslyVariable',
-  DUAL_CLUTCH = 'dualClutch',
-  OTHER = 'other'
+  AUTOMATIC = "automatic",
+  MANUAL = "manual",
+  SEMI_AUTOMATIC = "semiAutomatic",
+  CONTINUOUSLY_VARIABLE = "continuouslyVariable",
+  DUAL_CLUTCH = "dualClutch",
+  OTHER = "other",
 }
 
 export enum Condition {
-  NEW = 'new',
-  LIKE_NEW = 'likeNew',
-  EXCELLENT = 'excellent',
-  GOOD = 'good',
-  FAIR = 'fair',
-  POOR = 'poor',
-  SALVAGE = 'salvage'
+  NEW = "new",
+  LIKE_NEW = "likeNew",
+  EXCELLENT = "excellent",
+  GOOD = "good",
+  FAIR = "fair",
+  POOR = "poor",
+  SALVAGE = "salvage",
 }
 
 export enum ListingAction {
-  SELL = 'sell',
-  RENT = 'rent'
+  SELL = "sell",
+  RENT = "rent",
 }
 
 export enum ListingStatus {
-  ACTIVE = 'ACTIVE',
-  SOLD = 'SOLD',
-  RENTED = 'RENTED',
-  EXPIRED = 'EXPIRED',
-  ARCHIVED = 'ARCHIVED'
+  ACTIVE = "ACTIVE",
+  SOLD = "SOLD",
+  RENTED = "RENTED",
+  EXPIRED = "EXPIRED",
+  ARCHIVED = "ARCHIVED",
 }
 
 export interface VehicleDetails {
@@ -179,33 +179,16 @@ export type {
 } from "./socket";
 
 // 🌟 UI Types
-export type {
-  ToastPosition,
-  UIPreferences,
-  UIContextType,
-  Theme,
-} from "./ui";
+export type { ToastPosition, UIPreferences, UIContextType, Theme } from "./ui";
 
 // 🌟 User Types
-export type {
-  User,
-  UserProfile,
-  UserUpdateInput,
-} from "./user";
+export type { User, UserProfile, UserUpdateInput } from "./user";
 
 // 🌟 Settings Types
-export type {
-  Settings,
-  SettingsUpdate,
-  SettingsContextType,
-} from "./settings";
+export type { Settings, SettingsUpdate, SettingsContextType } from "./settings";
 
 // 🌟 Auth Types
-export type {
-  AuthState,
-  AuthContextType,
-  AuthErrorCode,
-} from "./auth";
+export type { AuthState, AuthContextType, AuthErrorCode } from "./auth";
 
 // Export all enums
 export {

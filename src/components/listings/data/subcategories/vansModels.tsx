@@ -35,10 +35,10 @@ export const vansModels: VehicleDataStructure = {
 export const getAllMakes = (): string[] => {
   const makes = new Set<string>();
   if (vansModels.regular) {
-    Object.keys(vansModels.regular).forEach(make => makes.add(make));
+    Object.keys(vansModels.regular).forEach((make) => makes.add(make));
   }
   if (vansModels.electric) {
-    Object.keys(vansModels.electric).forEach(make => makes.add(make));
+    Object.keys(vansModels.electric).forEach((make) => makes.add(make));
   }
   return Array.from(makes);
 };

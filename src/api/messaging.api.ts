@@ -31,19 +31,12 @@ export class MessagesAPI {
   static async sendMessage(
     messageData: ListingMessageInput,
   ): Promise<APIResponse<Message>> {
-    const response = await apiClient.post(
-      this.BASE_PATH,
-      messageData,
-    );
+    const response = await apiClient.post(this.BASE_PATH, messageData);
     return response.data;
   }
 
-  static async deleteMessage(
-    messageId: string,
-  ): Promise<APIResponse<void>> {
-    const response = await apiClient.delete(
-      `${this.BASE_PATH}/${messageId}`,
-    );
+  static async deleteMessage(messageId: string): Promise<APIResponse<void>> {
+    const response = await apiClient.delete(`${this.BASE_PATH}/${messageId}`);
     return response.data;
   }
 

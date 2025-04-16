@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { FormState } from "@/types/listings";
-import { ListingCategory, VehicleType, FuelType, TransmissionType, Condition, PropertyType } from "@/types/enums";
+import {
+  ListingCategory,
+  VehicleType,
+  FuelType,
+  TransmissionType,
+  Condition,
+  PropertyType,
+} from "@/types/enums";
 import { listingsAPI, createListing } from "@/api/listings.api";
 import { toast } from "react-hot-toast";
 import type { APIResponse, SingleListingResponse } from "@/api/listings.api";
@@ -10,7 +17,9 @@ export interface UseCreateListingReturn {
   errors: Record<string, string>;
   isSubmitting: boolean;
   handleFieldChange: (field: string, value: any) => void;
-  handleSubmit: (data: FormData | FormState) => Promise<SingleListingResponse | undefined>;
+  handleSubmit: (
+    data: FormData | FormState,
+  ) => Promise<SingleListingResponse | undefined>;
 }
 
 const initialFormState: FormState = {
@@ -19,7 +28,7 @@ const initialFormState: FormState = {
   price: 0,
   category: {
     mainCategory: ListingCategory.VEHICLES,
-    subCategory: VehicleType.CAR
+    subCategory: VehicleType.CAR,
   },
   location: "",
   images: [],
@@ -42,10 +51,10 @@ const initialFormState: FormState = {
       warranty: "",
       serviceHistory: "",
       previousOwners: undefined,
-      registrationStatus: ""
-    }
+      registrationStatus: "",
+    },
   },
-  listingAction: "sell"
+  listingAction: "sell",
 };
 
 export const useCreateListing = (): UseCreateListingReturn => {
@@ -84,7 +93,8 @@ export const useCreateListing = (): UseCreateListingReturn => {
       newErrors["description"] = "Description is required";
       missingFields.push("description");
     }
-    const numericPrice = typeof data.price === 'string' ? parseFloat(data.price) : data.price || 0;
+    const numericPrice =
+      typeof data.price === "string" ? parseFloat(data.price) : data.price || 0;
     if (isNaN(numericPrice) || numericPrice <= 0) {
       newErrors["price"] = "Valid price is required";
       missingFields.push("price");
@@ -126,11 +136,11 @@ export const useCreateListing = (): UseCreateListingReturn => {
           warranty: vehicles.warranty?.toString()?.trim(),
           serviceHistory: vehicles.serviceHistory?.trim(),
           previousOwners: vehicles.previousOwners,
-          registrationStatus: vehicles.registrationStatus?.trim()
+          registrationStatus: vehicles.registrationStatus?.trim(),
         };
 
         // Log vehicle field values
-        console.log('Vehicle field values:', vehicleFields);
+        console.log("Vehicle field values:", vehicleFields);
 
         Object.entries(vehicleFields).forEach(([field, value]) => {
           if (!value) {
@@ -151,11 +161,11 @@ export const useCreateListing = (): UseCreateListingReturn => {
           yearBuilt: realEstate.yearBuilt?.trim(),
           bedrooms: realEstate.bedrooms?.trim(),
           bathrooms: realEstate.bathrooms?.trim(),
-          condition: realEstate.condition
+          condition: realEstate.condition,
         };
 
         // Log real estate field values
-        console.log('Real estate field values:', realEstateFields);
+        console.log("Real estate field values:", realEstateFields);
 
         Object.entries(realEstateFields).forEach(([field, value]) => {
           if (!value) {
@@ -167,7 +177,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
     }
 
     if (Object.keys(newErrors).length > 0) {
-      console.error('Validation errors:', {
+      console.error("Validation errors:", {
         errors: newErrors,
         missingFields: missingFields,
         formData: {
@@ -177,8 +187,8 @@ export const useCreateListing = (): UseCreateListingReturn => {
           location: data.location,
           category: data.category,
           images: data.images?.length,
-          details: data.details
-        }
+          details: data.details,
+        },
       });
     }
 
@@ -186,25 +196,27 @@ export const useCreateListing = (): UseCreateListingReturn => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (data: FormData | FormState): Promise<SingleListingResponse | undefined> => {
+  const handleSubmit = async (
+    data: FormData | FormState,
+  ): Promise<SingleListingResponse | undefined> => {
     try {
       setIsSubmitting(true);
 
       if (!(data instanceof FormData)) {
         // Log the incoming data
-        console.log('Incoming form data:', {
+        console.log("Incoming form data:", {
           title: data.title,
           description: data.description,
           price: data.price,
           location: data.location,
           category: data.category,
           images: data.images?.length,
-          details: data.details
+          details: data.details,
         });
 
         // Validate and normalize form data
         if (!validateForm(data)) {
-          console.error('Form validation failed. Current errors:', errors);
+          console.error("Form validation failed. Current errors:", errors);
           throw new Error("Form validation failed");
         }
 
@@ -212,58 +224,83 @@ export const useCreateListing = (): UseCreateListingReturn => {
         const formData = new FormData();
 
         // Ensure price is a valid number
-        const price = typeof data.price === 'string' ? parseFloat(data.price) : data.price || 0;
+        const price =
+          typeof data.price === "string"
+            ? parseFloat(data.price)
+            : data.price || 0;
         if (isNaN(price)) {
-          throw new Error('Invalid price format');
+          throw new Error("Invalid price format");
         }
 
         // Add basic fields with null checks
-        formData.append("title", data.title || '');
-        formData.append("description", data.description || '');
+        formData.append("title", data.title || "");
+        formData.append("description", data.description || "");
         formData.append("price", price.toString());
-        formData.append("location", data.location || '');
-        formData.append("listingAction", (data.listingAction || "sell").toUpperCase());
+        formData.append("location", data.location || "");
+        formData.append(
+          "listingAction",
+          (data.listingAction || "sell").toUpperCase(),
+        );
 
         // Add category information
         const category = {
           mainCategory: data.category?.mainCategory || ListingCategory.VEHICLES,
-          subCategory: data.category?.subCategory || VehicleType.CAR
+          subCategory: data.category?.subCategory || VehicleType.CAR,
         };
         formData.append("category", JSON.stringify(category));
 
         // Add details based on category
         const details = {
-          vehicles: data.category?.mainCategory === ListingCategory.VEHICLES ? {
-            ...data.details?.vehicles,
-            vehicleType: data.details?.vehicles?.vehicleType || VehicleType.CAR,
-            make: data.details?.vehicles?.make || '',
-            model: data.details?.vehicles?.model || '',
-            year: data.details?.vehicles?.year || new Date().getFullYear().toString(),
-            mileage: data.details?.vehicles?.mileage || '0',
-            fuelType: data.details?.vehicles?.fuelType || FuelType.GASOLINE,
-            transmission: data.details?.vehicles?.transmission || TransmissionType.AUTOMATIC,
-            color: data.details?.vehicles?.color || '',
-            condition: data.details?.vehicles?.condition || Condition.GOOD,
-            features: data.details?.vehicles?.features || [],
-            interiorColor: data.details?.vehicles?.interiorColor || '',
-            warranty: data.details?.vehicles?.warranty?.toString() || '',
-            serviceHistory: data.details?.vehicles?.serviceHistory || '',
-            previousOwners: data.details?.vehicles?.previousOwners?.toString() || '0',
-            registrationStatus: data.details?.vehicles?.registrationStatus || '',
-            engine: data.details?.vehicles?.engine || '',
-            horsepower: data.details?.vehicles?.horsepower?.toString() || '0',
-            torque: data.details?.vehicles?.torque?.toString() || '0'
-          } : undefined,
-          realEstate: data.category?.mainCategory === ListingCategory.REAL_ESTATE ? {
-            ...data.details?.realEstate,
-            propertyType: data.details?.realEstate?.propertyType || PropertyType.HOUSE,
-            size: data.details?.realEstate?.size || '',
-            yearBuilt: data.details?.realEstate?.yearBuilt || '',
-            bedrooms: data.details?.realEstate?.bedrooms || '',
-            bathrooms: data.details?.realEstate?.bathrooms || '',
-            condition: data.details?.realEstate?.condition || Condition.GOOD,
-            features: data.details?.realEstate?.features || []
-          } : undefined
+          vehicles:
+            data.category?.mainCategory === ListingCategory.VEHICLES
+              ? {
+                  ...data.details?.vehicles,
+                  vehicleType:
+                    data.details?.vehicles?.vehicleType || VehicleType.CAR,
+                  make: data.details?.vehicles?.make || "",
+                  model: data.details?.vehicles?.model || "",
+                  year:
+                    data.details?.vehicles?.year ||
+                    new Date().getFullYear().toString(),
+                  mileage: data.details?.vehicles?.mileage || "0",
+                  fuelType:
+                    data.details?.vehicles?.fuelType || FuelType.GASOLINE,
+                  transmission:
+                    data.details?.vehicles?.transmission ||
+                    TransmissionType.AUTOMATIC,
+                  color: data.details?.vehicles?.color || "",
+                  condition:
+                    data.details?.vehicles?.condition || Condition.GOOD,
+                  features: data.details?.vehicles?.features || [],
+                  interiorColor: data.details?.vehicles?.interiorColor || "",
+                  warranty: data.details?.vehicles?.warranty?.toString() || "",
+                  serviceHistory: data.details?.vehicles?.serviceHistory || "",
+                  previousOwners:
+                    data.details?.vehicles?.previousOwners?.toString() || "0",
+                  registrationStatus:
+                    data.details?.vehicles?.registrationStatus || "",
+                  engine: data.details?.vehicles?.engine || "",
+                  horsepower:
+                    data.details?.vehicles?.horsepower?.toString() || "0",
+                  torque: data.details?.vehicles?.torque?.toString() || "0",
+                }
+              : undefined,
+          realEstate:
+            data.category?.mainCategory === ListingCategory.REAL_ESTATE
+              ? {
+                  ...data.details?.realEstate,
+                  propertyType:
+                    data.details?.realEstate?.propertyType ||
+                    PropertyType.HOUSE,
+                  size: data.details?.realEstate?.size || "",
+                  yearBuilt: data.details?.realEstate?.yearBuilt || "",
+                  bedrooms: data.details?.realEstate?.bedrooms || "",
+                  bathrooms: data.details?.realEstate?.bathrooms || "",
+                  condition:
+                    data.details?.realEstate?.condition || Condition.GOOD,
+                  features: data.details?.realEstate?.features || [],
+                }
+              : undefined,
         };
         formData.append("details", JSON.stringify(details));
 
@@ -277,7 +314,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         }
 
         // Log the FormData entries for debugging
-        console.log('FormData entries:');
+        console.log("FormData entries:");
         for (const [key, value] of formData.entries()) {
           console.log(`${key}:`, value);
         }
@@ -301,8 +338,11 @@ export const useCreateListing = (): UseCreateListingReturn => {
         }
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      const errorMessage = error instanceof Error ? error.message : "An error occurred while creating the listing";
+      console.error("Error submitting form:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An error occurred while creating the listing";
       toast.error(errorMessage);
       throw error;
     } finally {
@@ -315,7 +355,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
     errors,
     isSubmitting,
     handleFieldChange,
-    handleSubmit
+    handleSubmit,
   };
 };
 

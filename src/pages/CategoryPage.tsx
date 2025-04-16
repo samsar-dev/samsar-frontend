@@ -6,7 +6,10 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { listingsAPI } from "@/api/listings.api";
 import { toast } from "react-toastify";
 import { Spinner } from "@/components/ui/Spinner";
-import type { FixedSizeGrid as Grid, GridChildComponentProps } from 'react-window';
+import type {
+  FixedSizeGrid as Grid,
+  GridChildComponentProps,
+} from "react-window";
 
 const CategoryPage: React.FC = () => {
   const { category } = useParams<{ category: string }>();
@@ -16,7 +19,7 @@ const CategoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchListings = useCallback(
     async (searchQuery?: string, page: number = 1) => {
@@ -40,24 +43,24 @@ const CategoryPage: React.FC = () => {
           if (page === 1) {
             setListings(response.data.items);
           } else {
-            setListings(prev => [...prev, ...response.data.items]);
+            setListings((prev) => [...prev, ...response.data.items]);
           }
           setHasMore(response.data.items.length > 0);
         } else {
-          setError(response.error || 'Failed to fetch listings');
+          setError(response.error || "Failed to fetch listings");
         }
       } catch (error) {
-        console.error('Error fetching listings:', error);
-        setError('Failed to fetch listings');
+        console.error("Error fetching listings:", error);
+        setError("Failed to fetch listings");
       } finally {
         setLoading(false);
       }
     },
-    [category]
+    [category],
   );
 
   const handleLoadMore = useCallback(() => {
-    setPage(prev => prev + 1);
+    setPage((prev) => prev + 1);
   }, []);
 
   const handleEditListing = (listing: Listing) => {
@@ -100,14 +103,20 @@ const CategoryPage: React.FC = () => {
         columnCount={Math.floor(window.innerWidth / 300)}
         columnWidth={300}
         height={800}
-        rowCount={Math.ceil(listings.length / Math.floor(window.innerWidth / 300))}
+        rowCount={Math.ceil(
+          listings.length / Math.floor(window.innerWidth / 300),
+        )}
         rowHeight={400}
         width={window.innerWidth - 32}
         itemData={listings}
       >
         {({ columnIndex, rowIndex, style }: GridChildComponentProps) => (
           <ListingCard
-            listing={listings[rowIndex * Math.floor(window.innerWidth / 300) + columnIndex]}
+            listing={
+              listings[
+                rowIndex * Math.floor(window.innerWidth / 300) + columnIndex
+              ]
+            }
             style={style}
             onEdit={handleEditListing}
             onDelete={handleDeleteListing}

@@ -47,7 +47,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsLoading(true);
       const response = await listingsAPI.getSavedListings();
       if (response.success && response.data?.favorites) {
-        setFavorites(response.data.favorites.map((fav: FavoriteItem) => fav.id));
+        setFavorites(
+          response.data.favorites.map((fav: FavoriteItem) => fav.id),
+        );
       } else {
         setFavorites([]);
       }
@@ -71,15 +73,15 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
       return {
         success: response.success,
         data: undefined,
-        error: response.error
+        error: response.error,
       };
     } catch (error) {
       console.error("Error adding favorite:", error);
       toast.error("Failed to add to favorites");
-      return { 
-        success: false, 
+      return {
+        success: false,
         data: undefined,
-        error: "Failed to add to favorites" 
+        error: "Failed to add to favorites",
       };
     } finally {
       setIsLoading(false);
@@ -97,15 +99,15 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
       return {
         success: response.success,
         data: undefined,
-        error: response.error
+        error: response.error,
       };
     } catch (error) {
       console.error("Error removing favorite:", error);
       toast.error("Failed to remove from favorites");
-      return { 
-        success: false, 
+      return {
+        success: false,
         data: undefined,
-        error: "Failed to remove from favorites" 
+        error: "Failed to remove from favorites",
       };
     } finally {
       setIsLoading(false);

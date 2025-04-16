@@ -67,20 +67,20 @@ const ListingDetails: React.FC = () => {
         // Log the full response data for debugging advanced details
         console.log(
           "Response data details:",
-          JSON.stringify(response.data?.details, null, 2)
+          JSON.stringify(response.data?.details, null, 2),
         );
         console.log(
           "FULL Response Data:",
-          JSON.stringify(response.data, null, 2)
+          JSON.stringify(response.data, null, 2),
         );
         console.log(
           "Response data details:",
-          JSON.stringify(response.data?.details, null, 2)
+          JSON.stringify(response.data?.details, null, 2),
         );
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details:",
-            JSON.stringify(response.data.details.vehicles, null, 2)
+            JSON.stringify(response.data.details.vehicles, null, 2),
           );
         }
 
@@ -107,7 +107,7 @@ const ListingDetails: React.FC = () => {
             if (img && typeof img === "object" && "url" in img) return img.url;
             // If image is an object but doesn't have url property, try to find a string property
             const stringProps = Object.values(
-              img as Record<string, unknown>
+              img as Record<string, unknown>,
             ).find((val) => typeof val === "string");
             return stringProps || "";
           })
@@ -128,13 +128,13 @@ const ListingDetails: React.FC = () => {
         // Log all the details to debug what's available
         console.log(
           "Details before transformation:",
-          JSON.stringify(details, null, 2)
+          JSON.stringify(details, null, 2),
         );
         console.log(
           "Vehicle details before:",
           details.vehicles
             ? JSON.stringify(details.vehicles, null, 2)
-            : "No vehicle details"
+            : "No vehicle details",
         );
 
         // Transform vehicle details if present
@@ -179,7 +179,7 @@ const ListingDetails: React.FC = () => {
           "Vehicle details after transformation:",
           transformedDetails.vehicles
             ? JSON.stringify(transformedDetails.vehicles, null, 2)
-            : "No vehicle details"
+            : "No vehicle details",
         );
 
         setListing({
@@ -553,7 +553,7 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {t(
-                            `listings.serviceHistories.${listing.details.vehicles.serviceHistory}`
+                            `listings.serviceHistories.${listing.details.vehicles.serviceHistory}`,
                           )}
                         </p>
                       </div>
@@ -575,7 +575,7 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {t(
-                            `listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`
+                            `listings.registrationStatuses.${listing.details.vehicles.registrationStatus}`,
                           )}
                         </p>
                       </div>
@@ -691,7 +691,7 @@ const ListingDetails: React.FC = () => {
                             >
                               {feature}
                             </span>
-                          )
+                          ),
                         )}
                       </div>
                     </div>
@@ -714,7 +714,7 @@ const ListingDetails: React.FC = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`
+                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
                     )}
                   </p>
                 </div>
@@ -765,7 +765,7 @@ const ListingDetails: React.FC = () => {
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {t(
-                        `listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`
+                        `listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
                       )}
                     </p>
                   </div>
@@ -787,7 +787,7 @@ const ListingDetails: React.FC = () => {
                           >
                             {feature}
                           </span>
-                        )
+                        ),
                       )}
                     </div>
                   </div>

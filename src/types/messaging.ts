@@ -1,6 +1,12 @@
 import type { User } from "./user";
 import type { APIResponse, PaginatedData } from "./api";
-import { LanguageCode, ThemeType, ReportType, ReportStatus, ReportReason } from "./enums";
+import {
+  LanguageCode,
+  ThemeType,
+  ReportType,
+  ReportStatus,
+  ReportReason,
+} from "./enums";
 import { NotificationType } from "./notifications";
 
 // Base Types

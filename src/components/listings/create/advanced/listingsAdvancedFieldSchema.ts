@@ -3,23 +3,34 @@ import type { ListingFieldSchema } from "@/types/listings";
 import { VehicleType, PropertyType, Condition } from "@/types/enums";
 
 // Import individual schemas
-import { carSchema } from './schemas/carSchema';
-import { motorcycleSchema } from './schemas/motorcycleSchema';
-import { truckSchema } from './schemas/truckSchema';
-import { tractorSchema } from './schemas/tractorSchema';
-import { constructionSchema } from './schemas/constructionSchema';
-import { vanSchema } from './schemas/vanSchema';
-import { busSchema } from './schemas/busSchema';
-import { houseSchema } from './schemas/houseSchema';
-import { apartmentSchema } from './schemas/apartmentSchema';
-import { landSchema } from './schemas/landSchema';
+import { carSchema } from "./schemas/carSchema";
+import { motorcycleSchema } from "./schemas/motorcycleSchema";
+import { truckSchema } from "./schemas/truckSchema";
+import { tractorSchema } from "./schemas/tractorSchema";
+import { constructionSchema } from "./schemas/constructionSchema";
+import { vanSchema } from "./schemas/vanSchema";
+import { busSchema } from "./schemas/busSchema";
+import { houseSchema } from "./schemas/houseSchema";
+import { apartmentSchema } from "./schemas/apartmentSchema";
+import { landSchema } from "./schemas/landSchema";
 
-import { FaCarSide, FaCogs, FaCouch, FaShieldAlt, FaBuilding, FaCog, FaList, FaTachometerAlt, FaWheelchair, FaPaintBrush, FaTree, FaClock } from "react-icons/fa";
+import {
+  FaCarSide,
+  FaCogs,
+  FaCouch,
+  FaShieldAlt,
+  FaBuilding,
+  FaCog,
+  FaList,
+  FaTachometerAlt,
+  FaWheelchair,
+  FaPaintBrush,
+  FaTree,
+  FaClock,
+} from "react-icons/fa";
 
 // Define section configuration type
-export type SectionId = 
-  | 'essential'
-  | 'advanced';
+export type SectionId = "essential" | "advanced";
 
 export interface SectionConfig {
   order: number;
@@ -49,86 +60,90 @@ export const getIconComponent = (iconName: string) => {
 export const SECTION_CONFIG: Record<SectionId, SectionConfig> = {
   essential: {
     order: 1,
-    icon: 'FaCarSide',
-    label: 'sections.essential'
+    icon: "FaCarSide",
+    label: "sections.essential",
   },
   advanced: {
     order: 2,
-    icon: 'FaCog',
-    label: 'sections.advanced'
-  }
+    icon: "FaCog",
+    label: "sections.advanced",
+  },
 };
 
 // Common fields
 const colorField: ListingFieldSchema = {
-  name: 'color',
-  label: 'listings.exteriorColor',
-  type: 'colorpicker',
-  section: 'appearance',
-        required: false,
-  validate: (value: string) => value.length <= 50 ? null : 'Color must be 50 characters or less'
+  name: "color",
+  label: "listings.exteriorColor",
+  type: "colorpicker",
+  section: "appearance",
+  required: false,
+  validate: (value: string) =>
+    value.length <= 50 ? null : "Color must be 50 characters or less",
 };
 
 const conditionField: ListingFieldSchema = {
-  name: 'condition',
-  label: 'listings.condition',
-  type: 'select',
+  name: "condition",
+  label: "listings.condition",
+  type: "select",
   options: Object.values(Condition),
-  section: 'essential',
-        required: true,
-  validate: (value: string) => Object.values(Condition).includes(value as Condition) ? null : 'Invalid condition value'
+  section: "essential",
+  required: true,
+  validate: (value: string) =>
+    Object.values(Condition).includes(value as Condition)
+      ? null
+      : "Invalid condition value",
 };
 
 // Base schema for empty categories to avoid errors
 const baseVehicleSchema: ListingFieldSchema[] = [
   {
-    name: 'make',
-    label: 'listings.make',
-    type: 'text',
-    section: 'essential',
-    required: true
+    name: "make",
+    label: "listings.make",
+    type: "text",
+    section: "essential",
+    required: true,
   },
   {
-    name: 'model',
-    label: 'listings.model',
-    type: 'text',
-    section: 'essential',
-    required: true
+    name: "model",
+    label: "listings.model",
+    type: "text",
+    section: "essential",
+    required: true,
   },
   {
-    name: 'year',
-    label: 'listings.year',
-    type: 'text',
-    section: 'essential',
-    required: true
+    name: "year",
+    label: "listings.year",
+    type: "text",
+    section: "essential",
+    required: true,
   },
   {
-    name: 'condition',
-    label: 'listings.condition',
-    type: 'select',
+    name: "condition",
+    label: "listings.condition",
+    type: "select",
     options: Object.values(Condition),
-    section: 'essential',
-    required: true
-  }
+    section: "essential",
+    required: true,
+  },
 ];
 
 const baseRealEstateSchema: ListingFieldSchema[] = [
   {
-    name: 'propertyType',
-    label: 'listings.propertyType',
-    type: 'select',
+    name: "propertyType",
+    label: "listings.propertyType",
+    type: "select",
     options: Object.values(PropertyType),
-    section: 'essential',
-    required: true
+    section: "essential",
+    required: true,
   },
   {
-    name: 'condition',
-    label: 'listings.condition',
-    type: 'select',
+    name: "condition",
+    label: "listings.condition",
+    type: "select",
     options: Object.values(Condition),
-    section: 'essential',
-    required: true
-  }
+    section: "essential",
+    required: true,
+  },
 ];
 
 // Create schema map for all vehicle types
@@ -155,7 +170,8 @@ const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
 };
 
 // Combine both schema maps
-export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> = {
-  ...vehicleSchemas,
-  ...propertySchemas
+export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> =
+  {
+    ...vehicleSchemas,
+    ...propertySchemas,
   };

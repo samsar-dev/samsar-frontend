@@ -1,11 +1,8 @@
-import {
-  FuelType,
-  TransmissionType,
-} from "@/types/enums";
+import { FuelType, TransmissionType } from "@/types/enums";
 
 export interface ListingFieldSchema {
   name: string;
-  type: 'text' | 'select' | 'number' | 'textarea';
+  type: "text" | "select" | "number" | "textarea";
   label: string;
   required: boolean;
   dependsOn?: string;

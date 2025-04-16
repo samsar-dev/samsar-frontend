@@ -94,25 +94,31 @@ export const createListing = async (formData: FormData) => {
     }
 
     // Get the details from formData and parse them
-    const detailsStr = formData.get('details');
-    if (detailsStr && typeof detailsStr === 'string') {
+    const detailsStr = formData.get("details");
+    if (detailsStr && typeof detailsStr === "string") {
       const details = JSON.parse(detailsStr);
-      
+
       // If this is a tractor, ensure all required fields are present
       if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
         const tractorDetails = details.vehicles as TractorDetails;
-        
+
         // Ensure required tractor fields
-        tractorDetails.horsepower = parseInt(tractorDetails.horsepower?.toString() || "0");
+        tractorDetails.horsepower = parseInt(
+          tractorDetails.horsepower?.toString() || "0",
+        );
         tractorDetails.attachments = tractorDetails.attachments || [];
-        tractorDetails.fuelTankCapacity = tractorDetails.fuelTankCapacity || "0";
+        tractorDetails.fuelTankCapacity =
+          tractorDetails.fuelTankCapacity || "0";
         tractorDetails.tires = tractorDetails.tires || "";
-        
+
         // Update the formData with the validated tractor details
-        formData.set('details', JSON.stringify({
-          ...details,
-          vehicles: tractorDetails
-        }));
+        formData.set(
+          "details",
+          JSON.stringify({
+            ...details,
+            vehicles: tractorDetails,
+          }),
+        );
       }
     }
 
@@ -124,7 +130,9 @@ export const createListing = async (formData: FormData) => {
     });
 
     if (!response.data.success) {
-      throw new Error(response.data.error?.message || "Failed to create listing");
+      throw new Error(
+        response.data.error?.message || "Failed to create listing",
+      );
     }
 
     return response.data;
@@ -133,7 +141,9 @@ export const createListing = async (formData: FormData) => {
     if (error instanceof AxiosError && error.response?.status === 401) {
       throw new Error("Please log in to create a listing");
     }
-    throw new Error(error instanceof Error ? error.message : "Failed to create listing");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to create listing",
+    );
   }
 };
 
@@ -161,7 +171,7 @@ interface ListingParams {
     model?: string;
   };
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   limit?: number;
   page?: number;
   search?: string;
@@ -176,44 +186,51 @@ interface ListingParams {
 const getCacheKey = (params: ListingParams, customKey?: string) => {
   const sortedParams = Object.entries(params)
     .sort(([a], [b]) => a.localeCompare(b))
-    .reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as Record<string, any>);
-    
+    .reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
+
   return customKey || JSON.stringify(sortedParams);
 };
 
 const getFromCache = (key: string) => {
   const cached = cache.get(key);
   if (!cached) return null;
-  
+
   if (Date.now() - cached.timestamp > CACHE_DURATION) {
     cache.delete(key);
     return null;
   }
-  
+
   return cached.data;
 };
 
 const setInCache = (key: string, data: any) => {
   // Limit cache size to prevent memory issues
   if (cache.size > 100) {
-    const oldestKey = Array.from(cache.entries())
-      .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0][0];
+    const oldestKey = Array.from(cache.entries()).sort(
+      ([, a], [, b]) => a.timestamp - b.timestamp,
+    )[0][0];
     cache.delete(oldestKey);
   }
-  
+
   cache.set(key, { data, timestamp: Date.now() });
 };
 
 export const listingsAPI = {
-  async getAll(params: ListingParams, signal?: AbortSignal): Promise<APIResponse<ListingsResponse>> {
+  async getAll(
+    params: ListingParams,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<ListingsResponse>> {
     const cacheKey = getCacheKey(params);
     const cached = getFromCache(cacheKey);
-    
+
     // Return cached data if available and not forcing refresh
     if (cached && !params.forceRefresh) {
       return { success: true, data: cached };
@@ -248,8 +265,10 @@ export const listingsAPI = {
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.page) queryParams.append("page", params.page.toString());
       if (params.search) queryParams.append("search", params.search);
-      if (params.minPrice) queryParams.append("minPrice", params.minPrice.toString());
-      if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice.toString());
+      if (params.minPrice)
+        queryParams.append("minPrice", params.minPrice.toString());
+      if (params.maxPrice)
+        queryParams.append("maxPrice", params.maxPrice.toString());
       if (params.location) queryParams.append("location", params.location);
       if (params.builtYear !== undefined && params.builtYear !== null) {
         queryParams.append("builtYear", params.builtYear.toString());
@@ -278,7 +297,7 @@ export const listingsAPI = {
       } catch (e) {
         throw new Error("Invalid response from server");
       }
-      
+
       // Make sure data contains the necessary fields
       const responseData = {
         listings: data.data?.items || data.data?.listings || [],
@@ -286,7 +305,7 @@ export const listingsAPI = {
         page: data.data?.page || 1,
         limit: data.data?.limit || 10,
       };
-      
+
       // Only cache successful responses
       if (data.success) {
         setInCache(cacheKey, responseData);
@@ -299,14 +318,15 @@ export const listingsAPI = {
       };
     } catch (error: unknown) {
       // Don't log aborted request errors
-      if (error instanceof Error && error.name !== 'AbortError') {
+      if (error instanceof Error && error.name !== "AbortError") {
         console.error("Error fetching listings:", error);
       }
-      
+
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to fetch listings",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch listings",
       };
     }
   },
@@ -319,7 +339,7 @@ export const listingsAPI = {
     } catch (error) {
       console.error("Error fetching listing:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to fetch listing"
+        error instanceof Error ? error.message : "Failed to fetch listing",
       );
     }
   },
@@ -327,17 +347,17 @@ export const listingsAPI = {
   // Update a listing
   async updateListing(
     id: string,
-    formData: FormData
+    formData: FormData,
   ): Promise<APIResponse<Listing>> {
     try {
       // Get the details from formData
-      const details = formData.get('details');
+      const details = formData.get("details");
       let parsedDetails;
-      
+
       try {
         parsedDetails = details ? JSON.parse(details as string) : {};
       } catch (e) {
-        console.error('Error parsing details:', e);
+        console.error("Error parsing details:", e);
         parsedDetails = {};
       }
 
@@ -346,39 +366,43 @@ export const listingsAPI = {
       if (vehicleDetails) {
         // Remove fields that are not in the Prisma schema
         delete vehicleDetails.engineSize;
-        
+
         // Ensure numeric fields are properly converted
-        const numericFields = ['year', 'mileage', 'warranty', 'previousOwners'];
-        numericFields.forEach(field => {
+        const numericFields = ["year", "mileage", "warranty", "previousOwners"];
+        numericFields.forEach((field) => {
           if (field in vehicleDetails) {
             vehicleDetails[field] = Number(vehicleDetails[field]);
           }
         });
 
         // Update the formData with cleaned vehicle details
-        formData.set('details', JSON.stringify({
-          ...parsedDetails,
-          vehicles: vehicleDetails
-        }));
+        formData.set(
+          "details",
+          JSON.stringify({
+            ...parsedDetails,
+            vehicles: vehicleDetails,
+          }),
+        );
       }
 
       const response = await apiClient.put(`/listings/${id}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to update listing');
+        throw new Error(response.data.error || "Failed to update listing");
       }
 
       return response.data;
     } catch (error: any) {
       console.error("Error updating listing:", error);
-      const errorMessage = error.response?.data?.error?.message 
-        || error.response?.data?.error 
-        || error.message 
-        || "Failed to update listing";
+      const errorMessage =
+        error.response?.data?.error?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to update listing";
       throw new Error(errorMessage);
     }
   },
@@ -401,50 +425,56 @@ export const listingsAPI = {
     }
   },
 
-// Save a listing as favorite
-async saveListing(listingId: string): Promise<APIResponse<Listing>> {
-  try {
-    // Ensure listingId is a string
-    const id = String(listingId);
-    
-    const response = await apiClient.post(`/listings/saved/${id}`);
+  // Save a listing as favorite
+  async saveListing(listingId: string): Promise<APIResponse<Listing>> {
+    try {
+      // Ensure listingId is a string
+      const id = String(listingId);
 
-    if (!response.data.success) {
-      throw new Error(response.data.error || "Failed to save listing");
+      const response = await apiClient.post(`/listings/saved/${id}`);
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || "Failed to save listing");
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error saving listing:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to save listing",
+      );
     }
-    return response.data;
-  } catch (error) {
-    console.error("Error saving listing:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to save listing"
-    );
-  }
-},
+  },
 
   // Get favorites with abort signal support
-  async getSavedListings(userId?: string, signal?: AbortSignal): Promise<APIResponse<any>> {
-    const cacheKey = `saved-listings-${userId || 'current'}`;
+  async getSavedListings(
+    userId?: string,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<any>> {
+    const cacheKey = `saved-listings-${userId || "current"}`;
     const cached = getFromCache(cacheKey);
     if (cached) return { success: true, data: cached };
-    
+
     try {
-      const response = await apiClient.get('/listings/saved', { signal });
-      
+      const response = await apiClient.get("/listings/saved", { signal });
+
       if (response.data.success && response.data.data) {
         setInCache(cacheKey, response.data.data);
       }
-      
+
       return response.data;
     } catch (error) {
       // Don't log aborted request errors
-      if (error.name !== 'AbortError') {
+      if (error.name !== "AbortError") {
         console.error("Error fetching saved listings:", error);
       }
-      
+
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to fetch saved listings",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch saved listings",
       };
     }
   },
@@ -466,7 +496,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+          errorData.error || `HTTP error! status: ${response.status}`,
         );
       }
 
@@ -475,7 +505,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
     } catch (error) {
       console.error("Error adding favorite:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to add favorite"
+        error instanceof Error ? error.message : "Failed to add favorite",
       );
     }
   },
@@ -483,37 +513,42 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
   // Remove favorite
   async removeFavorite(listingId: string): Promise<APIResponse<void>> {
     try {
-      const response = await apiClient.delete<APIResponse<void>>(`/listings/saved/${listingId}`);
+      const response = await apiClient.delete<APIResponse<void>>(
+        `/listings/saved/${listingId}`,
+      );
       return response.data;
     } catch (error) {
       console.error("Error removing favorite:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to remove favorite"
+        error instanceof Error ? error.message : "Failed to remove favorite",
       );
     }
   },
 
   // Get user listings with abort signal support
-  async getUserListings(params?: ListingParams, signal?: AbortSignal): Promise<APIResponse<UserListingsResponse>> {
+  async getUserListings(
+    params?: ListingParams,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<UserListingsResponse>> {
     try {
       const queryString = params
         ? new URLSearchParams(params as any).toString()
         : "";
-      
+
       const requestConfig = signal ? { signal } : {};
-      
+
       const response = await apiClient.get<APIResponse<UserListingsResponse>>(
         `/listings/user${queryString ? `?${queryString}` : ""}`,
-        requestConfig
+        requestConfig,
       );
 
       return response.data;
     } catch (error: any) {
       // Don't log aborted request errors
-      if (error.name !== 'AbortError') {
+      if (error.name !== "AbortError") {
         console.error("Error fetching user listings:", error);
       }
-      
+
       return {
         success: false,
         data: null,
@@ -561,8 +596,10 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
                 responseData.details.vehicles.interiorColor || "#000000",
               condition: responseData.details.vehicles.condition || "good",
               // Technical fields
-              brakeType: responseData.details.vehicles.brakeType || "Not provided",
-              engineSize: responseData.details.vehicles.engineSize || "Not provided",
+              brakeType:
+                responseData.details.vehicles.brakeType || "Not provided",
+              engineSize:
+                responseData.details.vehicles.engineSize || "Not provided",
               engine: responseData.details.vehicles.engine || "Not provided",
               warranty:
                 responseData.details.vehicles.warranty?.toString() || "0",
@@ -597,18 +634,18 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
         category: responseData.category,
         location: responseData.location,
         images: responseData.images.map((img) =>
-          typeof img === "string" ? img : img.url
+          typeof img === "string" ? img : img.url,
         ),
         createdAt: responseData.createdAt,
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction === 'SELL' ? "SELL" : "RENT",
+        listingAction: responseData.listingAction === "SELL" ? "SELL" : "RENT",
         seller: {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",
-          profilePicture: responseData.seller?.profilePicture || null
-        }
+          profilePicture: responseData.seller?.profilePicture || null,
+        },
       };
 
       return {
@@ -630,7 +667,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
 
   // Create new listing
   async create(
-    formData: FormData
+    formData: FormData,
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Log the FormData contents before sending
@@ -639,7 +676,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File/Blob data"
+          typeof pair[1] === "string" ? pair[1] : "File/Blob data",
         );
       }
 
@@ -684,29 +721,35 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
   // Update listing
   async update(
     id: string,
-    formData: FormData
+    formData: FormData,
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Get the details from formData and parse them
-      const detailsStr = formData.get('details');
-      if (detailsStr && typeof detailsStr === 'string') {
+      const detailsStr = formData.get("details");
+      if (detailsStr && typeof detailsStr === "string") {
         const details = JSON.parse(detailsStr);
-        
+
         // If this is a tractor, ensure all required fields are present
         if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
           const tractorDetails = details.vehicles as TractorDetails;
-          
+
           // Ensure required tractor fields
-          tractorDetails.horsepower = parseInt(tractorDetails.horsepower?.toString() || "0");
+          tractorDetails.horsepower = parseInt(
+            tractorDetails.horsepower?.toString() || "0",
+          );
           tractorDetails.attachments = tractorDetails.attachments || [];
-          tractorDetails.fuelTankCapacity = tractorDetails.fuelTankCapacity || "0";
+          tractorDetails.fuelTankCapacity =
+            tractorDetails.fuelTankCapacity || "0";
           tractorDetails.tires = tractorDetails.tires || "";
-          
+
           // Update the formData with the validated tractor details
-          formData.set('details', JSON.stringify({
-            ...details,
-            vehicles: tractorDetails
-          }));
+          formData.set(
+            "details",
+            JSON.stringify({
+              ...details,
+              vehicles: tractorDetails,
+            }),
+          );
         }
       }
 
@@ -717,15 +760,21 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error occurred" }));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error occurred" }));
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`,
+        );
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
       console.error("Error updating listing:", error);
-      throw new Error(error instanceof Error ? error.message : "Failed to update listing");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to update listing",
+      );
     }
   },
 
@@ -750,7 +799,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
   // Search listings
   async search(
     query: string,
-    params?: ListingParams
+    params?: ListingParams,
   ): Promise<APIResponse<ListingsResponse>> {
     try {
       const queryParams = new URLSearchParams();
@@ -772,7 +821,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -785,7 +834,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
     } catch (error) {
       console.error("Error searching listings:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to search listings"
+        error instanceof Error ? error.message : "Failed to search listings",
       );
     }
   },
@@ -803,7 +852,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -811,7 +860,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+          errorData.error || `HTTP error! status: ${response.status}`,
         );
       }
 
@@ -822,7 +871,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch trending listings"
+          : "Failed to fetch trending listings",
       );
     }
   },
@@ -840,7 +889,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -848,7 +897,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+          errorData.error || `HTTP error! status: ${response.status}`,
         );
       }
 
@@ -859,14 +908,14 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch listings by ids"
+          : "Failed to fetch listings by ids",
       );
     }
   },
 
   // Get listings by category
   async getListingsByCategory(
-    category: ListingCategory
+    category: ListingCategory,
   ): Promise<APIResponse<Listing>> {
     try {
       const queryParams = new URLSearchParams();
@@ -879,7 +928,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -887,7 +936,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+          errorData.error || `HTTP error! status: ${response.status}`,
         );
       }
 
@@ -898,7 +947,7 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch listings by category"
+          : "Failed to fetch listings by category",
       );
     }
   },
@@ -908,26 +957,27 @@ async saveListing(listingId: string): Promise<APIResponse<Listing>> {
     try {
       const queryParams = new URLSearchParams();
       if (userId) queryParams.append("userId", userId);
-      
+
       const response = await apiClient.get<APIResponse<FavoritesResponse>>(
-        `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ''}`,
+        `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ""}`,
       );
-      
+
       return response.data;
     } catch (error: any) {
       if (error?.response?.status === 401) {
         return {
           success: false,
           data: null,
-          error: "Please log in to view favorites"
+          error: "Please log in to view favorites",
         };
       }
-      
+
       console.error("Error fetching favorite listings:", error);
       return {
         success: false,
         data: null,
-        error: error?.response?.data?.error || "Failed to fetch favorite listings"
+        error:
+          error?.response?.data?.error || "Failed to fetch favorite listings",
       };
     }
   },

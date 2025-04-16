@@ -21,7 +21,7 @@ export function useAuthForm() {
         throw error;
       }
     },
-    [login]
+    [login],
   );
 
   const handleSignup = useCallback(
@@ -33,7 +33,7 @@ export function useAuthForm() {
         throw error;
       }
     },
-    [register]
+    [register],
   );
 
   return {

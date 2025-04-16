@@ -10,7 +10,9 @@ interface Props {
 const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
   const { t } = useTranslation();
 
-  const handleNotificationChange = (key: keyof CanonicalNotificationSettings) => {
+  const handleNotificationChange = (
+    key: keyof CanonicalNotificationSettings,
+  ) => {
     onUpdate({
       ...notifications,
       [key]: !notifications[key],
@@ -109,7 +111,9 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
           <label htmlFor="system" className="font-medium text-gray-700">
             {t("system_notifications")}
           </label>
-          <p className="text-gray-500">{t("get_notified_about_system_updates")}</p>
+          <p className="text-gray-500">
+            {t("get_notified_about_system_updates")}
+          </p>
         </div>
       </div>
 

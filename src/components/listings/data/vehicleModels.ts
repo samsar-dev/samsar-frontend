@@ -54,7 +54,7 @@ const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
   [VehicleType.OTHER]: {
     regular: {},
     electric: {},
-  }
+  },
 };
 
 // Improved getMakesForType with better error handling and type safety
@@ -95,7 +95,10 @@ export const getModelsForMakeAndType = (
     const allModels = [...new Set([...regularModels, ...electricModels])];
     return allModels.sort((a, b) => a.localeCompare(b)); // Sort alphabetically
   } catch (error) {
-    console.error(`Error getting models for make ${make} and type ${type}:`, error);
+    console.error(
+      `Error getting models for make ${make} and type ${type}:`,
+      error,
+    );
     return [];
   }
 };
@@ -110,7 +113,10 @@ export const isElectricModel = (model: string, type: VehicleType): boolean => {
       models.includes(model),
     );
   } catch (error) {
-    console.error(`Error checking if model ${model} is electric for type ${type}:`, error);
+    console.error(
+      `Error checking if model ${model} is electric for type ${type}:`,
+      error,
+    );
     return false;
   }
 };
@@ -123,10 +129,8 @@ export const searchMakesForType = (
   try {
     const makes = getMakesForType(type);
     const normalizedQuery = query.toLowerCase().trim();
-    
-    return makes.filter((make) =>
-      make.toLowerCase().includes(normalizedQuery),
-    );
+
+    return makes.filter((make) => make.toLowerCase().includes(normalizedQuery));
   } catch (error) {
     console.error(`Error searching makes for type ${type}:`, error);
     return [];
@@ -141,7 +145,7 @@ export const searchModelsForMake = (
   try {
     const models = getModelsForMakeAndType(make, type);
     const normalizedQuery = query.toLowerCase().trim();
-    
+
     return models.filter((model) =>
       model.toLowerCase().includes(normalizedQuery),
     );

@@ -127,7 +127,9 @@ function PreferenceSettings({
               <label htmlFor="email" className="font-medium text-gray-700">
                 {t("settings.emailNotifications")}
               </label>
-              <p className="text-gray-500">{t("settings.receiveUpdatesViaEmail")}</p>
+              <p className="text-gray-500">
+                {t("settings.receiveUpdatesViaEmail")}
+              </p>
             </div>
           </div>
 
@@ -145,7 +147,9 @@ function PreferenceSettings({
               <label htmlFor="push" className="font-medium text-gray-700">
                 {t("settings.pushNotifications")}
               </label>
-              <p className="text-gray-500">{t("settings.receiveUpdatesViaPush")}</p>
+              <p className="text-gray-500">
+                {t("settings.receiveUpdatesViaPush")}
+              </p>
             </div>
           </div>
 
@@ -163,7 +167,9 @@ function PreferenceSettings({
               <label htmlFor="desktop" className="font-medium text-gray-700">
                 {t("settings.desktopNotifications")}
               </label>
-              <p className="text-gray-500">{t("settings.receiveUpdatesViaDesktop")}</p>
+              <p className="text-gray-500">
+                {t("settings.receiveUpdatesViaDesktop")}
+              </p>
             </div>
           </div>
         </div>

@@ -37,40 +37,40 @@ const SavedListings: React.FC = () => {
         toast.error(response.error || t("Failed to remove favorite"));
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("Failed to remove favorite"));
+      toast.error(
+        error instanceof Error ? error.message : t("Failed to remove favorite"),
+      );
     }
   };
 
   const fetchListings = useCallback(async () => {
     if (!user) {
-      console.warn('No user logged in');
+      console.warn("No user logged in");
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      console.log('Fetching favorites for user:', user.id);
-      
+      console.log("Fetching favorites for user:", user.id);
+
       const response = await listingsAPI.getFavorites();
-      console.log('Favorites API Response:', response);
+      console.log("Favorites API Response:", response);
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
       // More robust data extraction
-      const favoriteItems = response.data?.items || 
-                            response.data?.favorites || 
-                            response.data || 
-                            [];
-      
-      console.log('Favorite Items:', favoriteItems);
+      const favoriteItems =
+        response.data?.items || response.data?.favorites || response.data || [];
+
+      console.log("Favorite Items:", favoriteItems);
 
       const transformedListings = favoriteItems.map((listing: any) => {
         // Handle different possible listing structures
         const processedListing = listing.item || listing;
-        
+
         return {
           ...processedListing,
           images: (processedListing.images || [])
@@ -84,12 +84,14 @@ const SavedListings: React.FC = () => {
         };
       }) as ExtendedListing[];
 
-      console.log('Transformed Listings:', transformedListings);
-      
+      console.log("Transformed Listings:", transformedListings);
+
       setListings(transformedListings);
     } catch (error) {
       console.error("Error fetching listings:", error);
-      toast.error(error instanceof Error ? error.message : t("errors.fetch_failed"));
+      toast.error(
+        error instanceof Error ? error.message : t("errors.fetch_failed"),
+      );
     } finally {
       setLoading(false);
     }
@@ -120,7 +122,12 @@ const SavedListings: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-transparent py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="space-y-4"
+        >
           <div className="flex items-center gap-3 mb-2">
             <MdFavorite className="text-red-500 w-6 h-6" />
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -148,12 +155,14 @@ const SavedListings: React.FC = () => {
                       <div className="absolute top-2 left-2 z-40">
                         <span
                           className={`px-3 py-1 text-sm font-medium rounded-sm border opacity-0 group-hover:opacity-100 transition-all duration-150 ${
-                            item.listingAction?.toLocaleLowerCase() === ListingAction.SELL.toLocaleLowerCase()
+                            item.listingAction?.toLocaleLowerCase() ===
+                            ListingAction.SELL.toLocaleLowerCase()
                               ? "bg-blue-600/90 text-white border-blue-700"
                               : "bg-green-600/90 text-white border-emerald-700"
                           }`}
                         >
-                          {item.listingAction?.toLocaleLowerCase() === ListingAction.SELL.toLocaleLowerCase()
+                          {item.listingAction?.toLocaleLowerCase() ===
+                          ListingAction.SELL.toLocaleLowerCase()
                             ? t("Sell")
                             : t("Rent")}
                         </span>
@@ -181,10 +190,10 @@ const SavedListings: React.FC = () => {
                         <div className="flex items-center gap-2 mb-3">
                           <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
                             {item.seller?.profilePicture ? (
-                              <img 
-                                src={item.seller.profilePicture} 
-                                alt={item.seller.username} 
-                                className="w-full h-full object-cover" 
+                              <img
+                                src={item.seller.profilePicture}
+                                alt={item.seller.username}
+                                className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.currentTarget.src = "/default-avatar.png";
                                   e.currentTarget.onerror = null;
@@ -207,7 +216,9 @@ const SavedListings: React.FC = () => {
                       <div className="space-y-2">
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                           <span className="mr-2">{item.location}</span>
-                          {"area" in item.details && <span>• {item.details.area} sq.m.</span>}
+                          {"area" in item.details && (
+                            <span>• {item.details.area} sq.m.</span>
+                          )}
                         </div>
                         <div className="flex items-center justify-between mt-4">
                           <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -218,9 +229,11 @@ const SavedListings: React.FC = () => {
                     </div>
                   </div>
                   <div className="h-full flex translate-x-28 border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                    <button 
+                    <button
                       className="p-2 mx-2 my-1 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-full border-2 border-gray-200 dark:border-gray-700 hover:text-blue-700 hover:bg-blue-600/50 hover:border-blue-600/30 dark:hover:border-blue-600/20 dark:hover:text-blue-400 transition-colors duration-300"
-                      onClick={() => {/* TODO: Implement share functionality */}}
+                      onClick={() => {
+                        /* TODO: Implement share functionality */
+                      }}
                     >
                       <BsSend className="w-5 h-5" />
                     </button>
@@ -236,9 +249,13 @@ const SavedListings: React.FC = () => {
             ) : (
               <div className="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
                 <MdFavoriteBorder className="mx-auto text-5xl text-red-400 mb-4" />
-                <p className="text-lg font-semibold">{t("No saved listings yet")}</p>
+                <p className="text-lg font-semibold">
+                  {t("No saved listings yet")}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t("Browse listings and tap the heart to save your favorites.")}
+                  {t(
+                    "Browse listings and tap the heart to save your favorites.",
+                  )}
                 </p>
               </div>
             )}

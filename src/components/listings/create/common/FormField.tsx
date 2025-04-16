@@ -66,19 +66,24 @@ const FormField = forwardRef<
       customValidation,
       fieldSchema,
     },
-    ref
+    ref,
   ) => {
     const [internalValue, setInternalValue] = useState<FormFieldValue>(
-      propValue !== undefined ? propValue : ''
+      propValue !== undefined ? propValue : "",
     );
 
     const handleChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      (
+        event: React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >,
+      ) => {
         let newValue: FormFieldValue = event.target.value;
 
         // Handle number type conversion
         if (type === "number") {
-          newValue = event.target.value === "" ? null : Number(event.target.value);
+          newValue =
+            event.target.value === "" ? null : Number(event.target.value);
         }
 
         // Set internal value
@@ -95,7 +100,7 @@ const FormField = forwardRef<
         // Call onChange with value and potential error
         onChange(newValue, validationError);
       },
-      [onChange, fieldSchema, customValidation]
+      [onChange, fieldSchema, customValidation],
     );
 
     useEffect(() => {
@@ -119,7 +124,13 @@ const FormField = forwardRef<
           onChange(internalValue, validationError);
         }
       }
-    }, [validateOnBlur, fieldSchema, customValidation, internalValue, onChange]);
+    }, [
+      validateOnBlur,
+      fieldSchema,
+      customValidation,
+      internalValue,
+      onChange,
+    ]);
 
     const inputClasses = clsx(
       "block w-full rounded-md border-gray-300 shadow-sm",
@@ -136,7 +147,9 @@ const FormField = forwardRef<
           <div className="relative">
             <div
               className="w-12 h-8 border rounded cursor-pointer"
-              style={{ backgroundColor: (internalValue as string) || "#ffffff" }}
+              style={{
+                backgroundColor: (internalValue as string) || "#ffffff",
+              }}
               onClick={() => setInternalValue("#ffffff")}
             />
             <HexColorPicker
@@ -205,7 +218,9 @@ const FormField = forwardRef<
                     type="checkbox"
                     name={name}
                     value={option.value}
-                    checked={(internalValue as string[])?.includes(option.value)}
+                    checked={(internalValue as string[])?.includes(
+                      option.value,
+                    )}
                     onChange={(event) => {
                       let newValue = (internalValue as string[]) || [];
                       if (event.target.checked) {
@@ -248,7 +263,13 @@ const FormField = forwardRef<
         );
       }
 
-      if (type === "text" || type === "number" || type === "email" || type === "password" || type === "tel") {
+      if (
+        type === "text" ||
+        type === "number" ||
+        type === "email" ||
+        type === "password" ||
+        type === "tel"
+      ) {
         return (
           <input
             ref={ref as React.Ref<HTMLInputElement>}

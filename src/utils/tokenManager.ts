@@ -22,7 +22,7 @@ class TokenManager {
         }
       }
     } catch (error) {
-      console.error('Error initializing token manager:', error);
+      console.error("Error initializing token manager:", error);
       this.clearTokens();
     }
   }
@@ -36,7 +36,7 @@ class TokenManager {
     const token = this.getAccessToken();
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const payload = JSON.parse(atob(token.split(".")[1]));
         const expiresIn = payload.exp * 1000 - Date.now() - 60000; // 1 minute before expiry
         if (expiresIn > 0) {
           this.refreshTimeout = setTimeout(() => {
@@ -47,7 +47,7 @@ class TokenManager {
           this.refreshTokens().catch(console.error);
         }
       } catch (error) {
-        console.error('Error scheduling token refresh:', error);
+        console.error("Error scheduling token refresh:", error);
       }
     }
   }
@@ -58,13 +58,13 @@ class TokenManager {
   static hasValidTokens(): boolean {
     const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
     if (!tokensRaw) return false;
-    
+
     try {
       const tokens = JSON.parse(tokensRaw);
       if (!tokens.accessToken || !tokens.refreshToken) return false;
 
       // Check if access token is expired
-      const payload = JSON.parse(atob(tokens.accessToken.split('.')[1]));
+      const payload = JSON.parse(atob(tokens.accessToken.split(".")[1]));
       if (payload.exp * 1000 <= Date.now()) {
         // Token is expired, try to refresh
         this.refreshTokens().catch(() => this.clearTokens());
@@ -89,7 +89,7 @@ class TokenManager {
   static getAccessToken(): string | null {
     const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
     if (!tokensRaw) return null;
-    
+
     try {
       const tokens = JSON.parse(tokensRaw);
       return tokens.accessToken || null;
@@ -102,7 +102,7 @@ class TokenManager {
   static getRefreshToken(): string | null {
     const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
     if (!tokensRaw) return null;
-    
+
     try {
       const tokens = JSON.parse(tokensRaw);
       return tokens.refreshToken || null;
@@ -123,9 +123,9 @@ class TokenManager {
 
   static setupAuthHeader(token: string | null): void {
     if (token) {
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
-      delete apiClient.defaults.headers.common['Authorization'];
+      delete apiClient.defaults.headers.common["Authorization"];
     }
   }
 
@@ -154,7 +154,7 @@ class TokenManager {
         this.setTokens(response.data.tokens);
         return true;
       } catch (error) {
-        console.error('Token refresh failed:', error);
+        console.error("Token refresh failed:", error);
         this.clearTokens();
         return false;
       } finally {
@@ -174,7 +174,7 @@ class TokenManager {
     if (!token) return false;
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       // Refresh if token expires in less than 5 minutes
       return payload.exp * 1000 - Date.now() < 300000;
     } catch {
