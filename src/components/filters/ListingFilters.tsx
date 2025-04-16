@@ -18,6 +18,8 @@ interface ListingFiltersProps {
   selectedModel: string | null;
   setSelectedModel: (value: string | null) => void;
   isLoading?: boolean;
+  sortBy: string;
+  setSortBy: (value: string) => void;
 }
 
 // Mapping of subcategories to icons
@@ -44,7 +46,6 @@ const SubcategoryLabels: { [key: string]: string } = {
   BUS: "Buses",
   TRACTOR: "Tractors",
   RV: "RVs",
-  BOAT: "Boats",
   
   // Property Types
   HOUSE: "Houses",
@@ -68,6 +69,8 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   selectedModel,
   setSelectedModel,
   isLoading = false,
+  sortBy,
+  setSortBy,
 }) => {
   const { t } = useTranslation();
   const [localLoading, setLocalLoading] = useState(false);
@@ -122,7 +125,8 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
         {/* Action Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

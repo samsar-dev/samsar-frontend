@@ -125,6 +125,32 @@ export interface RealEstateDetails {
   bathrooms?: string;
   condition?: Condition;
   features?: string[];
+  
+  // Apartment fields
+  floor?: string;
+  totalFloors?: string;
+  parking?: string;
+  elevator?: boolean;
+  balcony?: boolean;
+  storage?: boolean;
+  heating?: string;
+  cooling?: string;
+  furnished?: boolean;
+  petsAllowed?: boolean;
+  leaseDuration?: string;
+  monthlyRent?: string;
+  
+  // Land fields
+  zoning?: string;
+  utilitiesAvailable?: string[];
+  accessRoad?: string;
+  parcelNumber?: string;
+  fenced?: boolean;
+  topography?: string;
+  waterFeatures?: boolean;
+  buildable?: boolean;
+  environmentalRestrictions?: boolean;
+  soilType?: string;
 }
 
 export interface ListingDetails {
@@ -160,7 +186,7 @@ export interface Listing {
   updatedAt?: Date | string;
   userId?: string;
   details: ListingDetails;
-  listingAction?: 'SELL' | 'RENT';
+  listingAction?: ListingAction;
   status?: ListingStatus;
   seller?: {
     id: string;
@@ -220,14 +246,14 @@ export interface BaseFormState {
   };
   images?: Array<string | File>;
   features?: string[];
-  listingAction?: "sell" | "rent";
+  listingAction?: ListingAction;
 }
 
 // Complete form state with required fields for final submission
 export interface FormState
   extends Required<Omit<BaseFormState, "features" | "listingAction">> {
   features?: string[];
-  listingAction?: "sell" | "rent";
+  listingAction?: ListingAction;
 }
 
 export type CategoryFilter = "ALL" | "VEHICLES" | "REAL_ESTATE";

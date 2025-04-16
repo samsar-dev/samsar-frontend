@@ -133,6 +133,21 @@
     "view_all": "عرض الكل"
   },
   "errors": {
+    "Removed from saved listings": "تمت الإزالة من القوائم المحفوظة",
+    "Failed to remove favorite": "فشل في إزالة المفضلة",
+    "No {type} listings found": "لم يتم العثور على قوائم {type}",
+    "privacy_settings": "إعدادات الخصوصية",
+    "price_drop_notifications": "إشعارات انخفاض السعر",
+    "get notified about price drops": "احصل على إشعار عند انخفاض الأسعار",
+    "featureCategories": {
+      "safety": "السلامة",
+      "comfort": "الراحة",
+      "entertainment": "الترفيه",
+      "performance": "الأداء",
+      "exterior": "الخارجية",
+      "interior": "الداخلية",
+      "general": "عام"
+    },
     "server_offline": "الخادم غير متصل حاليًا. يرجى المحاولة مرة أخرى لاحقًا.",
     "fetch_failed": "فشل في جلب القوائم",
     "search_failed": "فشل البحث",
@@ -179,6 +194,64 @@
     "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟"
   },
   "listings": {
+    "fields": {
+      "fuelType": "نوع الوقود",
+      "transmission": "ناقل الحركة",
+      "propertyType": "نوع العقار",
+      "totalArea": "المساحة الكلية",
+      "condition": "الحالة",
+      "mileage": "المسافة المقطوعة",
+      "yearBuilt": "سنة البناء",
+      "engine": "المحرك",
+      "warranty": "الضمان",
+      "serviceHistory": "تاريخ الخدمة",
+      "previousOwners": "المالكون السابقون",
+      "registrationStatus": "حالة التسجيل",
+      "horsepower": "قوة الحصان",
+      "torque": "عزم الدوران",
+      "fuelTypes": {
+        "gasoline": "بنزين",
+        "diesel": "ديزل",
+        "electric": "كهرباء",
+        "hybrid": "هايبرد",
+        "lpg": "غاز مسال",
+        "cng": "غاز طبيعي",
+        "other": "أخرى"
+      },
+      "transmissionTypes": {
+        "manual": "يدوي",
+        "automatic": "أوتوماتيك",
+        "semiAutomatic": "شبه أوتوماتيك",
+        "continuouslyVariable": "CVT",
+        "dualClutch": "دبل كلتش"
+      },
+      "propertyTypes": {
+        "house": "منزل",
+        "apartment": "شقة",
+        "condo": "كوندو",
+        "land": "أرض",
+        "commercial": "تجاري",
+        "other": "أخرى"
+      },
+      "conditions": {
+        "new": "جديد",
+        "likeNew": "كالجديد",
+        "excellent": "ممتاز",
+        "good": "جيد",
+        "fair": "مقبول",
+        "poor": "سيء"
+      },
+      "serviceHistories": {
+        "none": "لا يوجد سجل خدمة",
+        "partial": "سجل خدمة جزئي",
+        "full": "سجل خدمة كامل"
+      },
+      "registrationStatuses": {
+        "registered": "مسجل",
+        "unregistered": "غير مسجل",
+        "expired": "منتهي الصلاحية"
+      }
+    },
     "image_alt": "{{make}} {{model}} {{year}}",
     "add_favorite": "إضافة إلى المفضلة",
     "remove_favorite": "إزالة من المفضلة",
@@ -267,6 +340,24 @@
     }
   },
   "cities": {
+  },
+  "types": {
+    "car": "سيارة",
+    "motorcycle": "دراجة نارية",
+    "van": "فان",
+    "bus": "حافلة",
+    "tractor": "جرار",
+    "truck": "شاحنة",
+    "rv": "مركبة ترفيهية",
+
+    "construction": "إنشاءات",
+    "other": "أخرى",
+    "house": "منزل",
+    "apartment": "شقة",
+    "condo": "كوندو",
+    "land": "أرض",
+    "commercial": "تجاري"
+  },
     "DAMASCUS": "دمشق",
     "ALEPPO": "حلب",
     "HOMS": "حمص",
@@ -280,8 +371,7 @@
     "IDLIB": "إدلب",
     "DARA": "درعا",
     "SWEDIA": "السويداء",
-    "QUNEITRA": "القنيطرة"
-  },
+    "QUNEITRA": "القنيطرة",
   "create": {
     "title": "إنشاء قائمة",
     "subtitle": "املأ التفاصيل لإنشاء قائمتك",
@@ -388,7 +478,6 @@
       "TRUCK": "شاحنة",
       "MOTORCYCLE": "دراجة نارية",
       "RV": "مركبة ترفيهية",
-      "BOAT": "قارب",
       "CONSTRUCTION": "آلية إنشائية",
       "OTHER": "أخرى"
     }

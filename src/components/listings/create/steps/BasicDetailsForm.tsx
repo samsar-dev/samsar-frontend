@@ -9,7 +9,7 @@ import {
   TransmissionType,
   Condition,
 } from "@/types/enums";
-import type { FormState } from "@/types/listings";
+import type { FormState, RealEstateDetails, VehicleDetails } from "@/types/listings";
 import {
   FaCar,
   FaMotorcycle,
@@ -887,7 +887,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             >
               <FaCarAlt className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
-                {t(`vehicleTypes.${type}`)}
+                {t(`${type.toLowerCase()}`)}
               </span>
             </button>
           ))}
@@ -927,7 +927,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({ initialData, onSubm
             >
               <FaHome className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
-                {t(`propertyTypes.${type}`)}
+                {t(`${type.toLowerCase()}`)}
               </span>
             </button>
           ))}

@@ -19,16 +19,29 @@ class AuthAPI {
   protected static async retryRequest<T>(
     requestFn: () => Promise<T>,
     retries = MAX_RETRIES,
-    delay = RETRY_DELAY
+    delay = RETRY_DELAY,
+    skip429Retry = false
   ): Promise<T> {
     try {
       return await requestFn();
     } catch (error: any) {
-      if (error.response?.status === 429 && retries > 0) {
-        const retryAfter =
-          parseInt(error.response.headers["retry-after"]) * 1000 || delay;
+      if (skip429Retry && error.response?.status === 429) {
+        throw error;
+      }
+      if (error.response?.status === 429) {
+        let retryAfter = delay;
+        const retryAfterHeader = error.response.headers["retry-after"];
+        if (retryAfterHeader) {
+          if (!isNaN(Number(retryAfterHeader))) {
+            retryAfter = parseInt(retryAfterHeader, 10) * 1000; // seconds to ms
+          } else {
+            // Try to parse as date
+            const retryDate = new Date(retryAfterHeader).getTime();
+            retryAfter = retryDate - Date.now();
+          }
+        }
         await wait(retryAfter);
-        return this.retryRequest(requestFn, retries - 1, delay * 2);
+        return this.retryRequest(requestFn, retries - 1, delay * 2, skip429Retry);
       }
       throw error;
     }
@@ -42,11 +55,11 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await this.retryRequest(() =>
-        apiClient.post<AuthResponse>("/auth/login", {
-          email,
-          password,
-        })
+      const response = await this.retryRequest(
+        () => apiClient.post<AuthResponse>("/auth/login", { email, password }),
+        MAX_RETRIES,
+        RETRY_DELAY,
+        true // skip429Retry = true for login
       );
 
       if (!response.data) {
@@ -287,7 +300,9 @@ class UserAPI extends AuthAPI {
       const response = await this.retryRequest(() =>
         apiClient.put<{ success: boolean; data: AuthUser }>(
           "users/profile",
-          data
+          data,
+          // Ensure Content-Type is not set so browser/axios sets multipart/form-data
+          data instanceof FormData ? { headers: { 'Content-Type': undefined } } : undefined
         )
       );
       return response.data;

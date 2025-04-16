@@ -66,6 +66,38 @@ const initialFormState: FormState = {
       fuelTankCapacity: "",
       tires: "",
     },
+    realEstate: {
+      propertyType: PropertyType.APARTMENT,
+      size: "",
+      yearBuilt: "",
+      bedrooms: "",
+      bathrooms: "",
+      condition: Condition.GOOD,
+      features: [],
+      floor: "",
+      totalFloors: "",
+      parking: "",
+      elevator: false,
+      balcony: false,
+      storage: false,
+      heating: "",
+      cooling: "",
+      furnished: false,
+      petsAllowed: false,
+      leaseDuration: "",
+      monthlyRent: "",
+      // Land fields
+      zoning: "",
+      utilitiesAvailable: [],
+      accessRoad: "",
+      parcelNumber: "",
+      fenced: false,
+      topography: "",
+      waterFeatures: false,
+      buildable: false,
+      environmentalRestrictions: false,
+      soilType: "",
+    },
   },
   listingAction: ListingAction.SELL,
   status: ListingStatus.ACTIVE,
@@ -330,6 +362,87 @@ const CreateListing: React.FC = () => {
                   prev.details?.realEstate?.features ||
                   data.details?.realEstate?.features ||
                   [],
+                // Apartment/house fields
+                floor:
+                  prev.details?.realEstate?.floor ||
+                  data.details?.realEstate?.floor ||
+                  "",
+                totalFloors:
+                  prev.details?.realEstate?.totalFloors ||
+                  data.details?.realEstate?.totalFloors ||
+                  "",
+                parking:
+                  prev.details?.realEstate?.parking ||
+                  data.details?.realEstate?.parking ||
+                  "",
+                elevator:
+                  prev.details?.realEstate?.elevator ??
+                  data.details?.realEstate?.elevator ?? false,
+                balcony:
+                  prev.details?.realEstate?.balcony ??
+                  data.details?.realEstate?.balcony ?? false,
+                storage:
+                  prev.details?.realEstate?.storage ??
+                  data.details?.realEstate?.storage ?? false,
+                heating:
+                  prev.details?.realEstate?.heating ||
+                  data.details?.realEstate?.heating ||
+                  "",
+                cooling:
+                  prev.details?.realEstate?.cooling ||
+                  data.details?.realEstate?.cooling ||
+                  "",
+                furnished:
+                  prev.details?.realEstate?.furnished ??
+                  data.details?.realEstate?.furnished ?? false,
+                petsAllowed:
+                  prev.details?.realEstate?.petsAllowed ??
+                  data.details?.realEstate?.petsAllowed ?? false,
+                leaseDuration:
+                  prev.details?.realEstate?.leaseDuration ||
+                  data.details?.realEstate?.leaseDuration ||
+                  "",
+                monthlyRent:
+                  prev.details?.realEstate?.monthlyRent ||
+                  data.details?.realEstate?.monthlyRent ||
+                  "",
+                // Land fields
+                zoning:
+                  prev.details?.realEstate?.zoning ||
+                  data.details?.realEstate?.zoning ||
+                  "",
+                utilitiesAvailable:
+                  prev.details?.realEstate?.utilitiesAvailable ||
+                  data.details?.realEstate?.utilitiesAvailable ||
+                  [],
+                accessRoad:
+                  prev.details?.realEstate?.accessRoad ||
+                  data.details?.realEstate?.accessRoad ||
+                  "",
+                parcelNumber:
+                  prev.details?.realEstate?.parcelNumber ||
+                  data.details?.realEstate?.parcelNumber ||
+                  "",
+                fenced:
+                  prev.details?.realEstate?.fenced ??
+                  data.details?.realEstate?.fenced ?? false,
+                topography:
+                  prev.details?.realEstate?.topography ||
+                  data.details?.realEstate?.topography ||
+                  "",
+                waterFeatures:
+                  prev.details?.realEstate?.waterFeatures ??
+                  data.details?.realEstate?.waterFeatures ?? false,
+                buildable:
+                  prev.details?.realEstate?.buildable ??
+                  data.details?.realEstate?.buildable ?? false,
+                environmentalRestrictions:
+                  prev.details?.realEstate?.environmentalRestrictions ??
+                  data.details?.realEstate?.environmentalRestrictions ?? false,
+                soilType:
+                  prev.details?.realEstate?.soilType ||
+                  data.details?.realEstate?.soilType ||
+                  "",
               }
             : undefined;
 

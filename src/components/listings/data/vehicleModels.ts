@@ -35,10 +35,6 @@ const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
     regular: {},
     electric: {},
   },
-  [VehicleType.BOAT]: {
-    regular: {},
-    electric: {},
-  },
   [VehicleType.BUS]: {
     regular: busesModels.regular || {},
     electric: busesModels.electric || {},

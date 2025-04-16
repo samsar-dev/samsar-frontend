@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
@@ -10,22 +10,43 @@ interface FormData {
    username: string;
    email: string;
    bio?: string;
+   dateOfBirth?: string;
+   street?: string;
+   city?: string;
+   postalCode?: string;
 }
 
 const ProfileInfo = () => {
    const { t } = useTranslation();
-   const { user } = useAuth();
+   const { user, updateAuthUser } = useAuth();
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState<string>("");
    const [formData, setFormData] = useState<FormData>({
-      username: user?.username || "",
-      email: user?.email || "",
-      bio: (user as UserProfile)?.bio || "",
+      username: "",
+      email: "",
+      bio: "",
    });
    const [avatar, setAvatar] = useState<File | null>(null);
-   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-      user?.profilePicture
-   );
+   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+
+   // Initialize form data when user data is available
+   useEffect(() => {
+      if (user) {
+         setFormData({
+            username: user.username || "",
+            email: user.email || "",
+            bio: (user as UserProfile)?.bio || "",
+            dateOfBirth: user.dateOfBirth || "",
+            street: user.street || "",
+            city: user.city || "",
+            postalCode: user.postalCode || "",
+         });
+         // Always set the avatar preview from the user's profile picture
+         if (user.profilePicture) {
+            setAvatarPreview(user.profilePicture);
+         }
+      }
+   }, [user]);
 
    const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -57,12 +78,34 @@ const ProfileInfo = () => {
          if (formData.bio) {
             formDataToSend.append("bio", formData.bio);
          }
+         if (formData.dateOfBirth) {
+            formDataToSend.append("dateOfBirth", formData.dateOfBirth);
+         }
+         if (formData.street) {
+            formDataToSend.append("street", formData.street);
+         }
+         if (formData.city) {
+            formDataToSend.append("city", formData.city);
+         }
+         if (formData.postalCode) {
+            formDataToSend.append("postalCode", formData.postalCode);
+         }
          if (avatar) {
             formDataToSend.append("profilePicture", avatar);
          }
 
-         await UserAPI.updateProfile(formDataToSend);
-         toast.success(t("profile.profile_updated"));
+         const response = await UserAPI.updateProfile(formDataToSend);
+         if (response.success && response.data) {
+            // Update the user data in the auth context
+            updateAuthUser(response.data);
+            // Update the avatar preview with the new profile picture URL
+            if (response.data.profilePicture) {
+               setAvatarPreview(response.data.profilePicture);
+            }
+            toast.success(t("profile.profile_updated"));
+         } else {
+            throw new Error(t("profile.profile_error"));
+         }
       } catch (err) {
          setError(t("profile.profile_error"));
          toast.error(t("profile.profile_error"));
@@ -75,17 +118,28 @@ const ProfileInfo = () => {
       return <LoadingSpinner />;
    }
 
-   if (error || !user) {
+   if (error) {
       return (
          <div className="text-center py-8 text-red-600">
-            {error || t("profile.load_error")}
+            {error}
+         </div>
+      );
+   }
+
+   if (!user) {
+      return (
+         <div className="text-center py-8 text-gray-500">
+            {t("profile.loading")}
          </div>
       );
    }
 
    return (
-      <form onSubmit={handleSubmit} className="space-y-6">
-         <div className="flex items-center space-x-6">
+      <form
+         onSubmit={handleSubmit}
+         className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow space-y-6"
+      >
+         <div className="flex flex-col items-center space-y-4 mb-6">
             <div className="relative">
                <img
                   src={avatarPreview || "/default-avatar.png"}
@@ -126,7 +180,7 @@ const ProfileInfo = () => {
                   htmlFor="username"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                >
-                  {t("profile.username")}
+                  {t("username")}
                </label>
                <input
                   type="text"
@@ -168,6 +222,71 @@ const ProfileInfo = () => {
                   value={formData.bio}
                   onChange={handleChange}
                   rows={4}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+               />
+            </div>
+
+            <div>
+               <label
+                  htmlFor="dateOfBirth"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+               >
+                  {t("date of birth")}
+               </label>
+               <input
+                  type="text"
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+               />
+            </div>
+            <div>
+               <label
+                  htmlFor="street"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+               >
+                  {t("street")}
+               </label>
+               <input
+                  type="text"
+                  id="street"
+                  name="street"
+                  value={formData.street || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+               />
+            </div>
+            <div>
+               <label
+                  htmlFor="city"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+               >
+                  {t("city")}
+               </label>
+               <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+               />
+            </div>
+            <div>
+               <label
+                  htmlFor="postalCode"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+               >
+                  {t("postal code")}
+               </label>
+               <input
+                  type="text"
+                  id="postalCode"
+                  name="postalCode"
+                  value={formData.postalCode || ""}
+                  onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                />
             </div>

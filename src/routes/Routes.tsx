@@ -20,6 +20,7 @@ import Settings from "@/pages/Settings";
 import PrivateRoute from "@/components/auth/AuthRoute";
 import { ChangePassword } from "@/components/profile";
 import { MyListings } from "@/components/profile";
+import { ProfileInfo } from "@/components/profile";
 import SavedListings from "@/components/profile/SavedListings";
 
 const Routes = (): JSX.Element => {
@@ -43,21 +44,15 @@ const Routes = (): JSX.Element => {
         }
       >
         {/* Profile Routes */}
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        >
+        <Route path="/profile" element={<Profile />}>
+          <Route index element={<ProfileInfo />} />
           <Route path="listings" element={<MyListings />} />
           <Route path="password" element={<ChangePassword />} />
         </Route>
 
         {/* Public User Profile */}
         <Route path="/users/:userId" element={<UserProfile />} />
-        <Route path="/profile/:userId" element={<a />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/listings/create" element={<CreateListing />} />
         <Route path="/listings/:id/edit" element={<EditListing />} />

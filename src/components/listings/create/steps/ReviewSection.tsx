@@ -124,12 +124,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       }
     } else if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
       const realEstateDetails = formData.details?.realEstate;
-      if (!realEstateDetails?.propertyType) newErrors.push(t('errors.propertyTypeRequired'));
-      if (!realEstateDetails?.size) newErrors.push(t('errors.sizeRequired'));
-      if (!realEstateDetails?.bedrooms) newErrors.push(t('errors.bedroomsRequired'));
-      if (!realEstateDetails?.bathrooms) newErrors.push(t('errors.bathroomsRequired'));
-
-      // Additional required fields from schema
       const realEstateSchema = listingsAdvancedFieldSchema['realEstate'] || [];
       const requiredRealEstateFields = realEstateSchema.filter((field: ListingFieldSchema) => field.required);
       

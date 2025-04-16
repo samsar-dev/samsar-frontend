@@ -30,6 +30,10 @@ export interface AuthUser {
   role: string;
   createdAt?: string;
   updatedAt?: string;
+  dateOfBirth?: string;
+  street?: string;
+  city?: string;
+  postalCode?: string;
 }
 
 export interface AuthTokens {
@@ -61,4 +65,5 @@ export interface AuthContextType extends AuthState {
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
+  updateAuthUser: (userData: AuthUser) => void;
 }

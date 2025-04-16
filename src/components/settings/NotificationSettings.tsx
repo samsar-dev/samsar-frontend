@@ -109,7 +109,7 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
           <label htmlFor="priceDrops" className="font-medium text-gray-700">
             {t("price_drop_notifications")}
           </label>
-          <p className="text-gray-500">{t("get_notified_about_price_drops")}</p>
+          <p className="text-gray-500">{t("get notified about price drops")}</p>
         </div>
       </div>
     </div>

@@ -15,6 +15,9 @@ import { useTranslation } from "react-i18next";
 import { FaCar, FaHome } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { MdFilterList } from "react-icons/md";
+import { HiOutlineFilter } from "react-icons/hi";
+import { Listbox } from "@headlessui/react";
+import { HiSelector, HiCheck } from "react-icons/hi";
 
 interface ListingParams {
   category?: {
@@ -45,6 +48,8 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
+  // ...existing code...
+  const [sortBy, setSortBy] = useState<string>("createdAt");
   const { t } = useTranslation();
   const abortControllerRef = useRef<AbortController>();
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
@@ -60,6 +65,7 @@ const Home: React.FC = () => {
   const [isServerOnline, setIsServerOnline] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(null);
@@ -77,9 +83,32 @@ const Home: React.FC = () => {
   const fetchListings = useCallback(async () => {
     // If we have cached data for this category and it's not initial load, use it
     if (!isInitialLoad && listingsCache.current[selectedCategory]) {
+      let sortedListings = [...(listingsCache.current[selectedCategory] || [])];
+
+      // Client-side sorting for additional options
+      switch (sortBy) {
+        case "priceAsc":
+          sortedListings.sort((a, b) => (a.price || 0) - (b.price || 0));
+          break;
+        case "priceDesc":
+          sortedListings.sort((a, b) => (b.price || 0) - (a.price || 0));
+          break;
+        case "locationAsc":
+          sortedListings.sort((a, b) => (a.location || '').localeCompare(b.location || ''));
+          break;
+        case "locationDesc":
+          sortedListings.sort((a, b) => (b.location || '').localeCompare(a.location || ''));
+          break;
+        case "createdAt":
+        default:
+          sortedListings.sort((a, b) => 
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          );
+      }
+
       setListings(prev => ({
         ...prev,
-        all: listingsCache.current[selectedCategory] || [],
+        all: sortedListings,
         loading: false,
         error: null
       }));
@@ -110,8 +139,18 @@ const Home: React.FC = () => {
         },
         limit: 100, // Increased limit to get more items for client-side filtering
         page: 1,
-        sortBy: "createdAt",
-        sortOrder: "desc",
+        sortBy: 
+          sortBy === "locationAsc" || sortBy === "locationDesc" 
+            ? "location" 
+            : sortBy === "priceAsc" || sortBy === "priceDesc"
+            ? "price"
+            : "createdAt",
+        sortOrder:
+          sortBy === "priceAsc" || sortBy === "locationAsc"
+            ? "asc"
+            : sortBy === "priceDesc" || sortBy === "locationDesc"
+            ? "desc"
+            : "desc",
         preview: true
       };
 
@@ -160,7 +199,7 @@ const Home: React.FC = () => {
         }));
       }
     }
-  }, [selectedCategory, isServerOnline, t, isInitialLoad]);
+  }, [selectedCategory, sortBy, isInitialLoad, isServerOnline, t]);
 
   // Single effect for fetching listings - only on category change or initial load
   useEffect(() => {
@@ -268,6 +307,15 @@ const Home: React.FC = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
+  // Define sort options with translation
+  const sortOptions = [
+    { value: "createdAt", label: t("newest") },
+    { value: "priceAsc", label: t("price low high") },
+    { value: "priceDesc", label: t("price high low") },
+    { value: "locationAsc", label: t("location_a_z") },
+    { value: "locationDesc", label: t("location_z_a") },
+  ];
+
   const renderContent = useCallback(() => {
     if (listings.loading) {
       return (
@@ -279,7 +327,7 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 sm:px-0 mt-4 mb-6">
           <button 
             onClick={toggleFilters}
             className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
@@ -287,10 +335,44 @@ const Home: React.FC = () => {
             <MdFilterList className="w-5 h-5" />
             <span className="text-sm">{t("Filters")}</span>
           </button>
+
+          {/* Sort By - Always Visible */}
+          <div className="relative inline-block text-left w-52">
+            <Listbox value={sortBy} onChange={setSortBy}>
+              <div className="relative">
+                <Listbox.Button className="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {sortOptions.find(opt => opt.value === sortBy)?.label || t("filters.sort_by")}
+                  <HiSelector className="w-5 h-5 text-gray-400" />
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
+                  {sortOptions.map((option) => (
+                    <Listbox.Option
+                      key={option.value}
+                      value={option.value}
+                      className={({ active, selected }) =>
+                        `cursor-pointer select-none px-4 py-2 ${
+                          active ? "bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white" : "text-gray-700 dark:text-white"
+                        }`
+                      }
+                    >
+                      {({ selected }) => (
+                        <span className="flex items-center justify-between">
+                          {option.label}
+                          {selected && <HiCheck className="w-4 h-4 text-blue-500 dark:text-white" />}
+                        </span>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </div>
+            </Listbox>
+          </div>
         </div>
 
         {isFilterOpen && (
           <ListingFilters
+            sortBy={sortBy}
+            setSortBy={setSortBy}
             selectedAction={selectedAction}
             setSelectedAction={setSelectedAction}
             selectedSubcategory={selectedSubcategory}

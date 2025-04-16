@@ -256,6 +256,21 @@
     "view_all": "View All"
   },
   "errors": {
+    "Removed from saved listings": "Removed from saved listings",
+    "Failed to remove favorite": "Failed to remove favorite",
+    "No {type} listings found": "No {type} listings found",
+    "privacy_settings": "Privacy Settings",
+    "price_drop_notifications": "Price Drop Notifications",
+    "get notified about price drops": "Get notified about price drops",
+    "featureCategories": {
+      "safety": "Safety",
+      "comfort": "Comfort",
+      "entertainment": "Entertainment",
+      "performance": "Performance",
+      "exterior": "Exterior",
+      "interior": "Interior",
+      "general": "General"
+    },
     "server_offline": "Server is currently offline. Please try again later.",
     "fetch_failed": "Failed to fetch listings",
     "search_failed": "Search failed",
@@ -417,16 +432,58 @@
   "security": "Security",
   "categories": {
     "vehicles": {
-      "TRACTOR": "Tractor",
-      "CAR": "Car",
-      "VAN": "Van",
-      "BUS": "Bus",
-      "TRUCK": "Truck",
-      "MOTORCYCLE": "Motorcycle",
-      "RV": "RV",
-      "BOAT": "Boat",
-      "CONSTRUCTION": "Construction",
-      "OTHER": "Other"
-    }
+      "essential": "Essential",
+      "performance": "Performance",
+      "comfort": "Comfort",
+      "safety": "Safety",
+      "features": "Features",
+      "outdoor": "Outdoor",
+      "security": "Security"
+    },
+  "cities": {
+    "DAMASCUS": "Damascus",
+    "ALEPPO": "Aleppo",
+    "HOMS": "Homs",
+    "HAMA": "Hama",
+    "LATTAKIA": "Lattakia",
+    "DEIR_EZZOR": "Deir Ezzor",
+    "HASEKEH": "Hasakeh",
+    "QAMISHLI": "Qamishli",
+    "RAQQA": "Raqqa",
+    "TARTOUS": "Tartous",
+    "IDLIB": "Idlib",
+    "DARA": "Daraa",
+    "SWEDIA": "Swedia",
+    "QUNEITRA": "Quneitra",
+  "types": {
+    "car": "Car",
+    "motorcycle": "Motorcycle",
+    "van": "Van",
+    "bus": "Bus",
+    "tractor": "Tractor",
+    "truck": "Truck",
+    "rv": "RV",
+
+    "construction": "Construction",
+    "other": "Other",
+    "house": "House",
+    "apartment": "Apartment",
+    "condo": "Condo",
+    "land": "Land",
+    "commercial": "Commercial"
+  },
+  "filters": {
+  "sort_by": "Sort by",
+  "newest": "Newest",
+  "price_low_high": "Price: Low to High",
+  "price_high_low": "Price: High to Low",
+  "location_a_z": "Location: A to Z",
+  "location_z_a": "Location: Z to A"
+}
+
   }
 }
+}
+
+
+

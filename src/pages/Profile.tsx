@@ -16,7 +16,6 @@ interface TabItem {
    id: string;
    path: string;
    label: string;
-   component?: React.ReactNode;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
@@ -38,11 +37,6 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
             (isViewingOtherProfile
                ? t("profile.viewing", { username: "User" })
                : t("profile.info")),
-         component: isViewingOtherProfile ? (
-            <PublicProfileInfo />
-         ) : (
-            <ProfileInfo />
-         ),
       },
       {
          id: "listings",
@@ -59,7 +53,6 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
          id: "password",
          path: "/profile/password",
          label: "🔒 " + t("profile.change_password"),
-         component: <ChangePassword />,
       });
    }
 

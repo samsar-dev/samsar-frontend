@@ -14,6 +14,13 @@ interface PublicUserProfile {
    bio?: string;
    profilePicture?: string;
    listings?: number;
+   phone?: string;
+   firstName?: string;
+   lastName?: string;
+   dateOfBirth?: string;
+   street?: string;
+   city?: string;
+   postalCode?: string;
 }
 
 interface UserProfileResponse {
@@ -23,6 +30,13 @@ interface UserProfileResponse {
    bio?: string;
    profilePicture?: string;
    listings?: Array<any>;
+   phone?: string;
+   firstName?: string;
+   lastName?: string;
+   dateOfBirth?: string;
+   street?: string;
+   city?: string;
+   postalCode?: string;
 }
 
 interface FormData {

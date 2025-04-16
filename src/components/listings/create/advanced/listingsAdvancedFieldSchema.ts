@@ -12,6 +12,7 @@ import { vanSchema } from './schemas/vanSchema';
 import { busSchema } from './schemas/busSchema';
 import { houseSchema } from './schemas/houseSchema';
 import { apartmentSchema } from './schemas/apartmentSchema';
+import { landSchema } from './schemas/landSchema';
 
 import { FaCarSide, FaCogs, FaCouch, FaShieldAlt, FaBuilding, FaCog, FaList, FaTachometerAlt, FaWheelchair, FaPaintBrush, FaTree, FaClock } from "react-icons/fa";
 
@@ -140,7 +141,6 @@ const vehicleSchemas: Partial<Record<VehicleType, ListingFieldSchema[]>> = {
   [VehicleType.BUS]: [...busSchema, colorField],
   [VehicleType.CONSTRUCTION]: [...constructionSchema],
   [VehicleType.RV]: [...baseVehicleSchema],
-  [VehicleType.BOAT]: [...baseVehicleSchema],
   [VehicleType.OTHER]: [...baseVehicleSchema],
 };
 
@@ -149,7 +149,7 @@ const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
   [PropertyType.HOUSE]: [...houseSchema, conditionField],
   [PropertyType.APARTMENT]: [...apartmentSchema, conditionField],
   [PropertyType.CONDO]: [...baseRealEstateSchema],
-  [PropertyType.LAND]: [...baseRealEstateSchema],
+  [PropertyType.LAND]: [...landSchema],
   [PropertyType.COMMERCIAL]: [...baseRealEstateSchema],
   [PropertyType.OTHER]: [...baseRealEstateSchema],
 };

@@ -10,7 +10,6 @@ export enum VehicleType {
   TRUCK = 'TRUCK',
   MOTORCYCLE = 'MOTORCYCLE',
   RV = 'RV',
-  BOAT = 'BOAT',
   BUS = 'BUS',
   VAN = 'VAN',
   TRACTOR = 'TRACTOR',

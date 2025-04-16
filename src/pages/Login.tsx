@@ -7,8 +7,22 @@ const Login = () => {
    const [email, setEmail] = useState("");
    const [password, setPassword] = useState("");
    const [loading, setLoading] = useState(false);
-   const { login, error: authError, clearError } = useAuth();
+   const [cooldown, setCooldown] = useState<number | null>(null);
+   const { login, error: authError, clearError, retryAfter } = useAuth();
    const navigate = useNavigate();
+
+   React.useEffect(() => {
+      if (retryAfter) {
+         const interval = setInterval(() => {
+            const seconds = Math.max(0, Math.ceil((new Date(retryAfter).getTime() - Date.now()) / 1000));
+            setCooldown(seconds > 0 ? seconds : null);
+            if (seconds <= 0) clearInterval(interval);
+         }, 1000);
+         return () => clearInterval(interval);
+      } else {
+         setCooldown(null);
+      }
+   }, [retryAfter]);
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -21,10 +35,12 @@ const Login = () => {
       clearError();
 
       try {
-         await login(email, password);
-         // Navigate to home page after successful login
-         navigate("/");
-         toast.success("Successfully logged in!");
+         const success = await login(email, password);
+         if (success) {
+            navigate("/");
+            toast.success("Successfully logged in!");
+         }
+         // If not successful, error will be shown by the AuthContext error state
       } catch (error: any) {
          console.error("Login error:", error);
          toast.error(error.message || "Failed to login");
@@ -84,7 +100,28 @@ const Login = () => {
                   </div>
                </div>
 
-               {authError && (
+               {authError?.code === "INVALID_CREDENTIALS" && (
+                  <div className="text-red-500 text-sm text-center">
+                     Incorrect email or password.
+                  </div>
+               )}
+               {authError?.code === "EMAIL_NOT_VERIFIED" && (
+                  <div className="text-red-500 text-sm text-center">
+                     Please verify your email before logging in.
+                  </div>
+               )}
+               {authError?.code === "ACCOUNT_DISABLED" && (
+                  <div className="text-red-500 text-sm text-center">
+                     Your account has been disabled. Contact support.
+                  </div>
+               )}
+               {authError?.code === "RATE_LIMIT" && (
+                  <div className="text-red-500 text-sm text-center">
+                     {authError.message}
+                     {cooldown && <span> Please wait {cooldown}s before trying again.</span>}
+                  </div>
+               )}
+               {authError && !["INVALID_CREDENTIALS", "EMAIL_NOT_VERIFIED", "ACCOUNT_DISABLED", "RATE_LIMIT"].includes(authError.code) && (
                   <div className="text-red-500 text-sm text-center">
                      {authError.message}
                   </div>
@@ -93,12 +130,12 @@ const Login = () => {
                <div>
                   <button
                      type="submit"
-                     disabled={loading}
+                     disabled={loading || !!cooldown}
                      className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                        loading ? "opacity-50 cursor-not-allowed" : ""
+                        loading || cooldown ? "opacity-50 cursor-not-allowed" : ""
                      }`}
                   >
-                     {loading ? "Signing in..." : "Sign in"}
+                     {cooldown ? `Please wait ${cooldown}s` : loading ? "Signing in..." : "Sign in"}
                   </button>
                </div>
 
