@@ -101,15 +101,13 @@ const ListingDetails: React.FC = () => {
 
         // Ensure images are in the correct format
         const processedImages = (listing.images || [])
-          .map((img: string | ListingImage) => {
-            console.log("Processing image:", img);
-            if (typeof img === "string") return img;
-            if (img && typeof img === "object" && "url" in img) return img.url;
-            // If image is an object but doesn't have url property, try to find a string property
-            const stringProps = Object.values(
-              img as Record<string, unknown>,
-            ).find((val) => typeof val === "string");
-            return stringProps || "";
+          .map((img: string | File) => {
+            if (typeof img === 'string') return img;
+            if (img instanceof File) {
+              // Create URL from File object
+              return URL.createObjectURL(img);
+            }
+            return '';
           })
           .filter(Boolean);
 
@@ -189,10 +187,10 @@ const ListingDetails: React.FC = () => {
             subCategory: category.subCategory as VehicleType | PropertyType,
           },
           details: transformedDetails,
-          listingAction: listingAction?.toLowerCase() as "sell" | "rent",
+          listingAction: listing.listingAction as ListingAction,
           images: processedImages,
           seller: {
-            id: listing.userId,
+            id: listing.userId || "",
             username: listing.seller?.username || "Unknown Seller",
             profilePicture: listing.seller?.profilePicture || null,
           },
@@ -234,13 +232,26 @@ const ListingDetails: React.FC = () => {
         recipientId: listing.userId || "",
       };
 
-      const response = await MessagesAPI.sendMessage(messageInput);
-      if (response.success) {
-        toast.success(t("messages.messageSent"));
-        setMessage("");
-        setShowContactForm(false);
+      // Create a conversation if it doesn't exist
+      const conversationResponse = await MessagesAPI.createConversation({
+        participantIds: [user._id, listing.userId]
+      });
+
+      if (conversationResponse.success && conversationResponse.data) {
+        const conversationId = conversationResponse.data._id;
+        
+        // Send the message using ListingMessageInput type
+        const response = await MessagesAPI.sendMessage(messageInput);
+
+        if (response.success) {
+          toast.success(t("messages.messageSent"));
+          setMessage("");
+          setShowContactForm(false);
+        } else {
+          toast.error(response.error || t("common.errorOccurred"));
+        }
       } else {
-        toast.error(response.error || t("common.errorOccurred"));
+        toast.error(conversationResponse.error || t("common.errorOccurred"));
       }
     } catch (error) {
       console.error("Error sending message:", error);

@@ -17,7 +17,7 @@ export const useSocket = (): UseSocketResult => {
 
   useEffect(() => {
     if (user) {
-      const manager = new Manager("/", {
+      const manager = new Manager("https://tijara-backend-production.up.railway.app", {
         auth: {
           token: localStorage.getItem("token"),
         },
@@ -26,6 +26,8 @@ export const useSocket = (): UseSocketResult => {
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        secure: true,
+        path: "/socket.io/"
       });
 
       const socket = manager.socket("/");
