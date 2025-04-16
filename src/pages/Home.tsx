@@ -376,14 +376,16 @@ const Home: React.FC = () => {
           </button>
 
           {/* Sort By - Always Visible */}
-          <div className="relative inline-block text-left w-52">
+          <div className="relative inline-block text-left w-52 z-[999]">
+
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="relative">
                 <Listbox.Button className="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   {sortOptions.find(opt => opt.value === sortBy)?.label || t("filters.sort_by")}
                   <HiSelector className="w-5 h-5 text-gray-400" />
                 </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
+                <Listbox.Options className="absolute z-[9999] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
+
                   {sortOptions.map((option) => (
                     <Listbox.Option
                       key={option.value}
@@ -409,34 +411,36 @@ const Home: React.FC = () => {
         </div>
 
         {isFilterOpen && (
-          <ListingFilters
-            selectedCategory={selectedCategory}
-            selectedAction={selectedAction}
-            setSelectedAction={setSelectedAction}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            allSubcategories={allSubcategories}
-            selectedMake={selectedMake}
-            setSelectedMake={setSelectedMake}
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            selectedBuiltYear={selectedBuiltYear}
-            setSelectedBuiltYear={setSelectedBuiltYear}
-            isLoading={listings.loading}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-          />
-        )}
+  <div className="relative z-50 overflow-visible mb-6">
+    <ListingFilters
+      selectedCategory={selectedCategory}
+      selectedAction={selectedAction}
+      setSelectedAction={setSelectedAction}
+      selectedSubcategory={selectedSubcategory}
+      setSelectedSubcategory={setSelectedSubcategory}
+      allSubcategories={allSubcategories}
+      selectedMake={selectedMake}
+      setSelectedMake={setSelectedMake}
+      selectedModel={selectedModel}
+      setSelectedModel={setSelectedModel}
+      selectedYear={selectedYear}
+      setSelectedYear={setSelectedYear}
+      selectedLocation={selectedLocation}
+      setSelectedLocation={setSelectedLocation}
+      selectedBuiltYear={selectedBuiltYear}
+      setSelectedBuiltYear={setSelectedBuiltYear}
+      isLoading={listings.loading}
+      sortBy={sortBy}
+      setSortBy={setSortBy}
+    />
+  </div>
+)}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {filteredListings.map((listing) => (
             <ListingCard

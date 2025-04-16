@@ -97,6 +97,8 @@ export interface NotificationSettings {
   push: boolean;
   messages: boolean;
   listings: boolean;
+  system: boolean;
+  desktop: boolean;
 }
 
 export interface PrivacySettings {

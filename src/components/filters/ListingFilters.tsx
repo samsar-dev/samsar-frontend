@@ -140,7 +140,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6 relative">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
 
         {/* Action Filter */}
@@ -203,7 +203,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <Listbox.Options className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
                   <Listbox.Option key="all" value="" className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900 dark:text-white'}`
                   }>
@@ -371,7 +371,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   leaveFrom="opacity-100"
                   leaveTo="opacity-0"
                 >
-                  <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+                  <Listbox.Options className="absolute z-1000 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
                     <Listbox.Option
                       value=""
                       className={({ active }) =>

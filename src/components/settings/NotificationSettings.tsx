@@ -1,16 +1,16 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
-import type { NotificationPreferences } from "@/types/settings";
+import type { NotificationSettings as CanonicalNotificationSettings } from "@/types/settings";
 
 interface Props {
-  notifications: NotificationPreferences;
-  onUpdate: (notifications: NotificationPreferences) => void;
+  notifications: CanonicalNotificationSettings;
+  onUpdate: (notifications: CanonicalNotificationSettings) => void;
 }
 
 const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
   const { t } = useTranslation();
 
-  const handleNotificationChange = (key: keyof NotificationPreferences) => {
+  const handleNotificationChange = (key: keyof CanonicalNotificationSettings) => {
     onUpdate({
       ...notifications,
       [key]: !notifications[key],
@@ -78,16 +78,16 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
       <div className="flex items-start">
         <div className="flex h-5 items-center">
           <input
-            id="newListings"
+            id="listings"
             type="checkbox"
-            checked={notifications.newListings}
-            onChange={() => handleNotificationChange("newListings")}
+            checked={notifications.listings}
+            onChange={() => handleNotificationChange("listings")}
             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
         </div>
         <div className="ml-3 text-sm">
-          <label htmlFor="newListings" className="font-medium text-gray-700">
-            {t("new_listing_notifications")}
+          <label htmlFor="listings" className="font-medium text-gray-700">
+            {t("listing_notifications")}
           </label>
           <p className="text-gray-500">
             {t("get_notified_about_new_listings")}
@@ -98,18 +98,36 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
       <div className="flex items-start">
         <div className="flex h-5 items-center">
           <input
-            id="priceDrops"
+            id="system"
             type="checkbox"
-            checked={notifications.priceDrops}
-            onChange={() => handleNotificationChange("priceDrops")}
+            checked={notifications.system}
+            onChange={() => handleNotificationChange("system")}
             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
         </div>
         <div className="ml-3 text-sm">
-          <label htmlFor="priceDrops" className="font-medium text-gray-700">
-            {t("price_drop_notifications")}
+          <label htmlFor="system" className="font-medium text-gray-700">
+            {t("system_notifications")}
           </label>
-          <p className="text-gray-500">{t("get notified about price drops")}</p>
+          <p className="text-gray-500">{t("get_notified_about_system_updates")}</p>
+        </div>
+      </div>
+
+      <div className="flex items-start">
+        <div className="flex h-5 items-center">
+          <input
+            id="desktop"
+            type="checkbox"
+            checked={notifications.desktop}
+            onChange={() => handleNotificationChange("desktop")}
+            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          />
+        </div>
+        <div className="ml-3 text-sm">
+          <label htmlFor="desktop" className="font-medium text-gray-700">
+            {t("desktop_notifications")}
+          </label>
+          <p className="text-gray-500">{t("receive_desktop_notifications")}</p>
         </div>
       </div>
     </div>
