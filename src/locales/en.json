@@ -1,5 +1,6 @@
 {
   "common": {
+    "cancel": "Cancel",
     "language": "Language",
     "english": "English",
     "arabic": "Arabic",
@@ -44,7 +45,15 @@
     "logout": "Logout",
     "listings": "Manage Listings"
   },
+  "messages": {
+    "enterMessage": "Enter your message...",
+    "send": "Send"
+  },
   "listings": {
+    "saved_listings": "Saved Listings",
+    "basicInformation": "Basic Information",
+    "additionalDetails": "Additional Details",
+    "contactSeller": "Contact Seller",
     "fields": {
       "fuelType": "Fuel Type",
       "transmission": "Transmission",
@@ -158,6 +167,52 @@
     "actions": {
       "sell": "Sell",
       "rent": "Rent"
+    },
+    "filters": {
+      "action": "Action",
+      "subcategory": "Category",
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "location": "Location",
+      "builtYear": "Built Year",
+      "sortBy": "Sort By",
+      "forSale": "For Sale",
+      "forRent": "For Rent",
+      "clearAll": "Clear All",
+      "applyFilters": "Apply Filters",
+      "vehicleTypes": {
+        "CAR": "Cars",
+        "TRUCK": "Trucks",
+        "MOTORCYCLE": "Motorcycles",
+        "VAN": "Vans",
+        "BUS": "Buses",
+        "TRACTOR": "Tractors",
+        "RV": "RVs",
+        "OTHER": "Other"
+      },
+      "propertyTypes": {
+        "HOUSE": "Houses",
+        "APARTMENT": "Apartments",
+        "CONDO": "Condos",
+        "LAND": "Land",
+        "COMMERCIAL": "Commercial",
+        "OTHER": "Other"
+      },
+      "builtYearOptions": {
+        "2023": "2023 and newer",
+        "2020": "2020 and newer",
+        "2015": "2015 and newer",
+        "2010": "2010 and newer",
+        "2000": "Before 2000"
+      },
+      "sortOptions": {
+        "createdAt": "Newest First",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "locationAsc": "Location A-Z",
+        "locationDesc": "Location Z-A"
+      }
     }
   },
   "theme": {
@@ -244,14 +299,29 @@
     "contact_us": "Contact Us",
     "email": "Email",
     "phone": "Phone",
-    "all_rights_reserved": "All rights reserved."
+    "all_rights_reserved": "All rights reserved.",
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Read our terms and conditions of service",
+      "link": "View Terms"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Learn how we protect your personal information",
+      "link": "View Policy"
+    },
+    "careers": {
+      "title": "Careers",
+      "description": "Join our team and help shape the future of local commerce",
+      "link": "View Open Positions"
+    }
   },
   "home": {
-    "find_perfect": "Find Your Perfect",
-    "vehicle": "Vehicle",
-    "property": "Property",
-    "discover_vehicle": "Discover your dream vehicle from our extensive collection",
-    "discover_property": "Find the perfect property that matches your lifestyle",
+    "find_perfect": "Find your perfect",
+    "vehicle": "vehicle",
+    "property": "property",
+    "discover_vehicle": "Discover your dream car from our wide collection",
+    "discover_property": "Find your perfect property that suits your lifestyle",
     "trending_now": "Trending Now",
     "view_all": "View All"
   },
@@ -271,7 +341,7 @@
       "interior": "Interior",
       "general": "General"
     },
-    "server_offline": "Server is currently offline. Please try again later.",
+    "server_offline": "The server is currently offline. Please try again later.",
     "fetch_failed": "Failed to fetch listings",
     "search_failed": "Search failed",
     "no_listings_category": "No listings available in this category.",
@@ -279,7 +349,7 @@
     "titleRequired": "Please enter a title for your listing",
     "descriptionRequired": "Please provide a description for your listing",
     "priceRequired": "Please enter a price for your listing",
-    "locationRequired": "Please specify the location",
+    "locationRequired": "Please select a location",
     "categoryRequired": "Please select a category",
     "subcategoryRequired": "Please select a subcategory",
     "vehicleTypeRequired": "Please select a vehicle type",
@@ -463,7 +533,6 @@
         "tractor": "Tractor",
         "truck": "Truck",
         "rv": "RV",
-
         "construction": "Construction",
         "other": "Other",
         "house": "House",

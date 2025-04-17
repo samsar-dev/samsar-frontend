@@ -226,22 +226,21 @@ const ListingDetails: React.FC = () => {
 
     setIsSending(true);
     try {
-      const messageInput: ListingMessageInput = {
-        content: message.trim(),
-        listingId: id || "",
-        recipientId: listing.userId || "",
-      };
-
       // Create a conversation if it doesn't exist
       const conversationResponse = await MessagesAPI.createConversation({
-        participantIds: [user._id, listing.userId]
+        participantIds: [user?.id || "", listing.userId || ""],
+        initialMessage: message.trim()
       });
 
       if (conversationResponse.success && conversationResponse.data) {
         const conversationId = conversationResponse.data._id;
         
-        // Send the message using ListingMessageInput type
-        const response = await MessagesAPI.sendMessage(messageInput);
+        // Send the message using the correct structure
+        const response = await MessagesAPI.sendMessage({
+          conversationId,
+          content: message.trim(),
+          listingId: id || ""
+        });
 
         if (response.success) {
           toast.success(t("messages.messageSent"));
@@ -333,33 +332,79 @@ const ListingDetails: React.FC = () => {
 
           {/* Seller Information */}
           {listing?.seller && (
-            <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <Link
-                to={`/users/${listing.seller.id}`}
-                className="flex items-center space-x-3 hover:text-blue-600"
-              >
-                {listing.seller.profilePicture ? (
-                  <img
-                    src={listing.seller.profilePicture}
-                    alt={listing.seller.username}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <span className="text-xl">
-                      {listing.seller.username[0].toUpperCase()}
-                    </span>
+            <>
+              <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Link
+                  to={`/users/${listing.seller.id}`}
+                  className="flex items-center space-x-3 hover:text-blue-600"
+                >
+                  {listing.seller.profilePicture ? (
+                    <img
+                      src={listing.seller.profilePicture}
+                      alt={listing.seller.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <span className="text-xl">
+                        {listing.seller.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium">{listing.seller.username}</p>
+                    <p className="text-sm text-gray-500">
+                      {t("listings.posted_on")}: {" "}
+                      {new Date(listing.createdAt!).toLocaleDateString()}
+                    </p>
                   </div>
+                </Link>
+                {/* Contact Seller Button (now inside card, right-aligned) */}
+                {!isOwner && !showContactForm && (
+                  <button
+                    onClick={handleContactSeller}
+                    className="flex items-center gap-2 px-3 py-1.5 border border-blue-500 text-blue-600 bg-white dark:bg-gray-900 rounded-md hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm"
+                    style={{minWidth: 0}}
+                    title={t("listings.contactSeller") as string}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-2.25M17.25 8.25l-5.25 5.25-5.25-5.25" />
+                    </svg>
+                    <span className="hidden sm:inline">{t("listings.contactSeller")}</span>
+                  </button>
                 )}
-                <div>
-                  <p className="font-medium">{listing.seller.username}</p>
-                  <p className="text-sm text-gray-500">
-                    {t("listings.posted_on")}:{" "}
-                    {new Date(listing.createdAt!).toLocaleDateString()}
-                  </p>
+              </div>
+
+              {/* Contact Seller Form (shows only when triggered) */}
+              {!isOwner && showContactForm && (
+                <div className="mt-4">
+                  <div className="space-y-4">
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder={t("messages.enterMessage")}
+                      className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={4}
+                    />
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={!message.trim() || isSending}
+                        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
+                      >
+                        {isSending ? t("common.sending") : t("messages.send")}
+                      </button>
+                      <button
+                        onClick={() => setShowContactForm(false)}
+                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+                      >
+                        {t("common.cancel")}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </Link>
-            </div>
+              )}
+            </>
           )}
 
           {/* Basic Information */}
@@ -820,7 +865,7 @@ const ListingDetails: React.FC = () => {
 
           {/* Contact Section */}
           {!isOwner && (
-            <div className="">
+            <div className="mt-6">
               {!showContactForm ? (
                 <button
                   onClick={handleContactSeller}

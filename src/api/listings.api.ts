@@ -12,6 +12,7 @@ import {
   Condition,
   VehicleType,
   PropertyType,
+  ListingAction,
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
@@ -331,6 +332,36 @@ export const listingsAPI = {
     }
   },
 
+  async getVehicleListings(
+    params: ListingParams,
+  ): Promise<APIResponse<ListingsResponse>> {
+    try {
+      const response = await apiClient.get<ListingsResponse>(
+        `/listings/vehicles`,
+        { params }
+      );
+      return { success: true, data: response.data };
+    } catch (error) {
+      const err = error as AxiosError;
+      return { success: false, data: null, error: err.response?.data?.error || err.message };
+    }
+  },
+
+  async getRealEstateListings(
+    params: ListingParams,
+  ): Promise<APIResponse<ListingsResponse>> {
+    try {
+      const response = await apiClient.get<ListingsResponse>(
+        `/listings/real-estate`,
+        { params }
+      );
+      return { success: true, data: response.data };
+    } catch (error) {
+      const err = error as AxiosError;
+      return { success: false, data: null, error: err.response?.data?.error || err.message };
+    }
+  },
+
   // Get a single listing by ID
   async getListing(id: string): Promise<APIResponse<Listing>> {
     try {
@@ -464,7 +495,7 @@ export const listingsAPI = {
       return response.data;
     } catch (error) {
       // Don't log aborted request errors
-      if (error.name !== "AbortError") {
+      if (error instanceof Error && error.name !== "AbortError") {
         console.error("Error fetching saved listings:", error);
       }
 
@@ -640,7 +671,7 @@ export const listingsAPI = {
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction === "SELL" ? "SELL" : "RENT",
+        listingAction: responseData.listingAction === "SELL" ? ListingAction.SELL : ListingAction.RENT,
         seller: {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",

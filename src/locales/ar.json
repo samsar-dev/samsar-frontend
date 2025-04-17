@@ -1,5 +1,6 @@
 {
   "common": {
+    "cancel": "إلغاء",
     "language": "اللغة",
     "english": "الإنجليزية",
     "arabic": "العربية",
@@ -46,7 +47,51 @@
       "price": "نطاق السعر",
       "location": "الموقع",
       "apply": "تطبيق المرشحات",
-      "clear": "مسح المرشحات"
+      "clear": "مسح المرشحات",
+      "action": "الإجراء",
+      "subcategory": "الفئة",
+      "make": "الماركة",
+      "model": "النوع",
+      "year": "السنة",
+      "location": "الموقع",
+      "builtYear": "سنة البناء",
+      "sortBy": "ترتيب حسب",
+      "forSale": "للبيع",
+      "forRent": "للإيجار",
+      "clearAll": "مسح الكل",
+      "applyFilters": "تطبيق المرشحات",
+      "vehicleTypes": {
+        "CAR": "سيارات",
+        "TRUCK": "شاحنات",
+        "MOTORCYCLE": "دراجات نارية",
+        "VAN": "فانات",
+        "BUS": "حافلات",
+        "TRACTOR": "جرارات",
+        "RV": "سيارات متنقلة",
+        "OTHER": "أخرى"
+      },
+      "propertyTypes": {
+        "HOUSE": "منازل",
+        "APARTMENT": "شقق",
+        "CONDO": "شاليهات",
+        "LAND": "أراضي",
+        "COMMERCIAL": "تجاري",
+        "OTHER": "أخرى"
+      },
+      "builtYearOptions": {
+        "2023": "2023 وما بعدها",
+        "2020": "2020 وما بعدها",
+        "2015": "2015 وما بعدها",
+        "2010": "2010 وما بعدها",
+        "2000": "قبل 2000"
+      },
+      "sortOptions": {
+        "createdAt": "الأحدث أولاً",
+        "priceAsc": "السعر: من الأقل إلى الأعلى",
+        "priceDesc": "السعر: من الأعلى إلى الأقل",
+        "locationAsc": "الموقع: من أ إلى ي",
+        "locationDesc": "الموقع: من ي إلى أ"
+      }
     }
   },
   "settings": {
@@ -99,6 +144,12 @@
     "device": "الجهاز",
     "location": "الموقع"
   },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "logging_out": "جاري تسجيل الخروج...",
+    "loginToMessage": "يجب عليك تسجيل الدخول لإرسال الرسائل"
+  },
   "navigation": {
     "home": "الرئيسية",
     "settings": "الإعدادات",
@@ -113,6 +164,10 @@
     "logout": "تسجيل الخروج",
     "listings": "إدارة القوائم"
   },
+  "messages": {
+    "enterMessage": "أدخل رسالتك...",
+    "send": "إرسال"
+  },
   "footer": {
     "about_marketplace": "عن السوق",
     "marketplace_description": "منصتك الموثوقة لشراء وبيع العناصر في مجتمعك المحلي.",
@@ -121,7 +176,22 @@
     "contact_us": "اتصل بنا",
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
-    "all_rights_reserved": "جميع الحقوق محفوظة."
+    "all_rights_reserved": "جميع الحقوق محفوظة.",
+    "terms": {
+      "title": "شروط الخدمة",
+      "description": "اقرأ شروط وأحكام الخدمة الخاصة بنا",
+      "link": "عرض الشروط"
+    },
+    "privacy": {
+      "title": "سياسة الخصوصية",
+      "description": "تعرف على كيفية حمايتنا لمعلوماتك الشخصية",
+      "link": "عرض السياسة"
+    },
+    "careers": {
+      "title": "الوظائف",
+      "description": "انضم إلى فريقنا وساعد في تشكيل مستقبل التجارة المحلية",
+      "link": "عرض الوظائف الشاغرة"
+    }
   },
   "home": {
     "find_perfect": "ابحث عن",
@@ -194,6 +264,10 @@
     "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟"
   },
   "listings": {
+    "saved_listings": "القوائم المحفوظة",
+    "basicInformation": "المعلومات الأساسية",
+    "additionalDetails": "تفاصيل إضافية",
+    "contactSeller": "تواصل مع البائع",
     "fields": {
       "fuelType": "نوع الوقود",
       "transmission": "ناقل الحركة",
@@ -348,7 +422,6 @@
     "tractor": "جرار",
     "truck": "شاحنة",
     "rv": "مركبة ترفيهية",
-
     "construction": "إنشاءات",
     "other": "أخرى",
     "house": "منزل",

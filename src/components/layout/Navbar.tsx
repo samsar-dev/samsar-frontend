@@ -106,10 +106,10 @@ const Navbar: React.FC = () => {
                 {t("navigation.vehicles")}
               </Link>
               <Link
-                to="/properties"
+                to="/realestate"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 transition-colors"
               >
-                {t("navigation.properties")}
+                {t("navigation.real_estate")}
               </Link>
             </div>
           </div>
@@ -162,7 +162,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt className="mr-3" />
-                      {t("My Listings")}
+                      {t("profile.my_listings")}
                     </Link>
 
                     <Link
@@ -170,7 +170,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaHeart className="mr-3 text-red-500" />
-                      {t("Saved Listings")}
+                      {t("listings.saved_listings")}
                     </Link>
                   </div>
                 </div>

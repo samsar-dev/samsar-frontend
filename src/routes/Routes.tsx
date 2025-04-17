@@ -22,6 +22,8 @@ import { ChangePassword } from "@/components/profile";
 import { MyListings } from "@/components/profile";
 import { ProfileInfo } from "@/components/profile";
 import SavedListings from "@/components/profile/SavedListings";
+import Vehicles from "@/pages/Vehicles";
+import RealEstate from "@/pages/RealEstate";
 
 const Routes = (): JSX.Element => {
   return (
@@ -34,6 +36,10 @@ const Routes = (): JSX.Element => {
       <Route path="/listings/:id" element={<ListingDetails />} />
       {/* Redirect /listings to home */}
       <Route path="/listings" element={<Navigate to="/" replace />} />
+
+      {/* Public Routes */}
+      <Route path="/vehicles" element={<Vehicles />} />
+      <Route path="/realestate" element={<RealEstate />} />
 
       {/* Protected Routes */}
       <Route

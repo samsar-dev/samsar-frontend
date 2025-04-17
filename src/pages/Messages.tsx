@@ -78,16 +78,28 @@ const Messages: React.FC = () => {
     const handleNewMessage = (data: MessageEvent) => {
       if (data.type === "message" && data.payload) {
         const newMessage = data.payload;
-        setCurrentMessages((prev) => [...prev, newMessage]);
+        // Check if this message belongs to the current conversation
+        if (activeConversation?._id === newMessage.conversationId) {
+          setCurrentMessages((prev) => [...prev, newMessage]);
+        }
+      }
+    };
+
+    const handleNewConversation = (data: any) => {
+      if (data.type === "new_conversation" && data.payload) {
+        const newConversation = data.payload;
+        setConversations((prev) => [newConversation, ...prev]);
       }
     };
 
     on("message", handleNewMessage);
+    on("new_conversation", handleNewConversation);
 
     return () => {
       off("message", handleNewMessage);
+      off("new_conversation", handleNewConversation);
     };
-  }, [on, off, user]);
+  }, [on, off, user, activeConversation?._id]);
 
   useEffect(() => {
     if (!user) return;
@@ -122,11 +134,13 @@ const Messages: React.FC = () => {
     if (!activeConversation || !content.trim() || !user) return;
 
     try {
-      const messageInput: MessageInput = { content };
-      const response = await MessagesAPI.sendMessage(
-        activeConversation._id,
-        messageInput,
-      );
+      const messageInput = {
+        conversationId: activeConversation._id,
+        content: content.trim(),
+        listingId: activeConversation.listingId || undefined
+      };
+
+      const response = await MessagesAPI.sendMessage(messageInput);
 
       if (response.success && response.data) {
         const newMessage = response.data;
