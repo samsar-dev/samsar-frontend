@@ -605,56 +605,58 @@ const Home: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-10 md:py-12 min-h-[20vh] sm:min-h-[22vh] lg:min-h-[25vh]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
-              {t("home.find_perfect")}{" "}
-              {selectedCategory === ListingCategory.VEHICLES
-                ? t("home.vehicle")
-                : t("home.property")}
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg text-blue-100 mb-8">
-              {selectedCategory === ListingCategory.VEHICLES
-                ? t("home.discover_vehicle")
-                : t("home.discover_property")}
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-              <button
-                onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.VEHICLES
-                    ? "bg-white text-blue-600"
-                    : "bg-blue-700 text-white hover:bg-blue-600"
-                }`}
-              >
-                <FaCar className="mr-2" />
-                {t("navigation.vehicles")}
-              </button>
-              <button
-                onClick={() =>
-                  handleCategoryChange(ListingCategory.REAL_ESTATE)
-                }
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.REAL_ESTATE
-                    ? "bg-white text-blue-600"
-                    : "bg-blue-700 text-white hover:bg-blue-600"
-                }`}
-              >
-                <FaHome className="mr-2" />
-                {t("navigation.real_estate")}
-              </button>
-            </div>
-            <SearchBar onSearch={debouncedSearch} className="mt-4" />
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-transparent">
+  <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-8 md:py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">
+        {t("home.find_perfect")}{" "}
+        {selectedCategory === ListingCategory.VEHICLES
+          ? t("home.vehicle")
+          : t("home.property")}
+      </h1>
+      <p className="text-base sm:text-lg text-blue-100 mb-5">
+        {selectedCategory === ListingCategory.VEHICLES
+          ? t("home.discover_vehicle")
+          : t("home.discover_property")}
+      </p>
+
+      <div className="flex flex-col sm:flex-row justify-center gap-3 mb-5">
+        <button
+          onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
+          className={`flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+            selectedCategory === ListingCategory.VEHICLES
+              ? "bg-white text-blue-700 shadow"
+              : "bg-blue-700 text-white hover:bg-blue-600"
+          }`}
+        >
+          <FaCar className="mr-2" />
+          {t("navigation.vehicles")}
+        </button>
+        <button
+          onClick={() => handleCategoryChange(ListingCategory.REAL_ESTATE)}
+          className={`flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+            selectedCategory === ListingCategory.REAL_ESTATE
+              ? "bg-white text-blue-700 shadow"
+              : "bg-blue-700 text-white hover:bg-blue-600"
+          }`}
+        >
+          <FaHome className="mr-2" />
+          {t("navigation.real_estate")}
+        </button>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+      <div className="px-2 sm:px-4">
+        <SearchBar onSearch={debouncedSearch} className="w-full max-w-3xl mx-auto" />
+      </div>
+    </div>
+  </div>
+  
+  
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         {renderContent()}
       </div>
     </div>
   );
 };
-
+  
 export default Home;
