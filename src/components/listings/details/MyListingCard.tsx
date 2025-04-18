@@ -93,7 +93,7 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
             )}
             {vehicleDetails.registrationStatus && (
               <p>
-                {t("listings.registrationStatus")}:{" "}
+                {t("listings.fields.registrationStatus")}:{" "}
                 {vehicleDetails.registrationStatus}
               </p>
             )}

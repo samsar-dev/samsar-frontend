@@ -13,6 +13,7 @@ import { Listing } from "@/types/listings";
 
 interface SavedListingsState {
   savedListings: string[];
+  savingIds: string[]; // ids currently being saved/unsaved
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
@@ -24,9 +25,10 @@ interface SavedListingsContextType {
   error: string | null;
   lastUpdated: Date | null;
   isSaved: (id: string) => boolean;
-  addToSaved: (id: string) => void;
-  removeFromSaved: (id: string) => void;
-  toggleSaved: (id: string) => void;
+  isSaving: (id: string) => boolean;
+  addToSaved: (id: string) => Promise<void>;
+  removeFromSaved: (id: string) => Promise<void>;
+  toggleSaved: (id: string) => Promise<void>;
   clearSaved: () => void;
   refresh: () => Promise<void>;
 }
@@ -44,6 +46,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
 }) => {
   const [state, setState] = useState<SavedListingsState>({
     savedListings: [],
+    savingIds: [],
     isLoading: false,
     error: null,
     lastUpdated: null,
@@ -64,29 +67,59 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
     [state.savedListings],
   );
 
-  const addToSaved = useCallback((id: string): void => {
+  const isSaving = useCallback(
+    (id: string): boolean => {
+      if (!id) return false;
+      return state.savingIds.includes(id);
+    },
+    [state.savingIds],
+  );
+
+  const addToSaved = useCallback(async (id: string): Promise<void> => {
     if (!id) return;
-    setState((prev) => ({
-      ...prev,
-      savedListings: [...prev.savedListings, id],
-    }));
+    setState(prev => ({ ...prev, savingIds: [...prev.savingIds, id] }));
+    try {
+      await listingsAPI.save(id);
+      setState((prev) => ({
+        ...prev,
+        savedListings: [...prev.savedListings, id],
+        savingIds: prev.savingIds.filter((savingId) => savingId !== id),
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        savingIds: prev.savingIds.filter((savingId) => savingId !== id),
+      }));
+      // Optionally show a toast or error
+    }
   }, []);
 
-  const removeFromSaved = useCallback((id: string): void => {
+  const removeFromSaved = useCallback(async (id: string): Promise<void> => {
     if (!id) return;
-    setState((prev) => ({
-      ...prev,
-      savedListings: prev.savedListings.filter((savedId) => savedId !== id),
-    }));
+    setState(prev => ({ ...prev, savingIds: [...prev.savingIds, id] }));
+    try {
+      await listingsAPI.unsave(id);
+      setState((prev) => ({
+        ...prev,
+        savedListings: prev.savedListings.filter((savedId) => savedId !== id),
+        savingIds: prev.savingIds.filter((savingId) => savingId !== id),
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        savingIds: prev.savingIds.filter((savingId) => savingId !== id),
+      }));
+      // Optionally show a toast or error
+    }
   }, []);
 
   const toggleSaved = useCallback(
-    (id: string): void => {
+    async (id: string): Promise<void> => {
       if (!id) return;
       if (isSaved(id)) {
-        removeFromSaved(id);
+        await removeFromSaved(id);
       } else {
-        addToSaved(id);
+        await addToSaved(id);
       }
     },
     [isSaved, removeFromSaved, addToSaved],
@@ -118,7 +151,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
 
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const response = await listingsAPI.getSavedListings(
+      const response = await listingsAPI.getAll(
         user.id,
         controller.signal,
       );

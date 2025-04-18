@@ -24,6 +24,7 @@ import { ProfileInfo } from "@/components/profile";
 import SavedListings from "@/components/profile/SavedListings";
 import Vehicles from "@/pages/Vehicles";
 import RealEstate from "@/pages/RealEstate";
+import ListingSuccess from "@/pages/ListingSuccess";
 
 const Routes = (): JSX.Element => {
   return (
@@ -40,6 +41,7 @@ const Routes = (): JSX.Element => {
       {/* Public Routes */}
       <Route path="/vehicles" element={<Vehicles />} />
       <Route path="/realestate" element={<RealEstate />} />
+      <Route path="/listing-success" element={<ListingSuccess />} />
 
       {/* Protected Routes */}
       <Route

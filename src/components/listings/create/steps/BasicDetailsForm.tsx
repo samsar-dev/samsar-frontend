@@ -985,7 +985,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     { value: "HOMS", label: t("cities.HOMS") },
     { value: "LATTAKIA", label: t("cities.LATTAKIA") },
     { value: "HAMA", label: t("cities.HAMA") },
-    { value: "DEIR_EZZOR", label: t("cities.DEIR_EZZOR") },
+    { value: "DEIR EZZOR", label: t("cities.DEIR EZZOR") },
     { value: "HASEKEH", label: t("cities.HASEKEH") },
     { value: "QAMISHLI", label: t("cities.QAMISHLI") },
     { value: "RAQQA", label: t("cities.RAQQA") },

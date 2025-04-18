@@ -16,6 +16,21 @@ export enum ListingStatus {
   DELETED = "DELETED",
 }
 
+interface FeatureItem {
+  name: string;
+  label: string;
+  type: "toggle" | "checkbox";
+}
+
+interface FeatureGroup {
+  label: string;
+  features: FeatureItem[];
+}
+
+interface FeatureGroups {
+  [key: string]: FeatureGroup;
+}
+
 export interface ListingFieldSchema {
   name: string;
   label: string;
@@ -28,11 +43,13 @@ export interface ListingFieldSchema {
     | "date"
     | "colorpicker"
     | "multiselect"
-    | "toggle";
+    | "toggle"
+    | "featureGroup";
   section: string;
   required: boolean;
   options?: string[];
   validate?: (value: any) => string | null;
+  featureGroups?: FeatureGroups;
   featureCategory?:
     | "entertainment"
     | "lighting"
@@ -41,134 +58,118 @@ export interface ListingFieldSchema {
     | "climate";
 }
 
-export interface VehicleDetails {
-  vehicleType: VehicleType;
+export interface BaseVehicleDetails {
   make: string;
   model: string;
-  year: string;
-  mileage: string;
-  fuelType: FuelType;
-  transmission: TransmissionType;
-  brakeType: string;
-  engineSize: string;
-  color: string;
-  condition: Condition;
-  features: string[];
-  // Required fields for bus
-  seatingCapacity?: number;
-  // Required fields for van
-  vanType?: string;
-  cargoVolume?: number;
-  payloadCapacity?: number;
-  // Additional fields
+  year: number;
+  mileage?: number;
+  fuelType?: FuelType;
+  transmissionType?: TransmissionType;
+  color?: string;
   interiorColor?: string;
-  engine?: string;
-  horsepower?: number;
-  torque?: number;
-  previousOwners?: number;
-  registrationStatus?: string;
-  serviceHistory?: string;
-  warranty?: string;
-  // Van-specific optional fields
-  roofHeight?: string;
-  loadingFeatures?: string[];
-  refrigeration?: boolean;
-  temperatureRange?: string;
-  interiorHeight?: string;
-  interiorLength?: string;
-  drivingAssistance?: string[];
-  // Tractor-specific fields
-  attachments?: string[];
-  fuelTankCapacity?: string;
-  tires?: string;
-  implementType?: string;
-  width?: number;
-  weight?: number;
-  maxLoadCapacity?: number;
-  wheelbase?: number;
-  turningRadius?: number;
-  powerTakeOff?: boolean;
-  frontLoader?: boolean;
-  rearLoader?: boolean;
-  hydraulicSystem?: string;
-  fuelEfficiency?: string;
-
-  // New fields
-  drivetrain?: string;
-  seatingMaterial?: string;
-  seatHeating?: string;
-  seatVentilation?: string;
-  sunroof?: string;
-  airbags?: string;
-  parkingSensors?: string;
-  backupCamera?: string;
-}
-
-export interface TractorDetails extends VehicleDetails {
-  horsepower: number;
-  attachments: string[];
-  fuelTankCapacity: string;
-  tires: string;
-  features: string[];
-  // Required base fields
-  vehicleType: VehicleType.TRACTOR;
-  make: string;
-  model: string;
-  year: string;
-  mileage: string;
-  fuelType: FuelType;
-  transmission: TransmissionType;
-  brakeType: string;
-  engineSize: string;
-  color: string;
-  condition: Condition;
-  // Optional fields
-  interiorColor?: string;
-  engine?: string;
-  warranty?: string;
-  serviceHistory?: string;
-  previousOwners?: number;
-  registrationStatus?: string;
-}
-
-export interface RealEstateDetails {
-  propertyType: PropertyType;
-  size?: string;
-  yearBuilt?: string;
-  bedrooms?: string;
-  bathrooms?: string;
   condition?: Condition;
   features?: string[];
+  engineNumber?: string;
+  vin?: string;
+  engineSize?: number;
+  previousOwners?: number;
+  serviceHistory?: string;
+  accidentFree?: boolean;
+  importStatus?: string;
+  registrationExpiry?: string;
+  warranty?: string;
+  insuranceType?: string;
+  upholsteryMaterial?: string;
+  tireCondition?: string;
+}
 
-  // Apartment fields
-  floor?: string;
-  totalFloors?: string;
-  parking?: string;
+export interface CarDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.CAR;
+}
+
+export interface MotorcycleDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.MOTORCYCLE;
+}
+
+export interface TruckDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.TRUCK;
+  cargoCapacity?: number;
+}
+
+export interface VanDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.VAN;
+  cargoVolume?: number;
+}
+
+export interface BusDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.BUS;
+  seatingCapacity?: number;
+}
+
+export interface TractorDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.TRACTOR;
+  powerOutput?: number;
+}
+
+export type VehicleDetails = 
+  | CarDetails 
+  | MotorcycleDetails 
+  | TruckDetails 
+  | VanDetails 
+  | BusDetails 
+  | TractorDetails;
+
+export interface BasePropertyDetails {
+  size?: number;
+  yearBuilt?: number;
+  condition?: Condition;
+  features?: string[];
+  furnished?: boolean;
+  utilities?: boolean;
+}
+
+export interface HouseDetails extends BasePropertyDetails {
+  propertyType: PropertyType.HOUSE;
+  bedrooms: number;
+  bathrooms: number;
+  floors?: number;
+  parkingSpaces?: number;
+  garage?: boolean;
+  garden?: boolean;
+  petsAllowed?: boolean;
+}
+
+export interface ApartmentDetails extends BasePropertyDetails {
+  propertyType: PropertyType.APARTMENT;
+  bedrooms: number;
+  bathrooms: number;
+  floor: number;
+  totalFloors: number;
+  parkingSpaces?: number;
   elevator?: boolean;
   balcony?: boolean;
   storage?: boolean;
-  heating?: string;
-  cooling?: string;
-  furnished?: boolean;
   petsAllowed?: boolean;
-  leaseDuration?: string;
-  monthlyRent?: string;
+}
 
-  // Land fields
+export interface LandDetails extends BasePropertyDetails {
+  propertyType: PropertyType.LAND;
   zoning?: string;
-  utilitiesAvailable?: string[];
-  accessRoad?: string;
-  parcelNumber?: string;
-  fenced?: boolean;
-  topography?: string;
-  waterFeatures?: boolean;
+  utilities?: boolean;
+  roadAccess?: boolean;
   buildable?: boolean;
-  environmentalRestrictions?: boolean;
+  fenced?: boolean;
+  waterFeatures?: boolean;
   soilType?: string;
 }
 
+export type RealEstateDetails = 
+  | HouseDetails 
+  | ApartmentDetails 
+  | LandDetails;
+
 export interface ListingDetails {
-  vehicles?: VehicleDetails | TractorDetails;
+  vehicles?: VehicleDetails;
   realEstate?: RealEstateDetails;
 }
 

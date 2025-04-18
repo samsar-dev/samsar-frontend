@@ -184,6 +184,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   onSubmit,
   onBack,
 }) => {
+  console.log('[AdvancedDetailsForm] props:', formData, onSubmit, onBack);
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -238,8 +239,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     currentSchema.forEach((field) => {
       const value = isVehicle
-        ? form.details?.vehicles?.[field.name]
-        : form.details?.realEstate?.[field.name];
+        ? form.details?.vehicles?.[field.name] ?? ""
+        : form.details?.realEstate?.[field.name] ?? "";
 
       // Skip validation for tractor-specific fields if not a tractor
       if (
@@ -268,6 +269,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     field: string,
     value: string | number | boolean | string[],
   ) => {
+    console.log('[AdvancedDetailsForm] handleInputChange event:', field, value);
     setForm((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
 
@@ -343,8 +345,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                   label={t(field.label)}
                   value={
                     isVehicle
-                      ? form.details?.vehicles?.[field.name]
-                      : form.details?.realEstate?.[field.name] || "#000000"
+                      ? form.details?.vehicles?.[field.name] ?? "#000000"
+                      : form.details?.realEstate?.[field.name] ?? "#000000"
                   }
                   onChange={(value) => handleInputChange(field.name, value)}
                   error={errors[`details.${field.name}`]}
@@ -358,14 +360,15 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                 name={field.name}
                 label={t(field.label)}
                 type={field.type as FormFieldType}
-                options={field.options?.map((opt: string) => ({
-                  value: opt,
-                  label: t(`options.${opt}`),
-                }))}
+                options={field.options?.map((opt: string | { value: string; label?: string }) =>
+                  typeof opt === "object"
+                    ? { value: opt.value, label: t(opt.label || `options.${opt.value}`) }
+                    : { value: opt, label: t(`options.${opt}`) }
+                )}
                 value={
                   isVehicle
-                    ? form.details?.vehicles?.[field.name]
-                    : form.details?.realEstate?.[field.name] || ""
+                    ? form.details?.vehicles?.[field.name] ?? ""
+                    : form.details?.realEstate?.[field.name] ?? ""
                 }
                 onChange={(value) => handleInputChange(field.name, value)}
                 error={errors[`details.${field.name}`]}
@@ -413,6 +416,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('[AdvancedDetailsForm] handleSubmit event:', e);
+    console.log('[AdvancedDetailsForm] Current advanced details state:', form);
     e.preventDefault();
     setIsSubmitting(true);
 

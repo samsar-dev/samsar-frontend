@@ -77,8 +77,13 @@ const colorField: ListingFieldSchema = {
   type: "colorpicker",
   section: "appearance",
   required: false,
-  validate: (value: string) =>
-    value.length <= 50 ? null : "Color must be 50 characters or less",
+  validate: (value: string) => {
+    const error = value.length > 50 ? "Color must be 50 characters or less" : null;
+    if (error) {
+      console.log('[listingsAdvancedFieldSchema] Validation error:', error, 'Input value:', value);
+    }
+    return error;
+  },
 };
 
 const conditionField: ListingFieldSchema = {
@@ -88,10 +93,13 @@ const conditionField: ListingFieldSchema = {
   options: Object.values(Condition),
   section: "essential",
   required: true,
-  validate: (value: string) =>
-    Object.values(Condition).includes(value as Condition)
-      ? null
-      : "Invalid condition value",
+  validate: (value: string) => {
+    const error = !Object.values(Condition).includes(value as Condition) ? "Invalid condition value" : null;
+    if (error) {
+      console.log('[listingsAdvancedFieldSchema] Validation error:', error, 'Input value:', value);
+    }
+    return error;
+  },
 };
 
 // Base schema for empty categories to avoid errors
@@ -147,8 +155,9 @@ const baseRealEstateSchema: ListingFieldSchema[] = [
 ];
 
 // Create schema map for all vehicle types
+// NOTE: For VehicleType.CAR, we use ONLY carSchema, which already contains all required fields and validation logic.
 const vehicleSchemas: Partial<Record<VehicleType, ListingFieldSchema[]>> = {
-  [VehicleType.CAR]: [...carSchema, colorField],
+  [VehicleType.CAR]: carSchema, // Do NOT add colorField or any overrides for cars!
   [VehicleType.MOTORCYCLE]: [...motorcycleSchema, colorField],
   [VehicleType.TRUCK]: truckSchema,
   [VehicleType.TRACTOR]: tractorSchema,
@@ -170,8 +179,11 @@ const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
 };
 
 // Combine both schema maps
-export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> =
-  {
-    ...vehicleSchemas,
-    ...propertySchemas,
-  };
+export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> = {
+  ...vehicleSchemas,
+  ...propertySchemas,
+};
+
+export function validateAdvancedFields(values: any) {
+  console.log('[listingsAdvancedFieldSchema] validateAdvancedFields input values:', values);
+}

@@ -13,7 +13,7 @@ export interface ListingParams {
   limit?: number;
   page?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
   preview?: boolean; // Add preview flag to get minimal listing data
   search?: string;
   userId?: string;
@@ -21,6 +21,6 @@ export interface ListingParams {
   minPrice?: number;
   maxPrice?: number;
   location?: string;
-  listingAction?: "SELL" | "RENT";
+  listingAction?: 'SELL' | 'RENT';
   forceRefresh?: boolean;
 }
