@@ -97,7 +97,7 @@ export const busSchema: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "listings.transmissionType",
     type: "select",
-    options: ["manual", "automatic", "semi_automatic"],
+    options: ["", "manual", "automatic", "semi_automatic"],
     section: "essential",
     required: true,
     validate: (value: string) =>

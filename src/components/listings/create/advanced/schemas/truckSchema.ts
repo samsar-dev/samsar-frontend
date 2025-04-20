@@ -167,7 +167,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousOwners",
-    label: "listings.fields.numberOfOwners",
+    label: "listings.fields.previousOwners",
     type: "number",
     section: "advanced",
     required: false,

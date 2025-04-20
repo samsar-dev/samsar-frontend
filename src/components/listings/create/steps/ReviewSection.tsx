@@ -254,15 +254,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   warranty: formData.details?.vehicles?.warranty || "",
                   serviceHistory:
                     formData.details?.vehicles?.serviceHistory || "",
-                  previousOwners:
-                    formData.details?.vehicles?.previousOwners || "",
+
                   registrationStatus:
                     formData.details?.vehicles?.registrationStatus || "",
                   brakeType: formData.details?.vehicles?.brakeType || "",
                   engineSize: formData.details?.vehicles?.engineSize || "",
                   // Advanced fields
                   engineNumber: formData.details?.vehicles?.engineNumber || "",
-                  numberOfOwners: formData.details?.vehicles?.numberOfOwners || "",
+    
                   accidentFree: formData.details?.vehicles?.accidentFree || false,
                   importStatus: formData.details?.vehicles?.importStatus || "",
                   registrationExpiry: formData.details?.vehicles?.registrationExpiry || "",
@@ -838,14 +837,20 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             <div key={groupKey} className="mb-2">
               <div className="font-semibold">{t(group.label)}</div>
               <div className="flex flex-wrap gap-2">
-                {group.features.map((feature) => (
-                  <div key={feature.name} className="flex items-center gap-1">
-                    <span>{t(feature.label)}</span>
-                    <span className="ml-1 font-bold">
-                      {vehicleDetails?.[feature.name] ? t("common.yes") : t("common.no")}
-                    </span>
-                  </div>
-                ))}
+                {group.features.map((feature) => {
+                  // Try to translate, fallback to cleaned label
+                  const label = t(feature.label) !== feature.label
+                    ? t(feature.label)
+                    : feature.label.replace(/^features\./, '').replace(/([a-z])([A-Z])/g, '$1 $2');
+                  return (
+                    <div key={feature.name} className="flex items-center gap-1">
+                      <span>{label}</span>
+                      <span className="ml-1 font-bold">
+                        {vehicleDetails?.[feature.name] ? t("common.yes") : t("common.no")}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -945,32 +950,55 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         ? renderSection(
             t("listings.vehicleDetails"),
             <FaCar className="w-5 h-5 text-blue-500" />,
-            renderVehicleDetails(),
+            <>
+              {renderVehicleDetails()}
+              {/* Advanced Details */}
+              {advancedFieldList.length > 0 && (
+                <section className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">
+                    {t("review.advancedDetails")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {advancedFieldList.map((field) => (
+                      <div key={field.name} className="flex flex-col">
+                        <span className="text-sm text-gray-500">{t(field.label)}</span>
+                        <span className="font-medium">
+                          {getCarFieldDisplayValue(field, formData.details?.vehicles || formData.details?.realEstate)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>,
           )
         : renderSection(
             t("listings.propertyDetails"),
             <FaHome className="w-5 h-5 text-blue-500" />,
-            renderRealEstateDetails(),
+            <>
+              {renderRealEstateDetails()}
+              {/* Advanced Details */}
+              {advancedFieldList.length > 0 && (
+                <section className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">
+                    {t("review.advancedDetails")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {advancedFieldList.map((field) => (
+                      <div key={field.name} className="flex flex-col">
+                        <span className="text-sm text-gray-500">{t(field.label)}</span>
+                        <span className="font-medium">
+                          {getCarFieldDisplayValue(field, formData.details?.vehicles || formData.details?.realEstate)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>,
           )}
 
-      {/* Advanced Details */}
-      {advancedFieldList.length > 0 && (
-        <section className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">
-            {t("review.advancedDetails")}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {advancedFieldList.map((field) => (
-              <div key={field.name} className="flex flex-col">
-                <span className="text-sm text-gray-500">{t(field.label)}</span>
-                <span className="font-medium">
-                  {getCarFieldDisplayValue(field, formData.details?.vehicles || formData.details?.realEstate)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+
 
       {/* Images */}
       {renderSection(

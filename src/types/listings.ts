@@ -79,7 +79,6 @@ export interface BaseVehicleDetails {
   registrationStatus?: string;
   upholsteryMaterial?: string;
   tireCondition?: string;
-  numberOfOwners?: number;
   warrantyPeriod?: string;
   customsCleared?: boolean;
   bodyType?: string;
@@ -103,7 +102,7 @@ export interface CarDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.CAR;
   vin?: string;
   engineNumber?: string;
-  numberOfOwners?: number;
+  previousOwners  ?: number;
   serviceHistory?: string | string[];
   accidentFree?: boolean;
   importStatus?: string;

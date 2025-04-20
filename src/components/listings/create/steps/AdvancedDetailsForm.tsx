@@ -114,61 +114,70 @@ const FeatureSection: React.FC<{
   onChange: (name: string, checked: boolean) => void;
 }> = ({ title, icon: Icon, features, values, onChange }) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Expand by default
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  // Helper to clean up labels
+  const cleanLabel = (label: string) =>
+    label.replace(/^features\./, '').replace(/([a-z])([A-Z])/g, '$1 $2');
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-      >
-        <div className="flex items-center space-x-3">
-          <Icon className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-medium">{t(title)}</h3>
-        </div>
-        <FaCog
-          className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-        />
-      </button>
-
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+      <div className="flex items-center mb-4">
+        <span className="w-1.5 h-8 bg-primary rounded-full mr-4" />
+        <Icon className="w-6 h-6 text-primary mr-2" />
+        <h3 className="text-xl font-bold tracking-wide text-gray-900 dark:text-white flex-1">{t(title)}</h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          aria-label={isExpanded ? t('Collapse') : t('Expand')}
+          className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+        >
+          <FaCog
+            className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
       {isExpanded && (
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {features.map((feature) =>
             feature.type === "toggle" ? (
               <div
                 key={feature.name}
-                className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700"
+                className={`flex items-center justify-between p-3 rounded-lg border shadow-sm hover:shadow-md transition 
+                  ${values[feature.name] ? 'bg-blue-50 border-blue-500' : 'bg-gray-50 dark:bg-gray-700 border-gray-100 dark:border-gray-600'}`}
               >
-                <span className="text-sm">{t(feature.label)}</span>
+                <span className={`text-base font-medium transition-colors ${values[feature.name] ? 'text-blue-700 dark:text-blue-400 font-semibold' : 'text-gray-800 dark:text-gray-200'}`}>
+                  {t(cleanLabel(feature.label))}
+                </span>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={values[feature.name] || false}
                   onClick={() => onChange(feature.name, !values[feature.name])}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                     values[feature.name]
                       ? "bg-primary"
                       : "bg-gray-200 dark:bg-gray-600"
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      values[feature.name] ? "translate-x-6" : "translate-x-1"
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      values[feature.name] ? "translate-x-7" : "translate-x-1"
                     }`}
                   />
                 </button>
               </div>
             ) : (
-              <div key={feature.name} className="flex items-center space-x-3">
+              <div key={feature.name} className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm">
                 <input
                   type="checkbox"
                   id={feature.name}
                   checked={values[feature.name] || false}
                   onChange={(e) => onChange(feature.name, e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
                 />
-                <label htmlFor={feature.name} className="text-sm">
-                  {t(feature.label)}
+                <label htmlFor={feature.name} className="text-base text-gray-800 dark:text-gray-200 font-medium cursor-pointer">
+                  {t(cleanLabel(feature.label))}
                 </label>
               </div>
             ),
@@ -338,6 +347,19 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         {/* Standard form fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {standardFields.map((field) => {
+  // Custom rendering for featureGroup fields
+  if (field.type === "featureGroup" && field.featureGroups) {
+    return Object.entries(field.featureGroups).map(([category, group]) => (
+      <FeatureSection
+        key={category}
+        title={group.label}
+        icon={getFeatureIcon(category)}
+        features={group.features}
+        values={isVehicle ? form.details?.vehicles || {} : form.details?.realEstate || {}}
+        onChange={handleFeatureChange}
+      />
+    ));
+  }
             if (field.type === "colorpicker") {
               return (
                 <ColorPickerField
@@ -410,8 +432,10 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       cameras: FaCamera,
       safety: FaShieldVirus,
       climate: FaWind,
+      convenience: FaCogs,
       default: FaCog,
     };
+
     return iconMap[category] || iconMap.default;
   };
 

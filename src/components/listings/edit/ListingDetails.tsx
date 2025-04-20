@@ -139,20 +139,22 @@ const ListingDetails: React.FC = () => {
         const transformedDetails = {
           vehicles: details.vehicles
             ? {
+                // Spread the original details first
                 ...details.vehicles,
+                // Override with properly typed values
                 vehicleType: category.subCategory as VehicleType,
-                features: details.vehicles.features || [],
-                // Essential fields
-                mileage: typeof details.vehicles.mileage === "number" ? details.vehicles.mileage.toString() : "",
-                color: details.vehicles.color || "",
-                interiorColor: details.vehicles.interiorColor || "",
-                condition: details.vehicles.condition || Condition.GOOD,
-                transmissionType: details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
-                fuelType: details.vehicles.fuelType || "",
+                features: Array.isArray(details.vehicles.features) ? details.vehicles.features : [],
+                mileage: details.vehicles.mileage?.toString() || "0",
+                color: details.vehicles.color || "#000000",
+                interiorColor: details.vehicles.interiorColor || "#000000",
+                condition: details.vehicles.condition as Condition || Condition.GOOD,
+                transmissionType: details.vehicles.transmissionType as TransmissionType || TransmissionType.AUTOMATIC,
+                fuelType: details.vehicles.fuelType as FuelType || FuelType.GASOLINE,
+                serviceHistory: typeof details.vehicles.serviceHistory === 'string' ? details.vehicles.serviceHistory : "",
                 // Advanced fields
                 vin: details.vehicles.vin || "",
                 engineNumber: details.vehicles.engineNumber || "",
-                numberOfOwners: typeof details.vehicles.numberOfOwners === "number" ? details.vehicles.numberOfOwners : 0,
+                previousOwners: typeof details.vehicles.previousOwners === "number" ? details.vehicles.previousOwners : 0,
                 serviceHistory: details.vehicles.serviceHistory || false,
                 accidentFree: details.vehicles.accidentFree || false,
                 importStatus: details.vehicles.importStatus || "Local",
@@ -624,13 +626,13 @@ const ListingDetails: React.FC = () => {
                         </p>
                       </div>
                     )}
-                    {listing.details.vehicles.numberOfOwners !== undefined && (
+                    {listing.details.vehicles.previousOwners !== undefined && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.numberOfOwners")}
+                          {t("listings.fields.previousOwners")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.numberOfOwners}
+                          {listing.details.vehicles.previousOwners}
                         </p>
                       </div>
                     )}

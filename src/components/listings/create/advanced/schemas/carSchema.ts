@@ -83,8 +83,8 @@ export const carSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
-    name: "numberOfOwners",
-    label: "listings.fields.numberOfOwners",
+    name: "previousOwners",
+    label: "listings.fields.previousOwners",
     type: "number",
     section: "advanced",
     required: false,
@@ -255,7 +255,7 @@ export const carSchema: ListingFieldSchema[] = [
     name: "safetyFeatures",
     label: "listings.fields.safetyFeatures",
     type: "featureGroup",
-    section: "features",
+    section: "advanced",
     required: false,
     featureGroups: {
       airbags: {
@@ -324,7 +324,7 @@ export const carSchema: ListingFieldSchema[] = [
     name: "features",
     label: "listings.fields.vehicleFeatures",
     type: "featureGroup",
-    section: "features",
+    section: "advanced",
     required: false,
     featureGroups: {
       safety: {
