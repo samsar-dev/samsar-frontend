@@ -179,11 +179,49 @@ const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
 };
 
 // Combine both schema maps
-export const listingsAdvancedFieldSchema: Record<string, ListingFieldSchema[]> = {
-  ...vehicleSchemas,
-  ...propertySchemas,
+export const listingsAdvancedFieldSchema = {
+  [VehicleType.CAR]: carSchema,
+  [VehicleType.MOTORCYCLE]: motorcycleSchema,
+  [VehicleType.TRUCK]: truckSchema,
+  [VehicleType.TRACTOR]: tractorSchema,
+  [VehicleType.CONSTRUCTION]: constructionSchema,
+  [VehicleType.VAN]: vanSchema,
+  [VehicleType.BUS]: busSchema,
+  [PropertyType.HOUSE]: houseSchema,
+  [PropertyType.APARTMENT]: apartmentSchema,
+  [PropertyType.LAND]: landSchema,
 };
 
-export function validateAdvancedFields(values: any) {
+// Export individual field lists
+export const carAdvancedFieldList: ListingFieldSchema[] = [...carSchema];
+export const busAdvancedFieldList: ListingFieldSchema[] = [...busSchema];
+export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [...motorcycleSchema];
+export const truckAdvancedFieldList: ListingFieldSchema[] = [...truckSchema];
+export const vanAdvancedFieldList: ListingFieldSchema[] = [...vanSchema];
+export const tractorAdvancedFieldList: ListingFieldSchema[] = [...tractorSchema];
+export const constructionAdvancedFieldList: ListingFieldSchema[] = [...constructionSchema];
+export const houseAdvancedFieldList: ListingFieldSchema[] = [...houseSchema];
+export const apartmentAdvancedFieldList: ListingFieldSchema[] = [...apartmentSchema];
+export const landAdvancedFieldList: ListingFieldSchema[] = [...landSchema];
+
+// Map for dynamic lookup in review section
+export const vehicleAdvancedFieldLists = {
+  CAR: carAdvancedFieldList,
+  BUS: busAdvancedFieldList,
+  MOTORCYCLE: motorcycleAdvancedFieldList,
+  TRUCK: truckAdvancedFieldList,
+  VAN: vanAdvancedFieldList,
+  TRACTOR: tractorAdvancedFieldList,
+  CONSTRUCTION: constructionAdvancedFieldList,
+};
+
+export const propertyAdvancedFieldLists = {
+  HOUSE: houseAdvancedFieldList,
+  APARTMENT: apartmentAdvancedFieldList,
+  LAND: landAdvancedFieldList,
+};
+
+export const validateAdvancedFields = (values: any) => {
   console.log('[listingsAdvancedFieldSchema] validateAdvancedFields input values:', values);
-}
+  return true;
+};

@@ -105,11 +105,11 @@ export const createListing = async (formData: FormData) => {
 
         // Ensure required tractor fields
         tractorDetails.horsepower = parseInt(
-          tractorDetails.horsepower?.toString() || "0",
+          tractorDetails.horsepower?.toString() || "",
         );
         tractorDetails.attachments = tractorDetails.attachments || [];
         tractorDetails.fuelTankCapacity =
-          tractorDetails.fuelTankCapacity || "0";
+          tractorDetails.fuelTankCapacity || "";
         tractorDetails.tires = tractorDetails.tires || "";
 
         // Update the formData with the validated tractor details
@@ -617,15 +617,15 @@ export const listingsAPI = {
               model: responseData.details.vehicles.model,
               year: responseData.details.vehicles.year,
               // Essential fields
-              mileage: responseData.details.vehicles.mileage || "0",
-              fuelType: responseData.details.vehicles.fuelType || "gasoline",
+              mileage: responseData.details.vehicles.mileage || "",
+              fuelType: responseData.details.vehicles.fuelType || "",
               transmission:
-                responseData.details.vehicles.transmission || "automatic",
+                responseData.details.vehicles.transmission || "",
               // Appearance fields
               color: responseData.details.vehicles.color || "#000000",
               interiorColor:
                 responseData.details.vehicles.interiorColor || "#000000",
-              condition: responseData.details.vehicles.condition || "good",
+              condition: responseData.details.vehicles.condition || "",
               // Technical fields
               brakeType:
                 responseData.details.vehicles.brakeType || "Not provided",
@@ -633,7 +633,7 @@ export const listingsAPI = {
                 responseData.details.vehicles.engineSize || "Not provided",
               engine: responseData.details.vehicles.engine || "Not provided",
               warranty:
-                responseData.details.vehicles.warranty?.toString() || "0",
+                responseData.details.vehicles.warranty?.toString() || "",
               serviceHistory:
                 responseData.details.vehicles.serviceHistory || "none",
               previousOwners: responseData.details.vehicles.previousOwners || 0,
@@ -766,11 +766,11 @@ export const listingsAPI = {
 
           // Ensure required tractor fields
           tractorDetails.horsepower = parseInt(
-            tractorDetails.horsepower?.toString() || "0",
+            tractorDetails.horsepower?.toString() || "",
           );
           tractorDetails.attachments = tractorDetails.attachments || [];
           tractorDetails.fuelTankCapacity =
-            tractorDetails.fuelTankCapacity || "0";
+            tractorDetails.fuelTankCapacity || "";
           tractorDetails.tires = tractorDetails.tires || "";
 
           // Update the formData with the validated tractor details

@@ -143,12 +143,12 @@ const ListingDetails: React.FC = () => {
                 vehicleType: category.subCategory as VehicleType,
                 features: details.vehicles.features || [],
                 // Essential fields
-                mileage: typeof details.vehicles.mileage === "number" ? details.vehicles.mileage.toString() : "0",
+                mileage: typeof details.vehicles.mileage === "number" ? details.vehicles.mileage.toString() : "",
                 color: details.vehicles.color || "",
                 interiorColor: details.vehicles.interiorColor || "",
                 condition: details.vehicles.condition || Condition.GOOD,
-                transmission: details.vehicles.transmission || TransmissionType.AUTOMATIC,
-                fuelType: details.vehicles.fuelType || FuelType.GASOLINE,
+                transmissionType: details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
+                fuelType: details.vehicles.fuelType || "",
                 // Advanced fields
                 vin: details.vehicles.vin || "",
                 engineNumber: details.vehicles.engineNumber || "",
@@ -182,7 +182,7 @@ const ListingDetails: React.FC = () => {
                 sunroof: details.vehicles.sunroof || false,
                 spareKey: details.vehicles.spareKey || false,
                 remoteStart: details.vehicles.remoteStart || false,
-                tireCondition: details.vehicles.tireCondition || "Good",
+                tireCondition: details.vehicles.tireCondition || "",
                 // Additional fields
                 engine: details.vehicles.engine || "",
                 horsepower: typeof details.vehicles.horsepower === "number" ? details.vehicles.horsepower : 0,

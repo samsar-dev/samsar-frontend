@@ -37,14 +37,14 @@ const initialFormState: FormState = {
       vehicleType: VehicleType.CAR,
       make: "",
       model: "",
-      year: new Date().getFullYear().toString(),
-      mileage: "",
-      fuelType: FuelType.GASOLINE,
-      transmission: TransmissionType.AUTOMATIC,
-      color: "",
+      year: new Date().getFullYear(),
+      mileage: 0,
+      fuelType: "",
+      transmissionType: TransmissionType.AUTOMATIC,
+      color: "#000000",
       condition: Condition.GOOD,
       features: [],
-      interiorColor: "",
+      interiorColor: "#000000",
       engine: "",
       horsepower: undefined,
       torque: undefined,
@@ -52,6 +52,16 @@ const initialFormState: FormState = {
       serviceHistory: "",
       previousOwners: undefined,
       registrationStatus: "",
+      vin: "",
+      engineNumber: "",
+      accidentFree: false,
+      importStatus: "",
+      registrationExpiry: "",
+      insuranceType: "",
+      upholsteryMaterial: "",
+      tireCondition: "",
+      customMake: "",
+      customModel: ""
     },
   },
   listingAction: "sell",
@@ -129,7 +139,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
           year: vehicles.year?.trim(),
           mileage: vehicles.mileage?.trim(),
           fuelType: vehicles.fuelType,
-          transmission: vehicles.transmission,
+          transmissionType: vehicles.transmissionType,
           color: vehicles.color?.trim(),
           condition: vehicles.condition,
           interiorColor: vehicles.interiorColor?.trim(),
@@ -262,27 +272,27 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   year:
                     data.details?.vehicles?.year ||
                     new Date().getFullYear().toString(),
-                  mileage: data.details?.vehicles?.mileage || "0",
+                  mileage: data.details?.vehicles?.mileage || "",
                   fuelType:
-                    data.details?.vehicles?.fuelType || FuelType.GASOLINE,
-                  transmission:
-                    data.details?.vehicles?.transmission ||
+                    data.details?.vehicles?.fuelType || "",
+                  transmissionType:
+                    data.details?.vehicles?.transmissionType ||
                     TransmissionType.AUTOMATIC,
-                  color: data.details?.vehicles?.color || "",
+                  color: data.details?.vehicles?.color || "#000000",
                   condition:
                     data.details?.vehicles?.condition || Condition.GOOD,
                   features: data.details?.vehicles?.features || [],
-                  interiorColor: data.details?.vehicles?.interiorColor || "",
+                  interiorColor: data.details?.vehicles?.interiorColor || "#000000",
                   warranty: data.details?.vehicles?.warranty?.toString() || "",
                   serviceHistory: data.details?.vehicles?.serviceHistory || "",
                   previousOwners:
-                    data.details?.vehicles?.previousOwners?.toString() || "0",
+                    data.details?.vehicles?.previousOwners?.toString() || "",
                   registrationStatus:
                     data.details?.vehicles?.registrationStatus || "",
                   engine: data.details?.vehicles?.engine || "",
                   horsepower:
-                    data.details?.vehicles?.horsepower?.toString() || "0",
-                  torque: data.details?.vehicles?.torque?.toString() || "0",
+                    data.details?.vehicles?.horsepower?.toString() || "",
+                  torque: data.details?.vehicles?.torque?.toString() || "",
                 }
               : undefined,
           realEstate:

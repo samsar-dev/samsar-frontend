@@ -31,6 +31,11 @@ interface FeatureGroups {
   [key: string]: FeatureGroup;
 }
 
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
 export interface ListingFieldSchema {
   name: string;
   label: string;
@@ -47,7 +52,7 @@ export interface ListingFieldSchema {
     | "featureGroup";
   section: string;
   required: boolean;
-  options?: string[];
+  options?: string[] | SelectOption[];
   validate?: (value: any) => string | null;
   featureGroups?: FeatureGroups;
   featureCategory?:
@@ -62,18 +67,44 @@ export interface BaseVehicleDetails {
   make: string;
   model: string;
   year: number;
-  mileage?: number;
-  fuelType?: FuelType;
-  transmissionType?: TransmissionType;
-  color?: string;
+  mileage: number;
+  fuelType: FuelType;
+  transmissionType: TransmissionType;
+  color: string;
+  condition: Condition;
+  features?: Record<string, any>;
   interiorColor?: string;
-  condition?: Condition;
-  features?: string[];
-  engineNumber?: string;
-  vin?: string;
-  engineSize?: number;
+  warranty?: string;
   previousOwners?: number;
-  serviceHistory?: string;
+  registrationStatus?: string;
+  upholsteryMaterial?: string;
+  tireCondition?: string;
+  numberOfOwners?: number;
+  warrantyPeriod?: string;
+  customsCleared?: boolean;
+  bodyType?: string;
+  roofType?: string;
+  horsepower?: number;
+  torque?: number;
+  brakeType?: string;
+  engineNumber?: string;
+  engineSize?: string;
+  serviceHistory?: string | string[];
+  accidentFree?: boolean;
+  importStatus?: string;
+  registrationExpiry?: string;
+  insuranceType?: string;
+  serviceHistoryDetails?: string;
+  additionalNotes?: string;
+  safetyFeatures?: Record<string, any>;
+}
+
+export interface CarDetails extends BaseVehicleDetails {
+  vehicleType: VehicleType.CAR;
+  vin?: string;
+  engineNumber?: string;
+  numberOfOwners?: number;
+  serviceHistory?: string | string[];
   accidentFree?: boolean;
   importStatus?: string;
   registrationExpiry?: string;
@@ -81,10 +112,21 @@ export interface BaseVehicleDetails {
   insuranceType?: string;
   upholsteryMaterial?: string;
   tireCondition?: string;
-}
-
-export interface CarDetails extends BaseVehicleDetails {
-  vehicleType: VehicleType.CAR;
+  engineSize?: string;
+  horsepower?: number;
+  torque?: number;
+  brakeType?: string;
+  fuelTankCapacity?: number;
+  tires?: string;
+  attachments?: string[];
+  warrantyPeriod?: string;
+  customsCleared?: boolean;
+  bodyType?: string;
+  roofType?: string;
+  serviceHistoryDetails?: string;
+  additionalNotes?: string;
+  safetyFeatures?: Record<string, any>;
+  features?: Record<string, any>;
 }
 
 export interface MotorcycleDetails extends BaseVehicleDetails {
@@ -104,11 +146,77 @@ export interface VanDetails extends BaseVehicleDetails {
 export interface BusDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.BUS;
   seatingCapacity?: number;
+  luggageSpace?: number;
+  comfortFeatures?: string[];
+  seatType?: string;
+  seatMaterial?: string;
+  wheelchairAccessible?: boolean;
+  wheelchairLift?: boolean;
+  accessibilityFeatures?: string[];
+  emergencyExits?: number;
+  safetyFeatures?: string[];
+  seatBelts?: string;
+  emissionStandard?: string;
+  enginePower?: string;
+  engineTorque?: string;
+  suspension?: string[];
+  brakeSystem?: string[];
+  entertainmentFeatures?: string[];
+  navigationSystem?: string;
+  communicationSystem?: string[];
+  maintenanceHistory?: string;
+  lastInspectionDate?: string;
+  warranty?: string;
+  certifications?: string[];
+  luggageCompartments?: number;
+  luggageRacks?: boolean;
+  fuelTankCapacity?: number;
 }
 
 export interface TractorDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.TRACTOR;
-  powerOutput?: number;
+  // Engine & Performance
+  engineSpecs?: string[];
+  engineManufacturer?: string;
+  engineModel?: string;
+  displacement?: string;
+  cylinders?: string;
+  torque?: number;
+  emissions?: string;
+
+  // Hydraulics & PTO
+  hydraulicSystem?: string;
+  hydraulicFlow?: number;
+  hydraulicOutlets?: string[];
+  ptoSystem?: string[];
+  ptoHorsepower?: number;
+
+  // Implements & Attachments
+  frontAttachments?: string[];
+  rearAttachments?: string[];
+  threePointHitch?: string;
+  hitchCapacity?: number;
+
+  // Cab & Controls
+  cabFeatures?: string[];
+  seating?: string[];
+  steeringSystem?: string[];
+  lighting?: string[];
+
+  // Technology & Electronics
+  precisionFarming?: string[];
+  monitor?: string[];
+  electricalSystem?: string;
+
+  // Maintenance & Documentation
+  serviceHistory?: string[];
+  warranty?: string;
+  modifications?: string;
+
+  // Essential Metrics
+  hours?: number;
+  horsepower?: number;
+  driveSystem?: string;
 }
 
 export type VehicleDetails = 
@@ -120,23 +228,25 @@ export type VehicleDetails =
   | TractorDetails;
 
 export interface BasePropertyDetails {
-  size?: number;
-  yearBuilt?: number;
-  condition?: Condition;
-  features?: string[];
-  furnished?: boolean;
-  utilities?: boolean;
+  size: number;
+  yearBuilt: number;
+  condition: Condition;
+  features: string[];
+  furnished?: string | boolean;
+  utilities?: string[] | boolean;
 }
 
 export interface HouseDetails extends BasePropertyDetails {
   propertyType: PropertyType.HOUSE;
   bedrooms: number;
   bathrooms: number;
-  floors?: number;
-  parkingSpaces?: number;
-  garage?: boolean;
-  garden?: boolean;
-  petsAllowed?: boolean;
+  floors: number;
+  parkingSpaces: number;
+  garage: boolean;
+  garden: boolean;
+  petsAllowed: boolean;
+  constructionType?: string;
+  parking?: string;
 }
 
 export interface ApartmentDetails extends BasePropertyDetails {
@@ -145,22 +255,40 @@ export interface ApartmentDetails extends BasePropertyDetails {
   bathrooms: number;
   floor: number;
   totalFloors: number;
-  parkingSpaces?: number;
+  parking?: string;
   elevator?: boolean;
   balcony?: boolean;
   storage?: boolean;
-  petsAllowed?: boolean;
+  heating?: string;
+  cooling?: string;
+  buildingAmenities?: string[];
+  energyRating?: string;
+  furnished?: string;
+  petPolicy?: string;
+  view?: string;
+  securityFeatures?: string[];
+  fireSafety?: string[];
+  flooringType?: string;
+  internetIncluded?: boolean;
+  windowType?: string;
+  accessibilityFeatures?: string[];
+  renovationHistory?: string;
+  parkingType?: string;
+  utilities?: string[];
+  exposureDirection?: string[];
+  storageType?: string[];
+  constructionType?: string;
 }
 
 export interface LandDetails extends BasePropertyDetails {
   propertyType: PropertyType.LAND;
-  zoning?: string;
-  utilities?: boolean;
-  roadAccess?: boolean;
-  buildable?: boolean;
-  fenced?: boolean;
-  waterFeatures?: boolean;
-  soilType?: string;
+  zoning: string;
+  utilities: boolean;
+  roadAccess: boolean;
+  buildable: boolean;
+  fenced: boolean;
+  waterFeatures: boolean;
+  soilType: string;
 }
 
 export type RealEstateDetails = 

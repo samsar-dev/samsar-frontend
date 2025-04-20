@@ -94,10 +94,10 @@ export const truckSchema: ListingFieldSchema[] = [
     validate: (value: string) => (!value ? "Fuel type is required" : null),
   },
   {
-    name: "transmission",
-    label: "transmission",
+    name: "transmissionType",
+    label: "listings.transmissionType",
     type: "select",
-    options: ["manual", "automatic", "automated"],
+    options: ["", "manual", "automatic", "automated"],
     section: "essential",
     required: true,
     validate: (value: string) =>

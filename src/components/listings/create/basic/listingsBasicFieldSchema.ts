@@ -1,4 +1,3 @@
-import { FuelType, TransmissionType } from "@/types/enums";
 
 export interface ListingFieldSchema {
   name: string;
@@ -19,22 +18,10 @@ export const listingsFieldSchema: Record<string, ListingFieldSchema[]> = {
       required: true,
       dependsOn: "make",
     },
-    {
-      name: "transmission",
-      type: "select",
-      label: "Transmission",
-      options: Object.values(TransmissionType),
-      required: true,
-    },
+
     { name: "year", type: "number", label: "Year", required: true },
-    {
-      name: "fuelType",
-      type: "select",
-      label: "Fuel Type",
-      options: Object.values(FuelType),
-      required: true,
-    },
-    { name: "mileage", type: "number", label: "Mileage (km)", required: false },
+
+    
     {
       name: "bodyType",
       type: "select",
@@ -60,7 +47,7 @@ export const listingsFieldSchema: Record<string, ListingFieldSchema[]> = {
       label: "Engine Size (cc)",
       required: true,
     },
-    { name: "mileage", type: "number", label: "Mileage (km)", required: false },
+    
     {
       name: "type",
       type: "select",

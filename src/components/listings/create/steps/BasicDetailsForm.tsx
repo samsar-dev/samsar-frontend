@@ -5,8 +5,6 @@ import {
   ListingCategory,
   VehicleType,
   PropertyType,
-  FuelType,
-  TransmissionType,
   Condition,
 } from "@/types/enums";
 import type {
@@ -274,10 +272,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           make: "",
           model: "",
           year: new Date().getFullYear().toString(),
-          mileage: "",
-          fuelType: FuelType.GASOLINE,
-          transmission: TransmissionType.AUTOMATIC,
-          color: "",
           condition: Condition.GOOD,
           features: [],
         };
@@ -286,10 +280,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         updatedData.details.realEstate = {
           ...updatedData.details?.realEstate,
           propertyType: subCategory as PropertyType,
-          size: "",
-          yearBuilt: "",
-          bedrooms: "",
-          bathrooms: "",
+          size: 0,
+          yearBuilt: 0,
+          bedrooms: 0,
+          bathrooms: 0,
           condition: Condition.GOOD,
           features: [],
         };
@@ -742,7 +736,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return (
         <div className="mt-2">
           <FormField
-            id="field-custom-make"
+            
             label={t("customMake")}
             type="text"
             value={customMakeValue}
@@ -1049,10 +1043,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               option: (baseStyles, { isSelected }) => ({
                 ...baseStyles,
                 backgroundColor: isSelected ? "var(--blue-50)" : "var(--white)",
-                color: isSelected ? "var(--blue-500)" : "var(--gray-900)",
                 "&:hover": {
                   backgroundColor: "var(--blue-50)",
-                  color: "var(--blue-500)",
                 },
               }),
             }}

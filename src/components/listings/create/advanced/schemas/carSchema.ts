@@ -1,9 +1,9 @@
-import { ListingFieldSchema } from "@/types/listings";
+import { ListingFieldSchema, SelectOption } from "@/types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
-// Organized car schema for listing creation
+// Car Listing Schema
 export const carSchema: ListingFieldSchema[] = [
-  // === Essential Details ===
+  // ================= ESSENTIAL DETAILS =================
   {
     name: "color",
     label: "listings.fields.exteriorColor",
@@ -32,15 +32,21 @@ export const carSchema: ListingFieldSchema[] = [
     name: "condition",
     label: "listings.fields.condition",
     type: "select",
-    options: Object.values(Condition),
+    options: Object.values(Condition).map((value) => ({
+      value,
+      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+    })),
     section: "essential",
     required: true,
   },
   {
-    name: "transmission",
-    label: "listings.fields.transmission",
+    name: "transmissionType",
+    label: "listings.fields.transmissionType",
     type: "select",
-    options: Object.values(TransmissionType),
+    options: Object.values(TransmissionType).map((value) => ({
+      value,
+      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+    })),
     section: "essential",
     required: true,
     validate: (value: string) => (!value ? "errors.transmissionRequired" : null),
@@ -49,19 +55,25 @@ export const carSchema: ListingFieldSchema[] = [
     name: "fuelType",
     label: "listings.fields.fuelType",
     type: "select",
-    options: Object.values(FuelType),
+    options: Object.values(FuelType).map((value) => ({
+      value,
+      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+    })),
     section: "essential",
     required: true,
   },
 
-  // === Advanced Details ===
+  // ================= ADVANCED DETAILS =================
   {
     name: "vin",
     label: "listings.fields.vin",
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) => (value && value.length > 0 && !/^([A-HJ-NPR-Z0-9]{17})$/.test(value) ? "errors.invalidVin" : null),
+    validate: (value: string) =>
+      value && value.length > 0 && !/^([A-HJ-NPR-Z0-9]{17})$/.test(value)
+        ? "errors.invalidVin"
+        : null,
   },
   {
     name: "engineNumber",
@@ -96,7 +108,10 @@ export const carSchema: ListingFieldSchema[] = [
     name: "importStatus",
     label: "listings.fields.importStatus",
     type: "select",
-    options: ["listings.fields.importStatus.local", "listings.fields.importStatus.imported"],
+    options: [
+      { value: "local", label: "Local" },
+      { value: "imported", label: "Imported" },
+    ],
     section: "advanced",
     required: false,
   },
@@ -111,7 +126,11 @@ export const carSchema: ListingFieldSchema[] = [
     name: "warranty",
     label: "listings.fields.warranty",
     type: "select",
-    options: ["listings.fields.warranty.yes", "listings.fields.warranty.no", "listings.fields.warranty.transferable"],
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+      { value: "transferable", label: "Transferable" },
+    ],
     section: "advanced",
     required: false,
   },
@@ -119,7 +138,11 @@ export const carSchema: ListingFieldSchema[] = [
     name: "insuranceType",
     label: "listings.fields.insuranceType",
     type: "select",
-    options: ["listings.fields.insuranceType.comprehensive", "listings.fields.insuranceType.thirdParty", "listings.fields.insuranceType.none"],
+    options: [
+      { value: "comprehensive", label: "Comprehensive" },
+      { value: "thirdParty", label: "Third Party" },
+      { value: "none", label: "None" },
+    ],
     section: "advanced",
     required: false,
   },
@@ -127,7 +150,11 @@ export const carSchema: ListingFieldSchema[] = [
     name: "upholsteryMaterial",
     label: "listings.fields.upholsteryMaterial",
     type: "select",
-    options: ["listings.fields.upholsteryMaterial.leather", "listings.fields.upholsteryMaterial.fabric", "listings.fields.upholsteryMaterial.other"],
+    options: [
+      { value: "leather", label: "Leather" },
+      { value: "fabric", label: "Fabric" },
+      { value: "other", label: "Other" },
+    ],
     section: "advanced",
     required: false,
   },
@@ -135,12 +162,164 @@ export const carSchema: ListingFieldSchema[] = [
     name: "tireCondition",
     label: "listings.fields.tireCondition",
     type: "select",
-    options: ["listings.fields.tireCondition.new", "listings.fields.tireCondition.good", "listings.fields.tireCondition.worn"],
+    options: [
+      { value: "new", label: "New" },
+      { value: "", label: "" },
+      { value: "worn", label: "Worn" },
+    ],
     section: "advanced",
     required: false,
   },
 
-  // === Features ===
+  // === Engine & Performance ===
+  {
+    name: "engineSize",
+    label: "listings.fields.engineSize",
+    type: "select",
+    options: ["", "1.0L", "1.2L", "1.4L", "1.6L", "1.8L", "2.0L", "2.5L", "3.0L", "4.0L", "5.0L"].map((val) => ({
+      value: val,
+      label: val,
+    })),
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "horsepower",
+    label: "listings.fields.horsepower",
+    type: "select",
+    options: [
+      "upTo100",
+      "101-150",
+      "151-200",
+      "201-250",
+      "251-300",
+      "301-400",
+      "401-500",
+      "501-600",
+      "600+",
+    ].map((val) => ({ value: val, label: val })),
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "torque",
+    label: "listings.fields.torque",
+    type: "select",
+    options: [
+      "upTo150",
+      "151-200",
+      "201-250",
+      "251-300",
+      "301-350",
+      "351-400",
+      "401-450",
+      "450+",
+    ].map((val) => ({ value: val, label: val })),
+    section: "advanced",
+    required: false,
+  },
+
+  // === Exterior & Interior ===
+  {
+    name: "bodyType",
+    label: "listings.fields.bodyType",
+    type: "select",
+    options: [
+      "sedan",
+      "hatchback",
+      "suv",
+      "coupe",
+      "convertible",
+      "wagon",
+      "minivan",
+      "pickup",
+      "other",
+    ].map((val) => ({ value: val, label: val })),
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "roofType",
+    label: "listings.fields.roofType",
+    type: "select",
+    options: ["fixed", "sunroof", "moonroof", "convertible"].map((val) => ({
+      value: val,
+      label: val,
+    })),
+    section: "advanced",
+    required: false,
+  },
+
+  // ================= SAFETY FEATURES =================
+  {
+    name: "safetyFeatures",
+    label: "listings.fields.safetyFeatures",
+    type: "featureGroup",
+    section: "features",
+    required: false,
+    featureGroups: {
+      airbags: {
+        label: "Airbags",
+        features: [
+          { name: "frontAirbags", label: "Front Airbags", type: "toggle" },
+          { name: "sideAirbags", label: "Side Airbags", type: "toggle" },
+          { name: "curtainAirbags", label: "Curtain Airbags", type: "toggle" },
+          { name: "kneeAirbags", label: "Knee Airbags", type: "toggle" },
+        ],
+      },
+      driverAssist: {
+        label: "Driver Assistance",
+        features: [
+          { name: "cruiseControl", label: "Cruise Control", type: "toggle" },
+          { name: "adaptiveCruiseControl", label: "Adaptive Cruise Control", type: "toggle" },
+          { name: "laneDepartureWarning", label: "Lane Departure Warning", type: "toggle" },
+          { name: "laneKeepAssist", label: "Lane Keep Assist", type: "toggle" },
+          { name: "automaticEmergencyBraking", label: "Automatic Emergency Braking", type: "toggle" },
+        ],
+      },
+    },
+  },
+
+  // ================= ADDITIONAL DETAILS =================
+  {
+    name: "customsCleared",
+    label: "listings.fields.customsCleared",
+    type: "select",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "warrantyPeriod",
+    label: "listings.fields.warrantyPeriod",
+    type: "select",
+    options: [
+      { value: "3", label: "3 months" },
+      { value: "6", label: "6 months" },
+      { value: "12", label: "12 months" },
+    ],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "serviceHistoryDetails",
+    label: "listings.fields.serviceHistoryDetails",
+    type: "textarea",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "additionalNotes",
+    label: "listings.fields.additionalNotes",
+    type: "textarea",
+    section: "advanced",
+    required: false,
+  },
+
+  // ================= VEHICLE FEATURES =================
   {
     name: "features",
     label: "listings.fields.vehicleFeatures",
@@ -200,5 +379,5 @@ export const carSchema: ListingFieldSchema[] = [
         ],
       },
     },
-  }
+  },
 ];
