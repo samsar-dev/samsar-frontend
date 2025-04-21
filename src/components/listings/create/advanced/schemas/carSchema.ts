@@ -333,6 +333,10 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "blindSpotMonitor", label: "features.blindSpotMonitor", type: "toggle" },
           { name: "laneAssist", label: "features.laneAssist", type: "toggle" },
           { name: "adaptiveCruiseControl", label: "features.adaptiveCruiseControl", type: "toggle" },
+          { name: "tractionControl", label: "features.tractionControl", type: "toggle" },
+          { name: "abs", label: "features.abs", type: "toggle" },
+          { name: "emergencyBrakeAssist", label: "features.emergencyBrakeAssist", type: "toggle" },
+          { name: "tirePressureMonitoring", label: "features.tirePressureMonitoring", type: "toggle" },
         ],
       },
       cameras: {
@@ -340,23 +344,8 @@ export const carSchema: ListingFieldSchema[] = [
         features: [
           { name: "rearCamera", label: "features.rearCamera", type: "toggle" },
           { name: "camera360", label: "features.camera360", type: "toggle" },
-          { name: "parkingSensors", label: "features.parkingSensors", type: "toggle" },
-        ],
-      },
-      climate: {
-        label: "Climate Features",
-        features: [
-          { name: "climateControl", label: "features.climateControl", type: "toggle" },
-          { name: "heatedSeats", label: "features.heatedSeats", type: "toggle" },
-          { name: "ventilatedSeats", label: "features.ventilatedSeats", type: "toggle" },
-        ],
-      },
-      lighting: {
-        label: "Lighting Features",
-        features: [
-          { name: "ledHeadlights", label: "features.ledHeadlights", type: "toggle" },
-          { name: "adaptiveHeadlights", label: "features.adaptiveHeadlights", type: "toggle" },
-          { name: "ambientLighting", label: "features.ambientLighting", type: "toggle" },
+          { name: "dashCam", label: "features.dashCam", type: "toggle" },
+          { name: "nightVision", label: "features.nightVision", type: "toggle" },
         ],
       },
       entertainment: {
@@ -367,15 +356,45 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "androidAuto", label: "features.androidAuto", type: "toggle" },
           { name: "premiumSound", label: "features.premiumSound", type: "toggle" },
           { name: "wirelessCharging", label: "features.wirelessCharging", type: "toggle" },
+          { name: "usbPorts", label: "features.usbPorts", type: "toggle" },
+          { name: "cdPlayer", label: "features.cdPlayer", type: "toggle" },
+          { name: "dvdPlayer", label: "features.dvdPlayer", type: "toggle" },
+          { name: "rearSeatEntertainment", label: "features.rearSeatEntertainment", type: "toggle" },
+      
+        ],
+      },
+      lighting: {
+        label: "Lighting Features",
+        features: [
+          { name: "ledHeadlights", label: "features.ledHeadlights", type: "toggle" },
+          { name: "adaptiveHeadlights", label: "features.adaptiveHeadlights", type: "toggle" },
+          { name: "ambientLighting", label: "features.ambientLighting", type: "toggle" },
+          { name: "fogLights", label: "features.fogLights", type: "toggle" },
+          { name: "automaticHighBeams", label: "features.automaticHighBeams", type: "toggle" },
+        ],
+      },
+      climate: {
+        label: "Climate Features",
+        features: [
+          { name: "climateControl", label: "features.climateControl", type: "toggle" },
+          { name: "heatedSeats", label: "features.heatedSeats", type: "toggle" },
+          { name: "ventilatedSeats", label: "features.ventilatedSeats", type: "toggle" },
+          { name: "dualZoneClimate", label: "features.dualZoneClimate", type: "toggle" },
+          { name: "rearAC", label: "features.rearAC", type: "toggle" },
+          { name: "airQualitySensor", label: "features.airQualitySensor", type: "toggle" },
         ],
       },
       convenience: {
         label: "Convenience Features",
         features: [
-          { name: "keylessEntry", label: "Keyless Entry", type: "checkbox" },
-          { name: "sunroof", label: "Sunroof / Moonroof", type: "checkbox" },
-          { name: "spareKey", label: "Spare Key", type: "checkbox" },
-          { name: "remoteStart", label: "Remote Start", type: "checkbox" },
+          { name: "keylessEntry", label: "features.keylessEntry", type: "toggle" },
+          { name: "sunroof", label: "features.sunroof", type: "toggle" },
+          { name: "spareKey", label: "features.spareKey", type: "toggle" },
+          { name: "remoteStart", label: "features.remoteStart", type: "toggle" },
+          { name: "powerTailgate", label: "features.powerTailgate", type: "toggle" },
+          { name: "autoDimmingMirrors", label: "features.autoDimmingMirrors", type: "toggle" },
+          { name: "rainSensingWipers", label: "features.rainSensingWipers", type: "toggle" },
+          { name: "parkingSensors", label: "features.parkingSensors", type: "toggle" },
         ],
       },
     },

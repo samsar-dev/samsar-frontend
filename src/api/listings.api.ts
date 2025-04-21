@@ -13,6 +13,7 @@ import {
   VehicleType,
   PropertyType,
   ListingAction,
+  TransmissionType,
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
@@ -84,9 +85,17 @@ export interface ListingCreateInput extends Omit<FormState, "images"> {
   description: string;
   location: string;
   price: number;
+  category: {
+    mainCategory: ListingCategory;
+    subCategory: VehicleType | PropertyType;
+  };
+  details: {
+    vehicles?: VehicleDetails;
+    realEstate?: RealEstateDetails;
+  };
 }
 
-export const createListing = async (formData: FormData) => {
+export const createListing = async (formData: FormData): Promise<APIResponse<SingleListingResponse>> => {
   try {
     // Log the form data for debugging
     console.log("FormData entries:");
@@ -94,49 +103,118 @@ export const createListing = async (formData: FormData) => {
       console.log(`${key}:`, typeof value === "string" ? value : "File object");
     }
 
-    // Get the details from formData and parse them
+    // Get and validate the details from formData
     const detailsStr = formData.get("details");
-    if (detailsStr && typeof detailsStr === "string") {
+    if (!detailsStr || typeof detailsStr !== "string") {
+      throw new Error("Details are required");
+    }
+
+    try {
       const details = JSON.parse(detailsStr);
 
-      // If this is a tractor, ensure all required fields are present
-      if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
-        const tractorDetails = details.vehicles as TractorDetails;
+      if (details.vehicles) {
+        // Validate required fields
+        const requiredFields = ['vehicleType', 'make', 'model'];
+        for (const field of requiredFields) {
+          if (!details.vehicles[field]) {
+            throw new Error(`${field} is required for vehicle listings`);
+          }
+        }
 
-        // Ensure required tractor fields
-        tractorDetails.horsepower = parseInt(
-          tractorDetails.horsepower?.toString() || "",
-        );
-        tractorDetails.attachments = tractorDetails.attachments || [];
-        tractorDetails.fuelTankCapacity =
-          tractorDetails.fuelTankCapacity || "";
-        tractorDetails.tires = tractorDetails.tires || "";
+        // Common numeric fields for all vehicles
+        const numericFields = {
+          year: 0,
+          mileage: 0,
+          previousOwners: 0,
+          horsepower: null,
+          torque: null,
+          seatingCapacity: null,
+          maxSpeed: null,
+          airbags: null
+        };
 
-        // Update the formData with the validated tractor details
-        formData.set(
-          "details",
-          JSON.stringify({
-            ...details,
-            vehicles: tractorDetails,
-          }),
-        );
+        // Process numeric fields
+        Object.entries(numericFields).forEach(([field, defaultValue]) => {
+          if (details.vehicles[field] !== undefined) {
+            const parsed = parseInt(details.vehicles[field].toString());
+            details.vehicles[field] = isNaN(parsed) ? defaultValue : parsed;
+          }
+        });
+
+        // Common boolean fields with defaults
+        const booleanFields = [
+          'serviceHistory',
+          'accidentFree',
+          'customsCleared',
+          'parkingSensors',
+          'parkingCamera'
+        ];
+
+        booleanFields.forEach(field => {
+          details.vehicles[field] = Boolean(details.vehicles[field]);
+        });
+
+        // Common string fields with empty string defaults
+        const stringFields = [
+          'engineSize',
+          'engineNumber',
+          'vin',
+          'warranty',
+          'insuranceType',
+          'registrationStatus',
+          'color',
+          'interiorColor',
+          'fuelType',
+          'transmissionType'
+        ];
+
+        stringFields.forEach(field => {
+          details.vehicles[field] = details.vehicles[field] || '';
+        });
+
+        // Ensure features is an array
+        details.vehicles.features = Array.isArray(details.vehicles.features) ? 
+          details.vehicles.features : [];
+
+        // Handle specific vehicle type details
+        const vehicleTypeFields: Record<VehicleType, string[]> = {
+          [VehicleType.CAR]: ['fuelEfficiency', 'emissionClass', 'driveType', 'wheelSize', 'wheelType'],
+          [VehicleType.MOTORCYCLE]: ['engineDisplacement', 'startingSystem', 'coolingSystem'],
+          [VehicleType.TRUCK]: ['loadCapacity', 'axleConfiguration', 'cabType'],
+          [VehicleType.VAN]: ['cargoVolume', 'roofHeight', 'loadLength'],
+          [VehicleType.TRACTOR]: ['horsepower', 'attachments', 'fuelTankCapacity', 'tires'],
+          [VehicleType.RV]: ['length', 'slideOuts', 'sleepingCapacity'],
+          [VehicleType.BUS]: ['passengerCapacity', 'busLength', 'busType']
+        };
+
+        // Apply vehicle type specific fields
+        const typeFields = vehicleTypeFields[details.vehicles.vehicleType as VehicleType] || [];
+        typeFields.forEach((field: string) => {
+          details.vehicles[field] = details.vehicles[field] || '';
+        });
       }
+
+      // Update the formData with the processed details
+      formData.set("details", JSON.stringify(details));
+
+      // Send the request
+      const response = await apiClient.post("/listings", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.error?.message || "Failed to create listing");
+      }
+
+      return response.data;
+    } catch (error: unknown) {
+      console.error("Error creating listing:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create listing";
+      throw new Error(errorMessage);
     }
-
-    const response = await apiClient.post("/listings", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      timeout: 30000,
-    });
-
-    if (!response.data.success) {
-      throw new Error(
-        response.data.error?.message || "Failed to create listing",
-      );
-    }
-
-    return response.data;
   } catch (error) {
     console.error("Error creating listing:", error);
     if (error instanceof AxiosError && error.response?.status === 401) {
@@ -594,11 +672,14 @@ export const listingsAPI = {
   async getById(id: string): Promise<APIResponse<Listing>> {
     try {
       console.log("Fetching listing with ID:", id);
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const response = await apiClient.get<{
         success: boolean;
         data: SingleListingResponse;
         status: number;
-      }>(`/listings/${id}`);
+      }>(`/listings/${id}`, { headers });
       console.log("Raw API response:", response);
       console.log("Response data:", response.data);
 
@@ -612,35 +693,106 @@ export const listingsAPI = {
       const details: ListingDetails = {
         vehicles: responseData.details.vehicles
           ? {
-              vehicleType: responseData.category.subCategory as VehicleType,
-              make: responseData.details.vehicles.make,
-              model: responseData.details.vehicles.model,
-              year: responseData.details.vehicles.year,
+              vehicleType: (() => {
+                switch (responseData.category.subCategory) {
+                  case VehicleType.CAR:
+                    return VehicleType.CAR;
+                  case VehicleType.MOTORCYCLE:
+                    return VehicleType.MOTORCYCLE;
+                  case VehicleType.TRUCK:
+                    return VehicleType.TRUCK;
+                  case VehicleType.VAN:
+                    return VehicleType.VAN;
+                  case VehicleType.BUS:
+                    return VehicleType.BUS;
+                  case VehicleType.TRACTOR:
+                    return VehicleType.TRACTOR;
+                  default:
+                    return VehicleType.CAR;
+                }
+              })(),
+              make: responseData.details.vehicles.make || "",
+              model: responseData.details.vehicles.model || "",
+              year: responseData.details.vehicles.year || "",
               // Essential fields
-              mileage: responseData.details.vehicles.mileage || "",
+              mileage: typeof responseData.details.vehicles.mileage === "string" 
+                ? parseInt(responseData.details.vehicles.mileage, 10) 
+                : (responseData.details.vehicles.mileage || 0),
               fuelType: responseData.details.vehicles.fuelType || "",
-              transmission:
-                responseData.details.vehicles.transmission || "",
+              transmissionType: responseData.details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
+              transmission: responseData.details.vehicles.transmission || "",
               // Appearance fields
               color: responseData.details.vehicles.color || "#000000",
-              interiorColor:
-                responseData.details.vehicles.interiorColor || "#000000",
-              condition: responseData.details.vehicles.condition || "",
+              interiorColor: responseData.details.vehicles.interiorColor || "#000000",
+              condition: responseData.details.vehicles.condition || Condition.GOOD,
+              features: responseData.details.vehicles.features || {} as Record<string, any>,
               // Technical fields
-              brakeType:
-                responseData.details.vehicles.brakeType || "Not provided",
-              engineSize:
-                responseData.details.vehicles.engineSize || "Not provided",
-              engine: responseData.details.vehicles.engine || "Not provided",
-              warranty:
-                responseData.details.vehicles.warranty?.toString() || "",
-              serviceHistory:
-                responseData.details.vehicles.serviceHistory || "none",
-              previousOwners: responseData.details.vehicles.previousOwners || 0,
-              registrationStatus:
-                responseData.details.vehicles.registrationStatus ||
-                "unregistered",
-              features: responseData.details.vehicles.features || [],
+              brakeType: responseData.details.vehicles.brakeType || "Not provided",
+              engineSize: responseData.details.vehicles.engineSize || "Not provided",
+              horsepower: typeof responseData.details.vehicles.horsepower === "string" 
+                ? parseInt(responseData.details.vehicles.horsepower, 10) 
+                : (responseData.details.vehicles.horsepower || 0),
+              torque: typeof responseData.details.vehicles.torque === "string" 
+                ? parseInt(responseData.details.vehicles.torque, 10) 
+                : (responseData.details.vehicles.torque || 0),
+              numberOfOwners: typeof responseData.details.vehicles.numberOfOwners === "string" 
+                ? parseInt(responseData.details.vehicles.numberOfOwners, 10) 
+                : (responseData.details.vehicles.numberOfOwners || 0),
+              // Service and History
+              accidentFree: Boolean(responseData.details.vehicles.accidentFree),
+              importStatus: responseData.details.vehicles.importStatus || "Local",
+              registrationExpiry: responseData.details.vehicles.registrationExpiry || "",
+              warranty: responseData.details.vehicles.warranty || "No",
+              warrantyPeriod: responseData.details.vehicles.warrantyPeriod || "",
+              insuranceType: responseData.details.vehicles.insuranceType || "None",
+              upholsteryMaterial: responseData.details.vehicles.upholsteryMaterial || "Other",
+              customsCleared: Boolean(responseData.details.vehicles.customsCleared),
+              bodyType: responseData.details.vehicles.bodyType || "",
+              roofType: responseData.details.vehicles.roofType || "",
+              // Features
+              blindSpotMonitor: Boolean(responseData.details.vehicles.blindSpotMonitor),
+              laneAssist: Boolean(responseData.details.vehicles.laneAssist),
+              adaptiveCruiseControl: Boolean(responseData.details.vehicles.adaptiveCruiseControl),
+              rearCamera: Boolean(responseData.details.vehicles.rearCamera),
+              camera360: Boolean(responseData.details.vehicles.camera360),
+              parkingSensors: Boolean(responseData.details.vehicles.parkingSensors),
+              climateControl: Boolean(responseData.details.vehicles.climateControl),
+              heatedSeats: Boolean(responseData.details.vehicles.heatedSeats),
+              ventilatedSeats: Boolean(responseData.details.vehicles.ventilatedSeats),
+              ledHeadlights: Boolean(responseData.details.vehicles.ledHeadlights),
+              adaptiveHeadlights: Boolean(responseData.details.vehicles.adaptiveHeadlights),
+              ambientLighting: Boolean(responseData.details.vehicles.ambientLighting),
+              bluetooth: Boolean(responseData.details.vehicles.bluetooth),
+              appleCarPlay: Boolean(responseData.details.vehicles.appleCarPlay),
+              androidAuto: Boolean(responseData.details.vehicles.androidAuto),
+              premiumSound: Boolean(responseData.details.vehicles.premiumSound),
+              wirelessCharging: Boolean(responseData.details.vehicles.wirelessCharging),
+              keylessEntry: Boolean(responseData.details.vehicles.keylessEntry),
+              sunroof: Boolean(responseData.details.vehicles.sunroof),
+              spareKey: Boolean(responseData.details.vehicles.spareKey),
+              remoteStart: Boolean(responseData.details.vehicles.remoteStart),
+              tireCondition: responseData.details.vehicles.tireCondition || "",
+              // Additional fields
+              attachments: Array.isArray(responseData.details.vehicles.attachments) 
+                ? responseData.details.vehicles.attachments 
+                : [],
+              fuelTankCapacity: responseData.details.vehicles.fuelTankCapacity || "",
+              tires: responseData.details.vehicles.tires || "",
+              hydraulicSystem: responseData.details.vehicles.hydraulicSystem || "",
+              ptoType: responseData.details.vehicles.ptoType || "",
+              serviceHistoryDetails: responseData.details.vehicles.serviceHistoryDetails || "",
+              additionalNotes: responseData.details.vehicles.additionalNotes || "",
+              safetyFeatures: typeof responseData.details.vehicles.safetyFeatures === "object" 
+                ? responseData.details.vehicles.safetyFeatures || {} 
+                : {},
+              engine: responseData.details.vehicles.engine || "",
+              driveType: responseData.details.vehicles.driveType || "",
+              wheelSize: responseData.details.vehicles.wheelSize || "",
+              wheelType: responseData.details.vehicles.wheelType || "",
+
+              previousOwners: typeof responseData.details.vehicles.previousOwners === "string" 
+                ? parseInt(responseData.details.vehicles.previousOwners, 10) 
+                : (responseData.details.vehicles.previousOwners || 0),
             }
           : undefined,
         realEstate: responseData.details.realEstate

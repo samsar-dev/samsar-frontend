@@ -63,19 +63,23 @@ export interface ListingFieldSchema {
     | "climate";
 }
 
+// Common fields for all vehicle types
+// Base interface for all vehicles
 export interface BaseVehicleDetails {
   make: string;
   model: string;
-  year: number;
+  year: string;
   mileage: number;
   fuelType: FuelType;
   transmissionType: TransmissionType;
+  transmission?: string;
+  gearbox?: string;
   color: string;
   condition: Condition;
   features?: Record<string, any>;
   interiorColor?: string;
   warranty?: string;
-  previousOwners?: number;
+  previousOwners?: string | number;
   registrationStatus?: string;
   upholsteryMaterial?: string;
   tireCondition?: string;
@@ -88,7 +92,7 @@ export interface BaseVehicleDetails {
   brakeType?: string;
   engineNumber?: string;
   engineSize?: string;
-  serviceHistory?: string | string[];
+  serviceHistory?: boolean;
   accidentFree?: boolean;
   importStatus?: string;
   registrationExpiry?: string;
@@ -96,26 +100,99 @@ export interface BaseVehicleDetails {
   serviceHistoryDetails?: string;
   additionalNotes?: string;
   safetyFeatures?: Record<string, any>;
+  vin?: string;
+  attachments?: string[];
+  fuelTankCapacity?: string;
+  tires?: string;
+  hydraulicSystem?: string;
+  ptoType?: string;
+  fuelEfficiency?: string;
+  emissionClass?: string;
+  driveType?: string;
+  wheelSize?: string;
+  wheelType?: string;
+  // Safety features
+  tractionControl?: boolean;
+  abs?: boolean;
+  emergencyBrakeAssist?: boolean;
+  tirePressureMonitoring?: boolean;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  parkingSensors?: boolean;
+  parkingCamera?: boolean;
+  
+  // Camera features
+  rearCamera?: boolean;
+  camera360?: boolean;
+  dashCam?: boolean;
+  nightVision?: boolean;
+  
+  // Comfort features
+  climateControl?: boolean;
+  dualZoneClimate?: boolean;
+  rearAC?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  
+  // Lighting features
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  fogLights?: boolean;
+  
+  // Technology features
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
 }
 
 export interface CarDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.CAR;
-  vin?: string;
-  engineNumber?: string;
-  previousOwners  ?: number;
-  serviceHistory?: string | string[];
-  accidentFree?: boolean;
-  importStatus?: string;
-  registrationExpiry?: string;
-  warranty?: string;
-  insuranceType?: string;
-  upholsteryMaterial?: string;
-  tireCondition?: string;
+  seatingCapacity?: number;
+  trunkCapacity?: number;
+  fuelEfficiency?: string;
+  emissionClass?: string;
+  driveType?: string;
+  acceleration?: string;
+  maxSpeed?: number;
+  wheelSize?: string;
+  wheelType?: string;
+  airbags?: number;
   engineSize?: string;
   horsepower?: number;
   torque?: number;
+  numberOfOwners?: number;
+  transmission?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  engine?: string;
   brakeType?: string;
-  fuelTankCapacity?: number;
+  fuelTankCapacity?: string;
   tires?: string;
   attachments?: string[];
   warrantyPeriod?: string;
@@ -126,20 +203,91 @@ export interface CarDetails extends BaseVehicleDetails {
   additionalNotes?: string;
   safetyFeatures?: Record<string, any>;
   features?: Record<string, any>;
+  hydraulicSystem?: string;
+  ptoType?: string;
 }
 
 export interface MotorcycleDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.MOTORCYCLE;
+  numberOfOwners?: number;
+  engine?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  transmission?: string;
 }
 
 export interface TruckDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.TRUCK;
   cargoCapacity?: number;
+  numberOfOwners?: number;
+  engine?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  transmission?: string;
 }
 
 export interface VanDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.VAN;
   cargoVolume?: number;
+  numberOfOwners?: number;
+  engine?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  transmission?: string;
 }
 
 export interface BusDetails extends BaseVehicleDetails {
@@ -169,76 +317,118 @@ export interface BusDetails extends BaseVehicleDetails {
   certifications?: string[];
   luggageCompartments?: number;
   luggageRacks?: boolean;
-  fuelTankCapacity?: number;
+  fuelTankCapacity?: string;
+  numberOfOwners?: number;
+  engine?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  transmission?: string;
 }
 
 export interface TractorDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.TRACTOR;
-  // Engine & Performance
-  engineSpecs?: string[];
-  engineManufacturer?: string;
-  engineModel?: string;
-  displacement?: string;
-  cylinders?: string;
-  torque?: number;
-  emissions?: string;
-
-  // Hydraulics & PTO
+  attachments?: string[];
+  fuelTankCapacity?: string;
+  tires?: string;
   hydraulicSystem?: string;
+  ptoType?: string;
+  numberOfOwners?: number;
+  serviceHistory?: boolean;
+  emissions?: string;
   hydraulicFlow?: number;
   hydraulicOutlets?: string[];
   ptoSystem?: string[];
   ptoHorsepower?: number;
-
-  // Implements & Attachments
   frontAttachments?: string[];
   rearAttachments?: string[];
   threePointHitch?: string;
   hitchCapacity?: number;
-
-  // Cab & Controls
   cabFeatures?: string[];
   seating?: string[];
   steeringSystem?: string[];
   lighting?: string[];
-
-  // Technology & Electronics
   precisionFarming?: string[];
   monitor?: string[];
   electricalSystem?: string;
-
-  // Maintenance & Documentation
-  serviceHistory?: string[];
   warranty?: string;
   modifications?: string;
-
-  // Essential Metrics
   hours?: number;
   horsepower?: number;
   driveSystem?: string;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  rearCamera?: boolean;
+  camera360?: boolean;
+  climateControl?: boolean;
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  transmission?: string;
+  engine?: string;
 }
 
-export type VehicleDetails = 
-  | CarDetails 
-  | MotorcycleDetails 
-  | TruckDetails 
-  | VanDetails 
-  | BusDetails 
-  | TractorDetails;
+// Union type for all possible vehicle details
+export type VehicleDetails = BaseVehicleDetails & {
+  vehicleType: VehicleType;
+} & (
+  | (Omit<CarDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.CAR })
+  | (Omit<MotorcycleDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.MOTORCYCLE })
+  | (Omit<TruckDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.TRUCK })
+  | (Omit<VanDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.VAN })
+  | (Omit<BusDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.BUS })
+  | (Omit<TractorDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.TRACTOR })
+);
 
-export interface BasePropertyDetails {
+export interface BaseRealEstateDetails {
+  propertyType: PropertyType;
+  bedrooms?: number;
+  bathrooms?: number;
+  area?: number;
+  furnished?: boolean;
+  features?: Record<string, any>;
+}
+
+export interface BasePropertyDetails extends BaseRealEstateDetails {
   size: number;
   yearBuilt: number;
   condition: Condition;
   features: string[];
-  furnished?: string | boolean;
+  furnished?: boolean;
   utilities?: string[] | boolean;
 }
 
-export interface HouseDetails extends BasePropertyDetails {
+export interface HouseDetails extends BaseRealEstateDetails {
   propertyType: PropertyType.HOUSE;
-  bedrooms: number;
-  bathrooms: number;
   floors: number;
   parkingSpaces: number;
   garage: boolean;
@@ -246,6 +436,9 @@ export interface HouseDetails extends BasePropertyDetails {
   petsAllowed: boolean;
   constructionType?: string;
   parking?: string;
+  yearBuilt: number;
+  condition: Condition;
+  size: number;
 }
 
 export interface ApartmentDetails extends BasePropertyDetails {
@@ -262,7 +455,7 @@ export interface ApartmentDetails extends BasePropertyDetails {
   cooling?: string;
   buildingAmenities?: string[];
   energyRating?: string;
-  furnished?: string;
+  furnished?: boolean;
   petPolicy?: string;
   view?: string;
   securityFeatures?: string[];

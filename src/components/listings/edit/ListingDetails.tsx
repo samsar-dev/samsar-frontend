@@ -2,7 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { MessagesAPI } from "@/api/messaging.api";
-import type { Listing } from "@/types/listings";
+import { 
+  Listing, 
+  CarDetails, 
+  MotorcycleDetails, 
+  TruckDetails, 
+  VanDetails, 
+  BusDetails, 
+  TractorDetails, 
+  BaseVehicleDetails,
+  VehicleDetails 
+} from "@/types/listings";
 import {
   ListingCategory,
   VehicleType,
@@ -16,6 +26,7 @@ import type { ListingMessageInput } from "@/types/messaging";
 import { toast } from "react-toastify";
 import { listingsAPI } from "@/api/listings.api";
 import { useTranslation } from "react-i18next";
+import TokenManager from "@/utils/tokenManager";
 import { formatCurrency } from "@/utils/format";
 import ImageGallery from "@/components/listings/images/ImageGallery";
 import { Link } from "react-router-dom";
@@ -53,13 +64,26 @@ const ListingDetails: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
+    // Debug log
+    const token = TokenManager.getAccessToken();
+    console.log('Auth debug:', { isAuthenticated, token });
+
+    // Only run fetch if both are present
+    if (!isAuthenticated || !token) {
+      // Don't show error immediately; wait for auth state to resolve
+      if (isAuthenticated === false) {
+        setError(t('common.loginRequired'));
+        setLoading(false);
+      }
+      return;
+    }
+
     const initializeAndFetchListing = async () => {
       if (!id) {
         setError("No listing ID provided");
         setLoading(false);
         return;
       }
-
       try {
         const response = await listingsAPI.getById(id);
         console.log("Got response:", response);
@@ -73,15 +97,29 @@ const ListingDetails: React.FC = () => {
           "FULL Response Data:",
           JSON.stringify(response.data, null, 2),
         );
-        console.log(
-          "Response data details:",
-          JSON.stringify(response.data?.details, null, 2),
-        );
+        
+        // Log specific vehicle details for debugging
         if (response.data?.details?.vehicles) {
           console.log(
-            "Vehicle details:",
+            "Vehicle details (raw):",
             JSON.stringify(response.data.details.vehicles, null, 2),
           );
+          
+          // Log each individual field for debugging
+          const vehicles = response.data.details.vehicles;
+          console.log("Vehicle fields available:", Object.keys(vehicles));
+          
+          // Check specific fields that might be missing
+          console.log("Checking specific fields:");
+          console.log("- make:", vehicles.make);
+          console.log("- model:", vehicles.model);
+          console.log("- year:", vehicles.year);
+          console.log("- mileage:", vehicles.mileage);
+          console.log("- color:", vehicles.color);
+          console.log("- condition:", vehicles.condition);
+          console.log("- features:", vehicles.features);
+          console.log("- horsepower:", vehicles.horsepower);
+          console.log("- torque:", vehicles.torque);
         }
 
         if (!response.success || !response.data) {
@@ -136,73 +174,215 @@ const ListingDetails: React.FC = () => {
         );
 
         // Transform vehicle details if present
+        // Determine category type
+        const isVehicleListing = category.mainCategory === ListingCategory.VEHICLES;
+        
         const transformedDetails = {
-          vehicles: details.vehicles
+          vehicles: isVehicleListing && details.vehicles
             ? {
-                // Spread the original details first
                 ...details.vehicles,
-                // Override with properly typed values
                 vehicleType: category.subCategory as VehicleType,
-                features: Array.isArray(details.vehicles.features) ? details.vehicles.features : [],
-                mileage: details.vehicles.mileage?.toString() || "0",
-                color: details.vehicles.color || "#000000",
-                interiorColor: details.vehicles.interiorColor || "#000000",
-                condition: details.vehicles.condition as Condition || Condition.GOOD,
-                transmissionType: details.vehicles.transmissionType as TransmissionType || TransmissionType.AUTOMATIC,
-                fuelType: details.vehicles.fuelType as FuelType || FuelType.GASOLINE,
-                serviceHistory: typeof details.vehicles.serviceHistory === 'string' ? details.vehicles.serviceHistory : "",
+                features: details.vehicles.features || {} as Record<string, any>,
+                // Essential fields
+                make: details.vehicles.make || "",
+                model: details.vehicles.model || "",
+                year: details.vehicles.year || "",
+                mileage: typeof details.vehicles.mileage === "string" ? parseInt(details.vehicles.mileage, 10) : (details.vehicles.mileage || 0),
+                color: details.vehicles.color || "",
+                interiorColor: details.vehicles.interiorColor || "",
+                condition: details.vehicles.condition || Condition.GOOD,
+                transmissionType: details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
+                transmission: details.vehicles.transmission || "",
+                fuelType: details.vehicles.fuelType || "",
                 // Advanced fields
                 vin: details.vehicles.vin || "",
                 engineNumber: details.vehicles.engineNumber || "",
-                previousOwners: typeof details.vehicles.previousOwners === "number" ? details.vehicles.previousOwners : 0,
-                serviceHistory: details.vehicles.serviceHistory || false,
-                accidentFree: details.vehicles.accidentFree || false,
+                // Handle both field names for compatibility
+                numberOfOwners: typeof details.vehicles.numberOfOwners === "string" ? 
+                  parseInt(details.vehicles.numberOfOwners, 10) : 
+                  (typeof details.vehicles.previousOwners === "string" ? 
+                    parseInt(details.vehicles.previousOwners, 10) : 
+                    (details.vehicles.numberOfOwners || details.vehicles.previousOwners || 0)),
+                previousOwners: typeof details.vehicles.previousOwners === "string" ? 
+                  parseInt(details.vehicles.previousOwners, 10) : 
+                  (details.vehicles.previousOwners || 0),
+                // Boolean fields - explicitly transform
+                serviceHistory: Boolean(details.vehicles.serviceHistory),
+                accidentFree: Boolean(details.vehicles.accidentFree),
+                customsCleared: Boolean(details.vehicles.customsCleared),
+                // Safety features - explicitly transform
+                blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
+                laneAssist: Boolean(details.vehicles.laneAssist),
+                adaptiveCruiseControl: Boolean(details.vehicles.adaptiveCruiseControl),
+                tractionControl: Boolean(details.vehicles.tractionControl),
+                abs: Boolean(details.vehicles.abs),
+                emergencyBrakeAssist: Boolean(details.vehicles.emergencyBrakeAssist),
+                tirePressureMonitoring: Boolean(details.vehicles.tirePressureMonitoring),
+                // Camera features - explicitly transform
+                rearCamera: Boolean(details.vehicles.rearCamera),
+                camera360: Boolean(details.vehicles.camera360),
+                dashCam: Boolean(details.vehicles.dashCam),
+                parkingSensors: Boolean(details.vehicles.parkingSensors),
+                // Comfort features - explicitly transform
+                climateControl: Boolean(details.vehicles.climateControl),
+                heatedSeats: Boolean(details.vehicles.heatedSeats),
+                ventilatedSeats: Boolean(details.vehicles.ventilatedSeats),
+                dualZoneClimate: Boolean(details.vehicles.dualZoneClimate),
+                rearAC: Boolean(details.vehicles.rearAC),
+                // Lighting features - explicitly transform
+                ledHeadlights: Boolean(details.vehicles.ledHeadlights),
+                adaptiveHeadlights: Boolean(details.vehicles.adaptiveHeadlights),
+                ambientLighting: Boolean(details.vehicles.ambientLighting),
+                fogLights: Boolean(details.vehicles.fogLights),
+                // Technology features - explicitly transform
+                bluetooth: Boolean(details.vehicles.bluetooth),
+                appleCarPlay: Boolean(details.vehicles.appleCarPlay),
+                androidAuto: Boolean(details.vehicles.androidAuto),
+                premiumSound: Boolean(details.vehicles.premiumSound),
+                wirelessCharging: Boolean(details.vehicles.wirelessCharging),
+                keylessEntry: Boolean(details.vehicles.keylessEntry),
+                sunroof: Boolean(details.vehicles.sunroof),
+                spareKey: Boolean(details.vehicles.spareKey),
+                remoteStart: Boolean(details.vehicles.remoteStart),
+                // Other fields with their actual values
                 importStatus: details.vehicles.importStatus || "Local",
+                registrationStatus: details.vehicles.registrationStatus || "",
                 registrationExpiry: details.vehicles.registrationExpiry || "",
                 warranty: details.vehicles.warranty || "No",
+                warrantyPeriod: details.vehicles.warrantyPeriod || "",
                 insuranceType: details.vehicles.insuranceType || "None",
                 upholsteryMaterial: details.vehicles.upholsteryMaterial || "Other",
-                // Features
-                blindSpotMonitor: details.vehicles.blindSpotMonitor || false,
-                laneAssist: details.vehicles.laneAssist || false,
-                adaptiveCruiseControl: details.vehicles.adaptiveCruiseControl || false,
-                rearCamera: details.vehicles.rearCamera || false,
-                camera360: details.vehicles.camera360 || false,
-                parkingSensors: details.vehicles.parkingSensors || false,
-                climateControl: details.vehicles.climateControl || false,
-                heatedSeats: details.vehicles.heatedSeats || false,
-                ventilatedSeats: details.vehicles.ventilatedSeats || false,
-                ledHeadlights: details.vehicles.ledHeadlights || false,
-                adaptiveHeadlights: details.vehicles.adaptiveHeadlights || false,
-                ambientLighting: details.vehicles.ambientLighting || false,
-                bluetooth: details.vehicles.bluetooth || false,
-                appleCarPlay: details.vehicles.appleCarPlay || false,
-                androidAuto: details.vehicles.androidAuto || false,
-                premiumSound: details.vehicles.premiumSound || false,
-                wirelessCharging: details.vehicles.wirelessCharging || false,
-                keylessEntry: details.vehicles.keylessEntry || false,
-                sunroof: details.vehicles.sunroof || false,
-                spareKey: details.vehicles.spareKey || false,
-                remoteStart: details.vehicles.remoteStart || false,
+                bodyType: details.vehicles.bodyType || "",
+                roofType: details.vehicles.roofType || "",
                 tireCondition: details.vehicles.tireCondition || "",
-                // Additional fields
+                // Technical fields
                 engine: details.vehicles.engine || "",
-                horsepower: typeof details.vehicles.horsepower === "number" ? details.vehicles.horsepower : 0,
-                torque: typeof details.vehicles.torque === "number" ? details.vehicles.torque : 0,
-                // For tractors
-                attachments: details.vehicles.attachments || [],
+                engineSize: details.vehicles.engineSize || "",
+                gearbox: details.vehicles.gearbox || "",
+                horsepower: typeof details.vehicles.horsepower === "string" 
+                  ? parseInt(details.vehicles.horsepower, 10) 
+                  : (details.vehicles.horsepower || 0),
+                torque: typeof details.vehicles.torque === "string" 
+                  ? parseInt(details.vehicles.torque, 10) 
+                  : (details.vehicles.torque || 0),
+                brakeType: details.vehicles.brakeType || "",
+                driveType: details.vehicles.driveType || "",
+                wheelSize: details.vehicles.wheelSize || "",
+                wheelType: details.vehicles.wheelType || "",
+                // Additional fields
+                attachments: Array.isArray(details.vehicles.attachments) ? details.vehicles.attachments : [],
                 fuelTankCapacity: details.vehicles.fuelTankCapacity || "",
                 tires: details.vehicles.tires || "",
+                hydraulicSystem: details.vehicles.hydraulicSystem || "",
+                ptoType: details.vehicles.ptoType || "",
+                fuelEfficiency: details.vehicles.fuelEfficiency || "",
+                emissionClass: details.vehicles.emissionClass || "",
+                serviceHistoryDetails: details.vehicles.serviceHistoryDetails || "",
+                additionalNotes: details.vehicles.additionalNotes || "",
+                safetyFeatures: typeof details.vehicles.safetyFeatures === "object" ? details.vehicles.safetyFeatures || {} : {}
               }
             : undefined,
           realEstate: details.realEstate
             ? {
                 ...details.realEstate,
                 propertyType: category.subCategory as PropertyType,
-                features: details.realEstate.features || [],
+                features: details.realEstate.features || {},
               }
             : undefined,
         };
+
+        // Remove the problematic section and simplify the vehicle details assignment
+        let vehicleDetails = transformedDetails.vehicles;
+        if (vehicleDetails) {
+          const subCategory = category.subCategory as VehicleType;
+          // Initialize base details with required fields
+          const baseDetails = {
+            make: vehicleDetails.make || '',
+            model: vehicleDetails.model || '',
+            year: vehicleDetails.year || '',
+            mileage: vehicleDetails.mileage || 0,
+            color: vehicleDetails.color || '',
+            condition: vehicleDetails.condition,
+            fuelType: vehicleDetails.fuelType,
+            transmissionType: vehicleDetails.transmissionType,
+            features: vehicleDetails.features || {} as Record<string, any>,
+            previousOwners: typeof vehicleDetails.previousOwners === 'string' 
+              ? parseInt(vehicleDetails.previousOwners, 10) 
+              : (vehicleDetails.previousOwners || 0)
+          } as const;
+          
+          // Type assertion based on vehicle type
+          let typedDetails: VehicleDetails;
+          switch (subCategory) {
+            case VehicleType.CAR:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.CAR } as CarDetails;
+              break;
+            case VehicleType.MOTORCYCLE:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.MOTORCYCLE } as MotorcycleDetails;
+              break;
+            case VehicleType.TRUCK:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.TRUCK } as TruckDetails;
+              break;
+            case VehicleType.VAN:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.VAN } as VanDetails;
+              break;
+            case VehicleType.BUS:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.BUS } as BusDetails;
+              break;
+            case VehicleType.TRACTOR:
+              typedDetails = { ...vehicleDetails, ...baseDetails, vehicleType: VehicleType.TRACTOR } as TractorDetails;
+              break;
+            default:
+              throw new Error(`Unsupported vehicle type: ${subCategory}`);
+          }
+          
+          // Preserve all fields from the original vehicleDetails
+          vehicleDetails = {
+            ...vehicleDetails,
+            ...typedDetails,
+            // Ensure these fields are preserved with their original values
+            insuranceType: vehicleDetails.insuranceType || "None",
+            upholsteryMaterial: vehicleDetails.upholsteryMaterial || "Other",
+            tireCondition: vehicleDetails.tireCondition || "",
+            engineSize: vehicleDetails.engineSize || "",
+            horsepower: vehicleDetails.horsepower || 0,
+            torque: vehicleDetails.torque || 0,
+            bodyType: vehicleDetails.bodyType || "",
+            roofType: vehicleDetails.roofType || "",
+            warrantyPeriod: vehicleDetails.warrantyPeriod || "",
+            serviceHistoryDetails: vehicleDetails.serviceHistoryDetails || "",
+            // Preserve all boolean fields
+            blindSpotMonitor: Boolean(vehicleDetails.blindSpotMonitor),
+            laneAssist: Boolean(vehicleDetails.laneAssist),
+            adaptiveCruiseControl: Boolean(vehicleDetails.adaptiveCruiseControl),
+            tractionControl: Boolean(vehicleDetails.tractionControl),
+            abs: Boolean(vehicleDetails.abs),
+            emergencyBrakeAssist: Boolean(vehicleDetails.emergencyBrakeAssist),
+            tirePressureMonitoring: Boolean(vehicleDetails.tirePressureMonitoring),
+            rearCamera: Boolean(vehicleDetails.rearCamera),
+            camera360: Boolean(vehicleDetails.camera360),
+            dashCam: Boolean(vehicleDetails.dashCam),
+            parkingSensors: Boolean(vehicleDetails.parkingSensors),
+            climateControl: Boolean(vehicleDetails.climateControl),
+            heatedSeats: Boolean(vehicleDetails.heatedSeats),
+            ventilatedSeats: Boolean(vehicleDetails.ventilatedSeats),
+            dualZoneClimate: Boolean(vehicleDetails.dualZoneClimate),
+            rearAC: Boolean(vehicleDetails.rearAC),
+            ledHeadlights: Boolean(vehicleDetails.ledHeadlights),
+            adaptiveHeadlights: Boolean(vehicleDetails.adaptiveHeadlights),
+            ambientLighting: Boolean(vehicleDetails.ambientLighting),
+            fogLights: Boolean(vehicleDetails.fogLights),
+            bluetooth: Boolean(vehicleDetails.bluetooth),
+            appleCarPlay: Boolean(vehicleDetails.appleCarPlay),
+            androidAuto: Boolean(vehicleDetails.androidAuto),
+            premiumSound: Boolean(vehicleDetails.premiumSound),
+            wirelessCharging: Boolean(vehicleDetails.wirelessCharging),
+            keylessEntry: Boolean(vehicleDetails.keylessEntry),
+            sunroof: Boolean(vehicleDetails.sunroof),
+            spareKey: Boolean(vehicleDetails.spareKey),
+            remoteStart: Boolean(vehicleDetails.remoteStart)
+          } as VehicleDetails;
+        }
 
         setListing({
           ...rest,
@@ -210,7 +390,10 @@ const ListingDetails: React.FC = () => {
             mainCategory: category.mainCategory as ListingCategory,
             subCategory: category.subCategory as VehicleType | PropertyType,
           },
-          details: transformedDetails,
+          details: {
+            ...transformedDetails,
+            vehicles: vehicleDetails
+          },
           listingAction: listing.listingAction as ListingAction,
           images: processedImages,
           seller: {
@@ -260,11 +443,12 @@ const ListingDetails: React.FC = () => {
         const conversationId = conversationResponse.data._id;
         
         // Send the message using the correct structure
-        const response = await MessagesAPI.sendMessage({
-          conversationId,
+        const messageInput: ListingMessageInput = {
           content: message.trim(),
-          listingId: id || ""
-        });
+          listingId: id || "",
+          recipientId: listing.userId || ""
+        };
+        const response = await MessagesAPI.sendMessage(messageInput);
 
         if (response.success) {
           toast.success(t("messages.messageSent"));
@@ -606,126 +790,145 @@ const ListingDetails: React.FC = () => {
                     {t("listings.additionalDetails")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {listing.details.vehicles.warranty !== undefined && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.warranty")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.warranty}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.serviceHistory && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.serviceHistory")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.serviceHistory ? t("common.yes") : t("common.no")}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.previousOwners !== undefined && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.previousOwners")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.previousOwners}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.registrationStatus && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.registrationStatus")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.registrationStatus}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.vin && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.vin")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.vin}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.engineNumber && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.engineNumber")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.engineNumber}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.accidentFree && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.accidentFree")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.accidentFree ? t("common.yes") : t("common.no")}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.importStatus && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.importStatus")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.importStatus}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.registrationExpiry && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.registrationExpiry")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {new Date(listing.details.vehicles.registrationExpiry).toLocaleDateString()}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.insuranceType && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.insuranceType")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.insuranceType}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.upholsteryMaterial && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.upholsteryMaterial")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.upholsteryMaterial}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.tireCondition && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.tireCondition")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.tireCondition}
-                        </p>
-                      </div>
-                    )}
+                    {/* Always show these fields regardless of value */}
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.warranty")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.warranty || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.serviceHistory")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.serviceHistory ? t("common.yes") : t("common.no")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.numberOfOwners")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.numberOfOwners || listing.details.vehicles.previousOwners || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.registrationStatus")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.registrationStatus || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.vin")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.vin || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.engineNumber")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.engineNumber || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.accidentFree")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.accidentFree ? t("common.yes") : t("common.no")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.importStatus")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.importStatus || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.registrationExpiry")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.registrationExpiry ? 
+                          new Date(listing.details.vehicles.registrationExpiry).toLocaleDateString() : 
+                          t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.insuranceType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.insuranceType || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.upholsteryMaterial")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.upholsteryMaterial || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.tireCondition")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.tireCondition || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.customsCleared")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.customsCleared ? t("common.yes") : t("common.no")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.warrantyPeriod")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.warrantyPeriod || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.serviceHistoryDetails")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.serviceHistoryDetails || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.bodyType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.bodyType || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.roofType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.roofType || t("common.notProvided")}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -735,36 +938,70 @@ const ListingDetails: React.FC = () => {
                     {t("listings.technicalDetails")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {listing.details.vehicles.engine && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.engine")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.engine}
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.horsepower !== undefined && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.horsepower")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.horsepower} HP
-                        </p>
-                      </div>
-                    )}
-                    {listing.details.vehicles.torque !== undefined && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {t("listings.torque")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing.details.vehicles.torque} Nm
-                        </p>
-                      </div>
-                    )}
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.engine")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.engine || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.engineSize")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.engineSize || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.horsepower")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.horsepower ? `${listing.details.vehicles.horsepower} HP` : t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.torque")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.torque ? `${listing.details.vehicles.torque} Nm` : t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.brakeType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.brakeType || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.driveType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.driveType || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.wheelSize")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.wheelSize || t("common.notProvided")}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("listings.fields.wheelType")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.wheelType || t("common.notProvided")}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -773,192 +1010,299 @@ const ListingDetails: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {t("listings.features")}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Safety Features */}
-                    {listing.details.vehicles.blindSpotMonitor && (
+                  
+                  {/* Safety Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.safetyFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.blindSpotMonitor")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.blindSpotMonitor ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.laneAssist && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.laneAssist")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.laneAssist ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.adaptiveCruiseControl && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.adaptiveCruiseControl")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.adaptiveCruiseControl ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {/* Camera Features */}
-                    {listing.details.vehicles.rearCamera && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.tractionControl")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.tractionControl ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.abs")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.abs ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.emergencyBrakeAssist")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.emergencyBrakeAssist ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.tirePressureMonitoring")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.tirePressureMonitoring ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Camera Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.cameraFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.rearCamera")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.rearCamera ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.camera360 && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.camera360")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.camera360 ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.parkingSensors && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.dashCam")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.dashCam ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.nightVision")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.nightVision ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.parkingSensors")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.parkingSensors ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {/* Climate Features */}
-                    {listing.details.vehicles.climateControl && (
+                    </div>
+                  </div>
+                  
+                  {/* Climate Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.climateFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.climateControl")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.climateControl ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.heatedSeats && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.heatedSeats")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.heatedSeats ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.ventilatedSeats && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.ventilatedSeats")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.ventilatedSeats ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {/* Entertainment Features */}
-                    {listing.details.vehicles.bluetooth && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.dualZoneClimate")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.dualZoneClimate ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.rearAC")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.rearAC ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Entertainment Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.entertainmentFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.bluetooth")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.bluetooth ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.appleCarPlay && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.appleCarPlay")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.appleCarPlay ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.androidAuto && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.androidAuto")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.androidAuto ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.premiumSound && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.premiumSound")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.premiumSound ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.wirelessCharging && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.wirelessCharging")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.wirelessCharging ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {/* Other Features */}
-                    {listing.details.vehicles.keylessEntry && (
+                    </div>
+                  </div>
+                  
+                  {/* Lighting Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.lightingFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.ledHeadlights")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.ledHeadlights ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.adaptiveHeadlights")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.adaptiveHeadlights ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.ambientLighting")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.ambientLighting ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t("listings.features.fogLights")}
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {listing.details.vehicles.fogLights ? t("common.yes") : t("common.no")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Convenience Features */}
+                  <div className="space-y-2">
+                    <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                      {t("listings.features.convenienceFeatures")}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.keylessEntry")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.keylessEntry ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.sunroof && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.sunroof")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.sunroof ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.spareKey && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.spareKey")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.spareKey ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
-                    {listing.details.vehicles.remoteStart && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.features.remoteStart")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t("common.yes")}
+                          {listing.details.vehicles.remoteStart ? t("common.yes") : t("common.no")}
                         </p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
@@ -971,7 +1315,7 @@ const ListingDetails: React.FC = () => {
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {listing.details.vehicles.features.map(
-                          (feature, index) => (
+                          (feature: string, index: number) => (
                             <span
                               key={index}
                               className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-200"
@@ -1067,7 +1411,7 @@ const ListingDetails: React.FC = () => {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {listing.details.realEstate.features.map(
-                        (feature, index) => (
+                        (feature: string, index: number) => (
                           <span
                             key={index}
                             className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-200"
