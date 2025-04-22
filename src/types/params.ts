@@ -1,5 +1,4 @@
-import { ListingCategory, VehicleType, PropertyType } from "./enums";
-import { ListingStatus } from "./listings";
+import { ListingCategory, VehicleType, PropertyType, ListingStatus } from "./enums";
 
 export interface ListingParams {
   category?: {

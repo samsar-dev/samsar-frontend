@@ -40,6 +40,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Select from "react-select";
+import ImageManager from "../../images/ImageManager";
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -47,11 +48,14 @@ import {
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
 
-interface ExtendedVehicleDetails extends VehicleDetails {
+interface ExtendedVehicleDetails {
   vehicleType: VehicleType;
   make: string;
   model: string;
   year: string;
+  customMake?: string;
+  condition?: Condition;
+  features?: string[];
 }
 
 interface ExtendedFormState extends Omit<FormState, "details"> {
@@ -59,6 +63,7 @@ interface ExtendedFormState extends Omit<FormState, "details"> {
     vehicles?: ExtendedVehicleDetails;
     realEstate?: RealEstateDetails;
   };
+  existingImages?: string[];
 }
 
 interface BasicDetailsFormProps {
@@ -93,7 +98,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [uploadingImages, setUploadingImages] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Helper function to convert VehicleType enum to string
@@ -162,8 +166,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleMakeChange = (value: FormFieldValue) => {
-    const makeStr =
-      typeof value === "object" && value !== null ? value.value : String(value);
+    const makeStr = typeof value === "object" && value !== null && "value" in value 
+      ? value.value 
+      : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -179,8 +184,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleModelChange = (value: FormFieldValue) => {
-    const modelStr =
-      typeof value === "object" && value !== null ? value.value : String(value);
+    const modelStr = typeof value === "object" && value !== null && "value" in value 
+      ? value.value 
+      : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -252,7 +258,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     mainCategory: ListingCategory,
     subCategory: VehicleType | PropertyType,
   ) => {
-    // Update the category in form data
     setFormData((prev: ExtendedFormState) => {
       const updatedData: ExtendedFormState = {
         ...prev,
@@ -261,13 +266,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           subCategory,
         },
         details: {
-          ...prev.details, // <-- Preserve existing nested state
+          ...prev.details,
         },
       };
 
       if (mainCategory === ListingCategory.VEHICLES) {
         updatedData.details.vehicles = {
-          ...prev.details?.vehicles, // Keep existing values if any
+          ...prev.details?.vehicles,
           vehicleType: subCategory as VehicleType,
           make: "",
           model: "",
@@ -275,19 +280,25 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           condition: Condition.GOOD,
           features: [],
         };
-        delete updatedData.details?.realEstate; // Clear real estate if switching
+        delete updatedData.details.realEstate;
       } else if (mainCategory === ListingCategory.REAL_ESTATE) {
-        updatedData.details.realEstate = {
-          ...updatedData.details?.realEstate,
-          propertyType: subCategory as PropertyType,
-          size: 0,
-          yearBuilt: 0,
-          bedrooms: 0,
-          bathrooms: 0,
-          condition: Condition.GOOD,
-          features: [],
-        };
-        delete updatedData.details?.vehicles; // Clear vehicles if switching
+        const propertyType = subCategory as PropertyType;
+        if (
+          propertyType === PropertyType.HOUSE ||
+          propertyType === PropertyType.APARTMENT ||
+          propertyType === PropertyType.LAND
+        ) {
+          updatedData.details.realEstate = {
+            propertyType,
+            size: 0,
+            yearBuilt: 0,
+            bedrooms: 0,
+            bathrooms: 0,
+            condition: Condition.GOOD,
+            features: [],
+          };
+        }
+        delete updatedData.details.vehicles;
       }
 
       return updatedData;
@@ -372,8 +383,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     // Basic fields validation
     if (!formData.title?.trim()) newErrors.title = t("fieldRequired");
-    if (!formData.description?.trim())
-      newErrors.description = t("fieldRequired");
+    if (!formData.description?.trim()) newErrors.description = t("fieldRequired");
     if (!formData.price) {
       newErrors.price = t("fieldRequired");
     } else {
@@ -404,28 +414,28 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       // Validate make
       if (!vehicles?.make) {
         newErrors["details.vehicles.make"] = t("fieldRequired");
-      }
-
-      // Validate custom make if "Other" is selected
-      if (vehicles?.make === "OTHER_MAKE" && !vehicles?.make?.trim()) {
-        newErrors["details.vehicles.make"] = t("fieldRequired");
+      } else if (vehicles.make === "OTHER_MAKE") {
+        // Validate custom make when "Other" is selected
+        if (!vehicles.customMake?.trim()) {
+          newErrors["details.vehicles.customMake"] = t("fieldRequired");
+        }
       }
 
       // Validate model
       if (!vehicles?.model) {
         newErrors["details.vehicles.model"] = t("fieldRequired");
-      }
-
-      // Validate custom model if "Custom" is selected
-      if (vehicles?.model === "CUSTOM_MODEL" && !vehicles?.model?.trim()) {
-        newErrors["details.vehicles.model"] = t("fieldRequired");
+      } else if (vehicles.model === "CUSTOM_MODEL") {
+        // Validate custom model when "Custom" is selected
+        if (!vehicles.customModel?.trim()) {
+          newErrors["details.vehicles.customModel"] = t("fieldRequired");
+        }
       }
 
       // Validate year
       if (!vehicles?.year) {
         newErrors["details.vehicles.year"] = t("fieldRequired");
       } else {
-        const year = parseInt(vehicles.year as string);
+        const year = parseInt(vehicles.year.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
           newErrors["details.vehicles.year"] = t("validYearRequired");
@@ -736,13 +746,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return (
         <div className="mt-2">
           <FormField
-            
+            name="custom-make"
             label={t("customMake")}
             type="text"
             value={customMakeValue}
-            onChange={(e) =>
-              handleInputChange("details.vehicles.customMake", e.target.value)
-            }
+            onChange={(value) => {
+              const newValue = typeof value === "string" ? value : "";
+              handleInputChange("details.vehicles.customMake", newValue);
+            }}
             onBlur={() =>
               setTouched((prev) => ({
                 ...prev,
@@ -889,7 +900,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           </p>
         )}
         {errorMessage && isFieldTouched && (
-          <p className="mt-1 text-sm text-red-500">{errorMessage}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {errorMessage}
+          </p>
         )}
       </div>
     );
@@ -1176,115 +1189,41 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             <FaAlignLeft className="w-4 h-4" />,
             t("descriptionPlaceholder"),
           )}
-          {/* Image uploader will go here */}
+          
+          {/* Image Manager Component */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("images")}
-              <span className="text-red-500 ml-1" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 015.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none"
-                  >
-                    <span>{t("uploadImages")}</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      multiple
-                      accept="image/jpeg,image/png,image/webp"
-                      className="sr-only"
-                      onChange={handleImageUpload}
-                    />
-                  </label>
-                  <p className="pl-1">{t("dragAndDrop")}</p>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  PNG, JPG, WEBP up to 5MB
-                </p>
-              </div>
-            </div>
-
-            {/* Preview of uploaded images */}
-            {formData?.images?.length > 0 && (
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t("uploadedImages")} ({formData?.images?.length || 0})
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {formData?.images?.map(
-                    (image: File | string, index: number) => (
-                      <div
-                        key={index}
-                        className="relative border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden h-24"
-                      >
-                        {image instanceof File ? (
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <img
-                            src={image}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        <button
-                          type="button"
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                          onClick={() => handleRemoveImage(index)}
-                          aria-label={t("removeImage")}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            )}
+            <ImageManager
+              images={formData.images as File[]}
+              onChange={(newImages) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  images: newImages,
+                }));
+                // Clear any image-related errors
+                setErrors((prev) => {
+                  const newErrors = { ...prev };
+                  delete newErrors.images;
+                  return newErrors;
+                });
+              }}
+              maxImages={10}
+              error={errors.images}
+              existingImages={formData.existingImages as string[]}
+              onDeleteExisting={(url) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  existingImages: (prev.existingImages || []).filter((img) => img !== url),
+                }));
+              }}
+            />
           </div>
         </div>
 
         <div className="flex justify-end pt-6">
           <button
             type="submit"
-            disabled={isSubmitting || uploadingImages}
-            className={`px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting || uploadingImages ? "opacity-70 cursor-not-allowed" : ""}`}
+            disabled={isSubmitting}
+            className={`px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
           >
             {isSubmitting ? (
               <div className="flex items-center justify-center">
@@ -1299,11 +1238,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       </form>
 
       {/* Loading overlay */}
-      {(isSubmitting || uploadingImages) && (
+      {isSubmitting && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p>{uploadingImages ? t("uploadingImages") : t("submitting")}</p>
+            <p>{t("submitting")}</p>
           </div>
         </div>
       )}

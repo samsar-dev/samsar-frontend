@@ -594,5 +594,83 @@
         "location_z_a": "Location: Z to A"
       }
     }
+  },
+  "enums": {
+    "transmission": {
+      "manual": "Manual",
+      "automatic": "Automatic",
+      "semiAutomatic": "Semi-Automatic",
+      "continuouslyVariable": "CVT",
+      "dualClutch": "Dual Clutch"
+    },
+    "fuel": {
+      "gasoline": "Gasoline",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid",
+      "pluginHybrid": "Plug-in Hybrid",
+      "lpg": "LPG",
+      "cng": "CNG",
+      "other": "Other"
+    },
+    "condition": {
+      "new": "New",
+      "likeNew": "Like New",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "salvage": "Salvage"
+    }
+  },
+  "filters": {
+    "action": "Action",
+    "subcategory": "Category",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "location": "Location",
+    "builtYear": "Built Year",
+    "sortBy": "Sort By",
+    "forSale": "For Sale",
+    "forRent": "For Rent",
+    "clearAll": "Clear All",
+    "applyFilters": "Apply Filters",
+    "all_subcategories": "All Categories",
+    "all_makes": "All Makes",
+    "all_models": "All Models",
+    "all_years": "All Years",
+    "vehicleTypes": {
+      "CAR": "Cars",
+      "TRUCK": "Trucks",
+      "MOTORCYCLE": "Motorcycles",
+      "VAN": "Vans",
+      "BUS": "Buses",
+      "TRACTOR": "Tractors",
+      "RV": "RVs",
+      "OTHER": "Other"
+    },
+    "propertyTypes": {
+      "HOUSE": "Houses",
+      "APARTMENT": "Apartments",
+      "CONDO": "Condos",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial",
+      "OTHER": "Other"
+    },
+    "builtYearOptions": {
+      "2023": "2023 and newer",
+      "2020": "2020 and newer",
+      "2015": "2015 and newer",
+      "2010": "2010 and newer",
+      "2000": "Before 2000"
+    },
+    "sortOptions": {
+      "createdAt": "Newest First",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "locationAsc": "Location A-Z",
+      "locationDesc": "Location Z-A"
+    }
   }
 }

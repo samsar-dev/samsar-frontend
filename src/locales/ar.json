@@ -590,5 +590,83 @@
       "CONSTRUCTION": "آلية إنشائية",
       "OTHER": "أخرى"
     }
+  },
+  "enums": {
+    "transmission": {
+      "manual": "يدوي",
+      "automatic": "أوتوماتيك",
+      "semiAutomatic": "نصف أوتوماتيك",
+      "continuouslyVariable": "CVT",
+      "dualClutch": "ناقل حركة مزدوج"
+    },
+    "fuel": {
+      "gasoline": "بنزين",
+      "diesel": "ديزل",
+      "electric": "كهربائي",
+      "hybrid": "هجين",
+      "pluginHybrid": "هجين قابل للشحن",
+      "lpg": "غاز مسال",
+      "cng": "غاز طبيعي",
+      "other": "أخرى"
+    },
+    "condition": {
+      "new": "جديد",
+      "likeNew": "كالجديد",
+      "excellent": "ممتاز",
+      "good": "جيد",
+      "fair": "مقبول",
+      "poor": "سيء",
+      "salvage": "للإصلاح"
+    }
+  },
+  "filters": {
+    "action": "الإجراء",
+    "subcategory": "الفئة",
+    "make": "الشركة المصنعة",
+    "model": "الموديل",
+    "year": "السنة",
+    "location": "الموقع",
+    "builtYear": "سنة البناء",
+    "sortBy": "ترتيب حسب",
+    "forSale": "للبيع",
+    "forRent": "للإيجار",
+    "clearAll": "مسح الكل",
+    "applyFilters": "تطبيق الفلاتر",
+    "all_subcategories": "جميع الفئات",
+    "all_makes": "جميع الشركات المصنعة",
+    "all_models": "جميع الموديلات",
+    "all_years": "جميع السنوات",
+    "vehicleTypes": {
+      "CAR": "سيارات",
+      "TRUCK": "شاحنات",
+      "MOTORCYCLE": "دراجات نارية",
+      "VAN": "فانات",
+      "BUS": "حافلات",
+      "TRACTOR": "جرارات",
+      "RV": "مركبات ترفيهية",
+      "OTHER": "أخرى"
+    },
+    "propertyTypes": {
+      "HOUSE": "منازل",
+      "APARTMENT": "شقق",
+      "CONDO": "شاليهات",
+      "LAND": "أراضي",
+      "COMMERCIAL": "تجاري",
+      "OTHER": "أخرى"
+    },
+    "builtYearOptions": {
+      "2023": "2023 وما بعدها",
+      "2020": "2020 وما بعدها",
+      "2015": "2015 وما بعدها",
+      "2010": "2010 وما بعدها",
+      "2000": "قبل 2000"
+    },
+    "sortOptions": {
+      "createdAt": "الأحدث أولاً",
+      "priceAsc": "السعر: من الأقل إلى الأعلى",
+      "priceDesc": "السعر: من الأعلى إلى الأقل",
+      "locationAsc": "الموقع: من أ إلى ي",
+      "locationDesc": "الموقع: من ي إلى أ"
+    }
   }
 }

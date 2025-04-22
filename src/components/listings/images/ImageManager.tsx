@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import imageCompression from "browser-image-compression";
-import { FaTrash, FaImage, FaSpinner } from "react-icons/fa";
+import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
+import ImageEditor from "./ImageEditor";
 
 interface ImageManagerProps {
   images: File[];
@@ -34,15 +35,37 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [editingImage, setEditingImage] = useState<{ url: string; index: number } | null>(null);
 
   useEffect(() => {
     // Create preview URLs for images
-    const urls = images.map((file) => URL.createObjectURL(file));
+    const urls = images.map((file: any) => {
+      // Ensure file is valid before creating URL
+      if (file instanceof File || file instanceof Blob) {
+        try {
+          return URL.createObjectURL(file);
+        } catch (error) {
+          console.error('Error creating URL for file:', error);
+          return '';
+        }
+      }
+      return '';
+    }).filter(Boolean); // Remove any empty strings
+
     setPreviewUrls(urls);
 
     // Cleanup function to revoke object URLs
     return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.forEach((url) => {
+        if (url) {
+          try {
+            URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('Error revoking URL:', error);
+          }
+        }
+      });
     };
   }, [images]);
 
@@ -146,6 +169,23 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     onChange(newImages);
   };
 
+  const handleImageEdit = (index: number, url: string) => {
+    setEditingImage({ url, index });
+  };
+
+  const handleEditSave = async (editedBlob: Blob) => {
+    if (editingImage === null) return;
+
+    const newFile = new File([editedBlob], `edited-image-${Date.now()}.jpg`, {
+      type: 'image/jpeg',
+    });
+
+    const newImages = [...images];
+    newImages[editingImage.index] = newFile;
+    onChange(newImages);
+    setEditingImage(null);
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: ALLOWED_TYPES,
     multiple: true,
@@ -224,7 +264,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                       e.currentTarget.onerror = null;
                     }}
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleImageEdit(index, url)}
+                      className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors duration-200"
+                      title={t("edit")}
+                    >
+                      <FaEdit className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => onDeleteExisting?.(url)}
                       className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
@@ -260,7 +307,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   e.currentTarget.onerror = null;
                 }}
               />
-              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
+                <button
+                  onClick={() => handleImageEdit(index, url)}
+                  className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors duration-200"
+                  title={t("edit")}
+                >
+                  <FaEdit className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => handleImageDelete(index)}
                   className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
@@ -276,6 +330,17 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
       {/* Error Message */}
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+      {/* Image Editor Modal */}
+      <AnimatePresence>
+        {editingImage && (
+          <ImageEditor
+            imageUrl={editingImage.url}
+            onSave={handleEditSave}
+            onClose={() => setEditingImage(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

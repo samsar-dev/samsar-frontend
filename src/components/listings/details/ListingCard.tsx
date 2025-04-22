@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { MdLocationOn } from "react-icons/md";
 import { formatCurrency } from "@/utils/format";
 import type {
   Listing,
   VehicleDetails,
   RealEstateDetails,
 } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
+import { ListingCategory, ListingAction } from "@/types/enums";
 import { motion } from "framer-motion";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
@@ -55,9 +56,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
     location,
     createdAt,
     listingAction,
-    vehicleDetails,
-    realEstateDetails,
+    vehicleDetails: directVehicleDetails,
+    realEstateDetails: directRealEstateDetails,
+    details,
   } = listing;
+
+  // Handle potential nested structure of vehicle details
+  const vehicleDetails = directVehicleDetails || (details && details.vehicles);
+  const realEstateDetails = directRealEstateDetails || (details && details.realEstate);
+
+  // Debug logs
+  console.log('ListingCard - Category:', category);
+  console.log('ListingCard - Direct VehicleDetails:', directVehicleDetails);
+  console.log('ListingCard - Nested Details:', details);
+  console.log('ListingCard - Final VehicleDetails:', vehicleDetails);
+  console.log('ListingCard - ListingAction:', listingAction);
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -132,10 +145,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
             {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
           </p>
           {vehicleDetails.mileage && <p>{vehicleDetails.mileage} km</p>}
-          {vehicleDetails.transmission && vehicleDetails.fuelType && (
+          {vehicleDetails.transmission && vehicleDetails.transmission.toLowerCase() === 'semiautomatic' && vehicleDetails.fuelType && (
             <p>
-              {t(`enums.transmission.${vehicleDetails.transmission}`)} •{" "}
-              {t(`enums.fuel.${vehicleDetails.fuelType}`)}
+              {t('enums.transmission.semiautomatic')} •{' '}
+              {t(`enums.fuel.${vehicleDetails.fuelType.toLowerCase()}`)}
             </p>
           )}
         </div>
@@ -191,12 +204,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
               </span>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  listingAction === "SELL"
+                  listingAction === ListingAction.SELL
                     ? "bg-blue-600 text-white"
                     : "bg-green-600 text-white"
                 }`}
               >
-                {listingAction === "SELL" ? t("forSale") : t("forRent")}
+                {listingAction === ListingAction.SELL ? t("forSale") : t("forRent")}
               </span>
             </div>
           )}
@@ -225,14 +238,107 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showPrice && (
             <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
               {formatCurrency(price)}
-              {(listingAction as string) === "rent" && (
+              {listingAction === ListingAction.RENT && (
                 <span className="text-sm ml-1">/mo</span>
               )}
             </p>
           )}
-          {renderDetails()}
-          {showLocation && (
-            <p className="text-gray-600 dark:text-gray-400 mt-2">{location}</p>
+
+          {/* Vehicle Info Boxes */}
+          {category.mainCategory === ListingCategory.VEHICLES && (
+  <>
+    {vehicleDetails ? (
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {/* Mileage box - always show, with N/A fallback */}
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.mileage')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {vehicleDetails.mileage !== undefined ? `${vehicleDetails.mileage} km` : t('common.notProvided')}
+          </div>
+        </div>
+        {/* Year box - always show, with N/A fallback */}
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.year')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {vehicleDetails.year || t('common.notProvided')}
+          </div>
+        </div>
+        {/* Fuel type box - always show, with N/A fallback */}
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.fuelType')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {vehicleDetails.fuelType ? t(`enums.fuel.${vehicleDetails.fuelType.toLowerCase()}`) : t('common.notProvided')}
+          </div>
+        </div>
+        {/* Transmission box - always show, with N/A fallback */}
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.transmission')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {vehicleDetails.transmissionType || vehicleDetails.transmission ? 
+              t(`enums.transmission.${(vehicleDetails.transmissionType || vehicleDetails.transmission).toLowerCase()}`) : 
+              t('common.notProvided')}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="text-sm text-gray-500 italic mb-3">Vehicle details not available</div>
+    )}
+  </>
+)}
+
+{category.mainCategory === ListingCategory.REAL_ESTATE && realEstateDetails && (
+  <div className="grid grid-cols-2 gap-2 mb-3">
+    {/* Size box */}
+    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+      <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.size')}</div>
+      <div className="font-medium text-gray-800 dark:text-gray-200">
+        {realEstateDetails.size ? `${realEstateDetails.size} m²` : t('common.notProvided')}
+      </div>
+    </div>
+    {/* Bedrooms and Bathrooms: Only show for land if value is present, else always show for other types */}
+    {category.subCategory && category.subCategory.toLowerCase() === 'land'
+      ? <>
+        {realEstateDetails.bedrooms && (
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+            <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.bedrooms')}</div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">
+              {`${realEstateDetails.bedrooms} ${t('common.beds')}`}
+            </div>
+          </div>
+        )}
+        {realEstateDetails.bathrooms && (
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+            <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.bathrooms')}</div>
+            <div className="font-medium text-gray-800 dark:text-gray-200">
+              {`${realEstateDetails.bathrooms} ${t('common.baths')}`}
+            </div>
+          </div>
+        )}
+      </>
+      : <>
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.bedrooms')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {realEstateDetails.bedrooms ? `${realEstateDetails.bedrooms} ${t('common.beds')}` : t('common.notProvided')}
+          </div>
+        </div>
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
+          <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.bathrooms')}</div>
+          <div className="font-medium text-gray-800 dark:text-gray-200">
+            {realEstateDetails.bathrooms ? `${realEstateDetails.bathrooms} ${t('common.baths')}` : t('common.notProvided')}
+          </div>
+        </div>
+      </>
+    }
+  </div>
+)}
+          {category.mainCategory !== ListingCategory.VEHICLES &&
+ category.mainCategory !== ListingCategory.REAL_ESTATE && renderDetails()}
+          {showLocation && location && (
+            <div className="flex items-center gap-1 mt-2">
+              <MdLocationOn className="text-blue-600 w-5 h-5" />
+              <span className="font-semibold text-blue-700 text-sm">{location}</span>
+            </div>
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">

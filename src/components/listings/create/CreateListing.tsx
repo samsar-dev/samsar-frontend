@@ -514,7 +514,10 @@ const CreateListing: React.FC = () => {
             transmissionType: data.details.vehicles.transmissionType || '',
             color: data.details.vehicles.color || '#000000',
             condition: data.details.vehicles.condition || 'GOOD',
-            features: Array.isArray(data.details.vehicles.features) ? data.details.vehicles.features : [],
+            // Transform features from object to array
+            features: Object.entries(data.details.vehicles.features || {})
+              .filter(([_, value]) => value === true)
+              .map(([key]) => key),
             engineSize: data.details.vehicles.engineSize || '',
             engineNumber: data.details.vehicles.engineNumber || '',
             vin: data.details.vehicles.vin || '',
@@ -523,6 +526,36 @@ const CreateListing: React.FC = () => {
             previousOwners: data.details.vehicles.previousOwners ? parseInt(data.details.vehicles.previousOwners.toString()) : 0,
             accidentFree: Boolean(data.details.vehicles.accidentFree),
             customsCleared: Boolean(data.details.vehicles.customsCleared),
+            // Entertainment features
+            usbPorts: Boolean(data.details.vehicles.features?.usbPorts),
+            cdPlayer: Boolean(data.details.vehicles.features?.cdPlayer),
+            dvdPlayer: Boolean(data.details.vehicles.features?.dvdPlayer),
+            rearSeatEntertainment: Boolean(data.details.vehicles.features?.rearSeatEntertainment),
+            // Safety features
+            blindSpotMonitor: Boolean(data.details.vehicles.features?.blindSpotMonitor),
+            laneAssist: Boolean(data.details.vehicles.features?.laneAssist),
+            adaptiveCruiseControl: Boolean(data.details.vehicles.features?.adaptiveCruiseControl),
+            tractionControl: Boolean(data.details.vehicles.features?.tractionControl),
+            abs: Boolean(data.details.vehicles.features?.abs),
+            emergencyBrakeAssist: Boolean(data.details.vehicles.features?.emergencyBrakeAssist),
+            tirePressureMonitoring: Boolean(data.details.vehicles.features?.tirePressureMonitoring),
+            // Camera features
+            rearCamera: Boolean(data.details.vehicles.features?.rearCamera),
+            camera360: Boolean(data.details.vehicles.features?.camera360),
+            dashCam: Boolean(data.details.vehicles.features?.dashCam),
+            nightVision: Boolean(data.details.vehicles.features?.nightVision),
+            parkingSensors: Boolean(data.details.vehicles.features?.parkingSensors),
+            // Climate features
+            climateControl: Boolean(data.details.vehicles.features?.climateControl),
+            heatedSeats: Boolean(data.details.vehicles.features?.heatedSeats),
+            ventilatedSeats: Boolean(data.details.vehicles.features?.ventilatedSeats),
+            dualZoneClimate: Boolean(data.details.vehicles.features?.dualZoneClimate),
+            rearAC: Boolean(data.details.vehicles.features?.rearAC),
+            // Lighting features
+            ledHeadlights: Boolean(data.details.vehicles.features?.ledHeadlights),
+            adaptiveHeadlights: Boolean(data.details.vehicles.features?.adaptiveHeadlights),
+            ambientLighting: Boolean(data.details.vehicles.features?.ambientLighting),
+            fogLights: Boolean(data.details.vehicles.features?.fogLights),
             // Additional fields for specific vehicle types
             ...(data.category.subCategory === 'TRACTOR' && {
               horsepower: data.details.vehicles.horsepower ? parseInt(data.details.vehicles.horsepower.toString()) : null,

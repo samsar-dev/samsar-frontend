@@ -191,6 +191,7 @@ const Home: React.FC = () => {
         ...(selectedYear && { year: parseInt(selectedYear) }), // Convert string year to number
         sortBy,
         sortOrder: sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
+        preview: true,
       };
 
       const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
