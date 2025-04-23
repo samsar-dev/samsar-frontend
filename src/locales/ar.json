@@ -29,6 +29,8 @@
     "messagePlaceholder": "اكتب رسالتك هنا...",
     "sending": "جاري الإرسال...",
     "Filters": "المرشحات",
+    "all": "الكل",
+    "all_types": "كل الأنواع",
     "search": "البحث...",
     "allCities": "جميع المدن",
     "sortOptions": {
@@ -349,8 +351,9 @@
       "condition": "الحالة",
       "features": "المميزات",
       "propertyType": "نوع العقار",
-      "bedrooms": "غرف النوم",
-      "bathrooms": "الحمامات"
+      "bedrooms": "عدد غرف النوم",
+      "bathrooms": "عدد الحمامات",
+      "size": "المساحة"
     },
     "placeholders": {
       "title": "أدخل عنوان القائمة",
@@ -524,8 +527,8 @@
     "registrationStatus": "حالة التسجيل",
     "propertyType": "نوع العقار",
     "size": "المساحة",
-    "bedrooms": "غرف النوم",
-    "bathrooms": "الحمامات",
+    "bedrooms": "عدد غرف النوم",
+    "bathrooms": "عدد الحمامات",
     "yearBuilt": "سنة البناء",
     "listingAction": "إجراء القائمة",
     "sellDescription": "وصف البيع",

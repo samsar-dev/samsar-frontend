@@ -1068,19 +1068,47 @@ export const listingsAPI = {
     params?: ListingParams,
   ): Promise<APIResponse<ListingsResponse>> {
     try {
-      const queryParams = new URLSearchParams();
-      queryParams.append("query", query);
+      // Add debug logging for the original query
+      console.log("Search API called with original query:", query);
+      
+      // Create a case-insensitive version of the query for better matching
+      const normalizedQuery = query.trim().toLowerCase();
+      console.log("Normalized query:", normalizedQuery);
+      
+      const searchParams: Record<string, string> = {
+        query: normalizedQuery, // Use normalized query
+        search: normalizedQuery, // Use normalized query for compatibility
+      };
 
       if (params) {
+        console.log("Original params:", JSON.stringify(params));
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined) {
-            queryParams.append(key, value.toString());
+          if (value === undefined || value === null) return;
+
+          if (typeof value === 'object') {
+            // Handle nested objects like category
+            Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+              if (nestedValue !== undefined && nestedValue !== null) {
+                searchParams[`${key}.${nestedKey}`] = nestedValue.toString();
+              }
+            });
+          } else {
+            searchParams[key] = value.toString();
           }
         });
       }
 
+      console.log("Search params after processing:", searchParams);
+
+      const queryString = Object.entries(searchParams)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      
+      console.log("API URL:", `${API_URL}/listings/search?${queryString}`);
+
+      // Call the server-side search endpoint
       const response = await fetch(
-        `${API_URL}/listings/search?${queryParams}`,
+        `${API_URL}/listings/search?${queryString}`,
         {
           method: "GET",
           credentials: "include",
@@ -1090,18 +1118,88 @@ export const listingsAPI = {
         },
       );
 
+      console.log("Response status:", response.status, response.statusText);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Search API error:", errorData);
         throw new Error(errorData.error || "Failed to search listings");
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      console.log("Raw API response data:", data);
+      
+      // If data is not in expected format, restructure it
+      if (data && typeof data === 'object') {
+        if (!data.success) {
+          data = { success: true, data: data };
+        }
+        
+        // Normalize the response structure regardless of API format
+        if (data.data && !data.data.listings && Array.isArray(data.data)) {
+          data = {
+            ...data,
+            data: {
+              listings: data.data,
+              total: data.data.length,
+              page: 1,
+              limit: data.data.length
+            }
+          };
+        }
+      }
+      
+      console.log("Processed search response:", data);
+
+      // If no listings found, try a fallback approach
+      if (!data.data || !data.data.listings || data.data.listings.length === 0) {
+        console.log("No listings found, trying to fetch all listings and filter client-side");
+        
+        // Try fetching all listings and filter on the client side as a fallback
+        try {
+          const allListingsResponse = await this.getAll({ limit: 100 });
+          
+          if (allListingsResponse.success && allListingsResponse.data?.listings) {
+            // Filter listings by query on the client side
+            const clientFilteredListings = allListingsResponse.data.listings.filter(listing => {
+              // Search in title, description, and vehicle make/model if available
+              const searchIn = [
+                listing.title?.toLowerCase(),
+                listing.description?.toLowerCase(),
+                listing.details?.vehicles?.make?.toLowerCase(),
+                listing.details?.vehicles?.model?.toLowerCase()
+              ].filter(Boolean); // Remove undefined values
+              
+              return searchIn.some(text => text && text.includes(normalizedQuery));
+            });
+            
+            console.log(`Found ${clientFilteredListings.length} listings with client-side filtering`);
+            
+            if (clientFilteredListings.length > 0) {
+              return {
+                success: true,
+                data: {
+                  listings: clientFilteredListings,
+                  total: clientFilteredListings.length,
+                  page: 1,
+                  limit: clientFilteredListings.length
+                }
+              };
+            }
+          }
+        } catch (fallbackError) {
+          console.error("Error in fallback search approach:", fallbackError);
+        }
+      }
+      
       return data;
     } catch (error) {
       console.error("Error searching listings:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to search listings",
-      );
+      return {
+        success: false,
+        data: null,
+        error: error instanceof Error ? error.message : "Failed to search listings"
+      };
     }
   },
 

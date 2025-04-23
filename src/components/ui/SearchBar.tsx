@@ -1,45 +1,109 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { SearchBarProps } from "@/types/ui";
 
+import { listingsAPI } from "@/api/listings.api";
+import SearchSuggestionsDropdown from "./SearchSuggestionsDropdown";
+import { useNavigate } from "react-router-dom";
+
 export const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   placeholder = "Search...",
-  debounceMs = 300,
   className = "",
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const debounceTimeout = useRef<NodeJS.Timeout>();
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  let debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
-
-    debounceTimeout.current = setTimeout(() => {
-      onSearch(searchTerm);
-    }, debounceMs);
-
-    return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
+    // Close suggestions on outside click
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
       }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      setSuggestions([]);
+      return;
+    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(async () => {
+      try {
+        const response = await listingsAPI.search(searchTerm, { limit: 4 });
+        if (response.success && response.data?.listings) {
+          setSuggestions(response.data.listings.slice(0, 4));
+        } else {
+          setSuggestions([]);
+        }
+        setShowSuggestions(true);
+      } catch {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, [searchTerm, debounceMs, onSearch]);
+  }, [searchTerm]);
 
   const handleClear = () => {
     setSearchTerm("");
     onSearch("");
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setShowSuggestions(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setShowSuggestions(false);
+      onSearch(searchTerm);
+    }
+    if (e.key === "ArrowDown" && suggestions.length > 0) {
+      // Optionally: focus first suggestion
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowSuggestions(false);
+    onSearch(searchTerm);
+  };
+
+  const handleSuggestionClick = (id: string) => {
+    setShowSuggestions(false);
+    setSearchTerm("");
+    navigate(`/listing/${id}`);
+  };
+
   return (
-    <div className={`relative ${className}`}>
+    <form className={`relative ${className}`} onSubmit={handleSubmit} autoComplete="off">
       <div className="relative">
         <input
+          ref={inputRef}
           type="text"
-          className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-20 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder={placeholder}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => searchTerm && setShowSuggestions(true)}
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
           <svg
@@ -57,8 +121,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
         {searchTerm && (
           <button
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
+            type="button"
+            className="absolute inset-y-0 right-10 flex items-center pr-3"
             onClick={handleClear}
+            tabIndex={-1}
           >
             <svg
               className="h-5 w-5 text-gray-400 hover:text-gray-600"
@@ -74,7 +140,39 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             </svg>
           </button>
         )}
+        <button
+          type="submit"
+          className="absolute inset-y-0 right-0 flex items-center px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-r-lg transition-colors"
+        >
+          <svg
+            className="h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+          </svg>
+        </button>
+        {/* Suggestions Dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div ref={suggestionsRef} className="w-full">
+            <SearchSuggestionsDropdown
+              suggestions={suggestions}
+              onClose={() => setShowSuggestions(false)}
+            />
+            {/* Overlay clickable area to handle suggestion clicks */}
+            <div className="absolute inset-0" style={{ pointerEvents: 'none' }} />
+            {suggestions.map((s, i) => (
+              <div
+                key={s.id}
+                style={{ display: 'none' }}
+                onClick={() => handleSuggestionClick(s.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </form>
   );
 };

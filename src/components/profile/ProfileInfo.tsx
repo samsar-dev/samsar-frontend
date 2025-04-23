@@ -13,7 +13,6 @@ interface FormData {
   dateOfBirth?: string;
   street?: string;
   city?: string;
-  postalCode?: string;
 }
 
 const ProfileInfo = () => {
@@ -41,7 +40,6 @@ const ProfileInfo = () => {
         dateOfBirth: user.dateOfBirth || "",
         street: user.street || "",
         city: user.city || "",
-        postalCode: user.postalCode || "",
       });
       // Always set the avatar preview from the user's profile picture
       if (user.profilePicture) {
@@ -88,9 +86,6 @@ const ProfileInfo = () => {
       }
       if (formData.city) {
         formDataToSend.append("city", formData.city);
-      }
-      if (formData.postalCode) {
-        formDataToSend.append("postalCode", formData.postalCode);
       }
       if (avatar) {
         formDataToSend.append("profilePicture", avatar);
@@ -272,24 +267,12 @@ const ProfileInfo = () => {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="postalCode"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("postal code")}
-          </label>
-          <input
-            type="text"
-            id="postalCode"
-            name="postalCode"
-            value={formData.postalCode || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+          
         </div>
       </div>
-
       <div className="flex justify-end">
         <button
           type="submit"

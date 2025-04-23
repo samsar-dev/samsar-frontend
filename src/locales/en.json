@@ -28,13 +28,25 @@
     "search": "Search...",
     "allCities": "All Cities",
     "Filters": "Filters",
+    "all": "All",
+    "all_types": "All Types",
     "sortOptions": {
       "newestFirst": "Newest First",
       "priceAsc": "Price: Low to High",
       "priceDesc": "Price: High to Low",
-      "location_a_z": "Location: A to Z",
-      "location_z_a": "Location: Z to A"
-    }
+      "locationAsc": "Location: A to Z",
+      "locationDesc": "Location: Z to A"
+    },
+    "beds": "Beds",
+    "baths": "Baths",
+    "notifications": {
+      "toggle": "Toggle Notifications"
+    },
+    "careers": "Careers",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "appName": "Vehicle and Real Estate Market",
+    "forRent": "For Rent"
   },
   "auth": {
     "login": "Login",
@@ -183,7 +195,10 @@
       "tireCondition": "Tire Condition",
       "engineSize": "Engine Size",
       "bodyType": "Body Type",
-      "roofType": "Roof Type"
+      "roofType": "Roof Type",
+      "size": "Size",
+      "bedrooms": "Number of Bedrooms",
+      "bathrooms": "Number of Bathrooms"
     },
     "image_alt": "{{make}} {{model}} {{year}}",
     "add_favorite": "Add to favorites",
@@ -849,3 +864,4 @@
   "terms": "Terms of Service"
 }
 }
+

@@ -2,20 +2,17 @@ import { listingsAPI } from "@/api/listings.api";
 import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { SearchBar } from "@/components/ui/SearchBar";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import {
   type ExtendedListing
 } from "@/types/listings";
 import { serverStatus } from "@/utils/serverStatus";
 import { motion } from "framer-motion";
-import { debounce } from "lodash";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { MdFilterList } from "react-icons/md";
-import { HiOutlineFilter } from "react-icons/hi";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
@@ -30,7 +27,7 @@ interface ListingParams {
   };
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-  limit?: number;
+  limit: number;
   page?: number;
   year?: number;
   search?: string;
@@ -52,10 +49,8 @@ const Home: React.FC = () => {
   // ...existing code...
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const { t, i18n } = useTranslation('common');
-  const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
-    (localStorage.getItem("selectedCategory") as ListingCategory) ||
-      ListingCategory.VEHICLES
-  );
+  const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(ListingCategory.VEHICLES);
+  const [selectedPrice, setSelectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     popular: [],
@@ -132,6 +127,9 @@ const Home: React.FC = () => {
           if (selectedModel && listing.details?.vehicles?.model) {
             if (listing.details.vehicles.model !== selectedModel) return false;
           }
+          if (selectedPrice && listing.price) {
+            if (listing.price.toString() !== selectedPrice) return false;
+          }
         } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
           // Real estate filtering
           if (selectedSubcategory && listing.details?.realEstate?.propertyType) {
@@ -142,7 +140,7 @@ const Home: React.FC = () => {
           }
           if (selectedBuiltYear && listing.details?.realEstate?.yearBuilt) {
             // Built year filter: "2023 and newer", "2010 and newer", "Before 2000"
-            const builtYear = parseInt(listing.details.realEstate.yearBuilt);
+            const builtYear = Number(listing.details.realEstate.yearBuilt);
             const filterYear = parseInt(selectedBuiltYear);
             if (selectedBuiltYear === '2000') {
               // Before 2000
@@ -188,15 +186,20 @@ const Home: React.FC = () => {
         },
         ...(selectedMake && { make: selectedMake }),
         ...(selectedModel && { model: selectedModel }),
-        ...(selectedYear && { year: parseInt(selectedYear) }), // Convert string year to number
+        ...(selectedYear && { year: Number(selectedYear) }), // Convert string year to number
         sortBy,
         sortOrder: sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
+        limit: 10,
         preview: true,
       };
 
       const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
 
       if (!response.success || !response.data) {
+        throw new Error(response.error || "Failed to fetch listings");
+      }
+
+      if (!response.data.listings) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
@@ -240,17 +243,18 @@ const Home: React.FC = () => {
     setIsFiltering(true);
     const filtered = listings?.all?.filter((listing) => {
       const matchesCategory = listing.category.mainCategory === selectedCategory;
-      const matchesAction = selectedAction ? listing.listingAction === selectedAction : true;
+      const matchesAction = selectedAction ? listing.listingAction?.toString() === selectedAction : true;
       const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
       const matchesMake = selectedMake ? listing.details.vehicles?.make === selectedMake : true;
       const matchesModel = selectedModel ? listing.details.vehicles?.model === selectedModel : true;
-      const matchesYear = selectedYear ? listing.details.vehicles?.year === parseInt(selectedYear) : true;
+      const matchesYear = selectedYear ? listing.details.vehicles?.year?.toString() === selectedYear : true;
+      const matchesPrice = selectedPrice ? listing.price?.toString() === selectedPrice : true;
       
-      return matchesCategory && matchesAction && matchesSubcategory && matchesMake && matchesModel && matchesYear;
+      return matchesCategory && matchesAction && matchesSubcategory && matchesMake && matchesModel && matchesYear && matchesPrice;
     });
     setIsFiltering(false);
     return filtered;
-  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel, selectedYear]);
+  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel, selectedYear, selectedPrice]);
 
   // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
@@ -296,12 +300,6 @@ const Home: React.FC = () => {
       }
     },
     [isServerOnline, t, fetchListings]
-  );
-
-  // Memoize the debounced search function
-  const debouncedSearch = useMemo(
-    () => debounce(handleSearch, 500),
-    [handleSearch]
   );
 
   useEffect(() => {
@@ -566,7 +564,7 @@ const Home: React.FC = () => {
                 {t("navigation.real_estate")}
               </button>
             </div>
-            <SearchBar onSearch={debouncedSearch} className="mt-4" />
+            
           </div>
         </div>
       </div>

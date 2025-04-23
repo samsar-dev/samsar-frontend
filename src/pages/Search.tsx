@@ -1,111 +1,259 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ListingCard from "@/components/listings/details/ListingCard";
-import { Listing, ListingCategory } from "@/types";
+import { Listing } from "@/types/listings";
+import { listingsAPI } from "@/api/listings.api";
+import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+
+// Debug info interface for type safety
+interface DebugInfo {
+  query: string;
+  params: any;
+  response: {
+    success: boolean;
+    hasData: boolean;
+    dataType: string;
+    isArray: boolean | null;
+    dataKeys: string[];
+    error?: string;
+  };
+  clientSideFiltering?: {
+    applied: boolean;
+    totalFetched: number;
+    matchesFound: number;
+  };
+}
 
 const Search: React.FC = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
+
+  // Get query from search params
   const query = searchParams.get("q") || "";
 
-  // Mock data for development
-  const mockListings: Listing[] = [
-    {
-      _id: "1",
-      id: "1",
-      title: "Tesla Model 3",
-      description: "Electric vehicle in excellent condition",
-      price: 35000,
-      category: ListingCategory.VEHICLES,
-      images: ["https://placehold.co/600x400"],
-      location: "San Francisco, CA",
-      userId: "user1",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      views: 150,
-      likes: 25,
-      saved: false,
-      featured: true,
-      status: "active",
-    },
-    {
-      _id: "2",
-      id: "2",
-      title: "Modern Apartment",
-      description: "Luxury apartment with great view",
-      price: 500000,
-      category: ListingCategory.REAL_ESTATE,
-      images: ["https://placehold.co/600x400"],
-      location: "New York, NY",
-      userId: "user2",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      views: 300,
-      likes: 45,
-      saved: false,
-      featured: false,
-      status: "active",
-    },
-  ];
+  const fetchListings = useCallback(async () => {
+    console.log("fetchListings called with query:", query);
+    setLoading(true);
+    setError(null);
+    setDebugInfo(null);
 
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      setLoading(true);
-      try {
-        // Simulate API call with mock data
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
-        const filteredListings = mockListings.filter(
-          (listing) =>
-            listing.title.toLowerCase().includes(query.toLowerCase()) ||
-            listing.description.toLowerCase().includes(query.toLowerCase()) ||
-            listing.location.toLowerCase().includes(query.toLowerCase()),
-        );
-        setListings(filteredListings);
-      } catch (error) {
-        console.error("Failed to fetch search results:", error);
-      } finally {
-        setLoading(false);
+    const category = searchParams.get("category");
+    const subcategory = searchParams.get("subcategory");
+
+    // Clean up URL if no search query
+    if (!query) {
+      if (category || subcategory) {
+        setSearchParams({});
       }
+      setListings([]);
+      setLoading(false);
+      return;
+    }
+
+    // Create a params object that matches the API requirements
+    const params: any = {
+      limit: 10,
+      page: 1,
+      search: query
     };
+    
+    // Only add category if present
+    if (category) {
+      params.category = {
+        mainCategory: category as ListingCategory
+      };
+      
+      // Add subcategory if present
+      if (subcategory) {
+        params.category.subCategory = subcategory as VehicleType | PropertyType;
+      }
+    }
 
-    fetchSearchResults();
-  }, [query]);
+    try {
+      console.log("Search component - Searching with query:", query, "and params:", params);
+      const response = await listingsAPI.search(query, params);
+      console.log("Search component - Response received:", response);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-      </div>
-    );
-  }
+      // Save debug info
+      setDebugInfo({
+        query,
+        params,
+        response: {
+          success: response.success,
+          hasData: !!response.data,
+          dataType: response.data ? typeof response.data : 'null',
+          isArray: response.data && Array.isArray(response.data),
+          dataKeys: response.data ? Object.keys(response.data) : [],
+          error: response.error
+        }
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch listings");
+      }
+
+      // Handle different response formats
+      const listingsData = response.data?.listings || response.data || [];
+      
+      // Ensure we have an array of listings
+      const normalizedListings = Array.isArray(listingsData) 
+        ? listingsData 
+        : Array.isArray(response.data) 
+          ? response.data 
+          : [];
+      
+      console.log("Search component - Normalized listings:", 
+        normalizedListings.length > 0 
+          ? `Found ${normalizedListings.length} listings` 
+          : "No listings found"
+      );
+      
+      if (normalizedListings.length > 0) {
+        console.log("Search component - First listing:", normalizedListings[0]);
+      }
+
+      if (normalizedListings.length === 0) {
+        setError("No listings found matching your search");
+        setListings([]);
+        
+        // If no results, try manually filtering all listings as fallback
+        try {
+          console.log("Search component - No results from API, trying to fetch all listings");
+          const allResponse = await listingsAPI.getAll({ limit: 100 });
+          
+          if (allResponse.success && allResponse.data && allResponse.data.listings && allResponse.data.listings.length > 0) {
+            const allListings = allResponse.data.listings;
+            console.log(`Search component - Got ${allListings.length} total listings, filtering client-side`);
+            
+            // Filter listings by search term - case insensitive
+            const lowerQuery = query.toLowerCase();
+            const matchedListings = allListings.filter(listing => {
+              const searchFields = [
+                listing.title,
+                listing.description,
+                listing.details?.vehicles?.make,
+                listing.details?.vehicles?.model,
+                listing.location
+              ].filter(Boolean).map(field => field?.toLowerCase());
+              
+              return searchFields.some(field => field?.includes(lowerQuery));
+            });
+            
+            if (matchedListings.length > 0) {
+              console.log(`Search component - Found ${matchedListings.length} listings by client-side filtering`);
+              setListings(matchedListings);
+              setError(null);
+              setDebugInfo(prev => ({
+                ...prev as DebugInfo,
+                clientSideFiltering: {
+                  applied: true,
+                  totalFetched: allListings.length,
+                  matchesFound: matchedListings.length
+                }
+              }));
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (fallbackError) {
+          console.error("Error in fallback search:", fallbackError);
+        }
+      } else {
+        setListings(normalizedListings);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setListings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [query, searchParams, setSearchParams]);
+
+  // Use a single effect for search updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (query) {
+        fetchListings();
+      } else {
+        setListings([]);
+        setError(null);
+      }
+    }, 300); // Debounce search requests
+
+    return () => clearTimeout(timer);
+  }, [query, fetchListings]);
+
+  // Only show debug info in development
+  const showDebug = process.env.NODE_ENV === 'development';
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">
-        {t("search.results_for")} "{query}"
-      </h1>
+      {searchParams.get("q") && (
+        <h1 className="text-2xl font-bold mb-6">
+          {t("search.results_for")} "{searchParams.get("q")}"
+        </h1>
+      )}
 
-      {listings.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : error ? (
+        <div className="text-center py-8">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+          {showDebug && debugInfo && (
+            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
+              <h3 className="font-bold mb-2">Debug Information:</h3>
+              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+            </div>
+          )}
+        </div>
+      ) : !query ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 dark:text-gray-400">
+            {t("search.enter_query")}
+          </p>
+        </div>
+      ) : listings.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-600 dark:text-gray-400">
             {t("search.no_results")}
           </p>
+          {showDebug && debugInfo && (
+            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
+              <h3 className="font-bold mb-2">Debug Information:</h3>
+              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+            </div>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {listings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              showSaveButton={true}
-              showPrice={true}
-              showLocation={true}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {listings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                showSaveButton={true}
+                showPrice={true}
+                showLocation={true}
+              />
+            ))}
+          </div>
+          
+          {showDebug && debugInfo && (
+            <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
+              <h3 className="font-bold mb-2">Debug Information:</h3>
+              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

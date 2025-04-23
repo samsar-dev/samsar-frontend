@@ -62,16 +62,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
     details,
   } = listing;
 
-  // Handle potential nested structure of vehicle details
-  const vehicleDetails = directVehicleDetails || (details && details.vehicles);
-  const realEstateDetails = directRealEstateDetails || (details && details.realEstate);
-
-  // Debug logs
-  console.log('ListingCard - Category:', category);
-  console.log('ListingCard - Direct VehicleDetails:', directVehicleDetails);
-  console.log('ListingCard - Nested Details:', details);
-  console.log('ListingCard - Final VehicleDetails:', vehicleDetails);
-  console.log('ListingCard - ListingAction:', listingAction);
+  // Instead of excessive debug logging, use optional chaining and proper type safety
+  const vehicleDetails = directVehicleDetails || (details?.vehicles) || {} as VehicleDetails;
+  const realEstateDetails = directRealEstateDetails || (details?.realEstate) || {} as RealEstateDetails;
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -294,8 +287,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
           <div className="font-semibold text-gray-500 dark:text-gray-400">{t('listings.fields.transmission')}</div>
           <div className="font-medium text-gray-800 dark:text-gray-200">
-            {vehicleDetails.transmissionType || vehicleDetails.transmission ? 
-              t(`enums.transmission.${(vehicleDetails.transmissionType || vehicleDetails.transmission).toLowerCase()}`) : 
+            {vehicleDetails?.transmissionType || vehicleDetails?.transmission ? 
+              t(`enums.transmission.${(vehicleDetails?.transmissionType || vehicleDetails?.transmission)?.toLowerCase()}`) : 
               t('common.notProvided')}
           </div>
         </div>

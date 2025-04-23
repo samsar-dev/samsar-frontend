@@ -20,6 +20,11 @@ import {
 } from "react-icons/fa";
 
 const Navbar: React.FC = () => {
+  // --- Added for category search ---
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
+  // --- END ---
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,10 +57,16 @@ const Navbar: React.FC = () => {
     setShowListingsMenu(false);
   }, [location.pathname]);
 
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+  const handleSearch = (query: string, category?: string, subcategory?: string) => {
+    if (!query.trim()) return; // Only search if query is not empty
+    let searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
+    if (category && category !== "all") {
+      searchUrl += `&category=${encodeURIComponent(category)}`;
     }
+    if (subcategory) {
+      searchUrl += `&subcategory=${encodeURIComponent(subcategory)}`;
+    }
+    navigate(searchUrl);
   };
 
   const handleLogout = async () => {
@@ -117,10 +128,63 @@ const Navbar: React.FC = () => {
           {/* Center section - Search */}
           <div className="flex-1 max-w-2xl mx-4 hidden md:flex items-center">
             <div className="w-full">
-              <SearchBar
-                onSearch={handleSearch}
-                placeholder={t("common.search")}
-              />
+              <div className="flex gap-2 items-center w-full">
+                {/* Category Dropdown */}
+                <select
+                  className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  value={selectedCategory}
+                  onChange={e => {
+                    setSelectedCategory(e.target.value);
+                    setSelectedSubcategory("");
+                  }}
+                >
+                  <option value="all">{t("common.all")}</option>
+                  <option value="vehicles">{t("navigation.vehicles")}</option>
+                  <option value="realEstate">{t("navigation.real_estate")}</option>
+                </select>
+
+                {/* Subcategory Dropdown (conditional) */}
+                {selectedCategory === "vehicles" && (
+                  <select
+                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={selectedSubcategory}
+                    onChange={e => setSelectedSubcategory(e.target.value)}
+                  >
+                    <option value="">{t("common.all_types")}</option>
+                    <option value="CAR">Car</option>
+                    <option value="TRUCK">Truck</option>
+                    <option value="MOTORCYCLE">Motorcycle</option>
+                    <option value="RV">RV</option>
+                    <option value="BUS">Bus</option>
+                    <option value="VAN">Van</option>
+                    <option value="TRACTOR">Tractor</option>
+                    <option value="CONSTRUCTION">Construction</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                )}
+                {selectedCategory === "realEstate" && (
+                  <select
+                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={selectedSubcategory}
+                    onChange={e => setSelectedSubcategory(e.target.value)}
+                  >
+                    <option value="">{t("common.all_types")}</option>
+                    <option value="HOUSE">House</option>
+                    <option value="APARTMENT">Apartment</option>
+                    <option value="CONDO">Condo</option>
+                    <option value="LAND">Land</option>
+                    <option value="COMMERCIAL">Commercial</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                )}
+
+                <div className="flex-1">
+                  <SearchBar
+                    onSearch={query => handleSearch(query, selectedCategory, selectedSubcategory)}
+                    placeholder={t("common.search")}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
