@@ -7,10 +7,10 @@ import arTranslation from "@/locales/ar.json";
 
 const resources = {
   en: {
-    translation: enTranslation,
+    common: enTranslation,
   },
   ar: {
-    translation: arTranslation,
+    common: arTranslation,
   },
 };
 
@@ -18,14 +18,21 @@ const i18nConfig: InitOptions = {
   resources,
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",
+  ns: ["common"],
+  defaultNS: "common",
   interpolation: {
     escapeValue: false,
   },
   returnObjects: true,
-  debug: false,
-  saveMissing: false,
+  debug: true,  // Enable debug mode
+  saveMissing: true,  // Save missing translations
 };
 
 i18n.use(initReactI18next).init(i18nConfig);
+
+// Debug logging
+console.log('i18n Resources:', resources);
+console.log('i18n Current Language:', i18n.language);
+console.log('i18n Translations:', i18n.t('common:sortOptions'));
 
 export default i18n;

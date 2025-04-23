@@ -1,5 +1,7 @@
 {
   "common": {
+    "edit": "تعديل",
+    "submit": "إرسال",
     "no": "لا",
     "notSpecified": "غير محدد",
     "cancel": "إلغاء",
@@ -12,19 +14,72 @@
     "back": "رجوع",
     "continue": "استمرار",
     "submitting": "جاري الإرسال...",
-    "basicDetails": "تفاصيل أساسية",
-    "advancedDetails": "تفاصيل متقدمة",
+    "basicDetails": "التفاصيل الأساسية",
+    "advancedDetails": "التفاصيل المتقدمة",
     "review": "مراجعة",
     "beds": "غرف نوم",
     "baths": "حمامات",
     "notProvided": "غير متوفر",
+    "forSale": "للبيع",
     "forRent": "للإيجار",
     "next": "التالي",
     "previous": "السابق",
     "overview": "نظرة عامة",
     "uploadImages": "تحميل الصور",
     "messagePlaceholder": "اكتب رسالتك هنا...",
-    "sending": "جاري الإرسال..."
+    "sending": "جاري الإرسال...",
+    "Filters": "المرشحات",
+    "search": "البحث...",
+    "allCities": "جميع المدن",
+    "sortOptions": {
+      "newestFirst": "الأحدث أولاً",
+      "priceAsc": "السعر: من الأقل إلى الأعلى",
+      "priceDesc": "السعر: من الأعلى إلى الأقل",
+      "location_a_z": "الموقع: أ إلى ي",
+      "location_z_a": "الموقع: ي إلى أ"
+    },
+    "appName": "سوق المركبات والعقارات",
+    "cities": {
+      "DEIR EZZOR": "دير الزور"
+    },
+    "category": "الفئة",
+    "vehicles": "المركبات",
+    "realEstate": "العقارات",
+    "vehicleType": "نوع المركبة",
+    "car": "سيارة",
+    "truck": "شاحنة",
+    "motorcycle": "دراجة نارية",
+    "rv": "مركبة متنقلة",
+    "bus": "حافلة",
+    "van": "فان",
+    "tractor": "جرار",
+    "construction": "معدات إنشائية",
+    "other": "أخرى",
+    "listingDetails": "تفاصيل القائمة",
+    "title": "العنوان",
+    "titlePlaceholder": "أدخل عنوان القائمة",
+    "make": "الشركة المصنعة",
+    "selectMake": "اختر الشركة المصنعة",
+    "model": "الطراز",
+    "selectModel": "اختر الطراز",
+    "year": "السنة",
+    "selectYear": "اختر السنة",
+    "price": "السعر",
+    "pricePlaceholder": "أدخل السعر",
+    "location": "الموقع",
+    "selectLocation": "اختر الموقع",
+    "description": "الوصف",
+    "descriptionPlaceholder": "أدخل وصف القائمة",
+    "upload_images": "تحميل الصور",
+    "dropzone": {
+      "dragDrop": "اسحب وأسقط الصور هنا أو انقر للاختيار",
+      "maxSize": "الحد الأقصى لحجم الملف: {{maxSize}}"
+    },
+    "filters": {
+      "sort_by": "ترتيب حسب",
+      "sortBy": "ترتيب حسب",
+      "allCities": "جميع المدن"
+    }
   },
   "theme": {
     "light": "الانتقال إلى الوضع الفاتح",
@@ -36,7 +91,8 @@
     "unread": "{{count}} إشعارات غير مقروءة",
     "no_unread": "لا توجد إشعارات غير مقروءة",
     "mark_all_read": "تحديد الكل كمقروء",
-    "clear_all": "مسح الكل"
+    "clear_all": "مسح الكل",
+    "toggle": "تبديل الإشعارات"
   },
   "search": {
     "placeholder": "ابحث عن قوائم...",
@@ -61,6 +117,7 @@
       "forRent": "للإيجار",
       "clearAll": "مسح الكل",
       "applyFilters": "تطبيق المرشحات",
+      "allCities": "جميع المدن",
       "vehicleTypes": {
         "CAR": "سيارات",
         "TRUCK": "شاحنات",
@@ -80,9 +137,8 @@
         "OTHER": "أخرى"
       },
       "builtYearOptions": {
+        "any": "أي سنة",
         "2023": "2023 وما بعدها",
-        "2020": "2020 وما بعدها",
-        "2015": "2015 وما بعدها",
         "2010": "2010 وما بعدها",
         "2000": "قبل 2000"
       },
@@ -90,8 +146,8 @@
         "createdAt": "الأحدث أولاً",
         "priceAsc": "السعر: من الأقل إلى الأعلى",
         "priceDesc": "السعر: من الأعلى إلى الأقل",
-        "locationAsc": "الموقع: من أ إلى ي",
-        "locationDesc": "الموقع: من ي إلى أ"
+        "location_a_z": "الموقع: أ إلى ي",
+        "location_z_a": "الموقع: ي إلى أ"
       }
     }
   },
@@ -105,7 +161,7 @@
     "settingsDescription": "تخصيص إعدادات حسابك وتفضيلاتك",
     "notifications": "الإشعارات",
     "security": "الأمان",
-    "privacy": "الخصوصية",
+    "privacy": "سياسة الخصوصية",
     "messageNotifications": "إشعارات الرسائل",
     "listingNotifications": "إشعارات القوائم",
     "systemNotifications": "إشعارات النظام",
@@ -189,7 +245,7 @@
       "link": "عرض السياسة"
     },
     "careers": {
-      "title": "الوظائف",
+      "title": "وظائف",
       "description": "انضم إلى فريقنا وساعد في تشكيل مستقبل التجارة المحلية",
       "link": "عرض الوظائف الشاغرة"
     }
@@ -201,15 +257,27 @@
     "discover_vehicle": "اكتشف سيارة أحلامك من مجموعتنا الواسعة",
     "discover_property": "ابحث عن العقار المثالي الذي يناسب أسلوب حياتك",
     "trending_now": "رائج الآن",
-    "view_all": "عرض الكل"
+    "view_all": "عرض الكل",
+    "sortOptions": {
+      "newestFirst": "الأحدث أولاً",
+      "priceAsc": "السعر: من الأقل إلى الأعلى",
+      "priceDesc": "السعر: من الأعلى إلى الأقل",
+      "location_a_z": "الموقع: أ إلى ي",
+      "location_z_a": "الموقع: ي إلى أ"
+    }
   },
   "errors": {
-    "Removed from saved listings": "تمت الإزالة من القوائم المحفوظة",
+    "Removed from saved listings": "تمت إزالته من القوائم المحفوظة",
     "Failed to remove favorite": "فشل في إزالة المفضلة",
     "No {type} listings found": "لم يتم العثور على قوائم {type}",
     "privacy_settings": "إعدادات الخصوصية",
     "price_drop_notifications": "إشعارات انخفاض السعر",
     "get notified about price drops": "احصل على إشعار عند انخفاض الأسعار",
+    "fieldRequired": "هذا الحقل مطلوب",
+    "validPriceRequired": "الرجاء إدخال سعر صحيح",
+    "categoryRequired": "الرجاء اختيار الفئة",
+    "subcategoryRequired": "الرجاء اختيار الفئة الفرعية",
+    "atLeastOneImage": "الرجاء إضافة صورة واحدة على الأقل",
     "featureCategories": {
       "safety": "السلامة",
       "comfort": "الراحة",
@@ -265,12 +333,55 @@
     "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟"
   },
   "listings": {
+    "createListing": "إنشاء قائمة",
+    "basicDetails": "التفاصيل الأساسية",
+    "listingDetails": "تفاصيل القائمة",
+    "fields": {
+      "title": "العنوان",
+      "description": "الوصف",
+      "price": "السعر",
+      "location": "الموقع",
+      "category": "الفئة",
+      "vehicleType": "نوع المركبة",
+      "make": "الشركة المصنعة",
+      "model": "الطراز",
+      "year": "سنة الصنع",
+      "condition": "الحالة",
+      "features": "المميزات",
+      "propertyType": "نوع العقار",
+      "bedrooms": "غرف النوم",
+      "bathrooms": "الحمامات"
+    },
+    "placeholders": {
+      "title": "أدخل عنوان القائمة",
+      "description": "أدخل وصف القائمة",
+      "price": "أدخل السعر",
+      "selectLocation": "اختر الموقع",
+      "selectMake": "اختر الشركة المصنعة",
+      "selectModel": "اختر الطراز",
+      "selectYear": "اختر السنة"
+    },
+    "sell": "بيع",
+    "rent": "إيجار",
+    "vehicleType": "نوع المركبة",
+    "vehicleTypes": {
+      "CAR": "سيارة"
+    },
+    "miles": "الأميال",
+    "transmissionTypes": {
+      "automatic": "أوتوماتيك"
+    },
+    "torque": "عزم الدوران",
+    "images": "الصور",
+    "uploadedImages": "الصور المرفوعة",
+    "editImages": "تعديل الصور",
+    "image": "صورة",
     "saved_listings": "القوائم المحفوظة",
     "basicInformation": "المعلومات الأساسية",
     "additionalDetails": "تفاصيل إضافية",
     "contactSeller": "تواصل مع البائع",
-    "fields": {
-      "customsCleared": "تم التخليص الجمركي",
+    "additionalFields": {
+      "customsCleared": "مخلصة جمركياً",
       "warrantyPeriod": "فترة الضمان",
       "serviceHistoryDetails": "تفاصيل سجل الصيانة",
       "additionalNotes": "ملاحظات إضافية",
@@ -315,10 +426,10 @@
       "yearBuilt": "سنة البناء",
       "engine": "المحرك",
       "warranty": "الضمان",
-      "serviceHistory": "تاريخ الخدمة",
-      "previousOwners": "المالكون السابقون",
+      "serviceHistory": "سجل الصيانة",
+      "previousOwners": "المالكين السابقين",
       "registrationStatus": "حالة التسجيل",
-      "horsepower": "قوة الحصان",
+      "horsepower": "القوة الحصانية",
       "torque": "عزم الدوران",
       "fuelTypes": {
         "gasoline": "بنزين",
@@ -361,7 +472,18 @@
         "registered": "مسجل",
         "unregistered": "غير مسجل",
         "expired": "منتهي الصلاحية"
-      }
+      },
+      "vin": "رقم الهيكل",
+      "engineNumber": "رقم المحرك",
+      "accidentFree": "خالية من الحوادث",
+      "importStatus": "حالة الاستيراد",
+      "registrationExpiry": "تاريخ انتهاء التسجيل",
+      "insuranceType": "نوع التأمين",
+      "upholsteryMaterial": "نوع الفرش",
+      "tireCondition": "حالة الإطارات",
+      "engineSize": "سعة المحرك",
+      "bodyType": "نوع الهيكل",
+      "roofType": "نوع السقف"
     },
     "image_alt": "{{make}} {{model}} {{year}}",
     "add_favorite": "إضافة إلى المفضلة",
@@ -397,7 +519,7 @@
     "engine": "المحرك",
     "warranty": "الضمان",
     "months": "شهور",
-    "serviceHistory": "تاريخ الخدمة",
+    "serviceHistory": "سجل الصيانة",
     "previousOwners": "المالكين السابقين",
     "registrationStatus": "حالة التسجيل",
     "propertyType": "نوع العقار",
@@ -448,9 +570,36 @@
     "actions": {
       "sell": "بيع",
       "rent": "إيجار"
+    },
+    "filters": {
+      "forSale": "للبيع",
+      "forRent": "للإيجار",
+      "allCities": "جميع المدن",
+      "sortOptions": {
+        "createdAt": "الأحدث أولاً",
+        "priceAsc": "السعر: من الأقل إلى الأعلى",
+        "priceDesc": "السعر: من الأعلى إلى الأقل",
+        "location_a_z": "الموقع: من أ إلى ي",
+        "location_z_a": "الموقع: من ي إلى أ"
+      }
     }
   },
-  "cities": {},
+  "cities": {
+    "DAMASCUS": "دمشق",
+    "ALEPPO": "حلب",
+    "HOMS": "حمص",
+    "LATTAKIA": "اللاذقية",
+    "HAMA": "حماة",
+    "DEIR_EZZOR": "دير الزور",
+    "HASEKEH": "الحسكة",
+    "QAMISHLI": "القامشلي",
+    "RAQQA": "الرقة",
+    "TARTOUS": "طرطوس",
+    "IDLIB": "إدلب",
+    "DARA": "درعا",
+    "SWEDIA": "السويداء",
+    "QUNEITRA": "القنيطرة"
+  },
   "types": {
     "car": "سيارة",
     "motorcycle": "دراجة نارية",
@@ -472,7 +621,7 @@
   "HOMS": "حمص",
   "HAMA": "حماة",
   "LATTAKIA": "اللاذقية",
-  "DEIR EZZOR": "دير الزور",
+  "DEIR_EZZOR": "دير الزور",
   "HASEKEH": "الحسكة",
   "QAMISHLI": "القامشلي",
   "RAQQA": "الرقة",
@@ -534,9 +683,9 @@
     "other": "أخرى",
     "automatic": "أوتوماتيكي",
     "manual": "يدوي",
-    "semiAutomatic": "شبه أوتوماتيكي",
+    "semiAutomatic": "نصف أوتوماتيك",
     "continuouslyVariable": "ناقل حركة مستمر التغيير",
-    "dualClutch": "مزدوج القابض",
+    "dualClutch": "ناقل حركة مزدوج",
     "new": "جديد",
     "likeNew": "كالجديد",
     "excellent": "ممتاز",
@@ -549,7 +698,17 @@
     "partial": "جزئي",
     "unregistered": "غير مسجل",
     "registered": "مسجل",
-    "expired": "منتهي الصلاحية"
+    "expired": "منتهي الصلاحية",
+    "local": "محلي",
+    "imported": "مستورد",
+    "yes": "نعم",
+    "no": "لا",
+    "transferable": "قابل للتحويل",
+    "comprehensive": "شامل",
+    "thirdParty": "ضد الغير",
+    "worn": "مستعمل",
+    "leather": "جلد",
+    "fabric": "قماش"
   },
   "placeholders": {
     "make": "اختر الشركة المصنعة",
@@ -655,9 +814,8 @@
       "OTHER": "أخرى"
     },
     "builtYearOptions": {
+      "any": "أي سنة",
       "2023": "2023 وما بعدها",
-      "2020": "2020 وما بعدها",
-      "2015": "2015 وما بعدها",
       "2010": "2010 وما بعدها",
       "2000": "قبل 2000"
     },
@@ -665,8 +823,150 @@
       "createdAt": "الأحدث أولاً",
       "priceAsc": "السعر: من الأقل إلى الأعلى",
       "priceDesc": "السعر: من الأعلى إلى الأقل",
-      "locationAsc": "الموقع: من أ إلى ي",
-      "locationDesc": "الموقع: من ي إلى أ"
+      "location_a_z": "الموقع: أ إلى ي",
+      "location_z_a": "الموقع: ي إلى أ"
     }
-  }
+  },
+  "sections": {
+    "essential": "أساسي",
+    "advanced": "متقدم"
+  },
+  "featureCategories": {
+    "airbags": "الوسائد الهوائية",
+    "driverAssist": "مساعدة السائق",
+    "safety": "ميزات السلامة",
+    "cameras": "الكاميرات",
+    "entertainment": "الترفيه",
+    "lighting": "الإضاءة",
+    "climate": "التكييف",
+    "convenience": "الراحة",
+    "extras": "إضافات"
+  },
+  "features": {
+    "frontAirbags": "وسائد هوائية أمامية",
+    "sideAirbags": "وسائد هوائية جانبية",
+    "curtainAirbags": "وسائد هوائية ستائرية",
+    "kneeAirbags": "وسائد هوائية للركبة",
+    "cruiseControl": "مثبت السرعة",
+    "adaptiveCruiseControl": "مثبت سرعة تكيفي",
+    "laneDepartureWarning": "تنبيه مغادرة المسار",
+    "laneKeepAssist": "المساعدة في البقاء في المسار",
+    "automaticEmergencyBraking": "نظام الفرامل الطارئ التلقائي",
+    "blindSpotMonitor": "مراقبة النقطة العمياء",
+    "laneAssist": "المساعدة في المسار",
+    "tractionControl": "التحكم في الجر",
+    "abs": "نظام الفرامل المانع للانغلاق",
+    "emergencyBrakeAssist": "مساعد الفرامل الطارئ",
+    "tirePressureMonitoring": "مراقبة ضغط الإطارات",
+    "distanceTempomat": "التحكم في المسافة",
+    "distanceWarning": "تحذير المسافة",
+    "passengerAirbag": "وسادة هوائية للراكب",
+    "glarelessHighBeam": "أضواء عالية بدون وهج",
+    "esp": "نظام التحكم الإلكتروني في الثبات",
+    "driverAirbag": "وسادة هوائية للسائق",
+    "highBeamAssistant": "مساعد الضوء العالي",
+    "speedLimitingSystem": "نظام تحديد السرعة",
+    "isofix": "نظام تثبيت مقاعد الأطفال",
+    "fatigueWarningSystem": "نظام تحذير التعب",
+    "emergencyCallSystem": "نظام اتصال الطوارئ",
+    "sideAirbag": "وسادة هوائية جانبية",
+    "trackHoldingAssistant": "مساعد تثبيت المسار",
+    "deadAngleAssistant": "مساعد النقطة العمياء",
+    "trafficSignRecognition": "التعرف على إشارات المرور",
+    "burglarAlarmSystem": "نظام إنذار ضد السرقة",
+    "immobilizer": "مانع الحركة",
+    "centralLocking": "قفل مركزي",
+    "rearCamera": "كاميرا خلفية",
+    "camera360": "كاميرا 360 درجة",
+    "dashCam": "كاميرا لوحة القيادة",
+    "nightVision": "رؤية ليلية",
+    "parkingSensors": "حساسات ركن",
+    "parkingAid": "مساعد الركن",
+    "parkingAidCamera": "كاميرا مساعدة الركن",
+    "parkingAidSensorsRear": "حساسات ركن خلفية",
+    "parkingAidSensorsFront": "حساسات ركن أمامية",
+    "bluetooth": "بلوتوث",
+    "appleCarPlay": "أبل كار بلاي",
+    "androidAuto": "أندرويد أوتو",
+    "premiumSound": "نظام صوت فاخر",
+    "wirelessCharging": "شحن لاسلكي",
+    "usbPorts": "منافذ يو إس بي",
+    "cdPlayer": "مشغل أقراص",
+    "dvdPlayer": "مشغل دي في دي",
+    "rearSeatEntertainment": "ترفيه المقاعد الخلفية",
+    "androidCar": "نظام أندرويد للسيارة",
+    "onBoardComputer": "كمبيوتر رحلات",
+    "dabRadio": "راديو رقمي",
+    "handsFreeCalling": "اتصال بدون استخدام اليدين",
+    "integratedMusicStreaming": "بث موسيقي مدمج",
+    "radio": "راديو",
+    "soundSystem": "نظام صوت",
+    "wifiHotspot": "نقطة واي فاي",
+    "ledHeadlights": "مصابيح أمامية LED",
+    "adaptiveHeadlights": "مصابيح أمامية تكيفية",
+    "ambientLighting": "إضاءة محيطة",
+    "fogLights": "مصابيح ضباب",
+    "automaticHighBeams": "أضواء عالية تلقائية",
+    "ledDaytimeRunningLights": "مصابيح نهارية LED",
+    "daytimeRunningLights": "مصابيح نهارية",
+    "headlightCleaning": "تنظيف المصابيح الأمامية",
+    "lightSensor": "حساس إضاءة",
+    "climateControl": "تحكم بالمناخ",
+    "heatedSeats": "مقاعد مدفأة",
+    "ventilatedSeats": "مقاعد مهواة",
+    "dualZoneClimate": "تحكم مناخي ثنائي المنطقة",
+    "rearAC": "تكييف خلفي",
+    "airQualitySensor": "حساس جودة الهواء",
+    "airConditioning": "تكييف هواء",
+    "twoZoneClimateControl": "تحكم مناخي لمنطقتين",
+    "keylessEntry": "دخول بدون مفتاح",
+    "sunroof": "فتحة سقف",
+    "spareKey": "مفتاح احتياطي",
+    "remoteStart": "تشغيل عن بعد",
+    "powerTailgate": "باب خلفي كهربائي",
+    "autoDimmingMirrors": "مرايا ذاتية التعتيم",
+    "rainSensingWipers": "مساحات استشعار المطر",
+    "mountainDrivingAssistant": "مساعد القيادة في الجبال",
+    "electricalWindowLifter": "نوافذ كهربائية",
+    "electricalSideMirrors": "مرايا جانبية كهربائية",
+    "electricSeats": "مقاعد كهربائية",
+    "headUpDisplay": "شاشة عرض أمامية",
+    "leatherSteeringWheel": "مقود جلد",
+    "lumbarSupport": "دعم أسفل الظهر",
+    "multifunctionalSteeringWheel": "مقود متعدد الوظائف",
+    "navigationSystem": "نظام ملاحة",
+    "rainSensor": "حساس مطر",
+    "automaticStartStop": "نظام التشغيل/الإيقاف التلقائي",
+    "automaticDazzlingInteriorMirrors": "مرايا داخلية ذاتية التعتيم",
+    "switchingRockers": "مفاتيح هزازة",
+    "armrest": "مسند ذراع",
+    "voiceControl": "تحكم صوتي",
+    "touchscreen": "شاشة لمس",
+    "aluminumRims": "جنوط ألمنيوم",
+    "luggageCompartmentSeparation": "فاصل صندوق الأمتعة",
+    "summerTires": "إطارات صيفية",
+    "powerSteering": "مقود آلي"
+  },
+  "subcategories": {
+    "vehicle": {
+      "CAR": "سيارات",
+      "TRUCK": "شاحنات", 
+      "MOTORCYCLE": "دراجات نارية",
+      "VAN": "فانات",
+      "BUS": "حافلات",
+      "TRACTOR": "جرارات",
+      "RV": "مركبات ترفيهية"
+    },
+    "property": {
+      "HOUSE": "منازل",
+      "APARTMENT": "شقق", 
+      "CONDO": "شقق تمليك",
+      "LAND": "أراضي",
+      "COMMERCIAL": "عقارات تجارية"
+    },
+    "OTHER": "أخرى"
+  },
+  "careers": "وظائف",
+  "privacy": "الخصوصية",
+  "terms": "شروط الخدمة"
 }

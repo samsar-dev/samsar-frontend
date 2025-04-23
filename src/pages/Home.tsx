@@ -50,8 +50,8 @@ interface ListingsState {
 
 const Home: React.FC = () => {
   // ...existing code...
-  const [sortBy, setSortBy] = useState<string>("createdAt");
-  const { t } = useTranslation();
+  const [sortBy, setSortBy] = useState<string>("newestFirst");
+  const { t, i18n } = useTranslation('common');
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     (localStorage.getItem("selectedCategory") as ListingCategory) ||
       ListingCategory.VEHICLES
@@ -109,7 +109,7 @@ const Home: React.FC = () => {
         case "locationDesc":
           sortedListings.sort((a, b) => (b.location || '').localeCompare(a.location || ''));
           break;
-        case "createdAt":
+        case "newestFirst":
         default:
           sortedListings.sort((a, b) => 
             new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
@@ -328,14 +328,43 @@ const Home: React.FC = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
+  // Debug logging for i18n
+  console.log('i18n instance:', i18n);
+  console.log('Current Language:', i18n.language);
+  console.log('Namespaces:', i18n.options.ns);
+
   // Define sort options with translation
   const sortOptions = [
-    { value: "createdAt", label: t("newest") },
-    { value: "priceAsc", label: t("price low high") },
-    { value: "priceDesc", label: t("price high low") },
-    { value: "locationAsc", label: t("location_a_z") },
-    { value: "locationDesc", label: t("location_z_a") },
+    { 
+      value: "newestFirst", 
+      label: t("home.sortOptions.newestFirst") 
+    },
+    { 
+      value: "priceAsc", 
+      label: t("home.sortOptions.priceAsc") 
+    },
+    { 
+      value: "priceDesc", 
+      label: t("home.sortOptions.priceDesc") 
+    },
+    { 
+      value: "locationAsc", 
+      label: t("home.sortOptions.location_a_z") 
+    },
+    { 
+      value: "locationDesc", 
+      label: t("home.sortOptions.location_z_a") 
+    },
   ];
+
+  // Debug logging
+  console.log('Sort Options Translations:', {
+    newestFirst: t("home.sortOptions.newestFirst"),
+    priceAsc: t("home.sortOptions.priceAsc"),
+    priceDesc: t("home.sortOptions.priceDesc"),
+    locationAsc: t("home.sortOptions.location_a_z"),
+    locationDesc: t("home.sortOptions.location_z_a"),
+  });
 
   const renderContent = useCallback(() => {
     if (listings.loading) {
@@ -348,13 +377,13 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-2 sm:px-0 mt-4 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 px-2 sm:px-0 mt-4 mb-6">
           <button 
             onClick={toggleFilters}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-full sm:w-auto self-start"
           >
             <MdFilterList className="w-5 h-5" />
-            <span className="text-sm">{t("Filters")}</span>
+            <span className="text-sm">{t("common.Filters")}</span>
           </button>
 
           {/* Sort By - Always Visible */}
@@ -362,10 +391,10 @@ const Home: React.FC = () => {
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="relative">
                 <Listbox.Button className="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {sortOptions.find(opt => opt.value === sortBy)?.label || t("filters.sort_by")}
+                  {sortOptions.find(opt => opt.value === sortBy)?.label || t("common.filters.sort_by")}
                   <HiSelector className="w-5 h-5 text-gray-400" />
                 </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
+                <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
                   {sortOptions.map((option) => (
                     <Listbox.Option
                       key={option.value}
@@ -418,7 +447,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {filteredListings.map((listing) => (
             <ListingCard

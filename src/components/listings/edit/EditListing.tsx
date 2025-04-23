@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { Listing, Location, ListingUpdateInput } from "@/types/listings";
-import { ListingStatus } from "@/types/enums";
+import type { Listing, Location, ListingUpdateInput, ListingFieldSchema } from "@/types/listings";
+import { ListingStatus, VehicleType, PropertyType, FuelType, TransmissionType, Condition } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -84,24 +84,32 @@ const EditListing: React.FC = () => {
     existingImages: [],
   });
 
-  const advancedSchema =
-    listingsAdvancedFieldSchema[
-      isVehicle
-        ? formData.details?.vehicles?.vehicleType
-        : formData.details?.realEstate?.propertyType
-    ] || [];
+  const vehicleType = formData.details?.vehicles?.vehicleType as VehicleType | undefined;
+  const propertyType = formData.details?.realEstate?.propertyType as PropertyType | undefined;
+
+  // Use type assertion to avoid the indexing issues
+  const advancedSchema = ((): ListingFieldSchema[] => {
+    if (isVehicle && vehicleType) {
+      return (listingsAdvancedFieldSchema as any)[vehicleType] || [];
+    } else if (!isVehicle && propertyType) {
+      return (listingsAdvancedFieldSchema as any)[propertyType] || [];
+    }
+    return [];
+  })();
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field) => field.section)),
+    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
   )
-    .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
-    .map((sectionId) => ({
+    .filter((sectionId: unknown): sectionId is SectionId => 
+      typeof sectionId === 'string' && sectionId in SECTION_CONFIG
+    )
+    .map((sectionId: SectionId) => ({
       id: sectionId,
       title: SECTION_CONFIG[sectionId].label || "",
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
-      fields: advancedSchema.filter((field) => field.section === sectionId),
+      fields: advancedSchema.filter((field: ListingFieldSchema) => field.section === sectionId),
     }))
     .sort((a, b) => a.order - b.order);
 
@@ -128,9 +136,8 @@ const EditListing: React.FC = () => {
             const [city = "", state = "", country = ""] = locationParts;
 
             // Convert image URLs to strings for existing images
-            const existingImages = response.data.images.map(
-              (img: string | { url: string }) =>
-                typeof img === "string" ? img : img.url,
+            const existingImages = (response.data.images || []).map(
+              (img: any) => typeof img === "string" ? img : img.url,
             );
 
             setFormData({
@@ -172,58 +179,53 @@ const EditListing: React.FC = () => {
 
     try {
       setSaving(true);
-      const updateData: ListingUpdateInput = {
+      
+      // Create FormData object
+      const formDataObj = new FormData();
+
+      // Add basic fields
+      formDataObj.append('title', formData.title);
+      formDataObj.append('description', formData.description);
+      formDataObj.append('price', String(formData.price));
+      formDataObj.append('category', String(listing.category));
+      formDataObj.append('location', formData.location.city);
+      formDataObj.append('status', String(listing.status));
+
+      // Add existing images as JSON string
+      formDataObj.append('existingImages', JSON.stringify(formData.existingImages));
+
+      // Add new images
+      const newImages = formData.images.filter((img): img is File => img instanceof File);
+      newImages.forEach((image) => {
+        formDataObj.append('images', image);
+      });
+
+      // Process details
+      const details = {
+        vehicles: isVehicle ? {
+          ...formData.details.vehicles,
+          warranty: null, // Force warranty to be null
+          transmissionType: formData.details.vehicles?.transmissionType || null,
+          fuelType: formData.details.vehicles?.fuelType || null,
+          condition: formData.details.vehicles?.condition || null,
+          mileage: Number(formData.details.vehicles?.mileage) || 0,
+          exteriorColor: formData.details.vehicles?.exteriorColor || null,
+          interiorColor: formData.details.vehicles?.interiorColor || null
+        } : undefined,
+        realEstate: !isVehicle ? formData.details.realEstate : undefined
+      };
+
+      // Append details as JSON
+      formDataObj.append('details', JSON.stringify(details));
+
+      console.log('Submitting form data:', {
         title: formData.title,
         description: formData.description,
         price: formData.price,
-        category: listing.category,
-        location: `${formData.location.city}, ${formData.location.state}, ${formData.location.country}`,
-        details: {
-          vehicles: isVehicle
-            ? {
-                ...formData.details.vehicles,
-                // Remove fields not in Prisma schema
-                engineSize: undefined,
-                features: undefined,
-              }
-            : undefined,
-          realEstate: !isVehicle
-            ? {
-                ...formData.details.realEstate,
-                // Remove fields not in Prisma schema
-                features: undefined,
-              }
-            : undefined,
-        },
-        status: listing.status,
-      };
-
-      const formDataObj = new FormData();
-
-      // Add existing images
-      formDataObj.append(
-        "existingImages",
-        JSON.stringify(formData.existingImages),
-      );
-
-      // Add new images
-      const newImages = formData.images.filter(
-        (img): img is File => img instanceof File,
-      );
-      newImages.forEach((image) => {
-        formDataObj.append("images", image);
-      });
-
-      // Convert the updateData object to FormData, handling nested objects
-      Object.entries(updateData).forEach(([key, value]) => {
-        if (key === "details") {
-          formDataObj.append(key, JSON.stringify(value));
-        } else {
-          formDataObj.append(
-            key,
-            typeof value === "object" ? JSON.stringify(value) : String(value),
-          );
-        }
+        location: formData.location.city,
+        details: details,
+        existingImages: formData.existingImages,
+        newImages: newImages.length
       });
 
       const response = await listingsAPI.updateListing(id, formDataObj);
@@ -276,10 +278,25 @@ const EditListing: React.FC = () => {
         field === "yearBuilt" ||
         field === "mileage" ||
         field === "cargoVolume" ||
-        field === "payloadCapacity"
+        field === "payloadCapacity" ||
+        field === "previousOwners" ||
+        field === "seatingCapacity" ||
+        field === "horsepower" ||
+        field === "torque" ||
+        field === "luggageSpace"
       ) {
         processedValue =
           typeof value === "string" ? parseInt(value, 10) : value;
+      }
+
+      // Ensure warranty is always a string and handle 0 values
+      if (field === "warranty") {
+        if (value === 0 || value === "0") {
+          processedValue = "";
+        } else {
+          processedValue = String(value || "");
+        }
+        console.log("Setting warranty value:", processedValue, "type:", typeof processedValue);
       }
 
       return {
@@ -298,7 +315,7 @@ const EditListing: React.FC = () => {
   const handleImageChange = (images: File[]) => {
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.existingImages, ...images],
+      images: [...(prev.existingImages || []), ...images].filter(Boolean),
     }));
   };
 
@@ -345,6 +362,14 @@ const EditListing: React.FC = () => {
     );
   }
 
+  // Helper function to format enum options
+  const getEnumOptions = (enumObj: Record<string, string>) => {
+    return Object.values(enumObj).map(value => ({
+      value,
+      label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+    }));
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
@@ -379,13 +404,11 @@ const EditListing: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {t("listings.images")}
-            </h1>
+            </h2>
             <ImageManager
-              images={formData.images.filter(
-                (img): img is File => img instanceof File,
-              )}
+              images={formData.images.filter((img): img is File => img instanceof File)}
               onChange={handleImageChange}
               maxImages={10}
               existingImages={formData.existingImages}
@@ -393,9 +416,7 @@ const EditListing: React.FC = () => {
                 setFormData((prev) => ({
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
-                  existingImages: prev.existingImages.filter(
-                    (img) => img !== url,
-                  ),
+                  existingImages: prev.existingImages.filter((img) => img !== url),
                 }));
               }}
             />
@@ -465,40 +486,6 @@ const EditListing: React.FC = () => {
                   }
                   required
                 />
-
-                <FormField
-                  label={t("listings.state")}
-                  name="state"
-                  type="text"
-                  value={formData.location.state}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      location: {
-                        ...formData.location,
-                        state: value as string,
-                      },
-                    })
-                  }
-                  required
-                />
-
-                <FormField
-                  label={t("listings.country")}
-                  name="country"
-                  type="text"
-                  value={formData.location.country}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      location: {
-                        ...formData.location,
-                        country: value as string,
-                      },
-                    })
-                  }
-                  required
-                />
               </div>
             </div>
           </div>
@@ -508,9 +495,49 @@ const EditListing: React.FC = () => {
               Advanced Details
             </h1>
 
+            {/* Add special fields here for Transmission, FuelType, and Condition */}
+            {isVehicle && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                <FormField
+                  label={t("listings.fields.transmissionType")}
+                  name="transmissionType"
+                  type="select"
+                  value={formData.details?.vehicles?.transmissionType || ""}
+                  options={getEnumOptions(TransmissionType)}
+                  onChange={(value) => handleInputChange("transmissionType", value)}
+                  required
+                />
+
+                <FormField
+                  label={t("listings.fields.fuelType")}
+                  name="fuelType"
+                  type="select"
+                  value={formData.details?.vehicles?.fuelType || ""}
+                  options={getEnumOptions(FuelType)}
+                  onChange={(value) => handleInputChange("fuelType", value)}
+                  required
+                />
+
+                <FormField
+                  label={t("listings.fields.condition")}
+                  name="condition"
+                  type="select"
+                  value={formData.details?.vehicles?.condition || ""}
+                  options={getEnumOptions(Condition)}
+                  onChange={(value) => handleInputChange("condition", value)}
+                  required
+                />
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {advancedDetailFiels.map((field) => {
+                {advancedDetailFiels && advancedDetailFiels.map((field: any, idx: number) => {
+                  // Skip fields we're now handling separately
+                  if (["transmissionType", "fuelType", "condition"].includes(field.name)) {
+                    return null;
+                  }
+                  
                   const currentValue = isVehicle
                     ? formData.details?.vehicles?.[field.name]
                     : formData.details?.realEstate?.[field.name];
@@ -518,7 +545,7 @@ const EditListing: React.FC = () => {
                   if (field.type === "colorpicker") {
                     return (
                       <ColorPickerField
-                        key={field.name}
+                        key={field.name || idx}
                         label={field.label}
                         value={(currentValue as string) || "#000000"}
                         onChange={(value) =>
@@ -530,20 +557,17 @@ const EditListing: React.FC = () => {
                   }
                   return (
                     <FormField
+                      key={field.name || idx}
                       label={field.label}
                       name={field.name}
                       type={field.type as FormFieldProps["type"]}
-                      value={
-                        formData.details?.vehicles
-                          ? formData.details?.vehicles?.[field.name]
-                          : formData.details?.realEstate?.[field.name]
-                      }
-                      options={field.options?.map((key) => ({
+                      value={currentValue || ""}
+                      options={field.options?.map((key: string) => ({
                         value: key,
                         label: key,
                       }))}
                       onChange={(value) => handleInputChange(field.name, value)}
-                      required
+                      required={field.required}
                     />
                   );
                 })}

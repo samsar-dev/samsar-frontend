@@ -39,7 +39,7 @@ const initialFormState: FormState = {
       make: "",
       model: "",
       year: new Date().getFullYear() as number,
-      mileage: 0,
+      mileage: "",
       fuelType: FuelType.GASOLINE,
       transmissionType: TransmissionType.AUTOMATIC,
       color: "#000000",

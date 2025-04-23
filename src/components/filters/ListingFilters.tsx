@@ -57,27 +57,6 @@ const SubcategoryIcons: {
   OTHER: MdFilterList,
 };
 
-const SubcategoryLabels: { [key: string]: string } = {
-  // Vehicle Types
-  CAR: "Cars",
-  TRUCK: "Trucks",
-  MOTORCYCLE: "Motorcycles",
-  VAN: "Vans",
-  BUS: "Buses",
-  TRACTOR: "Tractors",
-  RV: "RVs",
-
-  // Property Types
-  HOUSE: "Houses",
-  APARTMENT: "Apartments",
-  CONDO: "Condos",
-  LAND: "Land",
-  COMMERCIAL: "Commercial",
-
-  // Fallback
-  OTHER: "Other",
-};
-
 const ListingFilters: React.FC<ListingFiltersProps> = ({
   selectedCategory,
   selectedAction,
@@ -157,45 +136,40 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     }
   };
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6 relative">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {/* Action Filter */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {t("filters.action")}
-          </label>
-          <div className="flex gap-2">
-            <button
-              onClick={() =>
-                handleActionChange(selectedAction === "SELL" ? null : "SELL")
-              }
-              disabled={localLoading}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                selectedAction === "SELL"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {t("forSale")}
-            </button>
-            <button
-              onClick={() =>
-                handleActionChange(selectedAction === "RENT" ? null : "RENT")
-              }
-              disabled={localLoading}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                selectedAction === "RENT"
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {t("forRent")}
-            </button>
-          </div>
-        </div>
+  const SubcategoryLabels: { [key: string]: string } = {
+    // Vehicle Types
+    CAR: t("subcategories.vehicle.CAR"),
+    TRUCK: t("subcategories.vehicle.TRUCK"),
+    MOTORCYCLE: t("subcategories.vehicle.MOTORCYCLE"),
+    VAN: t("subcategories.vehicle.VAN"),
+    BUS: t("subcategories.vehicle.BUS"),
+    TRACTOR: t("subcategories.vehicle.TRACTOR"),
+    RV: t("subcategories.vehicle.RV"),
 
+    // Property Types
+    HOUSE: t("subcategories.property.HOUSE"),
+    APARTMENT: t("subcategories.property.APARTMENT"),
+    CONDO: t("subcategories.property.CONDO"),
+    LAND: t("subcategories.property.LAND"),
+    COMMERCIAL: t("subcategories.property.COMMERCIAL"),
+
+    // Fallback
+    OTHER: t("subcategories.OTHER"),
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-2 mb-4 relative z-20 w-full max-w-full">
+      <div className="flex flex-col gap-4 sm:hidden w-full">
+        {/* Mobile: Filters full-width and left-aligned */}
+        <div className="w-full">
+          <span className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            {t("common.Filters")}
+          </span>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full">
         {/* Subcategory Filter */}
+                {/* Subcategory Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t("filters.subcategory")}
@@ -218,11 +192,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   })}
                 <span className="truncate">
                   {selectedSubcategory
-                    ? SubcategoryLabels[selectedSubcategory] ||
-                      selectedSubcategory
-                        .replace(/_/g, " ")
-                        .toLowerCase()
-                        .replace(/(^\w|\s\w)/g, (c) => c.toUpperCase())
+                    ? SubcategoryLabels[selectedSubcategory]
                     : t("filters.all_subcategories")}
                 </span>
               </Listbox.Button>
@@ -232,7 +202,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+                <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
                   <Listbox.Option
                     key="all"
                     value=""
@@ -275,11 +245,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                                 SubcategoryIcons[subcategory],
                                 { className: "w-5 h-5 mr-2 inline" },
                               )}
-                            {SubcategoryLabels[subcategory] ||
-                              subcategory
-                                .replace(/_/g, " ")
-                                .toLowerCase()
-                                .replace(/(^\w|\s\w)/g, (c) => c.toUpperCase())}
+                            {SubcategoryLabels[subcategory]}
                           </span>
                           {selected ? (
                             <span
@@ -298,6 +264,41 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           </Listbox>
         </div>
 
+        {/* Action Filter - moved below filters for better UX */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t("filters.action")}
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() =>
+                handleActionChange(selectedAction === "SELL" ? null : "SELL")
+              }
+              disabled={localLoading}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                selectedAction === "SELL"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+              } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {t("listings.filters.forSale")}
+            </button>
+            <button
+              onClick={() =>
+                handleActionChange(selectedAction === "RENT" ? null : "RENT")
+              }
+              disabled={localLoading}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                selectedAction === "RENT"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+              } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {t("listings.filters.forRent")}
+            </button>
+          </div>
+        </div>
+
         {/* Location Filter - Available for both vehicle and real estate */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -307,47 +308,69 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             name="location"
             value={selectedLocation || ""}
             onChange={(e) => setSelectedLocation(e.target.value || null)}
-            className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 z-[60] ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={localLoading}
           >
-            <option value="">All Cities</option>
-            <option value="DAMASCUS">Damascus</option>
-            <option value="ALEPPO">Aleppo</option>
-            <option value="HOMS">Homs</option>
-            <option value="LATTAKIA">Latakia</option>
-            <option value="HAMA">Hama</option>
-            <option value="DEIR EZZOR">Deir Ezzor</option>
-            <option value="HASEKEH">Hasekeh</option>
-            <option value="QAMISHLI">Qamishli</option>
-            <option value="RAQQA">Raqqa</option>
-            <option value="TARTOUS">Tartous</option>
-            <option value="IDLIB">Idlib</option>
-            <option value="DARA">Dara</option>
-            <option value="SWEDIA">Swedia</option>
-            <option value="QUNEITRA">Quneitra</option>
+            <option value="">{t("common.allCities")}</option>
+            <option value="DAMASCUS">{t("cities.DAMASCUS")}</option>
+            <option value="ALEPPO">{t("cities.ALEPPO")}</option>
+            <option value="HOMS">{t("cities.HOMS")}</option>
+            <option value="LATTAKIA">{t("cities.LATTAKIA")}</option>
+            <option value="HAMA">{t("cities.HAMA")}</option>
+            <option value="DEIR_EZZOR">{t("cities.DEIR_EZZOR")}</option>
+            <option value="HASEKEH">{t("cities.HASEKEH")}</option>
+            <option value="QAMISHLI">{t("cities.QAMISHLI")}</option>
+            <option value="RAQQA">{t("cities.RAQQA")}</option>
+            <option value="TARTOUS">{t("cities.TARTOUS")}</option>
+            <option value="IDLIB">{t("cities.IDLIB")}</option>
+            <option value="DARA">{t("cities.DARA")}</option>
+            <option value="SWEDIA">{t("cities.SWEDIA")}</option>
+            <option value="QUNEITRA">{t("cities.QUNEITRA")}</option>
           </select>
         </div>
 
         {/* Built Year Filter - Only for Real Estate */}
         {selectedCategory === ListingCategory.REAL_ESTATE && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("filters.built_year")}
-            </label>
-            <select
-              name="builtYear"
-              value={selectedBuiltYear || ""}
-              onChange={(e) => setSelectedBuiltYear(e.target.value || null)}
-              className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-              disabled={localLoading}
-            >
-              <option value="">Any</option>
-              <option value="2023">2023 and newer</option>
-              <option value="2010">2010 and newer</option>
-              <option value="2000">Before 2000</option>
-            </select>
-          </div>
-        )}
+  <div className="space-y-2 z-[60]">
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      {t("filters.built_year")}
+    </label>
+    <Listbox value={selectedBuiltYear || ""} onChange={setSelectedBuiltYear} disabled={localLoading}>
+      <div className="relative">
+        <Listbox.Button
+          className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          <span className="truncate">
+            {selectedBuiltYear
+              ? t(`filters.builtYearOptions.${selectedBuiltYear}`)
+              : t("filters.builtYearOptions.any")}
+          </span>
+        </Listbox.Button>
+        <Transition
+          as={Fragment}
+          leave="transition ease-in duration-100"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+            <Listbox.Option value="" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
+              {t("filters.builtYearOptions.any")}
+            </Listbox.Option>
+            <Listbox.Option value="2023" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
+              {t("filters.builtYearOptions.2023")}
+            </Listbox.Option>
+            <Listbox.Option value="2010" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
+              {t("filters.builtYearOptions.2010")}
+            </Listbox.Option>
+            <Listbox.Option value="2000" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
+              {t("filters.builtYearOptions.2000")}
+            </Listbox.Option>
+          </Listbox.Options>
+        </Transition>
+      </div>
+    </Listbox>
+  </div>
+)}
 
         {/* Make Filter - Only show for vehicle categories */}
         {isVehicleCategory(selectedSubcategory) &&
@@ -426,7 +449,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   leaveFrom="opacity-100"
                   leaveTo="opacity-0"
                 >
-                  <Listbox.Options className="absolute z-1000 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+                  <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
                     <Listbox.Option
                       value=""
                       className={({ active }) =>

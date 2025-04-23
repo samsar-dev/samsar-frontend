@@ -1,5 +1,7 @@
 {
   "common": {
+    "edit": "Edit",
+    "submit": "Submit",
     "no": "No",
     "notSpecified": "Not specified",
     "cancel": "Cancel",
@@ -12,20 +14,27 @@
     "back": "Back",
     "continue": "Continue",
     "submitting": "Submitting...",
-    "basicDetails": "Basic Details",
-    "advancedDetails": "Advanced Details",
-    "review": "Review",
-    "beds": "beds",
-    "baths": "baths",
-    "notProvided": "Not provided",
-    "forRent": "For Rent",
+    "formSteps": {
+      "basicDetails": "Basic Details",
+      "advancedDetails": "Advanced Details",
+      "review": "Review"
+    },
     "next": "Next",
     "previous": "Previous",
     "overview": "Overview",
     "uploadImages": "Upload Images",
     "messagePlaceholder": "Type your message here...",
     "sending": "Sending...",
-    "search": "Search..."
+    "search": "Search...",
+    "allCities": "All Cities",
+    "Filters": "Filters",
+    "sortOptions": {
+      "newestFirst": "Newest First",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "location_a_z": "Location: A to Z",
+      "location_z_a": "Location: Z to A"
+    }
   },
   "auth": {
     "login": "Login",
@@ -52,6 +61,21 @@
     "send": "Send"
   },
   "listings": {
+    "sell": "Sell",
+    "rent": "Rent",
+    "vehicleType": "Vehicle Type",
+    "vehicleTypes": {
+      "CAR": "Car"
+    },
+    "miles": "Miles",
+    "transmissionTypes": {
+      "automatic": "Automatic"
+    },
+    "torque": "Torque",
+    "images": "Images",
+    "uploadedImages": "Uploaded Images",
+    "editImages": "Edit Images",
+    "image": "Image",
     "saved_listings": "Saved Listings",
     "basicInformation": "Basic Information",
     "additionalDetails": "Additional Details",
@@ -148,7 +172,18 @@
         "registered": "Registered",
         "unregistered": "Unregistered",
         "expired": "Expired"
-      }
+      },
+      "vin": "VIN",
+      "engineNumber": "Engine Number",
+      "accidentFree": "Accident Free",
+      "importStatus": "Import Status",
+      "registrationExpiry": "Registration Expiry",
+      "insuranceType": "Insurance Type",
+      "upholsteryMaterial": "Upholstery Material",
+      "tireCondition": "Tire Condition",
+      "engineSize": "Engine Size",
+      "bodyType": "Body Type",
+      "roofType": "Roof Type"
     },
     "image_alt": "{{make}} {{model}} {{year}}",
     "add_favorite": "Add to favorites",
@@ -178,11 +213,11 @@
     "exteriorColor": "Exterior Color",
     "interiorColor": "Interior Color",
     "listings.fields.mileage": "Mileage",
-"listings.fields.engine": "Engine",
-"listings.fields.warranty": "Warranty",
-"listings.fields.serviceHistory": "Service History",
-"listings.fields.registrationStatus": "Registration Status",
-"listings.fields.previousOwners": "Previous Owners",
+    "listings.fields.engine": "Engine",
+    "listings.fields.warranty": "Warranty",
+    "listings.fields.serviceHistory": "Service History",
+    "listings.fields.registrationStatus": "Registration Status",
+    "listings.fields.previousOwners": "Previous Owners",
     "months": "months",
     "listingAction": "Listing Action",
     "sellDescription": "Selling Description",
@@ -225,6 +260,10 @@
       "forRent": "For Rent",
       "clearAll": "Clear All",
       "applyFilters": "Apply Filters",
+      "all_subcategories": "All Categories",
+      "all_makes": "All Makes",
+      "all_models": "All Models",
+      "all_years": "All Years",
       "vehicleTypes": {
         "CAR": "Cars",
         "TRUCK": "Trucks",
@@ -244,20 +283,32 @@
         "OTHER": "Other"
       },
       "builtYearOptions": {
+        "any": "Any Year",
         "2023": "2023 and newer",
-        "2020": "2020 and newer",
-        "2015": "2015 and newer",
         "2010": "2010 and newer",
         "2000": "Before 2000"
       },
-      "sortOptions": {
-        "createdAt": "Newest First",
-        "priceAsc": "Price: Low to High",
-        "priceDesc": "Price: High to Low",
-        "locationAsc": "Location A-Z",
-        "locationDesc": "Location Z-A"
-      }
+      "allCities": "All Cities"
     }
+  },
+  "subcategories": {
+    "vehicle": {
+      "CAR": "Cars",
+      "TRUCK": "Trucks", 
+      "MOTORCYCLE": "Motorcycles",
+      "VAN": "Vans",
+      "BUS": "Buses",
+      "TRACTOR": "Tractors",
+      "RV": "RVs"
+    },
+    "property": {
+      "HOUSE": "Houses",
+      "APARTMENT": "Apartments", 
+      "CONDO": "Condos",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial"
+    },
+    "OTHER": "Other"
   },
   "theme": {
     "light": "Switch to Light Mode",
@@ -282,7 +333,8 @@
       "price": "Price Range",
       "location": "Location",
       "apply": "Apply Filters",
-      "clear": "Clear Filters"
+      "clear": "Clear Filters",
+      "allCities": "All Cities"
     }
   },
   "settings": {
@@ -295,7 +347,7 @@
     "settingsDescription": "Customize your account settings and preferences",
     "notifications": "Notifications",
     "security": "Security",
-    "privacy": "Privacy",
+    "privacy": "Privacy Policy",
     "messageNotifications": "Message Notifications",
     "listingNotifications": "Listing Notifications",
     "systemNotifications": "System Notifications",
@@ -367,7 +419,14 @@
     "discover_vehicle": "Discover your dream car from our wide collection",
     "discover_property": "Find your perfect property that suits your lifestyle",
     "trending_now": "Trending Now",
-    "view_all": "View All"
+    "view_all": "View All",
+    "sortOptions": {
+      "newestFirst": "Newest First",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "location_a_z": "Location: A to Z",
+      "location_z_a": "Location: Z to A"
+    }
   },
   "errors": {
     "Removed from saved listings": "Removed from saved listings",
@@ -435,16 +494,16 @@
     "DAMASCUS": "Damascus",
     "ALEPPO": "Aleppo",
     "HOMS": "Homs",
+    "LATTAKIA": "Latakia",
     "HAMA": "Hama",
-    "LATTAKIA": "Lattakia",
-    "DEIR EZZOR": "Deir ez-Zor",
-    "HASEKEH": "Hasakah",
+    "DEIR_EZZOR": "Deir Ezzor",
+    "HASEKEH": "Hasekeh",
     "QAMISHLI": "Qamishli",
     "RAQQA": "Raqqa",
     "TARTOUS": "Tartous",
     "IDLIB": "Idlib",
-    "DARA": "Daraa",
-    "SWEDIA": "As-Suwayda",
+    "DARA": "Dara",
+    "SWEDIA": "Swedia",
     "QUNEITRA": "Quneitra"
   },
   "create": {
@@ -515,7 +574,15 @@
     "partial": "Partial",
     "unregistered": "Unregistered",
     "registered": "Registered",
-    "expired": "Expired"
+    "expired": "Expired",
+    "local": "Local",
+    "imported": "Imported",
+    "yes": "Yes",
+    "no": "No",
+    "transferable": "Transferable",
+    "comprehensive": "Comprehensive",
+    "thirdParty": "Third Party",
+    "worn": "Worn"
   },
   "placeholders": {
     "make": "Select make",
@@ -558,15 +625,15 @@
       "DAMASCUS": "Damascus",
       "ALEPPO": "Aleppo",
       "HOMS": "Homs",
+      "LATTAKIA": "Latakia",
       "HAMA": "Hama",
-      "LATTAKIA": "Lattakia",
-      "DEIR EZZOR": "Deir Ezzor",
-      "HASEKEH": "Hasakeh",
+      "DEIR_EZZOR": "Deir Ezzor",
+      "HASEKEH": "Hasekeh",
       "QAMISHLI": "Qamishli",
       "RAQQA": "Raqqa",
       "TARTOUS": "Tartous",
       "IDLIB": "Idlib",
-      "DARA": "Daraa",
+      "DARA": "Dara",
       "SWEDIA": "Swedia",
       "QUNEITRA": "Quneitra",
       "types": {
@@ -583,15 +650,8 @@
         "apartment": "Apartment",
         "condo": "Condo",
         "land": "Land",
-        "commercial": "Commercial"
-      },
-      "filters": {
-        "sort_by": "Sort by",
-        "newest": "Newest",
-        "price_low_high": "Price: Low to High",
-        "price_high_low": "Price: High to Low",
-        "location_a_z": "Location: A to Z",
-        "location_z_a": "Location: Z to A"
+        "commercial": "Commercial",
+        "other": "Other"
       }
     }
   },
@@ -659,18 +719,133 @@
       "OTHER": "Other"
     },
     "builtYearOptions": {
+      "any": "Any Year",
       "2023": "2023 and newer",
-      "2020": "2020 and newer",
-      "2015": "2015 and newer",
       "2010": "2010 and newer",
       "2000": "Before 2000"
     },
-    "sortOptions": {
-      "createdAt": "Newest First",
-      "priceAsc": "Price: Low to High",
-      "priceDesc": "Price: High to Low",
-      "locationAsc": "Location A-Z",
-      "locationDesc": "Location Z-A"
-    }
-  }
+  "sections": {
+    "essential": "Essential",
+    "advanced": "Advanced"
+  },
+  "featureCategories": {
+    "airbags": "Airbags",
+    "driverAssist": "Driver Assistance",
+    "safety": "Safety Features",
+    "cameras": "Cameras",
+    "entertainment": "Entertainment",
+    "lighting": "Lighting",
+    "climate": "Climate",
+    "convenience": "Convenience",
+    "extras": "Extras"
+  },
+  "features": {
+    "frontAirbags": "Front Airbags",
+    "sideAirbags": "Side Airbags",
+    "curtainAirbags": "Curtain Airbags",
+    "kneeAirbags": "Knee Airbags",
+    "cruiseControl": "Cruise Control",
+    "adaptiveCruiseControl": "Adaptive Cruise Control",
+    "laneDepartureWarning": "Lane Departure Warning",
+    "laneKeepAssist": "Lane Keep Assist",
+    "automaticEmergencyBraking": "Automatic Emergency Braking",
+    "blindSpotMonitor": "Blind Spot Monitor",
+    "laneAssist": "Lane Assist",
+    "tractionControl": "Traction Control",
+    "abs": "ABS",
+    "emergencyBrakeAssist": "Emergency Brake Assist",
+    "tirePressureMonitoring": "Tire Pressure Monitoring",
+    "distanceTempomat": "Distance Tempomat",
+    "distanceWarning": "Distance Warning",
+    "passengerAirbag": "Passenger Airbag",
+    "glarelessHighBeam": "Glareless High Beam",
+    "esp": "ESP",
+    "driverAirbag": "Driver Airbag",
+    "highBeamAssistant": "High Beam Assistant",
+    "speedLimitingSystem": "Speed Limiting System",
+    "isofix": "ISOFIX",
+    "fatigueWarningSystem": "Fatigue Warning System",
+    "emergencyCallSystem": "Emergency Call System",
+    "sideAirbag": "Side Airbag",
+    "trackHoldingAssistant": "Track Holding Assistant",
+    "deadAngleAssistant": "Dead Angle Assistant",
+    "trafficSignRecognition": "Traffic Sign Recognition",
+    "burglarAlarmSystem": "Burglar Alarm System",
+    "immobilizer": "Immobilizer",
+    "centralLocking": "Central Locking",
+    "rearCamera": "Rear Camera",
+    "camera360": "360° Camera",
+    "dashCam": "Dash Cam",
+    "nightVision": "Night Vision",
+    "parkingSensors": "Parking Sensors",
+    "parkingAid": "Parking Aid",
+    "parkingAidCamera": "Parking Aid Camera",
+    "parkingAidSensorsRear": "Parking Aid Sensors Rear",
+    "parkingAidSensorsFront": "Parking Aid Sensors Front",
+    "bluetooth": "Bluetooth",
+    "appleCarPlay": "Apple CarPlay",
+    "androidAuto": "Android Auto",
+    "premiumSound": "Premium Sound",
+    "wirelessCharging": "Wireless Charging",
+    "usbPorts": "USB Ports",
+    "cdPlayer": "CD Player",
+    "dvdPlayer": "DVD Player",
+    "rearSeatEntertainment": "Rear Seat Entertainment",
+    "androidCar": "Android Car",
+    "onBoardComputer": "On-Board Computer",
+    "dabRadio": "DAB Radio",
+    "handsFreeCalling": "Hands-Free Calling",
+    "integratedMusicStreaming": "Integrated Music Streaming",
+    "radio": "Radio",
+    "soundSystem": "Sound System",
+    "wifiHotspot": "WiFi Hotspot",
+    "ledHeadlights": "LED Headlights",
+    "adaptiveHeadlights": "Adaptive Headlights",
+    "ambientLighting": "Ambient Lighting",
+    "fogLights": "Fog Lights",
+    "automaticHighBeams": "Automatic High Beams",
+    "ledDaytimeRunningLights": "LED Daytime Running Lights",
+    "daytimeRunningLights": "Daytime Running Lights",
+    "headlightCleaning": "Headlight Cleaning",
+    "lightSensor": "Light Sensor",
+    "climateControl": "Climate Control",
+    "heatedSeats": "Heated Seats",
+    "ventilatedSeats": "Ventilated Seats",
+    "dualZoneClimate": "Dual Zone Climate",
+    "rearAC": "Rear AC",
+    "airQualitySensor": "Air Quality Sensor",
+    "airConditioning": "Air Conditioning",
+    "twoZoneClimateControl": "Two Zone Climate Control",
+    "keylessEntry": "Keyless Entry",
+    "sunroof": "Sunroof",
+    "spareKey": "Spare Key",
+    "remoteStart": "Remote Start",
+    "powerTailgate": "Power Tailgate",
+    "autoDimmingMirrors": "Auto-Dimming Mirrors",
+    "rainSensingWipers": "Rain Sensing Wipers",
+    "mountainDrivingAssistant": "Mountain Driving Assistant",
+    "electricalWindowLifter": "Power Windows",
+    "electricalSideMirrors": "Power Side Mirrors",
+    "electricSeats": "Power Seats",
+    "headUpDisplay": "Head-Up Display",
+    "leatherSteeringWheel": "Leather Steering Wheel",
+    "lumbarSupport": "Lumbar Support",
+    "multifunctionalSteeringWheel": "Multifunction Steering Wheel",
+    "navigationSystem": "Navigation System",
+    "rainSensor": "Rain Sensor",
+    "automaticStartStop": "Automatic Start/Stop",
+    "automaticDazzlingInteriorMirrors": "Auto-Dimming Interior Mirrors",
+    "switchingRockers": "Switching Rockers",
+    "armrest": "Armrest",
+    "voiceControl": "Voice Control",
+    "touchscreen": "Touchscreen",
+    "aluminumRims": "Aluminum Rims",
+    "luggageCompartmentSeparation": "Luggage Compartment Separation",
+    "summerTires": "Summer Tires",
+    "powerSteering": "Power Steering"
+  },
+  "careers": "Careers",
+  "privacy": "Privacy",
+  "terms": "Terms of Service"
+}
 }

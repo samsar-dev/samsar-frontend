@@ -31,7 +31,7 @@ export interface ListingFieldSchema {
   section: string;
   required: boolean;
   options?: string[] | SelectOption[];
-  validate?: (value: any) => string | null;
+  validate?: (value: string | number | boolean) => string | null;
   featureGroups?: FeatureGroups;
   featureCategory?:
     | "entertainment"
@@ -47,7 +47,7 @@ export interface BaseVehicleDetails {
   make: string;
   model: string;
   year: string;
-  mileage: number;
+  mileage: string | number;
   fuelType: FuelType | string;
   transmissionType: TransmissionType | string;
   transmission?: string;
@@ -82,6 +82,7 @@ export interface BaseVehicleDetails {
   wheelSize?: string;
   wheelType?: string;
   engine?: string;
+  registrationExpiry?: string;
   
   // Safety Features
   accidentFree?: boolean;
@@ -92,6 +93,24 @@ export interface BaseVehicleDetails {
   abs?: boolean;
   emergencyBrakeAssist?: boolean;
   tirePressureMonitoring?: boolean;
+  distanceTempomat?: boolean;
+  distanceWarning?: boolean;
+  passengerAirbag?: boolean;
+  glarelessHighBeam?: boolean;
+  esp?: boolean;
+  driverAirbag?: boolean;
+  highBeamAssistant?: boolean;
+  speedLimitingSystem?: boolean;
+  isofix?: boolean;
+  fatigueWarningSystem?: boolean;
+  emergencyCallSystem?: boolean;
+  sideAirbag?: boolean;
+  trackHoldingAssistant?: boolean;
+  deadAngleAssistant?: boolean;
+  trafficSignRecognition?: boolean;
+  burglarAlarmSystem?: boolean;
+  immobilizer?: boolean;
+  centralLocking?: boolean;
   
   // Camera Features
   rearCamera?: boolean;
@@ -99,6 +118,10 @@ export interface BaseVehicleDetails {
   dashCam?: boolean;
   nightVision?: boolean;
   parkingSensors?: boolean;
+  parkingAid?: boolean;
+  parkingAidCamera?: boolean;
+  parkingAidSensorsRear?: boolean;
+  parkingAidSensorsFront?: boolean;
   
   // Climate Features
   climateControl?: boolean;
@@ -107,6 +130,8 @@ export interface BaseVehicleDetails {
   dualZoneClimate?: boolean;
   rearAC?: boolean;
   airQualitySensor?: boolean;
+  airConditioning?: boolean;
+  twoZoneClimateControl?: boolean;
   
   // Entertainment Features
   bluetooth?: boolean;
@@ -118,6 +143,14 @@ export interface BaseVehicleDetails {
   cdPlayer?: boolean;
   dvdPlayer?: boolean;
   rearSeatEntertainment?: boolean;
+  androidCar?: boolean;
+  onBoardComputer?: boolean;
+  dabRadio?: boolean;
+  handsFreeCalling?: boolean;
+  integratedMusicStreaming?: boolean;
+  radio?: boolean;
+  soundSystem?: boolean;
+  wifiHotspot?: boolean;
   
   // Lighting Features
   ledHeadlights?: boolean;
@@ -125,6 +158,10 @@ export interface BaseVehicleDetails {
   ambientLighting?: boolean;
   fogLights?: boolean;
   automaticHighBeams?: boolean;
+  ledDaytimeRunningLights?: boolean;
+  daytimeRunningLights?: boolean;
+  headlightCleaning?: boolean;
+  lightSensor?: boolean;
   
   // Convenience Features
   keylessEntry?: boolean;
@@ -134,6 +171,28 @@ export interface BaseVehicleDetails {
   powerTailgate?: boolean;
   autoDimmingMirrors?: boolean;
   rainSensingWipers?: boolean;
+  mountainDrivingAssistant?: boolean;
+  electricalWindowLifter?: boolean;
+  electricalSideMirrors?: boolean;
+  electricSeats?: boolean;
+  headUpDisplay?: boolean;
+  leatherSteeringWheel?: boolean;
+  lumbarSupport?: boolean;
+  multifunctionalSteeringWheel?: boolean;
+  navigationSystem?: boolean | string;
+  rainSensor?: boolean;
+  automaticStartStop?: boolean;
+  automaticDazzlingInteriorMirrors?: boolean;
+  switchingRockers?: boolean;
+  armrest?: boolean;
+  voiceControl?: boolean;
+  touchscreen?: boolean;
+  
+  // Extras
+  aluminumRims?: boolean;
+  luggageCompartmentSeparation?: boolean;
+  summerTires?: boolean;
+  powerSteering?: boolean;
   
   // Nested Safety Features
   frontAirbags?: boolean;
@@ -410,8 +469,8 @@ export interface ListingUpdateInput {
   location: string;
   category: Category;
   details?: {
-    vehicles?: Record<string, any>;
-    realEstate?: Record<string, any>;
+    vehicles?: Record<string, string | number | boolean | string[]>;
+    realEstate?: Record<string, string | number | boolean | string[]>;
   };
   status?: ListingStatus;
 }

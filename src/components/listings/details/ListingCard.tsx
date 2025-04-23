@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
+import { renderIcon } from "@/components/common/icons";
 import { formatCurrency } from "@/utils/format";
 import type {
   Listing,
@@ -141,14 +142,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
       return (
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>
-            {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
+          <p className="flex items-center gap-2">
+            {renderIcon("FaCalendarAlt", "text-blue-500 mr-1")} {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
           </p>
-          {vehicleDetails.mileage && <p>{vehicleDetails.mileage} km</p>}
-          {vehicleDetails.transmission && vehicleDetails.transmission.toLowerCase() === 'semiautomatic' && vehicleDetails.fuelType && (
-            <p>
-              {t('enums.transmission.semiautomatic')} •{' '}
-              {t(`enums.fuel.${vehicleDetails.fuelType.toLowerCase()}`)}
+          {vehicleDetails.mileage && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaTachometerAlt", "text-blue-500 mr-1")} {vehicleDetails.mileage} km
+            </p>
+          )}
+          {vehicleDetails.transmission && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaCogs", "text-blue-500 mr-1")} {t(`enums.transmission.${vehicleDetails.transmission.toLowerCase()}`)}
+            </p>
+          )}
+          {vehicleDetails.fuelType && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaGasPump", "text-blue-500 mr-1")} {t(`enums.fuel.${vehicleDetails.fuelType.toLowerCase()}`)}
             </p>
           )}
         </div>
@@ -161,12 +170,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
     ) {
       return (
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>{t(`enums.propertyType.${realEstateDetails.propertyType}`)}</p>
-          {realEstateDetails.size && <p>{realEstateDetails.size} m²</p>}
-          {realEstateDetails.bedrooms && realEstateDetails.bathrooms && (
-            <p>
-              {realEstateDetails.bedrooms} {t("common.beds")} •{" "}
-              {realEstateDetails.bathrooms} {t("common.baths")}
+          <p className="flex items-center gap-2">
+            {renderIcon("FaBuilding", "text-green-600 mr-1")} {t(`enums.propertyType.${realEstateDetails.propertyType}`)}
+          </p>
+          {realEstateDetails.size && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaHome", "text-green-600 mr-1")} {realEstateDetails.size} m²
+            </p>
+          )}
+          {typeof realEstateDetails.bedrooms === 'number' && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaBed", "text-green-600 mr-1")} {realEstateDetails.bedrooms} {t("common.beds")}
+            </p>
+          )}
+          {typeof realEstateDetails.bathrooms === 'number' && (
+            <p className="flex items-center gap-2">
+              {renderIcon("FaBath", "text-green-600 mr-1")} {realEstateDetails.bathrooms} {t("common.baths")}
             </p>
           )}
         </div>
@@ -175,6 +194,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
     return null;
   };
+
 
   return (
     <motion.div
@@ -335,10 +355,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {category.mainCategory !== ListingCategory.VEHICLES &&
  category.mainCategory !== ListingCategory.REAL_ESTATE && renderDetails()}
           {showLocation && location && (
-            <div className="flex items-center gap-1 mt-2">
+            <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <MdLocationOn className="text-blue-600 w-5 h-5" />
-              <span className="font-semibold text-blue-700 text-sm">{location}</span>
-            </div>
+              {t(`cities.${location}`, { defaultValue: location })}
+            </p>
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">

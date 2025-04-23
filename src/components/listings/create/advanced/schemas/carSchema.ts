@@ -10,7 +10,10 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Exterior color is required" : null),
+    validate: (value: string | number | boolean) => {
+      if (typeof value !== 'string' || !value) return "Exterior color is required";
+      return null;
+    },
   },
   {
     name: "interiorColor",
@@ -18,7 +21,10 @@ export const carSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Interior color is required" : null),
+    validate: (value: string | number | boolean) => {
+      if (typeof value !== 'string' || !value) return "Interior color is required";
+      return null;
+    },
   },
   {
     name: "mileage",
@@ -26,7 +32,19 @@ export const carSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => (value >= 0 ? null : "Mileage must be a positive number"),
+    validate: (value: string | number | boolean) => {
+      if (value === "" || value === undefined || value === null) return null;
+      let numValue = value;
+      if (typeof value === 'string') {
+        numValue = Number(value);
+        if (value.trim() !== '' && (isNaN(numValue) || numValue < 0)) {
+          return "Mileage must be a positive number";
+        }
+      } else if (typeof value === 'number' && value < 0) {
+        return "Mileage must be a positive number";
+      }
+      return null;
+    },
   },
   {
     name: "condition",
@@ -49,7 +67,10 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "errors.transmissionRequired" : null),
+    validate: (value: string | number | boolean) => {
+      if (typeof value !== 'string' || !value) return "errors.transmissionRequired";
+      return null;
+    },
   },
   {
     name: "fuelType",
@@ -70,10 +91,11 @@ export const carSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) =>
-      value && value.length > 0 && !/^([A-HJ-NPR-Z0-9]{17})$/.test(value)
-        ? "errors.invalidVin"
-        : null,
+    validate: (value: string | number | boolean) => {
+      if (typeof value !== 'string' || !value) return null;
+      if (!/^([A-HJ-NPR-Z0-9]{17})$/.test(value)) return "errors.invalidVin";
+      return null;
+    },
   },
   {
     name: "engineNumber",
@@ -88,7 +110,11 @@ export const carSchema: ListingFieldSchema[] = [
     type: "number",
     section: "advanced",
     required: false,
-    validate: (value: number) => (value !== undefined && value < 0 ? "errors.cannotBeNegative" : null),
+    validate: (value: string | number | boolean) => {
+      if (typeof value !== 'number' || value === undefined) return null;
+      if (value < 0) return "errors.cannotBeNegative";
+      return null;
+    },
   },
   {
     name: "serviceHistory",
@@ -337,6 +363,24 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "abs", label: "features.abs", type: "toggle" },
           { name: "emergencyBrakeAssist", label: "features.emergencyBrakeAssist", type: "toggle" },
           { name: "tirePressureMonitoring", label: "features.tirePressureMonitoring", type: "toggle" },
+          { name: "distanceTempomat", label: "features.distanceTempomat", type: "toggle" },
+          { name: "distanceWarning", label: "features.distanceWarning", type: "toggle" },
+          { name: "passengerAirbag", label: "features.passengerAirbag", type: "toggle" },
+          { name: "glarelessHighBeam", label: "features.glarelessHighBeam", type: "toggle" },
+          { name: "esp", label: "features.esp", type: "toggle" },
+          { name: "driverAirbag", label: "features.driverAirbag", type: "toggle" },
+          { name: "highBeamAssistant", label: "features.highBeamAssistant", type: "toggle" },
+          { name: "speedLimitingSystem", label: "features.speedLimitingSystem", type: "toggle" },
+          { name: "isofix", label: "features.isofix", type: "toggle" },
+          { name: "fatigueWarningSystem", label: "features.fatigueWarningSystem", type: "toggle" },
+          { name: "emergencyCallSystem", label: "features.emergencyCallSystem", type: "toggle" },
+          { name: "sideAirbag", label: "features.sideAirbag", type: "toggle" },
+          { name: "trackHoldingAssistant", label: "features.trackHoldingAssistant", type: "toggle" },
+          { name: "deadAngleAssistant", label: "features.deadAngleAssistant", type: "toggle" },
+          { name: "trafficSignRecognition", label: "features.trafficSignRecognition", type: "toggle" },
+          { name: "burglarAlarmSystem", label: "features.burglarAlarmSystem", type: "toggle" },
+          { name: "immobilizer", label: "features.immobilizer", type: "toggle" },
+          { name: "centralLocking", label: "features.centralLocking", type: "toggle" },
         ],
       },
       cameras: {
@@ -346,6 +390,11 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "camera360", label: "features.camera360", type: "toggle" },
           { name: "dashCam", label: "features.dashCam", type: "toggle" },
           { name: "nightVision", label: "features.nightVision", type: "toggle" },
+          { name: "parkingSensors", label: "features.parkingSensors", type: "toggle" },
+          { name: "parkingAid", label: "features.parkingAid", type: "toggle" },
+          { name: "parkingAidCamera", label: "features.parkingAidCamera", type: "toggle" },
+          { name: "parkingAidSensorsRear", label: "features.parkingAidSensorsRear", type: "toggle" },
+          { name: "parkingAidSensorsFront", label: "features.parkingAidSensorsFront", type: "toggle" },
         ],
       },
       entertainment: {
@@ -360,7 +409,14 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "cdPlayer", label: "features.cdPlayer", type: "toggle" },
           { name: "dvdPlayer", label: "features.dvdPlayer", type: "toggle" },
           { name: "rearSeatEntertainment", label: "features.rearSeatEntertainment", type: "toggle" },
-      
+          { name: "androidCar", label: "features.androidCar", type: "toggle" },
+          { name: "onBoardComputer", label: "features.onBoardComputer", type: "toggle" },
+          { name: "dabRadio", label: "features.dabRadio", type: "toggle" },
+          { name: "handsFreeCalling", label: "features.handsFreeCalling", type: "toggle" },
+          { name: "integratedMusicStreaming", label: "features.integratedMusicStreaming", type: "toggle" },
+          { name: "radio", label: "features.radio", type: "toggle" },
+          { name: "soundSystem", label: "features.soundSystem", type: "toggle" },
+          { name: "wifiHotspot", label: "features.wifiHotspot", type: "toggle" },
         ],
       },
       lighting: {
@@ -371,6 +427,10 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "ambientLighting", label: "features.ambientLighting", type: "toggle" },
           { name: "fogLights", label: "features.fogLights", type: "toggle" },
           { name: "automaticHighBeams", label: "features.automaticHighBeams", type: "toggle" },
+          { name: "ledDaytimeRunningLights", label: "features.ledDaytimeRunningLights", type: "toggle" },
+          { name: "daytimeRunningLights", label: "features.daytimeRunningLights", type: "toggle" },
+          { name: "headlightCleaning", label: "features.headlightCleaning", type: "toggle" },
+          { name: "lightSensor", label: "features.lightSensor", type: "toggle" },
         ],
       },
       climate: {
@@ -382,6 +442,8 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "dualZoneClimate", label: "features.dualZoneClimate", type: "toggle" },
           { name: "rearAC", label: "features.rearAC", type: "toggle" },
           { name: "airQualitySensor", label: "features.airQualitySensor", type: "toggle" },
+          { name: "airConditioning", label: "features.airConditioning", type: "toggle" },
+          { name: "twoZoneClimateControl", label: "features.twoZoneClimateControl", type: "toggle" },
         ],
       },
       convenience: {
@@ -394,7 +456,31 @@ export const carSchema: ListingFieldSchema[] = [
           { name: "powerTailgate", label: "features.powerTailgate", type: "toggle" },
           { name: "autoDimmingMirrors", label: "features.autoDimmingMirrors", type: "toggle" },
           { name: "rainSensingWipers", label: "features.rainSensingWipers", type: "toggle" },
-          { name: "parkingSensors", label: "features.parkingSensors", type: "toggle" },
+          { name: "mountainDrivingAssistant", label: "features.mountainDrivingAssistant", type: "toggle" },
+          { name: "electricalWindowLifter", label: "features.electricalWindowLifter", type: "toggle" },
+          { name: "electricalSideMirrors", label: "features.electricalSideMirrors", type: "toggle" },
+          { name: "electricSeats", label: "features.electricSeats", type: "toggle" },
+          { name: "headUpDisplay", label: "features.headUpDisplay", type: "toggle" },
+          { name: "leatherSteeringWheel", label: "features.leatherSteeringWheel", type: "toggle" },
+          { name: "lumbarSupport", label: "features.lumbarSupport", type: "toggle" },
+          { name: "multifunctionalSteeringWheel", label: "features.multifunctionalSteeringWheel", type: "toggle" },
+          { name: "navigationSystem", label: "features.navigationSystem", type: "toggle" },
+          { name: "rainSensor", label: "features.rainSensor", type: "toggle" },
+          { name: "automaticStartStop", label: "features.automaticStartStop", type: "toggle" },
+          { name: "automaticDazzlingInteriorMirrors", label: "features.automaticDazzlingInteriorMirrors", type: "toggle" },
+          { name: "switchingRockers", label: "features.switchingRockers", type: "toggle" },
+          { name: "armrest", label: "features.armrest", type: "toggle" },
+          { name: "voiceControl", label: "features.voiceControl", type: "toggle" },
+          { name: "touchscreen", label: "features.touchscreen", type: "toggle" },
+        ],
+      },
+      extras: {
+        label: "Extra Features",
+        features: [
+          { name: "aluminumRims", label: "features.aluminumRims", type: "toggle" },
+          { name: "luggageCompartmentSeparation", label: "features.luggageCompartmentSeparation", type: "toggle" },
+          { name: "summerTires", label: "features.summerTires", type: "toggle" },
+          { name: "powerSteering", label: "features.powerSteering", type: "toggle" },
         ],
       },
     },
