@@ -138,13 +138,13 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
   const SubcategoryLabels: { [key: string]: string } = {
     // Vehicle Types
-    CAR: t("subcategories.vehicle.CAR"),
-    TRUCK: t("subcategories.vehicle.TRUCK"),
-    MOTORCYCLE: t("subcategories.vehicle.MOTORCYCLE"),
-    VAN: t("subcategories.vehicle.VAN"),
-    BUS: t("subcategories.vehicle.BUS"),
-    TRACTOR: t("subcategories.vehicle.TRACTOR"),
-    RV: t("subcategories.vehicle.RV"),
+    CAR: t("common.categories.vehicle.CAR"),
+    TRUCK: t("common.categories.vehicle.TRUCK"),
+    MOTORCYCLE: t("common.categories.vehicle.MOTORCYCLE"),
+    VAN: t("common.categories.vehicle.VAN"),
+    BUS: t("common.categories.vehicle.BUS"),
+    TRACTOR: t("common.categories.vehicle.TRACTOR"),
+    RV: t("common.categories.vehicle.RV"),
 
     // Property Types
     HOUSE: t("subcategories.property.HOUSE"),

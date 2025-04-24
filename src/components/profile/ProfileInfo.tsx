@@ -173,7 +173,7 @@ const ProfileInfo = () => {
             htmlFor="username"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            {t("username")}
+            {t("profile.username")}
           </label>
           <input
             type="text"
@@ -224,7 +224,7 @@ const ProfileInfo = () => {
             htmlFor="dateOfBirth"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            {t("date of birth")}
+            {t("profile.date of birth")}
           </label>
           <input
             type="text"
@@ -240,7 +240,7 @@ const ProfileInfo = () => {
             htmlFor="street"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            {t("street")}
+            {t("profile.street")}
           </label>
           <input
             type="text"
@@ -256,7 +256,7 @@ const ProfileInfo = () => {
             htmlFor="city"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            {t("city")}
+            {t("profile.city")}
           </label>
           <input
             type="text"

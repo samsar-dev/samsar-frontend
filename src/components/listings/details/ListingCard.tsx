@@ -210,11 +210,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {category.subCategory
-                  .replace(/_/g, " ")
-                  .toLowerCase()
-                  .replace(/(^\w|\s\w)/g, (c) => c.toUpperCase())}
-              </span>
+  {t(`common.vehicleTypes.${category.subCategory}`) || category.subCategory}
+</span>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                   listingAction === ListingAction.SELL
@@ -222,7 +219,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     : "bg-green-600 text-white"
                 }`}
               >
-                {listingAction === ListingAction.SELL ? t("forSale") : t("forRent")}
+                {listingAction === ListingAction.SELL ? t("common.forSale") : t("common.forRent")}
               </span>
             </div>
           )}

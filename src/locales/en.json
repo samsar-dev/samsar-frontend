@@ -89,7 +89,15 @@
     "rent": "Rent",
     "vehicleType": "Vehicle Type",
     "vehicleTypes": {
-      "CAR": "Car"
+      "CAR": "Car",
+      "TRUCK": "Truck",
+      "MOTORCYCLE": "Motorcycle", 
+      "BUS": "Bus",
+      "VAN": "Van",
+      "TRACTOR": "Tractor",
+      "CONSTRUCTION": "Construction Equipment",
+      "RV": "Recreational Vehicle",
+      "OTHER": "Other"
     },
     "miles": "Miles",
     "transmissionTypes": {

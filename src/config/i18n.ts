@@ -30,9 +30,14 @@ const i18nConfig: InitOptions = {
 
 i18n.use(initReactI18next).init(i18nConfig);
 
+// Set document direction based on language
+const currentLanguage = localStorage.getItem("language") || "en";
+document.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+
 // Debug logging
 console.log('i18n Resources:', resources);
 console.log('i18n Current Language:', i18n.language);
 console.log('i18n Translations:', i18n.t('common:sortOptions'));
+console.log('Document direction set to:', document.dir);
 
 export default i18n;

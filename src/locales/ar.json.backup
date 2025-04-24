@@ -22,6 +22,8 @@
     "notProvided": "غير متوفر",
     "forSale": "للبيع",
     "forRent": "للإيجار",
+    "forSaleLabel": "للبيع",
+    "forRentLabel": "للإيجار",
     "next": "التالي",
     "previous": "السابق",
     "overview": "نظرة عامة",
@@ -37,8 +39,8 @@
       "newestFirst": "الأحدث أولاً",
       "priceAsc": "السعر: من الأقل إلى الأعلى",
       "priceDesc": "السعر: من الأعلى إلى الأقل",
-      "locationAsc": "الموقع: أ إلى ي",
-      "locationDesc": "الموقع: ي إلى أ"
+      "location_a_z": "الموقع: أ إلى ي",
+      "location_z_a": "الموقع: ي إلى أ"
     },
     "appName": "سوق المركبات والعقارات",
     "cities": {
@@ -48,25 +50,15 @@
     "vehicles": "المركبات",
     "realEstate": "العقارات",
     "vehicleType": "نوع المركبة",
-    "vehicleTypes": {
-      "CAR": "سيارات",
-      "TRUCK": "شاحنات",
-      "MOTORCYCLE": "دراجات نارية",
-      "RV": "مركبات ترفيهية",
-      "BUS": "حافلات",
-      "VAN": "فانات",
-      "TRACTOR": "جرارات",
-      "CONSTRUCTION": "معدات إنشائية",
-      "OTHER": "أخرى"
-    },
-    "realEstateTypes": {
-      "HOUSE": "منازل",
-      "APARTMENT": "شقق",
-      "CONDO": "شقق تمليك",
-      "LAND": "أراضي",
-      "COMMERCIAL": "عقارات تجارية",
-      "OTHER": "أخرى"
-    },
+    "car": "سيارة",
+    "truck": "شاحنة",
+    "motorcycle": "دراجة نارية",
+    "rv": "مركبة متنقلة",
+    "bus": "حافلة",
+    "van": "فان",
+    "tractor": "جرار",
+    "construction": "معدات إنشائية",
+    "other": "أخرى",
     "listingDetails": "تفاصيل القائمة",
     "title": "العنوان",
     "titlePlaceholder": "أدخل عنوان القائمة",
@@ -92,39 +84,17 @@
       "sortBy": "ترتيب حسب",
       "allCities": "جميع المدن"
     },
-    "categories": {
-      "realEstate": {
-        "LAND": "أرض",
-        "HOUSE": "منزل",
-        "APARTMENT": "شقة",
-        "CONDO": "شقة تمليك",
-        "COMMERCIAL": "عقار تجاري",
-        "OTHER": "أخرى"
-      },
-      "vehicle": {
-        "CAR": "سيارة",
-        "TRUCK": "شاحنة",
-        "MOTORCYCLE": "دراجة نارية",
-        "RV": "مركبة ترفيهية",
-        "BUS": "حافلة",
-        "VAN": "فان",
-        "TRACTOR": "جرار",
-        "CONSTRUCTION": "معدات إنشائية",
-        "OTHER": "أخرى"
-      },
-      "vehicles": {
-        "CAR": "سيارة",
-        "TRUCK": "شاحنة",
-        "MOTORCYCLE": "دراجة نارية",
-        "RV": "مركبة ترفيهية",
-        "BUS": "حافلة",
-        "VAN": "فان",
-        "TRACTOR": "جرار",
-        "CONSTRUCTION": "معدات إنشائية",
-        "OTHER": "أخرى"
-      }
-    },
-    "delete": "حذف"
+    "vehicleTypes": {
+      "CAR": "سيارة",
+      "TRUCK": "شاحنة",
+      "MOTORCYCLE": "دراجة نارية",
+      "BUS": "حافلة",
+      "VAN": "فان",
+      "TRACTOR": "جرار",
+      "CONSTRUCTION": "معدات إنشائية",
+      "RV": "مركبة متنقلة",
+      "OTHER": "أخرى"
+    }
   },
   "theme": {
     "light": "الانتقال إلى الوضع الفاتح",
@@ -171,7 +141,7 @@
         "VAN": "فانات",
         "BUS": "حافلات",
         "TRACTOR": "جرارات",
-        "RV": "مركبات ترفيهية",
+        "RV": "سيارات متنقلة",
         "CONSTRUCTION": "معدات إنشائية",
         "OTHER": "أخرى"
       },
@@ -259,8 +229,8 @@
     "settings": "الإعدادات",
     "profile": "الملف الشخصي",
     "browse": "تصفح",
-    "vehicles": "المركبات",
-    "real_estate": "العقارات",
+    "vehicles": "مركبات",
+    "real_estate": "عقارات",
     "messages": "الرسائل",
     "create_listing": "إنشاء قائمة",
     "login": "تسجيل الدخول",
@@ -360,10 +330,6 @@
     "bio": "السيرة الذاتية",
     "change_password": "تغيير كلمة المرور",
     "current_password": "كلمة المرور الحالية",
-    "other": null,
-    "date of birth": "تاريخ الميلاد",
-    "street": "الشارع",
-    "city": "المدينة",
     "new_password": "كلمة المرور الجديدة",
     "confirm_password": "تأكيد كلمة المرور",
     "save_changes": "حفظ التغييرات",
@@ -449,7 +415,7 @@
       "vehicleFeatures": "ميزات السيارة",
       "features": {
         "blindSpotMonitor": "مراقبة النقطة العمياء",
-        "laneAssist": "المساعدة في البقاء في المسار",
+        "laneAssist": "مساعدة البقاء في المسار",
         "adaptiveCruiseControl": "مثبت سرعة متكيف",
         "rearCamera": "كاميرا خلفية",
         "camera360": "كاميرا 360°",
@@ -1019,23 +985,23 @@
   },
   "subcategories": {
     "vehicle": {
-      "car": "سيارة",
-      "truck": "شاحنة",
-      "motorcycle": "دراجة نارية",
-      "rv": "مركبة ترفيهية",
-      "bus": "حافلة",
-      "van": "فان",
-      "tractor": "جرار",
-      "construction": "إنشاءات",
-      "other": "أخرى"
+      "CAR": "سيارات",
+      "TRUCK": "شاحنات",
+      "MOTORCYCLE": "دراجات نارية",
+      "RV": "مركبات متنقلة",
+      "BUS": "حافلات",
+      "VAN": "فانات",
+      "TRACTOR": "جرارات",
+      "CONSTRUCTION": "معدات إنشائية",
+      "OTHER": "أخرى"
     },
-    "realEstate": {
-      "house": "منزل",
-      "apartment": "شقة",
-      "condo": "كوندو",
-      "land": "أرض",
-      "commercial": "تجاري",
-      "other": "أخرى"
+    "property": {
+      "HOUSE": "منزل",
+      "APARTMENT": "شقة",
+      "CONDO": "شقة سكنية",
+      "LAND": "أرض",
+      "COMMERCIAL": "تجاري",
+      "OTHER": "أخرى"
     }
   },
   "careers": "وظائف",

@@ -338,33 +338,33 @@ console.log('Loaded sortOptions translations:', t('sortOptions', { returnObjects
 const sortOptions = [
   {
     value: "newestFirst",
-    label: t("sortOptions.newestFirst") !== "sortOptions.newestFirst" ? t("sortOptions.newestFirst") : (() => { console.warn('Missing translation: sortOptions.newestFirst'); return "Newest First"; })()
+    label: t("common.sortOptions.newestFirst") !== "common.sortOptions.newestFirst" ? t("common.sortOptions.newestFirst") : (() => { console.warn('Missing translation: common.sortOptions.newestFirst'); return "Newest First"; })()
   },
   {
     value: "priceAsc",
-    label: t("sortOptions.priceAsc") !== "sortOptions.priceAsc" ? t("sortOptions.priceAsc") : (() => { console.warn('Missing translation: sortOptions.priceAsc'); return "Price: Low to High"; })()
+    label: t("common.sortOptions.priceAsc") !== "common.sortOptions.priceAsc" ? t("common.sortOptions.priceAsc") : (() => { console.warn('Missing translation: common.sortOptions.priceAsc'); return "Price: Low to High"; })()
   },
   {
     value: "priceDesc",
-    label: t("sortOptions.priceDesc") !== "sortOptions.priceDesc" ? t("sortOptions.priceDesc") : (() => { console.warn('Missing translation: sortOptions.priceDesc'); return "Price: High to Low"; })()
+    label: t("common.sortOptions.priceDesc") !== "common.sortOptions.priceDesc" ? t("common.sortOptions.priceDesc") : (() => { console.warn('Missing translation: common.sortOptions.priceDesc'); return "Price: High to Low"; })()
   },
   {
     value: "locationAsc",
-    label: t("sortOptions.locationAsc") !== "sortOptions.locationAsc" ? t("sortOptions.locationAsc") : (() => { console.warn('Missing translation: sortOptions.locationAsc'); return "Location: A to Z"; })()
+    label: t("common.sortOptions.locationAsc") !== "common.sortOptions.locationAsc" ? t("common.sortOptions.locationAsc") : (() => { console.warn('Missing translation: common.sortOptions.locationAsc'); return "Location: A to Z"; })()
   },
   {
     value: "locationDesc",
-    label: t("sortOptions.locationDesc") !== "sortOptions.locationDesc" ? t("sortOptions.locationDesc") : (() => { console.warn('Missing translation: sortOptions.locationDesc'); return "Location: Z to A"; })()
+    label: t("common.sortOptions.locationDesc") !== "common.sortOptions.locationDesc" ? t("common.sortOptions.locationDesc") : (() => { console.warn('Missing translation: common.sortOptions.locationDesc'); return "Location: Z to A"; })()
   },
 ];
 
   // Debug logging
   console.log('Sort Options Translations:', {
-    newestFirst: t("sortOptions.newestFirst"),
-    priceAsc: t("sortOptions.priceAsc"),
-    priceDesc: t("sortOptions.priceDesc"),
-    locationAsc: t("sortOptions.locationAsc"),
-    locationDesc: t("sortOptions.locationDesc"),
+    newestFirst: t("common.sortOptions.newestFirst"),
+    priceAsc: t("common.sortOptions.priceAsc"),
+    priceDesc: t("common.sortOptions.priceDesc"),
+    locationAsc: t("common.sortOptions.locationAsc"),
+    locationDesc: t("common.sortOptions.locationDesc"),
   });
 
   const renderContent = useCallback(() => {

@@ -25,7 +25,11 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Detect direction (ltr/rtl)
+  const dir = i18n.dir && typeof i18n.dir === 'function' ? i18n.dir() : document?.documentElement?.dir || 'ltr';
+  const isRTL = dir === 'rtl';
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -151,15 +155,15 @@ const Navbar: React.FC = () => {
                     onChange={e => setSelectedSubcategory(e.target.value)}
                   >
                     <option value="">{t("common.all_types")}</option>
-                    <option value="CAR">Car</option>
-                    <option value="TRUCK">Truck</option>
-                    <option value="MOTORCYCLE">Motorcycle</option>
-                    <option value="RV">RV</option>
-                    <option value="BUS">Bus</option>
-                    <option value="VAN">Van</option>
-                    <option value="TRACTOR">Tractor</option>
-                    <option value="CONSTRUCTION">Construction</option>
-                    <option value="OTHER">Other</option>
+                    <option value="CAR">{t("common.vehicleTypes.CAR")}</option>
+                    <option value="TRUCK">{t("common.vehicleTypes.TRUCK")}</option>
+                    <option value="MOTORCYCLE">{t("common.vehicleTypes.MOTORCYCLE")}</option>
+                    <option value="RV">{t("common.vehicleTypes.RV")}</option>
+                    <option value="BUS">{t("common.vehicleTypes.BUS")}</option>
+                    <option value="VAN">{t("common.vehicleTypes.VAN")}</option>
+                    <option value="TRACTOR">{t("common.vehicleTypes.TRACTOR")}</option>
+                    <option value="CONSTRUCTION">{t("common.vehicleTypes.CONSTRUCTION")}</option>
+                    <option value="OTHER">{t("common.vehicleTypes.OTHER")}</option>
                   </select>
                 )}
                 {selectedCategory === "realEstate" && (
@@ -169,12 +173,12 @@ const Navbar: React.FC = () => {
                     onChange={e => setSelectedSubcategory(e.target.value)}
                   >
                     <option value="">{t("common.all_types")}</option>
-                    <option value="HOUSE">House</option>
-                    <option value="APARTMENT">Apartment</option>
-                    <option value="CONDO">Condo</option>
-                    <option value="LAND">Land</option>
-                    <option value="COMMERCIAL">Commercial</option>
-                    <option value="OTHER">Other</option>
+                    <option value="HOUSE">{t("common.realEstateTypes.HOUSE")}</option>
+                    <option value="APARTMENT">{t("common.realEstateTypes.APARTMENT")}</option>
+                    <option value="CONDO">{t("common.realEstateTypes.CONDO")}</option>
+                    <option value="LAND">{t("common.realEstateTypes.LAND")}</option>
+                    <option value="COMMERCIAL">{t("common.realEstateTypes.COMMERCIAL")}</option>
+                    <option value="OTHER">{t("common.realEstateTypes.OTHER")}</option>
                   </select>
                 )}
 
@@ -191,7 +195,9 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Right section */}
-          <div className="flex items-center space-x-4">
+          <div
+            className={`flex items-center ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-4`}
+          >
             {isLoading ? (
               <div className="flex items-center justify-center w-8 h-8">
                 <FaSpinner className="animate-spin text-indigo-600 dark:text-indigo-400" />
@@ -219,7 +225,7 @@ const Navbar: React.FC = () => {
                       to="/listings/create"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <FaPlus className="mr-3" />
+                      <FaPlus />
                       {t("navigation.create_listing")}
                     </Link>
 
@@ -227,7 +233,7 @@ const Navbar: React.FC = () => {
                       to="/profile/listings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <FaFileAlt className="mr-3" />
+                      <FaFileAlt />
                       {t("profile.my_listings")}
                     </Link>
 
@@ -235,7 +241,7 @@ const Navbar: React.FC = () => {
                       to="/saved-listings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <FaHeart className="mr-3 text-red-500" />
+                      <FaHeart className="text-red-500" />
                       {t("listings.saved_listings")}
                     </Link>
                   </div>
@@ -286,14 +292,14 @@ const Navbar: React.FC = () => {
                       onClick={() => setShowProfileMenu(false)}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <FaUser className="mr-3" />
+                      <FaUser />
                       {t("navigation.profile")}
                     </Link>
                     <Link
                       to="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <FaCog className="mr-3" />
+                      <FaCog />
                       {t("navigation.settings")}
                     </Link>
                     <button
@@ -302,9 +308,9 @@ const Navbar: React.FC = () => {
                       className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       {isLoggingOut ? (
-                        <FaSpinner className="animate-spin mr-3" />
+                        <FaSpinner className="animate-spin" />
                       ) : (
-                        <FaSignOutAlt className="mr-3" />
+                        <FaSignOutAlt />
                       )}
                       {isLoggingOut
                         ? t("auth.logging_out")
