@@ -308,7 +308,73 @@ const setInCache = (key: string, data: any) => {
   cache.set(key, { data, timestamp: Date.now() });
 };
 
-export const listingsAPI = {
+interface ListingsAPI {
+  getSavedListings(userId?: string, signal?: AbortSignal): Promise<APIResponse<any>>;
+  getAll(params: ListingParams, signal?: AbortSignal): Promise<APIResponse<ListingsResponse>>;
+  getVehicleListings(params: ListingParams): Promise<APIResponse<ListingsResponse>>;
+  getRealEstateListings(params: ListingParams): Promise<APIResponse<ListingsResponse>>;
+  getListing(id: string): Promise<APIResponse<Listing>>;
+  updateListing(id: string, formData: FormData): Promise<APIResponse<Listing>>;
+  deleteListing(id: string): Promise<APIResponse<Listing>>;
+  saveListing(listingId: string): Promise<APIResponse<Listing>>;
+  addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>>;
+  removeFavorite(listingId: string): Promise<APIResponse<void>>;
+  getUserListings(params?: ListingParams, signal?: AbortSignal): Promise<APIResponse<UserListingsResponse>>;
+  getById(id: string): Promise<APIResponse<Listing>>;
+  create(formData: FormData): Promise<APIResponse<SingleListingResponse>>;
+  update(id: string, formData: FormData): Promise<APIResponse<SingleListingResponse>>;
+  delete(id: string): Promise<APIResponse<void>>;
+  search(query: string, params?: ListingParams): Promise<APIResponse<ListingsResponse>>;
+  getTrending(limit?: number): Promise<APIResponse<Listing>>;
+  getListingsByIds(ids: string[]): Promise<APIResponse<Listing>>;
+  getListingsByCategory(category: ListingCategory): Promise<APIResponse<Listing>>;
+  getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>>;
+}
+
+export const listingsAPI: ListingsAPI = {
+  // Get saved listings with abort signal support
+  async getSavedListings(
+    userId?: string,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<any>> {
+    try {
+      const response = await apiClient.get("/listings/saved", {
+        params: { userId },
+        signal,
+      });
+
+      // If we get a successful response but no data, return an empty array
+      if (response.data.success) {
+        return {
+          success: true,
+          data: response.data.data || [],
+        };
+      }
+
+      // If the response indicates failure, return the error
+      return {
+        success: false,
+        data: null,
+        error: response.data.error || "Failed to fetch saved listings",
+      };
+    } catch (error) {
+      // Don't log aborted request errors
+      if (error instanceof Error && error.name !== "AbortError") {
+        console.error("Error fetching saved listings:", error);
+      }
+
+      // If it's not an abort error, return a proper error response
+      if (error instanceof Error && error.name === "AbortError") {
+        return { success: false, data: null };
+      }
+
+      return {
+        success: false,
+        data: null,
+        error: error instanceof Error ? error.message : "Failed to fetch saved listings",
+      };
+    }
+  },
   async getAll(
     params: ListingParams,
     signal?: AbortSignal,
@@ -606,39 +672,7 @@ export const listingsAPI = {
     }
   },
 
-  // Get favorites with abort signal support
-  async getSavedListings(
-    userId?: string,
-    signal?: AbortSignal,
-  ): Promise<APIResponse<any>> {
-    const cacheKey = `saved-listings-${userId || "current"}`;
-    const cached = getFromCache(cacheKey);
-    if (cached) return { success: true, data: cached };
 
-    try {
-      const response = await apiClient.get("/listings/saved", { signal });
-
-      if (response.data.success && response.data.data) {
-        setInCache(cacheKey, response.data.data);
-      }
-
-      return response.data;
-    } catch (error) {
-      // Don't log aborted request errors
-      if (error instanceof Error && error.name !== "AbortError") {
-        console.error("Error fetching saved listings:", error);
-      }
-
-      return {
-        success: false,
-        data: null,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch saved listings",
-      };
-    }
-  },
 
   // Add favorite
   async addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>> {
@@ -1162,6 +1196,20 @@ export const listingsAPI = {
           if (allListingsResponse.success && allListingsResponse.data?.listings) {
             // Filter listings by query on the client side
             const clientFilteredListings = allListingsResponse.data.listings.filter(listing => {
+              // First check if the listing matches the category and subcategory filters
+              if (params?.category?.mainCategory) {
+                // If category filter is provided, check if the listing matches
+                if (listing.category?.mainCategory !== params.category.mainCategory) {
+                  return false;
+                }
+                
+                // If subcategory filter is provided, check if the listing matches
+                if (params.category.subCategory && 
+                    listing.category?.subCategory !== params.category.subCategory) {
+                  return false;
+                }
+              }
+              
               // Search in title, description, and vehicle make/model if available
               const searchIn = [
                 listing.title?.toLowerCase(),
@@ -1170,6 +1218,10 @@ export const listingsAPI = {
                 listing.details?.vehicles?.model?.toLowerCase()
               ].filter(Boolean); // Remove undefined values
               
+              // If query is empty (just filtering by category), return true
+              if (!normalizedQuery) return true;
+              
+              // Otherwise check if any of the searchable fields include the query
               return searchIn.some(text => text && text.includes(normalizedQuery));
             });
             

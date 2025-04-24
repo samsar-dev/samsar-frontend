@@ -332,36 +332,39 @@ const Home: React.FC = () => {
   console.log('Namespaces:', i18n.options.ns);
 
   // Define sort options with translation
-  const sortOptions = [
-    { 
-      value: "newestFirst", 
-      label: t("home.sortOptions.newestFirst") 
-    },
-    { 
-      value: "priceAsc", 
-      label: t("home.sortOptions.priceAsc") 
-    },
-    { 
-      value: "priceDesc", 
-      label: t("home.sortOptions.priceDesc") 
-    },
-    { 
-      value: "locationAsc", 
-      label: t("home.sortOptions.location_a_z") 
-    },
-    { 
-      value: "locationDesc", 
-      label: t("home.sortOptions.location_z_a") 
-    },
-  ];
+  // Log the translations loaded for sortOptions
+console.log('Loaded sortOptions translations:', t('sortOptions', { returnObjects: true }));
+
+const sortOptions = [
+  {
+    value: "newestFirst",
+    label: t("sortOptions.newestFirst") !== "sortOptions.newestFirst" ? t("sortOptions.newestFirst") : (() => { console.warn('Missing translation: sortOptions.newestFirst'); return "Newest First"; })()
+  },
+  {
+    value: "priceAsc",
+    label: t("sortOptions.priceAsc") !== "sortOptions.priceAsc" ? t("sortOptions.priceAsc") : (() => { console.warn('Missing translation: sortOptions.priceAsc'); return "Price: Low to High"; })()
+  },
+  {
+    value: "priceDesc",
+    label: t("sortOptions.priceDesc") !== "sortOptions.priceDesc" ? t("sortOptions.priceDesc") : (() => { console.warn('Missing translation: sortOptions.priceDesc'); return "Price: High to Low"; })()
+  },
+  {
+    value: "locationAsc",
+    label: t("sortOptions.locationAsc") !== "sortOptions.locationAsc" ? t("sortOptions.locationAsc") : (() => { console.warn('Missing translation: sortOptions.locationAsc'); return "Location: A to Z"; })()
+  },
+  {
+    value: "locationDesc",
+    label: t("sortOptions.locationDesc") !== "sortOptions.locationDesc" ? t("sortOptions.locationDesc") : (() => { console.warn('Missing translation: sortOptions.locationDesc'); return "Location: Z to A"; })()
+  },
+];
 
   // Debug logging
   console.log('Sort Options Translations:', {
-    newestFirst: t("home.sortOptions.newestFirst"),
-    priceAsc: t("home.sortOptions.priceAsc"),
-    priceDesc: t("home.sortOptions.priceDesc"),
-    locationAsc: t("home.sortOptions.location_a_z"),
-    locationDesc: t("home.sortOptions.location_z_a"),
+    newestFirst: t("sortOptions.newestFirst"),
+    priceAsc: t("sortOptions.priceAsc"),
+    priceDesc: t("sortOptions.priceDesc"),
+    locationAsc: t("sortOptions.locationAsc"),
+    locationDesc: t("sortOptions.locationDesc"),
   });
 
   const renderContent = useCallback(() => {

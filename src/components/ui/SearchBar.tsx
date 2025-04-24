@@ -4,11 +4,14 @@ import type { SearchBarProps } from "@/types/ui";
 import { listingsAPI } from "@/api/listings.api";
 import SearchSuggestionsDropdown from "./SearchSuggestionsDropdown";
 import { useNavigate } from "react-router-dom";
+import { ListingCategory } from "@/types/enums";
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   placeholder = "Search...",
   className = "",
+  category,
+  subcategory,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -42,14 +45,32 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(async () => {
       try {
-        const response = await listingsAPI.search(searchTerm, { limit: 4 });
+        // Create search params object with optional category and subcategory
+        const searchParams: any = { limit: 4 };
+        
+        // Add category if provided
+        if (category && category !== 'all') {
+          searchParams.category = {
+            mainCategory: category === 'vehicles' ? 
+              ListingCategory.VEHICLES : 
+              ListingCategory.REAL_ESTATE
+          };
+          
+          // Add subcategory if provided
+          if (subcategory) {
+            searchParams.category.subCategory = subcategory;
+          }
+        }
+        
+        const response = await listingsAPI.search(searchTerm, searchParams);
         if (response.success && response.data?.listings) {
           setSuggestions(response.data.listings.slice(0, 4));
         } else {
           setSuggestions([]);
         }
         setShowSuggestions(true);
-      } catch {
+      } catch (error) {
+        console.error('Search error:', error);
         setSuggestions([]);
         setShowSuggestions(false);
       }
@@ -73,7 +94,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     if (e.key === "Enter") {
       e.preventDefault();
       setShowSuggestions(false);
-      onSearch(searchTerm);
+      onSearch(searchTerm, category, subcategory);
     }
     if (e.key === "ArrowDown" && suggestions.length > 0) {
       // Optionally: focus first suggestion
@@ -83,7 +104,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    onSearch(searchTerm);
+    onSearch(searchTerm, category, subcategory);
   };
 
   const handleSuggestionClick = (id: string) => {
@@ -163,7 +184,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             />
             {/* Overlay clickable area to handle suggestion clicks */}
             <div className="absolute inset-0" style={{ pointerEvents: 'none' }} />
-            {suggestions.map((s, i) => (
+            {suggestions.map((s) => (
               <div
                 key={s.id}
                 style={{ display: 'none' }}

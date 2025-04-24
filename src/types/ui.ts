@@ -66,9 +66,11 @@ export interface CategorySelectorProps extends BaseProps {
 
 // Search related props
 export interface SearchBarProps extends BaseProps {
-  onSearch: (query: string) => void;
+  onSearch: (query: string, category?: string, subcategory?: string) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  category?: string;
+  subcategory?: string;
 }
 
 // Navigation props
@@ -178,10 +180,12 @@ export interface ErrorInfo {
 }
 
 export interface SearchBarProps {
-  onSearch: (query: string) => void;
+  onSearch: (query: string, category?: string, subcategory?: string) => void;
   placeholder?: string;
   debounceMs?: number;
   className?: string;
+  category?: string;
+  subcategory?: string;
 }
 
 export interface TooltipProps {

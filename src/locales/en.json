@@ -17,7 +17,13 @@
     "formSteps": {
       "basicDetails": "Basic Details",
       "advancedDetails": "Advanced Details",
-      "review": "Review"
+      "forRent": "For Rent",
+      "notifications": {
+        "toggle": "Toggle Notifications"
+      },
+      "careers": "Careers",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
     },
     "next": "Next",
     "previous": "Previous",
@@ -37,6 +43,7 @@
       "locationAsc": "Location: A to Z",
       "locationDesc": "Location: Z to A"
     },
+
     "beds": "Beds",
     "baths": "Baths",
     "notifications": {
@@ -46,7 +53,12 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "appName": "Vehicle and Real Estate Market",
-    "forRent": "For Rent"
+    "forRent": "For Rent",
+    "profile": {
+      "password_too_short": "Password must be at least 8 characters long",
+      "password_needs_uppercase": "Password must contain at least one uppercase letter",
+      "password_needs_lowercase": "Password must contain at least one lowercase letter"
+    }
   },
   "auth": {
     "login": "Login",
@@ -434,14 +446,7 @@
     "discover_vehicle": "Discover your dream car from our wide collection",
     "discover_property": "Find your perfect property that suits your lifestyle",
     "trending_now": "Trending Now",
-    "view_all": "View All",
-    "sortOptions": {
-      "newestFirst": "Newest First",
-      "priceAsc": "Price: Low to High",
-      "priceDesc": "Price: High to Low",
-      "location_a_z": "Location: A to Z",
-      "location_z_a": "Location: Z to A"
-    }
+    "view_all": "View All"
   },
   "errors": {
     "Removed from saved listings": "Removed from saved listings",
@@ -503,7 +508,10 @@
     "load_error": "Failed to load profile",
     "password_mismatch": "Passwords do not match",
     "password_updated": "Password updated successfully",
-    "confirm_delete": "Are you sure you want to delete this listing?"
+    "confirm_delete": "Are you sure you want to delete this listing?",
+    "password_too_short": "Password must be at least 8 characters long",
+    "password_needs_uppercase": "Password must contain at least one uppercase letter",
+    "password_needs_lowercase": "Password must contain at least one lowercase letter"
   },
   "cities": {
     "DAMASCUS": "Damascus",
@@ -864,4 +872,3 @@
   "terms": "Terms of Service"
 }
 }
-

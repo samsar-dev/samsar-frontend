@@ -180,8 +180,10 @@ const Navbar: React.FC = () => {
 
                 <div className="flex-1">
                   <SearchBar
-                    onSearch={query => handleSearch(query, selectedCategory, selectedSubcategory)}
+                    onSearch={handleSearch}
                     placeholder={t("common.search")}
+                    category={selectedCategory}
+                    subcategory={selectedSubcategory}
                   />
                 </div>
               </div>

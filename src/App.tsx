@@ -12,6 +12,8 @@ import AppRoutes from "./routes/Routes";
 import { Spinner } from "@/components/ui/Spinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -49,6 +51,7 @@ const App: () => ReactElement = () => {
                   <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
                     <Layout>
                       <AppRoutes />
+                      <ToastContainer />
                     </Layout>
                   </div>
                 </SavedListingsProvider>
