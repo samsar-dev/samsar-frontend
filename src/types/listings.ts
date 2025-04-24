@@ -49,7 +49,7 @@ export interface BaseVehicleDetails {
   year: string;
   mileage: string | number;
   fuelType: FuelType | string;
-  transmissionType: TransmissionType | string;
+  transmissionType?: TransmissionType | string;
   transmission?: string;
   gearbox?: string;
   color: string;
@@ -124,7 +124,7 @@ export interface BaseVehicleDetails {
   parkingAidSensorsFront?: boolean;
   
   // Climate Features
-  climateControl?: boolean;
+  climateControl?: boolean | string[];
   heatedSeats?: boolean;
   ventilatedSeats?: boolean;
   dualZoneClimate?: boolean;
@@ -219,18 +219,29 @@ export interface BaseVehicleDetails {
   
   // Additional fields
   importStatus?: string;
-  serviceHistory?: boolean;
+  serviceHistory?: boolean | string;
   serviceHistoryDetails?: string;
   additionalNotes?: string;
 }
 
 export interface CarDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.CAR;
+  bodyStyle?: string;
+  driveType?: string;
+  engineType?: string;
+  transmissionType?: string;
+  safetyFeatures?: string[];
+  comfortFeatures?: string[];
+  entertainmentSystem?: string[];
+  exteriorFeatures?: string[];
+  performanceFeatures?: string[];
+  serviceHistory?: string;
+  warranty?: string;
+  modifications?: string[];
   seatingCapacity?: number;
   trunkCapacity?: number;
   fuelEfficiency?: string;
   emissionClass?: string;
-  driveType?: string;
   acceleration?: string;
   maxSpeed?: number;
   wheelSize?: string;
@@ -243,30 +254,104 @@ export interface CarDetails extends BaseVehicleDetails {
   engine?: string;
   brakeType?: string;
   fuelTankCapacity?: string;
+  interiorFeatures?: string[];
+  roofType?: string;
+  suspensionType?: string;
+  steeringType?: string;
+  parkingAssist?: string[];
+  climateControl?: string[];
 }
 
 export interface MotorcycleDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.MOTORCYCLE;
+  motorcycleType?: string;
+  engineType?: string;
+  transmissionType?: string;
+  engineConfiguration?: string;
+  safetyFeatures?: string[];
+  comfortFeatures?: string[];
+  performanceFeatures?: string[];
+  serviceHistory?: string;
+  modifications?: string[];
+  accessories?: string[];
+  ridingStyle?: string;
   numberOfOwners?: number;
   engine?: string;
+  engineSize?: string;
+  enginePowerOutput?: string;
+  brakeSystem?: string[];
+  suspensionType?: string;
+  frameType?: string;
+  wheelSize?: string;
+  tireType?: string;
+  startingSystem?: string;
+  coolingSystem?: string;
+  instrumentCluster?: string[];
+  lightingSystem?: string[];
 }
 
 export interface TruckDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.TRUCK;
+  truckType?: string;
+  cargoFeatures?: string[];
+  safetyFeatures?: string[];
+  comfortFeatures?: string[];
+  performanceFeatures?: string[];
+  maintenanceHistory?: string;
+  certifications?: string[];
+  specialFeatures?: string[];
+  bodyFeatures?: string[];
   cargoCapacity?: number;
   numberOfOwners?: number;
   engine?: string;
+  engineType?: string;
+  engineSize?: string;
+  enginePowerOutput?: string;
+  transmissionType?: string;
+  driveType?: string;
+  axleConfiguration?: string;
+  brakeSystem?: string[];
+  suspensionType?: string;
+  cabType?: string;
+  bedLength?: string;
+  payload?: number;
+  towingCapacity?: number;
+  gvwr?: number;
+  wheelbase?: string;
 }
 
 export interface VanDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.VAN;
+  vanType?: string;
+  cargoFeatures?: string[];
+  safetyFeatures?: string[];
+  comfortFeatures?: string[];
+  passengerFeatures?: string[];
+  maintenanceHistory?: string;
+  certifications?: string[];
+  bodyFeatures?: string[];
+  conversionFeatures?: string[];
   cargoVolume?: number;
   numberOfOwners?: number;
   engine?: string;
+  engineType?: string;
+  engineSize?: string;
+  enginePowerOutput?: string;
+  transmissionType?: string;
+  driveType?: string;
+  roofHeight?: string;
+  interiorHeight?: string;
+  interiorLength?: string;
+  payload?: number;
+  seatingCapacity?: number;
+  wheelbase?: string;
+  drivingAssistance?: string[];
+  climateControl?: string[];
 }
 
 export interface BusDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.BUS;
+  busType?: string;
   seatingCapacity?: number;
   luggageSpace?: number;
   comfortFeatures?: string[];
@@ -295,6 +380,15 @@ export interface BusDetails extends BaseVehicleDetails {
   fuelTankCapacity?: string;
   numberOfOwners?: number;
   engine?: string;
+  engineType?: string;
+  engineConfiguration?: string;
+  engineSize?: string;
+  enginePowerOutput?: string;
+  emissionClass?: string;
+  fuelEfficiency?: string;
+  serviceHistory?: string;
+  modifications?: string[];
+  customFeatures?: string[];
 }
 
 export interface TractorDetails extends BaseVehicleDetails {
@@ -305,7 +399,7 @@ export interface TractorDetails extends BaseVehicleDetails {
   hydraulicSystem?: string;
   ptoType?: string;
   numberOfOwners?: number;
-  serviceHistory?: boolean;
+  serviceHistory?: boolean | string;
   emissions?: string;
   hydraulicFlow?: number;
   hydraulicOutlets?: string[];

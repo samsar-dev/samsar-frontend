@@ -1,9 +1,70 @@
-import { ListingFieldSchema, SelectOption } from "@/types/listings";
+import { ListingFieldSchema } from "../../../../../types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 // Car Listing Schema
 export const carSchema: ListingFieldSchema[] = [
   // ================= ESSENTIAL DETAILS =================
+  {
+    name: "condition",
+    label: "listings.condition",
+    type: "select",
+    options: Object.values(Condition).map((value) => ({
+      value,
+      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+    })),
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "bodyStyle",
+    label: "listings.bodyStyle",
+    type: "select",
+    options: [
+      "sedan",
+      "suv",
+      "coupe",
+      "convertible",
+      "wagon",
+      "hatchback",
+      "pickup",
+      "van",
+      "minivan",
+      "crossover",
+      "sportsCar",
+      "luxury"
+    ],
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "driveType",
+    label: "listings.driveType",
+    type: "select",
+    options: [
+      "fwd",
+      "rwd",
+      "awd",
+      "fourwd"
+    ],
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "engineType",
+    label: "listings.engineType",
+    type: "select",
+    options: Object.values(FuelType),
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "transmissionType",
+    label: "listings.transmissionType",
+    type: "select",
+    options: Object.values(TransmissionType),
+    section: "essential",
+    required: true,
+  },
   {
     name: "color",
     label: "listings.fields.exteriorColor",

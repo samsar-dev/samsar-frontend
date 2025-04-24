@@ -64,7 +64,9 @@
     "login": "Login",
     "register": "Register",
     "logging_out": "Logging out...",
-    "loginToMessage": "You need to be logged in to send messages"
+    "successfullyLoggedIn": "Successfully logged in!",
+    "loginToMessage": "You need to be logged in to send messages",
+    "enterBothEmailAndPassword": "Please enter both email and password"
   },
   "navigation": {
     "home": "Home",

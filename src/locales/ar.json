@@ -198,6 +198,7 @@
       }
     }
   },
+  
   "settings": {
     "title": "الإعدادات",
     "preferences": "التفضيلات",
@@ -252,7 +253,10 @@
     "login": "تسجيل الدخول",
     "register": "التسجيل",
     "logging_out": "جاري تسجيل الخروج...",
-    "loginToMessage": "يجب عليك تسجيل الدخول لإرسال الرسائل"
+    "loginToMessage": "يجب عليك تسجيل الدخول لإرسال الرسائل",
+    "successfullyLoggedIn": "تم تسجيل الدخول بنجاح!",
+    "enterBothEmailAndPassword": "الرجاء إدخال البريد الإلكتروني وكلمة المرور"
+    
   },
   "navigation": {
     "home": "الرئيسية",

@@ -8,7 +8,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Make is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Make is required" : null),
   },
   {
     name: "model",
@@ -16,7 +16,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Model is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Model is required" : null),
   },
   {
     name: "year",
@@ -24,10 +24,12 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Year is required";
-      if (value < 1885) return "Year must be 1885 or later";
-      if (value > new Date().getFullYear() + 1) return "Year cannot be in the future";
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Year is required";
+      if (typeof value === 'number') {
+        if (value < 1885) return "Year must be 1885 or later";
+        if (value > new Date().getFullYear()) return "Year cannot be in the future";
+      }
       return null;
     },
   },
@@ -37,7 +39,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Exterior color is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Exterior color is required" : null),
   },
   {
     name: "condition",
@@ -46,7 +48,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Condition is required" : null),
   },
   {
     name: "mileage",
@@ -54,9 +56,9 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Mileage is required";
-      if (value < 0) return "Mileage must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Mileage is required";
+      if (typeof value === 'number' && value < 0) return "Mileage must be 0 or greater";
       return null;
     },
   },
@@ -67,7 +69,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["50cc", "125cc", "250cc", "300cc", "400cc", "500cc", "600cc", "650cc", "750cc", "800cc", "900cc", "1000cc", "1200cc", "1400cc", "1500cc+"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Engine size is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Engine size is required" : null),
   },
   {
     name: "engineType",
@@ -76,7 +78,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["singleCylinder", "parallel-twin", "v-twin", "inline-3", "inline-4", "v4", "boxer", "rotary", "electric"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Engine type is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Engine type is required" : null),
   },
   {
     name: "previousOwners",
@@ -84,10 +86,9 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Previous owners is required";
-      if (value < 0) return "Previous owners must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Previous owners is required";
+      if (typeof value === 'number' && value < 0) return "Previous owners must be 0 or greater";
       return null;
     },
   },
@@ -98,8 +99,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired", "sorn"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Registration status is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Registration status is required" : null),
   },
   {
     name: "brakeSystem",
@@ -108,7 +108,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["frontDisc", "rearDisc", "frontDrum", "rearDrum", "abs", "combinedBraking", "linkedBraking"],
     section: "essential",
     required: true,
-    validate: (value: string[]) => (!value || value.length === 0 ? "Brake system is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Brake system is required" : null),
   },
   {
     name: "fuelType",
@@ -117,7 +117,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["", "gasoline", "electric", "hybrid", "diesel"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Fuel type is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Fuel type is required" : null),
   },
   {
     name: "transmissionType",
@@ -126,8 +126,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["", "manual", "automatic", "semiAutomatic", "dct", "cvt"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Transmission type is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
   },
 
   // Advanced Section

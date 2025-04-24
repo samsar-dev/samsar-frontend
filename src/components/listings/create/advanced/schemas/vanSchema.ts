@@ -1,49 +1,57 @@
 import { ListingFieldSchema } from "@/types/listings";
+import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 export const vanSchema: ListingFieldSchema[] = [
   // Essential Section
 
   {
-    name: "color",
-    label: "exteriorColor",
-    type: "colorpicker",
+    name: "condition",
+    label: "listings.condition",
+    type: "select",
+    options: Object.values(Condition),
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Exterior color is required" : null),
-  },
-  {
-    name: "interiorColor",
-    label: "interiorColor",
-    type: "colorpicker",
-    section: "essential",
-    required: true,
-    validate: (value: string) => (!value ? "Interior color is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Condition is required" : null),
   },
   {
     name: "vanType",
-    label: "vanType",
+    label: "listings.vanType",
     type: "select",
     options: [
-      "Cargo",
-      "Passenger",
-      "Crew",
-      "Panel",
-      "Box",
-      "Refrigerated",
-      "Other",
+      "cargo",
+      "passenger",
+      "minivan",
+      "camper",
+      "shuttle",
+      "cutaway",
+      "panel",
+      "refrigerated",
+      "stepVan",
+      "highRoof",
+      "wheelchair",
+      "conversion",
     ],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Van type is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Van type is required" : null),
   },
   {
-    name: "condition",
-    label: "condition",
+    name: "engineType",
+    label: "listings.engineType",
     type: "select",
-    options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
+    options: Object.values(FuelType),
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Engine type is required" : null),
+  },
+  {
+    name: "transmissionType",
+    label: "listings.transmissionType",
+    type: "select",
+    options: Object.values(TransmissionType),
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
   },
   {
     name: "mileage",
@@ -51,9 +59,9 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Mileage is required";
-      if (value < 0) return "Mileage must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Mileage is required";
+      if (typeof value === 'number' && value < 0) return "Mileage must be 0 or greater";
       return null;
     },
   },
@@ -63,10 +71,9 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Cargo volume is required";
-      if (value < 0) return "Cargo volume must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Cargo volume is required";
+      if (typeof value === 'number' && value < 0) return "Cargo volume must be 0 or greater";
       return null;
     },
   },
@@ -76,10 +83,9 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Payload capacity is required";
-      if (value < 0) return "Payload capacity must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Payload capacity is required";
+      if (typeof value === 'number' && value < 0) return "Payload capacity must be 0 or greater";
       return null;
     },
   },
@@ -90,7 +96,7 @@ export const vanSchema: ListingFieldSchema[] = [
     options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Fuel type is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Fuel type is required" : null),
   },
   {
     name: "transmissionType",
@@ -99,8 +105,7 @@ export const vanSchema: ListingFieldSchema[] = [
     options: ["", "manual", "automatic", "automated"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Transmission type is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
   },
   {
     name: "previousOwners",
@@ -108,8 +113,10 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "advanced",
     required: false,
-    validate: (value: number) =>
-      value && value < 0 ? "Previous owners must be 0 or greater" : null,
+    validate: (value: string | number | boolean) => {
+      if (typeof value === 'number' && value < 0) return "Previous owners must be 0 or greater";
+      return null;
+    },
   },
   {
     name: "registrationStatus",
@@ -143,8 +150,10 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "advanced",
     required: false,
-    validate: (value: number) =>
-      value && value < 0 ? "Horsepower must be 0 or greater" : null,
+    validate: (value: string | number | boolean) => {
+      if (typeof value === 'number' && value < 0) return "Horsepower must be 0 or greater";
+      return null;
+    },
   },
   {
     name: "torque",
@@ -152,8 +161,10 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "advanced",
     required: false,
-    validate: (value: number) =>
-      value && value < 0 ? "Torque must be 0 or greater" : null,
+    validate: (value: string | number | boolean) => {
+      if (typeof value === 'number' && value < 0) return "Torque must be 0 or greater";
+      return null;
+    },
   },
   {
     name: "roofHeight",
@@ -192,10 +203,11 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) =>
-      value && !/^-?\d+(\.\d+)?$/.test(value)
-        ? "Invalid temperature format"
-        : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === 'string' && !/^-?\d+(\.\d+)?°[CF]$/.test(value)) return "Invalid temperature format";
+      return null;
+    },
   },
   {
     name: "interiorHeight",
@@ -203,8 +215,11 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) =>
-      value && !/^\d+(\.\d+)?$/.test(value) ? "Invalid height format" : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === 'string' && !/^\d+(\.\d+)?\s*(m|ft)$/.test(value)) return "Invalid height format";
+      return null;
+    },
   },
   {
     name: "interiorLength",
@@ -212,8 +227,11 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) =>
-      value && !/^\d+(\.\d+)?$/.test(value) ? "Invalid length format" : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === 'string' && !/^\d+(\.\d+)?\s*(m|ft)$/.test(value)) return "Invalid length format";
+      return null;
+    },
   },
   {
     name: "drivingAssistance",
@@ -247,10 +265,10 @@ export const vanSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    validate: (value: string[]) =>
-      !value || value.length === 0
-        ? "At least one feature is recommended"
-        : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return "At least one feature is recommended";
+      return null;
+    },
   },
   {
     name: "emissions",

@@ -8,7 +8,7 @@ export const busSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Exterior color is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Exterior color is required" : null),
   },
   {
     name: "interiorColor",
@@ -16,16 +16,46 @@ export const busSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Interior color is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Interior color is required" : null),
   },
   {
     name: "condition",
-    label: "condition",
+    label: "listings.condition",
     type: "select",
-    options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
+    options: [
+      "new",
+      "excellent",
+      "good",
+      "fair",
+      "needsWork",
+      "certified",
+      "factoryRefurbished",
+      "commercialGrade",
+      "partiallyRestored",
+      "vintage"
+    ],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Condition is required" : null),
+  },
+  {
+    name: "busType",
+    label: "listings.busType",
+    type: "select",
+    options: [
+      "schoolBus",
+      "transitBus",
+      "tourBus",
+      "shuttle",
+      "miniBus",
+      "coachBus",
+      "doubleDeckerBus",
+      "articulatedBus",
+      "partyBus",
+      "electricBus",
+      "hybridBus"
+    ],
+    section: "essential",
+    required: true,
   },
   {
     name: "mileage",
@@ -33,22 +63,21 @@ export const busSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Mileage is required";
-      if (value < 0) return "Mileage must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Mileage is required";
+      if (typeof value === 'number' && value < 0) return "Mileage must be 0 or greater";
       return null;
     },
   },
   {
     name: "seatingCapacity",
-    label: "seatingCapacity",
+    label: "listings.seatingCapacity",
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Seating capacity is required";
-      if (value < 1) return "Seating capacity must be greater than 0";
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Seating capacity is required";
+      if (typeof value === 'number' && value <= 0) return "Seating capacity must be greater than 0";
       return null;
     },
   },
@@ -58,10 +87,9 @@ export const busSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Previous owners is required";
-      if (value < 0) return "Previous owners must be 0 or greater";
+    validate: (value: string | number | boolean) => {
+      if (!value && value !== 0) return "Previous owners is required";
+      if (typeof value === 'number' && value < 0) return "Previous owners must be 0 or greater";
       return null;
     },
   },
@@ -72,8 +100,7 @@ export const busSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Registration status is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Registration status is required" : null),
   },
   {
     name: "engine",
@@ -81,8 +108,7 @@ export const busSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Engine details are required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Engine details are required" : null),
   },
   {
     name: "fuelType",
@@ -91,7 +117,7 @@ export const busSchema: ListingFieldSchema[] = [
     options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Fuel type is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Fuel type is required" : null),
   },
   {
     name: "transmissionType",
@@ -100,8 +126,7 @@ export const busSchema: ListingFieldSchema[] = [
     options: ["", "manual", "automatic", "semi_automatic"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Transmission type is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
   },
   {
     name: "serviceHistory",
@@ -110,8 +135,7 @@ export const busSchema: ListingFieldSchema[] = [
     options: ["full", "partial", "none"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Service history is required" : null,
+    validate: (value: string | number | boolean) => (!value ? "Service history is required" : null),
   },
 
   // Advanced Section

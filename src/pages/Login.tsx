@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ const Login = () => {
   const [cooldown, setCooldown] = useState<number | null>(null);
   const { login, error: authError, clearError, retryAfter } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (retryAfter) {
@@ -32,7 +34,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("Please enter both email and password");
+      toast.error(t("auth.enterBothEmailAndPassword"));
       return;
     }
 
@@ -43,7 +45,7 @@ const Login = () => {
       const success = await login(email, password);
       if (success) {
         navigate("/");
-        toast.success("Successfully logged in!");
+        toast.success(t("auth.successfullyLoggedIn"));
       }
       // If not successful, error will be shown by the AuthContext error state
     } catch (error: any) {
