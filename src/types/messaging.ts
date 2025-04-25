@@ -21,11 +21,14 @@ export interface Message {
 }
 
 export interface Conversation {
-  _id: string;
+  _id?: string;
+  id?: string;  // Backend might return id instead of _id
   participants: User[];
   lastMessage?: Message;
   createdAt: string;
   updatedAt: string;
+  listingId?: string;  // The listing associated with this conversation
+  lastMessageAt?: string; // When the last message was sent
 }
 
 // Request Types
@@ -64,12 +67,9 @@ export interface MessagesResponse extends Omit<APIResponse<Message[]>, "data"> {
   data: Message[] | null;
 }
 
-export interface ConversationResponse {
-  _id: string;
-  participants: User[];
-  lastMessage?: Message;
-  createdAt: string;
-  updatedAt: string;
+export interface ConversationResponse extends Conversation {
+  // ConversationResponse extends the base Conversation interface
+  // with any additional fields that might be returned by the API
 }
 
 export interface ConversationsResponse

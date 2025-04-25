@@ -41,16 +41,32 @@ const Messages: React.FC = () => {
         const response = await MessagesAPI.getConversations();
         if (response.success && response.data) {
           let conversations = response.data.items || [];
-          // Normalize _id
-          conversations = conversations.map(conv => ({
-            ...conv,
-            _id: conv._id || conv._id
-          }));
+          // Normalize conversation data and ensure _id is always present
+          conversations = conversations.map(conv => {
+            // Use the conversation's actual ID from the backend
+            const conversationId = conv._id || conv._id;
+            // Debug each conversation
+            console.log('Processing conversation:', { original: conv, id: conversationId });
+            
+            return {
+              ...conv,
+              _id: conversationId // Use the actual ID
+            };
+          });
+          
+          console.log('Normalized conversations:', conversations);
           setConversations(conversations);
-          console.log('Fetched conversations:', conversations);
+          
           if (conversations.length > 0) {
-            setActiveConversation(conversations[0]);
-            await loadMessages(conversations[0]._id);
+            const firstConversation = conversations[0];
+            console.log('Setting active conversation:', firstConversation);
+            setActiveConversation(firstConversation);
+            
+            if (firstConversation._id) {
+              await loadMessages(firstConversation._id);
+            } else {
+              console.error('First conversation has no _id:', firstConversation);
+            }
           }
         }
       } catch (error) {
@@ -68,12 +84,24 @@ const Messages: React.FC = () => {
     fetchConversations();
   }, []);
 
-  const loadMessages = async (conversationId: string) => {
+  const loadMessages = async (conversationId: string | undefined) => {
+    if (!conversationId) {
+      console.error('Cannot load messages: conversationId is undefined');
+      return;
+    }
+    
     try {
+      console.log('Loading messages for conversation:', conversationId);
       const response = await MessagesAPI.getMessages(conversationId);
       if (response.success && response.data) {
         const messageList = response.data.items || [];
+        console.log('Loaded messages:', messageList.length, 'messages');
+        if (messageList.length > 0) {
+          console.log('First message:', messageList[0]);
+        }
         setCurrentMessages(messageList);
+      } else {
+        console.log('No messages found or API returned unsuccessful response');
       }
     } catch (error) {
       console.error("Error loading messages:", error);
@@ -159,7 +187,23 @@ const Messages: React.FC = () => {
     if (!content.trim() || !user || !recipientId) return;
 
     try {
-      // Always send message first
+      // Check if a conversation already exists for this listing
+      let existingConversation = null;
+      
+      if (listingId) {
+        // Find an existing conversation for this listing
+        existingConversation = conversations.find(conv => 
+          conv.listingId === listingId && 
+          conv.participants.some(p => p.id === recipientId)
+        );
+        
+        if (existingConversation) {
+          console.log('Found existing conversation for this listing:', existingConversation);
+          setActiveConversation(existingConversation);
+        }
+      }
+
+      // Always send message with the right data
       const messageInput: ListingMessageInput = {
         content: content.trim(),
         recipientId: recipientId,
@@ -171,7 +215,7 @@ const Messages: React.FC = () => {
         const newMessage = response.data;
         
         // If we don't have an active conversation yet, create one
-        if (!activeConversation) {
+        if (!activeConversation && !existingConversation) {
           // Create a new conversation
           const response = await MessagesAPI.createConversation({
             participantIds: [user.id, recipientId],
@@ -189,9 +233,12 @@ const Messages: React.FC = () => {
           setCurrentMessages((prev) => [...prev, newMessage]);
           
           // Update the conversation's last message
+          const convId = (activeConversation || existingConversation)?.id || 
+                        (activeConversation || existingConversation)?._id;
+          
           setConversations((prev) =>
             prev.map((conv) =>
-              conv._id === activeConversation._id
+              (conv.id === convId || conv._id === convId)
                 ? { ...conv, lastMessage: newMessage }
                 : conv
             )
@@ -205,10 +252,28 @@ const Messages: React.FC = () => {
   };
 
   const handleConversationSelect = async (conversation: Conversation) => {
+    console.log('Selecting conversation:', conversation);
+    
+    if (!conversation) {
+      console.error('Invalid conversation selected:', conversation);
+      toast.error('Could not load conversation');
+      return;
+    }
+    
+    // Use either id or _id, whichever is available
+    const conversationId = conversation.id || conversation._id;
+    
+    if (!conversationId) {
+      console.error('Conversation has no ID:', conversation);
+      toast.error('Could not load conversation');
+      return;
+    }
+    
     setActiveConversation(conversation);
     setCurrentMessages([]); // Clear messages while loading
-    console.log('Selecting conversation:', conversation._id);
-    await loadMessages(conversation._id);
+    
+    console.log('Loading messages for conversation ID:', conversationId);
+    await loadMessages(conversationId);
   };
 
   if (loading) {
@@ -233,13 +298,15 @@ const Messages: React.FC = () => {
       <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
         <div className="px-4 py-3 font-bold text-lg border-b border-gray-200">Messages</div>
         <div className="flex-1 overflow-y-auto">
-          {conversations.map((conversation) => {
+          {conversations.map((conversation, index) => {
+            // Ensure each conversation has a unique key
+            const conversationKey = conversation._id || `conversation-${index}`;
             const otherUser = conversation.participants.find(
               (p) => p.id !== user?.id,
             );
             return (
               <button
-                key={conversation._id}
+                key={conversationKey}
                 onClick={() => handleConversationSelect(conversation)}
                 className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition ${
                   activeConversation?._id === conversation._id
