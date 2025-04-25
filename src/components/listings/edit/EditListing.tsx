@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { Listing, Location, ListingUpdateInput, ListingFieldSchema } from "@/types/listings";
-import { ListingStatus, VehicleType, PropertyType, FuelType, TransmissionType, Condition } from "@/types/enums";
+import type {
+  Listing,
+  Location,
+  ListingUpdateInput,
+  ListingFieldSchema,
+} from "@/types/listings";
+import {
+  ListingStatus,
+  VehicleType,
+  PropertyType,
+  FuelType,
+  TransmissionType,
+  Condition,
+} from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { Button } from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -84,8 +96,12 @@ const EditListing: React.FC = () => {
     existingImages: [],
   });
 
-  const vehicleType = formData.details?.vehicles?.vehicleType as VehicleType | undefined;
-  const propertyType = formData.details?.realEstate?.propertyType as PropertyType | undefined;
+  const vehicleType = formData.details?.vehicles?.vehicleType as
+    | VehicleType
+    | undefined;
+  const propertyType = formData.details?.realEstate?.propertyType as
+    | PropertyType
+    | undefined;
 
   // Use type assertion to avoid the indexing issues
   const advancedSchema = ((): ListingFieldSchema[] => {
@@ -101,15 +117,18 @@ const EditListing: React.FC = () => {
   const advancedDetail = Array.from(
     new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
   )
-    .filter((sectionId: unknown): sectionId is SectionId => 
-      typeof sectionId === 'string' && sectionId in SECTION_CONFIG
+    .filter(
+      (sectionId: unknown): sectionId is SectionId =>
+        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
     )
     .map((sectionId: SectionId) => ({
       id: sectionId,
       title: SECTION_CONFIG[sectionId].label || "",
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
-      fields: advancedSchema.filter((field: ListingFieldSchema) => field.section === sectionId),
+      fields: advancedSchema.filter(
+        (field: ListingFieldSchema) => field.section === sectionId,
+      ),
     }))
     .sort((a, b) => a.order - b.order);
 
@@ -137,7 +156,7 @@ const EditListing: React.FC = () => {
 
             // Convert image URLs to strings for existing images
             const existingImages = (response.data.images || []).map(
-              (img: any) => typeof img === "string" ? img : img.url,
+              (img: any) => (typeof img === "string" ? img : img.url),
             );
 
             setFormData({
@@ -179,53 +198,61 @@ const EditListing: React.FC = () => {
 
     try {
       setSaving(true);
-      
+
       // Create FormData object
       const formDataObj = new FormData();
 
       // Add basic fields
-      formDataObj.append('title', formData.title);
-      formDataObj.append('description', formData.description);
-      formDataObj.append('price', String(formData.price));
-      formDataObj.append('category', String(listing.category));
-      formDataObj.append('location', formData.location.city);
-      formDataObj.append('status', String(listing.status));
+      formDataObj.append("title", formData.title);
+      formDataObj.append("description", formData.description);
+      formDataObj.append("price", String(formData.price));
+      formDataObj.append("category", String(listing.category));
+      formDataObj.append("location", formData.location.city);
+      formDataObj.append("status", String(listing.status));
 
       // Add existing images as JSON string
-      formDataObj.append('existingImages', JSON.stringify(formData.existingImages));
+      formDataObj.append(
+        "existingImages",
+        JSON.stringify(formData.existingImages),
+      );
 
       // Add new images
-      const newImages = formData.images.filter((img): img is File => img instanceof File);
+      const newImages = formData.images.filter(
+        (img): img is File => img instanceof File,
+      );
       newImages.forEach((image) => {
-        formDataObj.append('images', image);
+        formDataObj.append("images", image);
       });
 
       // Process details
       const details = {
-        vehicles: isVehicle ? {
-          ...formData.details.vehicles,
-          warranty: null, // Force warranty to be null
-          transmissionType: formData.details.vehicles?.transmissionType || null,
-          fuelType: formData.details.vehicles?.fuelType || null,
-          condition: formData.details.vehicles?.condition || null,
-          mileage: Number(formData.details.vehicles?.mileage) || 0,
-          exteriorColor: formData.details.vehicles?.exteriorColor || null,
-          interiorColor: formData.details.vehicles?.interiorColor || null
-        } : undefined,
-        realEstate: !isVehicle ? formData.details.realEstate : undefined
+        vehicles: isVehicle
+          ? {
+              ...formData.details.vehicles,
+              warranty: null, // Force warranty to be null
+              transmissionType:
+                formData.details.vehicles?.transmissionType || null,
+              fuelType: formData.details.vehicles?.fuelType || null,
+              condition: formData.details.vehicles?.condition || null,
+              mileage: Number(formData.details.vehicles?.mileage) || 0,
+              exteriorColor: formData.details.vehicles?.exteriorColor || null,
+              interiorColor: formData.details.vehicles?.interiorColor || null,
+            }
+          : undefined,
+        realEstate: !isVehicle ? formData.details.realEstate : undefined,
       };
 
       // Append details as JSON
-      formDataObj.append('details', JSON.stringify(details));
+      formDataObj.append("details", JSON.stringify(details));
 
-      console.log('Submitting form data:', {
+      console.log("Submitting form data:", {
         title: formData.title,
         description: formData.description,
         price: formData.price,
         location: formData.location.city,
         details: details,
         existingImages: formData.existingImages,
-        newImages: newImages.length
+        newImages: newImages.length,
       });
 
       const response = await listingsAPI.updateListing(id, formDataObj);
@@ -296,7 +323,12 @@ const EditListing: React.FC = () => {
         } else {
           processedValue = String(value || "");
         }
-        console.log("Setting warranty value:", processedValue, "type:", typeof processedValue);
+        console.log(
+          "Setting warranty value:",
+          processedValue,
+          "type:",
+          typeof processedValue,
+        );
       }
 
       return {
@@ -364,9 +396,9 @@ const EditListing: React.FC = () => {
 
   // Helper function to format enum options
   const getEnumOptions = (enumObj: Record<string, string>) => {
-    return Object.values(enumObj).map(value => ({
+    return Object.values(enumObj).map((value) => ({
       value,
-      label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+      label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
     }));
   };
 
@@ -408,7 +440,9 @@ const EditListing: React.FC = () => {
               {t("listings.images")}
             </h2>
             <ImageManager
-              images={formData.images.filter((img): img is File => img instanceof File)}
+              images={formData.images.filter(
+                (img): img is File => img instanceof File,
+              )}
               onChange={handleImageChange}
               maxImages={10}
               existingImages={formData.existingImages}
@@ -416,7 +450,9 @@ const EditListing: React.FC = () => {
                 setFormData((prev) => ({
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
-                  existingImages: prev.existingImages.filter((img) => img !== url),
+                  existingImages: prev.existingImages.filter(
+                    (img) => img !== url,
+                  ),
                 }));
               }}
             />
@@ -504,7 +540,9 @@ const EditListing: React.FC = () => {
                   type="select"
                   value={formData.details?.vehicles?.transmissionType || ""}
                   options={getEnumOptions(TransmissionType)}
-                  onChange={(value) => handleInputChange("transmissionType", value)}
+                  onChange={(value) =>
+                    handleInputChange("transmissionType", value)
+                  }
                   required
                 />
 
@@ -532,45 +570,52 @@ const EditListing: React.FC = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {advancedDetailFiels && advancedDetailFiels.map((field: any, idx: number) => {
-                  // Skip fields we're now handling separately
-                  if (["transmissionType", "fuelType", "condition"].includes(field.name)) {
-                    return null;
-                  }
-                  
-                  const currentValue = isVehicle
-                    ? formData.details?.vehicles?.[field.name]
-                    : formData.details?.realEstate?.[field.name];
+                {advancedDetailFiels &&
+                  advancedDetailFiels.map((field: any, idx: number) => {
+                    // Skip fields we're now handling separately
+                    if (
+                      ["transmissionType", "fuelType", "condition"].includes(
+                        field.name,
+                      )
+                    ) {
+                      return null;
+                    }
 
-                  if (field.type === "colorpicker") {
+                    const currentValue = isVehicle
+                      ? formData.details?.vehicles?.[field.name]
+                      : formData.details?.realEstate?.[field.name];
+
+                    if (field.type === "colorpicker") {
+                      return (
+                        <ColorPickerField
+                          key={field.name || idx}
+                          label={field.label}
+                          value={(currentValue as string) || "#000000"}
+                          onChange={(value) =>
+                            handleInputChange(field.name, value)
+                          }
+                          required={field.required}
+                        />
+                      );
+                    }
                     return (
-                      <ColorPickerField
+                      <FormField
                         key={field.name || idx}
                         label={field.label}
-                        value={(currentValue as string) || "#000000"}
+                        name={field.name}
+                        type={field.type as FormFieldProps["type"]}
+                        value={currentValue || ""}
+                        options={field.options?.map((key: string) => ({
+                          value: key,
+                          label: key,
+                        }))}
                         onChange={(value) =>
                           handleInputChange(field.name, value)
                         }
                         required={field.required}
                       />
                     );
-                  }
-                  return (
-                    <FormField
-                      key={field.name || idx}
-                      label={field.label}
-                      name={field.name}
-                      type={field.type as FormFieldProps["type"]}
-                      value={currentValue || ""}
-                      options={field.options?.map((key: string) => ({
-                        value: key,
-                        label: key,
-                      }))}
-                      onChange={(value) => handleInputChange(field.name, value)}
-                      required={field.required}
-                    />
-                  );
-                })}
+                  })}
               </div>
             </div>
           </div>

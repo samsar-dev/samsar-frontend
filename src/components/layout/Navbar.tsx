@@ -28,8 +28,11 @@ const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   // Detect direction (ltr/rtl)
-  const dir = i18n.dir && typeof i18n.dir === 'function' ? i18n.dir() : document?.documentElement?.dir || 'ltr';
-  const isRTL = dir === 'rtl';
+  const dir =
+    i18n.dir && typeof i18n.dir === "function"
+      ? i18n.dir()
+      : document?.documentElement?.dir || "ltr";
+  const isRTL = dir === "rtl";
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -61,7 +64,11 @@ const Navbar: React.FC = () => {
     setShowListingsMenu(false);
   }, [location.pathname]);
 
-  const handleSearch = (query: string, category?: string, subcategory?: string) => {
+  const handleSearch = (
+    query: string,
+    category?: string,
+    subcategory?: string,
+  ) => {
     if (!query.trim()) return; // Only search if query is not empty
     let searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
     if (category && category !== "all") {
@@ -137,14 +144,16 @@ const Navbar: React.FC = () => {
                 <select
                   className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   value={selectedCategory}
-                  onChange={e => {
+                  onChange={(e) => {
                     setSelectedCategory(e.target.value);
                     setSelectedSubcategory("");
                   }}
                 >
-                  <option value="all">{t("common.all")}</option>
+                  <option value="all">{t("listings.all")}</option>
                   <option value="vehicles">{t("navigation.vehicles")}</option>
-                  <option value="realEstate">{t("navigation.real_estate")}</option>
+                  <option value="realEstate">
+                    {t("navigation.real_estate")}
+                  </option>
                 </select>
 
                 {/* Subcategory Dropdown (conditional) */}
@@ -152,33 +161,61 @@ const Navbar: React.FC = () => {
                   <select
                     className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     value={selectedSubcategory}
-                    onChange={e => setSelectedSubcategory(e.target.value)}
+                    onChange={(e) => setSelectedSubcategory(e.target.value)}
                   >
-                    <option value="">{t("common.all_types")}</option>
-                    <option value="CAR">{t("common.vehicleTypes.CAR")}</option>
-                    <option value="TRUCK">{t("common.vehicleTypes.TRUCK")}</option>
-                    <option value="MOTORCYCLE">{t("common.vehicleTypes.MOTORCYCLE")}</option>
-                    <option value="RV">{t("common.vehicleTypes.RV")}</option>
-                    <option value="BUS">{t("common.vehicleTypes.BUS")}</option>
-                    <option value="VAN">{t("common.vehicleTypes.VAN")}</option>
-                    <option value="TRACTOR">{t("common.vehicleTypes.TRACTOR")}</option>
-                    <option value="CONSTRUCTION">{t("common.vehicleTypes.CONSTRUCTION")}</option>
-                    <option value="OTHER">{t("common.vehicleTypes.OTHER")}</option>
+                    <option value="">{t("listings.all_types")}</option>
+                    <option value="CAR">
+                      {t("listings.vehicleTypes.CAR")}
+                    </option>
+                    <option value="TRUCK">
+                      {t("listings.vehicleTypes.TRUCK")}
+                    </option>
+                    <option value="MOTORCYCLE">
+                      {t("listings.vehicleTypes.MOTORCYCLE")}
+                    </option>
+                    <option value="RV">{t("listings.vehicleTypes.RV")}</option>
+                    <option value="BUS">
+                      {t("listings.vehicleTypes.BUS")}
+                    </option>
+                    <option value="VAN">
+                      {t("listings.vehicleTypes.VAN")}
+                    </option>
+                    <option value="TRACTOR">
+                      {t("listings.vehicleTypes.TRACTOR")}
+                    </option>
+                    <option value="CONSTRUCTION">
+                      {t("listings.vehicleTypes.CONSTRUCTION")}
+                    </option>
+                    <option value="OTHER">
+                      {t("listings.vehicleTypes.OTHER")}
+                    </option>
                   </select>
                 )}
                 {selectedCategory === "realEstate" && (
                   <select
                     className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     value={selectedSubcategory}
-                    onChange={e => setSelectedSubcategory(e.target.value)}
+                    onChange={(e) => setSelectedSubcategory(e.target.value)}
                   >
                     <option value="">{t("common.all_types")}</option>
-                    <option value="HOUSE">{t("common.realEstateTypes.HOUSE")}</option>
-                    <option value="APARTMENT">{t("common.realEstateTypes.APARTMENT")}</option>
-                    <option value="CONDO">{t("common.realEstateTypes.CONDO")}</option>
-                    <option value="LAND">{t("common.realEstateTypes.LAND")}</option>
-                    <option value="COMMERCIAL">{t("common.realEstateTypes.COMMERCIAL")}</option>
-                    <option value="OTHER">{t("common.realEstateTypes.OTHER")}</option>
+                    <option value="HOUSE">
+                      {t("common.realEstateTypes.HOUSE")}
+                    </option>
+                    <option value="APARTMENT">
+                      {t("common.realEstateTypes.APARTMENT")}
+                    </option>
+                    <option value="CONDO">
+                      {t("common.realEstateTypes.CONDO")}
+                    </option>
+                    <option value="LAND">
+                      {t("common.realEstateTypes.LAND")}
+                    </option>
+                    <option value="COMMERCIAL">
+                      {t("common.realEstateTypes.COMMERCIAL")}
+                    </option>
+                    <option value="OTHER">
+                      {t("common.realEstateTypes.OTHER")}
+                    </option>
                   </select>
                 )}
 
@@ -196,7 +233,7 @@ const Navbar: React.FC = () => {
 
           {/* Right section */}
           <div
-            className={`flex items-center ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-4`}
+            className={`flex items-center ${isRTL ? "flex-row-reverse" : "flex-row"} gap-4`}
           >
             {isLoading ? (
               <div className="flex items-center justify-center w-8 h-8">

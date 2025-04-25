@@ -47,21 +47,22 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       try {
         // Create search params object with optional category and subcategory
         const searchParams: any = { limit: 4 };
-        
+
         // Add category if provided
-        if (category && category !== 'all') {
+        if (category && category !== "all") {
           searchParams.category = {
-            mainCategory: category === 'vehicles' ? 
-              ListingCategory.VEHICLES : 
-              ListingCategory.REAL_ESTATE
+            mainCategory:
+              category === "vehicles"
+                ? ListingCategory.VEHICLES
+                : ListingCategory.REAL_ESTATE,
           };
-          
+
           // Add subcategory if provided
           if (subcategory) {
             searchParams.category.subCategory = subcategory;
           }
         }
-        
+
         const response = await listingsAPI.search(searchTerm, searchParams);
         if (response.success && response.data?.listings) {
           setSuggestions(response.data.listings.slice(0, 4));
@@ -70,7 +71,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         }
         setShowSuggestions(true);
       } catch (error) {
-        console.error('Search error:', error);
+        console.error("Search error:", error);
         setSuggestions([]);
         setShowSuggestions(false);
       }
@@ -114,7 +115,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <form className={`relative ${className}`} onSubmit={handleSubmit} autoComplete="off">
+    <form
+      className={`relative ${className}`}
+      onSubmit={handleSubmit}
+      autoComplete="off"
+    >
       <div className="relative">
         <input
           ref={inputRef}
@@ -172,7 +177,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"
+            />
           </svg>
         </button>
         {/* Suggestions Dropdown */}
@@ -183,11 +193,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               onClose={() => setShowSuggestions(false)}
             />
             {/* Overlay clickable area to handle suggestion clicks */}
-            <div className="absolute inset-0" style={{ pointerEvents: 'none' }} />
+            <div
+              className="absolute inset-0"
+              style={{ pointerEvents: "none" }}
+            />
             {suggestions.map((s) => (
               <div
                 key={s.id}
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 onClick={() => handleSuggestionClick(s.id)}
               />
             ))}

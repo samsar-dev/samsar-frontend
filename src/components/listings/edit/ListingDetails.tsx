@@ -2,16 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { MessagesAPI } from "@/api/messaging.api";
-import { 
-  Listing, 
-  CarDetails, 
-  MotorcycleDetails, 
-  TruckDetails, 
-  VanDetails, 
-  BusDetails, 
-  TractorDetails, 
+import {
+  Listing,
+  CarDetails,
+  MotorcycleDetails,
+  TruckDetails,
+  VanDetails,
+  BusDetails,
+  TractorDetails,
   BaseVehicleDetails,
-  VehicleDetails 
+  VehicleDetails,
 } from "@/types/listings";
 import {
   ListingCategory,
@@ -66,13 +66,13 @@ const ListingDetails: React.FC = () => {
   useEffect(() => {
     // Debug log
     const token = TokenManager.getAccessToken();
-    console.log('Auth debug:', { isAuthenticated, token });
+    console.log("Auth debug:", { isAuthenticated, token });
 
     // Only run fetch if both are present
     if (!isAuthenticated || !token) {
       // Don't show error immediately; wait for auth state to resolve
       if (isAuthenticated === false) {
-        setError(t('common.loginRequired'));
+        setError(t("common.loginRequired"));
         setLoading(false);
       }
       return;
@@ -97,18 +97,18 @@ const ListingDetails: React.FC = () => {
           "FULL Response Data:",
           JSON.stringify(response.data, null, 2),
         );
-        
+
         // Log specific vehicle details for debugging
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details (raw):",
             JSON.stringify(response.data.details.vehicles, null, 2),
           );
-          
+
           // Log each individual field for debugging
           const vehicles = response.data.details.vehicles;
           console.log("Vehicle fields available:", Object.keys(vehicles));
-          
+
           // Check specific fields that might be missing
           console.log("Checking specific fields:");
           console.log("- make:", vehicles.make);
@@ -140,12 +140,12 @@ const ListingDetails: React.FC = () => {
         // Ensure images are in the correct format
         const processedImages = (listing.images || [])
           .map((img: string | File) => {
-            if (typeof img === 'string') return img;
+            if (typeof img === "string") return img;
             if (img instanceof File) {
               // Create URL from File object
               return URL.createObjectURL(img);
             }
-            return '';
+            return "";
           })
           .filter(Boolean);
 
@@ -175,12 +175,15 @@ const ListingDetails: React.FC = () => {
 
         // Transform vehicle details if present
         // Determine category type
-        const isVehicleListing = category.mainCategory === ListingCategory.VEHICLES;
-        
+        const isVehicleListing =
+          category.mainCategory === ListingCategory.VEHICLES;
+
         // Transform the features array into a boolean object
-        const transformFeatures = (features: Record<string, boolean> | undefined) => {
+        const transformFeatures = (
+          features: Record<string, boolean> | undefined,
+        ) => {
           if (!features) return {};
-          
+
           // First, collect all top-level feature values
           const transformedFeatures: Record<string, boolean> = {
             // Safety Features
@@ -191,14 +194,14 @@ const ListingDetails: React.FC = () => {
             abs: Boolean(features.abs),
             emergencyBrakeAssist: Boolean(features.emergencyBrakeAssist),
             tirePressureMonitoring: Boolean(features.tirePressureMonitoring),
-            
+
             // Camera Features
             rearCamera: Boolean(features.rearCamera),
             camera360: Boolean(features.camera360),
             dashCam: Boolean(features.dashCam),
             nightVision: Boolean(features.nightVision),
             parkingSensors: Boolean(features.parkingSensors),
-            
+
             // Climate Features
             climateControl: Boolean(features.climateControl),
             heatedSeats: Boolean(features.heatedSeats),
@@ -206,7 +209,7 @@ const ListingDetails: React.FC = () => {
             dualZoneClimate: Boolean(features.dualZoneClimate),
             rearAC: Boolean(features.rearAC),
             airQualitySensor: Boolean(features.airQualitySensor),
-            
+
             // Entertainment Features
             bluetooth: Boolean(features.bluetooth),
             appleCarPlay: Boolean(features.appleCarPlay),
@@ -217,14 +220,14 @@ const ListingDetails: React.FC = () => {
             cdPlayer: Boolean(features.cdPlayer),
             dvdPlayer: Boolean(features.dvdPlayer),
             rearSeatEntertainment: Boolean(features.rearSeatEntertainment),
-            
+
             // Lighting Features
             ledHeadlights: Boolean(features.ledHeadlights),
             adaptiveHeadlights: Boolean(features.adaptiveHeadlights),
             ambientLighting: Boolean(features.ambientLighting),
             fogLights: Boolean(features.fogLights),
             automaticHighBeams: Boolean(features.automaticHighBeams),
-            
+
             // Convenience Features
             keylessEntry: Boolean(features.keylessEntry),
             sunroof: Boolean(features.sunroof),
@@ -233,150 +236,181 @@ const ListingDetails: React.FC = () => {
             powerTailgate: Boolean(features.powerTailgate),
             autoDimmingMirrors: Boolean(features.autoDimmingMirrors),
             rainSensingWipers: Boolean(features.rainSensingWipers),
-            
+
             // Airbags
             frontAirbags: Boolean(features.frontAirbags),
             sideAirbags: Boolean(features.sideAirbags),
             curtainAirbags: Boolean(features.curtainAirbags),
             kneeAirbags: Boolean(features.kneeAirbags),
-            
+
             // Driver Assistance
             cruiseControl: Boolean(features.cruiseControl),
             laneDepartureWarning: Boolean(features.laneDepartureWarning),
             laneKeepAssist: Boolean(features.laneKeepAssist),
-            automaticEmergencyBraking: Boolean(features.automaticEmergencyBraking)
+            automaticEmergencyBraking: Boolean(
+              features.automaticEmergencyBraking,
+            ),
           };
-          
+
           // Now merge in any additional feature properties we didn't explicitly handle
-          Object.keys(features).forEach(key => {
-            if (typeof features[key] === 'boolean' && transformedFeatures[key] === undefined) {
+          Object.keys(features).forEach((key) => {
+            if (
+              typeof features[key] === "boolean" &&
+              transformedFeatures[key] === undefined
+            ) {
               transformedFeatures[key] = features[key];
             }
           });
-          
+
           return transformedFeatures;
         };
 
         const transformedDetails = {
-          vehicles: isVehicleListing && details.vehicles
-            ? {
-                vehicleType: details.vehicles.vehicleType,
-                make: details.vehicles.make,
-                model: details.vehicles.model,
-                year: details.vehicles.year,
-                mileage: details.vehicles.mileage,
-                fuelType: details.vehicles.fuelType,
-                transmissionType: details.vehicles.transmissionType || details.vehicles.transmission,
-                color: details.vehicles.color,
-                condition: details.vehicles.condition,
-                features: transformFeatures(details.vehicles.features),
-                interiorColor: details.vehicles.interiorColor,
-                engine: details.vehicles.engine || "",
-                warranty: details.vehicles.warranty,
-                serviceHistory: Boolean(details.vehicles.serviceHistory),
-                previousOwners: details.vehicles.previousOwners,
-                registrationStatus: details.vehicles.registrationStatus,
-                accidentFree: Boolean(details.vehicles.accidentFree),
-                customsCleared: Boolean(details.vehicles.customsCleared),
-                bodyType: details.vehicles.bodyType || "",
-                roofType: details.vehicles.roofType || "",
-                warrantyPeriod: details.vehicles.warrantyPeriod || "",
-                serviceHistoryDetails: details.vehicles.serviceHistoryDetails || t("common.notProvided"),
-                additionalNotes: details.vehicles.additionalNotes || "",
-                
-                // Individual feature fields
-                frontAirbags: Boolean(details.vehicles.frontAirbags),
-                sideAirbags: Boolean(details.vehicles.sideAirbags),
-                curtainAirbags: Boolean(details.vehicles.curtainAirbags),
-                kneeAirbags: Boolean(details.vehicles.kneeAirbags),
-                
-                cruiseControl: Boolean(details.vehicles.cruiseControl),
-                laneDepartureWarning: Boolean(details.vehicles.laneDepartureWarning),
-                laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
-                automaticEmergencyBraking: Boolean(details.vehicles.automaticEmergencyBraking),
-                
-                blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
-                laneAssist: Boolean(details.vehicles.laneAssist),
-                adaptiveCruiseControl: Boolean(details.vehicles.adaptiveCruiseControl),
-                tractionControl: Boolean(details.vehicles.tractionControl),
-                abs: Boolean(details.vehicles.abs),
-                emergencyBrakeAssist: Boolean(details.vehicles.emergencyBrakeAssist),
-                tirePressureMonitoring: Boolean(details.vehicles.tirePressureMonitoring),
-                
-                rearCamera: Boolean(details.vehicles.rearCamera),
-                camera360: Boolean(details.vehicles.camera360),
-                dashCam: Boolean(details.vehicles.dashCam),
-                nightVision: Boolean(details.vehicles.nightVision),
-                parkingSensors: Boolean(details.vehicles.parkingSensors),
-                
-                climateControl: Boolean(details.vehicles.climateControl),
-                heatedSeats: Boolean(details.vehicles.heatedSeats),
-                ventilatedSeats: Boolean(details.vehicles.ventilatedSeats),
-                dualZoneClimate: Boolean(details.vehicles.dualZoneClimate),
-                rearAC: Boolean(details.vehicles.rearAC),
-                airQualitySensor: Boolean(details.vehicles.airQualitySensor),
-                
-                bluetooth: Boolean(details.vehicles.bluetooth),
-                appleCarPlay: Boolean(details.vehicles.appleCarPlay),
-                androidAuto: Boolean(details.vehicles.androidAuto),
-                premiumSound: Boolean(details.vehicles.premiumSound),
-                wirelessCharging: Boolean(details.vehicles.wirelessCharging),
-                usbPorts: Boolean(details.vehicles.usbPorts),
-                cdPlayer: Boolean(details.vehicles.cdPlayer),
-                dvdPlayer: Boolean(details.vehicles.dvdPlayer),
-                rearSeatEntertainment: Boolean(details.vehicles.rearSeatEntertainment),
-                
-                ledHeadlights: Boolean(details.vehicles.ledHeadlights),
-                adaptiveHeadlights: Boolean(details.vehicles.adaptiveHeadlights),
-                ambientLighting: Boolean(details.vehicles.ambientLighting),
-                fogLights: Boolean(details.vehicles.fogLights),
-                automaticHighBeams: Boolean(details.vehicles.automaticHighBeams),
-                
-                keylessEntry: Boolean(details.vehicles.keylessEntry),
-                sunroof: Boolean(details.vehicles.sunroof),
-                spareKey: Boolean(details.vehicles.spareKey),
-                remoteStart: Boolean(details.vehicles.remoteStart),
-                powerTailgate: Boolean(details.vehicles.powerTailgate),
-                autoDimmingMirrors: Boolean(details.vehicles.autoDimmingMirrors),
-                rainSensingWipers: Boolean(details.vehicles.rainSensingWipers),
-                
-                engineSize: details.vehicles.engineSize || "",
-                horsepower: details.vehicles.horsepower || 0,
-                torque: details.vehicles.torque || 0,
-                brakeType: details.vehicles.brakeType || "",
-                driveType: details.vehicles.driveType || "",
-                wheelSize: details.vehicles.wheelSize || "",
-                wheelType: details.vehicles.wheelType || "",
-                importStatus: details.vehicles.importStatus || "",
-              } as any
-            : undefined,
-          realEstate: !isVehicleListing && details.realEstate
-            ? {
-                ...details.realEstate,
-                features: details.realEstate.features || []
-              }
-            : undefined
+          vehicles:
+            isVehicleListing && details.vehicles
+              ? ({
+                  vehicleType: details.vehicles.vehicleType,
+                  make: details.vehicles.make,
+                  model: details.vehicles.model,
+                  year: details.vehicles.year,
+                  mileage: details.vehicles.mileage,
+                  fuelType: details.vehicles.fuelType,
+                  transmissionType:
+                    details.vehicles.transmissionType ||
+                    details.vehicles.transmission,
+                  color: details.vehicles.color,
+                  condition: details.vehicles.condition,
+                  features: transformFeatures(details.vehicles.features),
+                  interiorColor: details.vehicles.interiorColor,
+                  engine: details.vehicles.engine || "",
+                  warranty: details.vehicles.warranty,
+                  serviceHistory: Boolean(details.vehicles.serviceHistory),
+                  previousOwners: details.vehicles.previousOwners,
+                  registrationStatus: details.vehicles.registrationStatus,
+                  accidentFree: Boolean(details.vehicles.accidentFree),
+                  customsCleared: Boolean(details.vehicles.customsCleared),
+                  bodyType: details.vehicles.bodyType || "",
+                  roofType: details.vehicles.roofType || "",
+                  warrantyPeriod: details.vehicles.warrantyPeriod || "",
+                  serviceHistoryDetails:
+                    details.vehicles.serviceHistoryDetails ||
+                    t("common.notProvided"),
+                  additionalNotes: details.vehicles.additionalNotes || "",
+
+                  // Individual feature fields
+                  frontAirbags: Boolean(details.vehicles.frontAirbags),
+                  sideAirbags: Boolean(details.vehicles.sideAirbags),
+                  curtainAirbags: Boolean(details.vehicles.curtainAirbags),
+                  kneeAirbags: Boolean(details.vehicles.kneeAirbags),
+
+                  cruiseControl: Boolean(details.vehicles.cruiseControl),
+                  laneDepartureWarning: Boolean(
+                    details.vehicles.laneDepartureWarning,
+                  ),
+                  laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
+                  automaticEmergencyBraking: Boolean(
+                    details.vehicles.automaticEmergencyBraking,
+                  ),
+
+                  blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
+                  laneAssist: Boolean(details.vehicles.laneAssist),
+                  adaptiveCruiseControl: Boolean(
+                    details.vehicles.adaptiveCruiseControl,
+                  ),
+                  tractionControl: Boolean(details.vehicles.tractionControl),
+                  abs: Boolean(details.vehicles.abs),
+                  emergencyBrakeAssist: Boolean(
+                    details.vehicles.emergencyBrakeAssist,
+                  ),
+                  tirePressureMonitoring: Boolean(
+                    details.vehicles.tirePressureMonitoring,
+                  ),
+
+                  rearCamera: Boolean(details.vehicles.rearCamera),
+                  camera360: Boolean(details.vehicles.camera360),
+                  dashCam: Boolean(details.vehicles.dashCam),
+                  nightVision: Boolean(details.vehicles.nightVision),
+                  parkingSensors: Boolean(details.vehicles.parkingSensors),
+
+                  climateControl: Boolean(details.vehicles.climateControl),
+                  heatedSeats: Boolean(details.vehicles.heatedSeats),
+                  ventilatedSeats: Boolean(details.vehicles.ventilatedSeats),
+                  dualZoneClimate: Boolean(details.vehicles.dualZoneClimate),
+                  rearAC: Boolean(details.vehicles.rearAC),
+                  airQualitySensor: Boolean(details.vehicles.airQualitySensor),
+
+                  bluetooth: Boolean(details.vehicles.bluetooth),
+                  appleCarPlay: Boolean(details.vehicles.appleCarPlay),
+                  androidAuto: Boolean(details.vehicles.androidAuto),
+                  premiumSound: Boolean(details.vehicles.premiumSound),
+                  wirelessCharging: Boolean(details.vehicles.wirelessCharging),
+                  usbPorts: Boolean(details.vehicles.usbPorts),
+                  cdPlayer: Boolean(details.vehicles.cdPlayer),
+                  dvdPlayer: Boolean(details.vehicles.dvdPlayer),
+                  rearSeatEntertainment: Boolean(
+                    details.vehicles.rearSeatEntertainment,
+                  ),
+
+                  ledHeadlights: Boolean(details.vehicles.ledHeadlights),
+                  adaptiveHeadlights: Boolean(
+                    details.vehicles.adaptiveHeadlights,
+                  ),
+                  ambientLighting: Boolean(details.vehicles.ambientLighting),
+                  fogLights: Boolean(details.vehicles.fogLights),
+                  automaticHighBeams: Boolean(
+                    details.vehicles.automaticHighBeams,
+                  ),
+
+                  keylessEntry: Boolean(details.vehicles.keylessEntry),
+                  sunroof: Boolean(details.vehicles.sunroof),
+                  spareKey: Boolean(details.vehicles.spareKey),
+                  remoteStart: Boolean(details.vehicles.remoteStart),
+                  powerTailgate: Boolean(details.vehicles.powerTailgate),
+                  autoDimmingMirrors: Boolean(
+                    details.vehicles.autoDimmingMirrors,
+                  ),
+                  rainSensingWipers: Boolean(
+                    details.vehicles.rainSensingWipers,
+                  ),
+
+                  engineSize: details.vehicles.engineSize || "",
+                  horsepower: details.vehicles.horsepower || 0,
+                  torque: details.vehicles.torque || 0,
+                  brakeType: details.vehicles.brakeType || "",
+                  driveType: details.vehicles.driveType || "",
+                  wheelSize: details.vehicles.wheelSize || "",
+                  wheelType: details.vehicles.wheelType || "",
+                  importStatus: details.vehicles.importStatus || "",
+                } as any)
+              : undefined,
+          realEstate:
+            !isVehicleListing && details.realEstate
+              ? {
+                  ...details.realEstate,
+                  features: details.realEstate.features || [],
+                }
+              : undefined,
         };
 
         // Then update the vehicleDetails assignment
         let vehicleDetails = transformedDetails.vehicles;
         if (vehicleDetails) {
           const subCategory = category.subCategory as VehicleType;
-          
+
           // First ensure all required fields are present
           const baseVehicle = {
             ...vehicleDetails,
             vehicleType: subCategory,
-            make: vehicleDetails.make || '',
-            model: vehicleDetails.model || '',
-            year: vehicleDetails.year || '',
+            make: vehicleDetails.make || "",
+            model: vehicleDetails.model || "",
+            year: vehicleDetails.year || "",
             mileage: vehicleDetails.mileage || 0,
-            color: vehicleDetails.color || '',
+            color: vehicleDetails.color || "",
             condition: vehicleDetails.condition,
             fuelType: vehicleDetails.fuelType,
-            transmissionType: vehicleDetails.transmissionType
+            transmissionType: vehicleDetails.transmissionType,
           };
-          
+
           // Use 'as any' to bypass TypeScript checking for this specific assignment
           vehicleDetails = baseVehicle as any;
         }
@@ -389,7 +423,7 @@ const ListingDetails: React.FC = () => {
           },
           details: {
             ...transformedDetails,
-            vehicles: vehicleDetails as any
+            vehicles: vehicleDetails as any,
           },
           listingAction: listing.listingAction as ListingAction,
           images: processedImages,
@@ -433,17 +467,17 @@ const ListingDetails: React.FC = () => {
       // Create a conversation if it doesn't exist
       const conversationResponse = await MessagesAPI.createConversation({
         participantIds: [user?.id || "", listing.userId || ""],
-        initialMessage: message.trim()
+        initialMessage: message.trim(),
       });
 
       if (conversationResponse.success && conversationResponse.data) {
         const conversationId = conversationResponse.data._id;
-        
+
         // Send the message using the correct structure
         const messageInput: ListingMessageInput = {
           content: message.trim(),
           listingId: id || "",
-          recipientId: listing.userId || ""
+          recipientId: listing.userId || "",
         };
         const response = await MessagesAPI.sendMessage(messageInput);
 
@@ -559,7 +593,7 @@ const ListingDetails: React.FC = () => {
                   <div>
                     <p className="font-medium">{listing.seller.username}</p>
                     <p className="text-sm text-gray-500">
-                      {t("listings.posted_on")}: {" "}
+                      {t("listings.posted_on")}:{" "}
                       {new Date(listing.createdAt!).toLocaleDateString()}
                     </p>
                   </div>
@@ -569,13 +603,26 @@ const ListingDetails: React.FC = () => {
                   <button
                     onClick={handleContactSeller}
                     className="flex items-center gap-2 px-3 py-1.5 border border-blue-500 text-blue-600 bg-white dark:bg-gray-900 rounded-md hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm"
-                    style={{minWidth: 0}}
+                    style={{ minWidth: 0 }}
                     title={t("listings.contactSeller") as string}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-2.25M17.25 8.25l-5.25 5.25-5.25-5.25" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 8.25V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-2.25M17.25 8.25l-5.25 5.25-5.25-5.25"
+                      />
                     </svg>
-                    <span className="hidden sm:inline">{t("listings.contactSeller")}</span>
+                    <span className="hidden sm:inline">
+                      {t("listings.contactSeller")}
+                    </span>
                   </button>
                 )}
               </div>
@@ -698,7 +745,8 @@ const ListingDetails: React.FC = () => {
                           {t("listings.fields.mileage")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {listing?.details?.vehicles?.mileage} {t("listings.fields.mileage")}
+                          {listing?.details?.vehicles?.mileage}{" "}
+                          {t("listings.fields.mileage")}
                         </p>
                       </div>
                     )}
@@ -708,17 +756,22 @@ const ListingDetails: React.FC = () => {
                           {t("listings.fields.fuelType")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t(`listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`)}
+                          {t(
+                            `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
+                          )}
                         </p>
                       </div>
                     )}
-                    {(listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission) && (
+                    {(listing?.details?.vehicles?.transmissionType ||
+                      listing?.details?.vehicles?.transmission) && (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {t("listings.fields.transmission")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t(`listings.fields.transmissionTypes.${(listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission)}`)}
+                          {t(
+                            `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
+                          )}
                         </p>
                       </div>
                     )}
@@ -740,7 +793,8 @@ const ListingDetails: React.FC = () => {
                           <div
                             className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
                             style={{
-                              backgroundColor: listing?.details?.vehicles?.color,
+                              backgroundColor:
+                                listing?.details?.vehicles?.color,
                             }}
                           />
                           <p className="font-medium text-gray-900 dark:text-white">
@@ -774,7 +828,9 @@ const ListingDetails: React.FC = () => {
                           {t("listings.fields.condition")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {t(`listings.fields.conditions.${listing?.details?.vehicles?.condition}`)}
+                          {t(
+                            `listings.fields.conditions.${listing?.details?.vehicles?.condition}`,
+                          )}
                         </p>
                       </div>
                     )}
@@ -789,37 +845,55 @@ const ListingDetails: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Vehicle Owner */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Vehicle Owner(s)</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Vehicle Owner(s)
+                      </p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.numberOfOwners || listing?.details?.vehicles?.previousOwners || t("common.notProvided")}
+                        {listing?.details?.vehicles?.numberOfOwners ||
+                          listing?.details?.vehicles?.previousOwners ||
+                          t("common.notProvided")}
                       </p>
                     </div>
                     {/* Service History */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Service History</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Service History
+                      </p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.serviceHistory ? t("common.yes") : t("common.no")}
+                        {(listing?.details?.vehicles as any)?.serviceHistory
+                          ? t("common.yes")
+                          : t("common.no")}
                       </p>
                     </div>
                     {/* Accident Free */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Accident Free</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Accident Free
+                      </p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.accidentFree ? t("common.yes") : t("common.no")}
+                        {(listing?.details?.vehicles as any)?.accidentFree
+                          ? t("common.yes")
+                          : t("common.no")}
                       </p>
                     </div>
                     {/* Warranty */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Warranty</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Warranty
+                      </p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.warranty || t("common.notProvided")}
+                        {listing?.details?.vehicles?.warranty ||
+                          t("common.notProvided")}
                       </p>
                     </div>
                     {/* Registration Status */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Registration Status</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Registration Status
+                      </p>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.registrationStatus || t("common.notProvided")}
+                        {listing?.details?.vehicles?.registrationStatus ||
+                          t("common.notProvided")}
                       </p>
                     </div>
                   </div>
@@ -832,52 +906,115 @@ const ListingDetails: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">VIN</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.vin || t("common.notProvided")}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.vin ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Engine Number</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.engineNumber || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Engine Number
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.engineNumber ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Import Status</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{(listing?.details?.vehicles as any)?.importStatus || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Import Status
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {(listing?.details?.vehicles as any)?.importStatus ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Registration Expiry</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{(listing?.details?.vehicles as any)?.registrationExpiry ? new Date((listing?.details?.vehicles as any).registrationExpiry).toLocaleDateString() : t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Registration Expiry
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {(listing?.details?.vehicles as any)?.registrationExpiry
+                          ? new Date(
+                              (
+                                listing?.details?.vehicles as any
+                              ).registrationExpiry,
+                            ).toLocaleDateString()
+                          : t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Insurance Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{(listing?.details?.vehicles as any)?.insuranceType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Insurance Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {(listing?.details?.vehicles as any)?.insuranceType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Upholstery Material</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.upholsteryMaterial || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Upholstery Material
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.upholsteryMaterial ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Tire Condition</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.tireCondition || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Tire Condition
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.tireCondition ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Customs Cleared</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.customsCleared ? t("common.yes") : t("common.no")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Customs Cleared
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.customsCleared
+                          ? t("common.yes")
+                          : t("common.no")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Warranty Period</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.warrantyPeriod || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Warranty Period
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.warrantyPeriod ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Service History Details</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{(listing?.details?.vehicles as any)?.serviceHistoryDetails || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Service History Details
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {(listing?.details?.vehicles as any)
+                          ?.serviceHistoryDetails || t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Body Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.bodyType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Body Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.bodyType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Roof Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing.details.vehicles.roofType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Roof Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.roofType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -889,36 +1026,76 @@ const ListingDetails: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Engine</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.engine || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Engine
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.engine ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Engine Size</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.engineSize || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Engine Size
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.engineSize ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Horsepower</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.horsepower || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Horsepower
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.horsepower ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Torque</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.torque || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Torque
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.torque ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Brake Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.brakeType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Brake Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.brakeType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Drive Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.driveType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Drive Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.driveType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Wheel Size</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.wheelSize || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Wheel Size
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.wheelSize ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Wheel Type</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{listing?.details?.vehicles?.wheelType || t("common.notProvided")}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Wheel Type
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing?.details?.vehicles?.wheelType ||
+                          t("common.notProvided")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -938,12 +1115,12 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all safety features that are true */}
                         {[
-                          "blindSpotMonitor", 
-                          "laneAssist", 
-                          "adaptiveCruiseControl", 
-                          "tractionControl", 
-                          "abs", 
-                          "emergencyBrakeAssist", 
+                          "blindSpotMonitor",
+                          "laneAssist",
+                          "adaptiveCruiseControl",
+                          "tractionControl",
+                          "abs",
+                          "emergencyBrakeAssist",
                           "tirePressureMonitoring",
                           "parkingSensors",
                           "frontAirbags",
@@ -953,22 +1130,25 @@ const ListingDetails: React.FC = () => {
                           "cruiseControl",
                           "laneDepartureWarning",
                           "laneKeepAssist",
-                          "automaticEmergencyBraking"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "automaticEmergencyBraking",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
-                    
+
                     {/* Camera Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -977,25 +1157,28 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all camera features that are true */}
                         {[
-                          "rearCamera", 
-                          "camera360", 
-                          "dashCam", 
-                          "nightVision"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "rearCamera",
+                          "camera360",
+                          "dashCam",
+                          "nightVision",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
-                    
+
                     {/* Climate Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -1004,27 +1187,30 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all climate features that are true */}
                         {[
-                          "climateControl", 
-                          "heatedSeats", 
-                          "ventilatedSeats", 
-                          "dualZoneClimate", 
+                          "climateControl",
+                          "heatedSeats",
+                          "ventilatedSeats",
+                          "dualZoneClimate",
                           "rearAC",
-                          "airQualitySensor"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "airQualitySensor",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
-                    
+
                     {/* Entertainment Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -1033,30 +1219,33 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all entertainment features that are true */}
                         {[
-                          "bluetooth", 
-                          "appleCarPlay", 
-                          "androidAuto", 
-                          "premiumSound", 
+                          "bluetooth",
+                          "appleCarPlay",
+                          "androidAuto",
+                          "premiumSound",
                           "wirelessCharging",
                           "usbPorts",
                           "cdPlayer",
                           "dvdPlayer",
-                          "rearSeatEntertainment"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "rearSeatEntertainment",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
-                    
+
                     {/* Lighting Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -1065,26 +1254,29 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all lighting features that are true */}
                         {[
-                          "ledHeadlights", 
-                          "adaptiveHeadlights", 
-                          "ambientLighting", 
+                          "ledHeadlights",
+                          "adaptiveHeadlights",
+                          "ambientLighting",
                           "fogLights",
-                          "automaticHighBeams"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "automaticHighBeams",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
-                    
+
                     {/* Convenience Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -1093,25 +1285,28 @@ const ListingDetails: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Display all convenience features that are true */}
                         {[
-                          "keylessEntry", 
-                          "sunroof", 
-                          "spareKey", 
+                          "keylessEntry",
+                          "sunroof",
+                          "spareKey",
                           "remoteStart",
                           "powerTailgate",
                           "autoDimmingMirrors",
-                          "rainSensingWipers"
-                        ].map((feature) => (
-                          Boolean(listing?.details?.vehicles?.features?.[feature]) && (
-                            <div key={feature} className="space-y-1">
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t(`listings.features.${feature}`)}
-                              </p>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {t("common.yes")}
-                              </p>
-                            </div>
-                          )
-                        ))}
+                          "rainSensingWipers",
+                        ].map(
+                          (feature) =>
+                            Boolean(
+                              listing?.details?.vehicles?.features?.[feature],
+                            ) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t(`listings.features.${feature}`)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("common.yes")}
+                                </p>
+                              </div>
+                            ),
+                        )}
                       </div>
                     </div>
                   </>

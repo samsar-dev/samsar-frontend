@@ -76,10 +76,10 @@ const ChangePassword = () => {
       formDataToSend.append("password", formData.newPassword); // Changed to match backend expectation
 
       const response = await UserAPI.updateProfile(formDataToSend);
-      
+
       // More detailed logging and error handling
-      console.log('Password Update Response:', response);
-      
+      console.log("Password Update Response:", response);
+
       if (response.success) {
         toast.success(t("profile.password_updated"));
         setFormData({
@@ -89,17 +89,18 @@ const ChangePassword = () => {
         });
       } else {
         // Log the specific error from the API
-        console.error('Password Update Error:', response.error);
-        const errorMessage = typeof response.error === 'object' && response.error !== null
-          ? response.error.message
-          : typeof response.error === 'string'
-          ? response.error
-          : t("profile.update_error");
+        console.error("Password Update Error:", response.error);
+        const errorMessage =
+          typeof response.error === "object" && response.error !== null
+            ? response.error.message
+            : typeof response.error === "string"
+              ? response.error
+              : t("profile.update_error");
         toast.error(errorMessage);
         throw new Error(errorMessage); // Throw error to prevent clearing form
       }
     } catch (error) {
-      console.error('Password Update Catch Error:', error);
+      console.error("Password Update Catch Error:", error);
       const errorMessage =
         error instanceof Error ? error.message : t("profile.update_error");
       toast.error(errorMessage);
@@ -113,7 +114,7 @@ const ChangePassword = () => {
     label: string,
     value: string,
     showPassword: boolean,
-    setShowPassword: (show: boolean) => void
+    setShowPassword: (show: boolean) => void,
   ) => (
     <div className="relative">
       <label
@@ -155,7 +156,7 @@ const ChangePassword = () => {
           t("profile.current_password"),
           formData.currentPassword,
           showCurrentPassword,
-          setShowCurrentPassword
+          setShowCurrentPassword,
         )}
 
         {renderPasswordInput(
@@ -163,7 +164,7 @@ const ChangePassword = () => {
           t("profile.new_password"),
           formData.newPassword,
           showNewPassword,
-          setShowNewPassword
+          setShowNewPassword,
         )}
 
         {renderPasswordInput(
@@ -171,7 +172,7 @@ const ChangePassword = () => {
           t("profile.confirm_password"),
           formData.confirmPassword,
           showConfirmPassword,
-          setShowConfirmPassword
+          setShowConfirmPassword,
         )}
       </div>
 

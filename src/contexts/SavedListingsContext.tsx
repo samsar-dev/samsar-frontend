@@ -30,7 +30,7 @@ function saveSavedListingsToStorage(list: string[]) {
 
 interface SavedListingsState {
   savedListings: string[];
-  savingIds: string[]; 
+  savingIds: string[];
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
@@ -72,7 +72,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
   // Hydrate savedListings from local storage on mount for instant UI
   useEffect(() => {
     const saved = loadSavedListingsFromStorage();
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       savedListings: saved,
     }));
@@ -108,12 +108,12 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
 
   const addToSaved = useCallback(async (id: string): Promise<void> => {
     if (!id) return;
-    
+
     // Optimistically update UI
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       savingIds: [...prev.savingIds, id],
-      savedListings: [...prev.savedListings, id] // Add immediately for optimistic update
+      savedListings: [...prev.savedListings, id], // Add immediately for optimistic update
     }));
 
     try {
@@ -131,7 +131,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
         savedListings: prev.savedListings.filter((savedId) => savedId !== id),
         savingIds: prev.savingIds.filter((savingId) => savingId !== id),
       }));
-      toast.error('Failed to save listing');
+      toast.error("Failed to save listing");
     }
   }, []);
 
@@ -139,10 +139,10 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
     if (!id) return;
 
     // Optimistically update UI
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       savingIds: [...prev.savingIds, id],
-      savedListings: prev.savedListings.filter((savedId) => savedId !== id) // Remove immediately
+      savedListings: prev.savedListings.filter((savedId) => savedId !== id), // Remove immediately
     }));
 
     try {
@@ -160,7 +160,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
         savedListings: [...prev.savedListings, id], // Add back to saved
         savingIds: prev.savingIds.filter((savingId) => savingId !== id),
       }));
-      toast.error('Failed to remove from saved');
+      toast.error("Failed to remove from saved");
     }
   }, []);
 
@@ -210,10 +210,12 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
       if (response.success && response.data) {
         setState((prev) => ({
           ...prev,
-          savedListings: Array.isArray(response.data) 
+          savedListings: Array.isArray(response.data)
             ? response.data
                 .map((listing: { id?: string }) => listing.id)
-                .filter((id: string | undefined): id is string => id !== undefined)
+                .filter(
+                  (id: string | undefined): id is string => id !== undefined,
+                )
             : [],
           isLoading: false,
           lastUpdated: new Date(),
@@ -238,15 +240,21 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
       if (error instanceof Error && error.name === "AbortError") return;
 
       // Only show error toast for non-abort errors
-      const errorMessage = error instanceof Error ? error.message : "Failed to fetch saved listings";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch saved listings";
       setState((prev) => ({
         ...prev,
         isLoading: false,
         error: errorMessage,
       }));
-      
+
       // Only show toast for network errors or unexpected errors
-      if (!(error instanceof Error) || !error.message.includes("No saved listings found")) {
+      if (
+        !(error instanceof Error) ||
+        !error.message.includes("No saved listings found")
+      ) {
         toast.error(errorMessage);
       }
     } finally {
@@ -280,31 +288,34 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
   // Sync with localStorage
   useEffect(() => {
     if (state.lastUpdated && state.savedListings.length > 0) {
-      localStorage.setItem('savedListings', JSON.stringify({
-        listings: state.savedListings,
-        timestamp: state.lastUpdated.getTime()
-      }));
+      localStorage.setItem(
+        "savedListings",
+        JSON.stringify({
+          listings: state.savedListings,
+          timestamp: state.lastUpdated.getTime(),
+        }),
+      );
     }
   }, [state.savedListings, state.lastUpdated]);
 
   // Load from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('savedListings');
+    const saved = localStorage.getItem("savedListings");
     if (saved) {
       try {
         const { listings, timestamp } = JSON.parse(saved);
         const lastUpdated = new Date(timestamp);
-        
+
         // Only use cached data if it's less than 1 hour old
         if (Date.now() - lastUpdated.getTime() < 3600000) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             savedListings: listings,
-            lastUpdated
+            lastUpdated,
           }));
         }
       } catch (error) {
-        console.error('Error loading saved listings from cache:', error);
+        console.error("Error loading saved listings from cache:", error);
       }
     }
   }, []);
@@ -316,12 +327,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
     } else if (!isAuthenticated) {
       clearSaved();
     }
-  }, [
-    isAuthenticated,
-    user?.id,
-    refresh,
-    clearSaved,
-  ]);
+  }, [isAuthenticated, user?.id, refresh, clearSaved]);
 
   const value: SavedListingsContextType = {
     ...state,

@@ -78,9 +78,15 @@ const colorField: ListingFieldSchema = {
   section: "appearance",
   required: false,
   validate: (value: string) => {
-    const error = value.length > 50 ? "Color must be 50 characters or less" : null;
+    const error =
+      value.length > 50 ? "Color must be 50 characters or less" : null;
     if (error) {
-      console.log('[listingsAdvancedFieldSchema] Validation error:', error, 'Input value:', value);
+      console.log(
+        "[listingsAdvancedFieldSchema] Validation error:",
+        error,
+        "Input value:",
+        value,
+      );
     }
     return error;
   },
@@ -94,9 +100,16 @@ const conditionField: ListingFieldSchema = {
   section: "essential",
   required: true,
   validate: (value: string) => {
-    const error = !Object.values(Condition).includes(value as Condition) ? "Invalid condition value" : null;
+    const error = !Object.values(Condition).includes(value as Condition)
+      ? "Invalid condition value"
+      : null;
     if (error) {
-      console.log('[listingsAdvancedFieldSchema] Validation error:', error, 'Input value:', value);
+      console.log(
+        "[listingsAdvancedFieldSchema] Validation error:",
+        error,
+        "Input value:",
+        value,
+      );
     }
     return error;
   },
@@ -195,13 +208,21 @@ export const listingsAdvancedFieldSchema = {
 // Export individual field lists
 export const carAdvancedFieldList: ListingFieldSchema[] = [...carSchema];
 export const busAdvancedFieldList: ListingFieldSchema[] = [...busSchema];
-export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [...motorcycleSchema];
+export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [
+  ...motorcycleSchema,
+];
 export const truckAdvancedFieldList: ListingFieldSchema[] = [...truckSchema];
 export const vanAdvancedFieldList: ListingFieldSchema[] = [...vanSchema];
-export const tractorAdvancedFieldList: ListingFieldSchema[] = [...tractorSchema];
-export const constructionAdvancedFieldList: ListingFieldSchema[] = [...constructionSchema];
+export const tractorAdvancedFieldList: ListingFieldSchema[] = [
+  ...tractorSchema,
+];
+export const constructionAdvancedFieldList: ListingFieldSchema[] = [
+  ...constructionSchema,
+];
 export const houseAdvancedFieldList: ListingFieldSchema[] = [...houseSchema];
-export const apartmentAdvancedFieldList: ListingFieldSchema[] = [...apartmentSchema];
+export const apartmentAdvancedFieldList: ListingFieldSchema[] = [
+  ...apartmentSchema,
+];
 export const landAdvancedFieldList: ListingFieldSchema[] = [...landSchema];
 
 // Map for dynamic lookup in review section
@@ -222,6 +243,9 @@ export const propertyAdvancedFieldLists = {
 };
 
 export const validateAdvancedFields = (values: any) => {
-  console.log('[listingsAdvancedFieldSchema] validateAdvancedFields input values:', values);
+  console.log(
+    "[listingsAdvancedFieldSchema] validateAdvancedFields input values:",
+    values,
+  );
   return true;
 };

@@ -240,15 +240,22 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   vehicleType: formData.category.subCategory as VehicleType.CAR,
                   make: formData.details?.vehicles?.make || "",
                   model: formData.details?.vehicles?.model || "",
-                  year: Number(formData.details?.vehicles?.year || new Date().getFullYear()),
+                  year: Number(
+                    formData.details?.vehicles?.year ||
+                      new Date().getFullYear(),
+                  ),
                   mileage: formData.details?.vehicles?.mileage || 0,
-                  fuelType: formData.details?.vehicles?.fuelType as FuelType || FuelType.GASOLINE,
+                  fuelType:
+                    (formData.details?.vehicles?.fuelType as FuelType) ||
+                    FuelType.GASOLINE,
                   transmissionType:
-                    formData.details?.vehicles?.transmissionType as TransmissionType ||
+                    (formData.details?.vehicles
+                      ?.transmissionType as TransmissionType) ||
                     TransmissionType.AUTOMATIC,
                   color: formData.details?.vehicles?.color || "",
                   condition:
-                    formData.details?.vehicles?.condition as Condition || Condition.GOOD,
+                    (formData.details?.vehicles?.condition as Condition) ||
+                    Condition.GOOD,
                   interiorColor:
                     formData.details?.vehicles?.interiorColor || "",
                   warranty: formData.details?.vehicles?.warranty || "",
@@ -261,24 +268,38 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   engineSize: formData.details?.vehicles?.engineSize || "",
                   // Advanced fields
                   engineNumber: formData.details?.vehicles?.engineNumber || "",
-    
-                  accidentFree: formData.details?.vehicles?.accidentFree || false,
+
+                  accidentFree:
+                    formData.details?.vehicles?.accidentFree || false,
                   importStatus: formData.details?.vehicles?.importStatus || "",
-                  registrationExpiry: formData.details?.vehicles?.registrationExpiry || "",
-                  insuranceType: formData.details?.vehicles?.insuranceType || "",
-                  upholsteryMaterial: formData.details?.vehicles?.upholsteryMaterial || "",
-                  tireCondition: formData.details?.vehicles?.tireCondition || "",
-                  warrantyPeriod: formData.details?.vehicles?.warrantyPeriod || "",
-                  customsCleared: formData.details?.vehicles?.customsCleared || false,
+                  registrationExpiry:
+                    formData.details?.vehicles?.registrationExpiry || "",
+                  insuranceType:
+                    formData.details?.vehicles?.insuranceType || "",
+                  upholsteryMaterial:
+                    formData.details?.vehicles?.upholsteryMaterial || "",
+                  tireCondition:
+                    formData.details?.vehicles?.tireCondition || "",
+                  warrantyPeriod:
+                    formData.details?.vehicles?.warrantyPeriod || "",
+                  customsCleared:
+                    formData.details?.vehicles?.customsCleared || false,
                   bodyType: formData.details?.vehicles?.bodyType || "",
                   roofType: formData.details?.vehicles?.roofType || "",
-                  torque: formData.details?.vehicles?.torque ? Number(formData.details.vehicles.torque) : undefined,
-                  horsepower: formData.details?.vehicles?.horsepower ? Number(formData.details.vehicles.horsepower) : undefined,
+                  torque: formData.details?.vehicles?.torque
+                    ? Number(formData.details.vehicles.torque)
+                    : undefined,
+                  horsepower: formData.details?.vehicles?.horsepower
+                    ? Number(formData.details.vehicles.horsepower)
+                    : undefined,
                   // Additional fields
-                  serviceHistoryDetails: formData.details?.vehicles?.serviceHistoryDetails || "",
-                  additionalNotes: formData.details?.vehicles?.additionalNotes || "",
+                  serviceHistoryDetails:
+                    formData.details?.vehicles?.serviceHistoryDetails || "",
+                  additionalNotes:
+                    formData.details?.vehicles?.additionalNotes || "",
                   // Safety features
-                  safetyFeatures: formData.details?.vehicles?.safetyFeatures || {},
+                  safetyFeatures:
+                    formData.details?.vehicles?.safetyFeatures || {},
                   // Vehicle features
                   features: formData.details?.vehicles?.features || {},
                   // Add tractor-specific fields if it's a tractor
@@ -299,11 +320,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             formData.category?.mainCategory === ListingCategory.REAL_ESTATE
               ? {
                   ...(() => {
-                    const propertyType = formData.category?.subCategory as PropertyType;
+                    const propertyType = formData.category
+                      ?.subCategory as PropertyType;
                     const baseDetails = {
                       size: formData.details?.realEstate?.size || 0,
-                      yearBuilt: formData.details?.realEstate?.yearBuilt || new Date().getFullYear(),
-                      condition: formData.details?.realEstate?.condition as Condition || Condition.GOOD,
+                      yearBuilt:
+                        formData.details?.realEstate?.yearBuilt ||
+                        new Date().getFullYear(),
+                      condition:
+                        (formData.details?.realEstate
+                          ?.condition as Condition) || Condition.GOOD,
                       features: formData.details?.realEstate?.features || [],
                     };
 
@@ -313,36 +339,52 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                           propertyType: PropertyType.HOUSE,
                           ...baseDetails,
                           bedrooms: formData.details?.realEstate?.bedrooms || 0,
-                          bathrooms: formData.details?.realEstate?.bathrooms || 0,
+                          bathrooms:
+                            formData.details?.realEstate?.bathrooms || 0,
                           floors: formData.details?.realEstate?.floors || 1,
-                          parkingSpaces: formData.details?.realEstate?.parkingSpaces || 0,
+                          parkingSpaces:
+                            formData.details?.realEstate?.parkingSpaces || 0,
                           garage: formData.details?.realEstate?.garage || false,
                           garden: formData.details?.realEstate?.garden || false,
-                          petsAllowed: formData.details?.realEstate?.petsAllowed || false,
+                          petsAllowed:
+                            formData.details?.realEstate?.petsAllowed || false,
                         } as HouseDetails;
                       case PropertyType.APARTMENT:
                         return {
                           propertyType: PropertyType.APARTMENT,
                           ...baseDetails,
                           bedrooms: formData.details?.realEstate?.bedrooms || 0,
-                          bathrooms: formData.details?.realEstate?.bathrooms || 0,
+                          bathrooms:
+                            formData.details?.realEstate?.bathrooms || 0,
                           floor: formData.details?.realEstate?.floor || 0,
-                          totalFloors: formData.details?.realEstate?.totalFloors || 1,
-                          elevator: formData.details?.realEstate?.elevator || false,
-                          balcony: formData.details?.realEstate?.balcony || false,
-                          parking: formData.details?.realEstate?.parking || false,
+                          totalFloors:
+                            formData.details?.realEstate?.totalFloors || 1,
+                          elevator:
+                            formData.details?.realEstate?.elevator || false,
+                          balcony:
+                            formData.details?.realEstate?.balcony || false,
+                          parking:
+                            formData.details?.realEstate?.parking || false,
                         } as ApartmentDetails;
                       case PropertyType.LAND:
                         return {
                           propertyType: PropertyType.LAND,
                           ...baseDetails,
-                          zoning: formData.details?.realEstate?.zoning || 'residential',
-                          utilities: formData.details?.realEstate?.utilities || false,
-                          roadAccess: formData.details?.realEstate?.roadAccess || false,
-                          buildable: formData.details?.realEstate?.buildable || true,
+                          zoning:
+                            formData.details?.realEstate?.zoning ||
+                            "residential",
+                          utilities:
+                            formData.details?.realEstate?.utilities || false,
+                          roadAccess:
+                            formData.details?.realEstate?.roadAccess || false,
+                          buildable:
+                            formData.details?.realEstate?.buildable || true,
                           fenced: formData.details?.realEstate?.fenced || false,
-                          waterFeatures: formData.details?.realEstate?.waterFeatures || false,
-                          soilType: formData.details?.realEstate?.soilType || 'unknown',
+                          waterFeatures:
+                            formData.details?.realEstate?.waterFeatures ||
+                            false,
+                          soilType:
+                            formData.details?.realEstate?.soilType || "unknown",
                         } as LandDetails;
                       default:
                         return {
@@ -357,7 +399,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                           petsAllowed: false,
                         } as HouseDetails;
                     }
-                  })()
+                  })(),
                 }
               : undefined,
         },
@@ -818,7 +860,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     );
   };
 
-  const getCarFieldDisplayValue = (field: ListingFieldSchema, vehicleDetails: any) => {
+  const getCarFieldDisplayValue = (
+    field: ListingFieldSchema,
+    vehicleDetails: any,
+  ) => {
     const value = vehicleDetails?.[field.name];
     if (field.type === "checkbox" || field.type === "toggle") {
       return value ? t("common.yes") : t("common.no");
@@ -827,7 +872,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       const option = Array.isArray(field.options)
         ? field.options.find((opt: any) => opt.value === value || opt === value)
         : undefined;
-      return option ? (option.label || option.value || value) : value;
+      return option ? option.label || option.value || value : value;
     }
     if (field.type === "featureGroup" && field.featureGroups) {
       // Render feature group toggles
@@ -839,14 +884,19 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               <div className="flex flex-wrap gap-2">
                 {group.features.map((feature) => {
                   // Try to translate, fallback to cleaned label
-                  const label = t(feature.label) !== feature.label
-                    ? t(feature.label)
-                    : feature.label.replace(/^features\./, '').replace(/([a-z])([A-Z])/g, '$1 $2');
+                  const label =
+                    t(feature.label) !== feature.label
+                      ? t(feature.label)
+                      : feature.label
+                          .replace(/^features\./, "")
+                          .replace(/([a-z])([A-Z])/g, "$1 $2");
                   return (
                     <div key={feature.name} className="flex items-center gap-1">
                       <span>{label}</span>
                       <span className="ml-1 font-bold">
-                        {vehicleDetails?.[feature.name] ? t("common.yes") : t("common.no")}
+                        {vehicleDetails?.[feature.name]
+                          ? t("common.yes")
+                          : t("common.no")}
                       </span>
                     </div>
                   );
@@ -859,20 +909,34 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     }
     if (field.type === "colorpicker") {
       return (
-        <span className="inline-block w-6 h-6 rounded-full border border-gray-300 align-middle mr-2" style={{ backgroundColor: value }} title={value} />
+        <span
+          className="inline-block w-6 h-6 rounded-full border border-gray-300 align-middle mr-2"
+          style={{ backgroundColor: value }}
+          title={value}
+        />
       );
     }
-    return value || <span className="text-gray-400">{t("common.notSpecified")}</span>;
+    return (
+      value || <span className="text-gray-400">{t("common.notSpecified")}</span>
+    );
   };
 
   const getAdvancedFieldList = () => {
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
       const subCat = formData.category.subCategory;
-      return vehicleAdvancedFieldLists[subCat as keyof typeof vehicleAdvancedFieldLists] || [];
+      return (
+        vehicleAdvancedFieldLists[
+          subCat as keyof typeof vehicleAdvancedFieldLists
+        ] || []
+      );
     }
     if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
       const subCat = formData.category.subCategory;
-      return propertyAdvancedFieldLists[subCat as keyof typeof propertyAdvancedFieldLists] || [];
+      return (
+        propertyAdvancedFieldLists[
+          subCat as keyof typeof propertyAdvancedFieldLists
+        ] || []
+      );
     }
     return [];
   };
@@ -961,9 +1025,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {advancedFieldList.map((field) => (
                       <div key={field.name} className="flex flex-col">
-                        <span className="text-sm text-gray-500">{t(field.label)}</span>
+                        <span className="text-sm text-gray-500">
+                          {t(field.label)}
+                        </span>
                         <span className="font-medium">
-                          {getCarFieldDisplayValue(field, formData.details?.vehicles || formData.details?.realEstate)}
+                          {getCarFieldDisplayValue(
+                            field,
+                            formData.details?.vehicles ||
+                              formData.details?.realEstate,
+                          )}
                         </span>
                       </div>
                     ))}
@@ -986,9 +1056,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {advancedFieldList.map((field) => (
                       <div key={field.name} className="flex flex-col">
-                        <span className="text-sm text-gray-500">{t(field.label)}</span>
+                        <span className="text-sm text-gray-500">
+                          {t(field.label)}
+                        </span>
                         <span className="font-medium">
-                          {getCarFieldDisplayValue(field, formData.details?.vehicles || formData.details?.realEstate)}
+                          {getCarFieldDisplayValue(
+                            field,
+                            formData.details?.vehicles ||
+                              formData.details?.realEstate,
+                          )}
                         </span>
                       </div>
                     ))}
@@ -997,8 +1073,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               )}
             </>,
           )}
-
-
 
       {/* Images */}
       {renderSection(

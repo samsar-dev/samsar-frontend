@@ -166,9 +166,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleMakeChange = (value: FormFieldValue) => {
-    const makeStr = typeof value === "object" && value !== null && "value" in value 
-      ? value.value 
-      : String(value);
+    const makeStr =
+      typeof value === "object" && value !== null && "value" in value
+        ? value.value
+        : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -184,9 +185,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleModelChange = (value: FormFieldValue) => {
-    const modelStr = typeof value === "object" && value !== null && "value" in value 
-      ? value.value 
-      : String(value);
+    const modelStr =
+      typeof value === "object" && value !== null && "value" in value
+        ? value.value
+        : String(value);
     setFormData((prev) => ({
       ...prev,
       details: {
@@ -383,7 +385,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     // Basic fields validation
     if (!formData.title?.trim()) newErrors.title = t("fieldRequired");
-    if (!formData.description?.trim()) newErrors.description = t("fieldRequired");
+    if (!formData.description?.trim())
+      newErrors.description = t("fieldRequired");
     if (!formData.price) {
       newErrors.price = t("fieldRequired");
     } else {
@@ -1189,7 +1192,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             <FaAlignLeft className="w-4 h-4" />,
             t("descriptionPlaceholder"),
           )}
-          
+
           {/* Image Manager Component */}
           <div className="mt-6">
             <ImageManager
@@ -1212,7 +1215,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               onDeleteExisting={(url) => {
                 setFormData((prev) => ({
                   ...prev,
-                  existingImages: (prev.existingImages || []).filter((img) => img !== url),
+                  existingImages: (prev.existingImages || []).filter(
+                    (img) => img !== url,
+                  ),
                 }));
               }}
             />

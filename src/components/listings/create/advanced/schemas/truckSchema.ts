@@ -1,5 +1,9 @@
 import { ListingFieldSchema } from "../../../../../types/listings";
-import { Condition, FuelType, TransmissionType } from "../../../../../types/enums";
+import {
+  Condition,
+  FuelType,
+  TransmissionType,
+} from "../../../../../types/enums";
 
 export const truckSchema: ListingFieldSchema[] = [
   // Essential Section
@@ -27,7 +31,7 @@ export const truckSchema: ListingFieldSchema[] = [
       "tow",
       "garbage",
       "concrete",
-      "crane"
+      "crane",
     ],
     section: "essential",
     required: true,
@@ -54,7 +58,8 @@ export const truckSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Exterior color is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Exterior color is required" : null,
   },
   {
     name: "mileage",
@@ -64,7 +69,8 @@ export const truckSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value && value !== 0) return "Mileage is required";
-      if (typeof value === 'number' && value < 0) return "Mileage must be 0 or greater";
+      if (typeof value === "number" && value < 0)
+        return "Mileage must be 0 or greater";
       return null;
     },
   },
@@ -75,7 +81,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["regular", "extended", "crew", "sleeper"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Cab type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Cab type is required" : null,
   },
   {
     name: "bedLength",
@@ -84,7 +91,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["short", "standard", "long"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Bed length is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Bed length is required" : null,
   },
   {
     name: "previousOwners",
@@ -94,7 +102,8 @@ export const truckSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value && value !== 0) return "Previous owners is required";
-      if (typeof value === 'number' && value < 0) return "Previous owners must be 0 or greater";
+      if (typeof value === "number" && value < 0)
+        return "Previous owners must be 0 or greater";
       return null;
     },
   },
@@ -105,7 +114,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Registration status is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Registration status is required" : null,
   },
   {
     name: "payload",
@@ -115,7 +125,8 @@ export const truckSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return "Payload is required";
-      if (typeof value === 'number' && value <= 0) return "Payload must be greater than 0";
+      if (typeof value === "number" && value <= 0)
+        return "Payload must be greater than 0";
       return null;
     },
   },
@@ -126,7 +137,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["diesel", "gasoline", "electric", "hybrid"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Fuel type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Fuel type is required" : null,
   },
   {
     name: "transmissionType",
@@ -135,7 +147,8 @@ export const truckSchema: ListingFieldSchema[] = [
     options: ["", "manual", "automatic", "automated"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Transmission type is required" : null,
   },
 
   // Advanced Section
@@ -164,7 +177,11 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "insuranceType",
     label: "listings.fields.insuranceType",
     type: "select",
-    options: ["listings.fields.insuranceType.comprehensive", "listings.fields.insuranceType.thirdParty", "listings.fields.insuranceType.none"],
+    options: [
+      "listings.fields.insuranceType.comprehensive",
+      "listings.fields.insuranceType.thirdParty",
+      "listings.fields.insuranceType.none",
+    ],
     section: "advanced",
     required: false,
   },
@@ -172,7 +189,11 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "upholsteryMaterial",
     label: "listings.fields.upholsteryMaterial",
     type: "select",
-    options: ["listings.fields.upholsteryMaterial.leather", "listings.fields.upholsteryMaterial.fabric", "listings.fields.upholsteryMaterial.other"],
+    options: [
+      "listings.fields.upholsteryMaterial.leather",
+      "listings.fields.upholsteryMaterial.fabric",
+      "listings.fields.upholsteryMaterial.other",
+    ],
     section: "advanced",
     required: false,
   },
@@ -180,7 +201,11 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "tireCondition",
     label: "listings.fields.tireCondition",
     type: "select",
-    options: ["listings.fields.tireCondition.new", "listings.fields.tireCondition.good", "listings.fields.tireCondition.worn"],
+    options: [
+      "listings.fields.tireCondition.new",
+      "listings.fields.tireCondition.good",
+      "listings.fields.tireCondition.worn",
+    ],
     section: "advanced",
     required: false,
   },
@@ -188,7 +213,10 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "importStatus",
     label: "listings.fields.importStatus",
     type: "select",
-    options: ["listings.fields.importStatus.local", "listings.fields.importStatus.imported"],
+    options: [
+      "listings.fields.importStatus.local",
+      "listings.fields.importStatus.imported",
+    ],
     section: "advanced",
     required: false,
   },
@@ -247,7 +275,14 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "safetyFeatures",
     label: "listings.safetyFeatures",
     type: "multiselect",
-    options: ["abs", "laneAssist", "collisionWarning", "fireExtinguisher", "firstAidKit", "other"],
+    options: [
+      "abs",
+      "laneAssist",
+      "collisionWarning",
+      "fireExtinguisher",
+      "firstAidKit",
+      "other",
+    ],
     section: "advanced",
     required: false,
   },

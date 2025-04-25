@@ -169,7 +169,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full">
         {/* Subcategory Filter */}
-                {/* Subcategory Filter */}
+        {/* Subcategory Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t("filters.subcategory")}
@@ -331,46 +331,70 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
         {/* Built Year Filter - Only for Real Estate */}
         {selectedCategory === ListingCategory.REAL_ESTATE && (
-  <div className="space-y-2 z-[60]">
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-      {t("filters.built_year")}
-    </label>
-    <Listbox value={selectedBuiltYear || ""} onChange={setSelectedBuiltYear} disabled={localLoading}>
-      <div className="relative">
-        <Listbox.Button
-          className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          <span className="truncate">
-            {selectedBuiltYear
-              ? t(`filters.builtYearOptions.${selectedBuiltYear}`)
-              : t("filters.builtYearOptions.any")}
-          </span>
-        </Listbox.Button>
-        <Transition
-          as={Fragment}
-          leave="transition ease-in duration-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
-            <Listbox.Option value="" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
-              {t("filters.builtYearOptions.any")}
-            </Listbox.Option>
-            <Listbox.Option value="2023" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
-              {t("filters.builtYearOptions.2023")}
-            </Listbox.Option>
-            <Listbox.Option value="2010" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
-              {t("filters.builtYearOptions.2010")}
-            </Listbox.Option>
-            <Listbox.Option value="2000" className={({ active }) => `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`}>
-              {t("filters.builtYearOptions.2000")}
-            </Listbox.Option>
-          </Listbox.Options>
-        </Transition>
-      </div>
-    </Listbox>
-  </div>
-)}
+          <div className="space-y-2 z-[60]">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("filters.built_year")}
+            </label>
+            <Listbox
+              value={selectedBuiltYear || ""}
+              onChange={setSelectedBuiltYear}
+              disabled={localLoading}
+            >
+              <div className="relative">
+                <Listbox.Button
+                  className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <span className="truncate">
+                    {selectedBuiltYear
+                      ? t(`filters.builtYearOptions.${selectedBuiltYear}`)
+                      : t("filters.builtYearOptions.any")}
+                  </span>
+                </Listbox.Button>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto focus:outline-none sm:text-sm">
+                    <Listbox.Option
+                      value=""
+                      className={({ active }) =>
+                        `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
+                      }
+                    >
+                      {t("filters.builtYearOptions.any")}
+                    </Listbox.Option>
+                    <Listbox.Option
+                      value="2023"
+                      className={({ active }) =>
+                        `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
+                      }
+                    >
+                      {t("filters.builtYearOptions.2023")}
+                    </Listbox.Option>
+                    <Listbox.Option
+                      value="2010"
+                      className={({ active }) =>
+                        `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
+                      }
+                    >
+                      {t("filters.builtYearOptions.2010")}
+                    </Listbox.Option>
+                    <Listbox.Option
+                      value="2000"
+                      className={({ active }) =>
+                        `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
+                      }
+                    >
+                      {t("filters.builtYearOptions.2000")}
+                    </Listbox.Option>
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </Listbox>
+          </div>
+        )}
 
         {/* Make Filter - Only show for vehicle categories */}
         {isVehicleCategory(selectedSubcategory) &&

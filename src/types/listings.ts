@@ -70,7 +70,7 @@ export interface BaseVehicleDetails {
   brakeType?: string;
   engineNumber?: string;
   engineSize?: string;
-  vin?: string;
+ 
   attachments?: string[];
   fuelTankCapacity?: string;
   tires?: string;
@@ -83,7 +83,7 @@ export interface BaseVehicleDetails {
   wheelType?: string;
   engine?: string;
   registrationExpiry?: string;
-  
+
   // Safety Features
   accidentFree?: boolean;
   blindSpotMonitor?: boolean;
@@ -111,7 +111,7 @@ export interface BaseVehicleDetails {
   burglarAlarmSystem?: boolean;
   immobilizer?: boolean;
   centralLocking?: boolean;
-  
+
   // Camera Features
   rearCamera?: boolean;
   camera360?: boolean;
@@ -122,7 +122,7 @@ export interface BaseVehicleDetails {
   parkingAidCamera?: boolean;
   parkingAidSensorsRear?: boolean;
   parkingAidSensorsFront?: boolean;
-  
+
   // Climate Features
   climateControl?: boolean | string[];
   heatedSeats?: boolean;
@@ -132,7 +132,7 @@ export interface BaseVehicleDetails {
   airQualitySensor?: boolean;
   airConditioning?: boolean;
   twoZoneClimateControl?: boolean;
-  
+
   // Entertainment Features
   bluetooth?: boolean;
   appleCarPlay?: boolean;
@@ -151,7 +151,7 @@ export interface BaseVehicleDetails {
   radio?: boolean;
   soundSystem?: boolean;
   wifiHotspot?: boolean;
-  
+
   // Lighting Features
   ledHeadlights?: boolean;
   adaptiveHeadlights?: boolean;
@@ -162,7 +162,7 @@ export interface BaseVehicleDetails {
   daytimeRunningLights?: boolean;
   headlightCleaning?: boolean;
   lightSensor?: boolean;
-  
+
   // Convenience Features
   keylessEntry?: boolean;
   sunroof?: boolean;
@@ -187,13 +187,13 @@ export interface BaseVehicleDetails {
   armrest?: boolean;
   voiceControl?: boolean;
   touchscreen?: boolean;
-  
+
   // Extras
   aluminumRims?: boolean;
   luggageCompartmentSeparation?: boolean;
   summerTires?: boolean;
   powerSteering?: boolean;
-  
+
   // Nested Safety Features
   frontAirbags?: boolean;
   sideAirbags?: boolean;
@@ -203,7 +203,7 @@ export interface BaseVehicleDetails {
   laneDepartureWarning?: boolean;
   laneKeepAssist?: boolean;
   automaticEmergencyBraking?: boolean;
-  
+
   // Motorcycle specific fields
   startType?: string;
   coolingSystem?: string;
@@ -216,7 +216,7 @@ export interface BaseVehicleDetails {
   handlebarType?: string;
   storageOptions?: string[];
   protectiveEquipment?: string[];
-  
+
   // Additional fields
   importStatus?: string;
   serviceHistory?: boolean | string;
@@ -427,13 +427,25 @@ export interface TractorDetails extends BaseVehicleDetails {
 export type VehicleDetails = BaseVehicleDetails & {
   vehicleType: VehicleType;
 } & (
-  | (Omit<CarDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.CAR })
-  | (Omit<MotorcycleDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.MOTORCYCLE })
-  | (Omit<TruckDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.TRUCK })
-  | (Omit<VanDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.VAN })
-  | (Omit<BusDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.BUS })
-  | (Omit<TractorDetails, keyof BaseVehicleDetails> & { vehicleType: VehicleType.TRACTOR })
-);
+    | (Omit<CarDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.CAR;
+      })
+    | (Omit<MotorcycleDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.MOTORCYCLE;
+      })
+    | (Omit<TruckDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.TRUCK;
+      })
+    | (Omit<VanDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.VAN;
+      })
+    | (Omit<BusDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.BUS;
+      })
+    | (Omit<TractorDetails, keyof BaseVehicleDetails> & {
+        vehicleType: VehicleType.TRACTOR;
+      })
+  );
 
 export interface BaseRealEstateDetails {
   propertyType: PropertyType;
@@ -509,10 +521,7 @@ export interface LandDetails extends BasePropertyDetails {
   soilType: string;
 }
 
-export type RealEstateDetails = 
-  | HouseDetails 
-  | ApartmentDetails 
-  | LandDetails;
+export type RealEstateDetails = HouseDetails | ApartmentDetails | LandDetails;
 
 export interface ListingDetails {
   vehicles?: VehicleDetails;

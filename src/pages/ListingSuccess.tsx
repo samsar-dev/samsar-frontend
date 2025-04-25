@@ -12,9 +12,7 @@ const ListingSuccess = () => {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-xl mx-auto mt-16 text-center space-y-6"
     >
-      <div className="text-5xl text-green-500">
-        🎉
-      </div>
+      <div className="text-5xl text-green-500">🎉</div>
       <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
         Your listing was successfully uploaded!
       </h1>

@@ -52,7 +52,6 @@ const initialFormState: FormState = {
       serviceHistory: "",
       previousOwners: undefined,
       registrationStatus: "",
-      vin: "",
       engineNumber: "",
       accidentFree: false,
       importStatus: "",
@@ -61,7 +60,7 @@ const initialFormState: FormState = {
       upholsteryMaterial: "",
       tireCondition: "",
       customMake: "",
-      customModel: ""
+      customModel: "",
     },
   },
   listingAction: "sell",
@@ -273,8 +272,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
                     data.details?.vehicles?.year ||
                     new Date().getFullYear().toString(),
                   mileage: data.details?.vehicles?.mileage || "",
-                  fuelType:
-                    data.details?.vehicles?.fuelType || "",
+                  fuelType: data.details?.vehicles?.fuelType || "",
                   transmissionType:
                     data.details?.vehicles?.transmissionType ||
                     TransmissionType.AUTOMATIC,
@@ -282,7 +280,8 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   condition:
                     data.details?.vehicles?.condition || Condition.GOOD,
                   features: data.details?.vehicles?.features || [],
-                  interiorColor: data.details?.vehicles?.interiorColor || "#000000",
+                  interiorColor:
+                    data.details?.vehicles?.interiorColor || "#000000",
                   warranty: data.details?.vehicles?.warranty?.toString() || "",
                   serviceHistory: data.details?.vehicles?.serviceHistory || "",
                   previousOwners:

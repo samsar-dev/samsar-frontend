@@ -137,7 +137,7 @@ const Messages: React.FC = () => {
       const messageInput = {
         conversationId: activeConversation._id,
         content: content.trim(),
-        listingId: activeConversation.listingId || undefined
+        listingId: activeConversation.listingId || undefined,
       };
 
       const response = await MessagesAPI.sendMessage(messageInput);

@@ -1,9 +1,16 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaCrop, FaEraser, FaSave, FaUndo, FaSlidersH } from 'react-icons/fa';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaTimes,
+  FaCrop,
+  FaEraser,
+  FaSave,
+  FaUndo,
+  FaSlidersH,
+} from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface ImageEditorProps {
   imageUrl: string;
@@ -18,17 +25,25 @@ interface BlurRegion {
   height: number;
 }
 
-const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) => {
+const ImageEditor: React.FC<ImageEditorProps> = ({
+  imageUrl,
+  onSave,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const [blurRegions, setBlurRegions] = useState<BlurRegion[]>([]);
   const [isDrawingBlur, setIsDrawingBlur] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
+  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
-  const [mode, setMode] = useState<'crop' | 'blur'>('crop');
+  const [mode, setMode] = useState<"crop" | "blur">("crop");
   const [blurIntensity, setBlurIntensity] = useState(10);
-  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
+  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(
+    null,
+  );
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const imageRefCallback = useCallback((node: HTMLImageElement | null) => {
@@ -39,24 +54,29 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
   }, []);
 
   // Function to get the scaled coordinates
-  const getScaledCoordinates = (clientX: number, clientY: number, element: HTMLDivElement) => {
+  const getScaledCoordinates = (
+    clientX: number,
+    clientY: number,
+    element: HTMLDivElement,
+  ) => {
     const rect = element.getBoundingClientRect();
     const scaleX = (originalImage?.width || 0) / rect.width;
     const scaleY = (originalImage?.height || 0) / rect.height;
-    
+
     return {
       x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+      y: (clientY - rect.top) * scaleY,
     };
   };
 
   // Enhanced blur preview with debouncing
   useEffect(() => {
     const updateBlurPreview = () => {
-      if (mode !== 'blur' || !originalImage || !previewCanvasRef.current) return;
+      if (mode !== "blur" || !originalImage || !previewCanvasRef.current)
+        return;
 
       const canvas = previewCanvasRef.current;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
       // Set canvas dimensions to match original image
@@ -65,14 +85,14 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw original image
       ctx.drawImage(originalImage, 0, 0);
 
       if (blurRegions.length > 0) {
         // Create temporary canvas for blur effect
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
         if (!tempCtx) return;
 
         tempCanvas.width = canvas.width;
@@ -80,7 +100,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
         tempCtx.drawImage(canvas, 0, 0);
 
         // Apply blur to each region
-        blurRegions.forEach(region => {
+        blurRegions.forEach((region) => {
           if (region.width === 0 || region.height === 0) return;
 
           ctx.save();
@@ -94,7 +114,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
           ctx.drawImage(tempCanvas, 0, 0);
 
           // Add slight darkening effect for better visibility
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+          ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
           ctx.fillRect(region.x, region.y, region.width, region.height);
 
           ctx.restore();
@@ -116,11 +136,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
       if (!crop) {
         // Set initial crop area to 80% of image
         setCrop({
-          unit: '%',
+          unit: "%",
           width: 80,
           height: 80,
           x: 10,
-          y: 10
+          y: 10,
         });
       }
     };
@@ -131,31 +151,34 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (mode !== 'blur' || !imageRef) return;
-    
+    if (mode !== "blur" || !imageRef) return;
+
     const coords = getScaledCoordinates(e.clientX, e.clientY, e.currentTarget);
     setStartPoint(coords);
     setIsDrawingBlur(true);
-    
-    setBlurRegions(prev => [...prev, { 
-      x: coords.x,
-      y: coords.y,
-      width: 0,
-      height: 0
-    }]);
+
+    setBlurRegions((prev) => [
+      ...prev,
+      {
+        x: coords.x,
+        y: coords.y,
+        width: 0,
+        height: 0,
+      },
+    ]);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDrawingBlur || !startPoint || !imageRef) return;
 
     const coords = getScaledCoordinates(e.clientX, e.clientY, e.currentTarget);
-    
+
     const width = Math.abs(coords.x - startPoint.x);
     const height = Math.abs(coords.y - startPoint.y);
     const x = Math.min(coords.x, startPoint.x);
     const y = Math.min(coords.y, startPoint.y);
 
-    setBlurRegions(prev => {
+    setBlurRegions((prev) => {
       const regions = [...prev];
       regions[regions.length - 1] = { x, y, width, height };
       return regions;
@@ -170,14 +193,14 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
   };
 
   const removeLastBlurRegion = () => {
-    setBlurRegions(prev => prev.slice(0, -1));
+    setBlurRegions((prev) => prev.slice(0, -1));
   };
 
   const handleSave = async () => {
     if (!originalImage) return;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Set canvas size to original image dimensions
@@ -188,9 +211,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
     ctx.drawImage(originalImage, 0, 0);
 
     // Apply crop if in crop mode and crop is completed
-    if (mode === 'crop' && completedCrop && imgRef.current) {
-      const croppedCanvas = document.createElement('canvas');
-      const croppedCtx = croppedCanvas.getContext('2d');
+    if (mode === "crop" && completedCrop && imgRef.current) {
+      const croppedCanvas = document.createElement("canvas");
+      const croppedCtx = croppedCanvas.getContext("2d");
       if (!croppedCtx) return;
 
       // Calculate actual pixel values for crop
@@ -209,7 +232,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
         0,
         0,
         completedCrop.width * scaleX,
-        completedCrop.height * scaleY
+        completedCrop.height * scaleY,
       );
 
       // Update main canvas with cropped image
@@ -220,15 +243,15 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
 
     // Apply blur regions
     if (blurRegions.length > 0) {
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
       if (!tempCtx) return;
 
       tempCanvas.width = canvas.width;
       tempCanvas.height = canvas.height;
       tempCtx.drawImage(canvas, 0, 0);
 
-      blurRegions.forEach(region => {
+      blurRegions.forEach((region) => {
         if (region.width === 0 || region.height === 0) return;
 
         ctx.save();
@@ -242,7 +265,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
         ctx.drawImage(tempCanvas, 0, 0);
 
         // Add slight darkening for better visibility
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
         ctx.fillRect(region.x, region.y, region.width, region.height);
 
         ctx.restore();
@@ -256,8 +279,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
           onSave(blob);
         }
       },
-      'image/jpeg',
-      0.95
+      "image/jpeg",
+      0.95,
     );
   };
 
@@ -273,30 +296,30 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <div className="flex space-x-4">
             <button
-              onClick={() => setMode('crop')}
-              className={`p-2 rounded flex items-center ${mode === 'crop' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-              title={t('crop')}
+              onClick={() => setMode("crop")}
+              className={`p-2 rounded flex items-center ${mode === "crop" ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"}`}
+              title={t("crop")}
             >
               <FaCrop className="mr-2" />
-              <span>{t('crop')}</span>
+              <span>{t("crop")}</span>
             </button>
             <button
-              onClick={() => setMode('blur')}
-              className={`p-2 rounded flex items-center ${mode === 'blur' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-              title={t('blur')}
+              onClick={() => setMode("blur")}
+              className={`p-2 rounded flex items-center ${mode === "blur" ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"}`}
+              title={t("blur")}
             >
               <FaEraser className="mr-2" />
-              <span>{t('blur')}</span>
+              <span>{t("blur")}</span>
             </button>
-            {mode === 'blur' && (
+            {mode === "blur" && (
               <>
                 <button
                   onClick={removeLastBlurRegion}
                   className="p-2 rounded flex items-center text-gray-600 hover:bg-gray-100"
-                  title={t('undo')}
+                  title={t("undo")}
                 >
                   <FaUndo className="mr-2" />
-                  <span>{t('undo')}</span>
+                  <span>{t("undo")}</span>
                 </button>
                 <div className="flex items-center space-x-2">
                   <FaSlidersH className="text-gray-600" />
@@ -307,7 +330,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
                     value={blurIntensity}
                     onChange={(e) => setBlurIntensity(Number(e.target.value))}
                     className="w-24"
-                    title={t('blurIntensity')}
+                    title={t("blurIntensity")}
                   />
                 </div>
               </>
@@ -319,12 +342,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center"
             >
               <FaSave className="mr-2" />
-              {t('save')}
+              {t("save")}
             </button>
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700"
-              title={t('close')}
+              title={t("close")}
             >
               <FaTimes />
             </button>
@@ -339,7 +362,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {mode === 'crop' ? (
+            {mode === "crop" ? (
               <ReactCrop
                 crop={crop}
                 onChange={(c) => setCrop(c)}
@@ -361,9 +384,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
                   ref={previewCanvasRef}
                   className="max-w-full"
                   style={{
-                    width: '100%',
-                    height: 'auto',
-                    display: mode === 'blur' ? 'block' : 'none'
+                    width: "100%",
+                    height: "auto",
+                    display: mode === "blur" ? "block" : "none",
                   }}
                 />
                 <img
@@ -371,7 +394,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
                   alt="Edit"
                   ref={imageRefCallback}
                   className="max-w-full"
-                  style={{ display: mode === 'blur' ? 'none' : 'block' }}
+                  style={{ display: mode === "blur" ? "none" : "block" }}
                   crossOrigin="anonymous"
                 />
                 {blurRegions.map((region, index) => (
@@ -395,4 +418,4 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, onSave, onClose }) 
   );
 };
 
-export default ImageEditor; 
+export default ImageEditor;

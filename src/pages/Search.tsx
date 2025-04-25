@@ -60,15 +60,15 @@ const Search: React.FC = () => {
     const params: any = {
       limit: 10,
       page: 1,
-      search: query
+      search: query,
     };
-    
+
     // Only add category if present
     if (category) {
       params.category = {
-        mainCategory: category as ListingCategory
+        mainCategory: category as ListingCategory,
       };
-      
+
       // Add subcategory if present
       if (subcategory) {
         params.category.subCategory = subcategory as VehicleType | PropertyType;
@@ -76,7 +76,12 @@ const Search: React.FC = () => {
     }
 
     try {
-      console.log("Search component - Searching with query:", query, "and params:", params);
+      console.log(
+        "Search component - Searching with query:",
+        query,
+        "and params:",
+        params,
+      );
       const response = await listingsAPI.search(query, params);
       console.log("Search component - Response received:", response);
 
@@ -87,11 +92,11 @@ const Search: React.FC = () => {
         response: {
           success: response.success,
           hasData: !!response.data,
-          dataType: response.data ? typeof response.data : 'null',
+          dataType: response.data ? typeof response.data : "null",
           isArray: response.data && Array.isArray(response.data),
           dataKeys: response.data ? Object.keys(response.data) : [],
-          error: response.error
-        }
+          error: response.error,
+        },
       });
 
       if (!response.success) {
@@ -100,20 +105,21 @@ const Search: React.FC = () => {
 
       // Handle different response formats
       const listingsData = response.data?.listings || response.data || [];
-      
+
       // Ensure we have an array of listings
-      const normalizedListings = Array.isArray(listingsData) 
-        ? listingsData 
-        : Array.isArray(response.data) 
-          ? response.data 
+      const normalizedListings = Array.isArray(listingsData)
+        ? listingsData
+        : Array.isArray(response.data)
+          ? response.data
           : [];
-      
-      console.log("Search component - Normalized listings:", 
-        normalizedListings.length > 0 
-          ? `Found ${normalizedListings.length} listings` 
-          : "No listings found"
+
+      console.log(
+        "Search component - Normalized listings:",
+        normalizedListings.length > 0
+          ? `Found ${normalizedListings.length} listings`
+          : "No listings found",
       );
-      
+
       if (normalizedListings.length > 0) {
         console.log("Search component - First listing:", normalizedListings[0]);
       }
@@ -121,41 +127,54 @@ const Search: React.FC = () => {
       if (normalizedListings.length === 0) {
         setError("No listings found matching your search");
         setListings([]);
-        
+
         // If no results, try manually filtering all listings as fallback
         try {
-          console.log("Search component - No results from API, trying to fetch all listings");
+          console.log(
+            "Search component - No results from API, trying to fetch all listings",
+          );
           const allResponse = await listingsAPI.getAll({ limit: 100 });
-          
-          if (allResponse.success && allResponse.data && allResponse.data.listings && allResponse.data.listings.length > 0) {
+
+          if (
+            allResponse.success &&
+            allResponse.data &&
+            allResponse.data.listings &&
+            allResponse.data.listings.length > 0
+          ) {
             const allListings = allResponse.data.listings;
-            console.log(`Search component - Got ${allListings.length} total listings, filtering client-side`);
-            
+            console.log(
+              `Search component - Got ${allListings.length} total listings, filtering client-side`,
+            );
+
             // Filter listings by search term - case insensitive
             const lowerQuery = query.toLowerCase();
-            const matchedListings = allListings.filter(listing => {
+            const matchedListings = allListings.filter((listing) => {
               const searchFields = [
                 listing.title,
                 listing.description,
                 listing.details?.vehicles?.make,
                 listing.details?.vehicles?.model,
-                listing.location
-              ].filter(Boolean).map(field => field?.toLowerCase());
-              
-              return searchFields.some(field => field?.includes(lowerQuery));
+                listing.location,
+              ]
+                .filter(Boolean)
+                .map((field) => field?.toLowerCase());
+
+              return searchFields.some((field) => field?.includes(lowerQuery));
             });
-            
+
             if (matchedListings.length > 0) {
-              console.log(`Search component - Found ${matchedListings.length} listings by client-side filtering`);
+              console.log(
+                `Search component - Found ${matchedListings.length} listings by client-side filtering`,
+              );
               setListings(matchedListings);
               setError(null);
-              setDebugInfo(prev => ({
-                ...prev as DebugInfo,
+              setDebugInfo((prev) => ({
+                ...(prev as DebugInfo),
                 clientSideFiltering: {
                   applied: true,
                   totalFetched: allListings.length,
-                  matchesFound: matchedListings.length
-                }
+                  matchesFound: matchedListings.length,
+                },
               }));
               setLoading(false);
               return;
@@ -191,7 +210,7 @@ const Search: React.FC = () => {
   }, [query, fetchListings]);
 
   // Only show debug info in development
-  const showDebug = process.env.NODE_ENV === 'development';
+  const showDebug = process.env.NODE_ENV === "development";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -246,7 +265,7 @@ const Search: React.FC = () => {
               />
             ))}
           </div>
-          
+
           {showDebug && debugInfo && (
             <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
               <h3 className="font-bold mb-2">Debug Information:</h3>

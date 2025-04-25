@@ -101,7 +101,9 @@ export interface ListingCreateInput extends Omit<FormState, "images"> {
   };
 }
 
-export const createListing = async (formData: FormData): Promise<APIResponse<SingleListingResponse>> => {
+export const createListing = async (
+  formData: FormData,
+): Promise<APIResponse<SingleListingResponse>> => {
   try {
     // Log the form data for debugging
     console.log("FormData entries:");
@@ -120,7 +122,7 @@ export const createListing = async (formData: FormData): Promise<APIResponse<Sin
 
       if (details.vehicles) {
         // Validate required fields
-        const requiredFields = ['vehicleType', 'make', 'model'];
+        const requiredFields = ["vehicleType", "make", "model"];
         for (const field of requiredFields) {
           if (!details.vehicles[field]) {
             throw new Error(`${field} is required for vehicle listings`);
@@ -136,7 +138,7 @@ export const createListing = async (formData: FormData): Promise<APIResponse<Sin
           torque: null,
           seatingCapacity: null,
           maxSpeed: null,
-          airbags: null
+          airbags: null,
         };
 
         // Process numeric fields
@@ -149,54 +151,71 @@ export const createListing = async (formData: FormData): Promise<APIResponse<Sin
 
         // Common boolean fields with defaults
         const booleanFields = [
-          'serviceHistory',
-          'accidentFree',
-          'customsCleared',
-          'parkingSensors',
-          'parkingCamera'
+          "serviceHistory",
+          "accidentFree",
+          "customsCleared",
+          "parkingSensors",
+          "parkingCamera",
         ];
 
-        booleanFields.forEach(field => {
+        booleanFields.forEach((field) => {
           details.vehicles[field] = Boolean(details.vehicles[field]);
         });
 
         // Common string fields with empty string defaults
         const stringFields = [
-          'engineSize',
-          'engineNumber',
-          'vin',
-          'warranty',
-          'insuranceType',
-          'registrationStatus',
-          'color',
-          'interiorColor',
-          'fuelType',
-          'transmissionType'
+          "engineSize",
+          "engineNumber",
+          "vin",
+          "warranty",
+          "insuranceType",
+          "registrationStatus",
+          "color",
+          "interiorColor",
+          "fuelType",
+          "transmissionType",
         ];
 
-        stringFields.forEach(field => {
-          details.vehicles[field] = details.vehicles[field] || '';
+        stringFields.forEach((field) => {
+          details.vehicles[field] = details.vehicles[field] || "";
         });
 
         // Ensure features is an array
-        details.vehicles.features = Array.isArray(details.vehicles.features) ? 
-          details.vehicles.features : [];
+        details.vehicles.features = Array.isArray(details.vehicles.features)
+          ? details.vehicles.features
+          : [];
 
         // Handle specific vehicle type details
         const vehicleTypeFields: Record<VehicleType, string[]> = {
-          [VehicleType.CAR]: ['fuelEfficiency', 'emissionClass', 'driveType', 'wheelSize', 'wheelType'],
-          [VehicleType.MOTORCYCLE]: ['engineDisplacement', 'startingSystem', 'coolingSystem'],
-          [VehicleType.TRUCK]: ['loadCapacity', 'axleConfiguration', 'cabType'],
-          [VehicleType.VAN]: ['cargoVolume', 'roofHeight', 'loadLength'],
-          [VehicleType.TRACTOR]: ['horsepower', 'attachments', 'fuelTankCapacity', 'tires'],
-          [VehicleType.RV]: ['length', 'slideOuts', 'sleepingCapacity'],
-          [VehicleType.BUS]: ['passengerCapacity', 'busLength', 'busType']
+          [VehicleType.CAR]: [
+            "fuelEfficiency",
+            "emissionClass",
+            "driveType",
+            "wheelSize",
+            "wheelType",
+          ],
+          [VehicleType.MOTORCYCLE]: [
+            "engineDisplacement",
+            "startingSystem",
+            "coolingSystem",
+          ],
+          [VehicleType.TRUCK]: ["loadCapacity", "axleConfiguration", "cabType"],
+          [VehicleType.VAN]: ["cargoVolume", "roofHeight", "loadLength"],
+          [VehicleType.TRACTOR]: [
+            "horsepower",
+            "attachments",
+            "fuelTankCapacity",
+            "tires",
+          ],
+          [VehicleType.RV]: ["length", "slideOuts", "sleepingCapacity"],
+          [VehicleType.BUS]: ["passengerCapacity", "busLength", "busType"],
         };
 
         // Apply vehicle type specific fields
-        const typeFields = vehicleTypeFields[details.vehicles.vehicleType as VehicleType] || [];
+        const typeFields =
+          vehicleTypeFields[details.vehicles.vehicleType as VehicleType] || [];
         typeFields.forEach((field: string) => {
-          details.vehicles[field] = details.vehicles[field] || '';
+          details.vehicles[field] = details.vehicles[field] || "";
         });
       }
 
@@ -206,12 +225,14 @@ export const createListing = async (formData: FormData): Promise<APIResponse<Sin
       // Send the request
       const response = await apiClient.post("/listings", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       if (!response.data.success) {
-        throw new Error(response.data.error?.message || "Failed to create listing");
+        throw new Error(
+          response.data.error?.message || "Failed to create listing",
+        );
       }
 
       return response.data;
@@ -309,25 +330,46 @@ const setInCache = (key: string, data: any) => {
 };
 
 interface ListingsAPI {
-  getSavedListings(userId?: string, signal?: AbortSignal): Promise<APIResponse<any>>;
-  getAll(params: ListingParams, signal?: AbortSignal): Promise<APIResponse<ListingsResponse>>;
-  getVehicleListings(params: ListingParams): Promise<APIResponse<ListingsResponse>>;
-  getRealEstateListings(params: ListingParams): Promise<APIResponse<ListingsResponse>>;
+  getSavedListings(
+    userId?: string,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<any>>;
+  getAll(
+    params: ListingParams,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<ListingsResponse>>;
+  getVehicleListings(
+    params: ListingParams,
+  ): Promise<APIResponse<ListingsResponse>>;
+  getRealEstateListings(
+    params: ListingParams,
+  ): Promise<APIResponse<ListingsResponse>>;
   getListing(id: string): Promise<APIResponse<Listing>>;
   updateListing(id: string, formData: FormData): Promise<APIResponse<Listing>>;
   deleteListing(id: string): Promise<APIResponse<Listing>>;
   saveListing(listingId: string): Promise<APIResponse<Listing>>;
   addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>>;
   removeFavorite(listingId: string): Promise<APIResponse<void>>;
-  getUserListings(params?: ListingParams, signal?: AbortSignal): Promise<APIResponse<UserListingsResponse>>;
+  getUserListings(
+    params?: ListingParams,
+    signal?: AbortSignal,
+  ): Promise<APIResponse<UserListingsResponse>>;
   getById(id: string): Promise<APIResponse<Listing>>;
   create(formData: FormData): Promise<APIResponse<SingleListingResponse>>;
-  update(id: string, formData: FormData): Promise<APIResponse<SingleListingResponse>>;
+  update(
+    id: string,
+    formData: FormData,
+  ): Promise<APIResponse<SingleListingResponse>>;
   delete(id: string): Promise<APIResponse<void>>;
-  search(query: string, params?: ListingParams): Promise<APIResponse<ListingsResponse>>;
+  search(
+    query: string,
+    params?: ListingParams,
+  ): Promise<APIResponse<ListingsResponse>>;
   getTrending(limit?: number): Promise<APIResponse<Listing>>;
   getListingsByIds(ids: string[]): Promise<APIResponse<Listing>>;
-  getListingsByCategory(category: ListingCategory): Promise<APIResponse<Listing>>;
+  getListingsByCategory(
+    category: ListingCategory,
+  ): Promise<APIResponse<Listing>>;
   getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>>;
 }
 
@@ -371,7 +413,10 @@ export const listingsAPI: ListingsAPI = {
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to fetch saved listings",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch saved listings",
       };
     }
   },
@@ -424,7 +469,7 @@ export const listingsAPI: ListingsAPI = {
       if (params.builtYear !== undefined && params.builtYear !== null) {
         queryParams.append("builtYear", params.builtYear.toString());
       }
-      
+
       // Add preview parameter to request minimal data
       if (params.preview) {
         queryParams.append("preview", "true");
@@ -466,25 +511,22 @@ export const listingsAPI: ListingsAPI = {
       if (params.preview && responseData.listings) {
         responseData.listings = responseData.listings.map((listing: any) => {
           // Keep only essential vehicle or real estate details if they exist
-          const essentialDetails: any = { ...listing.details };
-          
-          if (listing.details?.vehicles) {
-            essentialDetails.vehicles = {
-              vehicleType: listing.details.vehicles.vehicleType,
-              make: listing.details.vehicles.make,
-              model: listing.details.vehicles.model,
-              year: listing.details.vehicles.year,
-              mileage: typeof listing.details.vehicles.mileage === "string" 
-                ? parseInt(listing.details.vehicles.mileage, 10) 
-                : (listing.details.vehicles.mileage || 0),
-              fuelType: listing.details.vehicles.fuelType || "",
-              transmissionType: listing.details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
-              transmission: listing.details.vehicles.transmission || "",
-              color: listing.details.vehicles.color,
-              condition: listing.details.vehicles.condition
-            };
-          }
-          
+          const essentialDetails: any = {
+            vehicles: listing.details.vehicles
+              ? {
+                  ...listing.details.vehicles,
+                  make: listing.details.vehicles.make,
+                  model: listing.details.vehicles.model,
+                  year: listing.details.vehicles.year,
+                  mileage: listing.details.vehicles.mileage,
+                  transmissionType: listing.details.vehicles.transmissionType,
+                  fuelType: listing.details.vehicles.fuelType,
+                  color: listing.details.vehicles.color,
+                  condition: listing.details.vehicles.condition,
+                }
+              : undefined,
+          };
+
           if (listing.details?.realEstate) {
             essentialDetails.realEstate = {
               propertyType: listing.details.realEstate.propertyType,
@@ -492,13 +534,13 @@ export const listingsAPI: ListingsAPI = {
               bedrooms: listing.details.realEstate.bedrooms,
               bathrooms: listing.details.realEstate.bathrooms,
               yearBuilt: listing.details.realEstate.yearBuilt,
-              condition: listing.details.realEstate.condition
+              condition: listing.details.realEstate.condition,
             };
           }
-          
+
           return {
             ...listing,
-            details: essentialDetails
+            details: essentialDetails,
           };
         });
       }
@@ -534,12 +576,16 @@ export const listingsAPI: ListingsAPI = {
     try {
       const response = await apiClient.get<ListingsResponse>(
         `/listings/vehicles`,
-        { params }
+        { params },
       );
       return { success: true, data: response.data };
     } catch (error) {
       const err = error as AxiosError;
-      return { success: false, data: null, error: err.response?.data?.error || err.message };
+      return {
+        success: false,
+        data: null,
+        error: err.response?.data?.error || err.message,
+      };
     }
   },
 
@@ -549,12 +595,16 @@ export const listingsAPI: ListingsAPI = {
     try {
       const response = await apiClient.get<ListingsResponse>(
         `/listings/real-estate`,
-        { params }
+        { params },
       );
       return { success: true, data: response.data };
     } catch (error) {
       const err = error as AxiosError;
-      return { success: false, data: null, error: err.response?.data?.error || err.message };
+      return {
+        success: false,
+        data: null,
+        error: err.response?.data?.error || err.message,
+      };
     }
   },
 
@@ -672,8 +722,6 @@ export const listingsAPI: ListingsAPI = {
     }
   },
 
-
-
   // Add favorite
   async addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>> {
     try {
@@ -759,7 +807,7 @@ export const listingsAPI: ListingsAPI = {
     try {
       console.log("Fetching listing with ID:", id);
       // Get token from localStorage
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const response = await apiClient.get<{
         success: boolean;
@@ -801,114 +849,236 @@ export const listingsAPI: ListingsAPI = {
               model: responseData.details.vehicles.model || "",
               year: responseData.details.vehicles.year || "",
               // Essential fields
-              mileage: typeof responseData.details.vehicles.mileage === "string" 
-                ? parseInt(responseData.details.vehicles.mileage, 10) 
-                : (responseData.details.vehicles.mileage || 0),
+              mileage:
+                typeof responseData.details.vehicles.mileage === "string"
+                  ? parseInt(responseData.details.vehicles.mileage, 10)
+                  : responseData.details.vehicles.mileage || 0,
               fuelType: responseData.details.vehicles.fuelType || "",
-              transmissionType: responseData.details.vehicles.transmissionType || TransmissionType.AUTOMATIC,
+              transmissionType:
+                responseData.details.vehicles.transmissionType ||
+                TransmissionType.AUTOMATIC,
               transmission: responseData.details.vehicles.transmission || "",
               // Appearance fields
               color: responseData.details.vehicles.color || "#000000",
-              interiorColor: responseData.details.vehicles.interiorColor || "#000000",
-              condition: responseData.details.vehicles.condition || Condition.GOOD,
-              features: responseData.details.vehicles.features || {} as Record<string, any>,
+              interiorColor:
+                responseData.details.vehicles.interiorColor || "#000000",
+              condition:
+                responseData.details.vehicles.condition || Condition.GOOD,
+              features:
+                responseData.details.vehicles.features ||
+                ({} as Record<string, any>),
               // Technical fields
-              brakeType: responseData.details.vehicles.brakeType || "Not provided",
-              engineSize: responseData.details.vehicles.engineSize || "Not provided",
-              horsepower: typeof responseData.details.vehicles.horsepower === "string" 
-                ? parseInt(responseData.details.vehicles.horsepower, 10) 
-                : (responseData.details.vehicles.horsepower || 0),
-              torque: typeof responseData.details.vehicles.torque === "string" 
-                ? parseInt(responseData.details.vehicles.torque, 10) 
-                : (responseData.details.vehicles.torque || 0),
-              previousOwners: typeof responseData.details.vehicles.previousOwners === "string" 
-                ? parseInt(responseData.details.vehicles.previousOwners, 10) 
-                : (responseData.details.vehicles.previousOwners || 0),
+              brakeType:
+                responseData.details.vehicles.brakeType || "Not provided",
+              engineSize:
+                responseData.details.vehicles.engineSize || "Not provided",
+              horsepower:
+                typeof responseData.details.vehicles.horsepower === "string"
+                  ? parseInt(responseData.details.vehicles.horsepower, 10)
+                  : responseData.details.vehicles.horsepower || 0,
+              torque:
+                typeof responseData.details.vehicles.torque === "string"
+                  ? parseInt(responseData.details.vehicles.torque, 10)
+                  : responseData.details.vehicles.torque || 0,
+              previousOwners:
+                typeof responseData.details.vehicles.previousOwners === "string"
+                  ? parseInt(responseData.details.vehicles.previousOwners, 10)
+                  : responseData.details.vehicles.previousOwners || 0,
               // Service and History
-              accidentFree: responseData.details.vehicles.accidentFree === true || responseData.details.vehicles.accidentFree === "true",
-              importStatus: responseData.details.vehicles.importStatus || "Local",
-              registrationExpiry: responseData.details.vehicles.registrationExpiry || "",
+              accidentFree:
+                responseData.details.vehicles.accidentFree === true ||
+                responseData.details.vehicles.accidentFree === "true",
+              importStatus:
+                responseData.details.vehicles.importStatus || "Local",
+              registrationExpiry:
+                responseData.details.vehicles.registrationExpiry || "",
               warranty: responseData.details.vehicles.warranty || "No",
-              warrantyPeriod: responseData.details.vehicles.warrantyPeriod || "",
-              serviceHistory: responseData.details.vehicles.serviceHistory === true || responseData.details.vehicles.serviceHistory === "true",
-              serviceHistoryDetails: responseData.details.vehicles.serviceHistoryDetails || "",
-              insuranceType: responseData.details.vehicles.insuranceType || "None",
-              upholsteryMaterial: responseData.details.vehicles.upholsteryMaterial || "Other",
-              customsCleared: responseData.details.vehicles.customsCleared === true || responseData.details.vehicles.customsCleared === "true",
+              warrantyPeriod:
+                responseData.details.vehicles.warrantyPeriod || "",
+              serviceHistory:
+                responseData.details.vehicles.serviceHistory === true ||
+                responseData.details.vehicles.serviceHistory === "true",
+              serviceHistoryDetails:
+                responseData.details.vehicles.serviceHistoryDetails || "",
+              insuranceType:
+                responseData.details.vehicles.insuranceType || "None",
+              upholsteryMaterial:
+                responseData.details.vehicles.upholsteryMaterial || "Other",
+              customsCleared:
+                responseData.details.vehicles.customsCleared === true ||
+                responseData.details.vehicles.customsCleared === "true",
               bodyType: responseData.details.vehicles.bodyType || "",
               roofType: responseData.details.vehicles.roofType || "",
-              additionalNotes: responseData.details.vehicles.additionalNotes || "",
-              
+              additionalNotes:
+                responseData.details.vehicles.additionalNotes || "",
+
               // Safety Features
-              blindSpotMonitor: responseData.details.vehicles.blindSpotMonitor === true || responseData.details.vehicles.blindSpotMonitor === "true",
-              laneAssist: responseData.details.vehicles.laneAssist === true || responseData.details.vehicles.laneAssist === "true",
-              adaptiveCruiseControl: responseData.details.vehicles.adaptiveCruiseControl === true || responseData.details.vehicles.adaptiveCruiseControl === "true",
-              tractionControl: responseData.details.vehicles.tractionControl === true || responseData.details.vehicles.tractionControl === "true",
-              abs: responseData.details.vehicles.abs === true || responseData.details.vehicles.abs === "true",
-              emergencyBrakeAssist: responseData.details.vehicles.emergencyBrakeAssist === true || responseData.details.vehicles.emergencyBrakeAssist === "true",
-              tirePressureMonitoring: responseData.details.vehicles.tirePressureMonitoring === true || responseData.details.vehicles.tirePressureMonitoring === "true",
-              
+              blindSpotMonitor:
+                responseData.details.vehicles.blindSpotMonitor === true ||
+                responseData.details.vehicles.blindSpotMonitor === "true",
+              laneAssist:
+                responseData.details.vehicles.laneAssist === true ||
+                responseData.details.vehicles.laneAssist === "true",
+              adaptiveCruiseControl:
+                responseData.details.vehicles.adaptiveCruiseControl === true ||
+                responseData.details.vehicles.adaptiveCruiseControl === "true",
+              tractionControl:
+                responseData.details.vehicles.tractionControl === true ||
+                responseData.details.vehicles.tractionControl === "true",
+              abs:
+                responseData.details.vehicles.abs === true ||
+                responseData.details.vehicles.abs === "true",
+              emergencyBrakeAssist:
+                responseData.details.vehicles.emergencyBrakeAssist === true ||
+                responseData.details.vehicles.emergencyBrakeAssist === "true",
+              tirePressureMonitoring:
+                responseData.details.vehicles.tirePressureMonitoring === true ||
+                responseData.details.vehicles.tirePressureMonitoring === "true",
+
               // Nested Safety Features
-              frontAirbags: responseData.details.vehicles.frontAirbags === true || responseData.details.vehicles.frontAirbags === "true",
-              sideAirbags: responseData.details.vehicles.sideAirbags === true || responseData.details.vehicles.sideAirbags === "true",
-              curtainAirbags: responseData.details.vehicles.curtainAirbags === true || responseData.details.vehicles.curtainAirbags === "true",
-              kneeAirbags: responseData.details.vehicles.kneeAirbags === true || responseData.details.vehicles.kneeAirbags === "true",
-              cruiseControl: responseData.details.vehicles.cruiseControl === true || responseData.details.vehicles.cruiseControl === "true",
-              laneDepartureWarning: responseData.details.vehicles.laneDepartureWarning === true || responseData.details.vehicles.laneDepartureWarning === "true",
-              laneKeepAssist: responseData.details.vehicles.laneKeepAssist === true || responseData.details.vehicles.laneKeepAssist === "true",
-              automaticEmergencyBraking: responseData.details.vehicles.automaticEmergencyBraking === true || responseData.details.vehicles.automaticEmergencyBraking === "true",
-              
+              frontAirbags:
+                responseData.details.vehicles.frontAirbags === true ||
+                responseData.details.vehicles.frontAirbags === "true",
+              sideAirbags:
+                responseData.details.vehicles.sideAirbags === true ||
+                responseData.details.vehicles.sideAirbags === "true",
+              curtainAirbags:
+                responseData.details.vehicles.curtainAirbags === true ||
+                responseData.details.vehicles.curtainAirbags === "true",
+              kneeAirbags:
+                responseData.details.vehicles.kneeAirbags === true ||
+                responseData.details.vehicles.kneeAirbags === "true",
+              cruiseControl:
+                responseData.details.vehicles.cruiseControl === true ||
+                responseData.details.vehicles.cruiseControl === "true",
+              laneDepartureWarning:
+                responseData.details.vehicles.laneDepartureWarning === true ||
+                responseData.details.vehicles.laneDepartureWarning === "true",
+              laneKeepAssist:
+                responseData.details.vehicles.laneKeepAssist === true ||
+                responseData.details.vehicles.laneKeepAssist === "true",
+              automaticEmergencyBraking:
+                responseData.details.vehicles.automaticEmergencyBraking ===
+                  true ||
+                responseData.details.vehicles.automaticEmergencyBraking ===
+                  "true",
+
               // Camera Features
-              rearCamera: responseData.details.vehicles.rearCamera === true || responseData.details.vehicles.rearCamera === "true",
-              camera360: responseData.details.vehicles.camera360 === true || responseData.details.vehicles.camera360 === "true",
-              dashCam: responseData.details.vehicles.dashCam === true || responseData.details.vehicles.dashCam === "true",
-              nightVision: responseData.details.vehicles.nightVision === true || responseData.details.vehicles.nightVision === "true",
-              parkingSensors: responseData.details.vehicles.parkingSensors === true || responseData.details.vehicles.parkingSensors === "true",
-              
+              rearCamera:
+                responseData.details.vehicles.rearCamera === true ||
+                responseData.details.vehicles.rearCamera === "true",
+              camera360:
+                responseData.details.vehicles.camera360 === true ||
+                responseData.details.vehicles.camera360 === "true",
+              dashCam:
+                responseData.details.vehicles.dashCam === true ||
+                responseData.details.vehicles.dashCam === "true",
+              nightVision:
+                responseData.details.vehicles.nightVision === true ||
+                responseData.details.vehicles.nightVision === "true",
+              parkingSensors:
+                responseData.details.vehicles.parkingSensors === true ||
+                responseData.details.vehicles.parkingSensors === "true",
+
               // Climate Features
-              climateControl: responseData.details.vehicles.climateControl === true || responseData.details.vehicles.climateControl === "true",
-              heatedSeats: responseData.details.vehicles.heatedSeats === true || responseData.details.vehicles.heatedSeats === "true",
-              ventilatedSeats: responseData.details.vehicles.ventilatedSeats === true || responseData.details.vehicles.ventilatedSeats === "true",
-              dualZoneClimate: responseData.details.vehicles.dualZoneClimate === true || responseData.details.vehicles.dualZoneClimate === "true",
-              rearAC: responseData.details.vehicles.rearAC === true || responseData.details.vehicles.rearAC === "true",
-              airQualitySensor: responseData.details.vehicles.airQualitySensor === true || responseData.details.vehicles.airQualitySensor === "true",
-              
+              climateControl:
+                responseData.details.vehicles.climateControl === true ||
+                responseData.details.vehicles.climateControl === "true",
+              heatedSeats:
+                responseData.details.vehicles.heatedSeats === true ||
+                responseData.details.vehicles.heatedSeats === "true",
+              ventilatedSeats:
+                responseData.details.vehicles.ventilatedSeats === true ||
+                responseData.details.vehicles.ventilatedSeats === "true",
+              dualZoneClimate:
+                responseData.details.vehicles.dualZoneClimate === true ||
+                responseData.details.vehicles.dualZoneClimate === "true",
+              rearAC:
+                responseData.details.vehicles.rearAC === true ||
+                responseData.details.vehicles.rearAC === "true",
+              airQualitySensor:
+                responseData.details.vehicles.airQualitySensor === true ||
+                responseData.details.vehicles.airQualitySensor === "true",
+
               // Entertainment Features
-              bluetooth: responseData.details.vehicles.bluetooth === true || responseData.details.vehicles.bluetooth === "true",
-              appleCarPlay: responseData.details.vehicles.appleCarPlay === true || responseData.details.vehicles.appleCarPlay === "true",
-              androidAuto: responseData.details.vehicles.androidAuto === true || responseData.details.vehicles.androidAuto === "true",
-              premiumSound: responseData.details.vehicles.premiumSound === true || responseData.details.vehicles.premiumSound === "true",
-              wirelessCharging: responseData.details.vehicles.wirelessCharging === true || responseData.details.vehicles.wirelessCharging === "true",
-              usbPorts: responseData.details.vehicles.usbPorts === true || responseData.details.vehicles.usbPorts === "true",
-              cdPlayer: responseData.details.vehicles.cdPlayer === true || responseData.details.vehicles.cdPlayer === "true",
-              dvdPlayer: responseData.details.vehicles.dvdPlayer === true || responseData.details.vehicles.dvdPlayer === "true",
-              rearSeatEntertainment: responseData.details.vehicles.rearSeatEntertainment === true || responseData.details.vehicles.rearSeatEntertainment === "true",
-              
+              bluetooth:
+                responseData.details.vehicles.bluetooth === true ||
+                responseData.details.vehicles.bluetooth === "true",
+              appleCarPlay:
+                responseData.details.vehicles.appleCarPlay === true ||
+                responseData.details.vehicles.appleCarPlay === "true",
+              androidAuto:
+                responseData.details.vehicles.androidAuto === true ||
+                responseData.details.vehicles.androidAuto === "true",
+              premiumSound:
+                responseData.details.vehicles.premiumSound === true ||
+                responseData.details.vehicles.premiumSound === "true",
+              wirelessCharging:
+                responseData.details.vehicles.wirelessCharging === true ||
+                responseData.details.vehicles.wirelessCharging === "true",
+              usbPorts:
+                responseData.details.vehicles.usbPorts === true ||
+                responseData.details.vehicles.usbPorts === "true",
+              cdPlayer:
+                responseData.details.vehicles.cdPlayer === true ||
+                responseData.details.vehicles.cdPlayer === "true",
+              dvdPlayer:
+                responseData.details.vehicles.dvdPlayer === true ||
+                responseData.details.vehicles.dvdPlayer === "true",
+              rearSeatEntertainment:
+                responseData.details.vehicles.rearSeatEntertainment === true ||
+                responseData.details.vehicles.rearSeatEntertainment === "true",
+
               // Lighting Features
-              ledHeadlights: responseData.details.vehicles.ledHeadlights === true || responseData.details.vehicles.ledHeadlights === "true",
-              adaptiveHeadlights: responseData.details.vehicles.adaptiveHeadlights === true || responseData.details.vehicles.adaptiveHeadlights === "true",
-              ambientLighting: responseData.details.vehicles.ambientLighting === true || responseData.details.vehicles.ambientLighting === "true",
-              fogLights: responseData.details.vehicles.fogLights === true || responseData.details.vehicles.fogLights === "true",
-              automaticHighBeams: responseData.details.vehicles.automaticHighBeams === true || responseData.details.vehicles.automaticHighBeams === "true",
-              
+              ledHeadlights:
+                responseData.details.vehicles.ledHeadlights === true ||
+                responseData.details.vehicles.ledHeadlights === "true",
+              adaptiveHeadlights:
+                responseData.details.vehicles.adaptiveHeadlights === true ||
+                responseData.details.vehicles.adaptiveHeadlights === "true",
+              ambientLighting:
+                responseData.details.vehicles.ambientLighting === true ||
+                responseData.details.vehicles.ambientLighting === "true",
+              fogLights:
+                responseData.details.vehicles.fogLights === true ||
+                responseData.details.vehicles.fogLights === "true",
+              automaticHighBeams:
+                responseData.details.vehicles.automaticHighBeams === true ||
+                responseData.details.vehicles.automaticHighBeams === "true",
+
               // Convenience Features
-              keylessEntry: responseData.details.vehicles.keylessEntry === true || responseData.details.vehicles.keylessEntry === "true",
-              sunroof: responseData.details.vehicles.sunroof === true || responseData.details.vehicles.sunroof === "true",
-              spareKey: responseData.details.vehicles.spareKey === true || responseData.details.vehicles.spareKey === "true",
-              remoteStart: responseData.details.vehicles.remoteStart === true || responseData.details.vehicles.remoteStart === "true",
-              powerTailgate: responseData.details.vehicles.powerTailgate === true || responseData.details.vehicles.powerTailgate === "true",
-              autoDimmingMirrors: responseData.details.vehicles.autoDimmingMirrors === true || responseData.details.vehicles.autoDimmingMirrors === "true",
-              rainSensingWipers: responseData.details.vehicles.rainSensingWipers === true || responseData.details.vehicles.rainSensingWipers === "true",
-              
+              keylessEntry:
+                responseData.details.vehicles.keylessEntry === true ||
+                responseData.details.vehicles.keylessEntry === "true",
+              sunroof:
+                responseData.details.vehicles.sunroof === true ||
+                responseData.details.vehicles.sunroof === "true",
+              spareKey:
+                responseData.details.vehicles.spareKey === true ||
+                responseData.details.vehicles.spareKey === "true",
+              remoteStart:
+                responseData.details.vehicles.remoteStart === true ||
+                responseData.details.vehicles.remoteStart === "true",
+              powerTailgate:
+                responseData.details.vehicles.powerTailgate === true ||
+                responseData.details.vehicles.powerTailgate === "true",
+              autoDimmingMirrors:
+                responseData.details.vehicles.autoDimmingMirrors === true ||
+                responseData.details.vehicles.autoDimmingMirrors === "true",
+              rainSensingWipers:
+                responseData.details.vehicles.rainSensingWipers === true ||
+                responseData.details.vehicles.rainSensingWipers === "true",
+
               // Additional Technical Fields
               driveType: responseData.details.vehicles.driveType || "",
               wheelSize: responseData.details.vehicles.wheelSize || "",
               wheelType: responseData.details.vehicles.wheelType || "",
-              
+
               // Features from vehicle category specific fields
-              safetyFeatures: typeof responseData.details.vehicles.safetyFeatures === "object" 
-                ? responseData.details.vehicles.safetyFeatures || {} 
-                : {},
+              safetyFeatures:
+                typeof responseData.details.vehicles.safetyFeatures === "object"
+                  ? responseData.details.vehicles.safetyFeatures || {}
+                  : {},
               engine: responseData.details.vehicles.engine || "",
             }
           : undefined,
@@ -940,7 +1110,10 @@ export const listingsAPI: ListingsAPI = {
         updatedAt: responseData.updatedAt,
         userId: responseData.userId,
         details: details,
-        listingAction: responseData.listingAction === "SELL" ? ListingAction.SELL : ListingAction.RENT,
+        listingAction:
+          responseData.listingAction === "SELL"
+            ? ListingAction.SELL
+            : ListingAction.RENT,
         seller: {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",
@@ -1104,11 +1277,11 @@ export const listingsAPI: ListingsAPI = {
     try {
       // Add debug logging for the original query
       console.log("Search API called with original query:", query);
-      
+
       // Create a case-insensitive version of the query for better matching
       const normalizedQuery = query.trim().toLowerCase();
       console.log("Normalized query:", normalizedQuery);
-      
+
       const searchParams: Record<string, string> = {
         query: normalizedQuery, // Use normalized query
         search: normalizedQuery, // Use normalized query for compatibility
@@ -1119,7 +1292,7 @@ export const listingsAPI: ListingsAPI = {
         Object.entries(params).forEach(([key, value]) => {
           if (value === undefined || value === null) return;
 
-          if (typeof value === 'object') {
+          if (typeof value === "object") {
             // Handle nested objects like category
             Object.entries(value).forEach(([nestedKey, nestedValue]) => {
               if (nestedValue !== undefined && nestedValue !== null) {
@@ -1135,9 +1308,12 @@ export const listingsAPI: ListingsAPI = {
       console.log("Search params after processing:", searchParams);
 
       const queryString = Object.entries(searchParams)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-      
+        .map(
+          ([key, value]) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+        )
+        .join("&");
+
       console.log("API URL:", `${API_URL}/listings/search?${queryString}`);
 
       // Call the server-side search endpoint
@@ -1153,7 +1329,7 @@ export const listingsAPI: ListingsAPI = {
       );
 
       console.log("Response status:", response.status, response.statusText);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Search API error:", errorData);
@@ -1162,13 +1338,13 @@ export const listingsAPI: ListingsAPI = {
 
       let data = await response.json();
       console.log("Raw API response data:", data);
-      
+
       // If data is not in expected format, restructure it
-      if (data && typeof data === 'object') {
+      if (data && typeof data === "object") {
         if (!data.success) {
           data = { success: true, data: data };
         }
-        
+
         // Normalize the response structure regardless of API format
         if (data.data && !data.data.listings && Array.isArray(data.data)) {
           data = {
@@ -1177,56 +1353,76 @@ export const listingsAPI: ListingsAPI = {
               listings: data.data,
               total: data.data.length,
               page: 1,
-              limit: data.data.length
-            }
+              limit: data.data.length,
+            },
           };
         }
       }
-      
+
       console.log("Processed search response:", data);
 
       // If no listings found, try a fallback approach
-      if (!data.data || !data.data.listings || data.data.listings.length === 0) {
-        console.log("No listings found, trying to fetch all listings and filter client-side");
-        
+      if (
+        !data.data ||
+        !data.data.listings ||
+        data.data.listings.length === 0
+      ) {
+        console.log(
+          "No listings found, trying to fetch all listings and filter client-side",
+        );
+
         // Try fetching all listings and filter on the client side as a fallback
         try {
           const allListingsResponse = await this.getAll({ limit: 100 });
-          
-          if (allListingsResponse.success && allListingsResponse.data?.listings) {
+
+          if (
+            allListingsResponse.success &&
+            allListingsResponse.data?.listings
+          ) {
             // Filter listings by query on the client side
-            const clientFilteredListings = allListingsResponse.data.listings.filter(listing => {
-              // First check if the listing matches the category and subcategory filters
-              if (params?.category?.mainCategory) {
-                // If category filter is provided, check if the listing matches
-                if (listing.category?.mainCategory !== params.category.mainCategory) {
-                  return false;
+            const clientFilteredListings =
+              allListingsResponse.data.listings.filter((listing) => {
+                // First check if the listing matches the category and subcategory filters
+                if (params?.category?.mainCategory) {
+                  // If category filter is provided, check if the listing matches
+                  if (
+                    listing.category?.mainCategory !==
+                    params.category.mainCategory
+                  ) {
+                    return false;
+                  }
+
+                  // If subcategory filter is provided, check if the listing matches
+                  if (
+                    params.category.subCategory &&
+                    listing.category?.subCategory !==
+                      params.category.subCategory
+                  ) {
+                    return false;
+                  }
                 }
-                
-                // If subcategory filter is provided, check if the listing matches
-                if (params.category.subCategory && 
-                    listing.category?.subCategory !== params.category.subCategory) {
-                  return false;
-                }
-              }
-              
-              // Search in title, description, and vehicle make/model if available
-              const searchIn = [
-                listing.title?.toLowerCase(),
-                listing.description?.toLowerCase(),
-                listing.details?.vehicles?.make?.toLowerCase(),
-                listing.details?.vehicles?.model?.toLowerCase()
-              ].filter(Boolean); // Remove undefined values
-              
-              // If query is empty (just filtering by category), return true
-              if (!normalizedQuery) return true;
-              
-              // Otherwise check if any of the searchable fields include the query
-              return searchIn.some(text => text && text.includes(normalizedQuery));
-            });
-            
-            console.log(`Found ${clientFilteredListings.length} listings with client-side filtering`);
-            
+
+                // Search in title, description, and vehicle make/model if available
+                const searchIn = [
+                  listing.title?.toLowerCase(),
+                  listing.description?.toLowerCase(),
+                  listing.details?.vehicles?.make?.toLowerCase(),
+                  listing.details?.vehicles?.model?.toLowerCase(),
+                ].filter(Boolean); // Remove undefined values
+
+                // If query is empty (just filtering by category), return true
+                if (!normalizedQuery) return true;
+
+                // Otherwise check if any of the searchable fields include the query
+                return searchIn.some(
+                  (text) => text && text.includes(normalizedQuery),
+                );
+              });
+
+            console.log(
+              `Found ${clientFilteredListings.length} listings with client-side filtering`,
+            );
+
             if (clientFilteredListings.length > 0) {
               return {
                 success: true,
@@ -1234,8 +1430,8 @@ export const listingsAPI: ListingsAPI = {
                   listings: clientFilteredListings,
                   total: clientFilteredListings.length,
                   page: 1,
-                  limit: clientFilteredListings.length
-                }
+                  limit: clientFilteredListings.length,
+                },
               };
             }
           }
@@ -1243,14 +1439,15 @@ export const listingsAPI: ListingsAPI = {
           console.error("Error in fallback search approach:", fallbackError);
         }
       }
-      
+
       return data;
     } catch (error) {
       console.error("Error searching listings:", error);
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to search listings"
+        error:
+          error instanceof Error ? error.message : "Failed to search listings",
       };
     }
   },

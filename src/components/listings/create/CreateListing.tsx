@@ -4,8 +4,21 @@ import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCreateListing } from "@/components/listings/hooks/useCreateListing";
-import { ListingCategory, VehicleType, FuelType, TransmissionType, PropertyType, Condition, ListingAction, ListingStatus } from "@/types/enums";
-import type { HouseDetails, ApartmentDetails, LandDetails } from "../../../types/listings";
+import {
+  ListingCategory,
+  VehicleType,
+  FuelType,
+  TransmissionType,
+  PropertyType,
+  Condition,
+  ListingAction,
+  ListingStatus,
+} from "@/types/enums";
+import type {
+  HouseDetails,
+  ApartmentDetails,
+  LandDetails,
+} from "../../../types/listings";
 import { FormState } from "@/types/forms";
 import BasicDetailsForm from "./steps/BasicDetailsForm";
 import AdvancedDetailsForm from "./steps/AdvancedDetailsForm";
@@ -105,7 +118,7 @@ const initialFormState: FormState = {
         remoteStart: false,
         powerTailgate: false,
         autoDimmingMirrors: false,
-        rainSensingWipers: false
+        rainSensingWipers: false,
       },
       interiorColor: "#000000",
       engine: "",
@@ -115,7 +128,7 @@ const initialFormState: FormState = {
       serviceHistory: false,
       previousOwners: 0,
       registrationStatus: "",
-      vin: "",
+ 
       engineNumber: "",
       accidentFree: false,
       importStatus: "",
@@ -130,8 +143,8 @@ const initialFormState: FormState = {
       serviceHistoryDetails: "",
       additionalNotes: "",
       customMake: "",
-      customModel: ""
-    }
+      customModel: "",
+    },
   },
   listingAction: ListingAction.SELL,
 };
@@ -184,9 +197,12 @@ const CreateListing: React.FC = () => {
                     vehicleType: VehicleType.CAR,
                     make: data.details?.vehicles?.make || "",
                     model: data.details?.vehicles?.model || "",
-                    year: String(data.details?.vehicles?.year || new Date().getFullYear()),
+                    year: String(
+                      data.details?.vehicles?.year || new Date().getFullYear(),
+                    ),
                     mileage: Number(data.details?.vehicles?.mileage || 0),
-                    fuelType: data.details?.vehicles?.fuelType || FuelType.GASOLINE,
+                    fuelType:
+                      data.details?.vehicles?.fuelType || FuelType.GASOLINE,
                     transmissionType:
                       data.details?.vehicles?.transmissionType ||
                       TransmissionType.AUTOMATIC,
@@ -199,20 +215,19 @@ const CreateListing: React.FC = () => {
                       prev.details?.vehicles?.interiorColor ||
                       "#000000",
                     engine: data.details?.vehicles?.engine || "",
-                    warranty:
-                      data.details?.vehicles?.warranty || "",
+                    warranty: data.details?.vehicles?.warranty || "",
                     serviceHistory:
                       data.details?.vehicles?.serviceHistory || false,
                     previousOwners:
-                      data.details?.vehicles?.previousOwners ||
-                      "",
+                      data.details?.vehicles?.previousOwners || "",
                     registrationStatus:
-                      data.details?.vehicles?.registrationStatus ||
-                      "",
+                      data.details?.vehicles?.registrationStatus || "",
                     accidentFree: data.details?.vehicles?.accidentFree || false,
-                    customsCleared: data.details?.vehicles?.customsCleared || false,
+                    customsCleared:
+                      data.details?.vehicles?.customsCleared || false,
                     insuranceType: data.details?.vehicles?.insuranceType || "",
-                    fuelEfficiency: data.details?.vehicles?.fuelEfficiency || "",
+                    fuelEfficiency:
+                      data.details?.vehicles?.fuelEfficiency || "",
                     emissionClass: data.details?.vehicles?.emissionClass || "",
                     driveType: data.details?.vehicles?.driveType || "",
                     wheelSize: data.details?.vehicles?.wheelSize || "",
@@ -230,16 +245,20 @@ const CreateListing: React.FC = () => {
                     garage: data.details?.realEstate?.garage || false,
                     garden: data.details?.realEstate?.garden || false,
                     petsAllowed: data.details?.realEstate?.petsAllowed || false,
-                    constructionType: data.details?.realEstate?.constructionType || '',
-                    parking: data.details?.realEstate?.parking || '',
+                    constructionType:
+                      data.details?.realEstate?.constructionType || "",
+                    parking: data.details?.realEstate?.parking || "",
                     size: data.details?.realEstate?.size || 0,
-                    yearBuilt: data.details?.realEstate?.yearBuilt || new Date().getFullYear(),
-                    condition: data.details?.realEstate?.condition || Condition.LIKE_NEW,
+                    yearBuilt:
+                      data.details?.realEstate?.yearBuilt ||
+                      new Date().getFullYear(),
+                    condition:
+                      data.details?.realEstate?.condition || Condition.LIKE_NEW,
                     features: data.details?.realEstate?.features || [],
-                    furnished: data.details?.realEstate?.furnished || false
+                    furnished: data.details?.realEstate?.furnished || false,
                   }
                 : undefined,
-          }
+          },
         };
         // Save to session storage
         sessionStorage.setItem(
@@ -276,81 +295,256 @@ const CreateListing: React.FC = () => {
                 ...prev.details?.vehicles,
                 ...data.details?.vehicles,
                 // Ensure all fields have proper fallback values
-                vehicleType: data.details?.vehicles?.vehicleType || prev.details?.vehicles?.vehicleType || VehicleType.CAR,
-                make: data.details?.vehicles?.make || prev.details?.vehicles?.make || "",
-                model: data.details?.vehicles?.model || prev.details?.vehicles?.model || "",
-                year: typeof data.details?.vehicles?.year === 'string' ? parseInt(data.details.vehicles.year, 10) : (data.details?.vehicles?.year || prev.details?.vehicles?.year || new Date().getFullYear()),
-                mileage: data.details?.vehicles?.mileage || prev.details?.vehicles?.mileage || 0,
-                fuelType: data.details?.vehicles?.fuelType || prev.details?.vehicles?.fuelType || FuelType.GASOLINE,
-                transmissionType: data.details?.vehicles?.transmissionType || prev.details?.vehicles?.transmissionType || TransmissionType.AUTOMATIC,
-                color: data.details?.vehicles?.color || prev.details?.vehicles?.color || "#000000",
-                condition: data.details?.vehicles?.condition || prev.details?.vehicles?.condition || Condition.GOOD,
+                vehicleType:
+                  data.details?.vehicles?.vehicleType ||
+                  prev.details?.vehicles?.vehicleType ||
+                  VehicleType.CAR,
+                make:
+                  data.details?.vehicles?.make ||
+                  prev.details?.vehicles?.make ||
+                  "",
+                model:
+                  data.details?.vehicles?.model ||
+                  prev.details?.vehicles?.model ||
+                  "",
+                year:
+                  typeof data.details?.vehicles?.year === "string"
+                    ? parseInt(data.details.vehicles.year, 10)
+                    : data.details?.vehicles?.year ||
+                      prev.details?.vehicles?.year ||
+                      new Date().getFullYear(),
+                mileage:
+                  data.details?.vehicles?.mileage ||
+                  prev.details?.vehicles?.mileage ||
+                  0,
+                fuelType:
+                  data.details?.vehicles?.fuelType ||
+                  prev.details?.vehicles?.fuelType ||
+                  FuelType.GASOLINE,
+                transmissionType:
+                  data.details?.vehicles?.transmissionType ||
+                  prev.details?.vehicles?.transmissionType ||
+                  TransmissionType.AUTOMATIC,
+                color:
+                  data.details?.vehicles?.color ||
+                  prev.details?.vehicles?.color ||
+                  "#000000",
+                condition:
+                  data.details?.vehicles?.condition ||
+                  prev.details?.vehicles?.condition ||
+                  Condition.GOOD,
                 // Handle vehicle features as a properly typed object
                 features: {
                   ...prev.details?.vehicles?.features,
                   // Convenience features
-                  keylessEntry: data.details?.vehicles?.features?.keylessEntry ?? prev.details?.vehicles?.features?.keylessEntry ?? false,
-                  sunroof: data.details?.vehicles?.features?.sunroof ?? prev.details?.vehicles?.features?.sunroof ?? false,
-                  spareKey: data.details?.vehicles?.features?.spareKey ?? prev.details?.vehicles?.features?.spareKey ?? false,
-                  remoteStart: data.details?.vehicles?.features?.remoteStart ?? prev.details?.vehicles?.features?.remoteStart ?? false,
-                  powerTailgate: data.details?.vehicles?.features?.powerTailgate ?? prev.details?.vehicles?.features?.powerTailgate ?? false,
-                  autoDimmingMirrors: data.details?.vehicles?.features?.autoDimmingMirrors ?? prev.details?.vehicles?.features?.autoDimmingMirrors ?? false,
-                  rainSensingWipers: data.details?.vehicles?.features?.rainSensingWipers ?? prev.details?.vehicles?.features?.rainSensingWipers ?? false,
+                  keylessEntry:
+                    data.details?.vehicles?.features?.keylessEntry ??
+                    prev.details?.vehicles?.features?.keylessEntry ??
+                    false,
+                  sunroof:
+                    data.details?.vehicles?.features?.sunroof ??
+                    prev.details?.vehicles?.features?.sunroof ??
+                    false,
+                  spareKey:
+                    data.details?.vehicles?.features?.spareKey ??
+                    prev.details?.vehicles?.features?.spareKey ??
+                    false,
+                  remoteStart:
+                    data.details?.vehicles?.features?.remoteStart ??
+                    prev.details?.vehicles?.features?.remoteStart ??
+                    false,
+                  powerTailgate:
+                    data.details?.vehicles?.features?.powerTailgate ??
+                    prev.details?.vehicles?.features?.powerTailgate ??
+                    false,
+                  autoDimmingMirrors:
+                    data.details?.vehicles?.features?.autoDimmingMirrors ??
+                    prev.details?.vehicles?.features?.autoDimmingMirrors ??
+                    false,
+                  rainSensingWipers:
+                    data.details?.vehicles?.features?.rainSensingWipers ??
+                    prev.details?.vehicles?.features?.rainSensingWipers ??
+                    false,
                   // Safety features
-                  blindSpotMonitor: data.details?.vehicles?.features?.blindSpotMonitor ?? prev.details?.vehicles?.features?.blindSpotMonitor ?? false,
-                  laneAssist: data.details?.vehicles?.features?.laneAssist ?? prev.details?.vehicles?.features?.laneAssist ?? false,
-                  adaptiveCruiseControl: data.details?.vehicles?.features?.adaptiveCruiseControl ?? prev.details?.vehicles?.features?.adaptiveCruiseControl ?? false,
-                  tractionControl: data.details?.vehicles?.features?.tractionControl ?? prev.details?.vehicles?.features?.tractionControl ?? false,
-                  abs: data.details?.vehicles?.features?.abs ?? prev.details?.vehicles?.features?.abs ?? false,
-                  emergencyBrakeAssist: data.details?.vehicles?.features?.emergencyBrakeAssist ?? prev.details?.vehicles?.features?.emergencyBrakeAssist ?? false,
-                  tirePressureMonitoring: data.details?.vehicles?.features?.tirePressureMonitoring ?? prev.details?.vehicles?.features?.tirePressureMonitoring ?? false,
+                  blindSpotMonitor:
+                    data.details?.vehicles?.features?.blindSpotMonitor ??
+                    prev.details?.vehicles?.features?.blindSpotMonitor ??
+                    false,
+                  laneAssist:
+                    data.details?.vehicles?.features?.laneAssist ??
+                    prev.details?.vehicles?.features?.laneAssist ??
+                    false,
+                  adaptiveCruiseControl:
+                    data.details?.vehicles?.features?.adaptiveCruiseControl ??
+                    prev.details?.vehicles?.features?.adaptiveCruiseControl ??
+                    false,
+                  tractionControl:
+                    data.details?.vehicles?.features?.tractionControl ??
+                    prev.details?.vehicles?.features?.tractionControl ??
+                    false,
+                  abs:
+                    data.details?.vehicles?.features?.abs ??
+                    prev.details?.vehicles?.features?.abs ??
+                    false,
+                  emergencyBrakeAssist:
+                    data.details?.vehicles?.features?.emergencyBrakeAssist ??
+                    prev.details?.vehicles?.features?.emergencyBrakeAssist ??
+                    false,
+                  tirePressureMonitoring:
+                    data.details?.vehicles?.features?.tirePressureMonitoring ??
+                    prev.details?.vehicles?.features?.tirePressureMonitoring ??
+                    false,
                   // Camera features
-                  rearCamera: data.details?.vehicles?.features?.rearCamera ?? prev.details?.vehicles?.features?.rearCamera ?? false,
-                  camera360: data.details?.vehicles?.features?.camera360 ?? prev.details?.vehicles?.features?.camera360 ?? false,
-                  dashCam: data.details?.vehicles?.features?.dashCam ?? prev.details?.vehicles?.features?.dashCam ?? false,
-                  nightVision: data.details?.vehicles?.features?.nightVision ?? prev.details?.vehicles?.features?.nightVision ?? false,
-                  parkingSensors: data.details?.vehicles?.features?.parkingSensors ?? prev.details?.vehicles?.features?.parkingSensors ?? false,
+                  rearCamera:
+                    data.details?.vehicles?.features?.rearCamera ??
+                    prev.details?.vehicles?.features?.rearCamera ??
+                    false,
+                  camera360:
+                    data.details?.vehicles?.features?.camera360 ??
+                    prev.details?.vehicles?.features?.camera360 ??
+                    false,
+                  dashCam:
+                    data.details?.vehicles?.features?.dashCam ??
+                    prev.details?.vehicles?.features?.dashCam ??
+                    false,
+                  nightVision:
+                    data.details?.vehicles?.features?.nightVision ??
+                    prev.details?.vehicles?.features?.nightVision ??
+                    false,
+                  parkingSensors:
+                    data.details?.vehicles?.features?.parkingSensors ??
+                    prev.details?.vehicles?.features?.parkingSensors ??
+                    false,
                   // Climate features
-                  climateControl: data.details?.vehicles?.features?.climateControl ?? prev.details?.vehicles?.features?.climateControl ?? false,
-                  heatedSeats: data.details?.vehicles?.features?.heatedSeats ?? prev.details?.vehicles?.features?.heatedSeats ?? false,
-                  ventilatedSeats: data.details?.vehicles?.features?.ventilatedSeats ?? prev.details?.vehicles?.features?.ventilatedSeats ?? false,
-                  dualZoneClimate: data.details?.vehicles?.features?.dualZoneClimate ?? prev.details?.vehicles?.features?.dualZoneClimate ?? false,
-                  rearAC: data.details?.vehicles?.features?.rearAC ?? prev.details?.vehicles?.features?.rearAC ?? false,
-                  airQualitySensor: data.details?.vehicles?.features?.airQualitySensor ?? prev.details?.vehicles?.features?.airQualitySensor ?? false,
+                  climateControl:
+                    data.details?.vehicles?.features?.climateControl ??
+                    prev.details?.vehicles?.features?.climateControl ??
+                    false,
+                  heatedSeats:
+                    data.details?.vehicles?.features?.heatedSeats ??
+                    prev.details?.vehicles?.features?.heatedSeats ??
+                    false,
+                  ventilatedSeats:
+                    data.details?.vehicles?.features?.ventilatedSeats ??
+                    prev.details?.vehicles?.features?.ventilatedSeats ??
+                    false,
+                  dualZoneClimate:
+                    data.details?.vehicles?.features?.dualZoneClimate ??
+                    prev.details?.vehicles?.features?.dualZoneClimate ??
+                    false,
+                  rearAC:
+                    data.details?.vehicles?.features?.rearAC ??
+                    prev.details?.vehicles?.features?.rearAC ??
+                    false,
+                  airQualitySensor:
+                    data.details?.vehicles?.features?.airQualitySensor ??
+                    prev.details?.vehicles?.features?.airQualitySensor ??
+                    false,
                   // Lighting features
-                  ledHeadlights: data.details?.vehicles?.features?.ledHeadlights ?? prev.details?.vehicles?.features?.ledHeadlights ?? false,
-                  adaptiveHeadlights: data.details?.vehicles?.features?.adaptiveHeadlights ?? prev.details?.vehicles?.features?.adaptiveHeadlights ?? false,
-                  ambientLighting: data.details?.vehicles?.features?.ambientLighting ?? prev.details?.vehicles?.features?.ambientLighting ?? false,
-                  fogLights: data.details?.vehicles?.features?.fogLights ?? prev.details?.vehicles?.features?.fogLights ?? false,
-                  automaticHighBeams: data.details?.vehicles?.features?.automaticHighBeams ?? prev.details?.vehicles?.features?.automaticHighBeams ?? false,
+                  ledHeadlights:
+                    data.details?.vehicles?.features?.ledHeadlights ??
+                    prev.details?.vehicles?.features?.ledHeadlights ??
+                    false,
+                  adaptiveHeadlights:
+                    data.details?.vehicles?.features?.adaptiveHeadlights ??
+                    prev.details?.vehicles?.features?.adaptiveHeadlights ??
+                    false,
+                  ambientLighting:
+                    data.details?.vehicles?.features?.ambientLighting ??
+                    prev.details?.vehicles?.features?.ambientLighting ??
+                    false,
+                  fogLights:
+                    data.details?.vehicles?.features?.fogLights ??
+                    prev.details?.vehicles?.features?.fogLights ??
+                    false,
+                  automaticHighBeams:
+                    data.details?.vehicles?.features?.automaticHighBeams ??
+                    prev.details?.vehicles?.features?.automaticHighBeams ??
+                    false,
                   // Entertainment features
-                  bluetooth: data.details?.vehicles?.features?.bluetooth ?? prev.details?.vehicles?.features?.bluetooth ?? false,
-                  appleCarPlay: data.details?.vehicles?.features?.appleCarPlay ?? prev.details?.vehicles?.features?.appleCarPlay ?? false,
-                  androidAuto: data.details?.vehicles?.features?.androidAuto ?? prev.details?.vehicles?.features?.androidAuto ?? false,
-                  premiumSound: data.details?.vehicles?.features?.premiumSound ?? prev.details?.vehicles?.features?.premiumSound ?? false,
-                  wirelessCharging: data.details?.vehicles?.features?.wirelessCharging ?? prev.details?.vehicles?.features?.wirelessCharging ?? false,
-                  usbPorts: data.details?.vehicles?.features?.usbPorts ?? prev.details?.vehicles?.features?.usbPorts ?? false,
-                  cdPlayer: data.details?.vehicles?.features?.cdPlayer ?? prev.details?.vehicles?.features?.cdPlayer ?? false,
-                  dvdPlayer: data.details?.vehicles?.features?.dvdPlayer ?? prev.details?.vehicles?.features?.dvdPlayer ?? false,
-                  rearSeatEntertainment: data.details?.vehicles?.features?.rearSeatEntertainment ?? prev.details?.vehicles?.features?.rearSeatEntertainment ?? false
+                  bluetooth:
+                    data.details?.vehicles?.features?.bluetooth ??
+                    prev.details?.vehicles?.features?.bluetooth ??
+                    false,
+                  appleCarPlay:
+                    data.details?.vehicles?.features?.appleCarPlay ??
+                    prev.details?.vehicles?.features?.appleCarPlay ??
+                    false,
+                  androidAuto:
+                    data.details?.vehicles?.features?.androidAuto ??
+                    prev.details?.vehicles?.features?.androidAuto ??
+                    false,
+                  premiumSound:
+                    data.details?.vehicles?.features?.premiumSound ??
+                    prev.details?.vehicles?.features?.premiumSound ??
+                    false,
+                  wirelessCharging:
+                    data.details?.vehicles?.features?.wirelessCharging ??
+                    prev.details?.vehicles?.features?.wirelessCharging ??
+                    false,
+                  usbPorts:
+                    data.details?.vehicles?.features?.usbPorts ??
+                    prev.details?.vehicles?.features?.usbPorts ??
+                    false,
+                  cdPlayer:
+                    data.details?.vehicles?.features?.cdPlayer ??
+                    prev.details?.vehicles?.features?.cdPlayer ??
+                    false,
+                  dvdPlayer:
+                    data.details?.vehicles?.features?.dvdPlayer ??
+                    prev.details?.vehicles?.features?.dvdPlayer ??
+                    false,
+                  rearSeatEntertainment:
+                    data.details?.vehicles?.features?.rearSeatEntertainment ??
+                    prev.details?.vehicles?.features?.rearSeatEntertainment ??
+                    false,
                 },
-                interiorColor: data.details?.vehicles?.interiorColor || prev.details?.vehicles?.interiorColor || "#000000",
-                engine: data.details?.vehicles?.engine || prev.details?.vehicles?.engine || "",
-                horsepower: data.details?.vehicles?.horsepower || prev.details?.vehicles?.horsepower || 0,
-                torque: data.details?.vehicles?.torque || prev.details?.vehicles?.torque || 0,
-                warranty: data.details?.vehicles?.warranty || prev.details?.vehicles?.warranty || "",
-            }
+                interiorColor:
+                  data.details?.vehicles?.interiorColor ||
+                  prev.details?.vehicles?.interiorColor ||
+                  "#000000",
+                engine:
+                  data.details?.vehicles?.engine ||
+                  prev.details?.vehicles?.engine ||
+                  "",
+                horsepower:
+                  data.details?.vehicles?.horsepower ||
+                  prev.details?.vehicles?.horsepower ||
+                  0,
+                torque:
+                  data.details?.vehicles?.torque ||
+                  prev.details?.vehicles?.torque ||
+                  0,
+                warranty:
+                  data.details?.vehicles?.warranty ||
+                  prev.details?.vehicles?.warranty ||
+                  "",
+              }
             : undefined;
 
         const mergedRealEstate =
           data.category.mainCategory === ListingCategory.REAL_ESTATE
             ? (() => {
-                const propertyType = data.details?.realEstate?.propertyType || prev.details?.realEstate?.propertyType || PropertyType.HOUSE;
+                const propertyType =
+                  data.details?.realEstate?.propertyType ||
+                  prev.details?.realEstate?.propertyType ||
+                  PropertyType.HOUSE;
                 const baseDetails = {
-                  size: data.details?.realEstate?.size || prev.details?.realEstate?.size || 0,
-                  yearBuilt: data.details?.realEstate?.yearBuilt || prev.details?.realEstate?.yearBuilt || new Date().getFullYear(),
-                  condition: (data.details?.realEstate?.condition || prev.details?.realEstate?.condition || Condition.GOOD) as Condition,
-                  features: data.details?.realEstate?.features || prev.details?.realEstate?.features || []
+                  size:
+                    data.details?.realEstate?.size ||
+                    prev.details?.realEstate?.size ||
+                    0,
+                  yearBuilt:
+                    data.details?.realEstate?.yearBuilt ||
+                    prev.details?.realEstate?.yearBuilt ||
+                    new Date().getFullYear(),
+                  condition: (data.details?.realEstate?.condition ||
+                    prev.details?.realEstate?.condition ||
+                    Condition.GOOD) as Condition,
+                  features:
+                    data.details?.realEstate?.features ||
+                    prev.details?.realEstate?.features ||
+                    [],
                 };
 
                 switch (propertyType) {
@@ -358,15 +552,42 @@ const CreateListing: React.FC = () => {
                     const houseDetails: HouseDetails = {
                       ...baseDetails,
                       propertyType: PropertyType.HOUSE,
-                      bedrooms: data.details?.realEstate?.bedrooms || prev.details?.realEstate?.bedrooms || 1,
-                      bathrooms: data.details?.realEstate?.bathrooms || prev.details?.realEstate?.bathrooms || 1,
-                      floors: data.details?.realEstate?.floors || prev.details?.realEstate?.floors || 1,
-                      parkingSpaces: data.details?.realEstate?.parkingSpaces || prev.details?.realEstate?.parkingSpaces || 0,
-                      garage: data.details?.realEstate?.garage ?? prev.details?.realEstate?.garage ?? false,
-                      garden: data.details?.realEstate?.garden ?? prev.details?.realEstate?.garden ?? false,
-                      petsAllowed: data.details?.realEstate?.petsAllowed ?? prev.details?.realEstate?.petsAllowed ?? false,
-                      constructionType: data.details?.realEstate?.constructionType || prev.details?.realEstate?.constructionType || '',
-                      parking: data.details?.realEstate?.parking || prev.details?.realEstate?.parking || ''
+                      bedrooms:
+                        data.details?.realEstate?.bedrooms ||
+                        prev.details?.realEstate?.bedrooms ||
+                        1,
+                      bathrooms:
+                        data.details?.realEstate?.bathrooms ||
+                        prev.details?.realEstate?.bathrooms ||
+                        1,
+                      floors:
+                        data.details?.realEstate?.floors ||
+                        prev.details?.realEstate?.floors ||
+                        1,
+                      parkingSpaces:
+                        data.details?.realEstate?.parkingSpaces ||
+                        prev.details?.realEstate?.parkingSpaces ||
+                        0,
+                      garage:
+                        data.details?.realEstate?.garage ??
+                        prev.details?.realEstate?.garage ??
+                        false,
+                      garden:
+                        data.details?.realEstate?.garden ??
+                        prev.details?.realEstate?.garden ??
+                        false,
+                      petsAllowed:
+                        data.details?.realEstate?.petsAllowed ??
+                        prev.details?.realEstate?.petsAllowed ??
+                        false,
+                      constructionType:
+                        data.details?.realEstate?.constructionType ||
+                        prev.details?.realEstate?.constructionType ||
+                        "",
+                      parking:
+                        data.details?.realEstate?.parking ||
+                        prev.details?.realEstate?.parking ||
+                        "",
                     };
                     return houseDetails;
                   }
@@ -374,32 +595,110 @@ const CreateListing: React.FC = () => {
                     const apartmentDetails: ApartmentDetails = {
                       ...baseDetails,
                       propertyType: PropertyType.APARTMENT,
-                      bedrooms: data.details?.realEstate?.bedrooms || prev.details?.realEstate?.bedrooms || 1,
-                      bathrooms: data.details?.realEstate?.bathrooms || prev.details?.realEstate?.bathrooms || 1,
-                      floor: data.details?.realEstate?.floor || prev.details?.realEstate?.floor || 1,
-                      totalFloors: data.details?.realEstate?.totalFloors || prev.details?.realEstate?.totalFloors || 1,
-                      elevator: data.details?.realEstate?.elevator ?? prev.details?.realEstate?.elevator ?? false,
-                      balcony: data.details?.realEstate?.balcony ?? prev.details?.realEstate?.balcony ?? false,
-                      storage: data.details?.realEstate?.storage ?? prev.details?.realEstate?.storage ?? false,
-                      heating: data.details?.realEstate?.heating || prev.details?.realEstate?.heating || '',
-                      cooling: data.details?.realEstate?.cooling || prev.details?.realEstate?.cooling || '',
-                      buildingAmenities: data.details?.realEstate?.buildingAmenities || prev.details?.realEstate?.buildingAmenities || [],
-                      energyRating: data.details?.realEstate?.energyRating || prev.details?.realEstate?.energyRating || '',
-                      furnished: data.details?.realEstate?.furnished || prev.details?.realEstate?.furnished || '',
-                      petPolicy: data.details?.realEstate?.petPolicy || prev.details?.realEstate?.petPolicy || '',
-                      view: data.details?.realEstate?.view || prev.details?.realEstate?.view || '',
-                      securityFeatures: data.details?.realEstate?.securityFeatures || prev.details?.realEstate?.securityFeatures || [],
-                      fireSafety: data.details?.realEstate?.fireSafety || prev.details?.realEstate?.fireSafety || [],
-                      flooringType: data.details?.realEstate?.flooringType || prev.details?.realEstate?.flooringType || '',
-                      internetIncluded: data.details?.realEstate?.internetIncluded ?? prev.details?.realEstate?.internetIncluded ?? false,
-                      windowType: data.details?.realEstate?.windowType || prev.details?.realEstate?.windowType || '',
-                      accessibilityFeatures: data.details?.realEstate?.accessibilityFeatures || prev.details?.realEstate?.accessibilityFeatures || [],
-                      renovationHistory: data.details?.realEstate?.renovationHistory || prev.details?.realEstate?.renovationHistory || '',
-                      parkingType: data.details?.realEstate?.parkingType || prev.details?.realEstate?.parkingType || '',
-                      utilities: data.details?.realEstate?.utilities || prev.details?.realEstate?.utilities || [],
-                      exposureDirection: data.details?.realEstate?.exposureDirection || prev.details?.realEstate?.exposureDirection || [],
-                      storageType: data.details?.realEstate?.storageType || prev.details?.realEstate?.storageType || [],
-                      constructionType: data.details?.realEstate?.constructionType || prev.details?.realEstate?.constructionType || ''
+                      bedrooms:
+                        data.details?.realEstate?.bedrooms ||
+                        prev.details?.realEstate?.bedrooms ||
+                        1,
+                      bathrooms:
+                        data.details?.realEstate?.bathrooms ||
+                        prev.details?.realEstate?.bathrooms ||
+                        1,
+                      floor:
+                        data.details?.realEstate?.floor ||
+                        prev.details?.realEstate?.floor ||
+                        1,
+                      totalFloors:
+                        data.details?.realEstate?.totalFloors ||
+                        prev.details?.realEstate?.totalFloors ||
+                        1,
+                      elevator:
+                        data.details?.realEstate?.elevator ??
+                        prev.details?.realEstate?.elevator ??
+                        false,
+                      balcony:
+                        data.details?.realEstate?.balcony ??
+                        prev.details?.realEstate?.balcony ??
+                        false,
+                      storage:
+                        data.details?.realEstate?.storage ??
+                        prev.details?.realEstate?.storage ??
+                        false,
+                      heating:
+                        data.details?.realEstate?.heating ||
+                        prev.details?.realEstate?.heating ||
+                        "",
+                      cooling:
+                        data.details?.realEstate?.cooling ||
+                        prev.details?.realEstate?.cooling ||
+                        "",
+                      buildingAmenities:
+                        data.details?.realEstate?.buildingAmenities ||
+                        prev.details?.realEstate?.buildingAmenities ||
+                        [],
+                      energyRating:
+                        data.details?.realEstate?.energyRating ||
+                        prev.details?.realEstate?.energyRating ||
+                        "",
+                      furnished:
+                        data.details?.realEstate?.furnished ||
+                        prev.details?.realEstate?.furnished ||
+                        "",
+                      petPolicy:
+                        data.details?.realEstate?.petPolicy ||
+                        prev.details?.realEstate?.petPolicy ||
+                        "",
+                      view:
+                        data.details?.realEstate?.view ||
+                        prev.details?.realEstate?.view ||
+                        "",
+                      securityFeatures:
+                        data.details?.realEstate?.securityFeatures ||
+                        prev.details?.realEstate?.securityFeatures ||
+                        [],
+                      fireSafety:
+                        data.details?.realEstate?.fireSafety ||
+                        prev.details?.realEstate?.fireSafety ||
+                        [],
+                      flooringType:
+                        data.details?.realEstate?.flooringType ||
+                        prev.details?.realEstate?.flooringType ||
+                        "",
+                      internetIncluded:
+                        data.details?.realEstate?.internetIncluded ??
+                        prev.details?.realEstate?.internetIncluded ??
+                        false,
+                      windowType:
+                        data.details?.realEstate?.windowType ||
+                        prev.details?.realEstate?.windowType ||
+                        "",
+                      accessibilityFeatures:
+                        data.details?.realEstate?.accessibilityFeatures ||
+                        prev.details?.realEstate?.accessibilityFeatures ||
+                        [],
+                      renovationHistory:
+                        data.details?.realEstate?.renovationHistory ||
+                        prev.details?.realEstate?.renovationHistory ||
+                        "",
+                      parkingType:
+                        data.details?.realEstate?.parkingType ||
+                        prev.details?.realEstate?.parkingType ||
+                        "",
+                      utilities:
+                        data.details?.realEstate?.utilities ||
+                        prev.details?.realEstate?.utilities ||
+                        [],
+                      exposureDirection:
+                        data.details?.realEstate?.exposureDirection ||
+                        prev.details?.realEstate?.exposureDirection ||
+                        [],
+                      storageType:
+                        data.details?.realEstate?.storageType ||
+                        prev.details?.realEstate?.storageType ||
+                        [],
+                      constructionType:
+                        data.details?.realEstate?.constructionType ||
+                        prev.details?.realEstate?.constructionType ||
+                        "",
                     };
                     return apartmentDetails;
                   }
@@ -407,13 +706,34 @@ const CreateListing: React.FC = () => {
                     const landDetails: LandDetails = {
                       ...baseDetails,
                       propertyType: PropertyType.LAND,
-                      zoning: data.details?.realEstate?.zoning || prev.details?.realEstate?.zoning || '',
-                      utilities: data.details?.realEstate?.utilities ?? prev.details?.realEstate?.utilities ?? false,
-                      roadAccess: data.details?.realEstate?.roadAccess ?? prev.details?.realEstate?.roadAccess ?? false,
-                      buildable: data.details?.realEstate?.buildable ?? prev.details?.realEstate?.buildable ?? true,
-                      fenced: data.details?.realEstate?.fenced ?? prev.details?.realEstate?.fenced ?? false,
-                      waterFeatures: data.details?.realEstate?.waterFeatures ?? prev.details?.realEstate?.waterFeatures ?? false,
-                      soilType: data.details?.realEstate?.soilType || prev.details?.realEstate?.soilType || ''
+                      zoning:
+                        data.details?.realEstate?.zoning ||
+                        prev.details?.realEstate?.zoning ||
+                        "",
+                      utilities:
+                        data.details?.realEstate?.utilities ??
+                        prev.details?.realEstate?.utilities ??
+                        false,
+                      roadAccess:
+                        data.details?.realEstate?.roadAccess ??
+                        prev.details?.realEstate?.roadAccess ??
+                        false,
+                      buildable:
+                        data.details?.realEstate?.buildable ??
+                        prev.details?.realEstate?.buildable ??
+                        true,
+                      fenced:
+                        data.details?.realEstate?.fenced ??
+                        prev.details?.realEstate?.fenced ??
+                        false,
+                      waterFeatures:
+                        data.details?.realEstate?.waterFeatures ??
+                        prev.details?.realEstate?.waterFeatures ??
+                        false,
+                      soilType:
+                        data.details?.realEstate?.soilType ||
+                        prev.details?.realEstate?.soilType ||
+                        "",
                     };
                     return landDetails;
                   }
@@ -428,8 +748,8 @@ const CreateListing: React.FC = () => {
                       garage: false,
                       garden: false,
                       petsAllowed: false,
-                      constructionType: '',
-                      parking: ''
+                      constructionType: "",
+                      parking: "",
                     };
                     return defaultHouseDetails;
                   }
@@ -504,66 +824,108 @@ const CreateListing: React.FC = () => {
         }
 
         const details = {
-          vehicles: data.details.vehicles ? {
-            vehicleType: data.category.subCategory,
-            make: data.details.vehicles.make || '',
-            model: data.details.vehicles.model || '',
-            year: data.details.vehicles.year ? parseInt(data.details.vehicles.year.toString()) : null,
-            mileage: data.details.vehicles.mileage ? parseInt(data.details.vehicles.mileage.toString()) : null,
-            fuelType: data.details.vehicles.fuelType || '',
-            transmissionType: data.details.vehicles.transmissionType || '',
-            color: data.details.vehicles.color || '#000000',
-            condition: data.details.vehicles.condition || 'GOOD',
-            // Transform features from object to array
-            features: Object.entries(data.details.vehicles.features || {})
-              .filter(([_, value]) => value === true)
-              .map(([key]) => key),
-            engineSize: data.details.vehicles.engineSize || '',
-            engineNumber: data.details.vehicles.engineNumber || '',
-            vin: data.details.vehicles.vin || '',
-            interiorColor: data.details.vehicles.interiorColor || '#000000',
-            serviceHistory: Boolean(data.details.vehicles.serviceHistory),
-            previousOwners: data.details.vehicles.previousOwners ? parseInt(data.details.vehicles.previousOwners.toString()) : 0,
-            accidentFree: Boolean(data.details.vehicles.accidentFree),
-            customsCleared: Boolean(data.details.vehicles.customsCleared),
-            // Entertainment features
-            usbPorts: Boolean(data.details.vehicles.features?.usbPorts),
-            cdPlayer: Boolean(data.details.vehicles.features?.cdPlayer),
-            dvdPlayer: Boolean(data.details.vehicles.features?.dvdPlayer),
-            rearSeatEntertainment: Boolean(data.details.vehicles.features?.rearSeatEntertainment),
-            // Safety features
-            blindSpotMonitor: Boolean(data.details.vehicles.features?.blindSpotMonitor),
-            laneAssist: Boolean(data.details.vehicles.features?.laneAssist),
-            adaptiveCruiseControl: Boolean(data.details.vehicles.features?.adaptiveCruiseControl),
-            tractionControl: Boolean(data.details.vehicles.features?.tractionControl),
-            abs: Boolean(data.details.vehicles.features?.abs),
-            emergencyBrakeAssist: Boolean(data.details.vehicles.features?.emergencyBrakeAssist),
-            tirePressureMonitoring: Boolean(data.details.vehicles.features?.tirePressureMonitoring),
-            // Camera features
-            rearCamera: Boolean(data.details.vehicles.features?.rearCamera),
-            camera360: Boolean(data.details.vehicles.features?.camera360),
-            dashCam: Boolean(data.details.vehicles.features?.dashCam),
-            nightVision: Boolean(data.details.vehicles.features?.nightVision),
-            parkingSensors: Boolean(data.details.vehicles.features?.parkingSensors),
-            // Climate features
-            climateControl: Boolean(data.details.vehicles.features?.climateControl),
-            heatedSeats: Boolean(data.details.vehicles.features?.heatedSeats),
-            ventilatedSeats: Boolean(data.details.vehicles.features?.ventilatedSeats),
-            dualZoneClimate: Boolean(data.details.vehicles.features?.dualZoneClimate),
-            rearAC: Boolean(data.details.vehicles.features?.rearAC),
-            // Lighting features
-            ledHeadlights: Boolean(data.details.vehicles.features?.ledHeadlights),
-            adaptiveHeadlights: Boolean(data.details.vehicles.features?.adaptiveHeadlights),
-            ambientLighting: Boolean(data.details.vehicles.features?.ambientLighting),
-            fogLights: Boolean(data.details.vehicles.features?.fogLights),
-            // Additional fields for specific vehicle types
-            ...(data.category.subCategory === 'TRACTOR' && {
-              horsepower: data.details.vehicles.horsepower ? parseInt(data.details.vehicles.horsepower.toString()) : null,
-              attachments: Array.isArray(data.details.vehicles.attachments) ? data.details.vehicles.attachments : [],
-              fuelTankCapacity: data.details.vehicles.fuelTankCapacity || '',
-              tires: data.details.vehicles.tires || ''
-            })
-          } : undefined,
+          vehicles: data.details.vehicles
+            ? {
+                vehicleType: data.category.subCategory,
+                make: data.details.vehicles.make || "",
+                model: data.details.vehicles.model || "",
+                year: data.details.vehicles.year
+                  ? parseInt(data.details.vehicles.year.toString())
+                  : null,
+                mileage: data.details.vehicles.mileage
+                  ? parseInt(data.details.vehicles.mileage.toString())
+                  : null,
+                fuelType: data.details.vehicles.fuelType || "",
+                transmissionType: data.details.vehicles.transmissionType || "",
+                color: data.details.vehicles.color || "#000000",
+                condition: data.details.vehicles.condition || "GOOD",
+                // Transform features from object to array
+                features: Object.entries(data.details.vehicles.features || {})
+                  .filter(([_, value]) => value === true)
+                  .map(([key]) => key),
+                engineSize: data.details.vehicles.engineSize || "",
+                engineNumber: data.details.vehicles.engineNumber || "",
+                interiorColor: data.details.vehicles.interiorColor || "#000000",
+                serviceHistory: Boolean(data.details.vehicles.serviceHistory),
+                previousOwners: data.details.vehicles.previousOwners
+                  ? parseInt(data.details.vehicles.previousOwners.toString())
+                  : 0,
+                accidentFree: Boolean(data.details.vehicles.accidentFree),
+                customsCleared: Boolean(data.details.vehicles.customsCleared),
+                // Entertainment features
+                usbPorts: Boolean(data.details.vehicles.features?.usbPorts),
+                cdPlayer: Boolean(data.details.vehicles.features?.cdPlayer),
+                dvdPlayer: Boolean(data.details.vehicles.features?.dvdPlayer),
+                rearSeatEntertainment: Boolean(
+                  data.details.vehicles.features?.rearSeatEntertainment,
+                ),
+                // Safety features
+                blindSpotMonitor: Boolean(
+                  data.details.vehicles.features?.blindSpotMonitor,
+                ),
+                laneAssist: Boolean(data.details.vehicles.features?.laneAssist),
+                adaptiveCruiseControl: Boolean(
+                  data.details.vehicles.features?.adaptiveCruiseControl,
+                ),
+                tractionControl: Boolean(
+                  data.details.vehicles.features?.tractionControl,
+                ),
+                abs: Boolean(data.details.vehicles.features?.abs),
+                emergencyBrakeAssist: Boolean(
+                  data.details.vehicles.features?.emergencyBrakeAssist,
+                ),
+                tirePressureMonitoring: Boolean(
+                  data.details.vehicles.features?.tirePressureMonitoring,
+                ),
+                // Camera features
+                rearCamera: Boolean(data.details.vehicles.features?.rearCamera),
+                camera360: Boolean(data.details.vehicles.features?.camera360),
+                dashCam: Boolean(data.details.vehicles.features?.dashCam),
+                nightVision: Boolean(
+                  data.details.vehicles.features?.nightVision,
+                ),
+                parkingSensors: Boolean(
+                  data.details.vehicles.features?.parkingSensors,
+                ),
+                // Climate features
+                climateControl: Boolean(
+                  data.details.vehicles.features?.climateControl,
+                ),
+                heatedSeats: Boolean(
+                  data.details.vehicles.features?.heatedSeats,
+                ),
+                ventilatedSeats: Boolean(
+                  data.details.vehicles.features?.ventilatedSeats,
+                ),
+                dualZoneClimate: Boolean(
+                  data.details.vehicles.features?.dualZoneClimate,
+                ),
+                rearAC: Boolean(data.details.vehicles.features?.rearAC),
+                // Lighting features
+                ledHeadlights: Boolean(
+                  data.details.vehicles.features?.ledHeadlights,
+                ),
+                adaptiveHeadlights: Boolean(
+                  data.details.vehicles.features?.adaptiveHeadlights,
+                ),
+                ambientLighting: Boolean(
+                  data.details.vehicles.features?.ambientLighting,
+                ),
+                fogLights: Boolean(data.details.vehicles.features?.fogLights),
+                // Additional fields for specific vehicle types
+                ...(data.category.subCategory === "TRACTOR" && {
+                  horsepower: data.details.vehicles.horsepower
+                    ? parseInt(data.details.vehicles.horsepower.toString())
+                    : null,
+                  attachments: Array.isArray(data.details.vehicles.attachments)
+                    ? data.details.vehicles.attachments
+                    : [],
+                  fuelTankCapacity:
+                    data.details.vehicles.fuelTankCapacity || "",
+                  tires: data.details.vehicles.tires || "",
+                }),
+              }
+            : undefined,
         };
         formData.append("details", JSON.stringify(details));
       }

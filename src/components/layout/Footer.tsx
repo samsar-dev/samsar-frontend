@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
                   to="/careers"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("careers")}
+                  {t("footer.careers")}
                 </Link>
               </li>
             </ul>
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                   to="/terms"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("terms")}
+                  {t("footer.terms")}
                 </Link>
               </li>
             </ul>

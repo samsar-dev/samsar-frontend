@@ -119,17 +119,19 @@ const FeatureSection: React.FC<{
 
   // Helper to clean up labels
   const cleanLabel = (label: string) =>
-    label.replace(/^features\./, '').replace(/([a-z])([A-Z])/g, '$1 $2');
+    label.replace(/^features\./, "").replace(/([a-z])([A-Z])/g, "$1 $2");
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
       <div className="flex items-center mb-4">
         <span className="w-1.5 h-8 bg-primary rounded-full mr-4" />
         <Icon className="w-6 h-6 text-primary mr-2" />
-        <h3 className="text-xl font-bold tracking-wide text-gray-900 dark:text-white flex-1">{t(title)}</h3>
+        <h3 className="text-xl font-bold tracking-wide text-gray-900 dark:text-white flex-1">
+          {t(title)}
+        </h3>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          aria-label={isExpanded ? t('Collapse') : t('Expand')}
+          aria-label={isExpanded ? t("Collapse") : t("Expand")}
           className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
         >
           <FaCog
@@ -144,9 +146,11 @@ const FeatureSection: React.FC<{
               <div
                 key={feature.name}
                 className={`flex items-center justify-between p-3 rounded-lg border shadow-sm hover:shadow-md transition 
-                  ${values[feature.name] ? 'bg-blue-50 border-blue-500' : 'bg-gray-50 dark:bg-gray-700 border-gray-100 dark:border-gray-600'}`}
+                  ${values[feature.name] ? "bg-blue-50 border-blue-500" : "bg-gray-50 dark:bg-gray-700 border-gray-100 dark:border-gray-600"}`}
               >
-                <span className={`text-base font-medium transition-colors ${values[feature.name] ? 'text-blue-700 dark:text-blue-400 font-semibold' : 'text-gray-800 dark:text-gray-200'}`}>
+                <span
+                  className={`text-base font-medium transition-colors ${values[feature.name] ? "text-blue-700 dark:text-blue-400 font-semibold" : "text-gray-800 dark:text-gray-200"}`}
+                >
                   {t(cleanLabel(feature.label))}
                 </span>
                 <button
@@ -168,7 +172,10 @@ const FeatureSection: React.FC<{
                 </button>
               </div>
             ) : (
-              <div key={feature.name} className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm">
+              <div
+                key={feature.name}
+                className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm"
+              >
                 <input
                   type="checkbox"
                   id={feature.name}
@@ -176,7 +183,10 @@ const FeatureSection: React.FC<{
                   onChange={(e) => onChange(feature.name, e.target.checked)}
                   className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
                 />
-                <label htmlFor={feature.name} className="text-base text-gray-800 dark:text-gray-200 font-medium cursor-pointer">
+                <label
+                  htmlFor={feature.name}
+                  className="text-base text-gray-800 dark:text-gray-200 font-medium cursor-pointer"
+                >
                   {t(cleanLabel(feature.label))}
                 </label>
               </div>
@@ -193,7 +203,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   onSubmit,
   onBack,
 }) => {
-  console.log('[AdvancedDetailsForm] props:', formData, onSubmit, onBack);
+  console.log("[AdvancedDetailsForm] props:", formData, onSubmit, onBack);
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -248,8 +258,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     currentSchema.forEach((field) => {
       const value = isVehicle
-        ? form.details?.vehicles?.[field.name] ?? ""
-        : form.details?.realEstate?.[field.name] ?? "";
+        ? (form.details?.vehicles?.[field.name] ?? "")
+        : (form.details?.realEstate?.[field.name] ?? "");
 
       // Skip validation for tractor-specific fields if not a tractor
       if (
@@ -278,7 +288,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
     field: string,
     value: string | number | boolean | string[],
   ) => {
-    console.log('[AdvancedDetailsForm] handleInputChange event:', field, value);
+    console.log("[AdvancedDetailsForm] handleInputChange event:", field, value);
     setForm((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
 
@@ -347,19 +357,25 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         {/* Standard form fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {standardFields.map((field) => {
-  // Custom rendering for featureGroup fields
-  if (field.type === "featureGroup" && field.featureGroups) {
-    return Object.entries(field.featureGroups).map(([category, group]) => (
-      <FeatureSection
-        key={category}
-        title={group.label}
-        icon={getFeatureIcon(category)}
-        features={group.features}
-        values={isVehicle ? form.details?.vehicles || {} : form.details?.realEstate || {}}
-        onChange={handleFeatureChange}
-      />
-    ));
-  }
+            // Custom rendering for featureGroup fields
+            if (field.type === "featureGroup" && field.featureGroups) {
+              return Object.entries(field.featureGroups).map(
+                ([category, group]) => (
+                  <FeatureSection
+                    key={category}
+                    title={group.label}
+                    icon={getFeatureIcon(category)}
+                    features={group.features}
+                    values={
+                      isVehicle
+                        ? form.details?.vehicles || {}
+                        : form.details?.realEstate || {}
+                    }
+                    onChange={handleFeatureChange}
+                  />
+                ),
+              );
+            }
             if (field.type === "colorpicker") {
               return (
                 <ColorPickerField
@@ -367,8 +383,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                   label={t(field.label)}
                   value={
                     isVehicle
-                      ? form.details?.vehicles?.[field.name] ?? "#000000"
-                      : form.details?.realEstate?.[field.name] ?? "#000000"
+                      ? (form.details?.vehicles?.[field.name] ?? "#000000")
+                      : (form.details?.realEstate?.[field.name] ?? "#000000")
                   }
                   onChange={(value) => handleInputChange(field.name, value)}
                   error={errors[`details.${field.name}`]}
@@ -382,15 +398,19 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                 name={field.name}
                 label={t(field.label)}
                 type={field.type as FormFieldType}
-                options={field.options?.map((opt: string | { value: string; label?: string }) =>
-                  typeof opt === "object"
-                    ? { value: opt.value, label: t(opt.label || `options.${opt.value}`) }
-                    : { value: opt, label: t(`options.${opt}`) }
+                options={field.options?.map(
+                  (opt: string | { value: string; label?: string }) =>
+                    typeof opt === "object"
+                      ? {
+                          value: opt.value,
+                          label: t(opt.label || `options.${opt.value}`),
+                        }
+                      : { value: opt, label: t(`options.${opt}`) },
                 )}
                 value={
                   isVehicle
-                    ? form.details?.vehicles?.[field.name] ?? ""
-                    : form.details?.realEstate?.[field.name] ?? ""
+                    ? (form.details?.vehicles?.[field.name] ?? "")
+                    : (form.details?.realEstate?.[field.name] ?? "")
                 }
                 onChange={(value) => handleInputChange(field.name, value)}
                 error={errors[`details.${field.name}`]}
@@ -440,8 +460,8 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('[AdvancedDetailsForm] handleSubmit event:', e);
-    console.log('[AdvancedDetailsForm] Current advanced details state:', form);
+    console.log("[AdvancedDetailsForm] handleSubmit event:", e);
+    console.log("[AdvancedDetailsForm] Current advanced details state:", form);
     e.preventDefault();
     setIsSubmitting(true);
 

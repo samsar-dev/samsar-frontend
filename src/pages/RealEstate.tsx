@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { RealEstateFilter, RealEstateFilterState } from '@/components/filters/RealEstateFilter';
-import ListingCard from '@/components/listings/details/ListingCard';
-import { ExtendedListing } from '@/types/listings';
-import { ListingCategory } from '@/types/enums';
-import { FaSpinner } from 'react-icons/fa';
-import { listingsAPI } from '@/api/listings.api';
-import { debounce } from 'lodash';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  RealEstateFilter,
+  RealEstateFilterState,
+} from "@/components/filters/RealEstateFilter";
+import ListingCard from "@/components/listings/details/ListingCard";
+import { ExtendedListing } from "@/types/listings";
+import { ListingCategory } from "@/types/enums";
+import { FaSpinner } from "react-icons/fa";
+import { listingsAPI } from "@/api/listings.api";
+import { debounce } from "lodash";
+import { toast } from "react-toastify";
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -18,19 +21,19 @@ const RealEstatePage: React.FC = () => {
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     loading: true,
-    error: null
+    error: null,
   });
   const [filters, setFilters] = useState<RealEstateFilterState>({
     propertyType: null,
     listingAction: null,
-    minPrice: '',
-    maxPrice: '',
-    minSize: '',
-    maxSize: '',
-    bedrooms: '',
-    bathrooms: '',
+    minPrice: "",
+    maxPrice: "",
+    minSize: "",
+    maxSize: "",
+    bedrooms: "",
+    bathrooms: "",
     condition: null,
-    location: ''
+    location: "",
   });
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
@@ -42,31 +45,35 @@ const RealEstatePage: React.FC = () => {
 
   const fetchRealEstateListings = useCallback(async () => {
     try {
-      setListings(prev => ({ ...prev, loading: true, error: null }));
-      const response = await listingsAPI.getAll({
-        category: {
-          mainCategory: ListingCategory.REAL_ESTATE,
-          ...(filters.propertyType && { subCategory: filters.propertyType })
+      setListings((prev) => ({ ...prev, loading: true, error: null }));
+      const response = await listingsAPI.getAll(
+        {
+          category: {
+            mainCategory: ListingCategory.REAL_ESTATE,
+            ...(filters.propertyType && { subCategory: filters.propertyType }),
+          },
+          minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+          location: filters.location || undefined,
         },
-        minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-        maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-        location: filters.location || undefined,
+        abortControllerRef.current.signal,
+      );
 
-      }, abortControllerRef.current.signal);
-      
       if (response.success && response.data?.listings) {
-        setListings(prev => ({
+        setListings((prev) => ({
           ...prev,
           all: response.data.listings ?? [], // Fix lint error here
-          loading: false
+          loading: false,
         }));
       } else {
-        throw new Error(response.error || 'Failed to fetch real estate listings');
+        throw new Error(
+          response.error || "Failed to fetch real estate listings",
+        );
       }
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return;
-      const errorMessage = 'Failed to load real estate listings';
-      setListings(prev => ({ ...prev, error: errorMessage, loading: false }));
+      if (err instanceof Error && err.name === "AbortError") return;
+      const errorMessage = "Failed to load real estate listings";
+      setListings((prev) => ({ ...prev, error: errorMessage, loading: false }));
       toast.error(errorMessage);
       console.error(err);
     }
@@ -81,7 +88,7 @@ const RealEstatePage: React.FC = () => {
   }, [debouncedFetch]);
 
   const handleFilterChange = (filterUpdates: Partial<typeof filters>) => {
-    setFilters(prev => ({ ...prev, ...filterUpdates }));
+    setFilters((prev) => ({ ...prev, ...filterUpdates }));
   };
 
   return (
@@ -91,7 +98,7 @@ const RealEstatePage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Real Estate Listings
           </h1>
-          <RealEstateFilter 
+          <RealEstateFilter
             filters={filters}
             onFilterChange={handleFilterChange}
           />
@@ -110,7 +117,12 @@ const RealEstatePage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {listings.all.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} showPrice={true} showLocation={true} />
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                showPrice={true}
+                showLocation={true}
+              />
             ))}
           </div>
         )}

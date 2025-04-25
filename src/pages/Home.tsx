@@ -3,9 +3,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
-import {
-  type ExtendedListing
-} from "@/types/listings";
+import { type ExtendedListing } from "@/types/listings";
 import { serverStatus } from "@/utils/serverStatus";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
@@ -26,7 +24,7 @@ interface ListingParams {
     model?: string;
   };
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   limit: number;
   page?: number;
   year?: number;
@@ -48,8 +46,10 @@ interface ListingsState {
 const Home: React.FC = () => {
   // ...existing code...
   const [sortBy, setSortBy] = useState<string>("newestFirst");
-  const { t, i18n } = useTranslation('common');
-  const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(ListingCategory.VEHICLES);
+  const { t, i18n } = useTranslation("common");
+  const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
+    ListingCategory.VEHICLES,
+  );
   const [selectedPrice, setSelectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
     all: [],
@@ -70,13 +70,19 @@ const Home: React.FC = () => {
   }, []);
 
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(
+    null,
+  );
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
+    null,
+  );
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(null);
+  const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(
+    null,
+  );
   const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -99,27 +105,37 @@ const Home: React.FC = () => {
           sortedListings.sort((a, b) => (b.price || 0) - (a.price || 0));
           break;
         case "locationAsc":
-          sortedListings.sort((a, b) => (a.location || '').localeCompare(b.location || ''));
+          sortedListings.sort((a, b) =>
+            (a.location || "").localeCompare(b.location || ""),
+          );
           break;
         case "locationDesc":
-          sortedListings.sort((a, b) => (b.location || '').localeCompare(a.location || ''));
+          sortedListings.sort((a, b) =>
+            (b.location || "").localeCompare(a.location || ""),
+          );
           break;
         case "newestFirst":
         default:
-          sortedListings.sort((a, b) => 
-            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          sortedListings.sort(
+            (a, b) =>
+              new Date(b.createdAt || 0).getTime() -
+              new Date(a.createdAt || 0).getTime(),
           );
       }
 
       // Apply filters
-      let filteredListings = sortedListings.filter(listing => {
+      let filteredListings = sortedListings.filter((listing) => {
         if (selectedCategory === ListingCategory.VEHICLES) {
           // Vehicle filtering
           if (selectedYear && listing.details?.vehicles?.year) {
-            if (parseInt(listing.details.vehicles.year) !== parseInt(selectedYear)) return false;
+            if (
+              parseInt(listing.details.vehicles.year) !== parseInt(selectedYear)
+            )
+              return false;
           }
           if (selectedSubcategory && listing.details?.vehicles?.vehicleType) {
-            if (listing.details.vehicles.vehicleType !== selectedSubcategory) return false;
+            if (listing.details.vehicles.vehicleType !== selectedSubcategory)
+              return false;
           }
           if (selectedMake && listing.details?.vehicles?.make) {
             if (listing.details.vehicles.make !== selectedMake) return false;
@@ -132,17 +148,24 @@ const Home: React.FC = () => {
           }
         } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
           // Real estate filtering
-          if (selectedSubcategory && listing.details?.realEstate?.propertyType) {
-            if (listing.details.realEstate.propertyType !== selectedSubcategory) return false;
+          if (
+            selectedSubcategory &&
+            listing.details?.realEstate?.propertyType
+          ) {
+            if (listing.details.realEstate.propertyType !== selectedSubcategory)
+              return false;
           }
           if (selectedLocation && listing.location) {
-            if (listing.location.toLowerCase() !== selectedLocation.toLowerCase()) return false;
+            if (
+              listing.location.toLowerCase() !== selectedLocation.toLowerCase()
+            )
+              return false;
           }
           if (selectedBuiltYear && listing.details?.realEstate?.yearBuilt) {
             // Built year filter: "2023 and newer", "2010 and newer", "Before 2000"
             const builtYear = Number(listing.details.realEstate.yearBuilt);
             const filterYear = parseInt(selectedBuiltYear);
-            if (selectedBuiltYear === '2000') {
+            if (selectedBuiltYear === "2000") {
               // Before 2000
               if (builtYear >= 2000) return false;
             } else if (!isNaN(filterYear)) {
@@ -154,7 +177,7 @@ const Home: React.FC = () => {
         return true;
       });
 
-      setListings(prev => ({
+      setListings((prev) => ({
         ...prev,
         all: filteredListings,
         loading: false,
@@ -172,8 +195,8 @@ const Home: React.FC = () => {
     }
 
     try {
-      setListings(prev => ({ ...prev, loading: true }));
-      
+      setListings((prev) => ({ ...prev, loading: true }));
+
       // Only create new abort controller if we need to abort the current request
       if (abortControllerRef.current.signal.aborted) {
         abortControllerRef.current = new AbortController();
@@ -182,18 +205,24 @@ const Home: React.FC = () => {
       const params: ListingParams = {
         category: {
           mainCategory: selectedCategory,
-          ...(selectedSubcategory && { subCategory: selectedSubcategory as VehicleType | PropertyType }),
+          ...(selectedSubcategory && {
+            subCategory: selectedSubcategory as VehicleType | PropertyType,
+          }),
         },
         ...(selectedMake && { make: selectedMake }),
         ...(selectedModel && { model: selectedModel }),
         ...(selectedYear && { year: Number(selectedYear) }), // Convert string year to number
         sortBy,
-        sortOrder: sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
+        sortOrder:
+          sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
         limit: 10,
         preview: true,
       };
 
-      const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
+      const response = await listingsAPI.getAll(
+        params,
+        abortControllerRef.current.signal,
+      );
 
       if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch listings");
@@ -206,23 +235,37 @@ const Home: React.FC = () => {
       // Cache the results
       listingsCache.current[selectedCategory] = response.data.listings;
 
-      setListings(prev => ({
+      setListings((prev) => ({
         ...prev,
         all: response.data.listings,
         loading: false,
       }));
     } catch (error) {
-      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message.includes("aborted"))
+      ) {
         return;
       }
       console.error("Error fetching listings:", error);
-      setListings(prev => ({
+      setListings((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : "Failed to fetch listings",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch listings",
         loading: false,
       }));
     }
-  }, [selectedCategory, selectedSubcategory, selectedMake, selectedModel, selectedYear, sortBy, isInitialLoad, isServerOnline, t]);
+  }, [
+    selectedCategory,
+    selectedSubcategory,
+    selectedMake,
+    selectedModel,
+    selectedYear,
+    sortBy,
+    isInitialLoad,
+    isServerOnline,
+    t,
+  ]);
 
   // Single effect for fetching listings - only on category change or initial load
   useEffect(() => {
@@ -242,19 +285,49 @@ const Home: React.FC = () => {
   const filteredListings = useMemo(() => {
     setIsFiltering(true);
     const filtered = listings?.all?.filter((listing) => {
-      const matchesCategory = listing.category.mainCategory === selectedCategory;
-      const matchesAction = selectedAction ? listing.listingAction?.toString() === selectedAction : true;
-      const matchesSubcategory = selectedSubcategory ? listing.category.subCategory === selectedSubcategory : true;
-      const matchesMake = selectedMake ? listing.details.vehicles?.make === selectedMake : true;
-      const matchesModel = selectedModel ? listing.details.vehicles?.model === selectedModel : true;
-      const matchesYear = selectedYear ? listing.details.vehicles?.year?.toString() === selectedYear : true;
-      const matchesPrice = selectedPrice ? listing.price?.toString() === selectedPrice : true;
-      
-      return matchesCategory && matchesAction && matchesSubcategory && matchesMake && matchesModel && matchesYear && matchesPrice;
+      const matchesCategory =
+        listing.category.mainCategory === selectedCategory;
+      const matchesAction = selectedAction
+        ? listing.listingAction?.toString() === selectedAction
+        : true;
+      const matchesSubcategory = selectedSubcategory
+        ? listing.category.subCategory === selectedSubcategory
+        : true;
+      const matchesMake = selectedMake
+        ? listing.details.vehicles?.make === selectedMake
+        : true;
+      const matchesModel = selectedModel
+        ? listing.details.vehicles?.model === selectedModel
+        : true;
+      const matchesYear = selectedYear
+        ? listing.details.vehicles?.year?.toString() === selectedYear
+        : true;
+      const matchesPrice = selectedPrice
+        ? listing.price?.toString() === selectedPrice
+        : true;
+
+      return (
+        matchesCategory &&
+        matchesAction &&
+        matchesSubcategory &&
+        matchesMake &&
+        matchesModel &&
+        matchesYear &&
+        matchesPrice
+      );
     });
     setIsFiltering(false);
     return filtered;
-  }, [listings.all, selectedCategory, selectedAction, selectedSubcategory, selectedMake, selectedModel, selectedYear, selectedPrice]);
+  }, [
+    listings.all,
+    selectedCategory,
+    selectedAction,
+    selectedSubcategory,
+    selectedMake,
+    selectedModel,
+    selectedYear,
+    selectedPrice,
+  ]);
 
   // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
@@ -299,7 +372,7 @@ const Home: React.FC = () => {
         }));
       }
     },
-    [isServerOnline, t, fetchListings]
+    [isServerOnline, t, fetchListings],
   );
 
   useEffect(() => {
@@ -307,8 +380,8 @@ const Home: React.FC = () => {
       new Set(
         listings.all
           .filter((l) => l.category.mainCategory === selectedCategory)
-          .map((l) => l.category.subCategory)
-      )
+          .map((l) => l.category.subCategory),
+      ),
     );
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
@@ -327,39 +400,79 @@ const Home: React.FC = () => {
   };
 
   // Debug logging for i18n
-  console.log('i18n instance:', i18n);
-  console.log('Current Language:', i18n.language);
-  console.log('Namespaces:', i18n.options.ns);
+  console.log("i18n instance:", i18n);
+  console.log("Current Language:", i18n.language);
+  console.log("Namespaces:", i18n.options.ns);
 
   // Define sort options with translation
   // Log the translations loaded for sortOptions
-console.log('Loaded sortOptions translations:', t('sortOptions', { returnObjects: true }));
+  console.log(
+    "Loaded sortOptions translations:",
+    t("common.sortOptions", { returnObjects: true }),
+  );
 
-const sortOptions = [
-  {
-    value: "newestFirst",
-    label: t("common.sortOptions.newestFirst") !== "common.sortOptions.newestFirst" ? t("common.sortOptions.newestFirst") : (() => { console.warn('Missing translation: common.sortOptions.newestFirst'); return "Newest First"; })()
-  },
-  {
-    value: "priceAsc",
-    label: t("common.sortOptions.priceAsc") !== "common.sortOptions.priceAsc" ? t("common.sortOptions.priceAsc") : (() => { console.warn('Missing translation: common.sortOptions.priceAsc'); return "Price: Low to High"; })()
-  },
-  {
-    value: "priceDesc",
-    label: t("common.sortOptions.priceDesc") !== "common.sortOptions.priceDesc" ? t("common.sortOptions.priceDesc") : (() => { console.warn('Missing translation: common.sortOptions.priceDesc'); return "Price: High to Low"; })()
-  },
-  {
-    value: "locationAsc",
-    label: t("common.sortOptions.locationAsc") !== "common.sortOptions.locationAsc" ? t("common.sortOptions.locationAsc") : (() => { console.warn('Missing translation: common.sortOptions.locationAsc'); return "Location: A to Z"; })()
-  },
-  {
-    value: "locationDesc",
-    label: t("common.sortOptions.locationDesc") !== "common.sortOptions.locationDesc" ? t("common.sortOptions.locationDesc") : (() => { console.warn('Missing translation: common.sortOptions.locationDesc'); return "Location: Z to A"; })()
-  },
-];
+  const sortOptions = [
+    {
+      value: "newestFirst",
+      label:
+        t("common.sortOptions.newestFirst") !== "common.sortOptions.newestFirst"
+          ? t("common.sortOptions.newestFirst")
+          : (() => {
+              console.warn(
+                "Missing translation: common.sortOptions.newestFirst",
+              );
+              return "Newest First";
+            })(),
+    },
+    {
+      value: "priceAsc",
+      label:
+        t("common.sortOptions.priceAsc") !== "common.sortOptions.priceAsc"
+          ? t("common.sortOptions.priceAsc")
+          : (() => {
+              console.warn("Missing translation: common.sortOptions.priceAsc");
+              return "Price: Low to High";
+            })(),
+    },
+    {
+      value: "priceDesc",
+      label:
+        t("common.sortOptions.priceDesc") !== "common.sortOptions.priceDesc"
+          ? t("common.sortOptions.priceDesc")
+          : (() => {
+              console.warn("Missing translation: common.sortOptions.priceDesc");
+              return "Price: High to Low";
+            })(),
+    },
+    {
+      value: "locationAsc",
+      label:
+        t("common.sortOptions.locationAsc") !== "common.sortOptions.locationAsc"
+          ? t("common.sortOptions.locationAsc")
+          : (() => {
+              console.warn(
+                "Missing translation: common.sortOptions.locationAsc",
+              );
+              return "Location: A to Z";
+            })(),
+    },
+    {
+      value: "locationDesc",
+      label:
+        t("common.sortOptions.locationDesc") !==
+        "common.sortOptions.locationDesc"
+          ? t("common.sortOptions.locationDesc")
+          : (() => {
+              console.warn(
+                "Missing translation: common.sortOptions.locationDesc",
+              );
+              return "Location: Z to A";
+            })(),
+    },
+  ];
 
   // Debug logging
-  console.log('Sort Options Translations:', {
+  console.log("Sort Options Translations:", {
     newestFirst: t("common.sortOptions.newestFirst"),
     priceAsc: t("common.sortOptions.priceAsc"),
     priceDesc: t("common.sortOptions.priceDesc"),
@@ -379,7 +492,7 @@ const sortOptions = [
     return (
       <>
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 px-2 sm:px-0 mt-4 mb-6">
-          <button 
+          <button
             onClick={toggleFilters}
             className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-full sm:w-auto self-start"
           >
@@ -392,7 +505,8 @@ const sortOptions = [
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="relative">
                 <Listbox.Button className="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {sortOptions.find(opt => opt.value === sortBy)?.label || t("common.filters.sort_by")}
+                  {sortOptions.find((opt) => opt.value === sortBy)?.label ||
+                    t("common.filters.sort_by")}
                   <HiSelector className="w-5 h-5 text-gray-400" />
                 </Listbox.Button>
                 <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
@@ -402,14 +516,18 @@ const sortOptions = [
                       value={option.value}
                       className={({ active, selected }) =>
                         `cursor-pointer select-none px-4 py-2 ${
-                          active ? "bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white" : "text-gray-700 dark:text-white"
+                          active
+                            ? "bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white"
+                            : "text-gray-700 dark:text-white"
                         }`
                       }
                     >
                       {({ selected }) => (
                         <span className="flex items-center justify-between">
                           {option.label}
-                          {selected && <HiCheck className="w-4 h-4 text-blue-500 dark:text-white" />}
+                          {selected && (
+                            <HiCheck className="w-4 h-4 text-blue-500 dark:text-white" />
+                          )}
                         </span>
                       )}
                     </Listbox.Option>
@@ -521,13 +639,24 @@ const sortOptions = [
         )}
       </>
     );
-  }, [listings, isServerOnline, t, fetchListings, filteredListings, isFilterOpen, isFiltering, selectedAction, selectedSubcategory, selectedMake, selectedModel, allSubcategories]);
+  }, [
+    listings,
+    isServerOnline,
+    t,
+    fetchListings,
+    filteredListings,
+    isFilterOpen,
+    isFiltering,
+    selectedAction,
+    selectedSubcategory,
+    selectedMake,
+    selectedModel,
+    allSubcategories,
+  ]);
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-10 md:py-12 min-h-[20vh] sm:min-h-[22vh] lg:min-h-[25vh]">
-
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
@@ -567,7 +696,6 @@ const sortOptions = [
                 {t("navigation.real_estate")}
               </button>
             </div>
-            
           </div>
         </div>
       </div>

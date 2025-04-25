@@ -24,8 +24,8 @@ const i18nConfig: InitOptions = {
     escapeValue: false,
   },
   returnObjects: true,
-  debug: true,  // Enable debug mode
-  saveMissing: true,  // Save missing translations
+  debug: true, // Enable debug mode
+  saveMissing: true, // Save missing translations
 };
 
 i18n.use(initReactI18next).init(i18nConfig);
@@ -35,9 +35,9 @@ const currentLanguage = localStorage.getItem("language") || "en";
 document.dir = currentLanguage === "ar" ? "rtl" : "ltr";
 
 // Debug logging
-console.log('i18n Resources:', resources);
-console.log('i18n Current Language:', i18n.language);
-console.log('i18n Translations:', i18n.t('common:sortOptions'));
-console.log('Document direction set to:', document.dir);
+console.log("i18n Resources:", resources);
+console.log("i18n Current Language:", i18n.language);
+console.log("i18n Translations:", i18n.t("common:sortOptions"));
+console.log("Document direction set to:", document.dir);
 
 export default i18n;

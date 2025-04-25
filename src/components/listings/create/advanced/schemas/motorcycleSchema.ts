@@ -8,7 +8,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Make is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Make is required" : null,
   },
   {
     name: "model",
@@ -16,7 +17,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Model is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Model is required" : null,
   },
   {
     name: "year",
@@ -26,9 +28,10 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return "Year is required";
-      if (typeof value === 'number') {
+      if (typeof value === "number") {
         if (value < 1885) return "Year must be 1885 or later";
-        if (value > new Date().getFullYear()) return "Year cannot be in the future";
+        if (value > new Date().getFullYear())
+          return "Year cannot be in the future";
       }
       return null;
     },
@@ -39,7 +42,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Exterior color is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Exterior color is required" : null,
   },
   {
     name: "condition",
@@ -48,7 +52,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Condition is required" : null,
   },
   {
     name: "mileage",
@@ -58,7 +63,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value && value !== 0) return "Mileage is required";
-      if (typeof value === 'number' && value < 0) return "Mileage must be 0 or greater";
+      if (typeof value === "number" && value < 0)
+        return "Mileage must be 0 or greater";
       return null;
     },
   },
@@ -66,19 +72,47 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "engineSize",
     label: "listings.engineSize",
     type: "select",
-    options: ["50cc", "125cc", "250cc", "300cc", "400cc", "500cc", "600cc", "650cc", "750cc", "800cc", "900cc", "1000cc", "1200cc", "1400cc", "1500cc+"],
+    options: [
+      "50cc",
+      "125cc",
+      "250cc",
+      "300cc",
+      "400cc",
+      "500cc",
+      "600cc",
+      "650cc",
+      "750cc",
+      "800cc",
+      "900cc",
+      "1000cc",
+      "1200cc",
+      "1400cc",
+      "1500cc+",
+    ],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Engine size is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Engine size is required" : null,
   },
   {
     name: "engineType",
     label: "listings.engineType",
     type: "select",
-    options: ["singleCylinder", "parallel-twin", "v-twin", "inline-3", "inline-4", "v4", "boxer", "rotary", "electric"],
+    options: [
+      "singleCylinder",
+      "parallel-twin",
+      "v-twin",
+      "inline-3",
+      "inline-4",
+      "v4",
+      "boxer",
+      "rotary",
+      "electric",
+    ],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Engine type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Engine type is required" : null,
   },
   {
     name: "previousOwners",
@@ -88,7 +122,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value && value !== 0) return "Previous owners is required";
-      if (typeof value === 'number' && value < 0) return "Previous owners must be 0 or greater";
+      if (typeof value === "number" && value < 0)
+        return "Previous owners must be 0 or greater";
       return null;
     },
   },
@@ -99,16 +134,26 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired", "sorn"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Registration status is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Registration status is required" : null,
   },
   {
     name: "brakeSystem",
     label: "listings.brakeSystem",
     type: "multiselect",
-    options: ["frontDisc", "rearDisc", "frontDrum", "rearDrum", "abs", "combinedBraking", "linkedBraking"],
+    options: [
+      "frontDisc",
+      "rearDisc",
+      "frontDrum",
+      "rearDrum",
+      "abs",
+      "combinedBraking",
+      "linkedBraking",
+    ],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Brake system is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Brake system is required" : null,
   },
   {
     name: "fuelType",
@@ -117,7 +162,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["", "gasoline", "electric", "hybrid", "diesel"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Fuel type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Fuel type is required" : null,
   },
   {
     name: "transmissionType",
@@ -126,7 +172,8 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     options: ["", "manual", "automatic", "semiAutomatic", "dct", "cvt"],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Transmission type is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Transmission type is required" : null,
   },
 
   // Advanced Section
@@ -145,13 +192,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  {
-    name: "compression",
-    label: "listings.compression",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
+
   {
     name: "fuelSystem",
     label: "listings.fuelSystem",
@@ -174,7 +215,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "frameType",
     label: "listings.frameType",
     type: "select",
-    options: ["tubular", "trellis", "twin-spar", "monocoque", "backbone", "perimeter"],
+    options: [
+      "tubular",
+      "trellis",
+      "twin-spar",
+      "monocoque",
+      "backbone",
+      "perimeter",
+    ],
     section: "advanced",
     required: false,
   },
@@ -182,7 +230,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "frontSuspension",
     label: "listings.frontSuspension",
     type: "multiselect",
-    options: ["telescopicFork", "upsideDownFork", "earlessFork", "girder", "leadingLink", "electronicallyAdjustable"],
+    options: [
+      "telescopicFork",
+      "upsideDownFork",
+      "earlessFork",
+      "girder",
+      "leadingLink",
+      "electronicallyAdjustable",
+    ],
     section: "advanced",
     required: false,
   },
@@ -190,7 +245,13 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "rearSuspension",
     label: "listings.rearSuspension",
     type: "multiselect",
-    options: ["twinShock", "monoShock", "cantilever", "softail", "electronicallyAdjustable"],
+    options: [
+      "twinShock",
+      "monoShock",
+      "cantilever",
+      "softail",
+      "electronicallyAdjustable",
+    ],
     section: "advanced",
     required: false,
   },
@@ -216,7 +277,17 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "riderAids",
     label: "listings.riderAids",
     type: "multiselect",
-    options: ["abs", "tractionControl", "wheelieControl", "launchControl", "cruiseControl", "ridingModes", "quickshifter", "autoBlipper", "hillHoldControl"],
+    options: [
+      "abs",
+      "tractionControl",
+      "wheelieControl",
+      "launchControl",
+      "cruiseControl",
+      "ridingModes",
+      "quickshifter",
+      "autoBlipper",
+      "hillHoldControl",
+    ],
     section: "advanced",
     required: false,
   },
@@ -224,7 +295,17 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "electronics",
     label: "listings.electronics",
     type: "multiselect",
-    options: ["digitalDisplay", "tft", "bluetooth", "usbCharging", "smartphone integration", "gps", "immobilizer", "alarm", "keyless"],
+    options: [
+      "digitalDisplay",
+      "tft",
+      "bluetooth",
+      "usbCharging",
+      "smartphone integration",
+      "gps",
+      "immobilizer",
+      "alarm",
+      "keyless",
+    ],
     section: "advanced",
     required: false,
   },
@@ -232,7 +313,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "lighting",
     label: "listings.lighting",
     type: "multiselect",
-    options: ["LED", "halogen", "xenon", "drl", "adaptiveLighting", "cornering"],
+    options: [
+      "LED",
+      "halogen",
+      "xenon",
+      "drl",
+      "adaptiveLighting",
+      "cornering",
+    ],
     section: "advanced",
     required: false,
   },
@@ -242,7 +330,15 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "seatType",
     label: "listings.seatType",
     type: "multiselect",
-    options: ["single", "dual", "heated", "adjustable", "custom", "comfort", "sport"],
+    options: [
+      "single",
+      "dual",
+      "heated",
+      "adjustable",
+      "custom",
+      "comfort",
+      "sport",
+    ],
     section: "advanced",
     required: false,
   },
@@ -265,7 +361,15 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "comfortFeatures",
     label: "listings.comfortFeatures",
     type: "multiselect",
-    options: ["heatedGrips", "heatedSeats", "windscreen", "adjustableWindscreen", "handGuards", "footboards", "backrest"],
+    options: [
+      "heatedGrips",
+      "heatedSeats",
+      "windscreen",
+      "adjustableWindscreen",
+      "handGuards",
+      "footboards",
+      "backrest",
+    ],
     section: "advanced",
     required: false,
   },
@@ -283,7 +387,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "protectiveEquipment",
     label: "listings.protectiveEquipment",
     type: "multiselect",
-    options: ["crashBars", "engineGuards", "radiatorGuard", "skidPlate", "handGuards", "tankPads"],
+    options: [
+      "crashBars",
+      "engineGuards",
+      "radiatorGuard",
+      "skidPlate",
+      "handGuards",
+      "tankPads",
+    ],
     section: "advanced",
     required: false,
   },
@@ -291,7 +402,15 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "customParts",
     label: "listings.customParts",
     type: "multiselect",
-    options: ["exhaust", "suspension", "brakes", "engineParts", "cosmetic", "performance", "ergonomic"],
+    options: [
+      "exhaust",
+      "suspension",
+      "brakes",
+      "engineParts",
+      "cosmetic",
+      "performance",
+      "ergonomic",
+    ],
     section: "advanced",
     required: false,
   },
@@ -301,7 +420,13 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     name: "serviceHistory",
     label: "listings.serviceHistory",
     type: "multiselect",
-    options: ["fullDealerHistory", "partialDealerHistory", "fullServiceRecords", "partialServiceRecords", "noHistory"],
+    options: [
+      "fullDealerHistory",
+      "partialDealerHistory",
+      "fullServiceRecords",
+      "partialServiceRecords",
+      "noHistory",
+    ],
     section: "advanced",
     required: false,
   },

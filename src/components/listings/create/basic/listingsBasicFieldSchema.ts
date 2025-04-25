@@ -1,4 +1,3 @@
-
 export interface ListingFieldSchema {
   name: string;
   type: "text" | "select" | "number" | "textarea";
@@ -21,7 +20,6 @@ export const listingsFieldSchema: Record<string, ListingFieldSchema[]> = {
 
     { name: "year", type: "number", label: "Year", required: true },
 
-    
     {
       name: "bodyType",
       type: "select",
@@ -47,7 +45,7 @@ export const listingsFieldSchema: Record<string, ListingFieldSchema[]> = {
       label: "Engine Size (cc)",
       required: true,
     },
-    
+
     {
       name: "type",
       type: "select",

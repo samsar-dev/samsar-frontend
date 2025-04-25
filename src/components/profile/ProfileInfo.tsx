@@ -173,7 +173,7 @@ const ProfileInfo = () => {
             htmlFor="username"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            {t("profile.username")}
+            {t("profile.name")}
           </label>
           <input
             type="text"
@@ -269,9 +269,7 @@ const ProfileInfo = () => {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          
-        </div>
+        <div></div>
       </div>
       <div className="flex justify-end">
         <button

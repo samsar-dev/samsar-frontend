@@ -55,9 +55,9 @@ export const FormField = React.forwardRef<
     let newValue;
 
     // Handle react-select change
-    if (e && typeof e === 'object' && 'value' in e) {
+    if (e && typeof e === "object" && "value" in e) {
       newValue = e.value;
-    } else if (e && 'target' in e) {
+    } else if (e && "target" in e) {
       // Handle standard form input change
       newValue =
         type === "checkbox"
@@ -69,7 +69,7 @@ export const FormField = React.forwardRef<
             ).target.value;
     } else {
       // Handle null case from react-select
-      newValue = '';
+      newValue = "";
     }
 
     // Run validation
@@ -172,7 +172,7 @@ export const FormField = React.forwardRef<
             <option value="">{placeholder || "Select an option"}</option>
             {options?.map((option) => (
               <option key={option.value} value={option.value}>
-                {typeof option.label === 'string' 
+                {typeof option.label === "string"
                   ? option.label === option.value
                     ? `${option.label.charAt(0).toUpperCase()}${option.label.slice(1).toLowerCase()}`
                     : option.label

@@ -17,18 +17,21 @@ export const useSocket = (): UseSocketResult => {
 
   useEffect(() => {
     if (user) {
-      const manager = new Manager("https://tijara-backend-production.up.railway.app", {
-        auth: {
-          token: localStorage.getItem("token"),
+      const manager = new Manager(
+        "https://tijara-backend-production.up.railway.app",
+        {
+          auth: {
+            token: localStorage.getItem("token"),
+          },
+          transports: ["websocket"],
+          autoConnect: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          secure: true,
+          path: "/socket.io/",
         },
-        transports: ["websocket"],
-        autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        secure: true,
-        path: "/socket.io/"
-      });
+      );
 
       const socket = manager.socket("/");
 

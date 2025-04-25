@@ -35,23 +35,30 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [editingImage, setEditingImage] = useState<{ url: string; index: number } | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null,
+  );
+  const [editingImage, setEditingImage] = useState<{
+    url: string;
+    index: number;
+  } | null>(null);
 
   useEffect(() => {
     // Create preview URLs for images
-    const urls = images.map((file: any) => {
-      // Ensure file is valid before creating URL
-      if (file instanceof File || file instanceof Blob) {
-        try {
-          return URL.createObjectURL(file);
-        } catch (error) {
-          console.error('Error creating URL for file:', error);
-          return '';
+    const urls = images
+      .map((file: any) => {
+        // Ensure file is valid before creating URL
+        if (file instanceof File || file instanceof Blob) {
+          try {
+            return URL.createObjectURL(file);
+          } catch (error) {
+            console.error("Error creating URL for file:", error);
+            return "";
+          }
         }
-      }
-      return '';
-    }).filter(Boolean); // Remove any empty strings
+        return "";
+      })
+      .filter(Boolean); // Remove any empty strings
 
     setPreviewUrls(urls);
 
@@ -62,7 +69,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           try {
             URL.revokeObjectURL(url);
           } catch (error) {
-            console.error('Error revoking URL:', error);
+            console.error("Error revoking URL:", error);
           }
         }
       });
@@ -177,7 +184,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     if (editingImage === null) return;
 
     const newFile = new File([editedBlob], `edited-image-${Date.now()}.jpg`, {
-      type: 'image/jpeg',
+      type: "image/jpeg",
     });
 
     const newImages = [...images];

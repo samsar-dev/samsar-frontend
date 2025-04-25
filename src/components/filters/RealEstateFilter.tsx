@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { PropertyType, Condition } from '@/types/enums';
-import { FaFilter, FaTimes } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { PropertyType, Condition } from "@/types/enums";
+import { FaFilter, FaTimes } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface RealEstateFilterState {
   propertyType: PropertyType | null;
-  listingAction: 'SELL' | 'RENT' | null;
+  listingAction: "SELL" | "RENT" | null;
   minPrice: string;
   maxPrice: string;
   minSize: string;
@@ -21,22 +21,28 @@ interface RealEstateFilterProps {
   onFilterChange: (filters: Partial<RealEstateFilterState>) => void;
 }
 
-export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onFilterChange }) => {
+export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({
+  filters,
+  onFilterChange,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const defaultFilters: RealEstateFilterState = {
     propertyType: null,
     listingAction: null,
-    minPrice: '',
-    maxPrice: '',
-    minSize: '',
-    maxSize: '',
-    bedrooms: '',
-    bathrooms: '',
+    minPrice: "",
+    maxPrice: "",
+    minSize: "",
+    maxSize: "",
+    bedrooms: "",
+    bathrooms: "",
     condition: null,
-    location: '',
+    location: "",
   };
 
-  const handleFilterChange = (field: keyof RealEstateFilterState, value: any) => {
+  const handleFilterChange = (
+    field: keyof RealEstateFilterState,
+    value: any,
+  ) => {
     onFilterChange({ [field]: value });
   };
 
@@ -44,14 +50,14 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
     onFilterChange({
       propertyType: null,
       listingAction: null,
-      minPrice: '',
-      maxPrice: '',
-      minSize: '',
-      maxSize: '',
-      bedrooms: '',
-      bathrooms: '',
+      minPrice: "",
+      maxPrice: "",
+      minSize: "",
+      maxSize: "",
+      bedrooms: "",
+      bathrooms: "",
       condition: null,
-      location: '',
+      location: "",
     });
   };
 
@@ -69,7 +75,7 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
           >
@@ -87,8 +93,10 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-4">
                 <select
-                  value={filters.propertyType || ''}
-                  onChange={(e) => handleFilterChange('propertyType', e.target.value)}
+                  value={filters.propertyType || ""}
+                  onChange={(e) =>
+                    handleFilterChange("propertyType", e.target.value)
+                  }
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="">Property Type</option>
@@ -100,8 +108,10 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
                 </select>
 
                 <select
-                  value={filters.listingAction || ''}
-                  onChange={(e) => handleFilterChange('listingAction', e.target.value)}
+                  value={filters.listingAction || ""}
+                  onChange={(e) =>
+                    handleFilterChange("listingAction", e.target.value)
+                  }
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="">For Sale/Rent</option>
@@ -113,7 +123,9 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
                   type="text"
                   placeholder="Location"
                   value={filters.location}
-                  onChange={(e) => handleFilterChange('location', e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("location", e.target.value)
+                  }
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 />
               </div>
@@ -124,14 +136,18 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
                     type="number"
                     placeholder="Min Price"
                     value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("minPrice", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   />
                   <input
                     type="number"
                     placeholder="Max Price"
                     value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("maxPrice", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   />
                 </div>
@@ -141,14 +157,18 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
                     type="number"
                     placeholder="Min Size (m²)"
                     value={filters.minSize}
-                    onChange={(e) => handleFilterChange('minSize', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("minSize", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   />
                   <input
                     type="number"
                     placeholder="Max Size (m²)"
                     value={filters.maxSize}
-                    onChange={(e) => handleFilterChange('maxSize', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("maxSize", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   />
                 </div>
@@ -158,34 +178,46 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({ filters, onF
                 <div className="grid grid-cols-2 gap-4">
                   <select
                     value={filters.bedrooms}
-                    onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("bedrooms", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   >
                     <option value="">Bedrooms</option>
-                    {[1, 2, 3, 4, 5, '6+'].map((num) => (
+                    {[1, 2, 3, 4, 5, "6+"].map((num) => (
                       <option key={num} value={num}>
-                        {num} {num === '6+' ? '' : num === 1 ? 'Bedroom' : 'Bedrooms'}
+                        {num}{" "}
+                        {num === "6+" ? "" : num === 1 ? "Bedroom" : "Bedrooms"}
                       </option>
                     ))}
                   </select>
 
                   <select
                     value={filters.bathrooms}
-                    onChange={(e) => handleFilterChange('bathrooms', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange("bathrooms", e.target.value)
+                    }
                     className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   >
                     <option value="">Bathrooms</option>
-                    {[1, 2, 3, 4, '5+'].map((num) => (
+                    {[1, 2, 3, 4, "5+"].map((num) => (
                       <option key={num} value={num}>
-                        {num} {num === '5+' ? '' : num === 1 ? 'Bathroom' : 'Bathrooms'}
+                        {num}{" "}
+                        {num === "5+"
+                          ? ""
+                          : num === 1
+                            ? "Bathroom"
+                            : "Bathrooms"}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <select
-                  value={filters.condition || ''}
-                  onChange={(e) => handleFilterChange('condition', e.target.value)}
+                  value={filters.condition || ""}
+                  onChange={(e) =>
+                    handleFilterChange("condition", e.target.value)
+                  }
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="">Condition</option>

@@ -8,14 +8,14 @@ import {
   FaBus,
   FaTractor,
   FaTachometerAlt, // Mileage
-  FaCalendarAlt,   // Year
-  FaGasPump,       // Fuel Type
-  FaCogs,          // Transmission (alt)
-  FaGripLines,     // Transmission (modern)
-  FaBolt,          // Power (kW)
-  FaHorseHead,     // Horsepower
-  FaBath,          // Bathrooms
-  FaBed            // Bedrooms
+  FaCalendarAlt, // Year
+  FaGasPump, // Fuel Type
+  FaCogs, // Transmission (alt)
+  FaGripLines, // Transmission (modern)
+  FaBolt, // Power (kW)
+  FaHorseHead, // Horsepower
+  FaBath, // Bathrooms
+  FaBed, // Bedrooms
 } from "react-icons/fa";
 import { MdConstruction } from "react-icons/md";
 import { GiTreeBranch } from "react-icons/gi";
@@ -29,14 +29,14 @@ const icons: { [key: string]: React.ComponentType<any> } = {
   FaBus,
   FaTractor,
   FaTachometerAlt, // Mileage
-  FaCalendarAlt,   // Year
-  FaGasPump,       // Fuel Type
-  FaCogs,          // Transmission (alt)
-  FaGripLines,     // Transmission (modern)
-  FaBolt,          // Power (kW)
-  FaHorseHead,     // Horsepower
-  FaBath,          // Bathrooms
-  FaBed,           // Bedrooms
+  FaCalendarAlt, // Year
+  FaGasPump, // Fuel Type
+  FaCogs, // Transmission (alt)
+  FaGripLines, // Transmission (modern)
+  FaBolt, // Power (kW)
+  FaHorseHead, // Horsepower
+  FaBath, // Bathrooms
+  FaBed, // Bedrooms
   MdConstruction,
   GiTreeBranch,
 };

@@ -198,7 +198,7 @@
       }
     }
   },
-  
+
   "settings": {
     "title": "الإعدادات",
     "preferences": "التفضيلات",
@@ -256,7 +256,6 @@
     "loginToMessage": "يجب عليك تسجيل الدخول لإرسال الرسائل",
     "successfullyLoggedIn": "تم تسجيل الدخول بنجاح!",
     "enterBothEmailAndPassword": "الرجاء إدخال البريد الإلكتروني وكلمة المرور"
-    
   },
   "navigation": {
     "home": "الرئيسية",
@@ -387,7 +386,6 @@
     "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟"
   },
   "listings": {
-    "createListing": "إنشاء قائمة",
     "basicDetails": "التفاصيل الأساسية",
     "listingDetails": "تفاصيل القائمة",
     "forSale": "للبيع",
@@ -421,17 +419,6 @@
     "sell": "بيع",
     "rent": "إيجار",
     "vehicleType": "نوع المركبة",
-    "vehicleTypes": {
-      "CAR": "سيارة",
-      "TRUCK": "شاحنة",
-      "MOTORCYCLE": "دراجة نارية",
-      "BUS": "حافلة",
-      "VAN": "فان",
-      "TRACTOR": "جرار",
-      "CONSTRUCTION": "معدات إنشائية",
-      "RV": "مركبة متنقلة",
-      "OTHER": "أخرى"
-    },
     "miles": "الأميال",
     "transmissionTypes": {
       "automatic": "أوتوماتيك"
@@ -799,7 +786,7 @@
   "performance": "الأداء",
   "comfort": "الراحة",
   "safety": "السلامة",
-  "features": "الميزات",
+
   "outdoor": "الخارج",
   "security": "الأمان",
   "categories": {
@@ -814,15 +801,6 @@
       "CONSTRUCTION": "آلية إنشائية",
       "OTHER": "أخرى"
     }
-  },
-  "filters": {
-    "sort_by": "ترتيب حسب",
-    "sortBy": "ترتيب حسب",
-    "allCities": "جميع المدن",
-    "subcategory": "الفئة الفرعية",
-    "all_subcategories": "جميع الفئات الفرعية",
-    "forSale": "للبيع",
-    "forRent": "للإيجار"
   },
   "enums": {
     "transmission": {
