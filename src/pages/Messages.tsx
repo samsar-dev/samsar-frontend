@@ -40,8 +40,14 @@ const Messages: React.FC = () => {
         setLoading(true);
         const response = await MessagesAPI.getConversations();
         if (response.success && response.data) {
-          const conversations = response.data.items || [];
+          let conversations = response.data.items || [];
+          // Normalize _id
+          conversations = conversations.map(conv => ({
+            ...conv,
+            _id: conv._id || conv._id
+          }));
           setConversations(conversations);
+          console.log('Fetched conversations:', conversations);
           if (conversations.length > 0) {
             setActiveConversation(conversations[0]);
             await loadMessages(conversations[0]._id);
