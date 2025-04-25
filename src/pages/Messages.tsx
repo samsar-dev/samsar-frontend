@@ -200,6 +200,8 @@ const Messages: React.FC = () => {
 
   const handleConversationSelect = async (conversation: Conversation) => {
     setActiveConversation(conversation);
+    setCurrentMessages([]); // Clear messages while loading
+    console.log('Selecting conversation:', conversation._id);
     await loadMessages(conversation._id);
   };
 
