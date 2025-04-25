@@ -81,8 +81,11 @@ const Messages: React.FC = () => {
     const handleNewMessage = (data: MessageEvent) => {
       if (data.type === "message" && data.payload) {
         const newMessage = data.payload;
-        // Check if this message belongs to the current conversation
-        if (activeConversation?._id === newMessage.senderId || activeConversation?._id === newMessage.recipientId) {
+        // Add message to current messages if it's part of the active conversation
+        if (activeConversation && (
+          (newMessage.senderId === user.id && newMessage.recipientId === activeConversation.participants.find(p => p.id !== user.id)?.id) ||
+          (newMessage.recipientId === user.id && newMessage.senderId === activeConversation.participants.find(p => p.id !== user.id)?.id)
+        )) {
           setCurrentMessages((prev) => [...prev, newMessage]);
           // Update last message in conversations list
           setConversations((prev) =>
@@ -163,25 +166,23 @@ const Messages: React.FC = () => {
         
         // If we don't have an active conversation yet, create one
         if (!activeConversation) {
-          const newConversation: Conversation = {
-            _id: newMessage.id, // Use message ID as conversation ID
-            participants: [
-              { id: user.id, username: user.username } as User,
-              { id: recipientId } as User
-            ],
-            lastMessage: newMessage,
-            createdAt: newMessage.createdAt,
-            updatedAt: newMessage.createdAt
-          };
-          setActiveConversation(newConversation);
-          setConversations((prev) => [newConversation, ...prev]);
-        }
+          // Create a new conversation
+          const response = await MessagesAPI.createConversation({
+            participantIds: [user.id, recipientId],
+            initialMessage: content.trim()
+          });
 
-        // Add the new message to the current messages
-        setCurrentMessages((prev) => [...prev, newMessage]);
-        
-        // Update the conversation's last message
-        if (activeConversation) {
+          if (response.success && response.data) {
+            const newConversation = response.data;
+            setActiveConversation(newConversation);
+            setConversations((prev) => [newConversation, ...prev]);
+            setCurrentMessages([newMessage]);
+          }
+        } else {
+          // Add the new message to the current messages
+          setCurrentMessages((prev) => [...prev, newMessage]);
+          
+          // Update the conversation's last message
           setConversations((prev) =>
             prev.map((conv) =>
               conv._id === activeConversation._id
@@ -270,18 +271,18 @@ const Messages: React.FC = () => {
       </div>
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col bg-gray-50">
-        {activeConversation && user ? (
+        {(activeConversation || recipientId) && user ? (
           <>
             {/* Chat Header */}
             <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-white">
               <img
-                src={activeConversation.participants.find(p => p.id !== user.id)?.profilePicture || "/default-avatar.png"}
-                alt={activeConversation.participants.find(p => p.id !== user.id)?.username || "User"}
+                src={activeConversation?.participants.find(p => p.id !== user.id)?.profilePicture || "/default-avatar.png"}
+                alt={activeConversation?.participants.find(p => p.id !== user.id)?.username || "User"}
                 className="w-10 h-10 rounded-full object-cover mr-3"
               />
               <div>
                 <div className="font-semibold text-lg">
-                  {activeConversation.participants.find(p => p.id !== user.id)?.username || "Unknown User"}
+                  {activeConversation?.participants.find(p => p.id !== user.id)?.username || "New Conversation"}
                 </div>
                 <div className="text-xs text-green-500">Online</div>
               </div>
