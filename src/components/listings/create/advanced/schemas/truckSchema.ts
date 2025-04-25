@@ -8,6 +8,15 @@ import {
 export const truckSchema: ListingFieldSchema[] = [
   // Essential Section
   {
+    name: "color",
+    label: "exteriorColor",
+    type: "colorpicker",
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Exterior color is required" : null,
+  },
+  {
     name: "condition",
     label: "listings.condition",
     type: "select",
@@ -36,14 +45,7 @@ export const truckSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
-  {
-    name: "engineType",
-    label: "listings.engineType",
-    type: "select",
-    options: Object.values(FuelType),
-    section: "essential",
-    required: true,
-  },
+  
   {
     name: "transmissionType",
     label: "listings.transmissionType",
@@ -52,15 +54,7 @@ export const truckSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
-  {
-    name: "color",
-    label: "exteriorColor",
-    type: "colorpicker",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Exterior color is required" : null,
-  },
+  
   {
     name: "mileage",
     label: "mileage",
@@ -84,16 +78,7 @@ export const truckSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Cab type is required" : null,
   },
-  {
-    name: "bedLength",
-    label: "bedLength",
-    type: "select",
-    options: ["short", "standard", "long"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Bed length is required" : null,
-  },
+  
   {
     name: "previousOwners",
     label: "previousOwners",
@@ -117,19 +102,7 @@ export const truckSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Registration status is required" : null,
   },
-  {
-    name: "payload",
-    label: "payload",
-    type: "number",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) => {
-      if (!value) return "Payload is required";
-      if (typeof value === "number" && value <= 0)
-        return "Payload must be greater than 0";
-      return null;
-    },
-  },
+ 
   {
     name: "fuelType",
     label: "fuelType",
@@ -140,16 +113,7 @@ export const truckSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Fuel type is required" : null,
   },
-  {
-    name: "transmissionType",
-    label: "listings.transmissionType",
-    type: "select",
-    options: ["", "manual", "automatic", "automated"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Transmission type is required" : null,
-  },
+  
 
   // Advanced Section
   {
@@ -250,6 +214,14 @@ export const truckSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
+    name: "bedLength",
+    label: "bedLength",
+    type: "select",
+    options: ["short", "standard", "long"],
+    section: "advanced",
+    required: false,
+  },
+  {
     name: "emissions",
     label: "listings.emissions",
     type: "select",
@@ -298,6 +270,13 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "warranty",
     label: "listings.warranty",
     type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "payload",
+    label: "payload",
+    type: "number",
     section: "advanced",
     required: false,
   },

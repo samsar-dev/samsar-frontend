@@ -8,7 +8,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Make is required" : null),
+     
   },
   {
     name: "model",
@@ -16,7 +16,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Model is required" : null),
+     
   },
   {
     name: "year",
@@ -24,13 +24,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Year is required";
-      if (value < 1892) return "Year must be 1892 or later";
-      if (value > new Date().getFullYear() + 1)
-        return "Year cannot be in the future";
-      return null;
-    },
+    
   },
   {
     name: "color",
@@ -38,7 +32,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Exterior color is required" : null),
+ 
   },
   {
     name: "condition",
@@ -56,7 +50,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) => (!value ? "Condition is required" : null),
   },
   {
     name: "hours",
@@ -64,11 +58,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Hours is required";
-      if (value < 0) return "Hours must be 0 or greater";
-      return null;
-    },
+     
   },
   {
     name: "horsepower",
@@ -76,12 +66,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Horsepower is required";
-      if (value < 0) return "Horsepower must be 0 or greater";
-      return null;
-    },
+    
   },
   {
     name: "driveSystem",
@@ -90,7 +75,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     options: ["2WD", "4WD", "MFWD", "AWD", "tracked"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Drive system is required" : null),
+ 
   },
 
   {
@@ -99,11 +84,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null) return "Mileage is required";
-      if (value < 0) return "Mileage must be 0 or greater";
-      return null;
-    },
+     
   },
   {
     name: "transmissionType",
@@ -120,8 +101,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Transmission type is required" : null,
+    
   },
   {
     name: "fuelType",
@@ -139,7 +119,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Fuel type is required" : null),
+     
   },
 
   // Advanced Section
