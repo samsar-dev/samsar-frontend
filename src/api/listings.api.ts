@@ -119,6 +119,7 @@ export const createListing = async (
 
     try {
       const details = JSON.parse(detailsStr);
+      console.log("details 1:", details);
 
       if (details.vehicles) {
         // Validate required fields
@@ -151,7 +152,6 @@ export const createListing = async (
 
         // Common boolean fields with defaults
         const booleanFields = [
-          "serviceHistory",
           "accidentFree",
           "customsCleared",
           "parkingSensors",
@@ -174,6 +174,7 @@ export const createListing = async (
           "interiorColor",
           "fuelType",
           "transmissionType",
+          "serviceHistory",
         ];
 
         stringFields.forEach((field) => {
@@ -221,6 +222,8 @@ export const createListing = async (
 
       // Update the formData with the processed details
       formData.set("details", JSON.stringify(details));
+
+      console.log("details 2:", details);
 
       // Send the request
       const response = await apiClient.post("/listings", formData, {
