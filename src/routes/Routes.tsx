@@ -41,7 +41,7 @@ const Routes = (): JSX.Element => {
       {/* Public Routes */}
       <Route path="/vehicles" element={<Vehicles />} />
       <Route path="/realestate" element={<RealEstate />} />
-      <Route path="/listing-success" element={<ListingSuccess />} />
+      <Route path="/listingsuccess" element={<ListingSuccess />} />
 
       {/* Protected Routes */}
       <Route

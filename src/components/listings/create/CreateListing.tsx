@@ -977,7 +977,7 @@ const CreateListing: React.FC = () => {
       }
 
       // Submit the form
-      await submitListing(formData);
+      const response = await submitListing(formData);
 
       // Clear form data from session storage after successful submission
       sessionStorage.removeItem("createListingFormData");
@@ -989,7 +989,13 @@ const CreateListing: React.FC = () => {
         duration: 3000,
         icon: "🎉",
       });
-      navigate("/listings");
+      
+      // Navigate to ListingSuccess with the listingId
+      if (response && response.data && response.data.id) {
+        navigate("/listingsuccess", { state: { listingId: response.data.id } });
+      } else {
+        navigate("/listings");
+      }
     } catch (error) {
       console.error("Error submitting listing:", error);
       const errorMessage =

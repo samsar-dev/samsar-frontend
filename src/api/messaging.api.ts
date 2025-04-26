@@ -27,7 +27,12 @@ export class MessagesAPI {
   static async getMessages(
     conversationId: string,
     params?: PaginationParams,
-  ): Promise<APIResponse<PaginatedData<Message>>> {
+  ): Promise<{
+    success: boolean;
+    messages?: Message[];
+    data?: PaginatedData<Message>;
+    error?: string;
+  }> {
     const response = await apiClient.get(
       `${this.BASE_PATH}/${conversationId}`,
       {
@@ -49,6 +54,11 @@ export class MessagesAPI {
 
   static async deleteMessage(messageId: string): Promise<APIResponse<void>> {
     const response = await apiClient.delete(`${this.BASE_PATH}/${messageId}`);
+    return response.data;
+  }
+  
+  static async deleteConversation(conversationId: string): Promise<APIResponse<void>> {
+    const response = await apiClient.delete(`${this.CONVERSATIONS_PATH}/${conversationId}`);
     return response.data;
   }
 

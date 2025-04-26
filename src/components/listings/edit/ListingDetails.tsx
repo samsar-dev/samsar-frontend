@@ -557,116 +557,109 @@ const ListingDetails: React.FC = () => {
 
         {/* Details Section */}
         <div className="space-y-8">
-          {/* Title and Price Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+          {/* Title & Price Card */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 border border-gray-100 dark:border-gray-800">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">
               {listing?.title}
             </h1>
-            <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
+            <span className="inline-block bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-4 py-1 rounded-full text-lg font-medium shadow-sm">
               {listing?.price && formatCurrency(listing.price)}
-              {listing?.listingAction?.toLowerCase() === ListingAction.RENT &&
-                "/month"}
-            </p>
+              {listing?.listingAction?.toLowerCase() === ListingAction.RENT && (
+                <span className="text-sm ml-1 font-normal">/mo</span>
+              )}
+            </span>
           </div>
-
-          {/* Seller Information */}
+          {/* Seller Info Card - Professional Layout */}
           {listing?.seller && (
-            <>
-              <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Link
-                  to={`/users/${listing.seller.id}`}
-                  className="flex items-center space-x-3 hover:text-blue-600"
-                >
-                  {listing.seller.profilePicture ? (
-                    <img
-                      src={listing.seller.profilePicture}
-                      alt={listing.seller.username}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <span className="text-xl">
-                        {listing.seller.username[0].toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-medium">{listing.seller.username}</p>
-                    <p className="text-sm text-gray-500">
-                      {t("listings.posted_on")}:{" "}
-                      {new Date(listing.createdAt!).toLocaleDateString()}
-                    </p>
+            <div className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-900 rounded-xl shadow p-5 border border-gray-100 dark:border-gray-800 mb-6">
+              <Link
+                to={`/users/${listing.seller.id}`}
+                className="flex items-center gap-4 hover:text-blue-600 transition-colors"
+                style={{ textDecoration: "none" }}
+              >
+                {listing.seller.profilePicture ? (
+                  <img
+                    src={listing.seller.profilePicture}
+                    alt={listing.seller.username}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl text-gray-600 dark:text-gray-300 border-2 border-blue-500 shadow">
+                    {listing.seller.username[0].toUpperCase()}
                   </div>
-                </Link>
-                {/* Contact Seller Button (now inside card, right-aligned) */}
-                {!isOwner && !showContactForm && (
-                  <button
-                    onClick={handleContactSeller}
-                    className="flex items-center gap-2 px-3 py-1.5 border border-blue-500 text-blue-600 bg-white dark:bg-gray-900 rounded-md hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm"
-                    style={{ minWidth: 0 }}
-                    title={t("listings.contactSeller") as string}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 8.25V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-2.25M17.25 8.25l-5.25 5.25-5.25-5.25"
-                      />
-                    </svg>
-                    <span className="hidden sm:inline">
-                      {t("listings.contactSeller")}
-                    </span>
-                  </button>
                 )}
-              </div>
-
-              {/* Contact Seller Form (shows only when triggered) */}
-              {!isOwner && showContactForm && (
-                <div className="mt-4">
-                  <div className="space-y-4">
-                    <textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder={t("messages.enterMessage")}
-                      className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={4}
-                    />
-                    <div className="flex gap-4">
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={!message.trim() || isSending}
-                        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
-                      >
-                        {isSending ? t("common.sending") : t("messages.send")}
-                      </button>
-                      <button
-                        onClick={() => setShowContactForm(false)}
-                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
-                      >
-                        {t("common.cancel")}
-                      </button>
-                    </div>
+                <div>
+                  <div className="font-semibold text-base text-gray-900 dark:text-white">{listing.seller.username}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Posted on: <span className="font-medium">{new Date(listing.createdAt!).toLocaleDateString()}</span>
                   </div>
                 </div>
+              </Link>
+              {!isOwner && !showContactForm && (
+                <button
+                  onClick={handleContactSeller}
+                  className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow"
+                  style={{ minWidth: 0 }}
+                  title={t("listings.contactSeller") as string}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 12H8m0 0l4-4m-4 4l4 4"
+                    />
+                  </svg>
+                  <span>{t("listings.contactSeller")}</span>
+                </button>
               )}
-            </>
+            </div>
           )}
+          {/* End Seller Info Card */}
 
+          {/* Contact Seller Form (shows only when triggered) */}
+          {!isOwner && showContactForm && (
+            <div className="mt-4">
+              <div className="space-y-4">
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={t("messages.enterMessage")}
+                  className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={4}
+                />
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!message.trim() || isSending}
+                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
+                  >
+                    {isSending ? t("common.sending") : t("messages.send")}
+                  </button>
+                  <button
+                    onClick={() => setShowContactForm(false)}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    {t("common.cancel")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Basic Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               {t("listings.basicInformation")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t("listings.title")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white">
@@ -674,7 +667,7 @@ const ListingDetails: React.FC = () => {
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t("listings.price")}
                 </p>
                 <p className="font-medium text-blue-600 dark:text-blue-400">
@@ -683,7 +676,7 @@ const ListingDetails: React.FC = () => {
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t("listings.location")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white">
@@ -691,7 +684,7 @@ const ListingDetails: React.FC = () => {
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t("listings.listingAction")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white capitalize">
@@ -704,19 +697,19 @@ const ListingDetails: React.FC = () => {
           {/* Vehicle Details */}
           {isVehicle && listing?.details?.vehicles && (
             <div className=" ">
-              {/* <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+              {/* <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                         {t("listings.vehicleDetails")}
                      </h2> */}
 
               <div className="space-y-6">
                 {/* Essential Details */}
                 <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                     {t("listings.essentialDetails")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {t("listings.fields.make")}
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -724,7 +717,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {t("listings.fields.model")}
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -732,7 +725,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {t("listings.fields.year")}
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -741,7 +734,7 @@ const ListingDetails: React.FC = () => {
                     </div>
                     {listing?.details?.vehicles?.mileage && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.fields.mileage")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
@@ -752,7 +745,7 @@ const ListingDetails: React.FC = () => {
                     )}
                     {listing?.details?.vehicles?.fuelType && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.fields.fuelType")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
@@ -765,7 +758,7 @@ const ListingDetails: React.FC = () => {
                     {(listing?.details?.vehicles?.transmissionType ||
                       listing?.details?.vehicles?.transmission) && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.fields.transmission")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
@@ -780,13 +773,13 @@ const ListingDetails: React.FC = () => {
 
                 {/* Appearance */}
                 <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                     {t("listings.appearance")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {listing?.details?.vehicles?.color && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.exteriorColor")}
                         </p>
                         <div className="flex items-center space-x-2">
@@ -805,7 +798,7 @@ const ListingDetails: React.FC = () => {
                     )}
                     {listing?.details?.vehicles?.interiorColor && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.interiorColor")}
                         </p>
                         <div className="flex items-center space-x-2">
@@ -824,7 +817,7 @@ const ListingDetails: React.FC = () => {
                     )}
                     {listing?.details?.vehicles?.condition && (
                       <div className="space-y-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {t("listings.fields.condition")}
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
@@ -839,13 +832,13 @@ const ListingDetails: React.FC = () => {
 
                 {/* Vehicle History Section */}
                 <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                     Vehicle History
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Vehicle Owner */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Vehicle Owner(s)
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -856,7 +849,7 @@ const ListingDetails: React.FC = () => {
                     </div>
                     {/* Service History */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Service History
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -867,7 +860,7 @@ const ListingDetails: React.FC = () => {
                     </div>
                     {/* Accident Free */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Accident Free
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -878,7 +871,7 @@ const ListingDetails: React.FC = () => {
                     </div>
                     {/* Warranty */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Warranty
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -888,7 +881,7 @@ const ListingDetails: React.FC = () => {
                     </div>
                     {/* Registration Status */}
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Registration Status
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -901,7 +894,7 @@ const ListingDetails: React.FC = () => {
 
                 {/* Additional Details */}
                 <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                     Additional Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -912,7 +905,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Engine Number
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -921,7 +914,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Import Status
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -930,7 +923,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Registration Expiry
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -944,7 +937,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Insurance Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -953,7 +946,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Upholstery Material
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -962,7 +955,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Tire Condition
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -971,7 +964,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Customs Cleared
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -981,7 +974,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Warranty Period
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -990,7 +983,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Service History Details
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -999,7 +992,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Body Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1008,7 +1001,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Roof Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1021,12 +1014,12 @@ const ListingDetails: React.FC = () => {
 
                 {/* Technical Details */}
                 <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                     Technical Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Engine
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1035,7 +1028,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Engine Size
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1044,7 +1037,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Horsepower
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1053,7 +1046,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Torque
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1062,7 +1055,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Brake Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1071,7 +1064,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Drive Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1080,7 +1073,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Wheel Size
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1089,7 +1082,7 @@ const ListingDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Wheel Type
                       </p>
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -1103,7 +1096,7 @@ const ListingDetails: React.FC = () => {
                 {/* Vehicle Features Section */}
                 {listing?.details?.vehicles?.features && (
                   <>
-                    <h3 className="text-lg font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
+                    <h3 className="text-base font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
                       {t("listings.vehicleFeatures")}
                     </h3>
 
@@ -1137,7 +1130,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1167,7 +1160,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1199,7 +1192,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1234,7 +1227,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1265,7 +1258,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1298,7 +1291,7 @@ const ListingDetails: React.FC = () => {
                               listing?.details?.vehicles?.features?.[feature],
                             ) && (
                               <div key={feature} className="space-y-1">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
                                 </p>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -1318,13 +1311,13 @@ const ListingDetails: React.FC = () => {
           {/* Real Estate Details */}
           {isRealEstate && listing?.details?.realEstate && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 {t("listings.propertyDetails")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {t("listings.propertyType")}
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
@@ -1335,7 +1328,7 @@ const ListingDetails: React.FC = () => {
                 </div>
                 {listing?.details?.realEstate?.size && (
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t("listings.size")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -1345,7 +1338,7 @@ const ListingDetails: React.FC = () => {
                 )}
                 {listing?.details?.realEstate?.bedrooms && (
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t("listings.bedrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -1355,7 +1348,7 @@ const ListingDetails: React.FC = () => {
                 )}
                 {listing?.details?.realEstate?.bathrooms && (
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t("listings.bathrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -1365,7 +1358,7 @@ const ListingDetails: React.FC = () => {
                 )}
                 {listing?.details?.realEstate?.yearBuilt && (
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t("listings.yearBuilt")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -1375,7 +1368,7 @@ const ListingDetails: React.FC = () => {
                 )}
                 {listing?.details?.realEstate?.condition && (
                   <div className="space-y-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t("listings.condition")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
@@ -1390,7 +1383,7 @@ const ListingDetails: React.FC = () => {
               {listing?.details?.realEstate?.features &&
                 listing?.details?.realEstate?.features?.length > 0 && (
                   <div className="mt-6 space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                       {t("listings.features")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -1398,7 +1391,7 @@ const ListingDetails: React.FC = () => {
                         (feature: string, index: number) => (
                           <span
                             key={index}
-                            className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-200"
+                            className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs text-gray-700 dark:text-gray-200"
                           >
                             {feature}
                           </span>
@@ -1413,7 +1406,7 @@ const ListingDetails: React.FC = () => {
           {/* Description */}
           {listing.description && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-white">
                 {t("listings.description")}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
@@ -1422,44 +1415,6 @@ const ListingDetails: React.FC = () => {
             </div>
           )}
 
-          {/* Contact Section */}
-          {!isOwner && (
-            <div className="mt-6">
-              {!showContactForm ? (
-                <button
-                  onClick={handleContactSeller}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  {t("listings.contactSeller")}
-                </button>
-              ) : (
-                <div className="space-y-4">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={t("messages.enterMessage")}
-                    className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={4}
-                  />
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!message.trim() || isSending}
-                      className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
-                    >
-                      {isSending ? t("common.sending") : t("messages.send")}
-                    </button>
-                    <button
-                      onClick={() => setShowContactForm(false)}
-                      className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
-                    >
-                      {t("common.cancel")}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

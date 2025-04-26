@@ -63,29 +63,43 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   };
 
   return (
-    <div className="relative">
-      {/* Thumbnail Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {imageUrls.map((url, index) => (
-          <div
-            key={index}
-            className="relative pt-[75%] cursor-pointer rounded-lg overflow-hidden group"
-            onClick={() => setSelectedImage(index)}
-          >
-            <img
-              src={url}
-              alt={`Image ${index + 1}`}
-              className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 transition-transform duration-200 group-hover:scale-105"
-              onError={(e) => {
-                e.currentTarget.src = "/placeholder.jpg";
-                e.currentTarget.onerror = null;
-              }}
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-200" />
-          </div>
-        ))}
+    <div className="w-full flex flex-col items-center">
+      {/* Main Image */}
+      <div className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center" style={{ minHeight: 350, maxHeight: 450 }}>
+        <img
+          src={imageUrls[selectedImage !== null ? selectedImage : 0]}
+          alt={`Main Image`}
+          className="object-contain w-full h-[350px] md:h-[450px] transition-all duration-300"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.jpg";
+            e.currentTarget.onerror = null;
+          }}
+        />
       </div>
-
+      {/* Thumbnails Carousel */}
+      {imageUrls.length > 1 && (
+        <div className="mt-4 flex gap-2 overflow-x-auto w-full justify-center scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          {imageUrls.map((url, idx) => (
+            <button
+              key={idx}
+              className={`border-2 ${selectedImage === idx ? 'border-blue-500' : 'border-transparent'} rounded-lg focus:outline-none transition-shadow duration-200 bg-white dark:bg-gray-800 flex-shrink-0`}
+              style={{ width: 72, height: 72 }}
+              onClick={() => setSelectedImage(idx)}
+              tabIndex={0}
+            >
+              <img
+                src={url}
+                alt={`Thumbnail ${idx + 1}`}
+                className="object-cover w-full h-full rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.jpg";
+                  e.currentTarget.onerror = null;
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
       {/* Fullscreen Modal */}
       <AnimatePresence>
         {selectedImage !== null && (
@@ -122,8 +136,8 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                 className="relative w-full h-full flex items-center justify-center"
               >
                 <img
-                  src={imageUrls[selectedImage]}
-                  alt={`Image ${selectedImage + 1}`}
+                  src={imageUrls[selectedImage !== null ? selectedImage : 0]}
+                  alt={`Image ${(selectedImage !== null ? selectedImage : 0) + 1}`}
                   className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
                   onClick={(e) => e.stopPropagation()}
                   onError={(e) => {

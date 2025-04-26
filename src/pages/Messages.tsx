@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSocket } from "@/hooks/useSocket";
 import { MessagesAPI } from "@/api/messaging.api";
+import apiClient from "@/api/apiClient";
 import type {
   Message,
   Conversation,
@@ -84,31 +85,113 @@ const Messages: React.FC = () => {
     fetchConversations();
   }, []);
 
-  const loadMessages = async (conversationId: string | undefined) => {
+  const loadMessages = async (conversationId: string | undefined, silent = false) => {
     if (!conversationId) {
       console.error('Cannot load messages: conversationId is undefined');
       return;
     }
     
     try {
-      console.log('Loading messages for conversation:', conversationId);
+      if (!silent) console.log('Loading messages for conversation:', conversationId);
       const response = await MessagesAPI.getMessages(conversationId);
+      if (!silent) console.log('API response:', response);
+      
+      // Check if the response has messages directly (backend format)
+      if (response.success && response.messages) {
+        if (!silent) console.log('Found messages in response.messages:', response.messages.length);
+        setCurrentMessages(response.messages);
+        return;
+      }
+      
+      // Check standard format
       if (response.success && response.data) {
         const messageList = response.data.items || [];
-        console.log('Loaded messages:', messageList.length, 'messages');
-        if (messageList.length > 0) {
+        if (!silent) console.log('Loaded messages:', messageList.length, 'messages');
+        if (messageList.length > 0 && !silent) {
           console.log('First message:', messageList[0]);
         }
         setCurrentMessages(messageList);
       } else {
-        console.log('No messages found or API returned unsuccessful response');
+        if (!silent) console.log('No messages found or API returned unsuccessful response');
       }
     } catch (error) {
       console.error("Error loading messages:", error);
-      toast.error("Failed to load messages");
+      if (!silent) toast.error("Failed to load messages");
+    }
+  };
+  
+  // Handle deleting a conversation
+  const handleDeleteConversation = async (conversationId: string | undefined, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering conversation selection
+    
+    if (!conversationId) {
+      toast.error("Cannot delete: Invalid conversation");
+      return;
+    }
+    
+    if (window.confirm("Are you sure you want to delete this conversation?")) {
+      try {
+        const response = await MessagesAPI.deleteConversation(conversationId);
+        if (response.success) {
+          toast.success("Conversation deleted");
+          // Remove from conversations list
+          setConversations(prev => prev.filter(conv => 
+            (conv.id !== conversationId && conv._id !== conversationId)
+          ));
+          
+          // Clear active conversation if it was deleted
+          if (activeConversation && 
+              (activeConversation.id === conversationId || activeConversation._id === conversationId)) {
+            setActiveConversation(null);
+            setCurrentMessages([]);
+          }
+        } else {
+          toast.error("Failed to delete conversation");
+        }
+      } catch (error) {
+        console.error("Error deleting conversation:", error);
+        toast.error("Failed to delete conversation");
+      }
+    }
+  };
+  
+  // Handle photo upload
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+  
+  const handleFileUpload = async () => {
+    if (!selectedFile) return;
+    
+    // Create a FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    try {
+      // First upload the file
+      const uploadResponse = await apiClient.post('/uploads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (uploadResponse.data.success) {
+        const fileUrl = uploadResponse.data.url;
+        // Now send a message with the file URL
+        await handleSendMessage(`[Image](${fileUrl})`);
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload image");
     }
   };
 
+  // Set up WebSocket for real-time updates
   useEffect(() => {
     if (!user) return;
 
@@ -120,6 +203,11 @@ const Messages: React.FC = () => {
           (newMessage.senderId === user.id && newMessage.recipientId === activeConversation.participants.find(p => p.id !== user.id)?.id) ||
           (newMessage.recipientId === user.id && newMessage.senderId === activeConversation.participants.find(p => p.id !== user.id)?.id)
         )) {
+          // Play notification sound for new messages
+          const audio = new Audio('/message-notification.mp3');
+          audio.volume = 0.5;
+          audio.play().catch(e => console.log('Audio play failed:', e));
+          
           setCurrentMessages((prev) => [...prev, newMessage]);
           // Update last message in conversations list
           setConversations((prev) =>
@@ -129,6 +217,18 @@ const Messages: React.FC = () => {
                 : conv
             )
           );
+        } else {
+          // If message is for another conversation, update that conversation's last message
+          setConversations((prev) => {
+            return prev.map((conv) => {
+              const otherUserId = conv.participants.find(p => p.id !== user.id)?.id;
+              if ((newMessage.senderId === otherUserId && newMessage.recipientId === user.id) ||
+                  (newMessage.recipientId === otherUserId && newMessage.senderId === user.id)) {
+                return { ...conv, lastMessage: newMessage };
+              }
+              return conv;
+            });
+          });
         }
       }
     };
@@ -145,12 +245,24 @@ const Messages: React.FC = () => {
       }
     };
 
+    // Set up socket event listeners
     on("message", handleNewMessage);
     on("new_conversation", handleNewConversation);
+
+    // Poll for new messages every 10 seconds as a fallback
+    const intervalId = setInterval(() => {
+      if (activeConversation) {
+        const conversationId = activeConversation.id || activeConversation._id;
+        if (conversationId) {
+          loadMessages(conversationId, true); // silent refresh
+        }
+      }
+    }, 10000);
 
     return () => {
       off("message", handleNewMessage);
       off("new_conversation", handleNewConversation);
+      clearInterval(intervalId);
     };
   }, [on, off, user, activeConversation?._id, recipientId]);
 
@@ -308,12 +420,21 @@ const Messages: React.FC = () => {
               <button
                 key={conversationKey}
                 onClick={() => handleConversationSelect(conversation)}
-                className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition ${
+                className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition relative ${
                   activeConversation?._id === conversation._id
                     ? 'bg-blue-50'
                     : ''
                 }`}
               >
+                <button 
+                  onClick={(e) => handleDeleteConversation(conversation.id || conversation._id, e)}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                  title="Delete conversation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
                 <img
                   src={otherUser?.profilePicture || "/default-avatar.png"}
                   alt={otherUser?.username || "User"}
@@ -386,16 +507,45 @@ const Messages: React.FC = () => {
                   if (input && input.value.trim()) {
                     await handleSendMessage(input.value);
                     input.value = '';
+                  } else if (selectedFile) {
+                    await handleFileUpload();
                   }
                 }}
               >
-                <input
-                  name="messageInput"
-                  type="text"
-                  autoComplete="off"
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Type a message..."
-                />
+                <div className="relative flex-1">
+                  <input
+                    name="messageInput"
+                    type="text"
+                    autoComplete="off"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Type a message..."
+                  />
+                  {selectedFile && (
+                    <div className="absolute -top-8 left-0 bg-gray-100 p-1 rounded-md text-xs flex items-center">
+                      <span className="truncate max-w-[150px]">{selectedFile.name}</span>
+                      <button 
+                        type="button" 
+                        className="ml-1 text-red-500"
+                        onClick={() => setSelectedFile(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
+                
                 <button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold"

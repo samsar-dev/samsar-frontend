@@ -29,7 +29,7 @@ const ListingSuccess = () => {
           View Listing
         </Link>
         <Link
-          to={`/listings/edit/${listingId}`}
+          to={`/listings/${listingId}/edit`}
           className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded hover:bg-gray-200 dark:hover:bg-gray-600"
         >
           <FaEdit />
