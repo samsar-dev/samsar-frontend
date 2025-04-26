@@ -151,7 +151,6 @@ export const createListing = async (
 
         // Common boolean fields with defaults
         const booleanFields = [
-          "serviceHistory",
           "accidentFree",
           "customsCleared",
           "parkingSensors",
@@ -174,6 +173,7 @@ export const createListing = async (
           "interiorColor",
           "fuelType",
           "transmissionType",
+          "serviceHistory",
         ];
 
         stringFields.forEach((field) => {

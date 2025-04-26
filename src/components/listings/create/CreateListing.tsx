@@ -18,8 +18,10 @@ import type {
   HouseDetails,
   ApartmentDetails,
   LandDetails,
+  FormState,
+  VehicleDetails,
+  RealEstateDetails,
 } from "../../../types/listings";
-import { FormState } from "@/types/forms";
 import BasicDetailsForm from "./steps/BasicDetailsForm";
 import AdvancedDetailsForm from "./steps/AdvancedDetailsForm";
 import ReviewSection from "./steps/ReviewSection";
@@ -51,99 +53,102 @@ const initialFormState: FormState = {
       vehicleType: VehicleType.CAR,
       make: "",
       model: "",
-      year: new Date().getFullYear() as number,
+      year: "",
       mileage: "",
       fuelType: FuelType.GASOLINE,
       transmissionType: TransmissionType.AUTOMATIC,
-      color: "#000000",
-      condition: Condition.GOOD,
-      features: {
-        // Airbags
-        frontAirbags: false,
-        sideAirbags: false,
-        curtainAirbags: false,
-        kneeAirbags: false,
-
-        // Driver Assistance
-        cruiseControl: false,
-        adaptiveCruiseControl: false,
-        laneDepartureWarning: false,
-        laneKeepAssist: false,
-        automaticEmergencyBraking: false,
-
-        // Safety Features
-        blindSpotMonitor: false,
-        laneAssist: false,
-        tractionControl: false,
-        abs: false,
-        emergencyBrakeAssist: false,
-        tirePressureMonitoring: false,
-
-        // Camera Features
-        rearCamera: false,
-        camera360: false,
-        dashCam: false,
-        nightVision: false,
-
-        // Entertainment Features
-        bluetooth: false,
-        appleCarPlay: false,
-        androidAuto: false,
-        premiumSound: false,
-        wirelessCharging: false,
-        usbPorts: false,
-        cdPlayer: false,
-        dvdPlayer: false,
-        rearSeatEntertainment: false,
-
-        // Lighting Features
-        ledHeadlights: false,
-        adaptiveHeadlights: false,
-        ambientLighting: false,
-        fogLights: false,
-        automaticHighBeams: false,
-
-        // Climate Features
-        climateControl: false,
-        heatedSeats: false,
-        ventilatedSeats: false,
-        dualZoneClimate: false,
-        rearAC: false,
-        airQualitySensor: false,
-
-        // Convenience Features
-        keylessEntry: false,
-        sunroof: false,
-        spareKey: false,
-        remoteStart: false,
-        powerTailgate: false,
-        autoDimmingMirrors: false,
-        rainSensingWipers: false,
-      },
-      interiorColor: "#000000",
+      color: "",
+      condition: Condition.NEW,
+      features: {},
+      interiorColor: "",
       engine: "",
-      horsepower: 0,
-      torque: 0,
       warranty: "",
-      serviceHistory: false,
-      previousOwners: 0,
+      serviceHistory: "",
+      previousOwners: "",
       registrationStatus: "",
- 
-      engineNumber: "",
       accidentFree: false,
-      importStatus: "",
-      registrationExpiry: "",
-      insuranceType: "",
-      upholsteryMaterial: "",
-      tireCondition: "",
-      bodyType: "",
-      roofType: "",
       customsCleared: false,
-      warrantyPeriod: "",
-      serviceHistoryDetails: "",
-      additionalNotes: "",
-      customMake: "",
-      customModel: "",
+      fuelEfficiency: "",
+      emissionClass: "",
+      driveType: "",
+      wheelSize: "",
+      wheelType: "",
+      // Safety Features
+      blindSpotMonitor: false,
+      laneAssist: false,
+      adaptiveCruiseControl: false,
+      tractionControl: false,
+      abs: false,
+      emergencyBrakeAssist: false,
+      tirePressureMonitoring: false,
+      // Camera Features
+      rearCamera: false,
+      camera360: false,
+      dashCam: false,
+      nightVision: false,
+      parkingSensors: false,
+      // Climate Features
+      climateControl: false,
+      heatedSeats: false,
+      ventilatedSeats: false,
+      dualZoneClimate: false,
+      rearAC: false,
+      airQualitySensor: false,
+      // Entertainment Features
+      bluetooth: false,
+      appleCarPlay: false,
+      androidAuto: false,
+      premiumSound: false,
+      wirelessCharging: false,
+      usbPorts: false,
+      cdPlayer: false,
+      dvdPlayer: false,
+      rearSeatEntertainment: false,
+      // Lighting Features
+      ledHeadlights: false,
+      adaptiveHeadlights: false,
+      ambientLighting: false,
+      fogLights: false,
+      automaticHighBeams: false,
+      // Convenience Features
+      keylessEntry: false,
+      sunroof: false,
+      spareKey: false,
+      remoteStart: false,
+      powerTailgate: false,
+      autoDimmingMirrors: false,
+      rainSensingWipers: false,
+    },
+    realEstate: {
+      propertyType: PropertyType.APARTMENT,
+      size: 0,
+      yearBuilt: 0,
+      bedrooms: 0,
+      bathrooms: 0,
+      condition: Condition.NEW,
+      features: [],
+      floor: 0,
+      totalFloors: 0,
+      elevator: false,
+      balcony: false,
+      storage: false,
+      heating: "",
+      cooling: "",
+      buildingAmenities: [],
+      energyRating: "",
+      furnished: false,
+      view: "",
+      securityFeatures: [],
+      fireSafety: [],
+      flooringType: "",
+      internetIncluded: false,
+      windowType: "",
+      accessibilityFeatures: [],
+      renovationHistory: "",
+      parkingType: "",
+      utilities: [],
+      exposureDirection: [],
+      storageType: [],
     },
   },
   listingAction: ListingAction.SELL,
@@ -197,9 +202,9 @@ const CreateListing: React.FC = () => {
                     vehicleType: VehicleType.CAR,
                     make: data.details?.vehicles?.make || "",
                     model: data.details?.vehicles?.model || "",
-                    year: String(
-                      data.details?.vehicles?.year || new Date().getFullYear(),
-                    ),
+                    year: (
+                      data.details?.vehicles?.year || new Date().getFullYear()
+                    ).toString(),
                     mileage: Number(data.details?.vehicles?.mileage || 0),
                     fuelType:
                       data.details?.vehicles?.fuelType || FuelType.GASOLINE,
@@ -209,7 +214,11 @@ const CreateListing: React.FC = () => {
                     color: data.details?.vehicles?.color || "#000000",
                     condition:
                       data.details?.vehicles?.condition || Condition.LIKE_NEW,
-                    features: data.details?.vehicles?.features || {},
+                    features: Object.entries(
+                      data.details?.vehicles?.features || {}
+                    )
+                      .filter(([_, value]) => value === true)
+                      .map(([key]) => key),
                     interiorColor:
                       data.details?.vehicles?.interiorColor ||
                       prev.details?.vehicles?.interiorColor ||
@@ -217,14 +226,16 @@ const CreateListing: React.FC = () => {
                     engine: data.details?.vehicles?.engine || "",
                     warranty: data.details?.vehicles?.warranty || "",
                     serviceHistory:
-                      data.details?.vehicles?.serviceHistory || false,
-                    previousOwners:
-                      data.details?.vehicles?.previousOwners || "",
+                      data.details?.vehicles?.serviceHistory?.toString() || "",
+                    previousOwners: Number(
+                      data.details?.vehicles?.previousOwners || 0
+                    ),
                     registrationStatus:
                       data.details?.vehicles?.registrationStatus || "",
-                    accidentFree: data.details?.vehicles?.accidentFree || false,
-                    customsCleared:
-                      data.details?.vehicles?.customsCleared || false,
+                    accidentFree: Boolean(data.details?.vehicles?.accidentFree),
+                    customsCleared: Boolean(
+                      data.details?.vehicles?.customsCleared
+                    ),
                     insuranceType: data.details?.vehicles?.insuranceType || "",
                     fuelEfficiency:
                       data.details?.vehicles?.fuelEfficiency || "",
@@ -232,30 +243,138 @@ const CreateListing: React.FC = () => {
                     driveType: data.details?.vehicles?.driveType || "",
                     wheelSize: data.details?.vehicles?.wheelSize || "",
                     wheelType: data.details?.vehicles?.wheelType || "",
+                    // Safety Features
+                    blindSpotMonitor: Boolean(
+                      data.details?.vehicles?.blindSpotMonitor
+                    ),
+                    laneAssist: Boolean(data.details?.vehicles?.laneAssist),
+                    adaptiveCruiseControl: Boolean(
+                      data.details?.vehicles?.adaptiveCruiseControl
+                    ),
+                    tractionControl: Boolean(
+                      data.details?.vehicles?.tractionControl
+                    ),
+                    abs: Boolean(data.details?.vehicles?.abs),
+                    emergencyBrakeAssist: Boolean(
+                      data.details?.vehicles?.emergencyBrakeAssist
+                    ),
+                    tirePressureMonitoring: Boolean(
+                      data.details?.vehicles?.tirePressureMonitoring
+                    ),
+                    // Camera Features
+                    rearCamera: Boolean(data.details?.vehicles?.rearCamera),
+                    camera360: Boolean(data.details?.vehicles?.camera360),
+                    dashCam: Boolean(data.details?.vehicles?.dashCam),
+                    nightVision: Boolean(data.details?.vehicles?.nightVision),
+                    parkingSensors: Boolean(
+                      data.details?.vehicles?.parkingSensors
+                    ),
+                    // Climate Features
+                    climateControl: Boolean(
+                      data.details?.vehicles?.climateControl
+                    ),
+                    heatedSeats: Boolean(data.details?.vehicles?.heatedSeats),
+                    ventilatedSeats: Boolean(
+                      data.details?.vehicles?.ventilatedSeats
+                    ),
+                    dualZoneClimate: Boolean(
+                      data.details?.vehicles?.dualZoneClimate
+                    ),
+                    rearAC: Boolean(data.details?.vehicles?.rearAC),
+                    airQualitySensor: Boolean(
+                      data.details?.vehicles?.airQualitySensor
+                    ),
+                    // Entertainment Features
+                    bluetooth: Boolean(data.details?.vehicles?.bluetooth),
+                    appleCarPlay: Boolean(data.details?.vehicles?.appleCarPlay),
+                    androidAuto: Boolean(data.details?.vehicles?.androidAuto),
+                    premiumSound: Boolean(data.details?.vehicles?.premiumSound),
+                    wirelessCharging: Boolean(
+                      data.details?.vehicles?.wirelessCharging
+                    ),
+                    usbPorts: Boolean(data.details?.vehicles?.usbPorts),
+                    cdPlayer: Boolean(data.details?.vehicles?.cdPlayer),
+                    dvdPlayer: Boolean(data.details?.vehicles?.dvdPlayer),
+                    rearSeatEntertainment: Boolean(
+                      data.details?.vehicles?.rearSeatEntertainment
+                    ),
+                    // Lighting Features
+                    ledHeadlights: Boolean(
+                      data.details?.vehicles?.ledHeadlights
+                    ),
+                    adaptiveHeadlights: Boolean(
+                      data.details?.vehicles?.adaptiveHeadlights
+                    ),
+                    ambientLighting: Boolean(
+                      data.details?.vehicles?.ambientLighting
+                    ),
+                    fogLights: Boolean(data.details?.vehicles?.fogLights),
+                    automaticHighBeams: Boolean(
+                      data.details?.vehicles?.automaticHighBeams
+                    ),
+                    // Convenience Features
+                    keylessEntry: Boolean(data.details?.vehicles?.keylessEntry),
+                    sunroof: Boolean(data.details?.vehicles?.sunroof),
+                    spareKey: Boolean(data.details?.vehicles?.spareKey),
+                    remoteStart: Boolean(data.details?.vehicles?.remoteStart),
+                    powerTailgate: Boolean(
+                      data.details?.vehicles?.powerTailgate
+                    ),
+                    autoDimmingMirrors: Boolean(
+                      data.details?.vehicles?.autoDimmingMirrors
+                    ),
+                    rainSensingWipers: Boolean(
+                      data.details?.vehicles?.rainSensingWipers
+                    ),
                   }
                 : undefined,
             realEstate:
               data.category.mainCategory === ListingCategory.REAL_ESTATE
                 ? {
                     propertyType: PropertyType.HOUSE,
-                    bedrooms: data.details?.realEstate?.bedrooms || 0,
-                    bathrooms: data.details?.realEstate?.bathrooms || 0,
-                    floors: data.details?.realEstate?.floors || 1,
-                    parkingSpaces: data.details?.realEstate?.parkingSpaces || 0,
-                    garage: data.details?.realEstate?.garage || false,
-                    garden: data.details?.realEstate?.garden || false,
-                    petsAllowed: data.details?.realEstate?.petsAllowed || false,
-                    constructionType:
-                      data.details?.realEstate?.constructionType || "",
-                    parking: data.details?.realEstate?.parking || "",
-                    size: data.details?.realEstate?.size || 0,
+                    size: data.details?.realEstate?.size || "0",
                     yearBuilt:
                       data.details?.realEstate?.yearBuilt ||
-                      new Date().getFullYear(),
+                      new Date().getFullYear().toString(),
+                    bedrooms: data.details?.realEstate?.bedrooms || "0",
+                    bathrooms: data.details?.realEstate?.bathrooms || "0",
                     condition:
                       data.details?.realEstate?.condition || Condition.LIKE_NEW,
+                    constructionType:
+                      data.details?.realEstate?.constructionType || "",
                     features: data.details?.realEstate?.features || [],
-                    furnished: data.details?.realEstate?.furnished || false,
+                    parking: data.details?.realEstate?.parking || "",
+                    floor: Number(data.details?.realEstate?.floor || 1),
+                    totalFloors: Number(
+                      data.details?.realEstate?.totalFloors || 1
+                    ),
+                    elevator: Boolean(data.details?.realEstate?.elevator),
+                    balcony: Boolean(data.details?.realEstate?.balcony),
+                    storage: Boolean(data.details?.realEstate?.storage),
+                    heating: data.details?.realEstate?.heating || "",
+                    cooling: data.details?.realEstate?.cooling || "",
+                    buildingAmenities:
+                      data.details?.realEstate?.buildingAmenities || [],
+                    energyRating: data.details?.realEstate?.energyRating || "",
+                    furnished: data.details?.realEstate?.furnished || "",
+                    view: data.details?.realEstate?.view || "",
+                    securityFeatures:
+                      data.details?.realEstate?.securityFeatures || [],
+                    fireSafety: data.details?.realEstate?.fireSafety || [],
+                    flooringType: data.details?.realEstate?.flooringType || "",
+                    internetIncluded: Boolean(
+                      data.details?.realEstate?.internetIncluded
+                    ),
+                    windowType: data.details?.realEstate?.windowType || "",
+                    accessibilityFeatures:
+                      data.details?.realEstate?.accessibilityFeatures || [],
+                    renovationHistory:
+                      data.details?.realEstate?.renovationHistory || "",
+                    parkingType: data.details?.realEstate?.parkingType || "",
+                    utilities: data.details?.realEstate?.utilities || [],
+                    exposureDirection:
+                      data.details?.realEstate?.exposureDirection || [],
+                    storageType: data.details?.realEstate?.storageType || [],
                   }
                 : undefined,
           },
@@ -263,7 +382,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData),
+          JSON.stringify(updatedData)
         );
         return updatedData;
       });
@@ -775,7 +894,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData),
+          JSON.stringify(updatedData)
         );
         return updatedData;
       });
@@ -811,7 +930,7 @@ const CreateListing: React.FC = () => {
       formData.append("location", data.location || "");
       formData.append(
         "listingAction",
-        (data.listingAction || "sell").toUpperCase(),
+        (data.listingAction || "sell").toUpperCase()
       );
       formData.append("mainCategory", data.category?.mainCategory || "");
       formData.append("subCategory", data.category?.subCategory || "");
@@ -846,7 +965,8 @@ const CreateListing: React.FC = () => {
                 engineSize: data.details.vehicles.engineSize || "",
                 engineNumber: data.details.vehicles.engineNumber || "",
                 interiorColor: data.details.vehicles.interiorColor || "#000000",
-                serviceHistory: Boolean(data.details.vehicles.serviceHistory),
+                serviceHistory:
+                  data.details.vehicles.serviceHistory?.toString() || "0",
                 previousOwners: data.details.vehicles.previousOwners
                   ? parseInt(data.details.vehicles.previousOwners.toString())
                   : 0,
@@ -857,59 +977,59 @@ const CreateListing: React.FC = () => {
                 cdPlayer: Boolean(data.details.vehicles.features?.cdPlayer),
                 dvdPlayer: Boolean(data.details.vehicles.features?.dvdPlayer),
                 rearSeatEntertainment: Boolean(
-                  data.details.vehicles.features?.rearSeatEntertainment,
+                  data.details.vehicles.features?.rearSeatEntertainment
                 ),
                 // Safety features
                 blindSpotMonitor: Boolean(
-                  data.details.vehicles.features?.blindSpotMonitor,
+                  data.details.vehicles.features?.blindSpotMonitor
                 ),
                 laneAssist: Boolean(data.details.vehicles.features?.laneAssist),
                 adaptiveCruiseControl: Boolean(
-                  data.details.vehicles.features?.adaptiveCruiseControl,
+                  data.details.vehicles.features?.adaptiveCruiseControl
                 ),
                 tractionControl: Boolean(
-                  data.details.vehicles.features?.tractionControl,
+                  data.details.vehicles.features?.tractionControl
                 ),
                 abs: Boolean(data.details.vehicles.features?.abs),
                 emergencyBrakeAssist: Boolean(
-                  data.details.vehicles.features?.emergencyBrakeAssist,
+                  data.details.vehicles.features?.emergencyBrakeAssist
                 ),
                 tirePressureMonitoring: Boolean(
-                  data.details.vehicles.features?.tirePressureMonitoring,
+                  data.details.vehicles.features?.tirePressureMonitoring
                 ),
                 // Camera features
                 rearCamera: Boolean(data.details.vehicles.features?.rearCamera),
                 camera360: Boolean(data.details.vehicles.features?.camera360),
                 dashCam: Boolean(data.details.vehicles.features?.dashCam),
                 nightVision: Boolean(
-                  data.details.vehicles.features?.nightVision,
+                  data.details.vehicles.features?.nightVision
                 ),
                 parkingSensors: Boolean(
-                  data.details.vehicles.features?.parkingSensors,
+                  data.details.vehicles.features?.parkingSensors
                 ),
                 // Climate features
                 climateControl: Boolean(
-                  data.details.vehicles.features?.climateControl,
+                  data.details.vehicles.features?.climateControl
                 ),
                 heatedSeats: Boolean(
-                  data.details.vehicles.features?.heatedSeats,
+                  data.details.vehicles.features?.heatedSeats
                 ),
                 ventilatedSeats: Boolean(
-                  data.details.vehicles.features?.ventilatedSeats,
+                  data.details.vehicles.features?.ventilatedSeats
                 ),
                 dualZoneClimate: Boolean(
-                  data.details.vehicles.features?.dualZoneClimate,
+                  data.details.vehicles.features?.dualZoneClimate
                 ),
                 rearAC: Boolean(data.details.vehicles.features?.rearAC),
                 // Lighting features
                 ledHeadlights: Boolean(
-                  data.details.vehicles.features?.ledHeadlights,
+                  data.details.vehicles.features?.ledHeadlights
                 ),
                 adaptiveHeadlights: Boolean(
-                  data.details.vehicles.features?.adaptiveHeadlights,
+                  data.details.vehicles.features?.adaptiveHeadlights
                 ),
                 ambientLighting: Boolean(
-                  data.details.vehicles.features?.ambientLighting,
+                  data.details.vehicles.features?.ambientLighting
                 ),
                 fogLights: Boolean(data.details.vehicles.features?.fogLights),
                 // Additional fields for specific vehicle types
@@ -933,7 +1053,7 @@ const CreateListing: React.FC = () => {
       // Add images
       if (data.images && data.images.length > 0) {
         const fileImages = data.images.filter(
-          (image): image is File => image instanceof File,
+          (image): image is File => image instanceof File
         );
         if (fileImages.length === 0) {
           throw new Error("At least one image is required");
@@ -951,7 +1071,7 @@ const CreateListing: React.FC = () => {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File object",
+          typeof pair[1] === "string" ? pair[1] : "File object"
         );
       }
 

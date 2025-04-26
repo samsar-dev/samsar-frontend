@@ -70,7 +70,7 @@ export interface BaseVehicleDetails {
   brakeType?: string;
   engineNumber?: string;
   engineSize?: string;
- 
+
   attachments?: string[];
   fuelTankCapacity?: string;
   tires?: string;
