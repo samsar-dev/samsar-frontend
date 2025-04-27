@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
+import ResponsiveImage from "@/components/common/ResponsiveImage";
 
 interface ImageManagerProps {
   images: File[];
@@ -21,6 +22,13 @@ const ALLOWED_TYPES = {
   "image/jpeg": [".jpg", ".jpeg"],
   "image/png": [".png"],
   "image/webp": [".webp"],
+};
+
+const RESPONSIVE_SIZES = {
+  thumbnail: 400,  // For thumbnails and previews
+  medium: 800,     // For medium-sized displays
+  large: 1200,     // For large displays
+  original: 1920   // Maximum width for original images
 };
 
 const ImageManager: React.FC<ImageManagerProps> = ({
@@ -116,24 +124,39 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   };
 
   const compressImage = async (file: File): Promise<File> => {
+    // Convert to WebP if browser supports it
+    const supportsWebP = await checkWebPSupport();
+    
     const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
+      maxSizeMB: 0.8, // Reduced from 1MB to 0.8MB for better compression
+      maxWidthOrHeight: RESPONSIVE_SIZES.original,
       useWebWorker: true,
-      fileType: file.type as "image/jpeg" | "image/png" | "image/webp",
-      initialQuality: 0.8,
+      fileType: supportsWebP ? 'image/webp' : (file.type as 'image/jpeg' | 'image/png' | 'image/webp'),
+      initialQuality: 0.85,
+      alwaysKeepResolution: false,
     };
 
     try {
       const compressedBlob = await imageCompression(file, options);
-      return new File([compressedBlob], file.name, {
+      
+      // Generate a WebP filename if converting to WebP
+      const fileName = supportsWebP ? 
+        file.name.replace(/\.[^/.]+$/, '.webp') : 
+        file.name;
+
+      return new File([compressedBlob], fileName, {
         type: compressedBlob.type || file.type,
         lastModified: new Date().getTime(),
       });
     } catch (error) {
-      console.error("Error compressing image:", error);
+      console.error('Error compressing image:', error);
       return file;
     }
+  };
+
+  const checkWebPSupport = async (): Promise<boolean> => {
+    const canvas = document.createElement('canvas');
+    return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
   };
 
   const handleImageUpload = async (files: File[]) => {
@@ -262,10 +285,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="relative pt-[75%] group"
                 >
-                  <img
+                  <ResponsiveImage
                     src={url}
                     alt={`Existing ${index + 1}`}
                     className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index === 0}
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.jpg";
                       e.currentTarget.onerror = null;
@@ -305,10 +330,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
               exit={{ opacity: 0, scale: 0.8 }}
               className="relative pt-[75%] group"
             >
-              <img
+              <ResponsiveImage
                 src={url}
                 alt={`Preview ${index + 1}`}
                 className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                priority={index === 0}
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.jpg";
                   e.currentTarget.onerror = null;

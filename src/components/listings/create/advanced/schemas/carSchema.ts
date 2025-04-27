@@ -367,6 +367,14 @@ export const carSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
+  {
+    name: "navigationSystem",
+    label: "listings.navigationSystem",
+    type: "select",
+    options: ["built-in", "portable", "none"],
+    section: "advanced",
+    required: false,
+  },
    // ================= SAFETY FEATURES =================
    {
     name: "safetyFeatures",
@@ -780,11 +788,7 @@ export const carSchema: ListingFieldSchema[] = [
             label: "features.multifunctionalSteeringWheel",
             type: "toggle",
           },
-          {
-            name: "navigationSystem",
-            label: "features.navigationSystem",
-            type: "toggle",
-          },
+          // navigationSystem moved to main schema
           { name: "rainSensor", label: "features.rainSensor", type: "toggle" },
           {
             name: "automaticStartStop",

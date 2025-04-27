@@ -179,7 +179,7 @@ export interface BaseVehicleDetails {
   leatherSteeringWheel?: boolean;
   lumbarSupport?: boolean;
   multifunctionalSteeringWheel?: boolean;
-  navigationSystem?: boolean | string;
+  navigationSystem?: string;
   rainSensor?: boolean;
   automaticStartStop?: boolean;
   automaticDazzlingInteriorMirrors?: boolean;
