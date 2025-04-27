@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
+import PreloadImages from '@/components/common/PreloadImages';
+import ResponsiveImage from '@/components/common/ResponsiveImage';
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
 import { renderIcon } from "@/components/common/icons";
-import ResponsiveImage from "@/components/common/ResponsiveImage";
 import { formatCurrency } from "@/utils/format";
 import type {
   Listing,
@@ -122,12 +123,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
     checkFavoriteStatus();
   }, [id, user]);
 
-  const firstImage =
-    Array.isArray(images) && images.length > 0
-      ? typeof images[0] === "string"
-        ? images[0]
-        : "/placeholder.jpg"
-      : "/placeholder.jpg";
+  const mainImage = listing?.images?.[0];
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -230,13 +226,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
       transition={{ delay: 0.3, duration: 0.4 }}
       className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group relative"
     >
+      {/* Preload the main image for LCP optimization */}
+      {mainImage && typeof mainImage === 'string' && <PreloadImages imageUrls={[mainImage]} />}
       <Link
         to={`/listings/${id}`}
         className="block h-full transition-transform duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md dark:shadow-gray-800"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ResponsiveImage
-            src={firstImage}
+            src={typeof mainImage === 'string' ? mainImage : ''}
             alt={title}
             className="w-full h-full object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

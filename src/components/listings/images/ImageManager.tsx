@@ -7,6 +7,7 @@ import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
 import ResponsiveImage from "@/components/common/ResponsiveImage";
+import PreloadImages from '@/components/common/PreloadImages';
 
 interface ImageManagerProps {
   images: File[];
@@ -285,6 +286,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="relative pt-[75%] group"
                 >
+                  {/* Preload the first existing image for LCP */}
+                  {index === 0 && url && <PreloadImages imageUrls={[url]} />}
                   <ResponsiveImage
                     src={url}
                     alt={`Existing ${index + 1}`}
@@ -330,6 +333,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({
               exit={{ opacity: 0, scale: 0.8 }}
               className="relative pt-[75%] group"
             >
+              {/* Preload the first preview image for LCP */}
+              {index === 0 && url && <PreloadImages imageUrls={[url]} />}
               <ResponsiveImage
                 src={url}
                 alt={`Preview ${index + 1}`}
