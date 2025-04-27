@@ -65,7 +65,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
     <div className="w-full flex flex-col items-center">
       {/* Main Image */}
       <div
-        className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
+        className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
         style={{ minHeight: 350, maxHeight: 450 }}
       >
         <img
