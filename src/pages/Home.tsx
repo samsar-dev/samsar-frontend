@@ -71,12 +71,35 @@ const Home: React.FC = () => {
     };
   }, []);
   
-  // Update first visible listing when listings change
-  useEffect(() => {
-    if (listings.all.length > 0) {
-      setFirstVisibleListing(listings.all[0]);
+ // Update first visible listing when listings change and preload critical images
+ useEffect(() => {
+  if (listings.all.length > 0) {
+    const firstListing = listings.all[0];
+    setFirstVisibleListing(firstListing);
+    
+    // Preload first few images for better LCP
+    const criticalImages = listings.all
+      .slice(0, 4)
+      .map(listing => listing.images?.[0])
+      .filter(Boolean) as string[];
+    
+    if (criticalImages.length > 0) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = criticalImages[0];
+      document.head.appendChild(link);
+      
+      // Use PreloadImages component for the rest
+      if (criticalImages.length > 1) {
+        const preloadComponent = document.createElement('div');
+        preloadComponent.style.display = 'none';
+        preloadComponent.innerHTML = `<img src="${criticalImages[0]}" alt="" />`;
+        document.body.appendChild(preloadComponent);
+      }
     }
-  }, [listings.all]);
+  }
+}, [listings.all]);
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(

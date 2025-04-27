@@ -32,6 +32,7 @@ export interface ListingCardProps {
   showLocation?: boolean;
   showDate?: boolean;
   showBadges?: boolean;
+  priority?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -123,7 +124,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
     checkFavoriteStatus();
   }, [id, user]);
 
+  // Get the main image and determine if this is a high-priority image (first in list)
   const mainImage = listing?.images?.[0];
+  const isHighPriorityImage = listing?.id && listing?.images?.length > 0;
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -230,22 +233,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
   transition={{ type: "spring", stiffness: 200, damping: 20 }}
   className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
 >
-
-
       {/* Preload the main image for LCP optimization */}
-      {mainImage && typeof mainImage === 'string' && <PreloadImages imageUrls={[mainImage]} />}
+      {mainImage && typeof mainImage === "string" && (
+        <PreloadImages imageUrls={[mainImage]} />
+      )}
       <Link
         to={`/listings/${id}`}
-        className="block h-full transition-transform transition-shadow duration-300 ease-out transform "
-
+        className="block h-full"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ResponsiveImage
-            src={typeof mainImage === 'string' ? mainImage : ''}
-            alt={title}
-            className="w-full h-full object-cover"
+            src={mainImage as string}
+            alt={title as string}
+            className="rounded-t-lg h-48 sm:h-56 md:h-64 w-full object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            priority={false}
+            priority={isHighPriorityImage}
             onError={(e) => {
               e.currentTarget.src = "/placeholder.jpg";
               e.currentTarget.onerror = null;
