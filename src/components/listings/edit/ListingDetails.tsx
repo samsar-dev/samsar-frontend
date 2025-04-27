@@ -1102,16 +1102,15 @@ const ListingDetails: React.FC = () => {
                 {listing?.details?.vehicles?.features && (
                   <>
                     <h3 className="text-base font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
-                      {t("listings.vehicleFeatures")}
+                      {t("vehicleFeatures")}
                     </h3>
 
                     {/* Safety Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.safetyFeatures")}
+                        {t("safetyFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all safety features that are true */}
                         {[
                           "blindSpotMonitor",
                           "laneAssist",
@@ -1129,59 +1128,53 @@ const ListingDetails: React.FC = () => {
                           "laneDepartureWarning",
                           "laneKeepAssist",
                           "automaticEmergencyBraking",
-                        ].map(
-                          (feature) =>
-                            Boolean(listing?.details?.vehicles?.[feature]) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Camera Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.cameraFeatures")}
+                        {t("cameraFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all camera features that are true */}
                         {[
                           "rearCamera",
                           "camera360",
                           "dashCam",
                           "nightVision",
-                        ].map(
-                          (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.[feature]
-                            ) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Climate Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.climateFeatures")}
+                        {t("climateFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all climate features that are true */}
                         {[
                           "climateControl",
                           "heatedSeats",
@@ -1189,31 +1182,27 @@ const ListingDetails: React.FC = () => {
                           "dualZoneClimate",
                           "rearAC",
                           "airQualitySensor",
-                        ].map(
-                          (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.[feature]
-                            ) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Entertainment Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.entertainmentFeatures")}
+                        {t("entertainmentFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all entertainment features that are true */}
                         {[
                           "bluetooth",
                           "appleCarPlay",
@@ -1224,62 +1213,54 @@ const ListingDetails: React.FC = () => {
                           "cdPlayer",
                           "dvdPlayer",
                           "rearSeatEntertainment",
-                        ].map(
-                          (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.[feature]
-                            ) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Lighting Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.lightingFeatures")}
+                        {t("lightingFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all lighting features that are true */}
                         {[
                           "ledHeadlights",
                           "adaptiveHeadlights",
                           "ambientLighting",
                           "fogLights",
                           "automaticHighBeams",
-                        ].map(
-                          (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.[feature]
-                            ) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     {/* Convenience Features */}
                     <div className="space-y-2 mb-6">
                       <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("listings.features.convenienceFeatures")}
+                        {t("convenienceFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Display all convenience features that are true */}
                         {[
                           "keylessEntry",
                           "sunroof",
@@ -1288,21 +1269,18 @@ const ListingDetails: React.FC = () => {
                           "powerTailgate",
                           "autoDimmingMirrors",
                           "rainSensingWipers",
-                        ].map(
-                          (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.[feature]
-                            ) && (
-                              <div key={feature} className="space-y-1">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {t(`listings.features.${feature}`)}
-                                </p>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {t("common.yes")}
-                                </p>
-                              </div>
-                            )
-                        )}
+                        ].map((feature) => (
+                          <div key={feature} className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t(feature)}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {Boolean(listing?.details?.vehicles?.[feature])
+                                ? t("yes")
+                                : t("Not Provided")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </>
