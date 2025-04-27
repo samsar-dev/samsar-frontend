@@ -32,6 +32,7 @@ export interface ListingCardProps {
   showLocation?: boolean;
   showDate?: boolean;
   showBadges?: boolean;
+  priority?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -123,7 +124,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
     checkFavoriteStatus();
   }, [id, user]);
 
+  // Get the main image and determine if this is a high-priority image (first in list)
   const mainImage = listing?.images?.[0];
+  const isHighPriorityImage = listing?.id && listing?.images?.length > 0;
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -221,24 +224,30 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 2 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group relative"
-    >
+  initial={{ opacity: 0, scale: 0.98 }}
+  animate={{ opacity: 1, scale: 1 }}
+  whileHover={{
+    scale: 1.01,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)"
+  }}
+  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
+>
       {/* Preload the main image for LCP optimization */}
-      {mainImage && typeof mainImage === 'string' && <PreloadImages imageUrls={[mainImage]} />}
+      {mainImage && typeof mainImage === "string" && (
+        <PreloadImages imageUrls={[mainImage]} />
+      )}
       <Link
         to={`/listings/${id}`}
-        className="block h-full transition-transform duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md dark:shadow-gray-800"
+        className="block h-full"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ResponsiveImage
-            src={typeof mainImage === 'string' ? mainImage : ''}
-            alt={title}
-            className="w-full h-full object-cover"
+            src={mainImage as string}
+            alt={title as string}
+            className="rounded-t-lg h-48 sm:h-56 md:h-64 w-full object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            priority={false}
+            priority={isHighPriorityImage}
             onError={(e) => {
               e.currentTarget.src = "/placeholder.jpg";
               e.currentTarget.onerror = null;
@@ -265,7 +274,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
 
           {showSaveButton && user && (
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-20">
               <button
                 onClick={handleFavoriteClick}
                 className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
