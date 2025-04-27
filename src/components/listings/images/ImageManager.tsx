@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
+import ResponsiveImage from "@/components/common/ResponsiveImage";
 
 interface ImageManagerProps {
   images: File[];
@@ -284,10 +285,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="relative pt-[75%] group"
                 >
-                  <img
+                  <ResponsiveImage
                     src={url}
                     alt={`Existing ${index + 1}`}
                     className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index === 0}
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.jpg";
                       e.currentTarget.onerror = null;
@@ -327,13 +330,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
               exit={{ opacity: 0, scale: 0.8 }}
               className="relative pt-[75%] group"
             >
-              <img
+              <ResponsiveImage
                 src={url}
                 alt={`Preview ${index + 1}`}
-                loading="lazy"
-                decoding="async"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                priority={index === 0}
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.jpg";
                   e.currentTarget.onerror = null;

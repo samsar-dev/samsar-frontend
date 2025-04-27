@@ -2,6 +2,7 @@ import { listingsAPI } from "@/api/listings.api";
 import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import PreloadImages from "@/components/common/PreloadImages";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 import { serverStatus } from "@/utils/serverStatus";
@@ -44,9 +45,10 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  // ...existing code...
-  const [sortBy, setSortBy] = useState<string>("newestFirst");
   const { t, i18n } = useTranslation("common");
+  // Track first visible listing for LCP optimization
+  const [firstVisibleListing, setFirstVisibleListing] = useState<ExtendedListing | null>(null);
+  const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES,
   );
@@ -68,6 +70,13 @@ const Home: React.FC = () => {
       abortControllerRef.current.abort();
     };
   }, []);
+  
+  // Update first visible listing when listings change
+  useEffect(() => {
+    if (listings.all.length > 0) {
+      setFirstVisibleListing(listings.all[0]);
+    }
+  }, [listings.all]);
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(
@@ -227,17 +236,18 @@ const Home: React.FC = () => {
       if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch listings");
       }
-
-      if (!response.data.listings) {
+      
+      const responseData = response.data; // Assign to a const to avoid null check warnings
+      if (!responseData.listings) {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
       // Cache the results
-      listingsCache.current[selectedCategory] = response.data.listings;
+      listingsCache.current[selectedCategory] = responseData.listings;
 
       setListings((prev) => ({
         ...prev,
-        all: response.data.listings,
+        all: responseData.listings,
         loading: false,
       }));
     } catch (error) {
@@ -656,6 +666,10 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">
+      {/* Preload the first listing image for LCP optimization */}
+      {firstVisibleListing?.images?.[0] && (
+        <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
+      )}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-10 md:py-12 min-h-[20vh] sm:min-h-[22vh] lg:min-h-[25vh]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
