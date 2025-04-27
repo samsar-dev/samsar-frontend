@@ -48,13 +48,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
 
   const handlePrevious = () => {
     setSelectedImage((current) =>
-      current === null || current === 0 ? imageUrls.length - 1 : current - 1,
+      current === null || current === 0 ? imageUrls.length - 1 : current - 1
     );
   };
 
   const handleNext = () => {
     setSelectedImage((current) =>
-      current === null || current === imageUrls.length - 1 ? 0 : current + 1,
+      current === null || current === imageUrls.length - 1 ? 0 : current + 1
     );
   };
 
@@ -65,11 +65,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   return (
     <div className="w-full flex flex-col items-center">
       {/* Main Image */}
-      <div className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center" style={{ minHeight: 350, maxHeight: 450 }}>
+      <div
+        className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
+        style={{ minHeight: 350, maxHeight: 450 }}
+      >
         <img
           src={imageUrls[selectedImage !== null ? selectedImage : 0]}
           alt={`Main Image`}
-          className="object-contain w-full h-[350px] md:h-[450px] transition-all duration-300"
+          className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
           onError={(e) => {
             e.currentTarget.src = "/placeholder.jpg";
             e.currentTarget.onerror = null;
@@ -82,7 +85,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
           {imageUrls.map((url, idx) => (
             <button
               key={idx}
-              className={`border-2 ${selectedImage === idx ? 'border-blue-500' : 'border-transparent'} rounded-lg focus:outline-none transition-shadow duration-200 bg-white dark:bg-gray-800 flex-shrink-0`}
+              className={`border-2 ${selectedImage === idx ? "border-blue-500" : "border-transparent"} rounded-lg focus:outline-none transition-shadow duration-200 bg-white dark:bg-gray-800 flex-shrink-0`}
               style={{ width: 72, height: 72 }}
               onClick={() => setSelectedImage(idx)}
               tabIndex={0}
