@@ -175,6 +175,7 @@ export const createListing = async (
           "fuelType",
           "transmissionType",
           "serviceHistory",
+          "navigationSystem",
         ];
 
         stringFields.forEach((field) => {
