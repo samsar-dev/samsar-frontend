@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
@@ -39,8 +39,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import Select from "react-select";
-import ImageManager from "../../images/ImageManager";
+const Select = lazy(() => import("react-select"));
+const ImageManager = lazy(() => import("../../images/ImageManager"));
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -1195,32 +1195,34 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           {/* Image Manager Component */}
           <div className="mt-6">
-            <ImageManager
-              images={formData.images as File[]}
-              onChange={(newImages) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  images: newImages,
-                }));
-                // Clear any image-related errors
-                setErrors((prev) => {
-                  const newErrors = { ...prev };
-                  delete newErrors.images;
-                  return newErrors;
-                });
-              }}
-              maxImages={10}
-              error={errors.images}
-              existingImages={formData.existingImages as string[]}
-              onDeleteExisting={(url) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  existingImages: (prev.existingImages || []).filter(
-                    (img) => img !== url,
-                  ),
-                }));
-              }}
-            />
+            <Suspense fallback={<div>Loading images...</div>}>
+              <ImageManager
+                images={formData.images as File[]}
+                onChange={(newImages) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    images: newImages,
+                  }));
+                  // Clear any image-related errors
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.images;
+                    return newErrors;
+                  });
+                }}
+                maxImages={10}
+                error={errors.images}
+                existingImages={formData.existingImages as string[]}
+                onDeleteExisting={(url) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    existingImages: (prev.existingImages || []).filter(
+                      (img) => img !== url,
+                    ),
+                  }));
+                }}
+              />
+            </Suspense>
           </div>
         </div>
 

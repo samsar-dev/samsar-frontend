@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
+
+const ResponsiveImage = lazy(() => import("@/components/common/ResponsiveImage"));
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
@@ -21,6 +23,10 @@ import {
   FaHistory,
   FaTag,
 } from "react-icons/fa";
+
+// Example: If you have a heavy component for images or advanced details, lazy load it here
+// const ImageGallery = lazy(() => import("@/components/common/ImageGallery"));
+// const AdvancedDetails = lazy(() => import("@/components/common/AdvancedDetails"));
 import {
   ChevronLeft,
   AlertCircle,
@@ -912,12 +918,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               )}
             </>
           )}
-
+        
       {/* Images */}
       {renderSection(
         t("listings.images"),
-        <FaImages className="w-5 h-5 text-blue-500" />,
-        renderImages()
+        <FaImages className="w-5 h-5 text-blue-500" />, 
+        <Suspense fallback={<div>Loading images...</div>}>
+          {renderImages()}
+        </Suspense>
       )}
 
       {/* Error Messages */}

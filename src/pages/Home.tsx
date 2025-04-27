@@ -439,10 +439,7 @@ const Home: React.FC = () => {
 
   // Define sort options with translation
   // Log the translations loaded for sortOptions
-  console.log(
-    "Loaded sortOptions translations:",
-    t("common.sortOptions", { returnObjects: true }),
-  );
+  
 
   const sortOptions = [
     {
@@ -504,14 +501,8 @@ const Home: React.FC = () => {
     },
   ];
 
-  // Debug logging
-  console.log("Sort Options Translations:", {
-    newestFirst: t("common.sortOptions.newestFirst"),
-    priceAsc: t("common.sortOptions.priceAsc"),
-    priceDesc: t("common.sortOptions.priceDesc"),
-    locationAsc: t("common.sortOptions.locationAsc"),
-    locationDesc: t("common.sortOptions.locationDesc"),
-  });
+  // Debug logging sort options
+  
 
   const renderContent = useCallback(() => {
     if (listings.loading) {

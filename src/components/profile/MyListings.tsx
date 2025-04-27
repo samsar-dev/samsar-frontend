@@ -10,7 +10,7 @@ import { listingsAPI } from "@/api/listings.api";
 import type { Listing } from "@/types/listings";
 import MyListingCard from "@/components/listings/details/MyListingCard";
 import { toast } from "react-hot-toast";
-import { Spinner } from "@/components/ui/Spinner";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -168,7 +168,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     if (isAuthLoading || (isLoading && page === 1)) {
       return (
         <div className="flex justify-center items-center min-h-[200px]">
-          <Spinner />
+          <LoadingSpinner size="lg" />
         </div>
       );
     }
@@ -197,7 +197,7 @@ export default function MyListings({ userId }: MyListingsProps) {
 
         {isLoading && page > 1 && (
           <div className="flex justify-center py-4">
-            <Spinner />
+            <LoadingSpinner size="lg" />
           </div>
         )}
 

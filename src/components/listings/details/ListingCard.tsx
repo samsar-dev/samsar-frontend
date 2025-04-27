@@ -4,7 +4,7 @@ import ResponsiveImage from '@/components/common/ResponsiveImage';
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
-import { renderIcon } from "@/components/common/icons";
+import { renderIcon } from "@/components/ui/icons";
 import { formatCurrency } from "@/utils/format";
 import type {
   Listing,

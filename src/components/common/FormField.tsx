@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import Select from "react-select";
+import Select, { SingleValue, ActionMeta } from "react-select";
 
 export type FormFieldValue = string | number | boolean | string[];
 
@@ -49,14 +49,15 @@ export const FormField = React.forwardRef<
       | React.ChangeEvent<
           HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
         >
-      | { value: string; label: string },
+      | SingleValue<{ value: string; label: string }>,
+    actionMeta?: ActionMeta<{ value: string; label: string }>,
   ) => {
     let newValue;
 
     // Handle react-select change
-    if ("value" in e && "label" in e) {
+    if (e && typeof e === "object" && "value" in e) {
       newValue = e.value;
-    } else {
+    } else if (e && "target" in e) {
       // Handle standard form input change
       newValue =
         type === "checkbox"
@@ -66,6 +67,9 @@ export const FormField = React.forwardRef<
                 HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
               >
             ).target.value;
+    } else {
+      // Handle null case from react-select
+      newValue = "";
     }
 
     // Run validation
@@ -168,7 +172,11 @@ export const FormField = React.forwardRef<
             <option value="">{placeholder || "Select an option"}</option>
             {options?.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {typeof option.label === "string"
+                  ? option.label === option.value
+                    ? `${option.label.charAt(0).toUpperCase()}${option.label.slice(1).toLowerCase()}`
+                    : option.label
+                  : String(option.label)}
               </option>
             ))}
           </select>
@@ -220,16 +228,16 @@ export const FormField = React.forwardRef<
   };
 
   return (
-    <div className="space-y-2">
+    <div className="mb-4">
       <label
         htmlFor={name}
-        className={clsx("block text-sm font-medium", {
-          "text-gray-900": !error,
+        className={clsx("mb-1 block text-sm font-medium", {
+          "text-gray-700": !error,
           "text-red-600": error,
         })}
       >
         {label}
-        {required && <span className="text-red-600 ml-1">*</span>}
+        {required && <span className="text-red-500">*</span>}
       </label>
       {renderInput()}
       {error && (

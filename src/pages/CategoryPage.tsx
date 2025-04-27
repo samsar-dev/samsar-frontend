@@ -5,7 +5,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { listingsAPI } from "@/api/listings.api";
 import { toast } from "react-toastify";
-import { Spinner } from "@/components/ui/Spinner";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import type {
   FixedSizeGrid as Grid,
   GridChildComponentProps,
@@ -83,7 +83,7 @@ const CategoryPage: React.FC = () => {
   if (loading && page === 1) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -136,7 +136,7 @@ const CategoryPage: React.FC = () => {
 
       {loading && page > 1 && (
         <div className="flex justify-center py-4">
-          <Spinner />
+          <LoadingSpinner size="lg" />
         </div>
       )}
     </div>

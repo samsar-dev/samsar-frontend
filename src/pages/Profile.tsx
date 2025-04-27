@@ -85,3 +85,5 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
     </div>
   );
 };
+
+export default Profile;

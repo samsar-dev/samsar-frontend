@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -34,8 +34,8 @@ import {
   listingsAdvancedFieldSchema,
   SECTION_CONFIG,
 } from "../advanced/listingsAdvancedFieldSchema";
-import FormField from "../common/FormField";
-import ColorPickerField from "@/components/listings/forms/ColorPickerField";
+const FormField = lazy(() => import("@/components/common/FormField"));
+const ColorPickerField = lazy(() => import("@/components/listings/forms/ColorPickerField"));
 import { toast } from "react-hot-toast";
 
 interface ExtendedFormState extends Omit<FormState, "details"> {
@@ -378,45 +378,49 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
             }
             if (field.type === "colorpicker") {
               return (
-                <ColorPickerField
+                <Suspense fallback={<div>Loading color picker...</div>}>
+                  <ColorPickerField
+                    key={field.name}
+                    label={t(field.label)}
+                    value={
+                      isVehicle
+                        ? (form.details?.vehicles?.[field.name] ?? "#000000")
+                        : (form.details?.realEstate?.[field.name] ?? "#000000")
+                    }
+                    onChange={(value) => handleInputChange(field.name, value)}
+                    error={errors[`details.${field.name}`]}
+                    required={field.required}
+                  />
+                </Suspense>
+              );
+            }
+            return (
+              <Suspense fallback={<div>Loading field...</div>}>
+                <FormField
                   key={field.name}
+                  name={field.name}
                   label={t(field.label)}
+                  type={field.type as FormFieldType}
+                  options={field.options?.map(
+                    (opt: string | { value: string; label?: string }) =>
+                      typeof opt === "object"
+                        ? {
+                            value: opt.value,
+                            label: t(opt.label || `options.${opt.value}`),
+                          }
+                        : { value: opt, label: t(`options.${opt}`) }
+                  )}
                   value={
                     isVehicle
-                      ? (form.details?.vehicles?.[field.name] ?? "#000000")
-                      : (form.details?.realEstate?.[field.name] ?? "#000000")
+                      ? (form.details?.vehicles?.[field.name] ?? "")
+                      : (form.details?.realEstate?.[field.name] ?? "")
                   }
                   onChange={(value) => handleInputChange(field.name, value)}
                   error={errors[`details.${field.name}`]}
                   required={field.required}
+                  disabled={isSubmitting}
                 />
-              );
-            }
-            return (
-              <FormField
-                key={field.name}
-                name={field.name}
-                label={t(field.label)}
-                type={field.type as FormFieldType}
-                options={field.options?.map(
-                  (opt: string | { value: string; label?: string }) =>
-                    typeof opt === "object"
-                      ? {
-                          value: opt.value,
-                          label: t(opt.label || `options.${opt.value}`),
-                        }
-                      : { value: opt, label: t(`options.${opt}`) }
-                )}
-                value={
-                  isVehicle
-                    ? (form.details?.vehicles?.[field.name] ?? "")
-                    : (form.details?.realEstate?.[field.name] ?? "")
-                }
-                onChange={(value) => handleInputChange(field.name, value)}
-                error={errors[`details.${field.name}`]}
-                required={field.required}
-                disabled={isSubmitting}
-              />
+              </Suspense>
             );
           })}
         </div>

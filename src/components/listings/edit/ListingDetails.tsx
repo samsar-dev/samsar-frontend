@@ -28,7 +28,7 @@ import { listingsAPI } from "@/api/listings.api";
 import { useTranslation } from "react-i18next";
 import TokenManager from "@/utils/tokenManager";
 import { formatCurrency } from "@/utils/format";
-import ImageGallery from "@/components/listings/images/ImageGallery";
+const ImageGallery = React.lazy(() => import("@/components/listings/images/ImageGallery"));
 import { Link } from "react-router-dom";
 
 interface ListingImage {
@@ -139,20 +139,6 @@ const ListingDetails: React.FC = () => {
   });
 
   useEffect(() => {
-    // Debug log
-    const token = TokenManager.getAccessToken();
-    console.log("Auth debug:", { isAuthenticated, token });
-
-    // Only run fetch if both are present
-    if (!isAuthenticated || !token) {
-      // Don't show error immediately; wait for auth state to resolve
-      if (isAuthenticated === false) {
-        setError(t("common.loginRequired"));
-        setLoading(false);
-      }
-      return;
-    }
-
     const initializeAndFetchListing = async () => {
       if (!id) {
         setError("No listing ID provided");
@@ -200,7 +186,9 @@ const ListingDetails: React.FC = () => {
         if (!response.success || !response.data) {
           const error = response.error || "Failed to load listing";
           console.error("API error:", error);
-          throw new Error(error);
+          setError(error);
+          setLoading(false);
+          return;
         }
 
         const listing = response.data;
@@ -209,7 +197,9 @@ const ListingDetails: React.FC = () => {
 
         if (!listing) {
           console.error("No listing data in response");
-          throw new Error("Listing not found");
+          setError("Listing not found");
+          setLoading(false);
+          return;
         }
 
         // Ensure images are in the correct format
@@ -669,7 +659,9 @@ const ListingDetails: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images Section */}
         <div className="w-full">
-          <ImageGallery images={listing?.images || []} />
+          <React.Suspense fallback={<div>Loading images...</div>}>
+  <ImageGallery images={listing?.images || []} />
+</React.Suspense>
         </div>
 
         {/* Details Section */}

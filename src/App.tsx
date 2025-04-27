@@ -9,7 +9,7 @@ import {
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import TokenManager from "@/utils/tokenManager";
 import AppRoutes from "./routes/Routes";
-import { Spinner } from "@/components/ui/Spinner";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import { ToastContainer } from "react-toastify";
@@ -35,7 +35,7 @@ const App: () => ReactElement = () => {
   if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

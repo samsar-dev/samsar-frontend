@@ -40,7 +40,7 @@ import { set } from "lodash";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import FormField, {
   FormFieldProps,
-} from "@/components/listings/create/common/FormField";
+} from "@/components/common/FormField";
 import ImageManager from "@/components/listings/images/ImageManager";
 
 interface EditFormData {

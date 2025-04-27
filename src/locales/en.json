@@ -106,6 +106,7 @@
     "miles": "Miles",
     "transmissionTypes": {
       "automatic": "Automatic"
+      
     },
     "torque": "Torque",
     "images": "Images",

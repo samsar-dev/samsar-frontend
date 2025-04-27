@@ -149,7 +149,7 @@ const Navbar: React.FC = () => {
                     setSelectedSubcategory("");
                   }}
                 >
-                  <option value="all">{t("listings.all")}</option>
+                  <option value="all">{t("common.all")}</option>
                   <option value="vehicles">{t("navigation.vehicles")}</option>
                   <option value="realEstate">
                     {t("navigation.real_estate")}
@@ -163,7 +163,7 @@ const Navbar: React.FC = () => {
                     value={selectedSubcategory}
                     onChange={(e) => setSelectedSubcategory(e.target.value)}
                   >
-                    <option value="">{t("listings.all_types")}</option>
+                    <option value="">{t("common.all_types")}</option>
                     <option value="CAR">
                       {t("listings.vehicleTypes.CAR")}
                     </option>

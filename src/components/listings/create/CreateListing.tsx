@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useCreateListing } from "@/components/listings/hooks/useCreateListing";
+import { useCreateListing } from "@/hooks/useCreateListing";
 import {
   ListingCategory,
   VehicleType,
@@ -22,9 +22,9 @@ import type {
   VehicleDetails,
   RealEstateDetails,
 } from "../../../types/listings";
-import BasicDetailsForm from "./steps/BasicDetailsForm";
-import AdvancedDetailsForm from "./steps/AdvancedDetailsForm";
-import ReviewSection from "./steps/ReviewSection";
+const BasicDetailsForm = lazy(() => import("./steps/BasicDetailsForm"));
+const AdvancedDetailsForm = lazy(() => import("./steps/AdvancedDetailsForm"));
+const ReviewSection = lazy(() => import("./steps/ReviewSection"));
 import { FaCarSide, FaCog, FaCheckCircle } from "react-icons/fa";
 
 // Animation variants for lightweight transitions
@@ -1030,38 +1030,45 @@ const CreateListing: React.FC = () => {
     switch (step) {
       case 1:
         return (
-          <BasicDetailsForm
-            initialData={formData}
-            onSubmit={(data, isValid) =>
-              handleBasicDetailsSubmit(data as unknown as FormState, isValid)
-            }
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <BasicDetailsForm
+              initialData={formData}
+              onSubmit={(data, isValid) =>
+                handleBasicDetailsSubmit(data as unknown as FormState, isValid)
+              }
+            />
+          </Suspense>
         );
       case 2:
         return (
-          <AdvancedDetailsForm
-            formData={formData}
-            onSubmit={(data, isValid) =>
-              handleAdvancedDetailsSubmit(data, isValid)
-            }
-            onBack={handleBack}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <AdvancedDetailsForm
+              formData={formData}
+              onSubmit={(data, isValid) =>
+                handleAdvancedDetailsSubmit(data, isValid)
+              }
+              onBack={handleBack}
+            />
+          </Suspense>
         );
       case 3:
         return (
-          <ReviewSection
-            formData={formData}
-            onSubmit={(formData: FormState) => {
-              handleFinalSubmit(formData);
-            }}
-            onBack={handleBack}
-            onEdit={handleEditSection}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <ReviewSection
+              formData={formData}
+              onSubmit={(formData: FormState) => {
+                handleFinalSubmit(formData);
+              }}
+              onBack={handleBack}
+              onEdit={handleEditSection}
+            />
+          </Suspense>
         );
       default:
         return null;
     }
   };
+
 
   const stepIcons = [
     { icon: FaCarSide, label: t("basicDetails") },

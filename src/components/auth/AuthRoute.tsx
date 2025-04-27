@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Spinner } from "@/components/ui/Spinner";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface AuthRouteProps {
   roles?: string[];
@@ -21,7 +21,7 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
