@@ -11,7 +11,10 @@ interface ImageGalleryProps {
   images?: ImageType[];
 }
 
+
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
+  // For carousel animation direction: 1 for next, -1 for previous
+  const [direction, setDirection] = React.useState<1 | -1>(1);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   // Simplified image URL extraction
@@ -42,16 +45,74 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   }, [imageUrls.length, selectedImage]);
 
   const handlePrevious = () => {
+    setDirection(-1);
     setSelectedImage((current) =>
       current === null || current === 0 ? imageUrls.length - 1 : current - 1
     );
   };
 
   const handleNext = () => {
+    setDirection(1);
     setSelectedImage((current) =>
       current === null || current === imageUrls.length - 1 ? 0 : current + 1
     );
   };
+
+  // CarouselImage component for animated sliding
+  interface CarouselImageProps {
+    src: string;
+    alt: string;
+    direction: 1 | -1;
+    onSwipeLeft: () => void;
+    onSwipeRight: () => void;
+  }
+
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
+  const CarouselImage: React.FC<CarouselImageProps> = ({ src, alt, direction, onSwipeLeft, onSwipeRight }) => {
+    return (
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={src}
+          className="w-full h-full flex items-center justify-center absolute left-0 top-0"
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
+          custom={direction}
+          initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: direction < 0 ? 300 : -300, opacity: 0 }}
+          transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.8}
+          onDragEnd={(e, { offset, velocity }) => {
+            const swipe = swipePower(offset.x, velocity.x);
+            if (swipe < -swipeConfidenceThreshold) {
+              onSwipeLeft();
+            } else if (swipe > swipeConfidenceThreshold) {
+              onSwipeRight();
+            }
+          }}
+          tabIndex={0}
+        >
+          <ResponsiveImage
+            src={src}
+            alt={alt}
+            className="object-contain max-h-[400px] w-auto h-auto"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={true}
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.jpg";
+              e.currentTarget.onerror = null;
+            }}
+          />
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
 
   const handleClose = () => {
     setSelectedImage(null);
@@ -65,16 +126,50 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
       {firstImage && <PreloadImages imageUrls={[firstImage]} />}
       <div className="w-full flex flex-col items-center">
         {/* Main Image */}
-        <div className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center" style={{ minHeight: 350, maxHeight: 450 }}>
-          {imageUrls.length > 0 && (
-            <ResponsiveImage
-              src={imageUrls[selectedImage ?? 0]}
-              alt={`Gallery image ${selectedImage ?? 0}`}
-              className="object-contain max-h-[400px] w-auto h-auto"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              priority={true}
-            />
+        <div className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-900 flex items-center justify-center relative select-none" style={{ minHeight: 350, maxHeight: 450 }}>
+          {/* Carousel Arrows */}
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                aria-label="Previous image"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/70 dark:bg-gray-900/60 hover:bg-white/90 dark:hover:bg-gray-900/80 rounded-full p-2 shadow focus:outline-none"
+                onClick={handlePrevious}
+                tabIndex={0}
+                type="button"
+              >
+                <FaChevronLeft size={24} />
+              </button>
+              <button
+                aria-label="Next image"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/70 dark:bg-gray-900/60 hover:bg-white/90 dark:hover:bg-gray-900/80 rounded-full p-2 shadow focus:outline-none"
+                onClick={handleNext}
+                tabIndex={0}
+                type="button"
+              >
+                <FaChevronRight size={24} />
+              </button>
+            </>
           )}
+
+          {/* Carousel Main Image with Animation */}
+          <div
+  onClick={() => {
+    if (selectedImage === null) setSelectedImage(0);
+  }}
+  style={{ cursor: "zoom-in", width: "100%", height: "100%" }}
+  tabIndex={0}
+  role="button"
+  aria-label="Open image fullscreen"
+>
+  <CarouselImage
+    key={selectedImage ?? 0}
+    src={imageUrls[selectedImage ?? 0]}
+    alt={`Gallery image ${selectedImage ?? 0}`}
+    direction={direction}
+    onSwipeLeft={handleNext}
+    onSwipeRight={handlePrevious}
+  />
+</div>
         </div>
 
         {/* Thumbnails Carousel */}

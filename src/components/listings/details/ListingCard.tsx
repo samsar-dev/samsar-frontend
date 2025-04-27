@@ -221,16 +221,23 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 2 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 group relative"
-    >
+  initial={{ opacity: 0, scale: 0.98 }}
+  animate={{ opacity: 1, scale: 1 }}
+  whileHover={{
+    scale: 1.01,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)"
+  }}
+  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
+>
+
+
       {/* Preload the main image for LCP optimization */}
       {mainImage && typeof mainImage === 'string' && <PreloadImages imageUrls={[mainImage]} />}
       <Link
         to={`/listings/${id}`}
-        className="block h-full transition-transform duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md dark:shadow-gray-800"
+        className="block h-full transition-transform transition-shadow duration-300 ease-out transform "
+
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ResponsiveImage
@@ -265,7 +272,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
 
           {showSaveButton && user && (
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-20">
               <button
                 onClick={handleFavoriteClick}
                 className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
