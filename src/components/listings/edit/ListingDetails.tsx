@@ -1101,7 +1101,7 @@ const ListingDetails: React.FC = () => {
                 {/* Vehicle Features Section */}
                 {listing?.details?.vehicles?.features && (
                   <>
-                    <h3 className="text-base font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
                       {t("vehicleFeatures")}
                     </h3>
 
@@ -1111,6 +1111,7 @@ const ListingDetails: React.FC = () => {
                         {t("safetyFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all safety features that are true */}
                         {[
                           "blindSpotMonitor",
                           "laneAssist",
@@ -1128,18 +1129,19 @@ const ListingDetails: React.FC = () => {
                           "laneDepartureWarning",
                           "laneKeepAssist",
                           "automaticEmergencyBraking",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
+                        ].map(
+                          (feature) =>
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {t(feature)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("yes")}
+                                </p>
+                              </div>
+                            )
+                        )}
                       </div>
                     </div>
 
@@ -1149,23 +1151,25 @@ const ListingDetails: React.FC = () => {
                         {t("cameraFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all camera features that are true */}
                         {[
                           "rearCamera",
                           "camera360",
                           "dashCam",
                           "nightVision",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
+                        ].map(
+                          (feature) =>
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {t(feature)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("yes")}
+                                </p>
+                              </div>
+                            )
+                        )}
                       </div>
                     </div>
 
@@ -1175,6 +1179,7 @@ const ListingDetails: React.FC = () => {
                         {t("climateFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all climate features that are true */}
                         {[
                           "climateControl",
                           "heatedSeats",
@@ -1182,18 +1187,19 @@ const ListingDetails: React.FC = () => {
                           "dualZoneClimate",
                           "rearAC",
                           "airQualitySensor",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
+                        ].map(
+                          (feature) =>
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {t(feature)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("yes")}
+                                </p>
+                              </div>
+                            )
+                        )}
                       </div>
                     </div>
 
@@ -1203,6 +1209,7 @@ const ListingDetails: React.FC = () => {
                         {t("entertainmentFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all entertainment features that are true */}
                         {[
                           "bluetooth",
                           "appleCarPlay",
@@ -1234,24 +1241,26 @@ const ListingDetails: React.FC = () => {
                         {t("lightingFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all lighting features that are true */}
                         {[
                           "ledHeadlights",
                           "adaptiveHeadlights",
                           "ambientLighting",
                           "fogLights",
                           "automaticHighBeams",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
+                        ].map(
+                          (feature) =>
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {t(feature)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("yes")}
+                                </p>
+                              </div>
+                            )
+                        )}
                       </div>
                     </div>
 
@@ -1261,6 +1270,7 @@ const ListingDetails: React.FC = () => {
                         {t("convenienceFeatures")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Display all convenience features that are true */}
                         {[
                           "keylessEntry",
                           "sunroof",
@@ -1269,18 +1279,19 @@ const ListingDetails: React.FC = () => {
                           "powerTailgate",
                           "autoDimmingMirrors",
                           "rainSensingWipers",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
+                        ].map(
+                          (feature) =>
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
+                              <div key={feature} className="space-y-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {t(feature)}
+                                </p>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {t("yes")}
+                                </p>
+                              </div>
+                            )
+                        )}
                       </div>
                     </div>
                   </>
