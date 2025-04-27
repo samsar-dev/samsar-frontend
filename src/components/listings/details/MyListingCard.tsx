@@ -1,7 +1,9 @@
 import React from "react";
+import PreloadImages from '@/components/common/PreloadImages';
+import ResponsiveImage from '@/components/common/ResponsiveImage';
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt } from "react-icons/fa";
 import { formatCurrency } from "@/utils/format";
 import type {
   Listing,
@@ -19,6 +21,7 @@ export interface MyListingCardProps {
 }
 
 const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
+  const mainImage = listing?.images?.[0];
   const { t } = useTranslation();
   const {
     id,
@@ -201,41 +204,44 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 relative">
-      <Link to={`/listings/${id}`} className="block">
-        <div className="relative aspect-video">
-          <img
-            src={firstImage}
+      {mainImage && typeof mainImage === 'string' && <PreloadImages imageUrls={[mainImage]} />}
+      <Link
+        to={`/listings/${id}`}
+        className="block h-full transition-transform duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md dark:shadow-gray-800"
+      >
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+          <ResponsiveImage
+            src={typeof mainImage === 'string' ? mainImage : ''}
             alt={title}
             className="w-full h-full object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={true}
           />
-          <div className="absolute top-2 left-2">
-            <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
-              {t(
-                `common.categories.${category.mainCategory}.${category.subCategory}`,
-              )}
-            </span>
-            {listingAction === "rent" && (
-              <span className="ml-1 bg-green-500 text-white px-2 py-1 rounded text-xs">
-                {t("common.forRent")}
-              </span>
-            )}
-          </div>
         </div>
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
           <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
-            {formatCurrency(price)}
-            {listingAction === "rent" && (
-              <span className="text-sm ml-1">/mo</span>
-            )}
+            ${formatCurrency(price)}
           </p>
-          {renderDetails()}
-          <p className="text-gray-600 dark:text-gray-400 mt-2">{location}</p>
-          <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-            {new Date(createdAt).toLocaleDateString()}
-          </p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {listing?.features?.map((feature: string, index: number) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+              >
+                {feature}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+            <FaMapMarkerAlt className="mr-1" />
+            <span className="truncate">{location}</span>
+          </div>
         </div>
       </Link>
+      <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
+        {new Date(createdAt).toLocaleDateString()}
+      </p>
       <div className="absolute top-2 right-2 flex gap-2">
         <button
           onClick={(e) => {
@@ -253,7 +259,7 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
             e.preventDefault();
             e.stopPropagation();
             if (window.confirm(t("listings.deleteConfirmation"))) {
-              onDelete?.(id);
+              onDelete?.(id as string);
             }
           }}
           className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200"
