@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ResponsiveImageProps {
   src: string;
@@ -9,6 +9,7 @@ interface ResponsiveImageProps {
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   placeholder?: string; // Optional custom placeholder image
   blur?: boolean;       // Enable blur-up effect
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const DEFAULT_PLACEHOLDER = "/placeholder.jpg";
@@ -22,6 +23,7 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   onError,
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
+  fetchPriority = 'auto',
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -30,17 +32,35 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   const isR2Image = src.includes('r2.dev');
   const baseUrl = src.split('?')[0];
 
-  // Generate responsive URLs for R2 images
+  // Generate responsive URLs for R2 images with optimized quality and format
   const generateSrcSet = () => {
     if (!isR2Image) return undefined;
-    const widths = [400, 800, 1200, 1600];
+    // Only include necessary widths based on common device sizes
+    const widths = [400, 800, 1200];
     return widths
       .map(width => {
-        const optimizedUrl = `${baseUrl}?width=${width}&format=webp&quality=85`;
+        // Reduce quality for better performance while maintaining visual quality
+        const optimizedUrl = `${baseUrl}?width=${width}&format=webp&quality=80`;
         return `${optimizedUrl} ${width}w`;
       })
       .join(', ');
   };
+  
+  // Preload critical images if priority is true
+  useEffect(() => {
+    if (priority && typeof window !== 'undefined') {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = isR2Image ? `${baseUrl}?format=webp&quality=80` : src;
+      link.fetchPriority = 'high';
+      document.head.appendChild(link);
+      
+      return () => {
+        document.head.removeChild(link);
+      };
+    }
+  }, [priority, src, baseUrl, isR2Image]);
 
   // Handle image load
   const handleLoad = () => setLoading(false);
@@ -75,16 +95,21 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
           alt="Image not available"
           className="w-full h-full object-contain rounded shadow z-10"
           aria-label="Image not available"
+          width="400"
+          height="300"
         />
       ) : (
         <img
-          src={isR2Image ? `${baseUrl}?format=webp&quality=85` : src}
+          src={isR2Image ? `${baseUrl}?format=webp&quality=80` : src}
           srcSet={generateSrcSet()}
           sizes={sizes}
           alt={imgAlt}
           className={`w-full h-full object-contain transition-opacity duration-500 ${blur && loading ? 'opacity-0' : 'opacity-100'} z-10`}
           loading={priority ? 'eager' : 'lazy'}
           decoding={priority ? 'sync' : 'async'}
+          fetchPriority={priority ? 'high' : fetchPriority}
+          width="400"
+          height="300"
           onLoad={handleLoad}
           onError={handleError}
           draggable={false}
