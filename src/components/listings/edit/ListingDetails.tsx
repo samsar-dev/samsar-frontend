@@ -46,9 +46,76 @@ interface ExtendedListing extends Listing {
   };
 }
 
+interface Features {
+  safetyFeatures: string[];
+  cameraFeatures: string[];
+  climateFeatures: string[];
+  enternmentFeatures: string[];
+  lightingFeatures: string[];
+  convenienceFeatures: string[];
+}
+
 // Using types directly from listings.ts
 import type { ListingDetails } from "@/types/listings";
 import { LoadingSpinner } from "@/api";
+import FeatureSection from "./FeatureSection";
+
+const featuresDetails = {
+  safetyFeatures: [
+    "blindSpotMonitor",
+    "laneAssist",
+    "adaptiveCruiseControl",
+    "tractionControl",
+    "abs",
+    "emergencyBrakeAssist",
+    "tirePressureMonitoring",
+    "parkingSensors",
+    "frontAirbags",
+    "sideAirbags",
+    "curtainAirbags",
+    "kneeAirbags",
+    "cruiseControl",
+    "laneDepartureWarning",
+    "laneKeepAssist",
+    "automaticEmergencyBraking",
+  ],
+  cameraFeatures: ["rearCamera", "camera360", "dashCam", "nightVision"],
+  climateFeatures: [
+    "climateControl",
+    "heatedSeats",
+    "ventilatedSeats",
+    "dualZoneClimate",
+    "rearAC",
+    "airQualitySensor",
+  ],
+  enternmentFeatures: [
+    "bluetooth",
+    "appleCarPlay",
+    "androidAuto",
+    "premiumSound",
+    "wirelessCharging",
+    "usbPorts",
+    "cdPlayer",
+    "dvdPlayer",
+    "rearSeatEntertainment",
+  ],
+  lightingFeatures: [
+    "ledHeadlights",
+    "adaptiveHeadlights",
+    "ambientLighting",
+    "fogLights",
+    "automaticHighBeams",
+  ],
+  convenienceFeatures: [
+    "keylessEntry",
+    "sunroof",
+    "spareKey",
+    "remoteStart",
+    "powerTailgate",
+    "autoDimmingMirrors",
+    "rainSensingWipers",
+  ],
+};
 
 const ListingDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -62,6 +129,14 @@ const ListingDetails: React.FC = () => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [features, setFeatures] = useState<Features>({
+    safetyFeatures: [],
+    cameraFeatures: [],
+    climateFeatures: [],
+    enternmentFeatures: [],
+    lightingFeatures: [],
+    convenienceFeatures: [],
+  });
 
   useEffect(() => {
     // Debug log
@@ -415,6 +490,46 @@ const ListingDetails: React.FC = () => {
           vehicleDetails = baseVehicle as any;
         }
 
+        setFeatures({
+          safetyFeatures: featuresDetails.safetyFeatures.filter((feature) => {
+            return Object.entries(vehicleDetails).some(
+              ([key, value]) => key === feature && value
+            );
+          }),
+          cameraFeatures: featuresDetails.cameraFeatures.filter((feature) => {
+            return Object.entries(vehicleDetails).some(
+              ([key, value]) => key === feature && value
+            );
+          }),
+          climateFeatures: featuresDetails.climateFeatures.filter((feature) => {
+            return Object.entries(vehicleDetails).some(
+              ([key, value]) => key === feature && value
+            );
+          }),
+          enternmentFeatures: featuresDetails.enternmentFeatures.filter(
+            (feature) => {
+              return Object.entries(vehicleDetails).some(
+                ([key, value]) => key === feature && value
+              );
+            }
+          ),
+          lightingFeatures: featuresDetails.lightingFeatures.filter(
+            (feature) => {
+              return Object.entries(vehicleDetails).some(
+                ([key, value]) => key === feature && value
+              );
+            }
+          ),
+          convenienceFeatures: featuresDetails.convenienceFeatures.filter(
+            (feature) => {
+              return Object.entries(vehicleDetails).some(
+                ([key, value]) => key === feature && value
+              );
+            }
+          ),
+        });
+
+        console.log("[ListingDetails] vehicleDetails:", vehicleDetails);
         setListing({
           ...rest,
           category: {
@@ -547,6 +662,8 @@ const ListingDetails: React.FC = () => {
     ListingCategory.REAL_ESTATE.toLocaleLowerCase();
   const isOwner = user?.id === listing.userId;
 
+  console.log("features", features);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -558,7 +675,7 @@ const ListingDetails: React.FC = () => {
         {/* Details Section */}
         <div className="space-y-8">
           {/* Title & Price Card */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 border border-gray-100 dark:border-gray-800">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 border border-gray-100 dark:border-gray-800">
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">
               {listing?.title}
             </h1>
@@ -571,7 +688,7 @@ const ListingDetails: React.FC = () => {
           </div>
           {/* Seller Info Card - Professional Layout */}
           {listing?.seller && (
-            <div className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-900 rounded-xl shadow p-5 border border-gray-100 dark:border-gray-800 mb-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-100 dark:border-gray-800 mb-6">
               <Link
                 to={`/users/${listing.seller.id}`}
                 className="flex items-center gap-4 hover:text-blue-600 transition-colors"
@@ -658,7 +775,7 @@ const ListingDetails: React.FC = () => {
             </div>
           )}
           {/* Basic Information */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               {t("listings.basicInformation")}
             </h2>
@@ -1099,190 +1216,64 @@ const ListingDetails: React.FC = () => {
                 </div>
 
                 {/* Vehicle Features Section */}
-                {listing?.details?.vehicles?.features && (
+                {(features.safetyFeatures.length > 0 ||
+                  features.cameraFeatures.length > 0 ||
+                  features.climateFeatures.length > 0 ||
+                  features.enternmentFeatures.length > 0 ||
+                  features.lightingFeatures.length > 0 ||
+                  features.convenienceFeatures.length > 0) && (
                   <>
                     <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
-                      {t("vehicleFeatures")}
+                      {t("Vehicle Features")}
                     </h3>
 
                     {/* Safety Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("safetyFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "blindSpotMonitor",
-                          "laneAssist",
-                          "adaptiveCruiseControl",
-                          "tractionControl",
-                          "abs",
-                          "emergencyBrakeAssist",
-                          "tirePressureMonitoring",
-                          "parkingSensors",
-                          "frontAirbags",
-                          "sideAirbags",
-                          "curtainAirbags",
-                          "kneeAirbags",
-                          "cruiseControl",
-                          "laneDepartureWarning",
-                          "laneKeepAssist",
-                          "automaticEmergencyBraking",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.safetyFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Safety Features")}
+                        features={features.safetyFeatures}
+                      />
+                    )}
 
                     {/* Camera Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("cameraFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "rearCamera",
-                          "camera360",
-                          "dashCam",
-                          "nightVision",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.cameraFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Camera Features")}
+                        features={features.cameraFeatures}
+                      />
+                    )}
 
                     {/* Climate Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("climateFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "climateControl",
-                          "heatedSeats",
-                          "ventilatedSeats",
-                          "dualZoneClimate",
-                          "rearAC",
-                          "airQualitySensor",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.climateFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Climate Features")}
+                        features={features.climateFeatures}
+                      />
+                    )}
 
                     {/* Entertainment Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("entertainmentFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "bluetooth",
-                          "appleCarPlay",
-                          "androidAuto",
-                          "premiumSound",
-                          "wirelessCharging",
-                          "usbPorts",
-                          "cdPlayer",
-                          "dvdPlayer",
-                          "rearSeatEntertainment",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.enternmentFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Entertainment Features")}
+                        features={features.enternmentFeatures}
+                      />
+                    )}
 
                     {/* Lighting Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("lightingFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "ledHeadlights",
-                          "adaptiveHeadlights",
-                          "ambientLighting",
-                          "fogLights",
-                          "automaticHighBeams",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.lightingFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Lighting Features")}
+                        features={features.lightingFeatures}
+                      />
+                    )}
 
                     {/* Convenience Features */}
-                    <div className="space-y-2 mb-6">
-                      <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                        {t("convenienceFeatures")}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          "keylessEntry",
-                          "sunroof",
-                          "spareKey",
-                          "remoteStart",
-                          "powerTailgate",
-                          "autoDimmingMirrors",
-                          "rainSensingWipers",
-                        ].map((feature) => (
-                          <div key={feature} className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t(feature)}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {Boolean(listing?.details?.vehicles?.[feature])
-                                ? t("yes")
-                                : t("Not Provided")}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {features.convenienceFeatures.length > 0 && (
+                      <FeatureSection
+                        title={t("Convenience Features")}
+                        features={features.convenienceFeatures}
+                      />
+                    )}
                   </>
                 )}
               </div>
