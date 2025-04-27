@@ -91,18 +91,18 @@ const ListingDetails: React.FC = () => {
         // Log the full response data for debugging advanced details
         console.log(
           "Response data details:",
-          JSON.stringify(response.data?.details, null, 2),
+          JSON.stringify(response.data?.details, null, 2)
         );
         console.log(
           "FULL Response Data:",
-          JSON.stringify(response.data, null, 2),
+          JSON.stringify(response.data, null, 2)
         );
 
         // Log specific vehicle details for debugging
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details (raw):",
-            JSON.stringify(response.data.details.vehicles, null, 2),
+            JSON.stringify(response.data.details.vehicles, null, 2)
           );
 
           // Log each individual field for debugging
@@ -164,13 +164,13 @@ const ListingDetails: React.FC = () => {
         // Log all the details to debug what's available
         console.log(
           "Details before transformation:",
-          JSON.stringify(details, null, 2),
+          JSON.stringify(details, null, 2)
         );
         console.log(
           "Vehicle details before:",
           details.vehicles
             ? JSON.stringify(details.vehicles, null, 2)
-            : "No vehicle details",
+            : "No vehicle details"
         );
 
         // Transform vehicle details if present
@@ -180,7 +180,7 @@ const ListingDetails: React.FC = () => {
 
         // Transform the features array into a boolean object
         const transformFeatures = (
-          features: Record<string, boolean> | undefined,
+          features: Record<string, boolean> | undefined
         ) => {
           if (!features) return {};
 
@@ -248,7 +248,7 @@ const ListingDetails: React.FC = () => {
             laneDepartureWarning: Boolean(features.laneDepartureWarning),
             laneKeepAssist: Boolean(features.laneKeepAssist),
             automaticEmergencyBraking: Boolean(
-              features.automaticEmergencyBraking,
+              features.automaticEmergencyBraking
             ),
           };
 
@@ -305,25 +305,25 @@ const ListingDetails: React.FC = () => {
 
                   cruiseControl: Boolean(details.vehicles.cruiseControl),
                   laneDepartureWarning: Boolean(
-                    details.vehicles.laneDepartureWarning,
+                    details.vehicles.laneDepartureWarning
                   ),
                   laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
                   automaticEmergencyBraking: Boolean(
-                    details.vehicles.automaticEmergencyBraking,
+                    details.vehicles.automaticEmergencyBraking
                   ),
 
                   blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
                   laneAssist: Boolean(details.vehicles.laneAssist),
                   adaptiveCruiseControl: Boolean(
-                    details.vehicles.adaptiveCruiseControl,
+                    details.vehicles.adaptiveCruiseControl
                   ),
                   tractionControl: Boolean(details.vehicles.tractionControl),
                   abs: Boolean(details.vehicles.abs),
                   emergencyBrakeAssist: Boolean(
-                    details.vehicles.emergencyBrakeAssist,
+                    details.vehicles.emergencyBrakeAssist
                   ),
                   tirePressureMonitoring: Boolean(
-                    details.vehicles.tirePressureMonitoring,
+                    details.vehicles.tirePressureMonitoring
                   ),
 
                   rearCamera: Boolean(details.vehicles.rearCamera),
@@ -348,17 +348,17 @@ const ListingDetails: React.FC = () => {
                   cdPlayer: Boolean(details.vehicles.cdPlayer),
                   dvdPlayer: Boolean(details.vehicles.dvdPlayer),
                   rearSeatEntertainment: Boolean(
-                    details.vehicles.rearSeatEntertainment,
+                    details.vehicles.rearSeatEntertainment
                   ),
 
                   ledHeadlights: Boolean(details.vehicles.ledHeadlights),
                   adaptiveHeadlights: Boolean(
-                    details.vehicles.adaptiveHeadlights,
+                    details.vehicles.adaptiveHeadlights
                   ),
                   ambientLighting: Boolean(details.vehicles.ambientLighting),
                   fogLights: Boolean(details.vehicles.fogLights),
                   automaticHighBeams: Boolean(
-                    details.vehicles.automaticHighBeams,
+                    details.vehicles.automaticHighBeams
                   ),
 
                   keylessEntry: Boolean(details.vehicles.keylessEntry),
@@ -367,10 +367,10 @@ const ListingDetails: React.FC = () => {
                   remoteStart: Boolean(details.vehicles.remoteStart),
                   powerTailgate: Boolean(details.vehicles.powerTailgate),
                   autoDimmingMirrors: Boolean(
-                    details.vehicles.autoDimmingMirrors,
+                    details.vehicles.autoDimmingMirrors
                   ),
                   rainSensingWipers: Boolean(
-                    details.vehicles.rainSensingWipers,
+                    details.vehicles.rainSensingWipers
                   ),
 
                   engineSize: details.vehicles.engineSize || "",
@@ -589,9 +589,14 @@ const ListingDetails: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <div className="font-semibold text-base text-gray-900 dark:text-white">{listing.seller.username}</div>
+                  <div className="font-semibold text-base text-gray-900 dark:text-white">
+                    {listing.seller.username}
+                  </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Posted on: <span className="font-medium">{new Date(listing.createdAt!).toLocaleDateString()}</span>
+                    Posted on:{" "}
+                    <span className="font-medium">
+                      {new Date(listing.createdAt!).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
               </Link>
@@ -750,7 +755,7 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {t(
-                            `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
+                            `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`
                           )}
                         </p>
                       </div>
@@ -763,7 +768,7 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {t(
-                            `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
+                            `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`
                           )}
                         </p>
                       </div>
@@ -822,7 +827,7 @@ const ListingDetails: React.FC = () => {
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {t(
-                            `listings.fields.conditions.${listing?.details?.vehicles?.condition}`,
+                            `listings.fields.conditions.${listing?.details?.vehicles?.condition}`
                           )}
                         </p>
                       </div>
@@ -931,7 +936,7 @@ const ListingDetails: React.FC = () => {
                           ? new Date(
                               (
                                 listing?.details?.vehicles as any
-                              ).registrationExpiry,
+                              ).registrationExpiry
                             ).toLocaleDateString()
                           : t("common.notProvided")}
                       </p>
@@ -1126,9 +1131,7 @@ const ListingDetails: React.FC = () => {
                           "automaticEmergencyBraking",
                         ].map(
                           (feature) =>
-                            Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
-                            ) && (
+                            Boolean(listing?.details?.vehicles?.[feature]) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {t(`listings.features.${feature}`)}
@@ -1137,7 +1140,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1157,7 +1160,7 @@ const ListingDetails: React.FC = () => {
                         ].map(
                           (feature) =>
                             Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
+                              listing?.details?.vehicles?.[feature]
                             ) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1167,7 +1170,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1189,7 +1192,7 @@ const ListingDetails: React.FC = () => {
                         ].map(
                           (feature) =>
                             Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
+                              listing?.details?.vehicles?.[feature]
                             ) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1199,7 +1202,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1224,7 +1227,7 @@ const ListingDetails: React.FC = () => {
                         ].map(
                           (feature) =>
                             Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
+                              listing?.details?.vehicles?.[feature]
                             ) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1234,7 +1237,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1255,7 +1258,7 @@ const ListingDetails: React.FC = () => {
                         ].map(
                           (feature) =>
                             Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
+                              listing?.details?.vehicles?.[feature]
                             ) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1265,7 +1268,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1288,7 +1291,7 @@ const ListingDetails: React.FC = () => {
                         ].map(
                           (feature) =>
                             Boolean(
-                              listing?.details?.vehicles?.features?.[feature],
+                              listing?.details?.vehicles?.[feature]
                             ) && (
                               <div key={feature} className="space-y-1">
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1298,7 +1301,7 @@ const ListingDetails: React.FC = () => {
                                   {t("common.yes")}
                                 </p>
                               </div>
-                            ),
+                            )
                         )}
                       </div>
                     </div>
@@ -1322,7 +1325,7 @@ const ListingDetails: React.FC = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
+                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`
                     )}
                   </p>
                 </div>
@@ -1373,7 +1376,7 @@ const ListingDetails: React.FC = () => {
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {t(
-                        `listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
+                        `listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`
                       )}
                     </p>
                   </div>
@@ -1395,7 +1398,7 @@ const ListingDetails: React.FC = () => {
                           >
                             {feature}
                           </span>
-                        ),
+                        )
                       )}
                     </div>
                   </div>
@@ -1414,7 +1417,6 @@ const ListingDetails: React.FC = () => {
               </p>
             </div>
           )}
-
         </div>
       </div>
     </div>
