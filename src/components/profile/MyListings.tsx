@@ -68,7 +68,7 @@ export default function MyListings({ userId }: MyListingsProps) {
 
       const response = await listingsAPI.getUserListings(
         { page, limit },
-        signal,
+        signal
       );
 
       // Cancel if this is not the latest request
@@ -80,7 +80,7 @@ export default function MyListings({ userId }: MyListingsProps) {
 
         // Only reset listings on first page
         setListings((prev) =>
-          page === 1 ? listingsData : [...prev, ...listingsData],
+          page === 1 ? listingsData : [...prev, ...listingsData]
         );
         setTotal(totalItems);
         setHasMore(listingsData.length === limit);
@@ -92,7 +92,7 @@ export default function MyListings({ userId }: MyListingsProps) {
       if (err.name === "AbortError") return;
 
       console.error("Fetch Error:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch listings");
+      setError(err instanceof Error ? err.message : null);
       if (page === 1) {
         setListings([]);
         setHasMore(false);
@@ -149,7 +149,7 @@ export default function MyListings({ userId }: MyListingsProps) {
         toast.success(t("listings.deleted"));
         // Remove the deleted listing from the current state
         setListings((prev) =>
-          prev.filter((listing) => listing.id !== listingId),
+          prev.filter((listing) => listing.id !== listingId)
         );
         setTotal((prev) => prev - 1);
       } else {
@@ -158,7 +158,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     } catch (err) {
       console.error("Error deleting listing:", err);
       toast.error(
-        err instanceof Error ? err.message : t("listings.delete_error"),
+        err instanceof Error ? err.message : t("listings.delete_error")
       );
     }
   };

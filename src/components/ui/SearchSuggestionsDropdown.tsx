@@ -73,7 +73,7 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
               </div>
             </div>
             <div className="ml-2 text-sm text-blue-600 font-semibold whitespace-nowrap">
-              {listing.price ? `$${listing.price}` : ""}
+              {listing.price ? `${listing.price}` : ""}
             </div>
           </Link>
         );
