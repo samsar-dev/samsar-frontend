@@ -41,16 +41,13 @@ export const carSchema: ListingFieldSchema[] = [
   },
 
   {
-    name: "numberOfOwners",
-    label: "listings.numberOfOwners",
+    name: "previousOwners",
+    label: "listings.previousOwners",
     type: "number",
     section: "essential",
     required: false,
   },
 
-
-
-   
   {
     name: "transmissionType",
     label: "listings.transmissionType",
@@ -141,7 +138,7 @@ export const carSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  
+
   {
     name: "engineNumber",
     label: "listings.fields.engineNumber",
@@ -149,7 +146,7 @@ export const carSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
- 
+
   {
     name: "serviceHistory",
     label: "listings.fields.serviceHistory",
@@ -157,7 +154,7 @@ export const carSchema: ListingFieldSchema[] = [
     options: [
       { value: "full", label: "Full Service History" },
       { value: "partial", label: "Partial Service History" },
-      { value: "none", label: "No Service History" }
+      { value: "none", label: "No Service History" },
     ],
     section: "advanced",
     required: false,
@@ -327,8 +324,6 @@ export const carSchema: ListingFieldSchema[] = [
     required: false,
   },
 
- 
-
   // ================= ADDITIONAL DETAILS =================
   {
     name: "customsCleared",
@@ -375,8 +370,8 @@ export const carSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-   // ================= SAFETY FEATURES =================
-   {
+  // ================= SAFETY FEATURES =================
+  {
     name: "safetyFeatures",
     label: "listings.fields.safetyFeatures",
     type: "featureGroup",
