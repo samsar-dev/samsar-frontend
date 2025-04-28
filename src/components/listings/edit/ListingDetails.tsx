@@ -1,35 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { MessagesAPI } from "@/api/messaging.api";
-import {
-  Listing,
-  CarDetails,
-  MotorcycleDetails,
-  TruckDetails,
-  VanDetails,
-  BusDetails,
-  TractorDetails,
-  BaseVehicleDetails,
-  VehicleDetails,
-} from "@/types/listings";
-import {
-  ListingCategory,
-  VehicleType,
-  PropertyType,
-  FuelType,
-  TransmissionType,
-  Condition,
-  ListingAction,
-} from "@/types/enums";
-import type { ListingMessageInput } from "@/types/messaging";
-import { toast } from "react-toastify";
 import { listingsAPI } from "@/api/listings.api";
-import { useTranslation } from "react-i18next";
-import TokenManager from "@/utils/tokenManager";
+import { MessagesAPI } from "@/api/messaging.api";
+import { useAuth } from "@/hooks/useAuth";
+import { ListingAction, ListingCategory } from "@/types/enums";
+import type { PropertyType, VehicleType } from "@/types/enums";
+import type { Listing, ListingDetails } from "@/types/listings";
+import type { ListingMessageInput } from "@/types/messaging";
 import { formatCurrency } from "@/utils/format";
-const ImageGallery = React.lazy(() => import("@/components/listings/images/ImageGallery"));
-import { Link } from "react-router-dom";
+import { useEffect, useState, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+const ImageGallery = lazy(
+  () => import("@/components/listings/images/ImageGallery")
+);
 
 interface ListingImage {
   url: string;
@@ -56,7 +39,6 @@ interface Features {
 }
 
 // Using types directly from listings.ts
-import type { ListingDetails } from "@/types/listings";
 import { LoadingSpinner } from "@/api";
 import FeatureSection from "./FeatureSection";
 
@@ -117,7 +99,7 @@ const featuresDetails = {
   ],
 };
 
-const ListingDetails: React.FC = () => {
+const ListingDetails = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -345,7 +327,7 @@ const ListingDetails: React.FC = () => {
                     details.vehicles.transmission,
                   color: details.vehicles.color,
                   condition: details.vehicles.condition,
-                  features: transformFeatures(details.vehicles.features),
+                  features: details.vehicles.features,
                   interiorColor: details.vehicles.interiorColor,
                   engine: details.vehicles.engine || "",
                   warranty: details.vehicles.warranty,
@@ -659,9 +641,9 @@ const ListingDetails: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images Section */}
         <div className="w-full">
-          <React.Suspense fallback={<div>Loading images...</div>}>
-  <ImageGallery images={listing?.images || []} />
-</React.Suspense>
+          <Suspense fallback={<div>Loading images...</div>}>
+            <ImageGallery images={listing?.images || []} />
+          </Suspense>
         </div>
 
         {/* Details Section */}
