@@ -215,7 +215,7 @@ const CreateListing: React.FC = () => {
                     condition:
                       data.details?.vehicles?.condition || Condition.LIKE_NEW,
                     features: Object.entries(
-                      data.details?.vehicles?.features || {}
+                      data.details?.vehicles?.features || {},
                     )
                       .filter(([_, value]) => value === true)
                       .map(([key]) => key),
@@ -228,13 +228,13 @@ const CreateListing: React.FC = () => {
                     serviceHistory:
                       data.details?.vehicles?.serviceHistory?.toString() || "",
                     previousOwners: Number(
-                      data.details?.vehicles?.previousOwners || 0
+                      data.details?.vehicles?.previousOwners || 0,
                     ),
                     registrationStatus:
                       data.details?.vehicles?.registrationStatus || "",
                     accidentFree: Boolean(data.details?.vehicles?.accidentFree),
                     customsCleared: Boolean(
-                      data.details?.vehicles?.customsCleared
+                      data.details?.vehicles?.customsCleared,
                     ),
                     insuranceType: data.details?.vehicles?.insuranceType || "",
                     fuelEfficiency:
@@ -245,21 +245,21 @@ const CreateListing: React.FC = () => {
                     wheelType: data.details?.vehicles?.wheelType || "",
                     // Safety Features
                     blindSpotMonitor: Boolean(
-                      data.details?.vehicles?.blindSpotMonitor
+                      data.details?.vehicles?.blindSpotMonitor,
                     ),
                     laneAssist: Boolean(data.details?.vehicles?.laneAssist),
                     adaptiveCruiseControl: Boolean(
-                      data.details?.vehicles?.adaptiveCruiseControl
+                      data.details?.vehicles?.adaptiveCruiseControl,
                     ),
                     tractionControl: Boolean(
-                      data.details?.vehicles?.tractionControl
+                      data.details?.vehicles?.tractionControl,
                     ),
                     abs: Boolean(data.details?.vehicles?.abs),
                     emergencyBrakeAssist: Boolean(
-                      data.details?.vehicles?.emergencyBrakeAssist
+                      data.details?.vehicles?.emergencyBrakeAssist,
                     ),
                     tirePressureMonitoring: Boolean(
-                      data.details?.vehicles?.tirePressureMonitoring
+                      data.details?.vehicles?.tirePressureMonitoring,
                     ),
                     // Camera Features
                     rearCamera: Boolean(data.details?.vehicles?.rearCamera),
@@ -267,22 +267,22 @@ const CreateListing: React.FC = () => {
                     dashCam: Boolean(data.details?.vehicles?.dashCam),
                     nightVision: Boolean(data.details?.vehicles?.nightVision),
                     parkingSensors: Boolean(
-                      data.details?.vehicles?.parkingSensors
+                      data.details?.vehicles?.parkingSensors,
                     ),
                     // Climate Features
                     climateControl: Boolean(
-                      data.details?.vehicles?.climateControl
+                      data.details?.vehicles?.climateControl,
                     ),
                     heatedSeats: Boolean(data.details?.vehicles?.heatedSeats),
                     ventilatedSeats: Boolean(
-                      data.details?.vehicles?.ventilatedSeats
+                      data.details?.vehicles?.ventilatedSeats,
                     ),
                     dualZoneClimate: Boolean(
-                      data.details?.vehicles?.dualZoneClimate
+                      data.details?.vehicles?.dualZoneClimate,
                     ),
                     rearAC: Boolean(data.details?.vehicles?.rearAC),
                     airQualitySensor: Boolean(
-                      data.details?.vehicles?.airQualitySensor
+                      data.details?.vehicles?.airQualitySensor,
                     ),
                     // Entertainment Features
                     bluetooth: Boolean(data.details?.vehicles?.bluetooth),
@@ -290,27 +290,27 @@ const CreateListing: React.FC = () => {
                     androidAuto: Boolean(data.details?.vehicles?.androidAuto),
                     premiumSound: Boolean(data.details?.vehicles?.premiumSound),
                     wirelessCharging: Boolean(
-                      data.details?.vehicles?.wirelessCharging
+                      data.details?.vehicles?.wirelessCharging,
                     ),
                     usbPorts: Boolean(data.details?.vehicles?.usbPorts),
                     cdPlayer: Boolean(data.details?.vehicles?.cdPlayer),
                     dvdPlayer: Boolean(data.details?.vehicles?.dvdPlayer),
                     rearSeatEntertainment: Boolean(
-                      data.details?.vehicles?.rearSeatEntertainment
+                      data.details?.vehicles?.rearSeatEntertainment,
                     ),
                     // Lighting Features
                     ledHeadlights: Boolean(
-                      data.details?.vehicles?.ledHeadlights
+                      data.details?.vehicles?.ledHeadlights,
                     ),
                     adaptiveHeadlights: Boolean(
-                      data.details?.vehicles?.adaptiveHeadlights
+                      data.details?.vehicles?.adaptiveHeadlights,
                     ),
                     ambientLighting: Boolean(
-                      data.details?.vehicles?.ambientLighting
+                      data.details?.vehicles?.ambientLighting,
                     ),
                     fogLights: Boolean(data.details?.vehicles?.fogLights),
                     automaticHighBeams: Boolean(
-                      data.details?.vehicles?.automaticHighBeams
+                      data.details?.vehicles?.automaticHighBeams,
                     ),
                     // Convenience Features
                     keylessEntry: Boolean(data.details?.vehicles?.keylessEntry),
@@ -318,13 +318,13 @@ const CreateListing: React.FC = () => {
                     spareKey: Boolean(data.details?.vehicles?.spareKey),
                     remoteStart: Boolean(data.details?.vehicles?.remoteStart),
                     powerTailgate: Boolean(
-                      data.details?.vehicles?.powerTailgate
+                      data.details?.vehicles?.powerTailgate,
                     ),
                     autoDimmingMirrors: Boolean(
-                      data.details?.vehicles?.autoDimmingMirrors
+                      data.details?.vehicles?.autoDimmingMirrors,
                     ),
                     rainSensingWipers: Boolean(
-                      data.details?.vehicles?.rainSensingWipers
+                      data.details?.vehicles?.rainSensingWipers,
                     ),
                   }
                 : undefined,
@@ -346,7 +346,7 @@ const CreateListing: React.FC = () => {
                     parking: data.details?.realEstate?.parking || "",
                     floor: Number(data.details?.realEstate?.floor || 1),
                     totalFloors: Number(
-                      data.details?.realEstate?.totalFloors || 1
+                      data.details?.realEstate?.totalFloors || 1,
                     ),
                     elevator: Boolean(data.details?.realEstate?.elevator),
                     balcony: Boolean(data.details?.realEstate?.balcony),
@@ -363,7 +363,7 @@ const CreateListing: React.FC = () => {
                     fireSafety: data.details?.realEstate?.fireSafety || [],
                     flooringType: data.details?.realEstate?.flooringType || "",
                     internetIncluded: Boolean(
-                      data.details?.realEstate?.internetIncluded
+                      data.details?.realEstate?.internetIncluded,
                     ),
                     windowType: data.details?.realEstate?.windowType || "",
                     accessibilityFeatures:
@@ -382,7 +382,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData)
+          JSON.stringify(updatedData),
         );
         return updatedData;
       });
@@ -894,7 +894,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData)
+          JSON.stringify(updatedData),
         );
         return updatedData;
       });
@@ -930,7 +930,7 @@ const CreateListing: React.FC = () => {
       formData.append("location", data.location || "");
       formData.append(
         "listingAction",
-        (data.listingAction || "sell").toUpperCase()
+        (data.listingAction || "sell").toUpperCase(),
       );
       formData.append("mainCategory", data.category?.mainCategory || "");
       formData.append("subCategory", data.category?.subCategory || "");
@@ -954,7 +954,7 @@ const CreateListing: React.FC = () => {
       // Add images
       if (data.images && data.images.length > 0) {
         const fileImages = data.images.filter(
-          (image): image is File => image instanceof File
+          (image): image is File => image instanceof File,
         );
         if (fileImages.length === 0) {
           throw new Error("At least one image is required");
@@ -972,7 +972,7 @@ const CreateListing: React.FC = () => {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File object"
+          typeof pair[1] === "string" ? pair[1] : "File object",
         );
       }
 
@@ -989,7 +989,7 @@ const CreateListing: React.FC = () => {
         duration: 3000,
         icon: "🎉",
       });
-      
+
       // Navigate to ListingSuccess with the listingId
       if (response && response.data && response.data.id) {
         navigate("/listingsuccess", { state: { listingId: response.data.id } });
@@ -1068,7 +1068,6 @@ const CreateListing: React.FC = () => {
         return null;
     }
   };
-
 
   const stepIcons = [
     { icon: FaCarSide, label: t("basicDetails") },

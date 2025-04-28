@@ -56,9 +56,13 @@ export class MessagesAPI {
     const response = await apiClient.delete(`${this.BASE_PATH}/${messageId}`);
     return response.data;
   }
-  
-  static async deleteConversation(conversationId: string): Promise<APIResponse<void>> {
-    const response = await apiClient.delete(`${this.CONVERSATIONS_PATH}/${conversationId}`);
+
+  static async deleteConversation(
+    conversationId: string,
+  ): Promise<APIResponse<void>> {
+    const response = await apiClient.delete(
+      `${this.CONVERSATIONS_PATH}/${conversationId}`,
+    );
     return response.data;
   }
 

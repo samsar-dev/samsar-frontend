@@ -8,7 +8,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-     
   },
   {
     name: "model",
@@ -16,7 +15,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-     
   },
   {
     name: "year",
@@ -24,7 +22,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    
   },
   {
     name: "color",
@@ -32,7 +29,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "colorpicker",
     section: "essential",
     required: true,
- 
   },
   {
     name: "condition",
@@ -50,7 +46,8 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    validate: (value: string | number | boolean) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) =>
+      !value ? "Condition is required" : null,
   },
   {
     name: "hours",
@@ -58,7 +55,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-     
   },
   {
     name: "horsepower",
@@ -66,7 +62,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    
   },
   {
     name: "driveSystem",
@@ -75,7 +70,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     options: ["2WD", "4WD", "MFWD", "AWD", "tracked"],
     section: "essential",
     required: true,
- 
   },
 
   {
@@ -84,7 +78,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-     
   },
   {
     name: "transmissionType",
@@ -101,7 +94,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    
   },
   {
     name: "fuelType",
@@ -119,7 +111,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-     
   },
 
   // Advanced Section

@@ -157,7 +157,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
               <p>
                 {t("listings.condition")}:{" "}
                 {t(
-                  `listings.conditions.${realEstateDetails.condition.toLowerCase()}`
+                  `listings.conditions.${realEstateDetails.condition.toLowerCase()}`,
                 )}
               </p>
             )}

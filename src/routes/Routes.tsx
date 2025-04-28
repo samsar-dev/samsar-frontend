@@ -1,4 +1,9 @@
-import { Routes as RouterRoutes, Route, Outlet, Navigate } from "react-router-dom";
+import {
+  Routes as RouterRoutes,
+  Route,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 // Loading fallback
@@ -11,13 +16,21 @@ const Register = lazy(() => import("@/pages/Register"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Search = lazy(() => import("@/pages/Search"));
-const ListingDetails = lazy(() => import("@/components/listings/edit/ListingDetails"));
-const CreateListing = lazy(() => import("@/components/listings/create/CreateListing"));
-const EditListing = lazy(() => import("@/components/listings/edit/EditListing"));
+const ListingDetails = lazy(
+  () => import("@/components/listings/edit/ListingDetails"),
+);
+const CreateListing = lazy(
+  () => import("@/components/listings/create/CreateListing"),
+);
+const EditListing = lazy(
+  () => import("@/components/listings/edit/EditListing"),
+);
 const Messages = lazy(() => import("@/pages/Messages"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const Settings = lazy(() => import("@/pages/Settings"));
-const ChangePassword = lazy(() => import("@/components/profile/ChangePassword"));
+const ChangePassword = lazy(
+  () => import("@/components/profile/ChangePassword"),
+);
 const MyListings = lazy(() => import("@/components/profile/MyListings"));
 const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo"));
 const SavedListings = lazy(() => import("@/components/profile/SavedListings"));
@@ -28,11 +41,13 @@ const PrivateRoute = lazy(() => import("@/components/auth/AuthRoute"));
 
 const Routes = (): JSX.Element => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" /> {/* Or simple text "Loading..." */}
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" /> {/* Or simple text "Loading..." */}
+        </div>
+      }
+    >
       <RouterRoutes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
