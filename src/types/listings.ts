@@ -45,6 +45,7 @@ export interface ListingFieldSchema {
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
   make: string;
+  vin: string;
   model: string;
   year: string;
   mileage: string | number;
