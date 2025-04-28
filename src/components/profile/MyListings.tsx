@@ -1,18 +1,18 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
-import { useTranslation } from "react-i18next";
 import { listingsAPI } from "@/api/listings.api";
-import type { Listing } from "@/types/listings";
 import MyListingCard from "@/components/listings/details/MyListingCard";
-import { toast } from "react-hot-toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate, useLocation } from "react-router-dom";
+import type { Listing } from "@/types/listings";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface MyListingsProps {
   userId?: string;
