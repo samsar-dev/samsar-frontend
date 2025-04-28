@@ -1,45 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import type {
-  Listing,
-  Location,
-  ListingUpdateInput,
-  ListingFieldSchema,
-} from "@/types/listings";
-import {
-  ListingStatus,
-  VehicleType,
-  PropertyType,
-  FuelType,
-  TransmissionType,
-  Condition,
-} from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import { Button } from "@/components/ui/Button";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { toast } from "react-hot-toast";
-import {
-  FaArrowLeft,
-  FaSave,
-  FaCar,
-  FaHome,
-  FaInfo,
-  FaTools,
-  FaHistory,
-  FaShieldAlt,
-} from "react-icons/fa";
-import ListingCard from "@/components/listings/details/ListingCard";
-import { useAuth } from "@/hooks/useAuth";
+import { FormField } from "@/components/common/FormField";
+import type { FormFieldProps } from "@/components/common/FormField";
+import type { SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import {
   listingsAdvancedFieldSchema,
   SECTION_CONFIG,
-  SectionId,
 } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
-import { set } from "lodash";
+import ListingCard from "@/components/listings/details/ListingCard";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
-import FormField, { FormFieldProps } from "@/components/common/FormField";
 import ImageManager from "@/components/listings/images/ImageManager";
+import { Button } from "@/components/ui/Button";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useAuth } from "@/hooks/useAuth";
+import type { PropertyType, VehicleType } from "@/types/enums";
+import { Condition, TransmissionType, FuelType } from "@/types/enums";
+import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import {
+  FaArrowLeft,
+  FaCar,
+  FaHistory,
+  FaHome,
+  FaInfo,
+  FaSave,
+  FaShieldAlt,
+  FaTools,
+} from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface EditFormData {
   title: string;
@@ -66,7 +55,7 @@ const getIconComponent = (iconName: string) => {
   return iconMap[iconName] || FaInfo;
 };
 
-const EditListing: React.FC = () => {
+const EditListing = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
