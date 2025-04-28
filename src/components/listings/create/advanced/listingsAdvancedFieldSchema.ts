@@ -77,15 +77,17 @@ const colorField: ListingFieldSchema = {
   type: "colorpicker",
   section: "appearance",
   required: false,
-  validate: (value: string) => {
+  validate: (value: string | number | boolean) => {
     const error =
-      value.length > 50 ? "Color must be 50 characters or less" : null;
+      typeof value === "string" && value.length > 50
+        ? ("Color must be 50 characters or less" as string)
+        : null;
     if (error) {
       console.log(
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value,
+        value
       );
     }
     return error;
@@ -99,7 +101,7 @@ const conditionField: ListingFieldSchema = {
   options: Object.values(Condition),
   section: "essential",
   required: true,
-  validate: (value: string) => {
+  validate: (value: string | number | boolean) => {
     const error = !Object.values(Condition).includes(value as Condition)
       ? "Invalid condition value"
       : null;
@@ -108,7 +110,7 @@ const conditionField: ListingFieldSchema = {
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value,
+        value
       );
     }
     return error;
@@ -245,7 +247,7 @@ export const propertyAdvancedFieldLists = {
 export const validateAdvancedFields = (values: any) => {
   console.log(
     "[listingsAdvancedFieldSchema] validateAdvancedFields input values:",
-    values,
+    values
   );
   return true;
 };
