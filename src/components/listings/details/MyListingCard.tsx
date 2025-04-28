@@ -1,16 +1,15 @@
-import React from "react";
 import PreloadImages from "@/components/common/PreloadImages";
 import ResponsiveImage from "@/components/common/ResponsiveImage";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { FaEdit, FaTrash, FaMapMarkerAlt } from "react-icons/fa";
-import { formatCurrency } from "@/utils/format";
+import { ListingCategory } from "@/types/enums";
 import type {
   Listing,
-  VehicleDetails,
   RealEstateDetails,
+  VehicleDetails,
 } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
+import { formatCurrency } from "@/utils/format";
+import { useTranslation } from "react-i18next";
+import { FaEdit, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export interface MyListingCardProps {
   listing: Listing & {
@@ -20,7 +19,7 @@ export interface MyListingCardProps {
   onDelete?: (id: string) => void;
 }
 
-const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
+const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
   const mainImage = listing?.images?.[0];
   const { t } = useTranslation();
   const {
@@ -55,12 +54,10 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
               {vehicleDetails.mileage && <p>{vehicleDetails.mileage} km</p>}
               {vehicleDetails.transmissionType && (
-                <p>
-                  {t(`enums.transmission.${vehicleDetails.transmissionType}`)}
-                </p>
+                <p>{t(`${vehicleDetails.transmissionType}`)}</p>
               )}
               {vehicleDetails.fuelType && (
-                <p>{t(`enums.fuel.${vehicleDetails.fuelType}`)}</p>
+                <p>{t(`${vehicleDetails.fuelType}`)}</p>
               )}
             </div>
           </div>
@@ -136,7 +133,7 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
           {/* Essential Details */}
           <div>
             <p className="font-medium">
-              {t(`enums.propertyType.${realEstateDetails.propertyType}`)}
+              {t(`${realEstateDetails.propertyType}`)}
             </p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
               {realEstateDetails.size && <p>{realEstateDetails.size} m²</p>}
@@ -226,14 +223,16 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
             {formatCurrency(price)}
           </p>
           <div className="flex flex-wrap gap-2 mb-3">
-            {listing?.features?.map((feature: string, index: number) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-              >
-                {feature}
-              </span>
-            ))}
+            {listing?.vehicleDetails?.features?.map(
+              (feature: string, index: number) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                >
+                  {feature}
+                </span>
+              )
+            )}
           </div>
           <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
             <FaMapMarkerAlt className="mr-1" />
@@ -242,7 +241,7 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
         </div>
       </Link>
       <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-        {new Date(createdAt).toLocaleDateString()}
+        {createdAt ? new Date(createdAt).toLocaleDateString() : ""}
       </p>
       <div className="absolute top-2 right-2 flex gap-2">
         <button

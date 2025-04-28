@@ -3,7 +3,6 @@ import PreloadImages from "@/components/common/PreloadImages";
 import ResponsiveImage from "@/components/common/ResponsiveImage";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { MdLocationOn } from "react-icons/md";
 import { renderIcon } from "@/components/ui/icons";
 import { formatCurrency } from "@/utils/format";
 import type {
@@ -13,7 +12,7 @@ import type {
 } from "@/types/listings";
 import { ListingCategory, ListingAction } from "@/types/enums";
 import { motion } from "framer-motion";
-import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { MdFavorite, MdFavoriteBorder,MdLocationOn } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
 import { useState, useEffect } from "react";
@@ -126,7 +125,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   // Get the main image and determine if this is a high-priority image (first in list)
   const mainImage = listing?.images?.[0];
-  const isHighPriorityImage = listing?.id && listing?.images?.length > 0;
+  const isHighPriorityImage = (listing?.id && listing?.images?.length > 0) || false;
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();

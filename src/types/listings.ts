@@ -45,6 +45,8 @@ export interface ListingFieldSchema {
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
   make: string;
+  vin: string;
+  insuranceType?: string;
   model: string;
   year: string;
   mileage: string | number;
@@ -54,7 +56,7 @@ export interface BaseVehicleDetails {
   gearbox?: string;
   color: string;
   condition: Condition;
-  features: Record<string, boolean>;
+  features: string[];
   interiorColor: string;
   warranty?: string;
   previousOwners?: string | number;
@@ -449,83 +451,11 @@ export type VehicleDetails = BaseVehicleDetails & {
 
 export interface BaseRealEstateDetails {
   propertyType: PropertyType;
-  bedrooms?: number;
-  bathrooms?: number;
   area?: number;
   furnished?: boolean;
   features: string[];
-}
-
-export interface BasePropertyDetails extends BaseRealEstateDetails {
-  size: number;
-  yearBuilt: number;
   condition: Condition;
-  features: string[];
-  furnished?: boolean;
   utilities?: string[] | boolean;
-}
-
-export interface HouseDetails extends BaseRealEstateDetails {
-  propertyType: PropertyType.HOUSE;
-  floors: number;
-  parkingSpaces: number;
-  garage: boolean;
-  garden: boolean;
-  petsAllowed: boolean;
-  constructionType?: string;
-  parking?: string;
-  yearBuilt: number;
-  condition: Condition;
-  size: number;
-}
-
-export interface ApartmentDetails extends BasePropertyDetails {
-  propertyType: PropertyType.APARTMENT;
-  bedrooms: number;
-  bathrooms: number;
-  floor: number;
-  totalFloors: number;
-  parking?: string;
-  elevator?: boolean;
-  balcony?: boolean;
-  storage?: boolean;
-  heating?: string;
-  cooling?: string;
-  buildingAmenities?: string[];
-  energyRating?: string;
-  furnished?: boolean;
-  petPolicy?: string;
-  view?: string;
-  securityFeatures?: string[];
-  fireSafety?: string[];
-  flooringType?: string;
-  internetIncluded?: boolean;
-  windowType?: string;
-  accessibilityFeatures?: string[];
-  renovationHistory?: string;
-  parkingType?: string;
-  utilities?: string[];
-  exposureDirection?: string[];
-  storageType?: string[];
-  constructionType?: string;
-}
-
-export interface LandDetails extends BasePropertyDetails {
-  propertyType: PropertyType.LAND;
-  zoning: string;
-  utilities: boolean;
-  roadAccess: boolean;
-  buildable: boolean;
-  fenced: boolean;
-  waterFeatures: boolean;
-  soilType: string;
-}
-
-export type RealEstateDetails = HouseDetails | ApartmentDetails | LandDetails;
-
-export interface ListingDetails {
-  vehicles?: VehicleDetails;
-  realEstate?: RealEstateDetails;
 }
 
 export interface Location {
@@ -663,4 +593,63 @@ interface FeatureGroup {
 
 interface FeatureGroups {
   [key: string]: FeatureGroup;
+}
+
+// New RealEstateDetails interface based on Prisma schema
+export interface RealEstateDetails {
+  id: string;
+  propertyType: string;
+  condition?: string;
+  listingId: string;
+  constructionType?: string;
+  features: string[];
+  parking?: string;
+  accessibilityFeatures: string[];
+  balcony?: boolean;
+  buildingAmenities: string[];
+  cooling?: string;
+  elevator?: boolean;
+  energyRating?: string;
+  exposureDirection: string[];
+  fireSafety: string[];
+  floor?: number;
+  flooringType?: string;
+  furnished?: string;
+  heating?: string;
+  internetIncluded?: boolean;
+  parkingType?: string;
+  petPolicy?: string;
+  renovationHistory?: string;
+  securityFeatures: string[];
+  storage?: boolean;
+  storageType: string[];
+  totalFloors?: number;
+  utilities: string[];
+  view?: string;
+  windowType?: string;
+  attic?: string;
+  basement?: string;
+  buildable?: string;
+  buildingRestrictions?: string;
+  elevation?: number;
+  environmentalFeatures?: string;
+  flooringTypes: string[];
+  halfBathrooms?: number;
+  naturalFeatures?: string;
+  parcelNumber?: string;
+  permitsInPlace?: string;
+  soilTypes: string[];
+  stories?: number;
+  topography: string[];
+  waterFeatures?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  size: number;
+  yearBuilt: number;
+}
+
+// Update ListingDetails and FormState to use the new RealEstateDetails interface
+export interface ListingDetails {
+  vehicles?: VehicleDetails;
+  realEstate?: RealEstateDetails;
 }
