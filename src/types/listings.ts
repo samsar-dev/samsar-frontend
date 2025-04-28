@@ -54,7 +54,7 @@ export interface BaseVehicleDetails {
   gearbox?: string;
   color: string;
   condition: Condition;
-  features: Record<string, boolean>;
+  features: string[];
   interiorColor: string;
   warranty?: string;
   previousOwners?: string | number;
