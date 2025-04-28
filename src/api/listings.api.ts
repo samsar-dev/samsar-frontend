@@ -106,9 +106,8 @@ export const createListing = async (
 ): Promise<APIResponse<SingleListingResponse>> => {
   try {
     // Log the form data for debugging
-    
+
     for (const [key, value] of formData.entries()) {
-      
     }
 
     // Get and validate the details from formData
@@ -119,7 +118,6 @@ export const createListing = async (
 
     try {
       const details = JSON.parse(detailsStr);
-      
 
       if (details.vehicles) {
         // Validate required fields
@@ -241,13 +239,11 @@ export const createListing = async (
 
       return response.data;
     } catch (error: unknown) {
-      
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create listing";
       throw new Error(errorMessage);
     }
   } catch (error) {
-    
     if (error instanceof AxiosError && error.response?.status === 401) {
       throw new Error("Please log in to create a listing");
     }
@@ -393,10 +389,10 @@ export const listingsAPI: ListingsAPI = {
           data: { items: [] },
         };
       }
-      
+
       const response = await apiClient.get("/listings/save", {
         signal,
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       // If we get a successful response but no data, return an empty array
@@ -625,7 +621,8 @@ export const listingsAPI: ListingsAPI = {
   // Get a single listing by ID
   async getListing(id: string): Promise<APIResponse<Listing>> {
     try {
-      const response = await apiClient.get(`/listings/${id}`);
+      console.log("Fetching listing with ID:", id);
+      const response = await apiClient.get(`/listings/public/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching listing:", error);
@@ -794,7 +791,7 @@ export const listingsAPI: ListingsAPI = {
         // Return empty array if not authenticated instead of making the request
         return {
           success: true,
-          data: null // Return null for unauthenticated users
+          data: null, // Return null for unauthenticated users
         };
       }
 
@@ -822,7 +819,8 @@ export const listingsAPI: ListingsAPI = {
         success: false,
         data: null,
         error:
-          error.response?.data?.error?.message || "Failed to fetch user listings",
+          error.response?.data?.error?.message ||
+          "Failed to fetch user listings",
       };
     }
   },
@@ -836,7 +834,7 @@ export const listingsAPI: ListingsAPI = {
         success: boolean;
         data: SingleListingResponse;
         status: number;
-      }>(`/listings/${id}`);
+      }>(`/listings/public/${id}`);
       console.log("Raw API response:", response);
       console.log("Response data:", response.data);
 
@@ -1167,7 +1165,7 @@ export const listingsAPI: ListingsAPI = {
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Log the FormData contents before sending
-      
+
       for (const pair of formData.entries()) {
       }
 
@@ -1178,7 +1176,6 @@ export const listingsAPI: ListingsAPI = {
       });
 
       const data = await response.json();
-      
 
       if (!response.ok) {
         console.error("Server error details:", {
@@ -1199,7 +1196,6 @@ export const listingsAPI: ListingsAPI = {
         error: undefined,
       };
     } catch (error) {
-      
       return {
         success: false,
         data: null,
@@ -1294,11 +1290,9 @@ export const listingsAPI: ListingsAPI = {
   ): Promise<APIResponse<ListingsResponse>> {
     try {
       // Add debug logging for the original query
-      
 
       // Create a case-insensitive version of the query for better matching
       const normalizedQuery = query.trim().toLowerCase();
-      
 
       const searchParams: Record<string, string> = {
         query: normalizedQuery, // Use normalized query
@@ -1306,7 +1300,6 @@ export const listingsAPI: ListingsAPI = {
       };
 
       if (params) {
-        
         Object.entries(params).forEach(([key, value]) => {
           if (value === undefined || value === null) return;
 
@@ -1323,16 +1316,12 @@ export const listingsAPI: ListingsAPI = {
         });
       }
 
-      
-
       const queryString = Object.entries(searchParams)
         .map(
           ([key, value]) =>
             `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
         )
         .join("&");
-
-      
 
       // Call the server-side search endpoint
       const response = await fetch(
@@ -1346,8 +1335,6 @@ export const listingsAPI: ListingsAPI = {
         }
       );
 
-      
-
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Search API error:", errorData);
@@ -1355,7 +1342,6 @@ export const listingsAPI: ListingsAPI = {
       }
 
       let data = await response.json();
-      
 
       // If data is not in expected format, restructure it
       if (data && typeof data === "object") {
@@ -1376,8 +1362,6 @@ export const listingsAPI: ListingsAPI = {
           };
         }
       }
-
-      
 
       // If no listings found, try a fallback approach
       if (
