@@ -652,11 +652,8 @@ export const listingsAPI: ListingsAPI = {
       // Extract vehicle details if they exist
       const vehicleDetails = parsedDetails.vehicles;
       if (vehicleDetails) {
-        // Remove fields that are not in the Prisma schema
-        delete vehicleDetails.engineSize;
-
         // Ensure numeric fields are properly converted
-        const numericFields = ["year", "mileage", "warranty", "previousOwners"];
+        const numericFields = ["year", "mileage", "previousOwners"];
         numericFields.forEach((field) => {
           if (field in vehicleDetails) {
             vehicleDetails[field] = Number(vehicleDetails[field]);
