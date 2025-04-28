@@ -113,11 +113,11 @@ const EditListing: React.FC = () => {
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section))
+    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
   )
     .filter(
       (sectionId: unknown): sectionId is SectionId =>
-        typeof sectionId === "string" && sectionId in SECTION_CONFIG
+        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
     )
     .map((sectionId: SectionId) => ({
       id: sectionId,
@@ -125,7 +125,7 @@ const EditListing: React.FC = () => {
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
       fields: advancedSchema.filter(
-        (field: ListingFieldSchema) => field.section === sectionId
+        (field: ListingFieldSchema) => field.section === sectionId,
       ),
     }))
     .sort((a, b) => a.order - b.order);
@@ -155,7 +155,7 @@ const EditListing: React.FC = () => {
 
             // Convert image URLs to strings for existing images
             const existingImages = (response.data.images || []).map(
-              (img: any) => (typeof img === "string" ? img : img.url)
+              (img: any) => (typeof img === "string" ? img : img.url),
             );
 
             setFormData({
@@ -212,12 +212,12 @@ const EditListing: React.FC = () => {
       // Add existing images as JSON string
       formDataObj.append(
         "existingImages",
-        JSON.stringify(formData.existingImages)
+        JSON.stringify(formData.existingImages),
       );
 
       // Add new images
       const newImages = formData.images.filter(
-        (img): img is File => img instanceof File
+        (img): img is File => img instanceof File,
       );
       newImages.forEach((image) => {
         formDataObj.append("images", image);
@@ -284,7 +284,7 @@ const EditListing: React.FC = () => {
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[]
+    value: string | number | boolean | string[],
   ) => {
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -317,7 +317,7 @@ const EditListing: React.FC = () => {
           "Setting warranty value:",
           processedValue,
           "type:",
-          typeof processedValue
+          typeof processedValue,
         );
       }
 
@@ -350,7 +350,7 @@ const EditListing: React.FC = () => {
       // If the deleted image was an existing image (string URL), also remove it from existingImages
       if (typeof deletedImage === "string") {
         const newExistingImages = prev.existingImages.filter(
-          (img) => img !== deletedImage
+          (img) => img !== deletedImage,
         );
         return {
           ...prev,
@@ -431,7 +431,7 @@ const EditListing: React.FC = () => {
             </h2>
             <ImageManager
               images={formData.images.filter(
-                (img): img is File => img instanceof File
+                (img): img is File => img instanceof File,
               )}
               onChange={handleImageChange}
               maxImages={10}
@@ -441,7 +441,7 @@ const EditListing: React.FC = () => {
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
                   existingImages: prev.existingImages.filter(
-                    (img) => img !== url
+                    (img) => img !== url,
                   ),
                 }));
               }}
@@ -565,7 +565,7 @@ const EditListing: React.FC = () => {
                     // Skip fields we're now handling separately
                     if (
                       ["transmissionType", "fuelType", "condition"].includes(
-                        field.name
+                        field.name,
                       )
                     ) {
                       return null;

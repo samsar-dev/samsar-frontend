@@ -44,13 +44,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
 
   const handlePrevious = () => {
     setSelectedImage((current) =>
-      current === null || current === 0 ? imageUrls.length - 1 : current - 1
+      current === null || current === 0 ? imageUrls.length - 1 : current - 1,
     );
   };
 
   const handleNext = () => {
     setSelectedImage((current) =>
-      current === null || current === imageUrls.length - 1 ? 0 : current + 1
+      current === null || current === imageUrls.length - 1 ? 0 : current + 1,
     );
   };
 

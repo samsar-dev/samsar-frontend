@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface ResponsiveImageProps {
   src: string;
@@ -8,8 +8,8 @@ interface ResponsiveImageProps {
   priority?: boolean;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   placeholder?: string; // Optional custom placeholder image
-  blur?: boolean;       // Enable blur-up effect
-  fetchPriority?: 'high' | 'low' | 'auto';
+  blur?: boolean; // Enable blur-up effect
+  fetchPriority?: "high" | "low" | "auto";
 }
 
 const DEFAULT_PLACEHOLDER = "/placeholder.jpg";
@@ -17,24 +17,26 @@ const DEFAULT_PLACEHOLDER = "/placeholder.jpg";
 const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   src,
   alt,
-  className = '',
-  sizes = '100vw',
+  className = "",
+  sizes = "100vw",
   priority = false,
   onError,
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
-  fetchPriority = 'auto',
+  fetchPriority = "auto",
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   // Handle Cloudflare R2 URLs
-  const isR2Image = src.includes('r2.dev');
-  const baseUrl = src.split('?')[0];
-  
+  const isR2Image = src.includes("r2.dev");
+  const baseUrl = src.split("?")[0];
+
   // Optimize image quality and format based on priority
   const imageQuality = priority ? 85 : 80;
-  const optimizedSrc = isR2Image ? `${baseUrl}?format=webp&quality=${imageQuality}&width=800` : src;
+  const optimizedSrc = isR2Image
+    ? `${baseUrl}?format=webp&quality=${imageQuality}&width=800`
+    : src;
 
   // Generate responsive URLs for R2 images with optimized quality and format
   const generateSrcSet = () => {
@@ -42,24 +44,24 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
     // Optimize widths based on priority and device sizes
     const widths = priority ? [400, 800, 1200, 1600] : [400, 800, 1200];
     return widths
-      .map(width => {
+      .map((width) => {
         // Higher quality for priority images
         const optimizedUrl = `${baseUrl}?width=${width}&format=webp&quality=${imageQuality}`;
         return `${optimizedUrl} ${width}w`;
       })
-      .join(', ');
+      .join(", ");
   };
-  
+
   // Preload critical images if priority is true
   useEffect(() => {
-    if (priority && typeof window !== 'undefined') {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
+    if (priority && typeof window !== "undefined") {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
       link.href = isR2Image ? `${baseUrl}?format=webp&quality=80` : src;
-      link.fetchPriority = 'high';
+      link.fetchPriority = "high";
       document.head.appendChild(link);
-      
+
       return () => {
         document.head.removeChild(link);
       };
@@ -75,7 +77,7 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   };
 
   // Accessibility: fallback alt, role, tabIndex, aria-label
-  const imgAlt = alt || 'Image';
+  const imgAlt = alt || "Image";
 
   return (
     <div
@@ -108,10 +110,10 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
           srcSet={generateSrcSet()}
           sizes={sizes}
           alt={imgAlt}
-          className={`w-full h-full object-contain transition-opacity duration-500 ${blur && loading ? 'opacity-0' : 'opacity-100'} z-10`}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding={priority ? 'sync' : 'async'}
-          fetchPriority={priority ? 'high' : fetchPriority}
+          className={`w-full h-full object-contain transition-opacity duration-500 ${blur && loading ? "opacity-0" : "opacity-100"} z-10`}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : fetchPriority}
           width="400"
           height="300"
           onLoad={handleLoad}
@@ -122,9 +124,25 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       {/* Spinner overlay when loading and not blur mode */}
       {loading && !blur && !error && (
         <div className="absolute inset-0 flex items-center justify-center z-20">
-          <svg className="animate-spin h-7 w-7 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          <svg
+            className="animate-spin h-7 w-7 text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
           </svg>
         </div>
       )}

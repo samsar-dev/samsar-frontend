@@ -35,7 +35,9 @@ import {
   SECTION_CONFIG,
 } from "../advanced/listingsAdvancedFieldSchema";
 const FormField = lazy(() => import("@/components/common/FormField"));
-const ColorPickerField = lazy(() => import("@/components/listings/forms/ColorPickerField"));
+const ColorPickerField = lazy(
+  () => import("@/components/listings/forms/ColorPickerField"),
+);
 import { toast } from "react-hot-toast";
 
 interface ExtendedFormState extends Omit<FormState, "details"> {
@@ -190,7 +192,7 @@ const FeatureSection: React.FC<{
                   {t(cleanLabel(feature.label))}
                 </label>
               </div>
-            )
+            ),
           )}
         </div>
       )}
@@ -241,7 +243,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
-    new Set(currentSchema.map((field) => field.section))
+    new Set(currentSchema.map((field) => field.section)),
   )
     .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
     .map((sectionId) => ({
@@ -286,7 +288,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[]
+    value: string | number | boolean | string[],
   ) => {
     console.log("[AdvancedDetailsForm] handleInputChange event:", field, value);
     setForm((prevForm) => {
@@ -345,11 +347,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
         }
         return groups;
       },
-      {} as Record<string, ListingFieldSchema[]>
+      {} as Record<string, ListingFieldSchema[]>,
     );
 
     const standardFields = activeFields.filter(
-      (field) => !field.featureCategory
+      (field) => !field.featureCategory,
     );
 
     return (
@@ -373,7 +375,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                     }
                     onChange={handleFeatureChange}
                   />
-                )
+                ),
               );
             }
             if (field.type === "colorpicker") {
@@ -408,7 +410,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                             value: opt.value,
                             label: t(opt.label || `options.${opt.value}`),
                           }
-                        : { value: opt, label: t(`options.${opt}`) }
+                        : { value: opt, label: t(`options.${opt}`) },
                   )}
                   value={
                     isVehicle
@@ -474,13 +476,13 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
       if (!isValid) {
         const missingFields = Object.keys(errors).map(
-          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop()
+          (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop(),
         );
 
         toast.error(
           t("errors.requiredFields", {
             fields: missingFields.join(", "),
-          })
+          }),
         );
 
         setIsSubmitting(false);

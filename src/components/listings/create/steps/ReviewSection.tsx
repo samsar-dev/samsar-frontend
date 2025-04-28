@@ -1,6 +1,8 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 
-const ResponsiveImage = lazy(() => import("@/components/common/ResponsiveImage"));
+const ResponsiveImage = lazy(
+  () => import("@/components/common/ResponsiveImage"),
+);
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
@@ -171,7 +173,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       const subcategory = formData.category?.subCategory || VehicleType.CAR;
       const vehicleSchema = listingsAdvancedFieldSchema[subcategory] || [];
       const requiredVehicleFields = vehicleSchema.filter(
-        (field: ListingFieldSchema) => field.required
+        (field: ListingFieldSchema) => field.required,
       );
 
       requiredVehicleFields.forEach((field: ListingFieldSchema) => {
@@ -194,7 +196,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       const realEstateDetails = formData.details?.realEstate;
       const realEstateSchema = listingsAdvancedFieldSchema["realEstate"] || [];
       const requiredRealEstateFields = realEstateSchema.filter(
-        (field: ListingFieldSchema) => field.required
+        (field: ListingFieldSchema) => field.required,
       );
 
       requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
@@ -265,7 +267,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const renderSection = (
     title: string,
     icon: React.ReactNode,
-    children: React.ReactNode
+    children: React.ReactNode,
   ) => (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 mb-6">
       <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 flex justify-between items-center">
@@ -391,7 +393,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               <div className="font-medium">
                 {formData.details?.vehicles?.transmissionType
                   ? t(
-                      `listings.transmissionTypes.${formData.details.vehicles.transmissionType}`
+                      `listings.transmissionTypes.${formData.details.vehicles.transmissionType}`,
                     )
                   : t("common.notProvided")}
               </div>
@@ -525,7 +527,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               <div className="font-medium">
                 {vehicleDetails.serviceHistory
                   ? t(
-                      `listings.serviceHistory.${vehicleDetails.serviceHistory}`
+                      `listings.serviceHistory.${vehicleDetails.serviceHistory}`,
                     )
                   : t("common.notProvided")}
               </div>
@@ -545,7 +547,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               <div className="font-medium">
                 {vehicleDetails.registrationStatus
                   ? t(
-                      `listings.registrationStatus.${vehicleDetails.registrationStatus}`
+                      `listings.registrationStatus.${vehicleDetails.registrationStatus}`,
                     )
                   : t("common.notProvided")}
               </div>
@@ -569,7 +571,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     >
                       {feature}
                     </span>
-                  )
+                  ),
                 )}
               </div>
             </div>
@@ -707,7 +709,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
   const getCarFieldDisplayValue = (
     field: ListingFieldSchema,
-    vehicleDetails: any
+    vehicleDetails: any,
   ) => {
     const value = vehicleDetails?.[field.name];
     if (field.type === "checkbox" || field.type === "toggle") {
@@ -800,7 +802,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       {renderSection(
         t("common.basicDetails"),
         <FaTag className="w-5 h-5 text-blue-500" />,
-        renderBasicDetails()
+        renderBasicDetails(),
       )}
 
       {/* Listing Action */}
@@ -877,7 +879,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                           {getCarFieldDisplayValue(
                             field,
                             formData.details?.vehicles ||
-                              formData.details?.realEstate
+                              formData.details?.realEstate,
                           )}
                         </span>
                       </div>
@@ -885,7 +887,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   </div>
                 </section>
               )}
-            </>
+            </>,
           )
         : renderSection(
             t("listings.propertyDetails"),
@@ -908,7 +910,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                           {getCarFieldDisplayValue(
                             field,
                             formData.details?.vehicles ||
-                              formData.details?.realEstate
+                              formData.details?.realEstate,
                           )}
                         </span>
                       </div>
@@ -916,16 +918,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                   </div>
                 </section>
               )}
-            </>
+            </>,
           )}
-        
+
       {/* Images */}
       {renderSection(
         t("listings.images"),
-        <FaImages className="w-5 h-5 text-blue-500" />, 
+        <FaImages className="w-5 h-5 text-blue-500" />,
         <Suspense fallback={<div>Loading images...</div>}>
           {renderImages()}
-        </Suspense>
+        </Suspense>,
       )}
 
       {/* Error Messages */}

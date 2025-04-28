@@ -22,12 +22,12 @@ export interface Message {
 
 export interface Conversation {
   _id?: string;
-  id?: string;  // Backend might return id instead of _id
+  id?: string; // Backend might return id instead of _id
   participants: User[];
   lastMessage?: Message;
   createdAt: string;
   updatedAt: string;
-  listingId?: string;  // The listing associated with this conversation
+  listingId?: string; // The listing associated with this conversation
   lastMessageAt?: string; // When the last message was sent
 }
 

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import PreloadImages from '@/components/common/PreloadImages';
-import ResponsiveImage from '@/components/common/ResponsiveImage';
+import PreloadImages from "@/components/common/PreloadImages";
+import ResponsiveImage from "@/components/common/ResponsiveImage";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
@@ -224,23 +224,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   return (
     <motion.div
-  initial={{ opacity: 0, scale: 0.98 }}
-  animate={{ opacity: 1, scale: 1 }}
-  whileHover={{
-    scale: 1.01,
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)"
-  }}
-  transition={{ type: "spring", stiffness: 200, damping: 20 }}
-  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
->
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{
+        scale: 1.01,
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+      }}
+      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
+    >
       {/* Preload the main image for LCP optimization */}
       {mainImage && typeof mainImage === "string" && (
         <PreloadImages imageUrls={[mainImage]} />
       )}
-      <Link
-        to={`/listings/${id}`}
-        className="block h-full"
-      >
+      <Link to={`/listings/${id}`} className="block h-full">
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ResponsiveImage
             src={mainImage as string}

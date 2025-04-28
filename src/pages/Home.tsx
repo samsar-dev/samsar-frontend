@@ -47,7 +47,8 @@ interface ListingsState {
 const Home: React.FC = () => {
   const { t, i18n } = useTranslation("common");
   // Track first visible listing for LCP optimization
-  const [firstVisibleListing, setFirstVisibleListing] = useState<ExtendedListing | null>(null);
+  const [firstVisibleListing, setFirstVisibleListing] =
+    useState<ExtendedListing | null>(null);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES,
@@ -70,36 +71,36 @@ const Home: React.FC = () => {
       abortControllerRef.current.abort();
     };
   }, []);
-  
- // Update first visible listing when listings change and preload critical images
- useEffect(() => {
-  if (listings.all.length > 0) {
-    const firstListing = listings.all[0];
-    setFirstVisibleListing(firstListing);
-    
-    // Preload first few images for better LCP
-    const criticalImages = listings.all
-      .slice(0, 4)
-      .map(listing => listing.images?.[0])
-      .filter(Boolean) as string[];
-    
-    if (criticalImages.length > 0) {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = criticalImages[0];
-      document.head.appendChild(link);
-      
-      // Use PreloadImages component for the rest
-      if (criticalImages.length > 1) {
-        const preloadComponent = document.createElement('div');
-        preloadComponent.style.display = 'none';
-        preloadComponent.innerHTML = `<img src="${criticalImages[0]}" alt="" />`;
-        document.body.appendChild(preloadComponent);
+
+  // Update first visible listing when listings change and preload critical images
+  useEffect(() => {
+    if (listings.all.length > 0) {
+      const firstListing = listings.all[0];
+      setFirstVisibleListing(firstListing);
+
+      // Preload first few images for better LCP
+      const criticalImages = listings.all
+        .slice(0, 4)
+        .map((listing) => listing.images?.[0])
+        .filter(Boolean) as string[];
+
+      if (criticalImages.length > 0) {
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = criticalImages[0];
+        document.head.appendChild(link);
+
+        // Use PreloadImages component for the rest
+        if (criticalImages.length > 1) {
+          const preloadComponent = document.createElement("div");
+          preloadComponent.style.display = "none";
+          preloadComponent.innerHTML = `<img src="${criticalImages[0]}" alt="" />`;
+          document.body.appendChild(preloadComponent);
+        }
       }
     }
-  }
-}, [listings.all]);
+  }, [listings.all]);
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(
@@ -259,7 +260,7 @@ const Home: React.FC = () => {
       if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch listings");
       }
-      
+
       const responseData = response.data; // Assign to a const to avoid null check warnings
       if (!responseData.listings) {
         throw new Error(response.error || "Failed to fetch listings");
@@ -439,7 +440,6 @@ const Home: React.FC = () => {
 
   // Define sort options with translation
   // Log the translations loaded for sortOptions
-  
 
   const sortOptions = [
     {
@@ -502,7 +502,6 @@ const Home: React.FC = () => {
   ];
 
   // Debug logging sort options
-  
 
   const renderContent = useCallback(() => {
     if (listings.loading) {

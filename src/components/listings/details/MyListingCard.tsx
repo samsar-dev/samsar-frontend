@@ -160,7 +160,7 @@ const MyListingCard: React.FC<MyListingCardProps> = ({ listing, onDelete }) => {
               <p>
                 {t("listings.condition")}:{" "}
                 {t(
-                  `listings.conditions.${realEstateDetails.condition.toLowerCase()}`
+                  `listings.conditions.${realEstateDetails.condition.toLowerCase()}`,
                 )}
               </p>
             )}
