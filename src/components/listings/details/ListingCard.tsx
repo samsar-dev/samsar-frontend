@@ -124,8 +124,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
   }, [id, user]);
 
   // Get the main image and determine if this is a high-priority image (first in list)
-  const mainImage = listing?.images?.[0];
-  const isHighPriorityImage = (listing?.id && listing?.images?.length > 0) || false;
+  const mainImage = listing?.image || (images?.[0] && typeof images[0] === 'string' ? images[0] : '/placeholder.jpg');
+  const isHighPriorityImage = (listing?.id && (listing?.image || (images?.[0] && typeof images[0] === 'string'))) || false;
+
+  // Debugging logs
+  if (typeof window !== "undefined") {
+    console.log("[ListingCard Debug] mainImage:", mainImage);
+  }
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();

@@ -482,6 +482,7 @@ export interface Listing {
   };
   location: string;
   images: Array<string | File>;
+  image?: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   userId?: string;

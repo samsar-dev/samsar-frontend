@@ -29,18 +29,18 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   const [error, setError] = useState(false);
 
   // Handle Cloudflare R2 URLs
-  const isR2Image = src.includes("r2.dev");
-  const baseUrl = src.split("?")[0];
+  const isR2Image = src && src.includes("r2.dev");
+  const baseUrl = src ? src.split("?")[0] : "";
 
   // Optimize image quality and format based on priority
   const imageQuality = priority ? 85 : 80;
   const optimizedSrc = isR2Image
     ? `${baseUrl}?format=webp&quality=${imageQuality}&width=800`
-    : src;
+    : src || placeholder;
 
   // Generate responsive URLs for R2 images with optimized quality and format
   const generateSrcSet = () => {
-    if (!isR2Image) return undefined;
+    if (!isR2Image || !baseUrl) return undefined;
     // Optimize widths based on priority and device sizes
     const widths = priority ? [400, 800, 1200, 1600] : [400, 800, 1200];
     return widths
