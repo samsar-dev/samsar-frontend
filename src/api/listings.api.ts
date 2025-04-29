@@ -1,4 +1,5 @@
 import { apiClient } from "./apiClient";
+import { getAuthToken } from "../utils/cookie";
 import type {
   Listing,
   ListingsResponse,
@@ -23,6 +24,7 @@ import {
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { ACTIVE_API_URL as API_URL } from "@/config";
+import TokenManager from "@/utils/tokenManager";
 
 interface FavoriteItem {
   id: string;
@@ -453,38 +455,53 @@ export const listingsAPI: ListingsAPI = {
         queryParams.append("subCategory", params.category.subCategory);
       }
 
-      // Add year filter if present
-      if (params.year !== undefined && params.year !== null) {
-        queryParams.append("year", params.year.toString());
-      }
-
-      // Add vehicle details if present
+      // Add vehicle details filters
       if (params.vehicleDetails?.make) {
         queryParams.append("make", params.vehicleDetails.make);
       }
       if (params.vehicleDetails?.model) {
         queryParams.append("model", params.vehicleDetails.model);
       }
-
-      if (params.sortBy) {
-        const sortMap: Record<string, string> = {
-          newestFirst: "createdAt",
-          priceHighToLow: "price",
-          priceLowToHigh: "price",
-          mostFavorited: "favorites"
-        };
-        queryParams.append("sortBy", sortMap[params.sortBy] || params.sortBy);
+      if (params.year) {
+        queryParams.append("year", params.year.toString());
       }
-      if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-      if (params.limit) queryParams.append("limit", params.limit.toString());
-      if (params.page) queryParams.append("page", params.page.toString());
-      if (params.search) queryParams.append("search", params.search);
-      if (params.minPrice)
+
+      // Add sorting parameters
+      if (params.sortBy) {
+        queryParams.append("sortBy", params.sortBy);
+      }
+      if (params.sortOrder) {
+        queryParams.append("sortOrder", params.sortOrder);
+      }
+
+      // Add pagination and limit
+      if (params.limit) {
+        queryParams.append("limit", params.limit.toString());
+      }
+      if (params.page) {
+        queryParams.append("page", params.page.toString());
+      }
+
+      // Add search query if present
+      if (params.search) {
+        queryParams.append("search", params.search);
+      }
+
+      // Add price filters if present
+      if (params.minPrice) {
         queryParams.append("minPrice", params.minPrice.toString());
-      if (params.maxPrice)
+      }
+      if (params.maxPrice) {
         queryParams.append("maxPrice", params.maxPrice.toString());
-      if (params.location) queryParams.append("location", params.location);
-      if (params.builtYear !== undefined && params.builtYear !== null) {
+      }
+
+      // Add location filter if present
+      if (params.location) {
+        queryParams.append("location", params.location);
+      }
+
+      // Add built year filter if present
+      if (params.builtYear) {
         queryParams.append("builtYear", params.builtYear.toString());
       }
 
@@ -493,7 +510,11 @@ export const listingsAPI: ListingsAPI = {
         queryParams.append("preview", "true");
       }
 
+      // Always include public access parameter
+      queryParams.append("publicAccess", "true");
+
       const response = await fetch(`${API_URL}/listings?${queryParams}`, {
+        method: 'GET',
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -646,7 +667,7 @@ export const listingsAPI: ListingsAPI = {
     formData: FormData,
   ): Promise<APIResponse<Listing>> {
     try {
-      // Get the details from formData
+      // Get the details from formData and parse them
       const details = formData.get("details");
       let parsedDetails;
 

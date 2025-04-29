@@ -1,10 +1,8 @@
 import { AuthTokens } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
-import apiClient from "../api/apiClient";
+import { setAuthToken, getAuthToken, clearAuthToken } from "./cookie";
 
 class TokenManager {
-  private static TOKEN_STORAGE_KEY = "auth_tokens";
-  private static refreshPromise: Promise<boolean> | null = null;
   private static refreshTimeout: NodeJS.Timeout | null = null;
 
   /**
@@ -12,14 +10,10 @@ class TokenManager {
    */
   static async initialize(): Promise<void> {
     try {
-      const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
-      if (tokensRaw) {
-        const tokens = JSON.parse(tokensRaw);
-        if (tokens.accessToken && tokens.refreshToken) {
-          this.setupAuthHeader(tokens.accessToken);
-          // Schedule token refresh
-          this.scheduleTokenRefresh();
-        }
+      const token = getAuthToken();
+      if (token) {
+        // Schedule token refresh
+        this.scheduleTokenRefresh();
       }
     } catch (error) {
       console.error("Error initializing token manager:", error);
@@ -32,8 +26,7 @@ class TokenManager {
       clearTimeout(this.refreshTimeout);
     }
 
-    // Refresh 1 minute before token expires
-    const token = this.getAccessToken();
+    const token = getAuthToken();
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
@@ -56,15 +49,12 @@ class TokenManager {
    * Check if valid tokens exist
    */
   static hasValidTokens(): boolean {
-    const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
-    if (!tokensRaw) return false;
+    const token = getAuthToken();
+    if (!token) return false;
 
     try {
-      const tokens = JSON.parse(tokensRaw);
-      if (!tokens.accessToken || !tokens.refreshToken) return false;
-
       // Check if access token is expired
-      const payload = JSON.parse(atob(tokens.accessToken.split(".")[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       if (payload.exp * 1000 <= Date.now()) {
         // Token is expired, try to refresh
         this.refreshTokens().catch(() => this.clearTokens());
@@ -81,105 +71,36 @@ class TokenManager {
     if (!tokens.accessToken || !tokens.refreshToken) {
       throw new Error("Invalid tokens provided");
     }
-    localStorage.setItem(this.TOKEN_STORAGE_KEY, JSON.stringify(tokens));
-    this.setupAuthHeader(tokens.accessToken);
+    setAuthToken(tokens.accessToken);
     this.scheduleTokenRefresh();
   }
 
   static getAccessToken(): string | null {
-    const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
-    if (!tokensRaw) return null;
-
-    try {
-      const tokens = JSON.parse(tokensRaw);
-      return tokens.accessToken || null;
-    } catch {
-      this.clearTokens();
-      return null;
-    }
-  }
-
-  static getRefreshToken(): string | null {
-    const tokensRaw = localStorage.getItem(this.TOKEN_STORAGE_KEY);
-    if (!tokensRaw) return null;
-
-    try {
-      const tokens = JSON.parse(tokensRaw);
-      return tokens.refreshToken || null;
-    } catch {
-      this.clearTokens();
-      return null;
-    }
+    const token = getAuthToken();
+    return token || null;
   }
 
   static clearTokens(): void {
-    localStorage.removeItem(this.TOKEN_STORAGE_KEY);
-    this.setupAuthHeader(null);
-    if (this.refreshTimeout) {
-      clearTimeout(this.refreshTimeout);
-      this.refreshTimeout = null;
-    }
+    clearAuthToken();
   }
 
-  static setupAuthHeader(token: string | null): void {
-    if (token) {
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete apiClient.defaults.headers.common["Authorization"];
-    }
-  }
-
-  /**
-   * Refresh access token using refresh token
-   */
-  static async refreshTokens(): Promise<boolean> {
-    if (this.refreshPromise) {
-      return this.refreshPromise;
-    }
-
-    this.refreshPromise = (async () => {
-      try {
-        const refreshToken = this.getRefreshToken();
-        if (!refreshToken) {
-          this.clearTokens();
-          return false;
-        }
-
-        const response = await AuthAPI.refreshTokens();
-        if (!response.success || !response.data?.tokens) {
-          this.clearTokens();
-          return false;
-        }
-
+  private static async refreshTokens(): Promise<boolean> {
+    try {
+      const response = await AuthAPI.refreshTokens();
+      if (response.success && response.data && response.data.tokens) {
         this.setTokens(response.data.tokens);
         return true;
-      } catch (error) {
-        console.error("Token refresh failed:", error);
-        this.clearTokens();
-        return false;
-      } finally {
-        this.refreshPromise = null;
       }
-    })();
-
-    return this.refreshPromise;
+      return false;
+    } catch (error) {
+      console.error("Error refreshing tokens:", error);
+      this.clearTokens();
+      return false;
+    }
   }
 
   static isAuthenticated(): boolean {
     return this.hasValidTokens();
-  }
-
-  static needsRefresh(): boolean {
-    const token = this.getAccessToken();
-    if (!token) return false;
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      // Refresh if token expires in less than 5 minutes
-      return payload.exp * 1000 - Date.now() < 300000;
-    } catch {
-      return false;
-    }
   }
 }
 

@@ -61,7 +61,13 @@ class AuthAPI {
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
       const response = await this.retryRequest(
-        () => apiClient.post<AuthResponse>("/auth/login", { email, password }),
+        () =>
+          apiClient.post<AuthResponse>("/auth/login", {
+            email,
+            password,
+          }, {
+            withCredentials: true,
+          }),
         MAX_RETRIES,
         RETRY_DELAY,
         true, // skip429Retry = true for login
@@ -116,22 +122,17 @@ class AuthAPI {
 
   /**
    * Registers a new user
-   * @param email User's email
-   * @param password User's password
-   * @param name User's name
+   * @param user User's registration data
    * @returns Authentication response
    */
-  static async register(
-    email: string,
-    password: string,
-    name: string,
-  ): Promise<AuthResponse> {
+  static async register(user: FormData): Promise<AuthResponse> {
     try {
       const response = await this.retryRequest(() =>
-        apiClient.post<AuthResponse>("/auth/register", {
-          email,
-          password,
-          name,
+        apiClient.post<AuthResponse>("/auth/register", user, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         }),
       );
 
@@ -177,44 +178,20 @@ class AuthAPI {
    */
   static async refreshTokens(): Promise<AuthResponse> {
     try {
-      const refreshToken = TokenManager.getRefreshToken();
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
+      const response = await apiClient.post<AuthResponse>("/auth/refresh", {}, {
+        withCredentials: true,
+      });
 
-      const response = await this.retryRequest(() =>
-        apiClient.post<AuthResponse>("auth/refresh", {
-          refreshToken,
-        }),
-      );
-
-      if (!response.data) {
-        throw new Error("No response data received");
-      }
-
-      if (response.data.success && response.data.data?.tokens) {
+      if (response.data.success && response.data.data && response.data.data.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
       }
 
       return response.data;
     } catch (error: any) {
-      console.error("Token refresh error:", error.response?.data || error);
-
-      if (error.response?.status === 401) {
-        // Clear tokens if they're invalid
-        TokenManager.clearTokens();
-      }
-
-      if (error.response?.data?.error) {
-        return error.response.data;
-      }
-
+      console.error("Token refresh error:", error);
       return {
         success: false,
-        error: {
-          code: "NETWORK_ERROR",
-          message: error.message || "Failed to refresh authentication",
-        },
+        error: error.response?.data?.error || "Token refresh failed",
       };
     }
   }
@@ -225,7 +202,9 @@ class AuthAPI {
    */
   static async logout(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("auth/logout");
+      const response = await apiClient.post<AuthResponse>("auth/logout", null, {
+        withCredentials: true,
+      });
 
       // Clear tokens regardless of response
       TokenManager.clearTokens();
@@ -256,7 +235,9 @@ class AuthAPI {
   static async getMe(): Promise<AuthResponse> {
     try {
       const response = await this.retryRequest(() =>
-        apiClient.get<AuthResponse>("auth/me"),
+        apiClient.get<AuthResponse>("auth/me", {
+          withCredentials: true,
+        }),
       );
 
       if (!response.data) {
@@ -308,7 +289,7 @@ class UserAPI extends AuthAPI {
           data,
           // Ensure Content-Type is not set so browser/axios sets multipart/form-data
           data instanceof FormData
-            ? { headers: { "Content-Type": undefined } }
+            ? { headers: { "Content-Type": undefined }, withCredentials: true }
             : undefined,
         ),
       );
@@ -357,6 +338,7 @@ class UserAPI extends AuthAPI {
         apiClient.put<{ success: boolean; data: AuthUser }>(
           "users/settings",
           settings,
+          { withCredentials: true },
         ),
       );
       return response.data;

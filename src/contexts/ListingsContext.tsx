@@ -67,7 +67,7 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
       const response = await listingsAPI.getUserListings();
 
       if (response.success) {
-        setUserListings(response.data?.items || []);
+        setUserListings(response.data?.listings || []);
       } else {
         throw new Error(response.error || "Failed to fetch user listings");
       }

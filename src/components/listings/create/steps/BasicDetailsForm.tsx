@@ -329,19 +329,26 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       // Check file size and type
       const validFiles = fileArray.filter((file) => {
-        const isValidType = ["image/jpeg", "image/png", "image/webp"].includes(
+        const isValidType = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
           file.type,
         );
-        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB max
+        const isValidSize = file.size <= 10 * 1024 * 1024; // Increased to 10MB max
+        const isMinimumSize = file.size >= 50 * 1024; // Minimum 50KB
 
         if (!isValidType) {
           console.error(`Invalid file type: ${file.type}`);
+          return false;
         }
         if (!isValidSize) {
           console.error(`File too large: ${file.size / (1024 * 1024)}MB`);
+          return false;
+        }
+        if (!isMinimumSize) {
+          console.error(`File too small: ${file.size / 1024}KB`);
+          return false;
         }
 
-        return isValidType && isValidSize;
+        return true;
       });
 
       if (validFiles.length < fileArray.length) {
@@ -349,11 +356,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         setErrors((prev) => ({
           ...prev,
           images:
-            "Some files were rejected. Please use JPEG or PNG images under 5MB.",
+            "Please use image files between 50KB and 10MB. Supported formats: JPEG, PNG, WEBP, GIF.",
         }));
+        return;
       }
-
-      console.log(`${validFiles.length} valid files to be added`);
 
       // Update the form data with the new images
       const newImages = [...(formData?.images || []), ...validFiles];
