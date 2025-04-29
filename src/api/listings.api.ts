@@ -466,7 +466,15 @@ export const listingsAPI: ListingsAPI = {
         queryParams.append("model", params.vehicleDetails.model);
       }
 
-      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.sortBy) {
+        const sortMap: Record<string, string> = {
+          newestFirst: "createdAt",
+          priceHighToLow: "price",
+          priceLowToHigh: "price",
+          mostFavorited: "favorites"
+        };
+        queryParams.append("sortBy", sortMap[params.sortBy] || params.sortBy);
+      }
       if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.page) queryParams.append("page", params.page.toString());
@@ -1162,8 +1170,10 @@ export const listingsAPI: ListingsAPI = {
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Log the FormData contents before sending
-
+      console.log("Sending FormData to server:");
       for (const pair of formData.entries()) {
+        const [key, value] = pair;
+        console.log(`${key}:`, value instanceof File ? `File: ${value.name}` : value);
       }
 
       const response = await fetch(`${API_URL}/listings`, {

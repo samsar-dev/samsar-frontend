@@ -37,7 +37,7 @@ const initialFormState: FormState = {
       vehicleType: VehicleType.CAR,
       make: "",
       model: "",
-      year: new Date().getFullYear(),
+      year: new Date().getFullYear().toString(),
       mileage: 0,
       fuelType: "",
       transmissionType: TransmissionType.AUTOMATIC,
@@ -133,19 +133,19 @@ export const useCreateListing = (): UseCreateListingReturn => {
         missingFields.push("details.vehicles");
       } else {
         const vehicleFields = {
-          make: vehicles.make?.trim(),
-          model: vehicles.model?.trim(),
-          year: vehicles.year?.trim(),
-          mileage: vehicles.mileage?.trim(),
+          make: vehicles.make,
+          model: vehicles.model,
+          year: vehicles.year,
+          mileage: vehicles.mileage,
           fuelType: vehicles.fuelType,
           transmissionType: vehicles.transmissionType,
-          color: vehicles.color?.trim(),
+          color: vehicles.color,
           condition: vehicles.condition,
-          interiorColor: vehicles.interiorColor?.trim(),
-          warranty: vehicles.warranty?.toString()?.trim(),
-          serviceHistory: vehicles.serviceHistory?.trim(),
+          interiorColor: vehicles.interiorColor,
+          warranty: vehicles.warranty?.toString(),
+          serviceHistory: vehicles.serviceHistory?.toString(),
           previousOwners: vehicles.previousOwners,
-          registrationStatus: vehicles.registrationStatus?.trim(),
+          registrationStatus: vehicles.registrationStatus?.toString(),
         };
 
         // Log vehicle field values
@@ -166,10 +166,10 @@ export const useCreateListing = (): UseCreateListingReturn => {
       } else {
         const realEstateFields = {
           propertyType: realEstate.propertyType,
-          size: realEstate.size?.trim(),
-          yearBuilt: realEstate.yearBuilt?.trim(),
-          bedrooms: realEstate.bedrooms?.trim(),
-          bathrooms: realEstate.bathrooms?.trim(),
+          size: realEstate.size,
+          yearBuilt: realEstate.yearBuilt,
+          bedrooms: realEstate.bedrooms,
+          bathrooms: realEstate.bathrooms,
           condition: realEstate.condition,
         };
 
@@ -317,7 +317,8 @@ export const useCreateListing = (): UseCreateListingReturn => {
         if (data.images && data.images.length > 0) {
           data.images.forEach((image, index) => {
             if (image instanceof File) {
-              formData.append(`images`, image);
+              // Use a unique field name for each image with index
+              formData.append(`image_${index}`, image);
             }
           });
         }
@@ -325,7 +326,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         // Log the FormData entries for debugging
         console.log("FormData entries:");
         for (const [key, value] of formData.entries()) {
-          console.log(`${key}:`, value);
+          console.log(`${key}:`, value instanceof File ? `File: ${value.name}` : value);
         }
 
         // Submit the form data
