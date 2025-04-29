@@ -4,6 +4,7 @@ import type {
   AuthUser,
   AuthTokens,
   AuthError,
+  AuthErrorCode,
 } from "../types/auth.types";
 import TokenManager from "../utils/tokenManager";
 import { toast } from "react-toastify";
@@ -49,6 +50,26 @@ class AuthAPI {
         );
       }
       throw error;
+    }
+  }
+
+  static async verifyToken(token: string): Promise<{ success: boolean; error?: AuthError }> {
+    try {
+      await apiClient.get('/auth/verify-token', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return { success: true };
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Token verification failed';
+      return { 
+        success: false, 
+        error: { 
+          code: 'TOKEN_EXPIRED' as AuthErrorCode, 
+          message: errorMessage 
+        } 
+      };
     }
   }
 
@@ -178,7 +199,14 @@ class AuthAPI {
    */
   static async refreshTokens(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/refresh", {}, {
+      const storedTokens = TokenManager.getTokens();
+      if (!storedTokens?.refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await apiClient.post<AuthResponse>("/auth/refresh", {
+        refreshToken: storedTokens.refreshToken,
+      }, {
         withCredentials: true,
       });
 
@@ -189,9 +217,14 @@ class AuthAPI {
       return response.data;
     } catch (error: any) {
       console.error("Token refresh error:", error);
+      // Clear tokens on refresh failure
+      TokenManager.clearTokens();
       return {
         success: false,
-        error: error.response?.data?.error || "Token refresh failed",
+        error: {
+          code: "TOKEN_EXPIRED" as AuthErrorCode,
+          message: error.response?.data?.error || "Token refresh failed",
+        },
       };
     }
   }

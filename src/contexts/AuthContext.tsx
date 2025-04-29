@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { AuthAPI } from "../api/auth.api";
 import TokenManager from "../utils/tokenManager";
 import type {
@@ -28,6 +28,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setState((prev) => ({ ...prev, error: null, retryAfter: null }));
   };
 
+  const updateAuthUser = (userData: AuthState["user"]) => {
+    setState((prev) => ({
+      ...prev,
+      user: userData,
+      error: null,
+      retryAfter: null,
+    }));
+  };
+
   const handleAuthError = (error: AuthError | null) => {
     if (error?.code === "RATE_LIMIT") {
       toast.error(error.message);
@@ -45,10 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const checkAuth = async () => {
     try {
       // Initialize token manager first
-      await TokenManager.initialize();
-
-      // If we don't have valid tokens, just mark as not authenticated
-      if (!TokenManager.hasValidTokens()) {
+      const initialized = await TokenManager.initialize();
+      if (!initialized) {
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -59,54 +66,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      // Try to refresh the token if needed
-      const needsRefresh = TokenManager.needsRefresh();
-      if (needsRefresh) {
-        const refreshed = await TokenManager.refreshTokens();
-        if (!refreshed) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            isAuthenticated: false,
-            user: null,
-          }));
-          setIsInitialized(true);
-          return;
-        }
-      }
-
+      // Try to get user info
       const response = await AuthAPI.getMe();
 
       if (!response?.success || !response?.data) {
-        TokenManager.clearTokens();
+        // Only clear tokens if we're sure the error is auth-related
+        if (response?.error?.code === 'UNAUTHORIZED' || response?.error?.code === 'TOKEN_EXPIRED') {
+          TokenManager.clearTokens();
+        }
         setState((prev) => ({
           ...prev,
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: null,
+          error: response?.error || null,
         }));
         setIsInitialized(true);
         return;
       }
 
       const { user } = response.data as { user: AuthState["user"] };
-
-      if (!user) {
-        TokenManager.clearTokens();
-        setState((prev) => ({
-          ...prev,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: {
-            code: "INVALID_RESPONSE",
-            message: "Invalid user data received",
-          },
-        }));
-        setIsInitialized(true);
-        return;
-      }
 
       setState((prev) => ({
         ...prev,
@@ -119,7 +98,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsInitialized(true);
     } catch (error) {
       console.error("Auth check error:", error);
-      TokenManager.clearTokens();
+      // Only clear tokens for specific error types
+      if (error instanceof Error && 
+          (error.message.includes('token') || error.message.includes('unauthorized'))) {
+        TokenManager.clearTokens();
+      }
       setState((prev) => ({
         ...prev,
         user: null,
@@ -127,8 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading: false,
         error: {
           code: "NETWORK_ERROR",
-          message:
-            error instanceof Error ? error.message : "Failed to authenticate",
+          message: error instanceof Error ? error.message : "Failed to authenticate",
         },
       }));
       setIsInitialized(true);
@@ -217,7 +199,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const response = await AuthAPI.register(username, email, password);
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+      const response = await AuthAPI.register(formData);
 
       if (!response?.success) {
         handleAuthError(response?.error || null);
@@ -280,12 +266,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     ...state,
     login,
     register,
     logout,
     clearError,
+    updateAuthUser,
     isInitialized,
   };
 

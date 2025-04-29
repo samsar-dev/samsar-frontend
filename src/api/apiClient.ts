@@ -75,21 +75,29 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshed = await TokenManager.refreshTokens();
-        if (refreshed) {
-          const newToken = TokenManager.getAccessToken();
-          if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return apiClient(originalRequest);
-          }
+        if (!refreshed) {
+          // Only clear and redirect if refresh explicitly failed
+          TokenManager.clearTokens();
+          window.location.href = "/login";
+          return Promise.reject(error);
         }
+        
+        const newToken = TokenManager.getAccessToken();
+        if (!newToken) {
+          // Something went wrong with token storage
+          TokenManager.clearTokens();
+          window.location.href = "/login";
+          return Promise.reject(error);
+        }
+        
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return apiClient(originalRequest);
       } catch (refreshError) {
+        console.error("Token refresh error:", refreshError);
         TokenManager.clearTokens();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }
-      TokenManager.clearTokens();
-      window.location.href = "/login";
-      return Promise.reject(error);
     }
     // For public endpoints or other errors, just reject
     return Promise.reject(error);
