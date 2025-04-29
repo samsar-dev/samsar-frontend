@@ -17,7 +17,7 @@ export interface APIResponse<T = any> {
   };
 }
 
-interface RequestConfig extends InternalAxiosRequestConfig {
+export interface RequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
   requiresAuth?: boolean;
 }
