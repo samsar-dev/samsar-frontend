@@ -77,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Try to get user info
       const response = await AuthAPI.getMe();
+      console.log("Auth Response >>>>>>>>>>>>>>>>>>>>>", response);
       if (!response?.success || !response?.data) {
         // Try to refresh tokens before failing
         const refreshed = await TokenManager.refreshTokensWithFallback();
@@ -95,7 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      const { user } = response.data as { user: AuthState["user"] };
+      const user = response.data as AuthState["user"];
+      console.log("Authenticated user:>>>>>>>>>>>>>>>>>>>>", user);
 
       setState((prev) => ({
         ...prev,

@@ -5,7 +5,7 @@ import type {
   AuthErrorCode,
   AuthUser,
   // AuthTokens is used by TokenManager.setTokens
-  AuthTokens
+  AuthTokens,
 } from "../types/auth.types";
 
 import TokenManager from "../utils/tokenManager";
@@ -34,7 +34,7 @@ class AuthAPI {
     requestFn: () => Promise<AxiosResponse<T>>,
     retries = MAX_RETRIES,
     delay = RETRY_DELAY,
-    skip429Retry = false,
+    skip429Retry = false
   ): Promise<AxiosResponse<T>> {
     try {
       // Attempt the request
@@ -44,10 +44,10 @@ class AuthAPI {
       if (!axios.isAxiosError(error)) {
         throw error; // Not an Axios error, just rethrow
       }
-      
+
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status;
-      
+
       // Handle 401 Unauthorized with token refresh
       if (status === 401 && retries > 0) {
         try {
@@ -81,11 +81,11 @@ class AuthAPI {
         if (skip429Retry) {
           throw axiosError;
         }
-        
+
         // Calculate retry delay based on Retry-After header if available
         let retryAfter = delay;
-        const retryAfterHeader = axiosError.response?.headers?.['retry-after'];
-        
+        const retryAfterHeader = axiosError.response?.headers?.["retry-after"];
+
         if (retryAfterHeader) {
           // Parse retry-after header (can be seconds or date)
           if (!isNaN(Number(retryAfterHeader))) {
@@ -97,10 +97,10 @@ class AuthAPI {
             retryAfter = Math.max(0, retryDate - Date.now()); // Ensure non-negative
           }
         }
-        
+
         // Wait for the calculated time before retrying
         await wait(retryAfter);
-        
+
         // Retry with exponential backoff
         return AuthAPI.retryRequest(
           requestFn,
@@ -109,35 +109,9 @@ class AuthAPI {
           skip429Retry
         );
       }
-      
+
       // For all other errors, just throw
       throw axiosError;
-    }
-  }
-
-  /**
-   * Verifies if a token is valid
-   * @param token JWT token to verify
-   * @returns Promise with success status and optional error
-   */
-  static async verifyToken(token: string): Promise<{ success: boolean; error?: AuthError }> {
-    try {
-      await apiClient.get('/auth/verify-token', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return { success: true };
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      const errorMessage = (axiosError.response?.data as any)?.message || 'Token verification failed';
-      return { 
-        success: false, 
-        error: { 
-          code: 'TOKEN_EXPIRED' as AuthErrorCode, 
-          message: errorMessage 
-        } 
-      };
     }
   }
 
@@ -149,7 +123,7 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', {
+      const response = await apiClient.post<AuthResponse>("/auth/login", {
         email,
         password,
       });
@@ -162,17 +136,17 @@ class AuthAPI {
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error("Login error:", axiosError.response?.data || axiosError);
-      
+
       if (axiosError.response?.data) {
         return axiosError.response.data as AuthResponse;
       }
-      
+
       return {
         success: false,
         error: {
-          code: 'NETWORK_ERROR' as AuthErrorCode,
-          message: axiosError.message || 'Failed to connect to server'
-        }
+          code: "NETWORK_ERROR" as AuthErrorCode,
+          message: axiosError.message || "Failed to connect to server",
+        },
       };
     }
   }
@@ -200,7 +174,10 @@ class AuthAPI {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error("Registration error:", axiosError.response?.data || axiosError);
+      console.error(
+        "Registration error:",
+        axiosError.response?.data || axiosError
+      );
 
       if (axiosError.response?.status === 429) {
         return {
@@ -220,7 +197,40 @@ class AuthAPI {
         success: false,
         error: {
           code: "NETWORK_ERROR" as AuthErrorCode,
-          message: axiosError instanceof Error ? axiosError.message : "Failed to connect to server",
+          message:
+            axiosError instanceof Error
+              ? axiosError.message
+              : "Failed to connect to server",
+        },
+      };
+    }
+  }
+
+  /**
+   * Verifies if a token is valid
+   * @param token JWT token to verify
+   * @returns Promise with success status and optional error
+   */
+  static async verifyToken(
+    token: string
+  ): Promise<{ success: boolean; error?: AuthError }> {
+    try {
+      await apiClient.get("/auth/verify-token", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const errorMessage =
+        (axiosError.response?.data as any)?.message ||
+        "Token verification failed";
+      return {
+        success: false,
+        error: {
+          code: "TOKEN_EXPIRED" as AuthErrorCode,
+          message: errorMessage,
         },
       };
     }
@@ -238,19 +248,23 @@ class AuthAPI {
         return {
           success: false,
           error: {
-            code: 'NO_REFRESH_TOKEN' as AuthErrorCode,
-            message: 'No refresh token available'
-          }
+            code: "NO_REFRESH_TOKEN" as AuthErrorCode,
+            message: "No refresh token available",
+          },
         };
       }
 
       // Attempt to refresh with the token
-      const response = await apiClient.post<AuthResponse>('/auth/refresh', {
-        refreshToken: tokens.refreshToken,
-      }, {
-        // Don't retry this request if it fails with 401
-        withCredentials: true
-      });
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/refresh",
+        {
+          refreshToken: tokens.refreshToken,
+        },
+        {
+          // Don't retry this request if it fails with 401
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success && response.data.data?.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
@@ -259,13 +273,13 @@ class AuthAPI {
       return response.data;
     } catch (error) {
       const axiosError = error as Error;
-      console.error('Token refresh error:', axiosError);
+      console.error("Token refresh error:", axiosError);
       return {
         success: false,
         error: {
-          code: 'REFRESH_FAILED' as AuthErrorCode,
-          message: axiosError.message || 'Failed to refresh token'
-        }
+          code: "REFRESH_FAILED" as AuthErrorCode,
+          message: axiosError.message || "Failed to refresh token",
+        },
       };
     }
   }
@@ -276,17 +290,23 @@ class AuthAPI {
    */
   static async logout(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/logout", null, {
-        withCredentials: true,
-      });
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/logout",
+        null,
+        {
+          withCredentials: true,
+        }
+      );
 
       // Clear tokens regardless of response
       TokenManager.clearTokens();
 
-      return response.data || {
-        success: true,
-        data: { message: "Logged out successfully" },
-      };
+      return (
+        response.data || {
+          success: true,
+          data: { message: "Logged out successfully" },
+        }
+      );
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error("Logout error:", axiosError.response?.data || axiosError);
@@ -309,7 +329,7 @@ class AuthAPI {
     try {
       const response = await AuthAPI.retryRequest(() =>
         apiClient.get<AuthResponse>("/auth/me", {
-          withCredentials: true
+          withCredentials: true,
         })
       );
 
@@ -320,7 +340,10 @@ class AuthAPI {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error("Get profile error:", axiosError.response?.data || axiosError);
+      console.error(
+        "Get profile error:",
+        axiosError.response?.data || axiosError
+      );
 
       // Check if we need to refresh token
       if (axiosError.response?.status === 401) {
@@ -331,23 +354,23 @@ class AuthAPI {
             // Retry the request
             return await AuthAPI.getMe();
           }
-          
+
           // If refresh failed, return the error without clearing tokens immediately
           return {
             success: false,
             error: {
-              code: 'REFRESH_FAILED' as AuthErrorCode,
-              message: 'Failed to refresh token. Please try again.'
-            }
+              code: "REFRESH_FAILED" as AuthErrorCode,
+              message: "Failed to refresh token. Please try again.",
+            },
           };
         } catch (refreshError) {
-          console.error('Error refreshing tokens during getMe:', refreshError);
+          console.error("Error refreshing tokens during getMe:", refreshError);
           return {
             success: false,
             error: {
-              code: 'REFRESH_FAILED' as AuthErrorCode,
-              message: 'Failed to refresh token. Please try again.'
-            }
+              code: "REFRESH_FAILED" as AuthErrorCode,
+              message: "Failed to refresh token. Please try again.",
+            },
           };
         }
       }
@@ -356,10 +379,15 @@ class AuthAPI {
       return {
         success: false,
         error: {
-          code: ((error as AxiosError).response?.data as any)?.error?.code || 'UNKNOWN_ERROR' as AuthErrorCode,
-          message: ((error as AxiosError).response?.data as any)?.error?.message || 
-                  (error instanceof Error ? error.message : 'Failed to get user profile')
-        }
+          code:
+            ((error as AxiosError).response?.data as any)?.error?.code ||
+            ("UNKNOWN_ERROR" as AuthErrorCode),
+          message:
+            ((error as AxiosError).response?.data as any)?.error?.message ||
+            (error instanceof Error
+              ? error.message
+              : "Failed to get user profile"),
+        },
       };
     }
   }

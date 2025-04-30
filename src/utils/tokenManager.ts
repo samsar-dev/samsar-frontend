@@ -43,6 +43,7 @@ export class TokenManager {
 
       // If we have a token from cookie, verify it's valid
       const isValid = await this.verifyTokenValidity(token);
+      console.log("isValid>>>>>>>>>>>>>>>>>", isValid);
       if (!isValid) {
         // If token is invalid, try to refresh it
         const refreshed = await this.refreshTokens();
