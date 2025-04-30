@@ -3,13 +3,7 @@ import MyListingCard from "@/components/listings/details/MyListingCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -68,7 +62,7 @@ export default function MyListings({ userId }: MyListingsProps) {
 
       const response = await listingsAPI.getUserListings(
         { page, limit },
-        signal,
+        signal
       );
 
       // Cancel if this is not the latest request
@@ -80,7 +74,7 @@ export default function MyListings({ userId }: MyListingsProps) {
 
         // Only reset listings on first page
         setListings((prev) =>
-          page === 1 ? listingsData : [...prev, ...listingsData],
+          page === 1 ? listingsData : [...prev, ...listingsData]
         );
         setTotal(totalItems);
         setHasMore(listingsData.length === limit);
@@ -149,7 +143,7 @@ export default function MyListings({ userId }: MyListingsProps) {
         toast.success(t("listings.deleted"));
         // Remove the deleted listing from the current state
         setListings((prev) =>
-          prev.filter((listing) => listing.id !== listingId),
+          prev.filter((listing) => listing.id !== listingId)
         );
         setTotal((prev) => prev - 1);
       } else {
@@ -158,7 +152,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     } catch (err) {
       console.error("Error deleting listing:", err);
       toast.error(
-        err instanceof Error ? err.message : t("listings.delete_error"),
+        err instanceof Error ? err.message : t("listings.delete_error")
       );
     }
   };

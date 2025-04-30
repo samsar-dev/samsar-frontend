@@ -1,29 +1,25 @@
-import { apiClient } from "./apiClient";
+import { ACTIVE_API_URL as API_URL } from "@/config";
+import {
+  Condition,
+  ListingAction,
+  ListingCategory,
+  TransmissionType,
+  VehicleType,
+} from "@/types/enums";
+import type { FormState } from "@/types/forms";
 import type {
   Listing,
-  ListingsResponse,
   ListingDetails,
+  ListingsResponse,
+  PropertyType,
+  RealEstateDetails,
   TractorDetails,
   VehicleDetails,
-  RealEstateDetails,
-  PropertyType,
-  HouseDetails,
-  ApartmentDetails,
-  LandDetails,
 } from "@/types/listings";
 import type { ListingParams } from "@/types/params";
 import { AxiosError } from "axios";
-import {
-  ListingCategory,
-  Condition,
-  VehicleType,
-  ListingAction,
-  TransmissionType,
-  FuelType,
-} from "@/types/enums";
-import type { FormState } from "@/types/forms";
-import { ACTIVE_API_URL as API_URL } from "@/config";
 import type { RequestConfig } from "./apiClient"; // Add this import
+import { apiClient } from "./apiClient";
 
 interface FavoriteItem {
   id: string;
@@ -103,7 +99,7 @@ export interface ListingCreateInput extends Omit<FormState, "images"> {
 }
 
 export const createListing = async (
-  formData: FormData,
+  formData: FormData
 ): Promise<APIResponse<SingleListingResponse>> => {
   try {
     // Log the form data for debugging
@@ -230,12 +226,12 @@ export const createListing = async (
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        requiresAuth: true // Add this to ensure auth token is sent
+        requiresAuth: true, // Add this to ensure auth token is sent
       } as RequestConfig);
 
       if (!response.data.success) {
         throw new Error(
-          response.data.error?.message || "Failed to create listing",
+          response.data.error?.message || "Failed to create listing"
         );
       }
 
@@ -250,7 +246,7 @@ export const createListing = async (
       throw new Error("Please log in to create a listing");
     }
     throw new Error(
-      error instanceof Error ? error.message : "Failed to create listing",
+      error instanceof Error ? error.message : "Failed to create listing"
     );
   }
 };
@@ -301,7 +297,7 @@ const getCacheKey = (params: ListingParams, customKey?: string) => {
         }
         return acc;
       },
-      {} as Record<string, any>,
+      {} as Record<string, any>
     );
 
   return customKey || JSON.stringify(sortedParams);
@@ -323,7 +319,7 @@ const setInCache = (key: string, data: any) => {
   // Limit cache size to prevent memory issues
   if (cache.size > 100) {
     const oldestKey = Array.from(cache.entries()).sort(
-      ([, a], [, b]) => a.timestamp - b.timestamp,
+      ([, a], [, b]) => a.timestamp - b.timestamp
     )[0][0];
     cache.delete(oldestKey);
   }
@@ -334,17 +330,17 @@ const setInCache = (key: string, data: any) => {
 interface ListingsAPI {
   getSavedListings(
     userId?: string,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<any>>;
   getAll(
     params: ListingParams,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<ListingsResponse>>;
   getVehicleListings(
-    params: ListingParams,
+    params: ListingParams
   ): Promise<APIResponse<ListingsResponse>>;
   getRealEstateListings(
-    params: ListingParams,
+    params: ListingParams
   ): Promise<APIResponse<ListingsResponse>>;
   getListing(id: string): Promise<APIResponse<Listing>>;
   updateListing(id: string, formData: FormData): Promise<APIResponse<Listing>>;
@@ -354,23 +350,23 @@ interface ListingsAPI {
   removeFavorite(listingId: string): Promise<APIResponse<void>>;
   getUserListings(
     params?: ListingParams,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<UserListingsResponse>>;
   getById(id: string): Promise<APIResponse<Listing>>;
   create(formData: FormData): Promise<APIResponse<SingleListingResponse>>;
   update(
     id: string,
-    formData: FormData,
+    formData: FormData
   ): Promise<APIResponse<SingleListingResponse>>;
   delete(id: string): Promise<APIResponse<void>>;
   search(
     query: string,
-    params?: ListingParams,
+    params?: ListingParams
   ): Promise<APIResponse<ListingsResponse>>;
   getTrending(limit?: number): Promise<APIResponse<Listing>>;
   getListingsByIds(ids: string[]): Promise<APIResponse<Listing>>;
   getListingsByCategory(
-    category: ListingCategory,
+    category: ListingCategory
   ): Promise<APIResponse<Listing>>;
   getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>>;
 }
@@ -379,7 +375,7 @@ export const listingsAPI: ListingsAPI = {
   // Get saved listings with abort signal support
   async getSavedListings(
     userId?: string,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<any>> {
     try {
       // Check if user is authenticated
@@ -434,7 +430,7 @@ export const listingsAPI: ListingsAPI = {
   },
   async getAll(
     params: ListingParams,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<ListingsResponse>> {
     const cacheKey = getCacheKey(params);
     const cached = getFromCache(cacheKey);
@@ -473,7 +469,7 @@ export const listingsAPI: ListingsAPI = {
           newestFirst: "createdAt",
           priceHighToLow: "price",
           priceLowToHigh: "price",
-          mostFavorited: "favorites"
+          mostFavorited: "favorites",
         };
         queryParams.append("sortBy", sortMap[params.sortBy] || params.sortBy);
       }
@@ -591,12 +587,12 @@ export const listingsAPI: ListingsAPI = {
   },
 
   async getVehicleListings(
-    params: ListingParams,
+    params: ListingParams
   ): Promise<APIResponse<ListingsResponse>> {
     try {
       const response = await apiClient.get<ListingsResponse>(
         `/listings/vehicles`,
-        { params },
+        { params }
       );
       return { success: true, data: response.data };
     } catch (error) {
@@ -610,12 +606,12 @@ export const listingsAPI: ListingsAPI = {
   },
 
   async getRealEstateListings(
-    params: ListingParams,
+    params: ListingParams
   ): Promise<APIResponse<ListingsResponse>> {
     try {
       const response = await apiClient.get<ListingsResponse>(
         `/listings/real-estate`,
-        { params },
+        { params }
       );
       return { success: true, data: response.data };
     } catch (error) {
@@ -637,7 +633,7 @@ export const listingsAPI: ListingsAPI = {
     } catch (error) {
       console.error("Error fetching listing:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to fetch listing",
+        error instanceof Error ? error.message : "Failed to fetch listing"
       );
     }
   },
@@ -645,7 +641,7 @@ export const listingsAPI: ListingsAPI = {
   // Update a listing
   async updateListing(
     id: string,
-    formData: FormData,
+    formData: FormData
   ): Promise<APIResponse<Listing>> {
     try {
       // Get the details from formData
@@ -676,7 +672,7 @@ export const listingsAPI: ListingsAPI = {
           JSON.stringify({
             ...parsedDetails,
             vehicles: vehicleDetails,
-          }),
+          })
         );
       }
 
@@ -735,7 +731,7 @@ export const listingsAPI: ListingsAPI = {
     } catch (error) {
       console.error("Error saving listing:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to save listing",
+        error instanceof Error ? error.message : "Failed to save listing"
       );
     }
   },
@@ -757,7 +753,7 @@ export const listingsAPI: ListingsAPI = {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
+          errorData.error || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -766,7 +762,7 @@ export const listingsAPI: ListingsAPI = {
     } catch (error) {
       console.error("Error adding favorite:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to add favorite",
+        error instanceof Error ? error.message : "Failed to add favorite"
       );
     }
   },
@@ -775,13 +771,13 @@ export const listingsAPI: ListingsAPI = {
   async removeFavorite(listingId: string): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.delete<APIResponse<void>>(
-        `/listings/saved/${listingId}`,
+        `/listings/saved/${listingId}`
       );
       return response.data;
     } catch (error) {
       console.error("Error removing favorite:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to remove favorite",
+        error instanceof Error ? error.message : "Failed to remove favorite"
       );
     }
   },
@@ -789,7 +785,7 @@ export const listingsAPI: ListingsAPI = {
   // Get user listings with abort signal support
   async getUserListings(
     params?: ListingParams,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<APIResponse<UserListingsResponse>> {
     try {
       // Check if user is authenticated
@@ -812,7 +808,7 @@ export const listingsAPI: ListingsAPI = {
 
       const response = await apiClient.get<APIResponse<UserListingsResponse>>(
         `/listings/user${queryString ? `?${queryString}` : ""}`,
-        requestConfig,
+        requestConfig
       );
 
       return response.data;
@@ -1132,7 +1128,7 @@ export const listingsAPI: ListingsAPI = {
         category: responseData.category,
         location: responseData.location,
         images: responseData.images.map((img) =>
-          typeof img === "string" ? img : img.url,
+          typeof img === "string" ? img : img.url
         ),
         createdAt: responseData.createdAt,
         updatedAt: responseData.updatedAt,
@@ -1168,14 +1164,17 @@ export const listingsAPI: ListingsAPI = {
 
   // Create new listing
   async create(
-    formData: FormData,
+    formData: FormData
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Log the FormData contents before sending
       console.log("Sending FormData to server:");
       for (const pair of formData.entries()) {
         const [key, value] = pair;
-        console.log(`${key}:`, value instanceof File ? `File: ${value.name}` : value);
+        console.log(
+          `${key}:`,
+          value instanceof File ? `File: ${value.name}` : value
+        );
       }
 
       const response = await fetch(`${API_URL}/listings`, {
@@ -1217,7 +1216,7 @@ export const listingsAPI: ListingsAPI = {
   // Update listing
   async update(
     id: string,
-    formData: FormData,
+    formData: FormData
   ): Promise<APIResponse<SingleListingResponse>> {
     try {
       // Get the details from formData and parse them
@@ -1231,7 +1230,7 @@ export const listingsAPI: ListingsAPI = {
 
           // Ensure required tractor fields
           tractorDetails.horsepower = parseInt(
-            tractorDetails.horsepower?.toString() || "",
+            tractorDetails.horsepower?.toString() || ""
           );
           tractorDetails.attachments = tractorDetails.attachments || [];
           tractorDetails.fuelTankCapacity =
@@ -1244,7 +1243,7 @@ export const listingsAPI: ListingsAPI = {
             JSON.stringify({
               ...details,
               vehicles: tractorDetails,
-            }),
+            })
           );
         }
       }
@@ -1260,7 +1259,7 @@ export const listingsAPI: ListingsAPI = {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
+          errorData.error || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -1269,7 +1268,7 @@ export const listingsAPI: ListingsAPI = {
     } catch (error) {
       console.error("Error updating listing:", error);
       throw new Error(
-        error instanceof Error ? error.message : "Failed to update listing",
+        error instanceof Error ? error.message : "Failed to update listing"
       );
     }
   },
@@ -1295,7 +1294,7 @@ export const listingsAPI: ListingsAPI = {
   // Search listings
   async search(
     query: string,
-    params?: ListingParams,
+    params?: ListingParams
   ): Promise<APIResponse<ListingsResponse>> {
     try {
       // Add debug logging for the original query
@@ -1328,7 +1327,7 @@ export const listingsAPI: ListingsAPI = {
       const queryString = Object.entries(searchParams)
         .map(
           ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
         )
         .join("&");
 
@@ -1341,7 +1340,7 @@ export const listingsAPI: ListingsAPI = {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -1379,7 +1378,7 @@ export const listingsAPI: ListingsAPI = {
         data.data.listings.length === 0
       ) {
         console.log(
-          "No listings found, trying to fetch all listings and filter client-side",
+          "No listings found, trying to fetch all listings and filter client-side"
         );
 
         // Try fetching all listings and filter on the client side as a fallback
@@ -1426,12 +1425,12 @@ export const listingsAPI: ListingsAPI = {
 
                 // Otherwise check if any of the searchable fields include the query
                 return searchIn.some(
-                  (text) => text && text.includes(normalizedQuery),
+                  (text) => text && text.includes(normalizedQuery)
                 );
               });
 
             console.log(
-              `Found ${clientFilteredListings.length} listings with client-side filtering`,
+              `Found ${clientFilteredListings.length} listings with client-side filtering`
             );
 
             if (clientFilteredListings.length > 0) {
@@ -1476,7 +1475,7 @@ export const listingsAPI: ListingsAPI = {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -1484,7 +1483,7 @@ export const listingsAPI: ListingsAPI = {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
+          errorData.error || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -1495,7 +1494,7 @@ export const listingsAPI: ListingsAPI = {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch trending listings",
+          : "Failed to fetch trending listings"
       );
     }
   },
@@ -1513,7 +1512,7 @@ export const listingsAPI: ListingsAPI = {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -1521,7 +1520,7 @@ export const listingsAPI: ListingsAPI = {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
+          errorData.error || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -1532,14 +1531,14 @@ export const listingsAPI: ListingsAPI = {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch listings by ids",
+          : "Failed to fetch listings by ids"
       );
     }
   },
 
   // Get listings by category
   async getListingsByCategory(
-    category: ListingCategory,
+    category: ListingCategory
   ): Promise<APIResponse<Listing>> {
     try {
       const queryParams = new URLSearchParams();
@@ -1552,7 +1551,7 @@ export const listingsAPI: ListingsAPI = {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -1560,7 +1559,7 @@ export const listingsAPI: ListingsAPI = {
           .json()
           .catch(() => ({ error: "Unknown error occurred" }));
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
+          errorData.error || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -1571,7 +1570,7 @@ export const listingsAPI: ListingsAPI = {
       throw new Error(
         error instanceof Error
           ? error.message
-          : "Failed to fetch listings by category",
+          : "Failed to fetch listings by category"
       );
     }
   },
@@ -1583,7 +1582,7 @@ export const listingsAPI: ListingsAPI = {
       if (userId) queryParams.append("userId", userId);
 
       const response = await apiClient.get<APIResponse<FavoritesResponse>>(
-        `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ""}`,
+        `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ""}`
       );
 
       return response.data;

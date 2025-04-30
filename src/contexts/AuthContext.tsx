@@ -1,12 +1,12 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
-import TokenManager from "../utils/tokenManager";
 import type {
-  AuthState,
   AuthContextType,
   AuthError,
+  AuthState,
 } from "../types/auth.types";
-import { toast } from "react-toastify";
+import TokenManager from "../utils/tokenManager";
 
 const initialState: AuthState = {
   user: null,
@@ -53,18 +53,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
-      
+      setState((prev) => ({ ...prev, isLoading: true }));
+
       // Initialize token manager
       const initialized = await TokenManager.initialize();
-      
+
       if (!initialized) {
         // Try to refresh tokens before giving up
         const refreshed = await TokenManager.refreshTokensWithFallback();
         if (refreshed) {
           return checkAuth();
         }
-        
+
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -74,16 +74,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsInitialized(true);
         return;
       }
-      
+
       // Try to get user info
       const response = await AuthAPI.getMe();
+      console.log("Auth Response >>>>>>>>>>>>>>>>>>>>>", response);
       if (!response?.success || !response?.data) {
         // Try to refresh tokens before failing
         const refreshed = await TokenManager.refreshTokensWithFallback();
         if (refreshed) {
           return checkAuth();
         }
-        
+
         setState((prev) => ({
           ...prev,
           user: null,
@@ -95,8 +96,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      const { user } = response.data as { user: AuthState["user"] };
-      
+      const user = response.data as AuthState["user"];
+      console.log("Authenticated user:>>>>>>>>>>>>>>>>>>>>", user);
+
       setState((prev) => ({
         ...prev,
         user,
@@ -112,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (refreshed) {
         return checkAuth();
       }
-      
+
       setState((prev) => ({
         ...prev,
         user: null,
@@ -120,7 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading: false,
         error: {
           code: "NETWORK_ERROR",
-          message: error instanceof Error ? error.message : "Failed to authenticate",
+          message:
+            error instanceof Error ? error.message : "Failed to authenticate",
         },
       }));
       setIsInitialized(true);
@@ -129,21 +132,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Initialize auth state when component mounts
   useEffect(() => {
-    console.log('AuthContext mounted, initializing auth state...');
+    console.log("AuthContext mounted, initializing auth state...");
     checkAuth();
-    
+
     // Add event listener for storage changes to handle login/logout in other tabs
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'auth-tokens') {
-        console.log('Auth tokens changed in another tab, refreshing auth state...');
+      if (event.key === "authTokens") {
+        console.log(
+          "Auth tokens changed in another tab, refreshing auth state..."
+        );
         checkAuth();
       }
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
+
+    window.addEventListener("storage", handleStorageChange);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
@@ -152,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000,
+          (state.retryAfter.getTime() - Date.now()) / 1000
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;
@@ -166,6 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         handleAuthError(response?.error || null);
         return false;
       }
+
+      console.log("Login UserData >>>>>>>>>>>>>>>>>>>>>", response.data);
 
       const { user, tokens } = response.data as {
         user: AuthState["user"];
@@ -211,13 +218,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (
     username: string,
     email: string,
-    password: string,
+    password: string
   ): Promise<boolean> => {
     try {
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000,
+          (state.retryAfter.getTime() - Date.now()) / 1000
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;
