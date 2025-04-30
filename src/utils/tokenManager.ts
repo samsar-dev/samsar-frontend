@@ -1,4 +1,4 @@
-import { AuthTokens } from "../types/auth.types";
+import type { AuthTokens } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
 import { setAuthToken, getAuthToken, clearAuthToken } from "./cookie";
 
@@ -72,6 +72,7 @@ class TokenManager {
       throw new Error("Invalid tokens provided");
     }
     setAuthToken(tokens.accessToken);
+    localStorage.setItem("token", tokens.accessToken);
     this.scheduleTokenRefresh();
   }
 
@@ -84,7 +85,7 @@ class TokenManager {
     clearAuthToken();
   }
 
-  private static async refreshTokens(): Promise<boolean> {
+  static async refreshTokens(): Promise<boolean> {
     try {
       const response = await AuthAPI.refreshTokens();
       if (response.success && response.data && response.data.tokens) {
