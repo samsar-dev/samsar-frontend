@@ -1,6 +1,6 @@
 import type { AuthTokens, JWTPayload } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
-import { setAuthToken, getAuthToken, clearAuthToken } from "./cookie";
+import { setAuthToken, getAuthToken, clearAuthToken, setAuthRefreshToken } from "./cookie";
 import { setItem, getItem, removeItem } from "./storage";
 
 export class TokenManager {
@@ -21,17 +21,18 @@ export class TokenManager {
     try {
       // Try to get token from cookie first
       const token = getAuthToken();
+      console.log("token>>>>>>>>>>>>>>>>>", token);
       if (!token) {
         // Fallback to localStorage
-        const storedTokens = getItem("auth-tokens");
+        const storedTokens = getItem("authTokens");
         if (storedTokens) {
           try {
             const tokens = JSON.parse(storedTokens) as AuthTokens;
-            await this.setTokens(tokens);
+            this.setTokens(tokens);
             return true;
           } catch (error: unknown) {
             console.error("Error restoring tokens from storage:", error);
-            await this.clearTokens();
+            this.clearTokens();
             return false;
           }
         }
@@ -120,7 +121,7 @@ export class TokenManager {
 
   static getTokens(): AuthTokens | null {
     try {
-      const storedTokens = getItem("auth-tokens");
+      const storedTokens = localStorage.getItem("authTokens");
       if (!storedTokens) return null;
       return JSON.parse(storedTokens) as AuthTokens;
     } catch (error) {
@@ -213,9 +214,10 @@ export class TokenManager {
     }
     // Store in cookie
     setAuthToken(tokens.accessToken);
+    setAuthRefreshToken(tokens.refreshToken);
     // Also store in localStorage as backup
     const tokensString = JSON.stringify(tokens);
-    setItem("auth-tokens", tokensString);
+    localStorage.setItem("authTokens", tokensString);
     localStorage.setItem("token", tokens.accessToken);
     this.scheduleTokenRefresh();
   }
@@ -227,7 +229,9 @@ export class TokenManager {
 
   static clearTokens(): void {
     clearAuthToken();
-    removeItem("auth-tokens");
+    removeItem("authTokens");
+    localStorage.removeItem("token");
+    localStorage.removeItem("authTokens");
   }
 
   static async refreshTokens(): Promise<boolean> {

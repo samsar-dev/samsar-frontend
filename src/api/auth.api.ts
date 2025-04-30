@@ -66,6 +66,7 @@ class AuthAPI {
           }
           // If refresh didn't work but didn't throw, clear auth and throw original error
           TokenManager.clearTokens();
+          localStorage.clear();
           throw axiosError;
         } catch (refreshError) {
           // If refresh fails, clear auth state
