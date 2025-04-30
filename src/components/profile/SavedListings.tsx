@@ -1,14 +1,14 @@
 import { listingsAPI } from "@/api/listings.api";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { ListingAction, ListingCategory } from "@/types/enums";
+import { useAuth } from "@/hooks/useAuth";
+import { ListingAction } from "@/types/enums";
 import type { Listing, ListingDetails } from "@/types/listings";
 import { motion } from "framer-motion";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsSend } from "react-icons/bs";
 import { MdDelete, MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useAuth } from "@/hooks/useAuth";
 
 interface ExtendedListing extends Omit<Listing, "details"> {
   seller?: {
@@ -21,7 +21,7 @@ interface ExtendedListing extends Omit<Listing, "details"> {
   };
 }
 
-const SavedListings: React.FC = () => {
+const SavedListings = () => {
   const { t } = useTranslation();
   const [listings, setListings] = useState<ExtendedListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ const SavedListings: React.FC = () => {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("Failed to remove favorite"),
+        error instanceof Error ? error.message : t("Failed to remove favorite")
       );
     }
   };
@@ -90,7 +90,7 @@ const SavedListings: React.FC = () => {
     } catch (error) {
       console.error("Error fetching listings:", error);
       toast.error(
-        error instanceof Error ? error.message : t("errors.fetch_failed"),
+        error instanceof Error ? error.message : t("errors.fetch_failed")
       );
     } finally {
       setLoading(false);
@@ -239,7 +239,7 @@ const SavedListings: React.FC = () => {
                     </button>
                     <button
                       className="p-2 mx-2 my-1 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-full border-2 border-gray-200 dark:border-gray-700 hover:text-red-700 hover:bg-red-600/50 hover:border-red-600/30 dark:hover:border-red-600/20 dark:hover:text-red-400 transition-colors duration-300"
-                      onClick={() => handleRemoveFavorite(item.id)}
+                      onClick={() => handleRemoveFavorite(item.id as string)}
                     >
                       <MdDelete className="w-5 h-5" />
                     </button>
@@ -254,7 +254,7 @@ const SavedListings: React.FC = () => {
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t(
-                    "Browse listings and tap the heart to save your favorites.",
+                    "Browse listings and tap the heart to save your favorites."
                   )}
                 </p>
               </div>

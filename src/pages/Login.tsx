@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (retryAfter) {
       const interval = setInterval(() => {
         const seconds = Math.max(

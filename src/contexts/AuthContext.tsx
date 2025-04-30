@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
-import TokenManager from "../utils/tokenManager";
 import type {
-  AuthState,
   AuthContextType,
   AuthError,
+  AuthState,
 } from "../types/auth.types";
-import { toast } from "react-toastify";
+import TokenManager from "../utils/tokenManager";
 
 const initialState: AuthState = {
   user: null,
@@ -144,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000,
+          (state.retryAfter.getTime() - Date.now()) / 1000
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;
@@ -158,6 +158,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         handleAuthError(response?.error || null);
         return false;
       }
+
+      console.log("Login UserData >>>>>>>>>>>>>>>>>>>>>", response.data);
 
       const { user, tokens } = response.data as {
         user: AuthState["user"];
@@ -203,13 +205,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (
     username: string,
     email: string,
-    password: string,
+    password: string
   ): Promise<boolean> => {
     try {
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000,
+          (state.retryAfter.getTime() - Date.now()) / 1000
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks";
@@ -67,7 +67,7 @@ const Navbar: React.FC = () => {
   const handleSearch = (
     query: string,
     category?: string,
-    subcategory?: string,
+    subcategory?: string
   ) => {
     if (!query.trim()) return; // Only search if query is not empty
     let searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
