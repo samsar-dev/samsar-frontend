@@ -14,7 +14,7 @@ const defaultSettings: SecuritySettingsType = {
   loginNotifications: false,
   securityQuestions: false,
   twoFactorMethod: "email",
-  autoLogoutTime: 24,
+  autoLogoutTime: 1440, // 24 hours instead of 24 minutes
   connectedAccounts: [],
   loginActivity: [],
 };
@@ -149,7 +149,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
           <input
             type="number"
             id="autoLogoutTime"
-            value={mergedSettings.autoLogoutTime || 24}
+            value={mergedSettings.autoLogoutTime || 1440}
             onChange={(e) =>
               handleSecurityChange(
                 "autoLogoutTime",
@@ -157,7 +157,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
               )
             }
             min="1"
-            max="72"
+            max="1440"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>

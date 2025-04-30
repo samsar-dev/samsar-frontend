@@ -113,7 +113,7 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
           className={`w-full h-full object-contain transition-opacity duration-500 ${blur && loading ? "opacity-0" : "opacity-100"} z-10`}
           loading={priority ? "eager" : "lazy"}
           decoding={priority ? "sync" : "async"}
-          fetchPriority={priority ? "high" : fetchPriority}
+          {...{ fetchpriority: priority ? "high" : fetchPriority }}
           width="400"
           height="300"
           onLoad={handleLoad}
