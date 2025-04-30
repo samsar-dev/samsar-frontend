@@ -1,10 +1,18 @@
-import type { AuthTokens } from "../types/auth.types";
+import type { AuthTokens, JWTPayload } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
 import { setAuthToken, getAuthToken, clearAuthToken } from "./cookie";
 import { setItem, getItem, removeItem } from "./storage";
 
 export class TokenManager {
   private static refreshTimeout: NodeJS.Timeout | null = null;
+  private static jwtPayload: JWTPayload | null = null;
+
+  /**
+   * Get the current JWT payload
+   */
+  static getJwtPayload(): JWTPayload | null {
+    return TokenManager.jwtPayload;
+  }
 
   /**
    * Initialize the token manager by checking for existing tokens
@@ -15,7 +23,7 @@ export class TokenManager {
       const token = getAuthToken();
       if (!token) {
         // Fallback to localStorage
-        const storedTokens = getItem('auth-tokens');
+        const storedTokens = getItem("auth-tokens");
         if (storedTokens) {
           try {
             const tokens = JSON.parse(storedTokens) as AuthTokens;
@@ -50,17 +58,69 @@ export class TokenManager {
     } catch (error: unknown) {
       console.error("Error initializing token manager:", error);
       // Don't clear tokens on network errors
-      if (error instanceof Error && 
-          (error.message.includes('token') || error.message.includes('unauthorized'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("token") ||
+          error.message.includes("unauthorized"))
+      ) {
         await this.clearTokens();
       }
       return false;
     }
   }
 
+  /**
+   * Validate token format and check if it's expired
+   * This is a client-side check that doesn't require an API call
+   */
+  static validateTokenFormat(token: string): boolean {
+    if (!token) return false;
+
+    // Check if token has the correct format (header.payload.signature)
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      console.error("Invalid token format");
+      return false;
+    }
+
+    try {
+      // Decode the payload
+      const payload = JSON.parse(atob(parts[1]));
+
+      // Check if token has expiration
+      if (!payload.exp) {
+        console.error("Token missing expiration");
+        return false;
+      }
+
+      // Check if token is expired
+      const expirationTime = payload.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+
+      if (currentTime >= expirationTime) {
+        console.error("Token is expired");
+        return false;
+      }
+
+      // Store the payload for later use
+      this.jwtPayload = {
+        id: payload.sub || payload.id,
+        email: payload.email,
+        username: payload.username,
+        role: payload.role as "USER" | "ADMIN",
+        exp: payload.exp,
+      };
+
+      return true;
+    } catch (error) {
+      console.error("Error parsing token:", error);
+      return false;
+    }
+  }
+
   static getTokens(): AuthTokens | null {
     try {
-      const storedTokens = getItem('auth-tokens');
+      const storedTokens = getItem("auth-tokens");
       if (!storedTokens) return null;
       return JSON.parse(storedTokens) as AuthTokens;
     } catch (error) {
@@ -74,7 +134,7 @@ export class TokenManager {
       // First check if token is expired or about to expire
       const payload = JSON.parse(atob(token.split(".")[1])) as { exp: number };
       const expiresIn = payload.exp * 1000 - Date.now();
-      
+
       // If token expires in less than 5 minutes, try to refresh instead of failing
       if (expiresIn < 300000) {
         const refreshed = await this.refreshTokens();
@@ -87,7 +147,7 @@ export class TokenManager {
     } catch (error: unknown) {
       console.error("Error verifying token:", error);
       // Don't consider parse errors as invalid tokens
-      if (error instanceof Error && error.message.includes('JSON')) {
+      if (error instanceof Error && error.message.includes("JSON")) {
         return true;
       }
       return false;
@@ -102,11 +162,13 @@ export class TokenManager {
     const token = getAuthToken();
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split(".")[1])) as { exp: number };
+        const payload = JSON.parse(atob(token.split(".")[1])) as {
+          exp: number;
+        };
         const expiresIn = payload.exp * 1000 - Date.now();
         // Refresh 5 minutes before expiry instead of 1 minute
         const refreshTime = Math.max(0, expiresIn - 300000);
-        
+
         if (refreshTime <= 0) {
           // Token is already close to expiry, refresh now
           this.refreshTokens().catch(console.error);
@@ -153,7 +215,7 @@ export class TokenManager {
     setAuthToken(tokens.accessToken);
     // Also store in localStorage as backup
     const tokensString = JSON.stringify(tokens);
-    setItem('auth-tokens', tokensString);
+    setItem("auth-tokens", tokensString);
     localStorage.setItem("token", tokens.accessToken);
     this.scheduleTokenRefresh();
   }
@@ -165,7 +227,7 @@ export class TokenManager {
 
   static clearTokens(): void {
     clearAuthToken();
-    removeItem('auth-tokens');
+    removeItem("auth-tokens");
   }
 
   static async refreshTokens(): Promise<boolean> {
@@ -179,9 +241,113 @@ export class TokenManager {
     } catch (error: unknown) {
       console.error("Error refreshing tokens:", error);
       // Only clear tokens if we're sure refresh failed
-      if (error instanceof Error && (error.message.includes('401') || error.message.includes('invalid_token'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("401") ||
+          error.message.includes("invalid_token"))
+      ) {
         this.clearTokens();
       }
+      return false;
+    }
+  }
+
+  /**
+   * Validate JWT token format and expiration
+   */
+  private static validateToken(token: string): boolean {
+    try {
+      // Check if token has three parts (header.payload.signature)
+      const parts = token.split(".");
+      if (parts.length !== 3) {
+        console.error("Invalid token format: missing parts");
+        return false;
+      }
+
+      // Check if token parts are valid base64
+      try {
+        const payload = JSON.parse(atob(parts[1]));
+
+        // Validate payload structure
+        const requiredFields = ["email", "role", "exp"]; // id is optional
+        const missingFields = requiredFields.filter((field) => !payload[field]);
+        if (missingFields.length > 0) {
+          console.error(
+            "Missing required fields in token payload:",
+            missingFields
+          );
+          return false;
+        }
+
+        // Validate role
+        if (!["USER", "ADMIN"].includes(payload.role)) {
+          console.error("Invalid role in token");
+          return false;
+        }
+
+        // Validate expiration
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (payload.exp <= currentTime) {
+          console.error("Token has expired");
+          return false;
+        }
+
+        // Cache the payload for quick access
+        TokenManager.jwtPayload = {
+          id: payload.id || payload.email, // Use email as fallback for ID
+          email: payload.email,
+          username: payload.username || payload.email, // Use email as fallback for username
+          role: payload.role as "USER" | "ADMIN",
+          exp: payload.exp,
+        };
+
+        // Log the payload for debugging
+        console.log("Successfully validated token with payload:", {
+          id: TokenManager.jwtPayload.id,
+          email: TokenManager.jwtPayload.email,
+          role: TokenManager.jwtPayload.role,
+          exp: new Date(TokenManager.jwtPayload.exp * 1000).toLocaleString(),
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Invalid token format: failed to decode", error);
+        return false;
+      }
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Public method to handle token refresh with fallback
+   */
+  public static async refreshTokensWithFallback(): Promise<boolean> {
+    try {
+      // Try regular refresh first
+      const refreshResult = await this.refreshTokens();
+      if (refreshResult) {
+        return true;
+      }
+
+      // If refresh fails and we have a valid token, try getMe as fallback
+      const accessToken = this.getAccessToken();
+      if (accessToken && this.validateToken(accessToken)) {
+        try {
+          const response = await AuthAPI.getMe();
+          if (response?.success && response?.data?.tokens) {
+            await this.setTokens(response.data.tokens);
+            return true;
+          }
+        } catch {
+          // Ignore getMe errors, we'll return false below
+        }
+      }
+
+      return false;
+    } catch (error: unknown) {
+      console.error("Error refreshing tokens with fallback:", error);
       return false;
     }
   }

@@ -21,19 +21,30 @@ export interface AuthError {
   errors?: any[];
 }
 
+export interface JWTPayload {
+  id: string;
+  email: string;
+  username: string;
+  role: "USER" | "ADMIN";
+  exp: number;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
   username: string;
   name?: string;
   profilePicture?: string;
-  role: string;
+  role: "USER" | "ADMIN";
   createdAt?: string;
   updatedAt?: string;
   dateOfBirth?: string;
   street?: string;
   city?: string;
   postalCode?: string;
+  bio?: string;
+  location?: string;
+  preferences?: any;
 }
 
 export interface AuthTokens {

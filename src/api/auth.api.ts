@@ -1,57 +1,124 @@
 import apiClient from "./apiClient";
 import type {
   AuthResponse,
-  AuthUser,
-  AuthTokens,
   AuthError,
   AuthErrorCode,
+  AuthUser,
+  // AuthTokens is used by TokenManager.setTokens
+  AuthTokens
 } from "../types/auth.types";
+
 import TokenManager from "../utils/tokenManager";
-import { AuthProvider } from "@/contexts";
-import { AuthContext } from "@/contexts/AuthContext";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { API_URL_PROD } from "@/config";
 
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Authentication API service
+ * Handles all authentication-related API requests
+ */
 class AuthAPI {
+  /**
+   * Handles request retries with token refresh and rate limiting
+   * @param requestFn Function that makes the API request
+   * @param retries Number of retries remaining
+   * @param delay Delay between retries in milliseconds
+   * @param skip429Retry Whether to skip retrying on 429 status
+   * @returns Promise with the API response
+   */
   protected static async retryRequest<T>(
-    requestFn: () => Promise<T>,
+    requestFn: () => Promise<AxiosResponse<T>>,
     retries = MAX_RETRIES,
     delay = RETRY_DELAY,
-    skip429Retry = false
-  ): Promise<T> {
+    skip429Retry = false,
+  ): Promise<AxiosResponse<T>> {
     try {
+      // Attempt the request
       return await requestFn();
-    } catch (error: any) {
-      if (skip429Retry && error.response?.status === 429) {
-        throw error;
+    } catch (error) {
+      // Ensure we're dealing with an AxiosError
+      if (!axios.isAxiosError(error)) {
+        throw error; // Not an Axios error, just rethrow
       }
-      if (error.response?.status === 429) {
+      
+      const axiosError = error as AxiosError;
+      const status = axiosError.response?.status;
+      
+      // Handle 401 Unauthorized with token refresh
+      if (status === 401 && retries > 0) {
+        try {
+          // Try to refresh token
+          const refreshResponse = await AuthAPI.refreshTokens();
+          if (refreshResponse.success && refreshResponse.data?.tokens) {
+            // Set the new tokens
+            TokenManager.setTokens(refreshResponse.data.tokens);
+            // Retry the original request with new token
+            return AuthAPI.retryRequest(
+              requestFn,
+              retries - 1,
+              delay,
+              skip429Retry
+            );
+          }
+          // If refresh didn't work but didn't throw, clear auth and throw original error
+          TokenManager.clearTokens();
+          throw axiosError;
+        } catch (refreshError) {
+          // If refresh fails, clear auth state
+          TokenManager.clearTokens();
+          throw refreshError; // Throw the refresh error for better debugging
+        }
+      }
+
+      // Handle rate limiting (429 Too Many Requests)
+      if (status === 429) {
+        // Skip retry if requested
+        if (skip429Retry) {
+          throw axiosError;
+        }
+        
+        // Calculate retry delay based on Retry-After header if available
         let retryAfter = delay;
-        const retryAfterHeader = error.response.headers["retry-after"];
+        const retryAfterHeader = axiosError.response?.headers?.['retry-after'];
+        
         if (retryAfterHeader) {
+          // Parse retry-after header (can be seconds or date)
           if (!isNaN(Number(retryAfterHeader))) {
-            retryAfter = parseInt(retryAfterHeader, 10) * 1000; // seconds to ms
+            // If it's a number, interpret as seconds
+            retryAfter = parseInt(retryAfterHeader, 10) * 1000;
           } else {
-            // Try to parse as date
+            // If it's a date string, calculate milliseconds until that time
             const retryDate = new Date(retryAfterHeader).getTime();
-            retryAfter = retryDate - Date.now();
+            retryAfter = Math.max(0, retryDate - Date.now()); // Ensure non-negative
           }
         }
+        
+        // Wait for the calculated time before retrying
         await wait(retryAfter);
-        return this.retryRequest(
+        
+        // Retry with exponential backoff
+        return AuthAPI.retryRequest(
           requestFn,
           retries - 1,
-          delay * 2,
+          delay * 2, // Exponential backoff
           skip429Retry
         );
       }
-      throw error;
+      
+      // For all other errors, just throw
+      throw axiosError;
     }
   }
 
+  /**
+   * Verifies if a token is valid
+   * @param token JWT token to verify
+   * @returns Promise with success status and optional error
+   */
   static async verifyToken(token: string): Promise<{ success: boolean; error?: AuthError }> {
     try {
       await apiClient.get('/auth/verify-token', {
@@ -60,8 +127,9 @@ class AuthAPI {
         }
       });
       return { success: true };
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Token verification failed';
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const errorMessage = (axiosError.response?.data as any)?.message || 'Token verification failed';
       return { 
         success: false, 
         error: { 
@@ -80,66 +148,30 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await this.retryRequest(
-        () =>
-          apiClient.post<AuthResponse>(
-            "/auth/login",
-            {
-              email,
-              password,
-            },
-            {
-              withCredentials: true,
-            }
-          ),
-        MAX_RETRIES,
-        RETRY_DELAY,
-        true // skip429Retry = true for login
-      );
-
-      if (!response.data) {
-        throw new Error("No response data received");
-      }
+      const response = await apiClient.post<AuthResponse>('/auth/login', {
+        email,
+        password,
+      });
 
       if (response.data.success && response.data.data?.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
       }
 
       return response.data;
-    } catch (error: any) {
-      console.error("Login error:", error.response?.data || error);
-
-      // Handle specific error cases
-      if (error.response?.status === 429) {
-        return {
-          success: false,
-          error: {
-            code: "RATE_LIMIT",
-            message: "Too many login attempts. Please try again later.",
-          },
-        };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error("Login error:", axiosError.response?.data || axiosError);
+      
+      if (axiosError.response?.data) {
+        return axiosError.response.data as AuthResponse;
       }
-
-      if (error.response?.status === 401) {
-        return {
-          success: false,
-          error: {
-            code: "INVALID_CREDENTIALS",
-            message: "Invalid email or password",
-          },
-        };
-      }
-
-      if (error.response?.data?.error) {
-        return error.response.data;
-      }
-
+      
       return {
         success: false,
         error: {
-          code: "NETWORK_ERROR",
-          message: error.message || "Failed to connect to server",
-        },
+          code: 'NETWORK_ERROR' as AuthErrorCode,
+          message: axiosError.message || 'Failed to connect to server'
+        }
       };
     }
   }
@@ -151,7 +183,7 @@ class AuthAPI {
    */
   static async register(user: FormData): Promise<AuthResponse> {
     try {
-      const response = await this.retryRequest(() =>
+      const response = await AuthAPI.retryRequest(() =>
         apiClient.post<AuthResponse>("/auth/register", user, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -160,37 +192,34 @@ class AuthAPI {
         })
       );
 
-      if (!response.data) {
-        throw new Error("No response data received");
-      }
-
       if (response.data.success && response.data.data?.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
       }
 
       return response.data;
-    } catch (error: any) {
-      console.error("Registration error:", error.response?.data || error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error("Registration error:", axiosError.response?.data || axiosError);
 
-      if (error.response?.status === 429) {
+      if (axiosError.response?.status === 429) {
         return {
           success: false,
           error: {
-            code: "RATE_LIMIT",
+            code: "RATE_LIMIT" as AuthErrorCode,
             message: "Too many registration attempts. Please try again later.",
           },
         };
       }
 
-      if (error.response?.data?.error) {
-        return error.response.data;
+      if (axiosError.response?.data) {
+        return axiosError.response.data as AuthResponse;
       }
 
       return {
         success: false,
         error: {
-          code: "NETWORK_ERROR",
-          message: error.message || "Failed to connect to server",
+          code: "NETWORK_ERROR" as AuthErrorCode,
+          message: axiosError instanceof Error ? axiosError.message : "Failed to connect to server",
         },
       };
     }
@@ -202,36 +231,40 @@ class AuthAPI {
    */
   static async refreshTokens(): Promise<AuthResponse> {
     try {
-      const storedTokens = TokenManager.getTokens();
-      if (!storedTokens?.refreshToken) {
-        throw new Error("No refresh token available");
+      // Get the current refresh token from storage
+      const tokens = await TokenManager.getTokens();
+      if (!tokens?.refreshToken) {
+        return {
+          success: false,
+          error: {
+            code: 'NO_REFRESH_TOKEN' as AuthErrorCode,
+            message: 'No refresh token available'
+          }
+        };
       }
 
-      const response = await apiClient.post<AuthResponse>("/auth/refresh", {
-        refreshToken: storedTokens.refreshToken,
+      // Attempt to refresh with the token
+      const response = await apiClient.post<AuthResponse>('/auth/refresh', {
+        refreshToken: tokens.refreshToken,
       }, {
-        withCredentials: true,
+        // Don't retry this request if it fails with 401
+        withCredentials: true
       });
 
-      if (
-        response.data.success &&
-        response.data.data &&
-        response.data.data.tokens
-      ) {
+      if (response.data.success && response.data.data?.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
       }
 
       return response.data;
-    } catch (error: any) {
-      console.error("Token refresh error:", error);
-      // Clear tokens on refresh failure
-      TokenManager.clearTokens();
+    } catch (error) {
+      const axiosError = error as Error;
+      console.error('Token refresh error:', axiosError);
       return {
         success: false,
         error: {
-          code: "TOKEN_EXPIRED" as AuthErrorCode,
-          message: error.response?.data?.error || "Token refresh failed",
-        },
+          code: 'REFRESH_FAILED' as AuthErrorCode,
+          message: axiosError.message || 'Failed to refresh token'
+        }
       };
     }
   }
@@ -242,21 +275,20 @@ class AuthAPI {
    */
   static async logout(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>("auth/logout", null, {
+      const response = await apiClient.post<AuthResponse>("/auth/logout", null, {
         withCredentials: true,
       });
 
       // Clear tokens regardless of response
       TokenManager.clearTokens();
 
-      return (
-        response.data || {
-          success: true,
-          data: { message: "Logged out successfully" },
-        }
-      );
-    } catch (error: any) {
-      console.error("Logout error:", error.response?.data || error);
+      return response.data || {
+        success: true,
+        data: { message: "Logged out successfully" },
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error("Logout error:", axiosError.response?.data || axiosError);
 
       // Clear tokens even if the request fails
       TokenManager.clearTokens();
@@ -274,9 +306,9 @@ class AuthAPI {
    */
   static async getMe(): Promise<AuthResponse> {
     try {
-      const response = await this.retryRequest(() =>
-        apiClient.get<AuthResponse>("auth/me", {
-          withCredentials: true,
+      const response = await AuthAPI.retryRequest(() =>
+        apiClient.get<AuthResponse>("/auth/me", {
+          withCredentials: true
         })
       );
 
@@ -285,28 +317,48 @@ class AuthAPI {
       }
 
       return response.data;
-    } catch (error: any) {
-      console.error("Get profile error:", error.response?.data || error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error("Get profile error:", axiosError.response?.data || axiosError);
 
-      if (error.response?.status === 401) {
-        // Token might be expired, try to refresh
-        const refreshResponse = await this.refreshTokens();
-        if (refreshResponse.success) {
-          // Retry the original request
-          return this.getMe();
+      // Check if we need to refresh token
+      if (axiosError.response?.status === 401) {
+        try {
+          // Try to refresh tokens
+          const refreshResult = await AuthAPI.refreshTokens();
+          if (refreshResult.success) {
+            // Retry the request
+            return await AuthAPI.getMe();
+          }
+          
+          // If refresh failed, return the error without clearing tokens immediately
+          return {
+            success: false,
+            error: {
+              code: 'REFRESH_FAILED' as AuthErrorCode,
+              message: 'Failed to refresh token. Please try again.'
+            }
+          };
+        } catch (refreshError) {
+          console.error('Error refreshing tokens during getMe:', refreshError);
+          return {
+            success: false,
+            error: {
+              code: 'REFRESH_FAILED' as AuthErrorCode,
+              message: 'Failed to refresh token. Please try again.'
+            }
+          };
         }
       }
 
-      if (error.response?.data?.error) {
-        return error.response.data;
-      }
-
+      // Handle non-401 errors
       return {
         success: false,
         error: {
-          code: "NETWORK_ERROR",
-          message: error.message || "Failed to get profile",
-        },
+          code: ((error as AxiosError).response?.data as any)?.error?.code || 'UNKNOWN_ERROR' as AuthErrorCode,
+          message: ((error as AxiosError).response?.data as any)?.error?.message || 
+                  (error instanceof Error ? error.message : 'Failed to get user profile')
+        }
       };
     }
   }
