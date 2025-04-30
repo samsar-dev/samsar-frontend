@@ -8,6 +8,7 @@ import {
 } from "@/contexts";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import TokenManager from "@/utils/tokenManager";
+import { setupAuthDebugger } from "@/utils/authDebug";
 import AppRoutes from "./routes/Routes";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
@@ -30,6 +31,7 @@ const App: () => ReactElement = () => {
     };
 
     initializeAuth();
+    setupAuthDebugger();
   }, []);
 
   if (isInitializing) {

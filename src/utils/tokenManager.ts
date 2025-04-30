@@ -1,84 +1,367 @@
-import { AuthTokens } from "../types/auth.types";
+import { AuthTokens, JWTPayload } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
-import { setAuthToken, getAuthToken, clearAuthToken } from "./cookie";
+import { setAuthToken, getAuthToken, getRefreshToken, setTokens as setCookieTokens, clearTokens as clearCookieTokens } from "./cookie";
 import { setItem, getItem, removeItem } from "./storage";
+import { apiClient } from "../api/apiClient";
+
 
 export class TokenManager {
   private static refreshTimeout: NodeJS.Timeout | null = null;
+  private static jwtPayload: JWTPayload | null = null;
 
   /**
-   * Initialize the token manager by checking for existing tokens
+   * Get the current JWT payload
    */
-  public static async initialize(): Promise<boolean> {
-    try {
-      // Try to get token from cookie first
-      const token = getAuthToken();
-      if (!token) {
-        // Fallback to localStorage
-        const storedTokens = getItem('auth-tokens');
-        if (storedTokens) {
-          try {
-            const tokens = JSON.parse(storedTokens) as AuthTokens;
-            await this.setTokens(tokens);
-            return true;
-          } catch (error: unknown) {
-            console.error("Error restoring tokens from storage:", error);
-            await this.clearTokens();
-            return false;
-          }
-        }
-        // If no tokens found in either place, clear everything
-        await this.clearTokens();
-        return false;
-      }
-
-      // If we have a token from cookie, verify it's valid
-      const isValid = await this.verifyTokenValidity(token);
-      if (!isValid) {
-        // If token is invalid, try to refresh it
-        const refreshed = await this.refreshTokens();
-        if (!refreshed) {
-          await this.clearTokens();
-          return false;
-        }
-        return true;
-      }
-
-      // Token is valid, schedule refresh
-      this.scheduleTokenRefresh();
-      return true;
-    } catch (error: unknown) {
-      console.error("Error initializing token manager:", error);
-      // Don't clear tokens on network errors
-      if (error instanceof Error && 
-          (error.message.includes('token') || error.message.includes('unauthorized'))) {
-        await this.clearTokens();
-      }
-      return false;
-    }
+  static getJwtPayload(): JWTPayload | null {
+    return TokenManager.jwtPayload;
   }
 
-  static getTokens(): AuthTokens | null {
+  /**
+   * Get the current user role
+   */
+  static getUserRole(): "USER" | "ADMIN" | null {
+    return TokenManager.jwtPayload?.role || null;
+  }
+
+  /**
+   * Get the current access token from either cookies or localStorage
+   */
+  static getAccessToken(): string | null {
+    // First try to get from cookies
+    const token = getAuthToken();
+    if (token) {
+      return token;
+    }
+
+    // If not in cookies, try localStorage
+    const storedTokens = getItem('auth-tokens');
+    if (storedTokens) {
+      try {
+        const tokens = JSON.parse(storedTokens) as AuthTokens;
+        return tokens.accessToken || null;
+      } catch (error) {
+        console.error('Error parsing stored tokens:', error);
+        return null;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get the current tokens from either cookies or localStorage
+   */
+  static async getTokens(): Promise<AuthTokens | null> {
     try {
-      const storedTokens = getItem('auth-tokens');
-      if (!storedTokens) return null;
-      return JSON.parse(storedTokens) as AuthTokens;
+      // First try cookies
+      const accessToken = getAuthToken();
+      const refreshToken = getRefreshToken();
+      
+      if (accessToken && refreshToken) {
+        return { accessToken, refreshToken };
+      }
+
+      // If no tokens in cookies, try localStorage
+      const tokensString = getItem('auth-tokens');
+      if (tokensString) {
+        try {
+          const tokens = JSON.parse(tokensString) as AuthTokens;
+          if (tokens.accessToken && tokens.refreshToken) {
+            // Set tokens in cookies for future use
+            setCookieTokens(tokens.accessToken, tokens.refreshToken);
+            return tokens;
+          }
+        } catch (error) {
+          console.error('Error parsing stored tokens:', error);
+          removeItem('auth-tokens');
+        }
+      }
+
+      // If no tokens found in storage, try to get them from the API
+      try {
+        const response = await AuthAPI.getMe();
+        if (response?.success && response?.data?.tokens) {
+          await this.setTokens(response.data.tokens);
+          return response.data.tokens;
+        }
+      } catch (error) {
+        console.error('Error getting tokens from API:', error);
+      }
+
+      return null;
     } catch (error) {
       console.error("Error getting tokens:", error);
       return null;
     }
   }
 
+  /**
+   * Set the access token
+   */
+  static setAuthToken(token: string): void {
+    setAuthToken(token);
+  }
+
+  /**
+   * Clear all authentication state
+   * @deprecated Use clearTokens() instead for more complete cleanup
+   */
+  static clearAuth(): void {
+    // Use clearTokens for consistency
+    this.clearTokens();
+  }
+
+  /**
+   * Initialize the token manager by checking for existing tokens
+   */
+  /**
+   * Validate JWT token format and expiration
+   */
+  private static validateToken(token: string): boolean {
+    try {
+      // Check if token has three parts (header.payload.signature)
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid token format: missing parts');
+        return false;
+      }
+
+      // Check if token parts are valid base64
+      try {
+        const payload = JSON.parse(atob(parts[1]));
+        
+        // Validate payload structure
+        const requiredFields = ['email', 'role', 'exp']; // id is optional
+        const missingFields = requiredFields.filter(field => !payload[field]);
+        if (missingFields.length > 0) {
+          console.error('Missing required fields in token payload:', missingFields);
+          return false;
+        }
+
+        // Validate role
+        if (!['USER', 'ADMIN'].includes(payload.role)) {
+          console.error('Invalid role in token');
+          return false;
+        }
+
+        // Validate expiration
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (payload.exp <= currentTime) {
+          console.error('Token has expired');
+          return false;
+        }
+
+        // Cache the payload for quick access
+        TokenManager.jwtPayload = {
+          id: payload.id || payload.email, // Use email as fallback for ID
+          email: payload.email,
+          username: payload.username || payload.email, // Use email as fallback for username
+          role: payload.role as "USER" | "ADMIN",
+          exp: payload.exp
+        };
+
+        // Log the payload for debugging
+        console.log('Successfully validated token with payload:', {
+          id: TokenManager.jwtPayload.id,
+          email: TokenManager.jwtPayload.email,
+          role: TokenManager.jwtPayload.role,
+          exp: new Date(TokenManager.jwtPayload.exp * 1000).toLocaleString()
+        });
+
+        return true;
+      } catch (error) {
+        console.error('Invalid token format: failed to decode', error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return false;
+    }
+  }
+  
+
+  /**
+   * Initialize the token manager by checking for existing tokens
+   * This is called on application startup to restore authentication state
+   */
+  private static isInitializing = false;
+  private static initializationComplete = false;
+  
+  public static async initialize(): Promise<boolean> {
+    // Prevent multiple simultaneous initializations
+    if (this.isInitializing) {
+      // Wait for the ongoing initialization to complete
+      return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (this.initializationComplete) {
+            clearInterval(checkInterval);
+            resolve(this.isAuthenticated());
+          }
+        }, 100);
+      });
+    }
+    
+    // Prevent repeated initializations
+    if (this.initializationComplete) {
+      return this.isAuthenticated();
+    }
+    
+    this.isInitializing = true;
+    
+    try {
+      // First try cookie since it's more secure
+      const accessToken = this.getAccessToken();
+      const refreshToken = getRefreshToken();
+      
+      if (accessToken) {
+        try {
+          // Check if token is valid (not expired)
+          const isTokenValid = this.validateToken(accessToken);
+          
+          if (isTokenValid) {
+            // Try to get full user info
+            try {
+              const response = await AuthAPI.getMe();
+              
+              if (response?.success) {
+                // If we got new tokens, update them
+                if (response.data?.tokens) {
+                  await this.setTokens(response.data.tokens);
+                }
+                
+                // Schedule token refresh
+                this.scheduleTokenRefresh();
+                this.initializationComplete = true;
+                this.isInitializing = false;
+                return true;
+              } else {
+                // If API verification fails but token is valid, keep using it
+                this.initializationComplete = true;
+                this.isInitializing = false;
+                return true;
+              }
+            } catch (error) {
+              // If we can't get user info but token is valid, keep using it
+              this.initializationComplete = true;
+              this.isInitializing = false;
+              return true;
+            }
+          } else {
+            // Try to refresh tokens if we have a refresh token
+            if (refreshToken) {
+              try {
+                const refreshResponse = await AuthAPI.refreshTokens();
+                if (refreshResponse?.success && refreshResponse?.data?.tokens) {
+                  await this.setTokens(refreshResponse.data.tokens);
+                  this.initializationComplete = true;
+                  this.isInitializing = false;
+                  return true;
+                }
+              } catch (refreshError) {
+                // If refresh fails but we have a valid token, keep using it
+                if (isTokenValid) {
+                  this.initializationComplete = true;
+                  this.isInitializing = false;
+                  return true;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          // If validation fails but we have a token, try to keep using it
+          if (accessToken) {
+            this.initializationComplete = true;
+            this.isInitializing = false;
+            return true;
+          }
+        }
+      }
+
+      // If cookie approach failed, try localStorage as backup
+      const storedTokens = getItem('auth-tokens');
+      if (storedTokens) {
+        try {
+          const tokens = JSON.parse(storedTokens) as AuthTokens;
+          
+          // If we have tokens in localStorage but not in cookies, restore them to cookies
+          if (tokens.accessToken && (!accessToken || !refreshToken)) {
+            await this.setTokens(tokens);
+            
+            // Verify the restored tokens with the API
+            try {
+    }
+  
+
+  /**
+   * Validate token format and check if it's expired
+   * This is a client-side check that doesn't require an API call
+   */
+  static validateTokenFormat(token: string): boolean {
+    if (!token) return false;
+    
+    // Check if token has the correct format (header.payload.signature)
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.error('Invalid token format');
+      return false;
+    }
+    
+    try {
+      // Decode the payload
+      const payload = JSON.parse(atob(parts[1]));
+      
+      // Check if token has expiration
+      if (!payload.exp) {
+        console.error('Token missing expiration');
+        return false;
+      }
+      
+      // Check if token is expired
+      const expirationTime = payload.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      
+      if (currentTime >= expirationTime) {
+        console.error('Token is expired');
+        return false;
+      }
+      
+      // Store the payload for later use
+      this.jwtPayload = {
+        id: payload.sub || payload.id,
+        email: payload.email,
+        username: payload.username,
+        role: payload.role as "USER" | "ADMIN",
+        exp: payload.exp
+      };
+      
+      return true;
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return false;
+    }
+  }
+  
   private static async verifyTokenValidity(token: string): Promise<boolean> {
     try {
       // First check if token is expired or about to expire
       const payload = JSON.parse(atob(token.split(".")[1])) as { exp: number };
       const expiresIn = payload.exp * 1000 - Date.now();
       
-      // If token expires in less than 5 minutes, try to refresh instead of failing
+      // If token is expired or about to expire
       if (expiresIn < 300000) {
-        const refreshed = await this.refreshTokens();
-        return refreshed;
+        // Try to get tokens from storage first
+        const storedTokens = await this.getTokens();
+        if (storedTokens?.refreshToken) {
+          const refreshed = await this.refreshTokens();
+          return refreshed;
+        }
+        // If no refresh token, try to get new tokens
+        const response = await AuthAPI.getMe();
+        if (response?.success && response?.data?.tokens) {
+          await this.setTokens(response.data.tokens);
+          return true;
+        }
+        return false;
       }
 
       // Only make API call if token is not near expiration
@@ -124,63 +407,129 @@ export class TokenManager {
   }
 
   /**
-   * Check if valid tokens exist
+   * Check if valid tokens exist and are not expired
    */
   static hasValidTokens(): boolean {
-    const token = getAuthToken();
-    if (!token) return false;
+    // First check cookies
+    const accessToken = this.getAccessToken();
+    if (!accessToken) return false;
 
-    try {
-      // Check if access token is expired
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      if (payload.exp * 1000 <= Date.now()) {
-        // Token is expired, try to refresh
-        this.refreshTokens().catch(() => this.clearTokens());
-        return false;
-      }
-      return true;
-    } catch {
-      this.clearTokens();
-      return false;
-    }
+    // Validate access token
+    return this.validateToken(accessToken);
   }
 
   static setTokens(tokens: AuthTokens): void {
     if (!tokens.accessToken || !tokens.refreshToken) {
       throw new Error("Invalid tokens provided");
     }
-    // Store in cookie
-    setAuthToken(tokens.accessToken);
-    // Also store in localStorage as backup
-    const tokensString = JSON.stringify(tokens);
-    setItem('auth-tokens', tokensString);
-    this.scheduleTokenRefresh();
+    
+    try {
+      // Store in cookies (both access and refresh tokens)
+      setCookieTokens(tokens.accessToken, tokens.refreshToken);
+      
+      // Also store in localStorage as backup
+      const tokensString = JSON.stringify(tokens);
+      setItem('auth-tokens', tokensString);
+      
+      // Parse and store the JWT payload for quick access
+      try {
+        const payload = JSON.parse(atob(tokens.accessToken.split(".")[1]));
+        this.jwtPayload = {
+          id: payload.sub || payload.id,
+          email: payload.email,
+          username: payload.username,
+          role: payload.role as "USER" | "ADMIN",
+          exp: payload.exp
+        };
+      } catch (error) {
+        console.error('Failed to parse JWT payload:', error);
+      }
+      
+      // Update the token refresh timeout
+      this.scheduleTokenRefresh();
+      
+      // Verify token immediately after setting
+      this.verifyTokenValidity(tokens.accessToken).catch(error => {
+        console.error('Failed to verify newly set token:', error);
+        this.clearTokens();
+      });
+      
+      // Update axios defaults to include credentials
+      apiClient.defaults.withCredentials = true;
+    } catch (error) {
+    }
   }
 
-  static getAccessToken(): string | null {
-    const token = getAuthToken();
-    return token || null;
-  }
-
+  /**
+   * Clear all authentication state including tokens and JWT payload
+   */
   static clearTokens(): void {
-    clearAuthToken();
+    // Use the clearTokens from cookie.ts to clear both access and refresh tokens
+    clearCookieTokens();
+    // Also clear localStorage
     removeItem('auth-tokens');
+    // Clear the JWT payload
+    this.jwtPayload = null;
+    
+    // Clear any scheduled refresh
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout);
+      this.refreshTimeout = null;
+    }
   }
 
   public static async refreshTokens(): Promise<boolean> {
     try {
+      const storedTokens = await this.getTokens();
+      if (!storedTokens?.refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
       const response = await AuthAPI.refreshTokens();
-      if (response.success && response.data && response.data.tokens) {
-        this.setTokens(response.data.tokens);
+      if (response?.success && response?.data?.tokens) {
+        await this.setTokens(response.data.tokens);
         return true;
       }
       return false;
     } catch (error: unknown) {
       console.error("Error refreshing tokens:", error);
-      // Only clear tokens if we're sure refresh failed
-      if (error instanceof Error && (error.message.includes('401') || error.message.includes('invalid_token'))) {
-        this.clearTokens();
+      // Only clear tokens for specific error types
+      if (error instanceof Error && 
+          (error.message.includes('token') || error.message.includes('unauthorized'))) {
+        await this.clearTokens();
       }
+      return false;
+    }
+  }
+
+  /**
+   * Public method to handle token refresh with fallback
+   */
+  public static async refreshTokensWithFallback(): Promise<boolean> {
+    try {
+      // Try regular refresh first
+      const refreshResult = await this.refreshTokens();
+      if (refreshResult) {
+        return true;
+      }
+
+      // If refresh fails and we have a valid token, try getMe as fallback
+      const accessToken = this.getAccessToken();
+      if (accessToken && this.validateToken(accessToken)) {
+        try {
+          const response = await AuthAPI.getMe();
+          if (response?.success && response?.data?.tokens) {
+            await this.setTokens(response.data.tokens);
+            return true;
+          }
+        } catch {
+          // Ignore getMe errors, we'll return false below
+        }
+      }
+
+      return false;
+    } catch (error: unknown) {
+      console.error("Error refreshing tokens with fallback:", error);
       return false;
     }
   }
@@ -189,5 +538,6 @@ export class TokenManager {
     return this.hasValidTokens();
   }
 }
+
 
 export default TokenManager;
