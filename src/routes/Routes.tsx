@@ -7,7 +7,7 @@ import {
 import { Suspense, lazy } from "react";
 
 // Loading fallback
-import LoadingSpinner from "@/components/ui/LoadingSpinner"; // or create a small spinner
+import LoadingSpinner from "@/components/common/LoadingSpinner"; // or create a small spinner
 
 // Lazy load pages
 const Home = lazy(() => import("@/pages/Home"));
@@ -26,7 +26,7 @@ const EditListing = lazy(
   () => import("@/components/listings/edit/EditListing"),
 );
 const Messages = lazy(() => import("@/pages/Messages"));
-const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
+
 const Settings = lazy(() => import("@/pages/Settings"));
 const ChangePassword = lazy(
   () => import("@/components/profile/ChangePassword"),
@@ -54,7 +54,7 @@ const Routes = (): JSX.Element => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/category/:category" element={<CategoryPage />} />
+
         <Route path="/listings/:id" element={<ListingDetails />} />
         <Route path="/listings" element={<Navigate to="/" replace />} />
         <Route path="/vehicles" element={<Vehicles />} />

@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 

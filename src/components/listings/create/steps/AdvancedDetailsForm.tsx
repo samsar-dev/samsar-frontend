@@ -34,7 +34,7 @@ import {
   listingsAdvancedFieldSchema,
   SECTION_CONFIG,
 } from "../advanced/listingsAdvancedFieldSchema";
-const FormField = lazy(() => import("@/components/common/FormField"));
+const FormField = lazy(() => import("@/components/form/FormField"));
 const ColorPickerField = lazy(
   () => import("@/components/listings/forms/ColorPickerField"),
 );

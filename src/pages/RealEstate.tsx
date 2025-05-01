@@ -4,9 +4,9 @@ import {
   RealEstateFilterState,
 } from "@/components/filters/RealEstateFilter";
 import ListingCard from "@/components/listings/details/ListingCard";
+import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
 import { ListingCategory } from "@/types/enums";
-import { FaSpinner } from "react-icons/fa";
 import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
@@ -62,7 +62,7 @@ const RealEstatePage: React.FC = () => {
       if (response.success && response.data?.listings) {
         setListings((prev) => ({
           ...prev,
-          all: response.data.listings ?? [], // Fix lint error here
+          all: response.data?.listings ?? [],
           loading: false,
         }));
       } else {
@@ -105,9 +105,7 @@ const RealEstatePage: React.FC = () => {
         </div>
 
         {listings.loading ? (
-          <div className="flex justify-center items-center h-64">
-            <FaSpinner className="animate-spin text-4xl text-primary" />
-          </div>
+          <SkeletonListingGrid />
         ) : listings.error ? (
           <div className="text-center text-red-500 py-8">{listings.error}</div>
         ) : listings.all.length === 0 ? (

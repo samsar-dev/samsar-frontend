@@ -1,5 +1,5 @@
-import PreloadImages from "@/components/common/PreloadImages";
-import ResponsiveImage from "@/components/common/ResponsiveImage";
+import PreloadImages from "@/components/media/PreloadImages";
+import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { ListingCategory } from "@/types/enums";
 import type {
   Listing,

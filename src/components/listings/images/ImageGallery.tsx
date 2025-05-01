@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import PreloadImages from "@/components/common/PreloadImages";
-import ResponsiveImage from "@/components/common/ResponsiveImage";
+import PreloadImages from "@/components/media/PreloadImages";
+import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 

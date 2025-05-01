@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification, NotificationFilters } from "@/types/notifications";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/common/toast";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface NotificationsContextType {

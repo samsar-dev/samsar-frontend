@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import PreloadImages from "@/components/common/PreloadImages";
-import ResponsiveImage from "@/components/common/ResponsiveImage";
+import PreloadImages from "@/components/media/PreloadImages";
+import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { renderIcon } from "@/components/ui/icons";
@@ -248,7 +248,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             alt={title as string}
             className="rounded-t-lg h-48 sm:h-56 md:h-64 w-full object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            priority={isHighPriorityImage}
+            priority={!!isHighPriorityImage}
             onError={(e) => {
               e.currentTarget.src = "/placeholder.jpg";
               e.currentTarget.onerror = null;

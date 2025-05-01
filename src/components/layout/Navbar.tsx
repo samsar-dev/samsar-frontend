@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks";
 import { useUI } from "@/contexts/UIContext";
-import { SearchBar, Tooltip } from "@/components/ui";
+import Tooltip from "@/components/ui/Tooltip";
+import { SearchBar } from "@/components/search/SearchBar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import {
   FaUser,

@@ -5,11 +5,11 @@ import type { ComponentData, APIResponse } from "@/types/common";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Tooltip from "@/components/ui/Tooltip";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Import components with named imports for UI components
 import { Button } from "@/components/ui/Button";
-import { SearchBar } from "@/components/ui/SearchBar";
+import { SearchBar } from "@/components/search/SearchBar";
 
 // Re-export all components
 export {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import type { SearchBarProps } from "@/types/ui";
 
 import { listingsAPI } from "@/api/listings.api";
-import SearchSuggestionsDropdown from "./SearchSuggestionsDropdown";
+import { SearchSuggestionsDropdown } from "./SearchSuggestionsDropdown";
 import { useNavigate } from "react-router-dom";
 import { ListingCategory } from "@/types/enums";
 

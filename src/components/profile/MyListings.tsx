@@ -1,6 +1,6 @@
 import { listingsAPI } from "@/api/listings.api";
 import MyListingCard from "@/components/listings/details/MyListingCard";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

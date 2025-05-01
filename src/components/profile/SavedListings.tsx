@@ -1,5 +1,5 @@
 import { listingsAPI } from "@/api/listings.api";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { ListingAction } from "@/types/enums";
 import type { Listing, ListingDetails } from "@/types/listings";

@@ -4,7 +4,7 @@ import { useSavedListings } from "@/contexts/SavedListingsContext";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { Listing, PaginatedListingResponse } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/common/toast";
 
 interface ListingsCollectionProps {
   type: "favorites" | "saved";

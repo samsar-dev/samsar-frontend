@@ -10,7 +10,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import TokenManager from "@/utils/tokenManager";
 import { setupAuthDebugger } from "@/utils/authDebug";
 import AppRoutes from "./routes/Routes";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import { ToastContainer } from "react-toastify";

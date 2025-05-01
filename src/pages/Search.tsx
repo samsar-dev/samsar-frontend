@@ -2,10 +2,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ListingCard from "@/components/listings/details/ListingCard";
+import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { Listing } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // Debug info interface for type safety
 interface DebugInfo {
@@ -221,9 +221,7 @@ const Search: React.FC = () => {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center min-h-[400px]">
-          <LoadingSpinner />
-        </div>
+        <SkeletonListingGrid />
       ) : error ? (
         <div className="text-center py-8">
           <p className="text-red-600 dark:text-red-400">{error}</p>

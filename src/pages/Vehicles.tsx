@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import {
   VehicleFilter,
   VehicleFilterState,
 } from "@/components/filters/VehicleFilter";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { ExtendedListing } from "@/types/listings";
-import { ListingCategory, VehicleType } from "@/types/enums";
-import { FaSpinner } from "react-icons/fa";
+import { ListingCategory } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
@@ -68,7 +68,7 @@ const VehiclesPage: React.FC = () => {
       if (response.success && response.data?.listings) {
         setListings((prev) => ({
           ...prev,
-          all: response.data.listings as ExtendedListing[],
+          all: response.data?.listings ?? [],
           loading: false,
         }));
       } else {
@@ -109,9 +109,7 @@ const VehiclesPage: React.FC = () => {
         </div>
 
         {listings.loading ? (
-          <div className="flex justify-center items-center h-64">
-            <FaSpinner className="animate-spin text-4xl text-primary" />
-          </div>
+          <SkeletonListingGrid />
         ) : listings.error ? (
           <div className="text-center text-red-500 py-8">{listings.error}</div>
         ) : listings.all.length === 0 ? (

@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
-import ResponsiveImage from "@/components/common/ResponsiveImage";
-import PreloadImages from "@/components/common/PreloadImages";
+import ResponsiveImage from "@/components/media/ResponsiveImage";
+import PreloadImages from "@/components/media/PreloadImages";
 
 interface ImageManagerProps {
   images: File[];

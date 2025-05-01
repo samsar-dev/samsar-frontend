@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 
 const ResponsiveImage = lazy(
-  () => import("@/components/common/ResponsiveImage"),
+  () => import("@/components/media/ResponsiveImage"),
 );
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";

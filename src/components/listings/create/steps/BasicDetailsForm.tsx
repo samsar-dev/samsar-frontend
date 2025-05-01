@@ -28,7 +28,7 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
-import FormField, { FormFieldValue } from "@/components/common/FormField";
+import FormField, { FormFieldValue } from "@/components/form/FormField";
 import {
   Car,
   Home,

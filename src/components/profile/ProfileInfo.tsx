@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -36,7 +36,7 @@ const ProfileInfo = () => {
       setFormData({
         username: user.username || "",
         email: user.email || "",
-        bio: (user as UserProfile)?.bio || "",
+        bio: (user as unknown as UserProfile)?.bio || "",
         dateOfBirth: user.dateOfBirth || "",
         street: user.street || "",
         city: user.city || "",

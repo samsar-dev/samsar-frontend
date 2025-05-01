@@ -1,8 +1,8 @@
 import { listingsAPI } from "@/api/listings.api";
 import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import PreloadImages from "@/components/common/PreloadImages";
+import SkeletonListingGrid from "@/components/common/SkeletonGrid";
+import PreloadImages from "@/components/media/PreloadImages";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 import { serverStatus } from "@/utils/serverStatus";
@@ -505,11 +505,7 @@ const Home: React.FC = () => {
 
   const renderContent = useCallback(() => {
     if (listings.loading) {
-      return (
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <LoadingSpinner size="lg" />
-        </div>
-      );
+      return <SkeletonListingGrid />;
     }
 
     return (
@@ -585,10 +581,7 @@ const Home: React.FC = () => {
           />
         )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <div
           className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {filteredListings.map((listing) => (
@@ -628,7 +621,7 @@ const Home: React.FC = () => {
               )}
             </motion.div>
           )}
-        </motion.div>
+        </div>
 
         {listings.popular.length > 0 && (
           <motion.div

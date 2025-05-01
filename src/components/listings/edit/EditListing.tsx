@@ -1,6 +1,6 @@
 import { listingsAPI } from "@/api/listings.api";
-import { FormField } from "@/components/common/FormField";
-import type { FormFieldProps } from "@/components/common/FormField";
+import { FormField } from "@/components/form/FormField";
+import type { FormFieldProps } from "@/components/form/FormField";
 import type { SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import {
   listingsAdvancedFieldSchema,
@@ -10,7 +10,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";

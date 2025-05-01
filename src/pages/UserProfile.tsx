@@ -1,7 +1,7 @@
 import { UserAPI } from "@/api/auth.api";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { Button } from "@/components/ui/Button";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { CategoryFilter } from "@/types/listings";
 import { formatDistanceToNow } from "date-fns";
@@ -69,7 +69,7 @@ export const UserProfile = () => {
   const filteredListings = profile?.listings
     ?.map((listing) => ({
       ...listing,
-      images: listing?.images?.map((image) => image.url),
+      images: listing?.images?.map((image: { url: string }) => image.url),
       category: {
         mainCategory: listing.category,
         subCategory: listing.subCategory,
@@ -143,7 +143,7 @@ export const UserProfile = () => {
               className="flex flex-col gap-1"
             >
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {profile?.name ? profile?.name : "UserName"}
+                {profile?.username ? profile?.username : "UserName"}
               </h1>
               <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
                 <span>{profile.location ? profile.location : "Location"}</span>
@@ -205,7 +205,8 @@ export const UserProfile = () => {
 
           {/* Bio */}
           {profile.bio && (
-            <div className="mt-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold mb-2">{profile.username}</h1>
               <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
                 {profile.bio}
               </p>
@@ -239,7 +240,7 @@ export const UserProfile = () => {
 
           {/* Listings Grid */}
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredListings?.map((listing, index) => (
+            {filteredListings?.map((listing) => (
               <ListingCard
                 listing={listing}
                 showPrice={true}

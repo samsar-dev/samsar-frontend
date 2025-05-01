@@ -82,4 +82,4 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   );
 };
 
-export default SearchSuggestionsDropdown;
+export { SearchSuggestionsDropdown };
