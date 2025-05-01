@@ -1,6 +1,6 @@
 // 📁 /components/ui/index.ts
 
-export { Button } from "./Button";
+export { Button } from "./Button2";
 export { Modal } from "./Modal";
 export { default as Tooltip } from "./Tooltip";
 export { renderIcon } from "./icons";

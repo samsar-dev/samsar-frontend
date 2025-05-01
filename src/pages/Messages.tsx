@@ -39,6 +39,7 @@ const Messages: React.FC = () => {
       try {
         setLoading(true);
         const response = await MessagesAPI.getConversations();
+        console.log("API response for conversations:", response);
         if (response.success && response.data) {
           let conversations = response.data.items || [];
           // Normalize conversation data and ensure _id is always present
@@ -70,7 +71,7 @@ const Messages: React.FC = () => {
             } else {
               console.error(
                 "First conversation has no _id:",
-                firstConversation,
+                firstConversation
               );
             }
           }
@@ -92,7 +93,7 @@ const Messages: React.FC = () => {
 
   const loadMessages = async (
     conversationId: string | undefined,
-    silent = false,
+    silent = false
   ) => {
     if (!conversationId) {
       console.error("Cannot load messages: conversationId is undefined");
@@ -103,14 +104,14 @@ const Messages: React.FC = () => {
       if (!silent)
         console.log("Loading messages for conversation:", conversationId);
       const response = await MessagesAPI.getMessages(conversationId);
-      if (!silent) console.log("API response:", response);
+      if (!silent) console.log("API response for messages:", response);
 
       // Check if the response has messages directly (backend format)
       if (response.success && response.messages) {
         if (!silent)
           console.log(
             "Found messages in response.messages:",
-            response.messages.length,
+            response.messages.length
           );
         setCurrentMessages(response.messages);
         return;
@@ -128,7 +129,7 @@ const Messages: React.FC = () => {
       } else {
         if (!silent)
           console.log(
-            "No messages found or API returned unsuccessful response",
+            "No messages found or API returned unsuccessful response"
           );
       }
     } catch (error) {
@@ -140,7 +141,7 @@ const Messages: React.FC = () => {
   // Handle deleting a conversation
   const handleDeleteConversation = async (
     conversationId: string | undefined,
-    e: React.MouseEvent,
+    e: React.MouseEvent
   ) => {
     e.stopPropagation(); // Prevent triggering conversation selection
 
@@ -158,8 +159,8 @@ const Messages: React.FC = () => {
           setConversations((prev) =>
             prev.filter(
               (conv) =>
-                conv.id !== conversationId && conv._id !== conversationId,
-            ),
+                conv.id !== conversationId && conv._id !== conversationId
+            )
           );
 
           // Clear active conversation if it was deleted
@@ -247,15 +248,15 @@ const Messages: React.FC = () => {
             prev.map((conv) =>
               conv._id === activeConversation._id
                 ? { ...conv, lastMessage: newMessage }
-                : conv,
-            ),
+                : conv
+            )
           );
         } else {
           // If message is for another conversation, update that conversation's last message
           setConversations((prev) => {
             return prev.map((conv) => {
               const otherUserId = conv.participants.find(
-                (p) => p.id !== user.id,
+                (p) => p.id !== user.id
               )?.id;
               if (
                 (newMessage.senderId === otherUserId &&
@@ -352,13 +353,13 @@ const Messages: React.FC = () => {
         existingConversation = conversations.find(
           (conv) =>
             conv.listingId === listingId &&
-            conv.participants.some((p) => p.id === recipientId),
+            conv.participants.some((p) => p.id === recipientId)
         );
 
         if (existingConversation) {
           console.log(
             "Found existing conversation for this listing:",
-            existingConversation,
+            existingConversation
           );
           setActiveConversation(existingConversation);
         }
@@ -402,8 +403,8 @@ const Messages: React.FC = () => {
             prev.map((conv) =>
               conv.id === convId || conv._id === convId
                 ? { ...conv, lastMessage: newMessage }
-                : conv,
-            ),
+                : conv
+            )
           );
         }
       }
@@ -466,7 +467,7 @@ const Messages: React.FC = () => {
             // Ensure each conversation has a unique key
             const conversationKey = conversation._id || `conversation-${index}`;
             const otherUser = conversation.participants.find(
-              (p) => p.id !== user?.id,
+              (p) => p.id !== user?.id
             );
             return (
               <button
@@ -482,7 +483,7 @@ const Messages: React.FC = () => {
                   onClick={(e) =>
                     handleDeleteConversation(
                       conversation.id || conversation._id,
-                      e,
+                      e
                     )
                   }
                   className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
@@ -521,7 +522,7 @@ const Messages: React.FC = () => {
                     {conversation.lastMessage && (
                       <span className="text-xs text-gray-500">
                         {new Date(
-                          conversation.lastMessage.createdAt,
+                          conversation.lastMessage.createdAt
                         ).toLocaleDateString()}
                       </span>
                     )}
@@ -557,7 +558,7 @@ const Messages: React.FC = () => {
               <div>
                 <div className="font-semibold text-lg">
                   {activeConversation?.participants.find(
-                    (p) => p.id !== user.id,
+                    (p) => p.id !== user.id
                   )?.username || "New Conversation"}
                 </div>
                 <div className="text-xs text-green-500">Online</div>
@@ -594,7 +595,7 @@ const Messages: React.FC = () => {
                 onSubmit={async (e) => {
                   e.preventDefault();
                   const input = e.currentTarget.elements.namedItem(
-                    "messageInput",
+                    "messageInput"
                   ) as HTMLInputElement;
                   if (input && input.value.trim()) {
                     await handleSendMessage(input.value);
@@ -671,3 +672,5 @@ const Messages: React.FC = () => {
 };
 
 export default Messages;
+
+
