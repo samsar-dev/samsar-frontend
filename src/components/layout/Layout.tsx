@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         className={`flex-grow container mx-auto ${isMessagesPage ? "px-0" : "px-4 py-8"} bg-background-secondary dark:bg-background-secondary-dark`}
       >
         <div
-          className={`bg-surface-primary dark:bg-surface-primary-dark ${isMessagesPage ? " relative pt-4 z-0" : "p-6 shadow-sm rounded-lg"}`}
+          className={`bg-surface-primary dark:bg-surface-primary-dark ${isMessagesPage ? " relative " : "p-6 shadow-sm rounded-lg"}`}
         >
           {children}
         </div>
