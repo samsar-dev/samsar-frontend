@@ -5,7 +5,7 @@ import { ListingAction, ListingCategory } from "@/types/enums";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import type { Listing, ListingDetails } from "@/types/listings";
 import type { ListingMessageInput } from "@/types/messaging";
-import { formatCurrency } from "@/utils/format";
+import { formatCurrency } from "@/utils/formatUtils";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
