@@ -766,12 +766,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               const newValue = typeof value === "string" ? value : "";
               handleInputChange("details.vehicles.customMake", newValue);
             }}
-            onBlur={() =>
-              setTouched((prev) => ({
-                ...prev,
-                "details.vehicles.customMake": true,
-              }))
-            }
             error={
               touched["details.vehicles.customMake"]
                 ? errors["details.vehicles.customMake"]

@@ -799,395 +799,470 @@ const ListingDetails = () => {
 
               <div className="space-y-6">
                 {/* Essential Details */}
-                <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    {t("listings.essentialDetails")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("listings.fields.make")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.make}
-                      </p>
+                {(listing?.details?.vehicles?.make ||
+                  listing?.details?.vehicles?.model ||
+                  listing?.details?.vehicles?.year ||
+                  listing?.details?.vehicles?.mileage ||
+                  listing?.details?.vehicles?.fuelType ||
+                  listing?.details?.vehicles?.transmissionType ||
+                  listing?.details?.vehicles?.transmission) && (
+                  <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      {t("listings.essentialDetails")}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {listing?.details?.vehicles?.make && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.make")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.make}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.model && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.model")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.model}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.year && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.year")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.year}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.mileage && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.mileage")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.mileage}{" "}
+                            {t("listings.fields.mileage")}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.fuelType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.fuelType")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {t(
+                              `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
+                            )}
+                          </p>
+                        </div>
+                      )}
+                      {(listing?.details?.vehicles?.transmissionType ||
+                        listing?.details?.vehicles?.transmission) && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.transmission")}
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {t(
+                              `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
+                            )}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("listings.fields.model")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.model}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("listings.fields.year")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.year}
-                      </p>
-                    </div>
-                    {listing?.details?.vehicles?.mileage && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.mileage")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {listing?.details?.vehicles?.mileage}{" "}
-                          {t("listings.fields.mileage")}
-                        </p>
-                      </div>
-                    )}
-                    {listing?.details?.vehicles?.fuelType && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.fuelType")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {t(
-                            `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    {(listing?.details?.vehicles?.transmissionType ||
-                      listing?.details?.vehicles?.transmission) && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.transmission")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {t(
-                            `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
-                          )}
-                        </p>
-                      </div>
-                    )}
                   </div>
-                </div>
+                )}
 
                 {/* Appearance */}
-                <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    {t("listings.appearance")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {listing?.details?.vehicles?.color && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.exteriorColor")}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
-                            style={{
-                              backgroundColor:
-                                listing?.details?.vehicles?.color,
-                            }}
-                          />
+                {(listing?.details?.vehicles?.color ||
+                  listing?.details?.vehicles?.interiorColor ||
+                  listing?.details?.vehicles?.condition) && (
+                  <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      {t("listings.appearance")}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {listing?.details?.vehicles?.color && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.exteriorColor")}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
+                              style={{
+                                backgroundColor:
+                                  listing?.details?.vehicles?.color,
+                              }}
+                            />
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {listing?.details?.vehicles?.color}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.interiorColor && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.interiorColor")}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
+                              style={{
+                                backgroundColor:
+                                  listing?.details?.vehicles?.interiorColor,
+                              }}
+                            />
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {listing?.details?.vehicles?.interiorColor}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.condition && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t("listings.fields.condition")}
+                          </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.color}
+                            {t(
+                              `listings.fields.conditions.${listing?.details?.vehicles?.condition}`,
+                            )}
                           </p>
                         </div>
-                      </div>
-                    )}
-                    {listing?.details?.vehicles?.interiorColor && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.interiorColor")}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
-                            style={{
-                              backgroundColor:
-                                listing?.details?.vehicles?.interiorColor,
-                            }}
-                          />
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.interiorColor}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {listing?.details?.vehicles?.condition && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.condition")}
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {t(
-                            `listings.fields.conditions.${listing?.details?.vehicles?.condition}`,
-                          )}
-                        </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Vehicle History Section */}
-                <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    Vehicle History
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Vehicle Owner */}
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Vehicle Owner(s)
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.numberOfOwners ||
-                          listing?.details?.vehicles?.previousOwners ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    {/* Service History */}
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Service History
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.serviceHistory
-                          ? t("common.yes")
-                          : t("common.no")}
-                      </p>
-                    </div>
-                    {/* Accident Free */}
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Accident Free
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.accidentFree
-                          ? t("common.yes")
-                          : t("common.no")}
-                      </p>
-                    </div>
-                    {/* Warranty */}
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Warranty
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.warranty ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    {/* Registration Status */}
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Registration Status
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.registrationStatus ||
-                          t("common.notProvided")}
-                      </p>
+                {(listing?.details?.vehicles?.numberOfOwners ||
+                  listing?.details?.vehicles?.previousOwners ||
+                  (listing?.details?.vehicles as any)?.serviceHistory !== undefined ||
+                  (listing?.details?.vehicles as any)?.accidentFree !== undefined ||
+                  listing?.details?.vehicles?.warranty ||
+                  listing?.details?.vehicles?.registrationStatus) && (
+                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      Vehicle History
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Vehicle Owner */}
+                      {(listing?.details?.vehicles?.numberOfOwners || listing?.details?.vehicles?.previousOwners) && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Vehicle Owner(s)
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.numberOfOwners ||
+                              listing?.details?.vehicles?.previousOwners}
+                          </p>
+                        </div>
+                      )}
+                      {/* Service History */}
+                      {(listing?.details?.vehicles as any)?.serviceHistory !== undefined && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Service History
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {(listing?.details?.vehicles as any)?.serviceHistory
+                              ? t("common.yes")
+                              : t("common.no")}
+                          </p>
+                        </div>
+                      )}
+                      {/* Accident Free */}
+                      {(listing?.details?.vehicles as any)?.accidentFree !== undefined && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Accident Free
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {(listing?.details?.vehicles as any)?.accidentFree
+                              ? t("common.yes")
+                              : t("common.no")}
+                          </p>
+                        </div>
+                      )}
+                      {/* Warranty */}
+                      {listing?.details?.vehicles?.warranty && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Warranty
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.warranty}
+                          </p>
+                        </div>
+                      )}
+                      {/* Registration Status */}
+                      {listing?.details?.vehicles?.registrationStatus && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Registration Status
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.registrationStatus}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Additional Details */}
-                <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    Additional Details
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.vin ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Engine Number
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.engineNumber ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Import Status
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.importStatus ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Registration Expiry
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.registrationExpiry
-                          ? new Date(
-                              (
-                                listing?.details?.vehicles as any
-                              ).registrationExpiry,
-                            ).toLocaleDateString()
-                          : t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Insurance Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)?.insuranceType ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Upholstery Material
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.upholsteryMaterial ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Tire Condition
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.tireCondition ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Customs Cleared
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.customsCleared
-                          ? t("common.yes")
-                          : t("common.no")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Warranty Period
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.warrantyPeriod ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Service History Details
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {(listing?.details?.vehicles as any)
-                          ?.serviceHistoryDetails || t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Body Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.bodyType ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Roof Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.roofType ||
-                          t("common.notProvided")}
-                      </p>
+                {(listing?.details?.vehicles?.vin ||
+                  listing?.details?.vehicles?.engineNumber ||
+                  (listing?.details?.vehicles as any)?.importStatus ||
+                  (listing?.details?.vehicles as any)?.registrationExpiry ||
+                  (listing?.details?.vehicles as any)?.insuranceType ||
+                  listing?.details?.vehicles?.upholsteryMaterial ||
+                  listing?.details?.vehicles?.tireCondition ||
+                  listing?.details?.vehicles?.customsCleared ||
+                  listing?.details?.vehicles?.warrantyPeriod ||
+                  (listing?.details?.vehicles as any)?.serviceHistoryDetails ||
+                  listing?.details?.vehicles?.bodyType ||
+                  listing?.details?.vehicles?.roofType) && (
+                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      Additional Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {listing?.details?.vehicles?.vin && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            VIN
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.vin}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.engineNumber && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Engine Number
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.engineNumber}
+                          </p>
+                        </div>
+                      )}
+                      {(listing?.details?.vehicles as any)?.importStatus && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Import Status
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {(listing?.details?.vehicles as any)?.importStatus}
+                          </p>
+                        </div>
+                      )}
+                      {(listing?.details?.vehicles as any)?.registrationExpiry && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Registration Expiry
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {new Date(
+                              (listing?.details?.vehicles as any).registrationExpiry
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
+                      )}
+                      {(listing?.details?.vehicles as any)?.insuranceType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Insurance Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {(listing?.details?.vehicles as any)?.insuranceType}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.upholsteryMaterial && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Upholstery Material
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.upholsteryMaterial}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.tireCondition && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Tire Condition
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.tireCondition}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.customsCleared !== undefined && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Customs Cleared
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.customsCleared
+                              ? t("common.yes")
+                              : t("common.no")}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.warrantyPeriod && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Warranty Period
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.warrantyPeriod}
+                          </p>
+                        </div>
+                      )}
+                      {(listing?.details?.vehicles as any)?.serviceHistoryDetails && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Service History Details
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {(listing?.details?.vehicles as any)?.serviceHistoryDetails}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.bodyType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Body Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.bodyType}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.roofType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Roof Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing.details.vehicles.roofType}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Technical Details */}
-                <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    Technical Details
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Engine
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.engine ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Engine Size
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.engineSize ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Horsepower
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.horsepower ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Torque
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.torque ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Brake Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.brakeType ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Drive Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.driveType ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Wheel Size
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.wheelSize ||
-                          t("common.notProvided")}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Wheel Type
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing?.details?.vehicles?.wheelType ||
-                          t("common.notProvided")}
-                      </p>
+                {(listing?.details?.vehicles?.engine ||
+                  listing?.details?.vehicles?.engineSize ||
+                  listing?.details?.vehicles?.horsepower ||
+                  listing?.details?.vehicles?.torque ||
+                  listing?.details?.vehicles?.brakeType ||
+                  listing?.details?.vehicles?.driveType ||
+                  listing?.details?.vehicles?.wheelSize ||
+                  listing?.details?.vehicles?.wheelType) && (
+                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                      Technical Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {listing?.details?.vehicles?.engine && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Engine
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.engine}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.engineSize && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Engine Size
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.engineSize}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.horsepower && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Horsepower
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.horsepower}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.torque && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Torque
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.torque}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.brakeType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Brake Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.brakeType}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.driveType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Drive Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.driveType}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.wheelSize && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Wheel Size
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.wheelSize}
+                          </p>
+                        </div>
+                      )}
+                      {listing?.details?.vehicles?.wheelType && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Wheel Type
+                          </p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {listing?.details?.vehicles?.wheelType}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Vehicle Features Section */}
                 {(features.safetyFeatures.length > 0 ||

@@ -18,18 +18,8 @@ import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import {
-  FaArrowLeft,
-  FaCar,
-  FaHistory,
-  FaHome,
-  FaInfo,
-  FaSave,
-  FaShieldAlt,
-  FaTools,
-} from "react-icons/fa";
+import { FaArrowLeft, FaCar, FaHistory, FaHome, FaInfo, FaSave, FaShieldAlt, FaTools, } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-
 interface EditFormData {
   title: string;
   description: string;
@@ -42,6 +32,64 @@ interface EditFormData {
   images: (string | File)[];
   existingImages: string[];
 }
+
+// Define the features structure to match ListingDetails.tsx
+const featuresDetails = {
+  safetyFeatures: [
+    "blindSpotMonitor",
+    "laneAssist",
+    "adaptiveCruiseControl",
+    "tractionControl",
+    "abs",
+    "emergencyBrakeAssist",
+    "tirePressureMonitoring",
+    "parkingSensors",
+    "frontAirbags",
+    "sideAirbags",
+    "curtainAirbags",
+    "kneeAirbags",
+    "cruiseControl",
+    "laneDepartureWarning",
+    "laneKeepAssist",
+    "automaticEmergencyBraking",
+  ],
+  cameraFeatures: ["rearCamera", "camera360", "dashCam", "nightVision"],
+  climateFeatures: [
+    "climateControl",
+    "heatedSeats",
+    "ventilatedSeats",
+    "dualZoneClimate",
+    "rearAC",
+    "airQualitySensor",
+  ],
+  enternmentFeatures: [
+    "bluetooth",
+    "appleCarPlay",
+    "androidAuto",
+    "premiumSound",
+    "wirelessCharging",
+    "usbPorts",
+    "cdPlayer",
+    "dvdPlayer",
+    "rearSeatEntertainment",
+  ],
+  lightingFeatures: [
+    "ledHeadlights",
+    "adaptiveHeadlights",
+    "ambientLighting",
+    "fogLights",
+    "automaticHighBeams",
+  ],
+  convenienceFeatures: [
+    "keylessEntry",
+    "sunroof",
+    "spareKey",
+    "remoteStart",
+    "powerTailgate",
+    "autoDimmingMirrors",
+    "rainSensingWipers",
+  ],
+};
 
 const getIconComponent = (iconName: string) => {
   const iconMap: { [key: string]: React.ComponentType } = {
@@ -64,6 +112,16 @@ const EditListing = () => {
   const [saving, setSaving] = useState(false);
   const [isVehicle, setIsVehicle] = useState(true);
   const [listing, setListing] = useState<Listing | null>(null);
+  // Add a state for features to match ListingDetails.tsx
+  const [features, setFeatures] = useState({
+    safetyFeatures: [] as string[],
+    cameraFeatures: [] as string[],
+    climateFeatures: [] as string[],
+    enternmentFeatures: [] as string[],
+    lightingFeatures: [] as string[],
+    convenienceFeatures: [] as string[],
+  });
+  
   const [formData, setFormData] = useState<EditFormData>({
     title: "",
     description: "",
@@ -146,6 +204,51 @@ const EditListing = () => {
             const existingImages = (response.data.images || []).map(
               (img: any) => (typeof img === "string" ? img : img.url),
             );
+
+            // Extract vehicle details
+            const vehicleDetails = response.data.details?.vehicles;
+            
+            // Populate features similar to ListingDetails.tsx
+            if (vehicleDetails) {
+              setFeatures({
+                safetyFeatures: featuresDetails.safetyFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                }),
+                cameraFeatures: featuresDetails.cameraFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                }),
+                climateFeatures: featuresDetails.climateFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                }),
+                enternmentFeatures: featuresDetails.enternmentFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
+                lightingFeatures: featuresDetails.lightingFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
+                convenienceFeatures: featuresDetails.convenienceFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
+              });
+            }
 
             setFormData({
               title: response.data.title,
@@ -597,6 +700,169 @@ const EditListing = () => {
                   })}
               </div>
             </div>
+            
+            {/* Features Section */}
+            {isVehicle && (
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                  {t("Vehicle Features")}
+                </h2>
+                
+                {/* Safety Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Safety Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.safetyFeatures.map((feature) => {
+                      return (
+                        <div key={feature} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={feature}
+                            checked={Boolean(formData.details?.vehicles?.[feature])}
+                            onChange={(e) => {
+                              handleInputChange(feature, e.target.checked);
+                              // Update features state when checkbox changes
+                              if (e.target.checked) {
+                                setFeatures(prev => ({
+                                  ...prev,
+                                  safetyFeatures: [...prev.safetyFeatures, feature]
+                                }));
+                              } else {
+                                setFeatures(prev => ({
+                                  ...prev,
+                                  safetyFeatures: prev.safetyFeatures.filter(f => f !== feature)
+                                }));
+                              }
+                            }}
+                            className="h-4 w-4 text-blue-600 rounded"
+                          />
+                          <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                            {t(`features.${feature}`) || feature}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Camera Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Camera Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.cameraFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={feature}
+                          checked={Boolean(formData.details?.vehicles?.[feature])}
+                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          className="h-4 w-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`features.${feature}`) || feature}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Climate Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Climate Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.climateFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={feature}
+                          checked={Boolean(formData.details?.vehicles?.[feature])}
+                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          className="h-4 w-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`features.${feature}`) || feature}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Entertainment Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Entertainment Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.enternmentFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={feature}
+                          checked={Boolean(formData.details?.vehicles?.[feature])}
+                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          className="h-4 w-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`features.${feature}`) || feature}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Lighting Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Lighting Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.lightingFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={feature}
+                          checked={Boolean(formData.details?.vehicles?.[feature])}
+                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          className="h-4 w-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`features.${feature}`) || feature}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Convenience Features */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    {t("Convenience Features")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {featuresDetails.convenienceFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={feature}
+                          checked={Boolean(formData.details?.vehicles?.[feature])}
+                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          className="h-4 w-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`features.${feature}`) || feature}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-4">

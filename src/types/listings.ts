@@ -9,6 +9,46 @@ import type {
   ListingStatus,
 } from "./enums";
 
+export enum YesNo {
+  Yes = "true",
+  No = "false",
+}
+
+export enum Zoning {
+  Residential = "residential",
+  Commercial = "commercial",
+  Industrial = "industrial",
+  Agricultural = "agricultural",
+  MixedUse = "mixed_use",
+  Recreational = "recreational",
+}
+
+export enum PropertyCondition {
+  New = "new",
+  Excellent = "excellent",
+  Good = "good",
+  Fair = "fair",
+  NeedsWork = "needs_work",
+  FixerUpper = "fixer_upper",
+}
+
+export enum PropertyUsage {
+  Retail = "retail",
+  Office = "office",
+  Industrial = "industrial",
+  Warehouse = "warehouse",
+  Hospitality = "hospitality",
+  MixedUse = "mixed_use",
+  Other = "other",
+}
+
+export enum CustomFeature {
+  Furnished = "furnished",
+  Basement = "basement",
+  Security = "security",
+  Fireplace = "fireplace",
+}
+
 export interface SelectOption {
   value: string;
   label: string;
