@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
   const handleSearch = (
     query: string,
     category?: string,
-    subcategory?: string,
+    subcategory?: string
   ) => {
     if (!query.trim()) return; // Only search if query is not empty
     let searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;
@@ -110,7 +110,7 @@ const Navbar: React.FC = () => {
     "transform opacity-0 scale-95 pointer-events-none";
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md">
+    <nav className="bg-white dark:bg-gray-800 shadow-md relative z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Left section */}
