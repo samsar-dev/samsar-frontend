@@ -326,7 +326,10 @@ export const useCreateListing = (): UseCreateListingReturn => {
         // Log the FormData entries for debugging
         console.log("FormData entries:");
         for (const [key, value] of formData.entries()) {
-          console.log(`${key}:`, value instanceof File ? `File: ${value.name}` : value);
+          console.log(
+            `${key}:`,
+            value instanceof File ? `File: ${value.name}` : value,
+          );
         }
 
         // Submit the form data

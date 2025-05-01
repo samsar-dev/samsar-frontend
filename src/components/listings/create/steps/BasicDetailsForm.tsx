@@ -329,9 +329,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       // Check file size and type
       const validFiles = fileArray.filter((file) => {
-        const isValidType = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
-          file.type,
-        );
+        const isValidType = [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif",
+        ].includes(file.type);
         const isValidSize = file.size <= 10 * 1024 * 1024; // Increased to 10MB max
         const isMinimumSize = file.size >= 50 * 1024; // Minimum 50KB
 

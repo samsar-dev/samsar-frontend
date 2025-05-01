@@ -139,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === "authTokens") {
         console.log(
-          "Auth tokens changed in another tab, refreshing auth state..."
+          "Auth tokens changed in another tab, refreshing auth state...",
         );
         checkAuth();
       }
@@ -157,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000
+          (state.retryAfter.getTime() - Date.now()) / 1000,
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;
@@ -218,13 +218,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (
     username: string,
     email: string,
-    password: string
+    password: string,
   ): Promise<boolean> => {
     try {
       // Check if we're still in rate limit cooldown
       if (state.retryAfter && state.retryAfter > new Date()) {
         const secondsLeft = Math.ceil(
-          (state.retryAfter.getTime() - Date.now()) / 1000
+          (state.retryAfter.getTime() - Date.now()) / 1000,
         );
         toast.error(`Please wait ${secondsLeft} seconds before trying again`);
         return false;

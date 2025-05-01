@@ -57,8 +57,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
     setSelectedImage(null);
   };
 
-
-
   return (
     <div className="w-full flex flex-col items-center">
       {/* Main Image */}

@@ -21,7 +21,9 @@ export const useAutoLogout = ({
   const { logout } = useAuth();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
   // Reset inactivity timers and refresh token
   const resetTimer = useCallback(async () => {

@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery")
+  () => import("@/components/listings/images/ImageGallery"),
 );
 
 interface ListingImage {

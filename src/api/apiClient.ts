@@ -52,14 +52,14 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       } else {
-        console.warn('No access token available for authenticated request');
+        console.warn("No access token available for authenticated request");
       }
     }
-    
+
     // Always ensure withCredentials is set for cross-origin requests
     // This ensures cookies are sent with the request
     config.withCredentials = true;
-    
+
     return config;
   },
   (error) => {
@@ -73,42 +73,42 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<APIResponse>) => {
     const originalRequest = error.config as RequestConfig;
-    
+
     // Only refresh/redirect for protected endpoints
     if (
       originalRequest?.requiresAuth !== false && // Default to true if not specified
       error.response?.status === 401 &&
       !originalRequest._retry
     ) {
-      console.log('Unauthorized request detected, attempting token refresh...');
+      console.log("Unauthorized request detected, attempting token refresh...");
       originalRequest._retry = true;
-      
+
       try {
         // First try to refresh tokens using the refresh token
-        console.log('Attempting to refresh token...');
+        console.log("Attempting to refresh token...");
         const refreshed = await TokenManager.refreshTokensWithFallback();
-        
+
         if (!refreshed) {
-          console.error('Token refresh failed');
+          console.error("Token refresh failed");
           // Only clear and redirect if refresh explicitly failed
           TokenManager.clearTokens();
           window.location.href = "/login?expired=true";
           return Promise.reject(error);
         }
-        
-        console.log('Token refresh successful, retrying request...');
+
+        console.log("Token refresh successful, retrying request...");
         const newToken = TokenManager.getAccessToken();
         if (!newToken) {
-          console.error('No access token after successful refresh');
+          console.error("No access token after successful refresh");
           // Something went wrong with token storage
           TokenManager.clearTokens();
           window.location.href = "/login?expired=true";
           return Promise.reject(error);
         }
-        
+
         // Update the Authorization header with the new token
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        
+
         // Retry the original request with the new token
         return apiClient(originalRequest);
       } catch (refreshError) {
@@ -118,7 +118,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     // For public endpoints or other errors, just reject
     return Promise.reject(error);
   },

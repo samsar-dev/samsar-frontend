@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
   const handleSearch = (
     query: string,
     category?: string,
-    subcategory?: string
+    subcategory?: string,
   ) => {
     if (!query.trim()) return; // Only search if query is not empty
     let searchUrl = `/search?q=${encodeURIComponent(query.trim())}`;

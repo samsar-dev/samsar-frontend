@@ -1,16 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { FixedSizeList as VirtualList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
+
+type AutoSizerProps = {
+  height: number;
+  width: number;
+};
 import type { ListChildComponentProps } from "react-window";
 import type { User } from "@/types/user";
 import type { Conversation } from "@/types";
 
 interface Message {
-  _id: string;
+  id: string;
   content: string;
-  sender: {
-    _id: string;
-  };
+  senderId: string;
   createdAt: string;
 }
 
@@ -40,21 +49,27 @@ export function ChatBox({
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newMessage.trim()) return;
 
-    try {
-      await onSendMessage(newMessage);
-      setNewMessage("");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
-  };
+      try {
+        await onSendMessage(newMessage);
+        setNewMessage("");
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
+    },
+    [onSendMessage, newMessage, currentUserId],
+  );
 
-  const otherUser = useMemo(() => 
-    conversation.participants.find((user: User) => user._id !== currentUserId) as User,
-    [conversation.participants, currentUserId]
+  const otherUser = useMemo(
+    () =>
+      conversation.participants.find(
+        (user: User) => user.id !== currentUserId,
+      ) as User,
+    [conversation.participants, currentUserId],
   );
 
   return (
@@ -72,54 +87,60 @@ export function ChatBox({
       </div>
 
       <div className="flex-1 overflow-hidden p-4">
-        <AutoSizer>
-          {({ height, width }: { height: number; width: number }) => (
-            <VirtualList
-              height={height}
-              width={width}
-              itemCount={messages.length}
-              itemSize={80}
-              itemData={{
-                messages,
-                currentUserId,
-                messagesEndRef: messages.length - 1
-              }}
-            >
-              {({ index, style, data }: ListChildComponentProps<{
-                messages: Message[];
-                currentUserId: string;
-                messagesEndRef: number;
-              }>) => {
-                const message = data.messages[index];
-                const isCurrentUser = message.sender._id === data.currentUserId;
-                const isLastMessage = index === data.messages.length - 1;
+        <div style={{ height: "100%" }}>
+          <AutoSizer>
+            {({ height, width }: AutoSizerProps) => (
+              <VirtualList
+                height={height}
+                width={width}
+                itemCount={messages.length}
+                itemSize={80}
+                itemData={{
+                  messages,
+                  currentUserId,
+                  messagesEndRef: messages.length - 1,
+                }}
+              >
+                {({
+                  index,
+                  style,
+                  data,
+                }: ListChildComponentProps<{
+                  messages: Message[];
+                  currentUserId: string;
+                  messagesEndRef: number;
+                }>) => {
+                  const message = data.messages[index];
+                  const isCurrentUser = message.senderId === data.currentUserId;
+                  const isLastMessage = index === data.messages.length - 1;
 
-                return (
-                  <div style={style}>
-                    <div
-                      key={message._id}
-                      className={`flex mb-4 ${isCurrentUser ? "justify-end" : "justify-start"}`}
-                      ref={isLastMessage ? messagesEndRef : undefined}
-                    >
+                  return (
+                    <div style={style}>
                       <div
-                        className={`max-w-[70%] rounded-lg p-3 ${
-                          isCurrentUser
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-100 text-gray-900"
-                        }`}
+                        key={message.id}
+                        className={`flex mb-4 ${isCurrentUser ? "justify-end" : "justify-start"}`}
+                        ref={isLastMessage ? messagesEndRef : undefined}
                       >
-                        <p>{message.content}</p>
-                        <span className="text-xs opacity-75">
-                          {new Date(message.createdAt).toLocaleTimeString()}
-                        </span>
+                        <div
+                          className={`max-w-[70%] rounded-lg p-3 ${
+                            isCurrentUser
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-100 text-gray-900"
+                          }`}
+                        >
+                          <p>{message.content}</p>
+                          <span className="text-xs opacity-75">
+                            {new Date(message.createdAt).toLocaleTimeString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              }}
-            </VirtualList>
-          )}
-        </AutoSizer>
+                  );
+                }}
+              </VirtualList>
+            )}
+          </AutoSizer>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 border-t">

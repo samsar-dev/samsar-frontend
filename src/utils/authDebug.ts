@@ -23,13 +23,13 @@ export function logAuthState(): void {
     "Cookie Access Token:",
     cookieAccessToken
       ? `${cookieAccessToken.substring(0, 10)}...${cookieAccessToken.substring(cookieAccessToken.length - 5)}`
-      : "None"
+      : "None",
   );
   console.log(
     "Cookie Refresh Token:",
     cookieRefreshToken
       ? `${cookieRefreshToken.substring(0, 10)}...${cookieRefreshToken.substring(cookieRefreshToken.length - 5)}`
-      : "None"
+      : "None",
   );
 
   // Check localStorage
@@ -43,13 +43,13 @@ export function logAuthState(): void {
         "LocalStorage Access Token:",
         localStorageTokens.accessToken
           ? `${localStorageTokens.accessToken.substring(0, 10)}...${localStorageTokens.accessToken.substring(localStorageTokens.accessToken.length - 5)}`
-          : "None"
+          : "None",
       );
       console.log(
         "LocalStorage Refresh Token:",
         localStorageTokens.refreshToken
           ? `${localStorageTokens.refreshToken.substring(0, 10)}...${localStorageTokens.refreshToken.substring(localStorageTokens.refreshToken.length - 5)}`
-          : "None"
+          : "None",
       );
     } catch (e) {
       console.error("Error parsing localStorage tokens:", e);
@@ -62,7 +62,7 @@ export function logAuthState(): void {
   // Check TokenManager state
   console.log(
     "TokenManager.isAuthenticated():",
-    TokenManager.isAuthenticated()
+    TokenManager.isAuthenticated(),
   );
   console.log("TokenManager.jwtPayload:", TokenManager.getJwtPayload());
 
@@ -86,7 +86,7 @@ export function logAuthState(): void {
           Math.floor(timeLeft / 1000 / 60),
           "minutes,",
           Math.floor((timeLeft / 1000) % 60),
-          "seconds"
+          "seconds",
         );
       }
     } catch (e) {
@@ -129,6 +129,6 @@ if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
   };
 
   console.info(
-    "Auth debugging tools available. Type authDebug.logAuthState() in console to debug."
+    "Auth debugging tools available. Type authDebug.logAuthState() in console to debug.",
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { NotificationsAPI } from "@/api/notifications.api";
 import type { Notification } from "@/types/notifications";
-import { timeAgo } from '@/utils/dateUtils';
+import { timeAgo } from "@/utils/dateUtils";
 import { toast } from "react-toastify";
 import { FaBell } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -159,7 +159,7 @@ export default function NotificationBell({
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                          {timeAgo(notification.createdAt, 'en')}
+                          {timeAgo(notification.createdAt, "en")}
                         </p>
                       </div>
                       {!notification.read && (

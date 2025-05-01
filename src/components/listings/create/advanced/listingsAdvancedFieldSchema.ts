@@ -87,7 +87,7 @@ const colorField: ListingFieldSchema = {
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value
+        value,
       );
     }
     return error;
@@ -110,7 +110,7 @@ const conditionField: ListingFieldSchema = {
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value
+        value,
       );
     }
     return error;
@@ -247,7 +247,7 @@ export const propertyAdvancedFieldLists = {
 export const validateAdvancedFields = (values: any) => {
   console.log(
     "[listingsAdvancedFieldSchema] validateAdvancedFields input values:",
-    values
+    values,
   );
   return true;
 };

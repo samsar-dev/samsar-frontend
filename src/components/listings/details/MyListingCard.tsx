@@ -229,7 +229,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
                 >
                   {feature}
                 </span>
-              )
+              ),
             )}
           </div>
           <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">

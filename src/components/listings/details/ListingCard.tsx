@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import ImageFallback from "@/components/common/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { timeAgo } from '@/utils/dateUtils';
+import { timeAgo } from "@/utils/dateUtils";
 import { formatCurrency } from "@/utils/formatUtils";
 import type {
   Listing,
@@ -15,7 +15,7 @@ import type {
 } from "@/types/listings";
 import { ListingCategory, ListingAction } from "@/types/enums";
 import { motion } from "framer-motion";
-import { MdFavorite, MdFavoriteBorder,MdLocationOn } from "react-icons/md";
+import { MdFavorite, MdFavoriteBorder, MdLocationOn } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
 import { useState, useEffect } from "react";
@@ -99,11 +99,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
     const checkFavoriteStatus = async () => {
       if (id && user) {
         try {
-          const response = await listingsAPI.getSavedListings().catch((error) => {
-            console.error("Error fetching saved listings:", error);
-            toast.error("Failed to check favorite status");
-            return { success: false, data: [] };
-          });
+          const response = await listingsAPI
+            .getSavedListings()
+            .catch((error) => {
+              console.error("Error fetching saved listings:", error);
+              toast.error("Failed to check favorite status");
+              return { success: false, data: [] };
+            });
           if (response.success && response.data) {
             // Handle different potential response structures
             const favorites =
@@ -131,8 +133,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
   }, [id, user]);
 
   // Get the main image and determine if this is a high-priority image (first in list)
-  const mainImage = listing?.image || (images?.[0] && typeof images[0] === 'string' ? images[0] : '');
-  const isHighPriorityImage = (listing?.id && (listing?.image || (images?.[0] && typeof images[0] === 'string'))) || false;
+  const mainImage =
+    listing?.image ||
+    (images?.[0] && typeof images[0] === "string" ? images[0] : "");
+  const isHighPriorityImage =
+    (listing?.id &&
+      (listing?.image || (images?.[0] && typeof images[0] === "string"))) ||
+    false;
 
   // Debugging logs
   if (typeof window !== "undefined") {
@@ -184,7 +191,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
               {t(
-                `common:enums.transmission.${vehicleDetails.transmission.toUpperCase().replace(/_/g, '')}`,
+                `common:enums.transmission.${vehicleDetails.transmission.toUpperCase().replace(/_/g, "")}`,
               )}
             </p>
           )}
