@@ -27,7 +27,8 @@
       "priceAsc": "Price: Low to High",
       "priceDesc": "Price: High to Low",
       "locationAsc": "Location: A to Z",
-      "locationDesc": "Location: Z to A"
+      "locationDesc": "Location: Z to A",
+      "sortOptions": "Sort Options"
     },
     "next": "Next",
     "previous": "Previous",
@@ -177,11 +178,11 @@
         "other": "Other"
       },
       "transmissionTypes": {
-        "manual": "Manual",
-        "automatic": "Automatic",
-        "semiAutomatic": "Semi-Automatic",
-        "continuouslyVariable": "CVT",
-        "dualClutch": "Dual Clutch"
+        "MANUAL": "Manual",
+        "AUTOMATIC": "Automatic",
+        "SEMI_AUTOMATIC": "Semi-Automatic",
+        "CONTINUOUSLY_VARIABLE": "Continuously Variable Transmission (CVT)",
+        "DUAL_CLUTCH": "Dual Clutch"
       },
       "propertyTypes": {
         "house": "House",
@@ -686,7 +687,7 @@
       "manual": "Manual",
       "automatic": "Automatic",
       "semiAutomatic": "Semi-Automatic",
-      "continuouslyVariable": "CVT",
+      "CONTINUOUSLY_VARIABLE": "Continuously Variable Transmission (CVT)",
       "dualClutch": "Dual Clutch"
     },
     "fuel": {

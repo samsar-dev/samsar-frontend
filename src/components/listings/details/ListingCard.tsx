@@ -1,10 +1,13 @@
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
 import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import ImageFallback from "@/components/common/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { formatCurrency } from "@/utils/format";
+import { timeAgo } from '@/utils/dateUtils';
+import { formatCurrency } from "@/utils/formatUtils";
 import type {
   Listing,
   VehicleDetails,
@@ -96,7 +99,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
     const checkFavoriteStatus = async () => {
       if (id && user) {
         try {
-          const response = await listingsAPI.getSavedListings();
+          const response = await listingsAPI.getSavedListings().catch((error) => {
+            console.error("Error fetching saved listings:", error);
+            toast.error("Failed to check favorite status");
+            return { success: false, data: [] };
+          });
           if (response.success && response.data) {
             // Handle different potential response structures
             const favorites =
@@ -124,7 +131,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   }, [id, user]);
 
   // Get the main image and determine if this is a high-priority image (first in list)
-  const mainImage = listing?.image || (images?.[0] && typeof images[0] === 'string' ? images[0] : '/placeholder.jpg');
+  const mainImage = listing?.image || (images?.[0] && typeof images[0] === 'string' ? images[0] : '');
   const isHighPriorityImage = (listing?.id && (listing?.image || (images?.[0] && typeof images[0] === 'string'))) || false;
 
   // Debugging logs
@@ -177,7 +184,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
               {t(
-                `enums.transmission.${vehicleDetails.transmission.toLowerCase()}`,
+                `common:enums.transmission.${vehicleDetails.transmission.toUpperCase().replace(/_/g, '')}`,
               )}
             </p>
           )}
@@ -243,16 +250,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
       )}
       <Link to={`/listings/${id}`} className="block h-full">
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
-          <ResponsiveImage
-            src={mainImage as string}
-            alt={title as string}
-            className="rounded-t-lg h-48 sm:h-56 md:h-64 w-full object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            priority={!!isHighPriorityImage}
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.jpg";
-              e.currentTarget.onerror = null;
-            }}
+          <ImageFallback
+            src={mainImage}
+            alt={title}
+            className="w-full h-[200px] object-cover rounded-lg"
           />
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
@@ -443,7 +444,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-              {new Date(createdAt as string).toLocaleDateString()}
+              {timeAgo(createdAt as string)}
             </p>
           )}
         </div>

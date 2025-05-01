@@ -29,6 +29,7 @@ interface FavoriteItem {
 }
 
 interface FavoritesResponse {
+  favorites: FavoriteItem[];
   items: SingleListingResponse[];
   total: number;
 }

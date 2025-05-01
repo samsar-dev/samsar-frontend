@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import PreloadImages from "@/components/media/PreloadImages";
 import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
@@ -58,8 +57,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
     setSelectedImage(null);
   };
 
-  // Preload the first image for LCP
-  const firstImage = imageUrls[0];
+
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -68,14 +66,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
         className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
         style={{ minHeight: 350, maxHeight: 450 }}
       >
-        <img
+        <ResponsiveImage
           src={imageUrls[selectedImage !== null ? selectedImage : 0]}
           alt={`Main Image`}
           className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
-          onError={(e) => {
-            e.currentTarget.src = "/placeholder.jpg";
-            e.currentTarget.onerror = null;
-          }}
         />
       </div>
       {/* Thumbnails Carousel */}
@@ -89,14 +83,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
               onClick={() => setSelectedImage(idx)}
               tabIndex={0}
             >
-              <img
+              <ResponsiveImage
                 src={url}
                 alt={`Thumbnail ${idx + 1}`}
                 className="object-cover w-full h-full rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.jpg";
-                  e.currentTarget.onerror = null;
-                }}
               />
             </button>
           ))}
@@ -137,16 +127,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="relative w-full h-full flex items-center justify-center"
               >
-                <img
-                  src={imageUrls[selectedImage]}
-                  alt={`Image ${selectedImage + 1}`}
+                <div
                   className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
-                  onClick={(e) => e.stopPropagation()}
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.jpg";
-                    e.currentTarget.onerror = null;
-                  }}
-                />
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  <ResponsiveImage
+                    src={imageUrls[selectedImage]}
+                    alt={`Image ${selectedImage + 1}`}
+                    className="max-h-[90vh] w-auto object-contain"
+                  />
+                </div>
               </motion.div>
 
               <button

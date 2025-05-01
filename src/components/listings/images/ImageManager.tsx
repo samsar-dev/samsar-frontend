@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
-import ResponsiveImage from "@/components/media/ResponsiveImage";
 import PreloadImages from "@/components/media/PreloadImages";
+import ImageFallback from "@/components/common/ImageFallback";
 
 interface ImageManagerProps {
   images: File[];
@@ -290,15 +290,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                 >
                   {/* Preload the first existing image for LCP */}
                   {index === 0 && url && <PreloadImages imageUrls={[url]} />}
-                  <ResponsiveImage
+                  <ImageFallback
                     src={url}
                     alt={`Existing ${index + 1}`}
                     className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    priority={index === 0}
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.jpg";
-                      e.currentTarget.onerror = null;
+                    onError={() => {
+                      // Handle error if needed
                     }}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
@@ -337,15 +334,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             >
               {/* Preload the first preview image for LCP */}
               {index === 0 && url && <PreloadImages imageUrls={[url]} />}
-              <ResponsiveImage
+              <ImageFallback
                 src={url}
                 alt={`Preview ${index + 1}`}
                 className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority={index === 0}
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.jpg";
-                  e.currentTarget.onerror = null;
+                onError={() => {
+                  // Handle error if needed
                 }}
               />
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">

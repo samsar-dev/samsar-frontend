@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
+import ImageFallback from "@/components/common/ImageFallback";
 
 const ResponsiveImage = lazy(
   () => import("@/components/media/ResponsiveImage"),
@@ -691,14 +692,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               key={index}
               className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
             >
-              <img
+              <ImageFallback
                 src={url}
                 alt={`${t("listings.image")} ${index + 1}`}
                 className="object-cover w-full h-full"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder-image.jpg";
-                }}
               />
             </div>
           ))}

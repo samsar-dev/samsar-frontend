@@ -12,7 +12,7 @@ interface ResponsiveImageProps {
   fetchPriority?: "high" | "low" | "auto";
 }
 
-const DEFAULT_PLACEHOLDER = "/placeholder.jpg";
+const DEFAULT_PLACEHOLDER = "";
 
 const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   src,
@@ -60,6 +60,16 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       link.as = "image";
       link.href = isR2Image ? `${baseUrl}?format=webp&quality=80` : src;
       link.fetchPriority = "high";
+      
+      // Add onload handler to ensure the preloaded resource is used
+      link.onload = () => {
+        // Create a hidden image to use the preloaded resource
+        const img = new Image();
+        img.src = link.href;
+        img.style.display = 'none';
+        document.body.appendChild(img);
+      };
+      
       document.head.appendChild(link);
 
       return () => {

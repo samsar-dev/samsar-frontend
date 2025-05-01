@@ -1,6 +1,6 @@
 import PreloadImages from "@/components/media/PreloadImages";
-import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { ListingCategory } from "@/types/enums";
+import ImageFallback from "@/components/common/ImageFallback";
 import type {
   Listing,
   RealEstateDetails,
@@ -39,8 +39,8 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
     Array.isArray(images) && images.length > 0
       ? typeof images[0] === "string"
         ? images[0]
-        : "/placeholder.jpg"
-      : "/placeholder.jpg";
+        : ""
+      : "";
 
   const renderVehicleDetails = () => {
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
@@ -209,12 +209,10 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
         className="block h-full transition-transform duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md dark:shadow-gray-800"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
-          <ResponsiveImage
-            src={typeof mainImage === "string" ? mainImage : ""}
+          <ImageFallback
+            src={firstImage}
             alt={title}
-            className="w-full h-full object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            priority={true}
+            className="w-full h-[200px] object-cover rounded-lg"
           />
         </div>
         <div className="p-4">

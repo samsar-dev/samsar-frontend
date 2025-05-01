@@ -1,4 +1,5 @@
 import { listingsAPI } from "@/api/listings.api";
+import ImageFallback from "@/components/common/ImageFallback";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { ListingAction } from "@/types/enums";
@@ -77,7 +78,7 @@ const SavedListings = () => {
             .map((img: any) => {
               if (typeof img === "string") return img;
               if (img instanceof File) return URL.createObjectURL(img);
-              return img.url || img || "/placeholder.jpg";
+              return img.url || img || "";
             })
             .filter(Boolean)
             .map(String),
@@ -173,9 +174,8 @@ const SavedListings = () => {
                             src={item.images[0] as string}
                             alt={item.title}
                             className="inset-0 w-full h-full object-cover bg-white dark:bg-gray-800 bg-cover rounded-sm"
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder.jpg";
-                              e.currentTarget.onerror = null;
+                            onError={() => {
+                              // Error handling is now managed by ImageFallback
                             }}
                           />
                         ) : (

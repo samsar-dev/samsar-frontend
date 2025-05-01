@@ -73,13 +73,13 @@ const PublicProfileInfo = () => {
             id: user.id,
             username: user.username,
             email: user.email,
-            bio: (user as UserProfile)?.bio || "",
+            bio: (user as unknown as UserProfile)?.bio || "",
             profilePicture: user.profilePicture || undefined,
           });
           setFormData({
             username: user.username,
             email: user.email,
-            bio: (user as UserProfile)?.bio || "",
+            bio: (user as unknown as UserProfile)?.bio || "",
           });
           setAvatarPreview(user.profilePicture);
         } else {
