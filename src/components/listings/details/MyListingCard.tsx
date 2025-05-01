@@ -6,7 +6,7 @@ import type {
   RealEstateDetails,
   VehicleDetails,
 } from "@/types/listings";
-import { formatCurrency } from "@/utils/format";
+import { formatCurrency } from "@/utils/formatUtils";
 import { useTranslation } from "react-i18next";
 import { FaEdit, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
