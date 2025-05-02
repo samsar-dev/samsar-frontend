@@ -9,7 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const isMessagesPage = location.pathname === "/messages";
+  const isMessagesPage = location.pathname.includes("messages");
   return (
     <div className="flex flex-col min-h-screen ">
       <Navbar />

@@ -173,21 +173,13 @@ export class TokenManager {
           exp: number;
         };
         const expiresIn = payload.exp * 1000 - Date.now();
-        // Refresh 5 minutes before expiry instead of 1 minute
-        const refreshTime = Math.max(0, expiresIn - 300000);
 
-        if (refreshTime <= 0) {
+        if (expiresIn <= 300000) {
           // Token is already close to expiry, refresh now
           this.refreshTokens().catch(console.error);
-        } else {
-          this.refreshTimeout = setTimeout(() => {
-            this.refreshTokens().catch(console.error);
-          }, refreshTime);
         }
       } catch (error: unknown) {
         console.error("Error scheduling token refresh:", error);
-        // Try to refresh now if we can't parse the token
-        this.refreshTokens().catch(console.error);
       }
     }
   }
@@ -284,7 +276,7 @@ export class TokenManager {
         if (missingFields.length > 0) {
           console.error(
             "Missing required fields in token payload:",
-            missingFields,
+            missingFields
           );
           return false;
         }
@@ -347,11 +339,13 @@ export class TokenManager {
         try {
           const response = await AuthAPI.getMe();
           if (response?.success && response?.data?.tokens) {
-            await this.setTokens(response.data.tokens);
+            this.setTokens(response.data.tokens);
             return true;
           }
         } catch {
           // Ignore getMe errors, we'll return false below
+          console.error("Error getting user info with fallback");
+          return false;
         }
       }
 

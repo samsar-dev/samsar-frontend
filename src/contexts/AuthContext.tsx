@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [state, setState] = useState<AuthState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
+  // const [refersh]
 
   const clearError = () => {
     setState((prev) => ({ ...prev, error: null, retryAfter: null }));
@@ -110,10 +111,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsInitialized(true);
     } catch (error) {
       // Try to refresh tokens before failing
-      const refreshed = await TokenManager.refreshTokensWithFallback();
-      if (refreshed) {
-        return checkAuth();
-      }
+      // const refreshed = await TokenManager.refreshTokensWithFallback();
+      // if (refreshed) {
+      //   return checkAuth();
+      // }
 
       setState((prev) => ({
         ...prev,
