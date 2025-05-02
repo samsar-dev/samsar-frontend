@@ -47,7 +47,7 @@ const apiClient: AxiosInstance = axios.create(apiConfig);
 apiClient.interceptors.request.use(
   (config: RequestConfig) => {
     // Only add auth header if the request requires authentication
-    if (config.requiresAuth !== false) {
+    if (config.headers?.requiresAuth !== false) {
       const token = TokenManager.getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -76,7 +76,7 @@ apiClient.interceptors.response.use(
 
     // Only refresh/redirect for protected endpoints
     if (
-      originalRequest?.requiresAuth !== false && // Default to true if not specified
+      originalRequest?.headers?.requiresAuth !== false && // Default to true if not specified
       error.response?.status === 401 &&
       !originalRequest._retry
     ) {

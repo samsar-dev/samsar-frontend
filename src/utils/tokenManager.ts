@@ -3,10 +3,9 @@ import { AuthAPI } from "../api/auth.api";
 import {
   setAuthToken,
   getAuthToken,
-  clearAuthToken,
   setAuthRefreshToken,
 } from "./cookie";
-import { setItem, getItem, removeItem } from "./storage";
+import { getItem, removeItem } from "./storage";
 
 export class TokenManager {
   private static refreshTimeout: NodeJS.Timeout | null = null;
@@ -226,10 +225,20 @@ export class TokenManager {
   }
 
   static clearTokens(): void {
-    clearAuthToken();
+    // Don't call clearAuthToken() here to avoid circular dependency
+    // Instead, directly remove cookies using js-cookie
+    import("js-cookie").then(Cookies => {
+      Cookies.default.remove("jwt", { path: "/" });
+      Cookies.default.remove("refresh_token", { path: "/" });
+    });
+    
+    // Clear localStorage items
     removeItem("authTokens");
     localStorage.removeItem("token");
     localStorage.removeItem("authTokens");
+    
+    // Reset JWT payload
+    this.jwtPayload = null;
   }
 
   static async refreshTokens(): Promise<boolean> {

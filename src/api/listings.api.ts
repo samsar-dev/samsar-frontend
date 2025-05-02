@@ -1,4 +1,5 @@
 import { ACTIVE_API_URL as API_URL } from "@/config";
+import { apiClient } from "./apiClient";
 import {
   Condition,
   ListingAction,
@@ -18,8 +19,8 @@ import type {
 } from "@/types/listings";
 import type { ListingParams } from "@/types/params";
 import { AxiosError } from "axios";
-import type { RequestConfig } from "./apiClient"; // Add this import
-import { apiClient } from "./apiClient";
+import type { RequestConfig } from "./apiClient";
+import TokenManager from "../utils/tokenManager";
 
 interface FavoriteItem {
   id: string;
@@ -492,36 +493,24 @@ export const listingsAPI: ListingsAPI = {
         queryParams.append("preview", "true");
       }
 
-      const response = await fetch(`${API_URL}/listings?${queryParams}`, {
-        credentials: "include",
+      // Mark this as a public request
+      queryParams.append("publicAccess", "true");
+
+      const response = await apiClient.get(`/listings?${queryParams}`, {
+        signal, // Pass abort signal to axios
         headers: {
-          "Content-Type": "application/json",
-        },
-        signal, // Pass abort signal to fetch
+          requiresAuth: false // Public endpoint, no auth required
+        }
       });
 
-      if (!response.ok) {
-        try {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch listings");
-        } catch (e) {
-          throw new Error(`Server error: ${response.status}`);
-        }
-      }
+      const data = response.data;
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (e) {
-        throw new Error("Invalid response from server");
-      }
-
-      // Make sure data contains the necessary fields
+      // Process the response data from the backend
       const responseData = {
-        listings: data.data?.items || data.data?.listings || [],
-        total: data.data?.total || 0,
-        page: data.data?.page || 1,
-        limit: data.data?.limit || 10,
+        listings: data.data || [],
+        total: data.pagination?.total || 0,
+        page: data.pagination?.page || 1,
+        limit: data.pagination?.limit || 10,
       };
 
       // Extract only essential information for listing cards if preview mode is on
@@ -790,7 +779,7 @@ export const listingsAPI: ListingsAPI = {
   ): Promise<APIResponse<UserListingsResponse>> {
     try {
       // Check if user is authenticated
-      const token = localStorage.getItem("token");
+      const token = TokenManager.getAccessToken();
       if (!token) {
         // Return empty array if not authenticated instead of making the request
         return {
@@ -806,6 +795,7 @@ export const listingsAPI: ListingsAPI = {
       // Create request config with proper typing
       const requestConfig: any = signal ? { signal } : {};
       requestConfig.headers = { Authorization: `Bearer ${token}` };
+      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
 
       const response = await apiClient.get<APIResponse<UserListingsResponse>>(
         `/listings/user${queryString ? `?${queryString}` : ""}`,
