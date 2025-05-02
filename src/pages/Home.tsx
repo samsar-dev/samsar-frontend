@@ -674,7 +674,8 @@ const Home: React.FC = () => {
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-6 sm:py-10 md:py-12 min-h-[20vh] sm:min-h-[22vh] lg:min-h-[25vh]">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-4 sm:py-6 md:py-8 min-h-[15vh] sm:min-h-[20vh] lg:min-h-[25vh]">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
@@ -688,7 +689,7 @@ const Home: React.FC = () => {
                 ? t("home.discover_vehicle")
                 : t("home.discover_property")}
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
               <button
                 onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
                 className={`flex items-center px-6 py-3 rounded-lg transition-colors ${

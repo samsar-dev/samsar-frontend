@@ -10,7 +10,6 @@ const LocationSettings: React.FC<Props> = ({ onSave }) => {
   const [currentLocation, setCurrentLocation] = useState<Listing>({
     city: "",
     country: "",
-    postalCode: "",
     address: "",
   });
 

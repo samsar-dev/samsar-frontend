@@ -67,6 +67,15 @@ export default defineConfig({
     outDir: process.env.VITE_BUILD_DIR || "dist",
     chunkSizeWarningLimit: 600,
     sourcemap: process.env.VITE_ENV === "development",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
+      }
+    }
   },
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },

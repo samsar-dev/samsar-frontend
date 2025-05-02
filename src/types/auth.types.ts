@@ -41,7 +41,7 @@ export interface AuthUser {
   dateOfBirth?: string;
   street?: string;
   city?: string;
-  postalCode?: string;
+ 
   bio?: string;
   location?: string;
   preferences?: any;
