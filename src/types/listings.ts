@@ -54,6 +54,67 @@ export interface SelectOption {
   label: string;
 }
 
+// Real estate specific interfaces
+export interface HouseDetails {
+  propertyType: PropertyType.HOUSE;
+  totalArea: number;
+  bedrooms: number;
+  bathrooms: number;
+  yearBuilt: number;
+  livingArea?: number;
+  hasGarden?: boolean;
+  hasGarage?: boolean;
+}
+
+export interface ApartmentDetails {
+  propertyType: PropertyType.APARTMENT;
+  totalArea: number;
+  bedrooms: number;
+  bathrooms: number;
+  floorLevel: number;
+  yearBuilt: number;
+  totalFloors?: number;
+  hasElevator?: boolean;
+  hasBalcony?: boolean;
+}
+
+export interface CondoDetails {
+  propertyType: PropertyType.CONDO;
+  totalArea: number;
+  bedrooms: number;
+  bathrooms: number;
+  floorLevel: number;
+  yearBuilt: number;
+  totalFloors?: number;
+  hasElevator?: boolean;
+  hasBalcony?: boolean;
+  hasGym?: boolean;
+}
+
+export interface LandDetails {
+  propertyType: PropertyType.LAND;
+  totalArea: number;
+  isBuildable?: boolean;
+  hasUtilities?: boolean;
+  hasAccessRoad?: boolean;
+}
+
+export interface CommercialDetails {
+  propertyType: PropertyType.COMMERCIAL;
+  totalArea: number;
+  usageType: string;
+  yearBuilt: number;
+  hasParking?: boolean;
+  isAccessible?: boolean;
+}
+
+export interface OtherDetails {
+  propertyType: PropertyType.OTHER;
+  totalArea: number;
+  yearBuilt: number;
+  customFeatures?: string[];
+}
+
 export interface ListingFieldSchema {
   name: string;
   label: string;
@@ -639,8 +700,8 @@ interface FeatureGroups {
 // New RealEstateDetails interface based on Prisma schema
 export interface RealEstateDetails {
   id: string;
-  propertyType: string;
-  condition?: string;
+  propertyType: PropertyType;
+  condition?: Condition;
   listingId: string;
   constructionType?: string;
   features: string[];
@@ -687,6 +748,13 @@ export interface RealEstateDetails {
   bathrooms?: number;
   size: number;
   yearBuilt: number;
+  // Property-specific details
+  houseDetails?: HouseDetails;
+  apartmentDetails?: ApartmentDetails;
+  condoDetails?: CondoDetails;
+  landDetails?: LandDetails;
+  commercialDetails?: CommercialDetails;
+  otherDetails?: OtherDetails;
 }
 
 // Update ListingDetails and FormState to use the new RealEstateDetails interface

@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCreateListing } from "@/hooks/useCreateListing";
+import { useBlockNavigation } from "@/utils/useBlockNavigation";
 import {
   ListingCategory,
   VehicleType,
@@ -167,15 +168,29 @@ const CreateListing: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const hasUnsavedChanges = JSON.stringify(formData) !== sessionStorage.getItem("createListingFormData");
+
+  // Block navigation for React Router's useNavigate
+  const handleNavigation = useBlockNavigation(hasUnsavedChanges, "You have unsaved changes. Leave without saving?");
+
+  // Use the custom navigation function instead of direct navigate
+  const handleBack = () => {
+    handleNavigation(() => setStep((prev) => prev - 1));
+  };
+
   // Save form data to session storage whenever it changes
   useEffect(() => {
     sessionStorage.setItem("createListingFormData", JSON.stringify(formData));
   }, [formData]);
 
-  // Handle step navigation
-  const handleBack = () => {
-    setStep((prev) => prev - 1);
-  };
+  // Clear form data from session storage when component unmounts
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem("createListingFormData");
+    };
+  }, []);
+
+  
 
   const handleBasicDetailsSubmit = (data: FormState, isValid: boolean) => {
     if (isValid) {
@@ -333,9 +348,7 @@ const CreateListing: React.FC = () => {
                 ? {
                     propertyType: PropertyType.HOUSE,
                     size: data.details?.realEstate?.size || "0",
-                    yearBuilt:
-                      data.details?.realEstate?.yearBuilt ||
-                      new Date().getFullYear().toString(),
+                    yearBuilt: data.details?.realEstate?.yearBuilt || new Date().getFullYear().toString(),
                     bedrooms: data.details?.realEstate?.bedrooms || "0",
                     bathrooms: data.details?.realEstate?.bathrooms || "0",
                     condition:
@@ -375,6 +388,13 @@ const CreateListing: React.FC = () => {
                     exposureDirection:
                       data.details?.realEstate?.exposureDirection || [],
                     storageType: data.details?.realEstate?.storageType || [],
+                    houseDetails: {
+                      propertyType: PropertyType.HOUSE,
+                      totalArea: Number(data.details?.realEstate?.size || 0),
+                      bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
+                      bathrooms: Number(data.details?.realEstate?.bathrooms || 0),
+                      yearBuilt: Number(data.details?.realEstate?.yearBuilt || new Date().getFullYear()),
+                    },
                   }
                 : undefined,
           },

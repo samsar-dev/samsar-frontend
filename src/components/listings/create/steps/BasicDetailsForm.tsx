@@ -27,8 +27,10 @@ import {
   FaHome,
   FaSearch,
 } from "react-icons/fa";
+import { realEstateBasicFields } from "@/components/listings/create/basic/realEstateFieldSchema";
 import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
 import FormField, { FormFieldValue } from "@/components/form/FormField";
+
 import {
   Car,
   Home,
@@ -47,6 +49,8 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
+
+ 
 
 interface ExtendedVehicleDetails {
   vehicleType: VehicleType;
@@ -781,47 +785,51 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   // Add a new function to render real estate specific fields
-  const renderRealEstateFields = () => {
-    if (formData?.category?.mainCategory !== ListingCategory.REAL_ESTATE) {
-      return null;
-    }
 
-    return (
-      <div className="mt-6 space-y-6">
-        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
-          {t("propertyDetails")}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+
+const renderRealEstateFields = () => {
+  if (formData?.category?.mainCategory !== ListingCategory.REAL_ESTATE) {
+    return null;
+  }
+
+  const subType = formData.category?.subCategory?.toLowerCase();
+  const fields = realEstateBasicFields[subType as keyof typeof realEstateBasicFields];
+
+  if (!fields) return null;
+
+  return (
+    <div className="mt-6 space-y-6">
+      <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
+        {t("propertyDetails")}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {fields.map((field) => (
+          <div key={field.name}>
             {renderFormField(
-              t("bedrooms"),
-              "details.realEstate.bedrooms",
-              "number",
+              t(field.label),
+              `details.realEstate.${field.name}`,
+              field.type === "boolean" ? "select" : field.type,
+              field.type === "boolean"
+                ? [
+                    { value: "true", label: t("yes") },
+                    { value: "false", label: t("no") },
+                  ]
+                : undefined,
               undefined,
-              undefined,
-              t("enterBedrooms"),
-              0,
+              t(field.placeholder || ""),
+              field.min,
+              field.max,
+              field.step,
+              field.required,
+              field.helpText ? t(field.helpText) : undefined,
             )}
           </div>
-          <div>
-            {renderFormField(
-              t("bathrooms"),
-              "details.realEstate.bathrooms",
-              "number",
-              undefined,
-              undefined,
-              t("enterBathrooms"),
-              0,
-              undefined,
-              0.5,
-              true,
-              t("halfBathroomsAllowed"),
-            )}
-          </div>
-        </div>
+        ))}
       </div>
-    );
-  };
+    </div>
+  );
+};
+
 
   const renderFormField = (
     label: string,
