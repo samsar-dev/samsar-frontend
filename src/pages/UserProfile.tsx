@@ -103,19 +103,19 @@ export const UserProfile = () => {
         {/* Cover Image */}
         <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900" />
 
-        <div className="p-6 -mt-20">
+        <div className="p-4 sm:p-6 -mt-20">
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-start gap-4 px-4"
+            className="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-4 px-2 sm:px-4"
           >
             {/* Profile Picture */}
             <motion.div
               initial={{ opacity: 0, y: 2 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
-              className="relative"
+              className="flex-shrink-0 self-center sm:self-start"
             >
               {profile.profilePicture ? (
                 <img
@@ -140,7 +140,7 @@ export const UserProfile = () => {
               initial={{ opacity: 0, x: 5 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
-              className="flex flex-col gap-1"
+              className="flex-1 w-full"
             >
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {profile?.username ? profile?.username : "UserName"}
@@ -184,7 +184,8 @@ export const UserProfile = () => {
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
-              className="flex gap-2"
+              className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
+
             >
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -224,7 +225,8 @@ export const UserProfile = () => {
             </h2>
 
             {/* Category Filters */}
-            <motion.div className="flex items-center gap-2">
+            <motion.div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap px-1 sm:overflow-visible">
+
               {categoeryFillterOptions.map((filter) => (
                 <motion.div>
                   <Button
@@ -239,7 +241,8 @@ export const UserProfile = () => {
           </motion.div>
 
           {/* Listings Grid */}
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
             {filteredListings?.map((listing) => (
               <ListingCard
                 listing={listing}

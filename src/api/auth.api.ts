@@ -409,9 +409,7 @@ class UserAPI extends AuthAPI {
           "users/profile",
           data,
           // Ensure Content-Type is not set so browser/axios sets multipart/form-data
-          data instanceof FormData
-            ? { headers: { "Content-Type": undefined }, withCredentials: true }
-            : undefined,
+          { headers: { "Content-Type": undefined }, withCredentials: true }
         ),
       );
       return response.data;

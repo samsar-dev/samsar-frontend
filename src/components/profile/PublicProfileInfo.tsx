@@ -20,7 +20,6 @@ interface PublicUserProfile {
   dateOfBirth?: string;
   street?: string;
   city?: string;
-  postalCode?: string;
 }
 
 interface UserProfileResponse {
@@ -36,7 +35,6 @@ interface UserProfileResponse {
   dateOfBirth?: string;
   street?: string;
   city?: string;
-  postalCode?: string;
 }
 
 interface FormData {

@@ -131,7 +131,6 @@ const EditListing = () => {
       city: "",
       state: "",
       country: "",
-      postalCode: "",
     },
     details: {
       vehicles: {},
@@ -259,7 +258,6 @@ const EditListing = () => {
                 city,
                 state,
                 country,
-                postalCode: "",
               },
               details: {
                 vehicles: response.data.details?.vehicles,
