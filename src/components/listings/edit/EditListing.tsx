@@ -9,7 +9,7 @@ import {
 import ListingCard from "@/components/listings/details/ListingCard";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import ImageManager from "@/components/listings/images/ImageManager";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
@@ -159,11 +159,11 @@ const EditListing = () => {
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
+    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section))
   )
     .filter(
       (sectionId: unknown): sectionId is SectionId =>
-        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
+        typeof sectionId === "string" && sectionId in SECTION_CONFIG
     )
     .map((sectionId: SectionId) => ({
       id: sectionId,
@@ -171,7 +171,7 @@ const EditListing = () => {
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
       fields: advancedSchema.filter(
-        (field: ListingFieldSchema) => field.section === sectionId,
+        (field: ListingFieldSchema) => field.section === sectionId
       ),
     }))
     .sort((a, b) => a.order - b.order);
@@ -201,7 +201,7 @@ const EditListing = () => {
 
             // Convert image URLs to strings for existing images
             const existingImages = (response.data.images || []).map(
-              (img: any) => (typeof img === "string" ? img : img.url),
+              (img: any) => (typeof img === "string" ? img : img.url)
             );
 
             // Extract vehicle details
@@ -302,12 +302,12 @@ const EditListing = () => {
       // Add existing images as JSON string
       formDataObj.append(
         "existingImages",
-        JSON.stringify(formData.existingImages),
+        JSON.stringify(formData.existingImages)
       );
 
       // Add new images
       const newImages = formData.images.filter(
-        (img): img is File => img instanceof File,
+        (img): img is File => img instanceof File
       );
       newImages.forEach((image) => {
         formDataObj.append("images", image);
@@ -374,7 +374,7 @@ const EditListing = () => {
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[],
+    value: string | number | boolean | string[]
   ) => {
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -407,7 +407,7 @@ const EditListing = () => {
           "Setting warranty value:",
           processedValue,
           "type:",
-          typeof processedValue,
+          typeof processedValue
         );
       }
 
@@ -440,7 +440,7 @@ const EditListing = () => {
       // If the deleted image was an existing image (string URL), also remove it from existingImages
       if (typeof deletedImage === "string") {
         const newExistingImages = prev.existingImages.filter(
-          (img) => img !== deletedImage,
+          (img) => img !== deletedImage
         );
         return {
           ...prev,
@@ -521,7 +521,7 @@ const EditListing = () => {
             </h2>
             <ImageManager
               images={formData.images.filter(
-                (img): img is File => img instanceof File,
+                (img): img is File => img instanceof File
               )}
               onChange={handleImageChange}
               maxImages={10}
@@ -531,7 +531,7 @@ const EditListing = () => {
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
                   existingImages: prev.existingImages.filter(
-                    (img) => img !== url,
+                    (img) => img !== url
                   ),
                 }));
               }}
@@ -655,7 +655,7 @@ const EditListing = () => {
                     // Skip fields we're now handling separately
                     if (
                       ["transmissionType", "fuelType", "condition"].includes(
-                        field.name,
+                        field.name
                       )
                     ) {
                       return null;

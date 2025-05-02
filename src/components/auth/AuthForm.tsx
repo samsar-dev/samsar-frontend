@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import type { SignupRequest } from "@/types/auth";
 
 interface AuthFormProps {
@@ -55,7 +55,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         const response = await signup(
           signupData.email,
           signupData.password,
-          signupData.name,
+          signupData.name
         );
         if (response.success && response.data) {
           onSuccess?.();
