@@ -65,7 +65,7 @@ apiClient.interceptors.request.use(
   (error) => {
     console.error("Request interceptor error:", error);
     return Promise.reject(error);
-  },
+  }
 );
 
 // Response interceptor
@@ -84,19 +84,6 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // First try to refresh tokens using the refresh token
-        console.log("Attempting to refresh token...");
-        const refreshed = await TokenManager.refreshTokensWithFallback();
-
-        if (!refreshed) {
-          console.error("Token refresh failed");
-          // Only clear and redirect if refresh explicitly failed
-          TokenManager.clearTokens();
-          window.location.href = "/login?expired=true";
-          return Promise.reject(error);
-        }
-
-        console.log("Token refresh successful, retrying request...");
         const newToken = TokenManager.getAccessToken();
         if (!newToken) {
           console.error("No access token after successful refresh");
@@ -121,7 +108,7 @@ apiClient.interceptors.response.use(
 
     // For public endpoints or other errors, just reject
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;

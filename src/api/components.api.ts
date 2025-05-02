@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Import components with named imports for UI components
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import { SearchBar } from "@/components/search/SearchBar";
 
 // Re-export all components
@@ -29,14 +29,14 @@ export class ComponentsAPI {
 
   static async fetchComponentData(): Promise<APIResponse<ComponentData>> {
     const response = await apiClient.get<APIResponse<ComponentData>>(
-      `${this.BASE_PATH}/data`,
+      `${this.BASE_PATH}/data`
     );
     return response.data;
   }
 
   static async getComponent(id: string): Promise<APIResponse<ComponentData>> {
     const response = await apiClient.get<APIResponse<ComponentData>>(
-      `${this.BASE_PATH}/${id}`,
+      `${this.BASE_PATH}/${id}`
     );
     return response.data;
   }

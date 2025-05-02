@@ -1,6 +1,6 @@
 import { UserAPI } from "@/api/auth.api";
 import ListingCard from "@/components/listings/details/ListingCard";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button2";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { CategoryFilter } from "@/types/listings";
