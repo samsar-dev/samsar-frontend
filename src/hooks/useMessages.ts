@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import type { Dispatch, SetStateAction } from "react";
+
 import { MessagesAPI } from "@/api/messaging.api";
 import type {
   Message,
@@ -15,15 +17,19 @@ interface UseMessagesReturn {
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   createConversation: (
     participantIds: string[],
-    initialMessage?: string,
+    initialMessage?: string
   ) => Promise<string>;
   selectConversation: (conversation: Conversation) => void;
   markAsRead: (conversationId: string, messageId: string) => Promise<void>;
+  setMessages: Dispatch<SetStateAction<Message[]>>;
+  setConversations: Dispatch<SetStateAction<Conversation[]>>;
+  setSelectedConversation: Dispatch<SetStateAction<Conversation | null>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;f
 }
 
 // Convert ConversationResponse data to Conversation
 const convertToConversation = (
-  response: ConversationResponse,
+  response: ConversationResponse
 ): Conversation | null => {
   if (!response.data) return null;
   return {
@@ -40,7 +46,7 @@ export function useMessages(): UseMessagesReturn {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const selectConversation = useCallback((conversation: Conversation) => {
     setSelectedConversation(conversation);
@@ -60,13 +66,13 @@ export function useMessages(): UseMessagesReturn {
         throw error;
       }
     },
-    [],
+    []
   );
 
   const createConversation = useCallback(
     async (
       participantIds: string[],
-      initialMessage?: string,
+      initialMessage?: string
     ): Promise<string> => {
       try {
         const input: ConversationCreateInput = {
@@ -87,7 +93,7 @@ export function useMessages(): UseMessagesReturn {
         throw error;
       }
     },
-    [],
+    []
   );
 
   const markAsRead = useCallback(
@@ -99,7 +105,7 @@ export function useMessages(): UseMessagesReturn {
         throw error;
       }
     },
-    [],
+    []
   );
 
   return {
@@ -107,6 +113,10 @@ export function useMessages(): UseMessagesReturn {
     conversations,
     selectedConversation,
     isLoading,
+    setMessages,
+    setConversations,
+    setSelectedConversation,
+    setIsLoading,
     sendMessage,
     createConversation,
     selectConversation,
