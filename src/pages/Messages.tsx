@@ -1,41 +1,31 @@
 "use client";
 
+import { LoadingSpinner } from "@/api";
 import ChatSection from "@/components/chat/ChatSection";
 import ConversationsList from "@/components/chat/ConversationsList";
 import UserDetails from "@/components/chat/UserDetails";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
-import { AccordionItem } from "@radix-ui/react-accordion";
-import {
-  ChevronDown,
-  Copy,
-  Edit,
-  ImageIcon,
-  MoreHorizontal,
-  Paperclip,
-  Search,
-  Send,
-  X,
-} from "lucide-react";
-import { useState } from "react";
+import { useContextMessages } from "@/contexts/MessagesContext";
+import { useMessages } from "@/hooks";
+import { useCallback, useState } from "react";
 
 export default function ChatInterface() {
   const [infoOpen, setInfoOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { isLoading } = useContextMessages();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-4rem)] w-screen">
       <div className="mx-auto w-full overflow-hidden rounded-xl bg-white shadow-xl flex">
         {/* Contacts/chats sidebar */}
-        <ConversationsList />
+        <ConversationsList setLoading={setLoading} />
 
         {/* Main chat area */}
         <ChatSection />

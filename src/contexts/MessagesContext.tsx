@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type {
   Message,
@@ -16,16 +16,14 @@ export interface MessagesContextType {
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   createConversation: (
     participantIds: string[],
-    initialMessage?: string,
+    initialMessage?: string
   ) => Promise<string>;
   markAsRead: (conversationId: string, messageId: string) => Promise<void>;
   setCurrentConversation: (conversationId: string) => Promise<void>;
   fetchMessages: (conversationId: string) => Promise<void>;
 }
 
-export const MessagesContext = createContext<MessagesContextType | undefined>(
-  undefined,
-);
+export const MessagesContext = createContext<MessagesContextType | null>(null);
 
 export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -48,7 +46,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setIsLoading(true);
         const response = await messagesAPI.getConversations();
-        if (response.success && response.data) {
+        if (response.status === 200 && response.data) {
           setConversations(response.data);
         }
       } catch (error) {
@@ -65,7 +63,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setIsLoading(true);
       const response = await messagesAPI.getMessages(conversationId);
-      if (response.success && response.data) {
+      if (response.status === 200 && response.data) {
         setMessages(response.data);
       }
     } catch (error) {
@@ -83,12 +81,12 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       const messageInput: MessageInput = { content };
       const response = await messagesAPI.sendMessage(
         conversationId,
-        messageInput,
+        messageInput
       );
 
-      if (response.success && response.data) {
+      if (response.status === 200 && response.data) {
         setMessages((prev) =>
-          [...prev, response.data].filter((m): m is Message => m !== null),
+          [...prev, response.data].filter((m): m is Message => m !== null)
         );
 
         // Update conversation's last message
@@ -100,8 +98,8 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
                   lastMessage: response.data,
                   updatedAt: response.data.createdAt,
                 } as Conversation)
-              : conv,
-          ),
+              : conv
+          )
         );
       }
     } catch (error) {
@@ -112,7 +110,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const createConversation = async (
     participantIds: string[],
-    initialMessage?: string,
+    initialMessage?: string
   ) => {
     if (!auth?.user)
       throw new Error("Must be logged in to create conversations");
@@ -124,10 +122,10 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       const response = await messagesAPI.createConversation(input);
-      if (response.success && response.data) {
+      if (response.status === 200 && response.data) {
         // Only add non-null conversations
         setConversations((prev) =>
-          [...prev, response.data].filter((c): c is Conversation => c !== null),
+          [...prev, response.data].filter((c): c is Conversation => c !== null)
         );
         return response.data?.id;
       }
@@ -144,14 +142,14 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setMessages((prev) =>
         prev.map((message) =>
-          message.id === messageId ? { ...message, read: true } : message,
-        ),
+          message.id === messageId ? { ...message, read: true } : message
+        )
       );
 
       setConversations((prev) =>
         prev.map((conv) =>
-          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv,
-        ),
+          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
+        )
       );
     } catch (error) {
       console.error("Failed to mark messages as read:", error);
@@ -175,7 +173,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         conversations,
         currentConversation,
-        messages,
+        messages: messages || [],
         isLoading,
         sendMessage,
         createConversation,
@@ -189,10 +187,14 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useMessages = () => {
-  const context = useContext(MessagesContext);
-  if (context === undefined) {
-    throw new Error("useMessages must be used within a MessagesProvider");
+export const useContextMessages = () => {
+  try {
+    const context = useContext(MessagesContext);
+    if (!context) {
+      throw new Error("useMessages must be used within a MessagesProvider");
+    }
+    return context;
+  } catch (error) {
+    console.log(error);
   }
-  return context;
 };
