@@ -5,32 +5,40 @@ import ChatSection from "@/components/chat/ChatSection";
 import ConversationsList from "@/components/chat/ConversationsList";
 import UserDetails from "@/components/chat/UserDetails";
 import { useContextMessages } from "@/contexts/MessagesContext";
-import { useAuth, useMessages } from "@/hooks";
-import { Conversation } from "@/types";
-import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/hooks";
+import type { Conversation } from "@/types";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export default function ChatInterface() {
   const [infoOpen, setInfoOpen] = useState(true);
-  const { isLoading, setCurrentConversation, currentConversation } =
-    useContextMessages();
+  const {
+    isLoading,
+    setCurrentConversation,
+    currentConversation,
+    conversations,
+  } = useContextMessages();
+  const [currentChat, setCurrentChat] = useState<Conversation | null>(null);
   const { chatId } = useParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  const fetchCurrentConversation = useCallback(async () => {
+  const fetchCurrentConversation = () => {
     try {
       if (!chatId) {
         throw new Error("No chatId provided");
       }
-      await setCurrentConversation(chatId);
+      const conversation = conversations.find((c) => c.id === chatId);
+      if (conversation) {
+        setCurrentChat(conversation);
+      }
     } catch (error) {
       console.log(error);
     }
-  }, [chatId, currentConversation]);
+  };
 
   useEffect(() => {
     fetchCurrentConversation();
-  }, [fetchCurrentConversation]);
+  }, [isLoading, conversations, chatId]);
 
   if (isLoading) {
     return (
@@ -40,23 +48,26 @@ export default function ChatInterface() {
     );
   }
 
+  console.log(currentChat);
+  console.log(currentConversation);
+
   return (
     <div className="flex h-[calc(100vh-4rem)] w-screen">
       <div className="mx-auto w-full overflow-hidden bg-white flex">
         {/* Contacts/chats sidebar */}
         <ConversationsList user={user} />
 
-        {currentConversation && (
+        {currentChat && (
           <div className="w-full overflow-hidden flex">
             {/* Main chat area */}
-            <ChatSection />
+            <ChatSection chatId={currentChat.id} />
 
             {/* Right sidebar - group info */}
-            {infoOpen && <UserDetails setInfoOpen={setInfoOpen} />}
+            {infoOpen && <UserDetails participants={currentChat.participants.find((p) => p.id !== user?.id)!} setInfoOpen={setInfoOpen} />}
           </div>
         )}
 
-        {!currentConversation && (
+        {!currentChat && (
           <div className="w-full overflow-hidden flex">
             {/* Main chat area */}
             <h1 className=" text-center text-3xl text-gray-600 m-auto">
@@ -68,7 +79,7 @@ export default function ChatInterface() {
     </div>
   );
 }
-function Check(props) {
+function Check(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
