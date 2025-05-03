@@ -6,7 +6,7 @@ import ConversationsList from "@/components/chat/ConversationsList";
 import UserDetails from "@/components/chat/UserDetails";
 import { useContextMessages } from "@/contexts/MessagesContext";
 import { useAuth } from "@/hooks";
-import type { Conversation } from "@/types";
+import type { Conversation, User } from "@/types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -19,6 +19,7 @@ export default function ChatInterface() {
     conversations,
   } = useContextMessages();
   const [currentChat, setCurrentChat] = useState<Conversation | null>(null);
+  const [participant, setParticipant] = useState<User | null>();
   const { chatId } = useParams();
   const { user } = useAuth();
 
@@ -30,6 +31,10 @@ export default function ChatInterface() {
       const conversation = conversations.find((c) => c.id === chatId);
       if (conversation) {
         setCurrentChat(conversation);
+
+        setParticipant(
+          conversation.participants.find((p) => p.id !== user?.id) || null
+        );
       }
     } catch (error) {
       console.log(error);
@@ -60,10 +65,19 @@ export default function ChatInterface() {
         {currentChat && (
           <div className="w-full overflow-hidden flex">
             {/* Main chat area */}
-            <ChatSection chatId={currentChat.id} />
+            <ChatSection
+              participant={participant}
+              user={user}
+              currentChat={currentChat}
+            />
 
             {/* Right sidebar - group info */}
-            {infoOpen && <UserDetails participants={currentChat.participants.find((p) => p.id !== user?.id)!} setInfoOpen={setInfoOpen} />}
+            {infoOpen && (
+              <UserDetails
+                participant={participant}
+                setInfoOpen={setInfoOpen}
+              />
+            )}
           </div>
         )}
 
