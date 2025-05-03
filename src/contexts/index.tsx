@@ -5,7 +5,7 @@ export { NotificationsProvider } from "./NotificationsContext";
 export { useNotifications } from "@/hooks/useNotifications";
 export { FavoritesProvider, useFavorites } from "./FavoritesContext";
 export { ListingsProvider, useListings } from "./ListingsContext";
-export { MessagesProvider, useMessages } from "./MessagesContext";
+export { MessagesProvider } from "./MessagesContext";
 export { ReportsProvider } from "./ReportsContext";
 export { useReports } from "@/hooks/useReports";
 

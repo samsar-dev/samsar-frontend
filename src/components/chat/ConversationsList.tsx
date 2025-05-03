@@ -1,53 +1,55 @@
 "use client";
 
-import { LoadingSpinner, MessagesAPI } from "@/api";
+import { MessagesAPI } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth } from "@/hooks";
+import { useAuth, useMessages } from "@/hooks";
 import type { Conversation } from "@/types";
 import { ChevronDown, Edit, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatItem from "./ChatItem";
+import { useContextMessages } from "@/contexts/MessagesContext";
 
-function ConversationsList() {
+const ConversationsList = memo(function ConversationsList({
+  setLoading,
+}: {
+  setLoading: Dispatch<SetStateAction<boolean>>;
+}) {
   const { user, isAuthenticated } = useAuth();
   const [chats, setChats] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(false);
   const { chatId } = useParams();
   const navigate = useNavigate();
-  useEffect(() => {
-    const getConversations = async () => {
-      setLoading(true);
-      if (!isAuthenticated || !user) {
-        navigate("/login");
-        return;
-      }
-      try {
-        const response = await MessagesAPI.getConversations();
-        if (!response.data) {
-          throw new Error("Failed to fetch conversations");
-        }
-        const data = response.data;
-        setChats(data.items);
-        console.log(data);
-      } catch (error) {
-        console.error("Failed to fetch conversations:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getConversations();
-  }, []);
+  const { conversations } = useContextMessages();
+  console.log(conversations);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+  // const getConversations = useCallback(async () => {
+  //   if (!isAuthenticated || !user) {
+  //     navigate("/login");
+  //     return;
+  //   }
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await MessagesAPI.getConversations();
+  //     if (!response.data.items) {
+  //       throw new Error("Failed to fetch conversations");
+  //     }
+  //     setChats(response.data.items);
+  //     setIsLoading(false);
+  //   } catch (error) {
+  //     console.error("Failed to fetch conversations:", error);
+  //     setIsLoading(false);
+  //   }
+  // }, [isAuthenticated, user, conversations]); // ✅ All deps included
+
+  useEffect(() => {
+    // getConversations();
+    if (conversations.success) {
+      setChats(conversations?.data?.items || []);
+    }
+  }, [conversations]); // ✅ Effect depends on stable getConversations
 
   return (
     <div className="w-1/4 h-full border-r border-gray-100">
@@ -110,5 +112,5 @@ function ConversationsList() {
       </div>
     </div>
   );
-}
+});
 export default ConversationsList;
