@@ -1,24 +1,19 @@
 "use client";
 
-import { MessagesAPI } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth, useMessages } from "@/hooks";
+import { useContextMessages } from "@/contexts/MessagesContext";
 import type { Conversation } from "@/types";
+import type { AuthUser } from "@/types/auth.types";
 import { ChevronDown, Edit, Search } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatItem from "./ChatItem";
-import { useContextMessages } from "@/contexts/MessagesContext";
-import { AuthUser } from "@/types/auth.types";
 
 const ConversationsList = memo(function ConversationsList({
-  setLoading,
   user,
 }: {
-  setLoading: Dispatch<SetStateAction<boolean>>;
   user: AuthUser | null;
 }) {
   const [chats, setChats] = useState<Conversation[]>([]);
