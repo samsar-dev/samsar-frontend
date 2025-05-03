@@ -66,7 +66,7 @@ const ConversationsList = memo(function ConversationsList({
               </div>
             )}
             {chats.length > 0 &&
-              chats?.map((chat) => {
+              chats?.map((chat, i) => {
                 const participants = chat.participants.filter(
                   (_i) => _i.id !== user?.id
                 )[0];
@@ -77,7 +77,7 @@ const ConversationsList = memo(function ConversationsList({
                 return (
                   <div onClick={() => navigate(`/messages/${chat.id}`)}>
                     <ChatItem
-                      key={chat.id}
+                      key={i}
                       chatId={chatId || ""}
                       chat={chat}
                       participants={participants}
