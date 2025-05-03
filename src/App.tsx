@@ -1,20 +1,21 @@
-import { type ReactElement, useEffect, useState } from "react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Layout } from "@/components/layout";
 import {
   AuthProvider,
-  UIProvider,
-  ListingsProvider,
   FavoritesProvider,
+  ListingsProvider,
+  UIProvider,
 } from "@/contexts";
-import { SettingsProvider } from "@/contexts/SettingsContext";
-import TokenManager from "@/utils/tokenManager";
-import { setupAuthDebugger } from "@/utils/authDebug";
-import AppRoutes from "./routes/Routes";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import SavedListingsProvider from "./contexts/SavedListingsContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { setupAuthDebugger } from "@/utils/authDebug";
+import TokenManager from "@/utils/tokenManager";
+import { type ReactElement, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MessagesProvider } from "./contexts/MessagesContext";
+import SavedListingsProvider from "./contexts/SavedListingsContext";
+import AppRoutes from "./routes/Routes";
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -50,12 +51,14 @@ const App: () => ReactElement = () => {
             <ListingsProvider>
               <SettingsProvider>
                 <SavedListingsProvider>
-                  <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                    <Layout>
-                      <AppRoutes />
-                      <ToastContainer />
-                    </Layout>
-                  </div>
+                  <MessagesProvider>
+                    <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
+                      <Layout>
+                        <AppRoutes />
+                        <ToastContainer />
+                      </Layout>
+                    </div>
+                  </MessagesProvider>
                 </SavedListingsProvider>
               </SettingsProvider>
             </ListingsProvider>
