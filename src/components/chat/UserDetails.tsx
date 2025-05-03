@@ -5,21 +5,42 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
+import type { User } from "@/types";
 import { AccordionItem } from "@radix-ui/react-accordion";
 import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
-function UserDetails({
+function getInitials(name: string | undefined) {
+  if (!name) return "US";
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+export default function UserDetails({
   setInfoOpen,
+  participant,
 }: {
   setInfoOpen: Dispatch<SetStateAction<boolean>>;
+  participant: User | null | undefined;
 }) {
+  if (!participant) {
+    return (
+      <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100 flex items-center justify-center text-gray-500">
+        No user selected
+      </div>
+    );
+  }
+
   return (
-    <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100 ">
+    <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100">
       <ScrollArea>
         <div className="p-4 flex items-center justify-between border-b border-gray-100">
           <div className="font-medium text-blue-500">About User</div>
@@ -41,11 +62,17 @@ function UserDetails({
         </div>
 
         <div className="p-4 flex flex-col items-center justify-center">
-          <Avatar className="h-20 w-20 bg-blue-500 mb-2">
-            <AvatarFallback className="text-2xl">DC</AvatarFallback>
+          <Avatar className="h-20 w-20 mb-2">
+            {participant.profilePicture ? (
+              <AvatarImage src={participant.profilePicture} />
+            ) : (
+              <AvatarFallback className="text-2xl">
+                {getInitials(participant.name)}
+              </AvatarFallback>
+            )}
           </Avatar>
-          <div className="font-medium">Name-User</div>
-          <div className="text-xs text-gray-500 mb-4">username@gmali.comm</div>
+          <div className="font-medium">{participant.name}</div>
+          <div className="text-xs text-gray-500 mb-4">{participant.email}</div>
         </div>
 
         {/* Email Accordion */}
@@ -63,17 +90,17 @@ function UserDetails({
               <div className="text-sm text-gray-500">Email</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              treeloversultan0987@gmail.com
+              {participant.email}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        {/* Phone Accordion */}
+        {/* Phone Accordion (if available, otherwise fallback) */}
         <Accordion
           type="single"
           collapsible
           defaultValue="phone"
-          className="w-full mb-4 "
+          className="w-full mb-4"
         >
           <AccordionItem
             value="phone"
@@ -83,7 +110,7 @@ function UserDetails({
               <div className="text-sm text-gray-500">Phone</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              +91 1234567890
+              N/A {/* You can add phone field in the User type if available */}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -95,24 +122,23 @@ function UserDetails({
           defaultValue="bio"
           className="w-full"
         >
-          <AccordionItem
-            value="bio"
-            className="border-b border-gray-100 -mt-4 "
-          >
+          <AccordionItem value="bio" className="border-b border-gray-100 -mt-4">
             <AccordionTrigger className="p-4 flex items-center justify-between">
               <div className="text-sm text-gray-500">Bio</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              <p>
-                There are super creative people in the chat, everyone’s favorite
-                designers who make this world a better place.
-              </p>
+              <p>{participant.bio || "No bio provided."}</p>
               <div className="flex items-center mt-2">
-                <div className="text-sm text-gray-500">@UserName</div>
+                <div className="text-sm text-gray-500">
+                  @{participant.username}
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="ml-auto text-blue-500 text-xs h-6 flex items-center"
+                  onClick={() =>
+                    navigator.clipboard.writeText(participant.username)
+                  }
                 >
                   <Copy className="h-3 w-3 mr-1" /> Copy link
                 </Button>
@@ -124,5 +150,3 @@ function UserDetails({
     </div>
   );
 }
-
-export default UserDetails;
