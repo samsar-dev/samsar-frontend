@@ -47,7 +47,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsLoading(true);
         const response = await messagesAPI.getConversations();
         if (response.status === 200 && response.data) {
-          setConversations(response.data);
+          setConversations(response.data.data?.items);
         }
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
