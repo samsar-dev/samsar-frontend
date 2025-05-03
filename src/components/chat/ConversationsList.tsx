@@ -12,44 +12,27 @@ import { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatItem from "./ChatItem";
 import { useContextMessages } from "@/contexts/MessagesContext";
+import { AuthUser } from "@/types/auth.types";
 
 const ConversationsList = memo(function ConversationsList({
   setLoading,
+  user,
 }: {
   setLoading: Dispatch<SetStateAction<boolean>>;
+  user: AuthUser | null;
 }) {
-  const { user, isAuthenticated } = useAuth();
   const [chats, setChats] = useState<Conversation[]>([]);
   const { chatId } = useParams();
   const navigate = useNavigate();
   const { conversations } = useContextMessages();
   console.log(conversations);
 
-  // const getConversations = useCallback(async () => {
-  //   if (!isAuthenticated || !user) {
-  //     navigate("/login");
-  //     return;
-  //   }
-  //   try {
-  //     setIsLoading(true);
-  //     const response = await MessagesAPI.getConversations();
-  //     if (!response.data.items) {
-  //       throw new Error("Failed to fetch conversations");
-  //     }
-  //     setChats(response.data.items);
-  //     setIsLoading(false);
-  //   } catch (error) {
-  //     console.error("Failed to fetch conversations:", error);
-  //     setIsLoading(false);
-  //   }
-  // }, [isAuthenticated, user, conversations]); // ✅ All deps included
-
   useEffect(() => {
     // getConversations();
-    if (conversations.success) {
-      setChats(conversations?.data?.items || []);
+    if (conversations.length > 0) {
+      setChats(conversations);
     }
-  }, [conversations]); // ✅ Effect depends on stable getConversations
+  }, [conversations]);
 
   return (
     <div className="w-1/4 h-full border-r border-gray-100">
@@ -97,14 +80,16 @@ const ConversationsList = memo(function ConversationsList({
                   ? new Date(chat.lastMessageAt)
                   : null;
                 return (
-                  <ChatItem
-                    key={chat.id}
-                    chatId={chatId || ""}
-                    chat={chat}
-                    participants={participants}
-                    lastMessageDate={lastMessageDate}
-                    user={user}
-                  />
+                  <div onClick={() => navigate(`/messages/${chat.id}`)}>
+                    <ChatItem
+                      key={chat.id}
+                      chatId={chatId || ""}
+                      chat={chat}
+                      participants={participants}
+                      lastMessageDate={lastMessageDate}
+                      user={user}
+                    />
+                  </div>
                 );
               })}
           </div>
