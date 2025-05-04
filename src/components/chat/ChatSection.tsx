@@ -10,15 +10,18 @@ import type { Conversation, Message, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
 import { ImageIcon, MoreHorizontal, Paperclip, Send } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 function ChatSection({
   currentChat,
   user,
   participant,
+  setInfoOpen,
 }: {
   currentChat: Conversation;
   user: AuthUser | null;
   participant: User | null | undefined;
+  setInfoOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -42,16 +45,19 @@ function ChatSection({
     <div className="flex-1 flex flex-col">
       {/* Chat header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <div className="flex items-center">
-          <Avatar className="h-8 w-8 mr-2">
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={() => setInfoOpen(true)}
+        >
+          {/* <Avatar className="h-8 w-8 mr-2">
             <AvatarImage
               src={participant?.profilePicture || "/placeholder.svg"}
             />
             <AvatarFallback>
               {participant?.username?.slice(0, 2).toUpperCase() || "US"}
             </AvatarFallback>
-          </Avatar>
-          <h2 className="text-lg font-medium">
+          </Avatar> */}
+          <h2 className="text-2xl font-semibold">
             {participant?.name || participant?.username}
           </h2>
           <Badge variant="outline" className="ml-2 bg-white">

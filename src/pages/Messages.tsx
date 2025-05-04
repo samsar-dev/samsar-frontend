@@ -7,6 +7,7 @@ import UserDetails from "@/components/chat/UserDetails";
 import { useContextMessages } from "@/contexts/MessagesContext";
 import { useAuth } from "@/hooks";
 import type { Conversation, User } from "@/types";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -69,6 +70,7 @@ export default function ChatInterface() {
               participant={participant}
               user={user}
               currentChat={currentChat}
+              setInfoOpen={setInfoOpen}
             />
 
             {/* Right sidebar - group info */}

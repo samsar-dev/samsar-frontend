@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import type { User } from "@/types";
 import { AccordionItem } from "@radix-ui/react-accordion";
+import { motion } from "framer-motion";
 import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -40,7 +41,9 @@ export default function UserDetails({
   }
 
   return (
-    <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100">
+    <div
+      className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100"
+    >
       <ScrollArea>
         <div className="p-4 flex items-center justify-between border-b border-gray-100">
           <div className="font-medium text-blue-500">About User</div>
