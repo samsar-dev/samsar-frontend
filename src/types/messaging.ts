@@ -11,13 +11,14 @@ import { NotificationType } from "./notifications";
 
 // Base Types
 export interface Message {
-  id: string;
-  listingId: string;
+  id?: string;
+  listingId?: string;
   senderId: string;
   recipientId: string;
   content: string;
   createdAt: string;
-  read: boolean;
+  read?: boolean;
+  conversationId?: string;
 }
 
 export interface Conversation {
