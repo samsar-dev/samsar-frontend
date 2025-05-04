@@ -17,53 +17,62 @@ const cookieOptions = {
 /**
  * Set auth token in cookie
  */
-export const setAuthToken = (token: string): void => {
+export const setAuthToken = (tokens: AuthTokens): void => {
   // Set access token cookie
-  Cookies.set(ACCESS_TOKEN_KEY, token, {
+  Cookies.set(ACCESS_TOKEN_KEY, tokens.accessToken, {
     ...cookieOptions,
     expires: 1 / 96, // 15 minutes in days
   });
 
   // Update TokenManager with the token
-  const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
-  TokenManager.setTokens({
-    accessToken: token,
-    refreshToken: refreshToken || ""
-  } as AuthTokens);
+  // Also store in localStorage as backup
+  const tokensString = JSON.stringify({
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+  });
+  localStorage.setItem("authTokens", tokensString);
 };
 
 /**
  * Set refresh token in cookie
  */
-export const setAuthRefreshToken = (token: string): void => {
+export const setAuthRefreshToken = (tokens: AuthTokens): void => {
   // Set refresh token cookie
-  Cookies.set(REFRESH_TOKEN_KEY, token, {
+  Cookies.set(REFRESH_TOKEN_KEY, tokens.refreshToken, {
     ...cookieOptions,
     expires: 1 / 96, // 15 minutes in days
   });
 
-  // Update TokenManager with the token
-  const accessToken = Cookies.get(ACCESS_TOKEN_KEY);
-  TokenManager.setTokens({
-    accessToken: accessToken || "",
-    refreshToken: token
-  } as AuthTokens);
+  // Also store in localStorage as backup
+  const tokensString = JSON.stringify({
+    accessToken: tokens.accessToken || "",
+    refreshToken: tokens.refreshToken,
+  });
+  localStorage.setItem("authTokens", tokensString);
 };
 
 /**
  * Get auth token from cookie
  */
 export const getAuthToken = (): string | null => {
-  const token = Cookies.get(ACCESS_TOKEN_KEY);
-  if (token) {
-    // Update TokenManager with the token
-    const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
-    TokenManager.setTokens({
-      accessToken: token,
-      refreshToken: refreshToken || ""
-    } as AuthTokens);
-  }
-  return token;
+  // let token: string | null | undefined = Cookies.get(ACCESS_TOKEN_KEY);
+  // if (!token) token = localStorage.getItem("token");
+  // if (!token) {
+  //   console.error("No auth token found");
+  //   clearTokens();
+  //   return null;
+  // }
+  // // Update TokenManager with the token
+  // const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
+  // TokenManager.setTokens({
+  //   accessToken: token,
+  //   refreshToken: refreshToken || "",
+  // } as AuthTokens);
+  // return token;
+  return (
+    Cookies.get(ACCESS_TOKEN_KEY) ??
+    JSON.parse(localStorage.getItem("authTokens") || "{}")?.accessToken
+  );
 };
 
 /**
@@ -87,10 +96,10 @@ export const clearTokens = (): void => {
  */
 export const setTokens = (accessToken: string, refreshToken: string): void => {
   // Set access token
-  setAuthToken(accessToken);
+  setAuthToken({ accessToken, refreshToken });
 
   // Set refresh token (expires in 7 days)
-  setAuthRefreshToken(refreshToken);
+  setAuthRefreshToken({ accessToken, refreshToken });
 };
 
 /**
@@ -102,5 +111,3 @@ export const getRefreshToken = (): string | undefined => {
     JSON.parse(localStorage.getItem("authTokens") || "{}")?.refreshToken
   );
 };
-
-

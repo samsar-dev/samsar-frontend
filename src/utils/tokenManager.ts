@@ -212,8 +212,8 @@ export class TokenManager {
       throw new Error("Invalid tokens provided");
     }
     // Store in cookie
-    setAuthToken(tokens.accessToken);
-    setAuthRefreshToken(tokens.refreshToken);
+    setAuthToken(tokens);
+    setAuthRefreshToken(tokens);
     // Also store in localStorage as backup
     const tokensString = JSON.stringify(tokens);
     localStorage.setItem("authTokens", tokensString);

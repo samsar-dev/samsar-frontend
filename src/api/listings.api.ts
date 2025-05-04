@@ -1569,12 +1569,31 @@ export const listingsAPI: ListingsAPI = {
   // Get user's favorite listings
   async getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>> {
     try {
+      const token = TokenManager.getAccessToken();
+      if (!token) {
+        // Return empty array if not authenticated instead of making the request
+        return {
+          success: true,
+          data: null, // Return null for unauthenticated users
+        };
+      }
       const queryParams = new URLSearchParams();
       if (userId) queryParams.append("userId", userId);
 
+      const requestConfig: any = {};
+      requestConfig.headers = { Authorization: `Bearer ${token}` };
+      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
+
+      // const response = await apiClient.get<APIResponse<UserListingsResponse>>(
+      //   `/listings/user${queryString ? `?${queryString}` : ""}`,
+      //   requestConfig,
+      // );
+
       const response = await apiClient.get<APIResponse<FavoritesResponse>>(
         `/listings/favorites${queryParams.toString() ? `?${queryParams}` : ""}`,
+        requestConfig,
       );
+      console.log(response);
 
       return response.data;
     } catch (error: any) {
