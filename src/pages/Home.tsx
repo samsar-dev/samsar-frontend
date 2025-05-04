@@ -5,7 +5,7 @@ import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
-import { serverStatus } from "@/utils/serverStatus";
+ 
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
     loading: true,
     error: null,
   });
-  const [isServerOnline, setIsServerOnline] = useState(true);
+
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
@@ -218,14 +218,7 @@ const Home: React.FC = () => {
       return;
     }
 
-    if (!isServerOnline) {
-      setListings((prev) => ({
-        ...prev,
-        loading: false,
-        error: t("errors.server_offline"),
-      }));
-      return;
-    }
+
 
     try {
       setListings((prev) => ({ ...prev, loading: true }));
@@ -297,23 +290,19 @@ const Home: React.FC = () => {
     selectedYear,
     sortBy,
     isInitialLoad,
-    isServerOnline,
     t,
   ]);
 
   // Single effect for fetching listings - only on category change or initial load
   useEffect(() => {
-    if (isServerOnline) {
-      fetchListings();
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
-      }
+    fetchListings();
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
     }
-
     return () => {
       // No need to abort here, it's handled in the fetchListings function
     };
-  }, [isServerOnline, selectedCategory, fetchListings, isInitialLoad]);
+  }, [selectedCategory, fetchListings, isInitialLoad]);
 
   // Memoized filtered listings
   const filteredListings = useMemo(() => {
@@ -369,18 +358,11 @@ const Home: React.FC = () => {
     setSelectedCategory(category);
   }, []);
 
-  // Handle server status changes
-  useEffect(() => {
-    const unsubscribe = serverStatus.subscribe(setIsServerOnline);
-    return () => unsubscribe();
-  }, []);
+   
 
   const handleSearch = useCallback(
     async (query: string) => {
-      if (!isServerOnline) {
-        toast.error(t("errors.server_offline"));
-        return;
-      }
+
 
       if (!query.trim()) {
         await fetchListings();
@@ -406,7 +388,7 @@ const Home: React.FC = () => {
         }));
       }
     },
-    [isServerOnline, t, fetchListings],
+    [   fetchListings],
   );
 
   useEffect(() => {
@@ -607,16 +589,14 @@ const Home: React.FC = () => {
                     : t("errors.fetch_failed")}
                 </div>
               )}
-              {isServerOnline && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={fetchListings}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {t("common.try_again")}
-                </motion.button>
-              )}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={fetchListings}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {t("common.try_again")}
+              </motion.button>
             </motion.div>
           )}
         </div>
@@ -655,7 +635,6 @@ const Home: React.FC = () => {
     );
   }, [
     listings,
-    isServerOnline,
     t,
     fetchListings,
     filteredListings,
