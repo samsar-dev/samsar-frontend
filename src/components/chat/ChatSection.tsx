@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSocket } from "@/contexts/SocketContext";
 import type { Conversation, Message, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
 import { ImageIcon, MoreHorizontal, Paperclip, Send } from "lucide-react";
@@ -24,6 +25,7 @@ function ChatSection({
   setInfoOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const {socket} = useSocket();
 
   useEffect(() => {
     const fetchMessages = async () => {

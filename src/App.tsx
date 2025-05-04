@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import AppRoutes from "./routes/Routes";
+import SocketProvider from "./contexts/SocketContext";
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -52,12 +53,14 @@ const App: () => ReactElement = () => {
               <SettingsProvider>
                 <SavedListingsProvider>
                   <MessagesProvider>
-                    <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                      <Layout>
-                        <AppRoutes />
-                        <ToastContainer />
-                      </Layout>
-                    </div>
+                    <SocketProvider>
+                      <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
+                        <Layout>
+                          <AppRoutes />
+                          <ToastContainer />
+                        </Layout>
+                      </div>
+                    </SocketProvider>
                   </MessagesProvider>
                 </SavedListingsProvider>
               </SettingsProvider>
