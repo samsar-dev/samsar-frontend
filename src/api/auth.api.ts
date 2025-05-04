@@ -133,6 +133,8 @@ class AuthAPI {
         password,
       });
 
+      console.log(response);
+
       if (response.data.success && response.data.data?.tokens) {
         TokenManager.setTokens(response.data.data.tokens);
       }
@@ -432,7 +434,7 @@ class UserAPI extends AuthAPI {
           data,
           // Ensure Content-Type is not set so browser/axios sets multipart/form-data
           { headers: { "Content-Type": undefined }, withCredentials: true }
-        ),
+        )
       );
       return response.data;
     } catch (error: any) {
