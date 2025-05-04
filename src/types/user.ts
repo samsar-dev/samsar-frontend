@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   username: string;
+  bio: string;
   profilePicture?: string;
   role: "user" | "admin";
   createdAt: string;
