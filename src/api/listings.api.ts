@@ -503,16 +503,56 @@ export const listingsAPI: ListingsAPI = {
         }
       });
 
-      const data = response.data;
-
       // Process the response data from the backend
-      const responseData = {
-        listings: data.data || [],
-        total: data.pagination?.total || 0,
-        page: data.pagination?.page || 1,
-        limit: data.pagination?.limit || 10,
-      };
+      const data = response.data;
+      console.log("Raw API response:", data); // Debug the full response
+      console.log("API response data structure:", typeof data.data, data.data); // Debug the data structure
 
+      // Handle different response formats
+      let responseData;
+      if (data.data && typeof data.data === 'object') {
+        // The API is returning data in this format:
+        // {
+        //   success: true,
+        //   data: {
+        //     items: Array(4),
+        //     total: 4,
+        //     page: 1,
+        //     limit: 10,
+        //     hasMore: false
+        //   },
+        //   status: 200
+        // }
+        
+        if (data.data.items && Array.isArray(data.data.items)) {
+          responseData = {
+            listings: data.data.items,
+            total: data.data.total || 0,
+            page: data.data.page || 1,
+            limit: data.data.limit || 10,
+            hasMore: data.data.hasMore || false
+          };
+        } else {
+          console.warn("Expected items array not found in response");
+          responseData = {
+            listings: [],
+            total: 0,
+            page: 1,
+            limit: 10,
+            hasMore: false
+          };
+        }
+      } else {
+        console.warn("Unexpected API response format", data);
+        responseData = {
+          listings: [],
+          total: 0,
+          page: 1,
+          limit: 10,
+          hasMore: false
+        };
+      }
+ 
       // Extract only essential information for listing cards if preview mode is on
       if (params.preview && responseData.listings) {
         responseData.listings = responseData.listings.map((listing: any) => {
@@ -802,6 +842,46 @@ export const listingsAPI: ListingsAPI = {
         requestConfig,
       );
 
+      // Debug the response
+      console.log("User listings API response:", response.data);
+      
+      // Handle different response formats
+      const data = response.data;
+      
+      if (data.success && data.data) {
+        // Check if the data structure is as expected
+        if (data.data.listings) {
+          // Response has the expected structure
+          return data;
+        } else if (Array.isArray(data.data)) {
+          // Data is directly an array of listings
+          console.log("Converting array response to expected format");
+          return {
+            success: true,
+            data: {
+              listings: data.data,
+              total: data.data.length,
+              page: 1,
+              limit: data.data.length,
+              hasMore: false
+            }
+          };
+        } else {
+          // Unknown data structure, log it for debugging
+          console.warn("Unexpected user listings data structure:", data.data);
+          return {
+            success: true,
+            data: {
+              listings: [],
+              total: 0,
+              page: 1,
+              limit: 10,
+              hasMore: false
+            }
+          };
+        }
+      }
+      
       return response.data;
     } catch (error: any) {
       // Don't log aborted request errors
