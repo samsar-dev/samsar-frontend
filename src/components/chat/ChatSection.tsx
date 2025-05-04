@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { NEW_MESSAGE } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import type { Conversation, Message, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
 import { ImageIcon, MoreHorizontal, Paperclip, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useNavigate } from "react-router-dom";
 
 function ChatSection({
   currentChat,
@@ -25,11 +27,39 @@ function ChatSection({
   setInfoOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const {socket} = useSocket();
+  const [inputMessage, setInputMessage] = useState("");
+  const navigate = useNavigate();
+  const { socket } = useSocket();
+
+  const handleSendMessage = async () => {
+    const receiverId = participant?.id;
+    if (!user || !participant || !currentChat || !inputMessage || !receiverId) {
+      throw new Error("Data is incomplete for sending message");
+    }
+    if (!socket) {
+      throw new Error("Socket not initialized");
+    }
+    const soketData: Message = {
+      content: inputMessage,
+      senderId: user?.id,
+      recipientId: receiverId,
+      conversationId: currentChat.id,
+      createdAt: new Date().toISOString(),
+    };
+    console.log(soketData);
+    setMessages([...messages, soketData]);
+
+    socket.emit(NEW_MESSAGE, soketData);
+    setInputMessage("");
+  };
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        if (!user) {
+          navigate("/login");
+          throw new Error("User not Authenticated");
+        }
         if (!currentChat.id) {
           throw new Error("No chatId provided");
         }
@@ -42,6 +72,21 @@ function ChatSection({
     };
     fetchMessages();
   }, [currentChat]);
+
+  useEffect(() => {
+    console.log("Socket initialized", socket);
+    if (!socket) {
+      throw new Error("Socket not initialized");
+    }
+    socket.on(NEW_MESSAGE, (message: Message) => {
+      console.log("Socket new message response:", message);
+      setMessages((prev) => [...prev, message]);
+    });
+    socket.on("connect_error", (err: any) => {
+      console.log("Socket error:", err.message);
+    });
+  }, [socket]);
+  console.log(messages);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -75,10 +120,10 @@ function ChatSection({
       </div>
 
       {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4" >
         <div className="space-y-6">
           <div className="space-y-6">
-            {messages.map((message, index) =>
+            {messages?.map((message, index) =>
               message.senderId === user?.id ? (
                 <UserMessageBubble
                   key={message.id}
@@ -124,6 +169,7 @@ function ChatSection({
             <Input
               placeholder="Type Something ..."
               className="pr-20 py-2 rounded-full border-gray-200"
+              onChange={(e) => setInputMessage(e.target.value)}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <Button
@@ -145,6 +191,7 @@ function ChatSection({
           <Button
             size="icon"
             className="rounded-full bg-blue-500 hover:bg-blue-600"
+            onClick={handleSendMessage}
           >
             <Send className="h-4 w-4" />
           </Button>

@@ -24,11 +24,10 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   useEffect(() => {
     if (isAuthenticated && user) {
       const newSocket = socketIO(SOCKET_URL, {
-        ...SOCKET_CONFIG,
         auth: {
-          token: localStorage.getItem("token"),
+          token: "Bearer " + localStorage.getItem("token"),
         },
-      });
+      },);
 
       newSocket.on("connect", () => {
         setConnected(true);
