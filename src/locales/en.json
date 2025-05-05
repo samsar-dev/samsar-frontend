@@ -30,6 +30,11 @@
       "locationDesc": "Location: Z to A",
       "sortOptions": "Sort Options"
     },
+    "notifications": {
+      "toggle": "Toggle Notifications"
+    },
+    "privacy": "Privacy",
+
     "next": "Next",
     "previous": "Previous",
     "overview": "Overview",

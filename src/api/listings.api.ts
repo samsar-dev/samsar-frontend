@@ -12,12 +12,33 @@ import type {
   Listing,
   ListingDetails,
   ListingsResponse,
-  PropertyType,
   RealEstateDetails,
-  TractorDetails,
   VehicleDetails,
 } from "@/types/listings";
-import type { ListingParams } from "@/types/params";
+import type { PropertyType } from "@/types/enums";
+// Define custom ListingParams interface directly here to avoid import conflicts
+interface ListingParams {
+  year?: number;
+  category?: {
+    mainCategory: ListingCategory;
+    subCategory?: VehicleType | PropertyType;
+  };
+  vehicleDetails?: {
+    make?: string;
+    model?: string;
+  };
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  limit?: number;
+  page?: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  location?: string;
+  builtYear?: number;
+  preview?: boolean;
+  forceRefresh?: boolean;
+}
 import { AxiosError } from "axios";
 import type { RequestConfig } from "./apiClient";
 import TokenManager from "../utils/tokenManager";
@@ -199,15 +220,12 @@ export const createListing = async (
             "coolingSystem",
           ],
           [VehicleType.TRUCK]: ["loadCapacity", "axleConfiguration", "cabType"],
-          [VehicleType.VAN]: ["cargoVolume", "roofHeight", "loadLength"],
-          [VehicleType.TRACTOR]: [
-            "horsepower",
-            "attachments",
-            "fuelTankCapacity",
-            "tires",
-          ],
-          [VehicleType.RV]: ["length", "slideOuts", "sleepingCapacity"],
-          [VehicleType.BUS]: ["passengerCapacity", "busLength", "busType"],
+          [VehicleType.VAN]: ["cargoCapacity", "cargoDimensions"],
+          [VehicleType.TRACTOR]: ["horsepower", "torque", "tractiveEffort"],
+          [VehicleType.RV]: ["sleepingCapacity", "freshWaterCapacity"],
+          [VehicleType.BUS]: ["seatingCapacity", "standingCapacity"],
+          [VehicleType.CONSTRUCTION]: ["operatingWeight", "maximumLiftCapacity"],
+          [VehicleType.OTHER]: [],
         };
 
         // Apply vehicle type specific fields
@@ -627,10 +645,11 @@ export const listingsAPI: ListingsAPI = {
       return { success: true, data: response.data };
     } catch (error) {
       const err = error as AxiosError;
+      const errorData = err.response?.data as { message?: string };
       return {
         success: false,
         data: null,
-        error: err.response?.data?.error || err.message,
+        error: errorData?.message || err.message,
       };
     }
   },
@@ -646,10 +665,11 @@ export const listingsAPI: ListingsAPI = {
       return { success: true, data: response.data };
     } catch (error) {
       const err = error as AxiosError;
+      const errorData = err.response?.data as { message?: string };
       return {
         success: false,
         data: null,
-        error: err.response?.data?.error || err.message,
+        error: errorData?.message || err.message,
       };
     }
   },
@@ -893,8 +913,7 @@ export const listingsAPI: ListingsAPI = {
         success: false,
         data: null,
         error:
-          error.response?.data?.error?.message ||
-          "Failed to fetch user listings",
+          error.response?.data?.error?.message || "Failed to fetch user listings",
       };
     }
   },
@@ -1297,7 +1316,10 @@ export const listingsAPI: ListingsAPI = {
 
         // If this is a tractor, ensure all required fields are present
         if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
-          const tractorDetails = details.vehicles as TractorDetails;
+          const tractorDetails = {
+            vin: details.vehicles.vin || '',
+            ...details.vehicles
+          } as VehicleDetails;
 
           // Ensure required tractor fields
           tractorDetails.horsepower = parseInt(
