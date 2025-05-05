@@ -54,14 +54,14 @@ function ChatSection({
       createdAt: new Date().toISOString(),
     };
     console.log(soketData);
-    
+
     // Clear input first
     setInputMessage("");
-    
+
     // Then update messages and emit
-    setMessages(prev => [...prev, soketData]);
+    setMessages((prev) => [...prev, soketData]);
     socket.emit(NEW_MESSAGE, soketData);
-    
+
     scrollBottonFn(); // Scroll to bottom after sending
   };
 
@@ -190,7 +190,7 @@ function ChatSection({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
                 }
@@ -256,9 +256,9 @@ const ParticipantMessageBubble = ({
               minute: "2-digit",
             })}
           </div>
-          <Button variant="ghost" size="icon" className="ml-auto h-6 w-6">
+          {/* <Button variant="ghost" size="icon" className="ml-auto h-6 w-6">
             <MoreHorizontal className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
         <div className="bg-gray-100 p-3 rounded-lg inline-block max-w-md">
           <p>{message.content}</p>
