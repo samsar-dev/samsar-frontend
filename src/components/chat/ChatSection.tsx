@@ -11,7 +11,7 @@ import { useSocket } from "@/contexts/SocketContext";
 import type { Conversation, Message, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
 import { ImageIcon, MoreHorizontal, Paperclip, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -28,8 +28,15 @@ function ChatSection({
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { socket } = useSocket();
+
+  const scrollBottonFn = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const handleSendMessage = async () => {
     const receiverId = participant?.id;
@@ -65,7 +72,8 @@ function ChatSection({
         }
         const response = await MessagesAPI.getMessages(currentChat.id);
         console.log(response);
-        if (response.messages) setMessages(response.messages);
+        if (!response.messages) throw new Error("Failed to fetch messages");
+        setMessages(response.messages);
       } catch (error) {
         console.log(error);
       }
@@ -86,6 +94,10 @@ function ChatSection({
       console.log("Socket error:", err.message);
     });
   }, [socket]);
+
+  useEffect(() => {
+    scrollBottonFn();
+  }, [messages]);
   console.log(messages);
 
   return (
@@ -141,6 +153,7 @@ function ChatSection({
               )
             )}
           </div>
+          <div ref={scrollRef} className="w-full"></div>
 
           {/* privious date show */}
           {/* <div className="text-center text-xs text-gray-400">Today, 8 July</div> */}
@@ -171,7 +184,7 @@ function ChatSection({
               className="pr-20 py-2 rounded-full border-gray-200"
               onChange={(e) => setInputMessage(e.target.value)}
             />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+            {/* <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -186,7 +199,7 @@ function ChatSection({
               >
                 <ImageIcon className="h-4 w-4 text-gray-400" />
               </Button>
-            </div>
+            </div> */}
           </div>
           <Button
             size="icon"
