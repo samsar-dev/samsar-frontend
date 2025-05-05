@@ -120,7 +120,7 @@ function ChatSection({
       </div>
 
       {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4" >
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-6">
           <div className="space-y-6">
             {messages?.map((message, index) =>
