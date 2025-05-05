@@ -27,14 +27,25 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
         auth: {
           token: "Bearer " + localStorage.getItem("token"),
         },
-      },);
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000,
+      });
 
       newSocket.on("connect", () => {
         setConnected(true);
+        console.log('Socket connected');
       });
 
       newSocket.on("disconnect", () => {
         setConnected(false);
+        console.log('Socket disconnected');
+      });
+
+      newSocket.on("connect_error", (error: any) => {
+        console.error('Socket connection error:', error);
       });
 
       setSocket(newSocket);

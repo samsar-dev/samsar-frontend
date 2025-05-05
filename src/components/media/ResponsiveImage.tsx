@@ -33,19 +33,28 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   const baseUrl = src ? src.split("?")[0] : "";
 
   // Optimize image quality and format based on priority
-  const imageQuality = priority ? 85 : 80;
+  // Higher quality for priority images (LCP candidates)
+  const imageQuality = priority ? 90 : 80;
+  
+  // For priority images, use smaller initial width to improve LCP
+  const initialWidth = priority ? 600 : 800;
+  
   const optimizedSrc = isR2Image
-    ? `${baseUrl}?format=webp&quality=${imageQuality}&width=800`
+    ? `${baseUrl}?format=webp&quality=${imageQuality}&width=${initialWidth}`
     : src || placeholder;
 
   // Generate responsive URLs for R2 images with optimized quality and format
   const generateSrcSet = () => {
     if (!isR2Image || !baseUrl) return undefined;
+    
     // Optimize widths based on priority and device sizes
-    const widths = priority ? [400, 800, 1200, 1600] : [400, 800, 1200];
+    // For priority images (LCP candidates), include smaller sizes first for faster loading
+    const widths = priority 
+      ? [400, 600, 800, 1200] 
+      : [800, 1200];
+      
     return widths
       .map((width) => {
-        // Higher quality for priority images
         const optimizedUrl = `${baseUrl}?width=${width}&format=webp&quality=${imageQuality}`;
         return `${optimizedUrl} ${width}w`;
       })
@@ -58,25 +67,19 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       const link = document.createElement("link");
       link.rel = "preload";
       link.as = "image";
-      link.href = isR2Image ? `${baseUrl}?format=webp&quality=80` : src;
+      // For priority images, preload a smaller version for faster LCP
+      link.href = isR2Image ? `${baseUrl}?format=webp&quality=${imageQuality}&width=600` : src;
       link.fetchPriority = "high";
-
-      // Add onload handler to ensure the preloaded resource is used
-      link.onload = () => {
-        // Create a hidden image to use the preloaded resource
-        const img = new Image();
-        img.src = link.href;
-        img.style.display = "none";
-        document.body.appendChild(img);
-      };
 
       document.head.appendChild(link);
 
       return () => {
-        document.head.removeChild(link);
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
       };
     }
-  }, [priority, src, baseUrl, isR2Image]);
+  }, [priority, src, baseUrl, isR2Image, imageQuality]);
 
   // Handle image load
   const handleLoad = () => setLoading(false);
@@ -98,10 +101,8 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       role="img"
     >
       {loading && blur && !error && (
-        <img
-          src={placeholder}
-          alt="Loading..."
-          className="absolute inset-0 w-full h-full object-cover blur-md animate-pulse z-0"
+        <div 
+          className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse z-0"
           aria-hidden="true"
         />
       )}
@@ -120,11 +121,11 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
           srcSet={generateSrcSet()}
           sizes={sizes}
           alt={imgAlt}
-          className={`w-full h-full object-contain transition-opacity duration-500 ${blur && loading ? "opacity-0" : "opacity-100"} z-10`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${blur && loading ? "opacity-0" : "opacity-100"} z-10`}
           loading={priority ? "eager" : "lazy"}
           decoding={priority ? "sync" : "async"}
-          {...{ fetchpriority: priority ? "high" : fetchPriority }}
-          width="400"
+          fetchPriority={priority ? "high" : fetchPriority}
+          width={priority ? "600" : "800"}
           height="300"
           onLoad={handleLoad}
           onError={handleError}

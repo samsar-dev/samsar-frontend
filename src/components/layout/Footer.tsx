@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.quick_links")}
+              {t("footer.quick_links", "Quick Links")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
                   to="/about"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.about_marketplace")}
+                  {t("footer.about_marketplace", "About Marketplace")}
                 </Link>
               </li>
               <li>
@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
                   to="/contact"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.contact_us")}
+                  {t("footer.contact_us", "Contact Us")}
                 </Link>
               </li>
               <li>
@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
                   to="/careers"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.careers")}
+                  {t("footer.careers.title", "Careers")}
                 </Link>
               </li>
             </ul>
@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
           {/* Legal */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("privacy")}
+              {t("privacy", "Privacy")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
                   to="/privacy"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("settings.privacy")}
+                  {t("settings.privacy", "Privacy Policy")}
                 </Link>
               </li>
               <li>
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                   to="/terms"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("footer.terms")}
+                  {t("footer.terms.title", "Terms of Service")}
                 </Link>
               </li>
             </ul>
@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
           {/* Categories */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.categories")}
+              {t("footer.categories", "Categories")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
                   to="/vehicles"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("navigation.vehicles")}
+                  {t("navigation.vehicles", "Vehicles")}
                 </Link>
               </li>
               <li>
@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
                   to="/real-estate"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("navigation.real_estate")}
+                  {t("navigation.real_estate", "Real Estate")}
                 </Link>
               </li>
             </ul>
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
           {/* Social Links */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("footer.contact_us")}
+              {t("footer.contact_us", "Contact Us")}
             </h3>
             <div className="flex space-x-4">
               <a

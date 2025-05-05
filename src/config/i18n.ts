@@ -9,7 +9,7 @@ const resources = {
   en: {
     common: enTranslation,
   },
-  ar: {
+  AR: {
     common: arTranslation,
   },
 };
@@ -18,6 +18,8 @@ const i18nConfig: InitOptions = {
   resources,
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",
+  supportedLngs: ['en', 'AR'],
+  load: 'languageOnly',
   ns: ["common"],
   defaultNS: "common",
   interpolation: {

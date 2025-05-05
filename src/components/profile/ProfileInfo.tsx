@@ -5,6 +5,7 @@ import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+import { FaCamera, FaUser, FaEnvelope, FaInfoCircle, FaCalendarAlt, FaMapMarkerAlt, FaCity } from "react-icons/fa";
 
 interface FormData {
   username: string;
@@ -112,174 +113,199 @@ const ProfileInfo = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex justify-center items-center min-h-[300px]">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-600">{error}</div>;
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
+        <FaInfoCircle className="inline-block mr-2" />
+        {error}
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+        <FaUser className="inline-block mr-2" size={20} />
         {t("profile.loading")}
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-2xl mx-auto bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-lg shadow space-y-6"
-    >
-      <div className="flex flex-col items-center space-y-4 mb-6">
-        <div className="relative">
-          <img
-            src={avatarPreview || "/default-avatar.png"}
-            alt={formData.username}
-            className="w-24 h-24 rounded-full object-cover"
-          />
-          <label
-            htmlFor="avatar-upload"
-            className="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full cursor-pointer hover:bg-blue-600"
-          >
-            <input
-              id="avatar-upload"
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={handleAvatarChange}
-            />
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+          {t("profile.personal_information")}
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {t("profile.update_info")}
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="p-6">
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative group">
+            <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-md">
+              <img
+                src={avatarPreview || "/default-avatar.png"}
+                alt={formData.username}
+                className="w-full h-full object-cover"
               />
-            </svg>
-          </label>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("profile.name")}
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+            </div>
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer shadow-md transition-all duration-200"
+            >
+              <input
+                id="avatar-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
+              <FaCamera size={16} />
+            </label>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            {t("profile.change_photo")}
+          </p>
         </div>
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("profile.email")}
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label
+              htmlFor="username"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaUser className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.name")}
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaEnvelope className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.email")}
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label
+              htmlFor="bio"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaInfoCircle className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.bio")}
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="dateOfBirth"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaCalendarAlt className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.date of birth")}
+            </label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="street"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaMapMarkerAlt className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.street")}
+            </label>
+            <input
+              type="text"
+              id="street"
+              name="street"
+              value={formData.street || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="city"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaCity className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("profile.city")}
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              value={formData.city || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
         </div>
 
-        <div>
-          <label
-            htmlFor="bio"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        <div className="flex justify-end mt-8">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t("profile.bio")}
-          </label>
-          <textarea
-            id="bio"
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            rows={4}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
+            {loading ? (
+              <>
+                <LoadingSpinner size="sm" className="mr-2" />
+                {t("common.saving")}
+              </>
+            ) : (
+              t("profile.save_changes")
+            )}
+          </button>
         </div>
-
-        <div>
-          <label
-            htmlFor="dateOfBirth"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("profile.date of birth")}
-          </label>
-          <input
-            type="text"
-            id="dateOfBirth"
-            name="dateOfBirth"
-            value={formData.dateOfBirth || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="street"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("profile.street")}
-          </label>
-          <input
-            type="text"
-            id="street"
-            name="street"
-            value={formData.street || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="city"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {t("profile.city")}
-          </label>
-          <input
-            type="text"
-            id="city"
-            name="city"
-            value={formData.city || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div></div>
-      </div>
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          {t("profile.save_changes")}
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

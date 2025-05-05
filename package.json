@@ -68,6 +68,8 @@
     "start": "nodemon --exec \"npm run dev\" --ext js,jsx,ts,tsx,css,html --signal SIGTERM"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
     "@eslint/js": "^9.21.0",
     "@types/node": "^20.17.32",
     "@types/react": "^18.3.18",

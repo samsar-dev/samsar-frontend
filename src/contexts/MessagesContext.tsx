@@ -13,6 +13,8 @@ export interface MessagesContextType {
   currentConversation: Conversation | null;
   messages: Message[];
   isLoading: boolean;
+  unreadMessages: number;
+  toggleNotifications: () => void;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   createConversation: (
     participantIds: string[],
@@ -33,6 +35,8 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const auth = useAuth();
 
   useEffect(() => {
@@ -63,8 +67,12 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setIsLoading(true);
       const response = await messagesAPI.getMessages(conversationId);
-      if (response.status === 200 && response.data) {
-        setMessages(response.data);
+      if (response.data) {
+        const messages = response.data.items || [];
+        setMessages(messages);
+        // Update unread messages count
+        const unreadCount = messages.filter((msg: Message) => !msg.read).length;
+        setUnreadMessages(unreadCount);
       }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -162,9 +170,17 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     if (conversation) {
       setCurrentConversation(conversation);
       await fetchMessages(conversationId);
-      if (conversation.lastMessage && !conversation.lastMessage.read) {
+      if (conversation.lastMessage && !conversation.lastMessage.read && conversation.lastMessage.id) {
         await markAsRead(conversationId, conversation.lastMessage.id);
       }
+    }
+  };
+
+  const toggleNotifications = () => {
+    setNotificationsEnabled(prev => !prev);
+    // Update unread messages count when notifications are toggled
+    if (notificationsEnabled) {
+      setUnreadMessages(0);
     }
   };
 
@@ -173,8 +189,10 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         conversations,
         currentConversation,
-        messages: messages || [],
+        messages,
         isLoading,
+        unreadMessages,
+        toggleNotifications,
         sendMessage,
         createConversation,
         markAsRead,
