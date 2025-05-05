@@ -16,6 +16,7 @@ interface TabItem {
   id: string;
   path: string;
   label: string;
+  icon: string;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
@@ -32,18 +33,18 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
     {
       id: "profile",
       path: isViewingOtherProfile ? `/profile/${userId}` : "/profile",
-      label:
-        "👤 " +
-        (isViewingOtherProfile
-          ? t("profile.viewing", { username: "User" })
-          : t("profile.info")),
+      label: isViewingOtherProfile
+        ? t("profile.viewing", { username: "User" })
+        : t("profile.info"),
+      icon: "👤",
     },
     {
       id: "listings",
       path: isViewingOtherProfile
         ? `/profile/${userId}/listings`
         : "/profile/listings",
-      label: "📂 " + t("profile.my_listings"),
+      label: t("profile.my_listings"),
+      icon: "📂",
     },
   ];
 
@@ -52,7 +53,8 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
     tabs.push({
       id: "password",
       path: "/profile/password",
-      label: "🔒 " + t("profile.change_password"),
+      label: t("profile.change_password"),
+      icon: "🔒",
     });
   }
 
@@ -61,25 +63,36 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col space-y-4">
-        <div className="flex space-x-4 border-b dark:border-gray-700">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.path)}
-              className={`py-2 px-4 ${
-                currentPath === tab.path
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <div className="py-4">
-          <Outlet />
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          {/* Sidebar Navigation */}
+          <div className="md:w-64 bg-gray-50 dark:bg-gray-900 p-6">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+              {t("profile.title")}
+            </h2>
+            <nav className="space-y-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.path)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    currentPath === tab.path
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <span className="text-xl">{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 p-6 md:p-8">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

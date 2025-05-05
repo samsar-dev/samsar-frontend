@@ -125,11 +125,6 @@ export const createListing = async (
   formData: FormData,
 ): Promise<APIResponse<SingleListingResponse>> => {
   try {
-    // Log the form data for debugging
-
-    for (const [key, value] of formData.entries()) {
-    }
-
     // Get and validate the details from formData
     const detailsStr = formData.get("details");
     if (!detailsStr || typeof detailsStr !== "string") {

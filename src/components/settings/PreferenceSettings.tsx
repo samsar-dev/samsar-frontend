@@ -7,9 +7,6 @@ import type {
 
 const SUPPORTED_LANGUAGES = [
   { code: LanguageCode.EN, label: "English" },
-  { code: LanguageCode.ES, label: "Español" },
-  { code: LanguageCode.FR, label: "Français" },
-  { code: LanguageCode.DE, label: "Deutsch" },
   { code: LanguageCode.AR, label: "العربية" },
 ];
 
@@ -33,6 +30,7 @@ const defaultSettings: PreferenceSettingsType = {
     email: false,
     push: false,
     desktop: false,
+    enabledTypes: [] as Array<'message' | 'listing' | 'system'>,
   },
 };
 
@@ -45,10 +43,22 @@ function PreferenceSettings({
   const currentSettings = { ...defaultSettings, ...settings };
 
   const handleChange = (key: keyof PreferenceSettingsType, value: any) => {
-    onUpdate({
+    const newSettings = {
       ...currentSettings,
       [key]: value,
-    });
+    };
+    
+    // If language is changed, update i18n and save to localStorage
+    if (key === 'language') {
+      // Convert to lowercase for storage and i18n
+      const langCode = value === LanguageCode.AR ? 'AR' : 'en';
+      localStorage.setItem('language', langCode);
+      import('i18next').then((i18n) => {
+        i18n.changeLanguage(langCode);
+      });
+    }
+
+    onUpdate(newSettings);
   };
 
   const handleNotificationChange = (key: keyof NotificationPreferences) => {
@@ -81,7 +91,7 @@ function PreferenceSettings({
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("settings.theme")}</h3>
+        <h3 className="text-lg font-medium">{t("common.settings.theme")}</h3>
         <select
           value={currentSettings.theme}
           onChange={(e) => handleChange("theme", e.target.value as ThemeType)}
@@ -96,7 +106,7 @@ function PreferenceSettings({
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("settings.timezone")}</h3>
+        <h3 className="text-lg font-medium">{t("common.settings.timezone")}</h3>
         <select
           value={currentSettings.timezone}
           onChange={(e) => handleChange("timezone", e.target.value)}

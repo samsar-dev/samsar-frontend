@@ -65,20 +65,58 @@ export default defineConfig({
   },
   build: {
     outDir: process.env.VITE_BUILD_DIR || "dist",
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1000,
     sourcemap: process.env.VITE_ENV === "development",
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: process.env.VITE_ENV !== "development",
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        }
-      }
-    }
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'i18next', 'react-i18next'],
+          utils: ['lodash', 'date-fns', 'framer-motion'],
+          ui: ['@headlessui/react', 'react-icons', 'lucide-react'],
+        },
+      },
+    },
+    target: 'es2020',
+  },
+  css: {
+    devSourcemap: true,
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "@/assets/styles/variables.scss";`,
+      },
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'react-i18next',
+      'i18next',
+      'date-fns',
+      'framer-motion',
+      'lodash'
+    ],
+    esbuildOptions: {
+      target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge79'],
+      define: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      },
+    },
   },
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },
+    target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge79'],
   },
   define: {
     "process.env": {},

@@ -85,19 +85,13 @@ const Home: React.FC = () => {
         .filter(Boolean) as string[];
 
       if (criticalImages.length > 0) {
+        // Preload the first image with high priority for LCP
         const link = document.createElement("link");
         link.rel = "preload";
         link.as = "image";
         link.href = criticalImages[0];
+        link.fetchPriority = "high";
         document.head.appendChild(link);
-
-        // Use PreloadImages component for the rest
-        if (criticalImages.length > 1) {
-          const preloadComponent = document.createElement("div");
-          preloadComponent.style.display = "none";
-          preloadComponent.innerHTML = `<img src="${criticalImages[0]}" alt="" />`;
-          document.body.appendChild(preloadComponent);
-        }
       }
     }
   }, [listings.all]);
@@ -564,7 +558,7 @@ const Home: React.FC = () => {
         )}
 
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredListings.map((listing) => (
+          {filteredListings.map((listing, index) => (
             <ListingCard
               key={listing.id}
               listing={listing}
@@ -573,6 +567,7 @@ const Home: React.FC = () => {
               showPrice={true}
               showLocation={true}
               showBadges={true}
+              priority={index < 2} // Prioritize first two listings for LCP
             />
           ))}
           {listings.all.length === 0 && listings.error && (
@@ -617,7 +612,7 @@ const Home: React.FC = () => {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {listings.popular.map((listing) => (
+              {listings.popular.map((listing, index) => (
                 <ListingCard
                   key={listing.id}
                   listing={listing}
@@ -626,6 +621,7 @@ const Home: React.FC = () => {
                   showPrice={true}
                   showLocation={true}
                   showBadges={true}
+                  priority={index === 0} // Prioritize only the first popular listing
                 />
               ))}
             </motion.div>

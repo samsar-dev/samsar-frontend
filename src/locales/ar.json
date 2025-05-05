@@ -33,6 +33,7 @@
     "all_types": "كل الأنواع",
     "search": "البحث...",
     "allCities": "جميع المدن",
+    
     "sortOptions": {
       "newestFirst": "الأحدث أولاً",
       "priceAsc": "السعر: من الأقل إلى الأعلى",
@@ -627,6 +628,10 @@
       "forSale": "للبيع",
       "forRent": "للإيجار",
       "allCities": "جميع المدن",
+      "settings": {
+        "theme": "السمة",
+        "timezone": "المنطقة الزمنية"
+      },
       "sortOptions": {
         "createdAt": "الأحدث أولاً",
         "priceAsc": "السعر: من الأقل إلى الأعلى",

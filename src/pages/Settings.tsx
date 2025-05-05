@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import SecuritySettings from "@/components/settings/SecuritySettings";
-import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+
 import type {
   PreferenceSettings as PreferenceSettingsType,
   SecuritySettings as SecuritySettingsType,
@@ -63,15 +63,28 @@ function Settings() {
   };
 
   const handleNotificationToggle = (
-    key: keyof NotificationPreferences,
+    key: 'email' | 'push' | 'desktop' | 'message' | 'listing' | 'system',
     checked: boolean,
   ) => {
-    updateSettings({
-      notifications: {
-        ...settings?.notifications,
-        [key]: checked,
-      },
-    });
+    if (key === 'email' || key === 'push' || key === 'desktop') {
+      updateSettings({
+        notifications: {
+          ...settings?.notifications,
+          [key]: checked,
+        },
+      });
+    } else {
+      updateSettings({
+        notifications: {
+          ...settings?.notifications,
+          enabledTypes: checked
+            ? [...(settings?.notifications?.enabledTypes || []), key]
+            : settings?.notifications?.enabledTypes?.filter(
+                (type) => type !== key
+              ) || [],
+        },
+      });
+    }
   };
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
@@ -103,19 +116,7 @@ function Settings() {
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("settings.language")}
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span>{t("settings.selectLanguage")}</span>
-                <LanguageSwitcher />
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">

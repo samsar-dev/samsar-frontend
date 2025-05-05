@@ -34,6 +34,23 @@
       "toggle": "Toggle Notifications"
     },
     "privacy": "Privacy",
+    "settings": {
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "timezone": "Timezone"
+    },
+    "footer": {
+      "careers": {
+        "title": "Careers"
+      },
+      "terms": {
+        "title": "Terms of Service"
+      }
+    },
 
     "next": "Next",
     "previous": "Previous",

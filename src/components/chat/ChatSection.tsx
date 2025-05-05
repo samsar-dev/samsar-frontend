@@ -54,10 +54,15 @@ function ChatSection({
       createdAt: new Date().toISOString(),
     };
     console.log(soketData);
-    setMessages([...messages, soketData]);
-
-    socket.emit(NEW_MESSAGE, soketData);
+    
+    // Clear input first
     setInputMessage("");
+    
+    // Then update messages and emit
+    setMessages(prev => [...prev, soketData]);
+    socket.emit(NEW_MESSAGE, soketData);
+    
+    scrollBottonFn(); // Scroll to bottom after sending
   };
 
   useEffect(() => {
@@ -182,7 +187,14 @@ function ChatSection({
             <Input
               placeholder="Type Something ..."
               className="pr-20 py-2 rounded-full border-gray-200"
+              value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
             />
             {/* <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <Button
