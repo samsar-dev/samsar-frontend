@@ -3,7 +3,7 @@ import { Tooltip } from "@/components/ui";
 import { NEW_MESSAGE_ALERT } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/hooks";
-import type { Notification } from "@/types/notifications";
+import type { Notification, NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,11 +25,8 @@ export default function NotificationBell({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [chatId, setChatId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
-
-  console.log("chatId", chatId, location);
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
@@ -40,7 +37,6 @@ export default function NotificationBell({
         setUnreadCount(
           response.data.items.filter((n: Notification) => !n.read).length
         );
-        setChatId(location.pathname.split("/")[2]);
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
         toast.error(response.error);
@@ -50,10 +46,11 @@ export default function NotificationBell({
       toast.error(error?.error || "Failed to load notifications");
     }
   };
+  console.log("chatId", location.pathname.split("/")[2]);
 
   useEffect(() => {
     fetchNotifications();
-  }, [isAuthenticated, chatId]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!socket) {
@@ -62,38 +59,42 @@ export default function NotificationBell({
     socket?.on(
       NEW_MESSAGE_ALERT,
       async (data: {
+        id: string
         content: string;
         userId: string;
+        type: string;
         relatedId: string;
         read: boolean;
-        createdAt: Date;
+        createdAt: string;
       }) => {
         console.log("new message alert>>>>>>>>>>>>>", data);
-        if (chatId === data.relatedId) {
+        console.log("chatId", location.pathname.split("/"));
+        if (location.pathname.split("/")[2] === data.relatedId) {
           try {
             const result = await NotificationsAPI.deleteNotification(
               data.relatedId
             );
             console.log("notification deleted result:", result);
+            return;
           } catch (error) {
             console.error("Error deleting notification:", error);
             return;
           }
-        } else {
-          const newNotification: Notification = {
-            id: data.relatedId,
-            userId: data.userId,
-            // user: { id: data.userId },
-            type: "message",
-            title: "New Message",
-            message: data.content,
-            createdAt: new Date(data.createdAt).toISOString(),
-            // updatedAt: new Date(data.createdAt).toISOString(),
-            read: data.read,
-          };
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
         }
+        const newNotification: Notification = {
+          id: data.relatedId,
+          userId: data.userId,
+          // user: { id: data.userId },
+          type: data.type as NotificationType,
+          title: "New Message",
+          message: data.content,
+          createdAt: data.createdAt,
+          // updatedAt: new Date(data.createdAt).toISOString(),
+          read: data.read,
+        };
+        console.log("newNotification>>>>>>>>>>>>>", newNotification);
+        setNotifications((prev) => [newNotification, ...prev]);
+        setUnreadCount((prev) => prev + 1);
       }
     );
   }, [socket]);
