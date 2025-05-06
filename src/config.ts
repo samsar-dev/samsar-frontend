@@ -16,8 +16,6 @@ export const ACTIVE_API_URL =
   IS_PRODUCTION === "production" ? API_URL_PROD : API_URL;
 export const ACTIVE_SOCKET_URL =
   IS_PRODUCTION === "production" ? SOCKET_URL_PROD : SOCKET_URL;
-console.log("API Base URL:", ACTIVE_API_URL);
-console.log("Socket Base URL:", ACTIVE_SOCKET_URL);
 
 // Default UI Settings
 export const DEFAULT_SETTINGS = {

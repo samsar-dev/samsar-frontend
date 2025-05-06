@@ -23,11 +23,12 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      console.log("Socket URL:", SOCKET_URL);
       const newSocket = socketIO(SOCKET_URL, {
         auth: {
           token: "Bearer " + localStorage.getItem("token"),
         },
-        transports: ['websocket', 'polling'],
+        transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
@@ -36,16 +37,16 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
 
       newSocket.on("connect", () => {
         setConnected(true);
-        console.log('Socket connected');
+        console.log("Socket connected");
       });
 
       newSocket.on("disconnect", () => {
         setConnected(false);
-        console.log('Socket disconnected');
+        console.log("Socket disconnected");
       });
 
       newSocket.on("connect_error", (error: any) => {
-        console.error('Socket connection error:', error);
+        console.error("Socket connection error:", error);
       });
 
       setSocket(newSocket);
