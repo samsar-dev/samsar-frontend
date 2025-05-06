@@ -7,7 +7,7 @@ export type FormFieldValue = string | number | boolean | string[];
 export interface FormFieldProps {
   name: string;
   label: string;
-  type: "text" | "number" | "textarea" | "select" | "checkbox" | "color";
+  type: "text" | "number" | "textarea" | "select" | "checkbox" | "color" | "boolean";
   value: FormFieldValue;
   onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
@@ -183,6 +183,7 @@ export const FormField = React.forwardRef<
         );
 
       case "checkbox":
+      case "boolean":
         return (
           <input
             ref={ref as React.Ref<HTMLInputElement>}

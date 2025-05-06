@@ -11,13 +11,6 @@ export const landSchema: ListingFieldSchema[] = [
     required: true,
   },
   {
-    name: "size",
-    label: "listings.lotSize",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
     name: "zoning",
     label: "listings.zoning",
     type: "select",

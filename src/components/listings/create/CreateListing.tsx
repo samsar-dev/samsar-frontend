@@ -170,25 +170,72 @@ const CreateListing: React.FC = () => {
 
   const hasUnsavedChanges = JSON.stringify(formData) !== sessionStorage.getItem("createListingFormData");
 
-  // Block navigation for React Router's useNavigate
-  const handleNavigation = useBlockNavigation(hasUnsavedChanges, "You have unsaved changes. Leave without saving?");
+  // Block navigation for React Router's useNavigate with a professional message
+  const handleNavigation = useBlockNavigation(
+    hasUnsavedChanges, 
+    "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
+  );
 
   // Use the custom navigation function instead of direct navigate
   const handleBack = () => {
     handleNavigation(() => setStep((prev) => prev - 1));
   };
+  
+  // Add event listener for beforeunload to show confirmation dialog when refreshing
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        // Standard message for browser's built-in dialog
+        const message = "Your listing data has not been saved. If you leave now, your progress will be lost.";
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   // Save form data to session storage whenever it changes
   useEffect(() => {
-    sessionStorage.setItem("createListingFormData", JSON.stringify(formData));
+    try {
+      sessionStorage.setItem("createListingFormData", JSON.stringify(formData));
+      console.log("Form data saved to session storage");
+    } catch (error) {
+      console.error("Failed to save form data to session storage:", error);
+    }
   }, [formData]);
 
-  // Clear form data from session storage when component unmounts
-  useEffect(() => {
-    return () => {
+  // Clear form data from session storage only when form is successfully submitted
+  // This ensures data is preserved during accidental page refreshes or navigations
+  const clearSavedFormData = () => {
+    try {
       sessionStorage.removeItem("createListingFormData");
+      console.log("Form data cleared from session storage");
+    } catch (error) {
+      console.error("Failed to clear form data from session storage:", error);
+    }
+  };
+  
+  // Add a confirmation dialog when the user refreshes the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        const message = "You have unsaved changes in your listing. If you refresh this page, your data will still be available, but any unsaved changes may be lost.";
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
     };
-  }, []);
+    
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   
 
@@ -689,8 +736,11 @@ const CreateListing: React.FC = () => {
                 switch (propertyType) {
                   case PropertyType.HOUSE: {
                     const houseDetails: HouseDetails = {
-                      ...baseDetails,
                       propertyType: PropertyType.HOUSE,
+                      totalArea:
+                        data.details?.realEstate?.size ||
+                        prev.details?.realEstate?.size ||
+                        0,
                       bedrooms:
                         data.details?.realEstate?.bedrooms ||
                         prev.details?.realEstate?.bedrooms ||
@@ -699,6 +749,30 @@ const CreateListing: React.FC = () => {
                         data.details?.realEstate?.bathrooms ||
                         prev.details?.realEstate?.bathrooms ||
                         1,
+                      yearBuilt:
+                        data.details?.realEstate?.yearBuilt ||
+                        prev.details?.realEstate?.yearBuilt ||
+                        new Date().getFullYear(),
+                      livingArea:
+                        data.details?.realEstate?.livingArea ||
+                        prev.details?.realEstate?.livingArea ||
+                        0,
+                      halfBathrooms:
+                        data.details?.realEstate?.halfBathrooms ||
+                        prev.details?.realEstate?.halfBathrooms ||
+                        0,
+                      stories:
+                        data.details?.realEstate?.stories ||
+                        prev.details?.realEstate?.stories ||
+                        1,
+                      hasGarden:
+                        data.details?.realEstate?.garden ??
+                        prev.details?.realEstate?.garden ??
+                        false,
+                      hasGarage:
+                        data.details?.realEstate?.garage ??
+                        prev.details?.realEstate?.garage ??
+                        false,
                       floors:
                         data.details?.realEstate?.floors ||
                         prev.details?.realEstate?.floors ||
@@ -1000,7 +1074,7 @@ const CreateListing: React.FC = () => {
       const response = await submitListing(formData);
 
       // Clear form data from session storage after successful submission
-      sessionStorage.removeItem("createListingFormData");
+      clearSavedFormData();
 
       // Reset form and navigate
       setFormData(initialFormState);
