@@ -32,6 +32,7 @@ export interface JWTPayload {
 export interface AuthUser {
   id: string;
   email: string;
+  phone?: string;
   username: string;
   name?: string;
   profilePicture?: string;

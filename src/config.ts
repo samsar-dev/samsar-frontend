@@ -9,11 +9,13 @@ export const API_URL_PROD = import.meta.env.VITE_API_URL_PROD;
 export const SOCKET_URL_PROD = import.meta.env.VITE_SOCKET_URL_PROD;
 
 // Environment
-export const IS_PRODUCTION = import.meta.env.PROD;
+export const IS_PRODUCTION = import.meta.env.VITE_ENV;
 
 // Use production URLs in production
-export const ACTIVE_API_URL = IS_PRODUCTION ? API_URL_PROD : API_URL;
-export const ACTIVE_SOCKET_URL = IS_PRODUCTION ? SOCKET_URL_PROD : SOCKET_URL;
+export const ACTIVE_API_URL =
+  IS_PRODUCTION === "production" ? API_URL_PROD : API_URL;
+export const ACTIVE_SOCKET_URL =
+  IS_PRODUCTION === "production" ? SOCKET_URL_PROD : SOCKET_URL;
 
 // Default UI Settings
 export const DEFAULT_SETTINGS = {

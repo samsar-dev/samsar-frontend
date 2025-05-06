@@ -44,6 +44,7 @@ interface SettingsState {
   privacy: {
     profileVisibility: "public" | "private";
     showOnlineStatus: boolean;
+    showPhone: boolean;
     showEmail: boolean;
     allowMessaging: boolean;
   };
@@ -63,10 +64,10 @@ function Settings() {
   };
 
   const handleNotificationToggle = (
-    key: 'email' | 'push' | 'desktop' | 'message' | 'listing' | 'system',
-    checked: boolean,
+    key: "email" | "push" | "desktop" | "message" | "listing" | "system",
+    checked: boolean
   ) => {
-    if (key === 'email' || key === 'push' || key === 'desktop') {
+    if (key === "email" || key === "push" || key === "desktop") {
       updateSettings({
         notifications: {
           ...settings?.notifications,
@@ -116,8 +117,6 @@ function Settings() {
           </div>
         </div>
 
-
-
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
@@ -129,7 +128,7 @@ function Settings() {
                 <Toggle
                   checked={
                     settings?.notifications?.enabledTypes?.includes(
-                      "message",
+                      "message"
                     ) ?? false
                   }
                   onChange={(checked: boolean) =>
@@ -143,7 +142,7 @@ function Settings() {
                 <Toggle
                   checked={
                     settings?.notifications?.enabledTypes?.includes(
-                      "listing",
+                      "listing"
                     ) ?? false
                   }
                   onChange={(checked: boolean) =>
@@ -251,6 +250,16 @@ function Settings() {
                     handlePrivacyUpdate({ showEmail: checked })
                   }
                   label={t("settings.showEmail")}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span>{t("Show Phone Numer")}</span>
+                <Toggle
+                  checked={settings?.privacy?.showEmail ?? false}
+                  onChange={(checked: boolean) =>
+                    handlePrivacyUpdate({ showPhone: checked })
+                  }
+                  label={t("Show Phone Numer")}
                 />
               </div>
               <div className="flex items-center justify-between">

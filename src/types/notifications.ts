@@ -1,17 +1,19 @@
 import { APIResponse, PaginatedData } from "./api";
+import { User } from "./user";
 
 export type NotificationType = "message" | "listing" | "system";
 
 export interface Notification {
   id: string;
   userId: string;
+  user?: User;
   type: NotificationType;
   title: string;
   message: string;
   listingId?: string;
   read: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   targetId?: string;
   targetType?: string;
 }

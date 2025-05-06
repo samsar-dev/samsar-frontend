@@ -31,6 +31,7 @@ const defaultSettings: Settings = {
   },
   privacy: {
     showEmail: false,
+    showPhone: false,
     showOnlineStatus: true,
     allowMessaging: true,
   },

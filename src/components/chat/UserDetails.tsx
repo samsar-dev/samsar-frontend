@@ -11,7 +11,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import type { User } from "@/types";
 import { AccordionItem } from "@radix-ui/react-accordion";
-import { motion } from "framer-motion";
 import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -41,9 +40,7 @@ export default function UserDetails({
   }
 
   return (
-    <div
-      className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100"
-    >
+    <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100">
       <ScrollArea>
         <div className="p-4 flex items-center justify-between border-b border-gray-100">
           <div className="font-medium text-blue-500">About User</div>
@@ -93,7 +90,7 @@ export default function UserDetails({
               <div className="text-sm text-gray-500">Email</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              {participant.email}
+              {participant.email || "No email provided."}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -113,7 +110,7 @@ export default function UserDetails({
               <div className="text-sm text-gray-500">Phone</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              N/A {/* You can add phone field in the User type if available */}
+              {participant.phone || "No phone provided."}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -130,7 +127,7 @@ export default function UserDetails({
               <div className="text-sm text-gray-500">Bio</div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
-              <p>{participant.bio || "No bio provided."}</p>
+              <p>{participant.bio || "Empty bio"}</p>
               <div className="flex items-center mt-2">
                 <div className="text-sm text-gray-500">
                   @{participant.username}
