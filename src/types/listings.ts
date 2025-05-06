@@ -61,9 +61,18 @@ export interface HouseDetails {
   bedrooms: number;
   bathrooms: number;
   yearBuilt: number;
-  livingArea?: number;
+  livingArea: number;
+  halfBathrooms: number;
+  stories: number;
   hasGarden?: boolean;
   hasGarage?: boolean;
+  floors?: number;
+  parkingSpaces?: number;
+  garage?: boolean;
+  garden?: boolean;
+  petsAllowed?: boolean;
+  constructionType?: string;
+  parking?: string;
 }
 
 export interface ApartmentDetails {
@@ -717,6 +726,7 @@ export interface RealEstateDetails {
   floor?: number;
   flooringType?: string;
   furnished?: string;
+  livingArea?: number;
   heating?: string;
   internetIncluded?: boolean;
   parkingType?: string;
@@ -736,19 +746,16 @@ export interface RealEstateDetails {
   elevation?: number;
   environmentalFeatures?: string;
   flooringTypes: string[];
-  halfBathrooms?: number;
   naturalFeatures?: string;
   parcelNumber?: string;
   permitsInPlace?: string;
   soilTypes: string[];
-  stories?: number;
   topography: string[];
   waterFeatures?: string;
   bedrooms?: number;
   bathrooms?: number;
   size: number;
   yearBuilt: number;
-  // Property-specific details
   houseDetails?: HouseDetails;
   apartmentDetails?: ApartmentDetails;
   condoDetails?: CondoDetails;

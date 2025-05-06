@@ -8,14 +8,21 @@ export const useBlockNavigation = (shouldBlock: boolean, message: string) => {
   useEffect(() => {
     if (!shouldBlock) return;
 
+    // Handle page refresh or closing tab with a standard browser dialog
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = message;
+      return message;
     };
 
+    // Handle back/forward browser navigation
     const handlePopState = (e: PopStateEvent) => {
       e.preventDefault();
+      
+      // Use a custom styled dialog if available in the future
+      // For now, use the standard browser confirm dialog
       const confirmed = window.confirm(message);
+      
       if (!confirmed) {
         // Prevent navigation and restore current location
         navigate(location.pathname + location.search, { replace: true });

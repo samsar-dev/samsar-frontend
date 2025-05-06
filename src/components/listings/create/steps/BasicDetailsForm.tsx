@@ -10,36 +10,20 @@ import {
 import type {
   FormState,
   RealEstateDetails,
-  VehicleDetails,
 } from "@/types/listings";
 import {
   FaCar,
-  FaMotorcycle,
-  FaTruck,
-  FaShuttleVan,
-  FaShip,
-  FaTruckPickup,
-  FaTag,
-  FaMapMarkerAlt,
   FaMoneyBillWave,
   FaAlignLeft,
   FaCarAlt,
   FaHome,
-  FaSearch,
 } from "react-icons/fa";
-import { realEstateBasicFields } from "@/components/listings/create/basic/realEstateFieldSchema";
-import { BiBuildings, BiBuildingHouse, BiLandscape } from "react-icons/bi";
+import { realEstateBasicFields } from "@/components/listings/create/basic/BasicFieldSchemas";
+import { BiBuildingHouse } from "react-icons/bi";
 import FormField, { FormFieldValue } from "@/components/form/FormField";
 
 import {
-  Car,
-  Home,
-  DollarSign,
   MapPin,
-  Type,
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 const Select = lazy(() => import("react-select"));
 const ImageManager = lazy(() => import("../../images/ImageManager"));
@@ -294,15 +278,30 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           propertyType === PropertyType.APARTMENT ||
           propertyType === PropertyType.LAND
         ) {
-          updatedData.details.realEstate = {
+          // Create a minimal RealEstateDetails object with only the necessary fields
+          
+          const realEstateDetails: Partial<RealEstateDetails> = {
+            id: '',
+            listingId: '',
             propertyType,
             size: 0,
             yearBuilt: 0,
-            bedrooms: 0,
-            bathrooms: 0,
             condition: Condition.GOOD,
-            features: [],
+            features: []
           };
+          
+          // Add property-specific fields based on property type
+          if (propertyType === PropertyType.HOUSE || propertyType === PropertyType.APARTMENT) {
+            realEstateDetails.bedrooms = 0;
+            realEstateDetails.bathrooms = 0;
+          }
+          
+          if (propertyType === PropertyType.APARTMENT) {
+            realEstateDetails.floor = 0;
+          }
+          
+          // Assign the details to the form data
+          updatedData.details.realEstate = realEstateDetails as RealEstateDetails;
         }
         delete updatedData.details.vehicles;
       }
@@ -324,73 +323,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("Image upload started");
-
-    if (e.target.files) {
-      const fileArray = Array.from(e.target.files);
-      console.log(`Selected ${fileArray.length} files`, fileArray);
-
-      // Check file size and type
-      const validFiles = fileArray.filter((file) => {
-        const isValidType = [
-          "image/jpeg",
-          "image/png",
-          "image/webp",
-          "image/gif",
-        ].includes(file.type);
-        const isValidSize = file.size <= 10 * 1024 * 1024; // Increased to 10MB max
-        const isMinimumSize = file.size >= 50 * 1024; // Minimum 50KB
-
-        if (!isValidType) {
-          console.error(`Invalid file type: ${file.type}`);
-          return false;
-        }
-        if (!isValidSize) {
-          console.error(`File too large: ${file.size / (1024 * 1024)}MB`);
-          return false;
-        }
-        if (!isMinimumSize) {
-          console.error(`File too small: ${file.size / 1024}KB`);
-          return false;
-        }
-
-        return true;
-      });
-
-      if (validFiles.length < fileArray.length) {
-        // Show error message about invalid files
-        setErrors((prev) => ({
-          ...prev,
-          images:
-            "Please use image files between 50KB and 10MB. Supported formats: JPEG, PNG, WEBP, GIF.",
-        }));
-        return;
-      }
-
-      // Update the form data with the new images
-      const newImages = [...(formData?.images || []), ...validFiles];
-      setFormData({
-        ...formData,
-        images: newImages,
-      });
-      console.log("Images updated in form state", newImages);
-    }
-  };
-
-  // Handle image removal function
-  const handleRemoveImage = (index: number) => {
-    const newImages = [...(formData?.images || [])];
-    newImages.splice(index, 1);
-    setFormData({
-      ...formData,
-      images: newImages,
-    });
-
-    console.log(
-      `Removed image at index ${index}, ${newImages.length} images remaining`,
-    );
-  };
+  // Image handling is now managed by ImageManager component
 
   // Enhanced validation function to ensure all required fields are checked
   const validateForm = (): boolean => {
@@ -415,9 +348,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     if (!formData.category?.subCategory) {
       newErrors.subCategory = t("subcategoryRequired");
     }
-    if (!formData.images || formData.images.length === 0) {
-      newErrors.images = t("errors.atLeastOneImage");
-    }
+    // Image validation is now handled by ImageManager component
 
     // Vehicle specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
@@ -462,9 +393,81 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     // Real estate specific validation
     if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
       const realEstate = formData.details?.realEstate;
+      const propertyType = formData.category?.subCategory as PropertyType;
 
-      if (!realEstate?.propertyType) {
-        newErrors["details.realEstate.propertyType"] = t("fieldRequired");
+      // Validate size (required for all property types)
+      if (!realEstate?.size) {
+        newErrors["details.realEstate.size"] = t("fieldRequired");
+      } else {
+        const area = parseFloat(realEstate.size.toString());
+        if (isNaN(area) || area <= 0) {
+          newErrors["details.realEstate.size"] = t("validAreaRequired");
+        }
+      }
+
+      // Validate year built (required for all property types)
+      if (!realEstate?.yearBuilt) {
+        newErrors["details.realEstate.yearBuilt"] = t("fieldRequired");
+      } else {
+        const year = parseInt(realEstate.yearBuilt.toString());
+        const currentYear = new Date().getFullYear();
+        if (isNaN(year) || year < 1900 || year > currentYear + 1) {
+          newErrors["details.realEstate.yearBuilt"] = t("validYearRequired");
+        }
+      }
+
+      // Property type specific validations
+      switch (propertyType) {
+        case PropertyType.HOUSE:
+        case PropertyType.APARTMENT:
+        case PropertyType.CONDO:
+          // Validate bedrooms for house, apartment, and condo
+          if (!realEstate?.bedrooms) {
+            newErrors["details.realEstate.bedrooms"] = t("fieldRequired");
+          } else {
+            const bedrooms = parseFloat(realEstate.bedrooms.toString());
+            if (isNaN(bedrooms) || bedrooms <= 0) {
+              newErrors["details.realEstate.bedrooms"] = t("validBedroomsRequired");
+            }
+          }
+
+          // Validate bathrooms for house, apartment, and condo
+          if (!realEstate?.bathrooms) {
+            newErrors["details.realEstate.bathrooms"] = t("fieldRequired");
+          } else {
+            const bathrooms = parseFloat(realEstate.bathrooms.toString());
+            if (isNaN(bathrooms) || bathrooms <= 0) {
+              newErrors["details.realEstate.bathrooms"] = t("validBathroomsRequired");
+            }
+          }
+          break;
+
+        case PropertyType.APARTMENT:
+        case PropertyType.CONDO:
+          // Validate floor for apartment and condo
+          if (!realEstate?.floor) {
+            newErrors["details.realEstate.floor"] = t("fieldRequired");
+          } else {
+            const floor = parseInt(realEstate.floor.toString());
+            if (isNaN(floor) || floor < 1 || floor > 100) {
+              newErrors["details.realEstate.floor"] = t("validFloorRequired");
+            }
+          }
+          break;
+
+        case PropertyType.LAND:
+          // Validate buildable for land
+          if (realEstate?.buildable === undefined) {
+            newErrors["details.realEstate.buildable"] = t("fieldRequired");
+          }
+          break;
+
+        case PropertyType.COMMERCIAL:
+          // Validate usage type for commercial
+          if (!realEstate?.commercialDetails?.usageType) {
+            newErrors["details.realEstate.commercialDetails.usageType"] = t("fieldRequired");
+          }
+          break;
       }
     }
 
@@ -550,9 +553,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               }
             : undefined,
       },
-      existingImages: formData?.images?.filter(
-        (image: File | string) => typeof image === "string",
-      ),
+      // Image filtering is now handled by ImageManager component
     };
 
     // Call the parent's onSubmit function with prepared data and validation status
@@ -631,8 +632,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   label={t("customModel")}
                   type="text"
                   value={formData.details?.vehicles?.model || ""}
-                  onChange={(e) => {
-                    handleInputChange("details.vehicles.model", e.target.value);
+                  onChange={(value: FormFieldValue) => {
+                    const modelStr =
+                      typeof value === "object" && value !== null && "value" in value
+                        ? value.value
+                        : String(value);
+                    handleInputChange("details.vehicles.model", modelStr);
 
                     // Update title immediately when custom model changes
                     const make = formData.details?.vehicles?.make || "";
@@ -640,7 +645,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     const year = formData.details?.vehicles?.year || "";
 
                     if (make && model) {
-                      const autoTitle = `${make === "OTHER_MAKE" ? formData.details?.vehicles?.make || "" : make} ${model === "CUSTOM_MODEL" ? e.target.value : model} ${year}`;
+                      const autoTitle = `${make === "OTHER_MAKE" ? formData.details?.vehicles?.make || "" : make} ${model === "CUSTOM_MODEL" ? modelStr : model} ${year}`;
                       handleInputChange("title", autoTitle);
                     }
                   }}
@@ -808,13 +813,8 @@ const renderRealEstateFields = () => {
             {renderFormField(
               t(field.label),
               `details.realEstate.${field.name}`,
-              field.type === "boolean" ? "select" : field.type,
-              field.type === "boolean"
-                ? [
-                    { value: "true", label: t("yes") },
-                    { value: "false", label: t("no") },
-                  ]
-                : undefined,
+              field.type,
+              field.type === "select" ? field.options : undefined,
               undefined,
               t(field.placeholder || ""),
               field.min,
@@ -822,6 +822,7 @@ const renderRealEstateFields = () => {
               field.step,
               field.required,
               field.helpText ? t(field.helpText) : undefined,
+              field.type === "select"
             )}
           </div>
         ))}
@@ -843,6 +844,7 @@ const renderRealEstateFields = () => {
     step?: number,
     required: boolean = true,
     helpText?: string,
+    isSearchable?: boolean
   ) => {
     const fieldValue = fieldName
       .split(".")
@@ -1164,14 +1166,17 @@ const renderRealEstateFields = () => {
             "title",
             "text",
             undefined,
-            <FaTag className="w-4 h-4" />, //
+            undefined,
             t("titlePlaceholder"),
             undefined,
             undefined,
+            undefined,
+            true,
             formData.details?.vehicles?.make &&
               formData.details?.vehicles?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
+            undefined
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}

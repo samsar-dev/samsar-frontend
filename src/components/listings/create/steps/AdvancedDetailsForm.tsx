@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -358,11 +358,14 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       <div className="space-y-6">
         {/* Standard form fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {standardFields.map((field) => {
+          {standardFields.map((field: ListingFieldSchema, index: number) => {
             // Custom rendering for featureGroup fields
             if (field.type === "featureGroup" && field.featureGroups) {
-              return Object.entries(field.featureGroups).map(
-                ([category, group]) => (
+              // Add a React fragment with a key for the outer map
+              return (
+                <React.Fragment key={`${field.name}-${index}`}>
+                  {Object.entries(field.featureGroups).map(
+                    ([category, group]) => (
                   <FeatureSection
                     key={category}
                     title={group.label}
@@ -375,12 +378,14 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                     }
                     onChange={handleFeatureChange}
                   />
-                ),
+                    ),
+                  )}
+                </React.Fragment>
               );
             }
             if (field.type === "colorpicker") {
               return (
-                <Suspense fallback={<div>Loading color picker...</div>}>
+                <Suspense key={`suspense-${field.name}-${index}`} fallback={<div>Loading color picker...</div>}>
                   <ColorPickerField
                     key={field.name}
                     label={t(field.label)}
@@ -397,7 +402,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
               );
             }
             return (
-              <Suspense fallback={<div>Loading field...</div>}>
+              <Suspense key={`suspense-${field.name}-${index}`} fallback={<div>Loading field...</div>}>
                 <FormField
                   key={field.name}
                   name={field.name}
