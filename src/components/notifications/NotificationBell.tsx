@@ -6,10 +6,11 @@ import { useAuth } from "@/hooks";
 import type { Notification } from "@/types/notifications";
 import { NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
+import { getNotificationColor, formatNotificationMessage } from "@/utils/notificationUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaBell } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { FaBell, FaEnvelope, FaTag, FaCheckCircle, FaHeart, FaPlusCircle, FaSearch, FaExclamationTriangle, FaBullhorn, FaInfoCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 interface NotificationBellProps {
@@ -22,6 +23,7 @@ export default function NotificationBell({
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -146,21 +148,62 @@ export default function NotificationBell({
     if (!isAuthenticated) return;
 
     try {
-      if (!notification.read) {
-        const response = await NotificationsAPI.markAsRead(notification.id);
-        if (response.success) {
-          setNotifications((prev) =>
-            prev.map((n) =>
-              n.id === notification.id ? { ...n, read: true } : n
-            )
-          );
-          setUnreadCount((prev) => Math.max(0, prev - 1));
-        } else if (response.error) {
-          toast.error(response.error);
+      // Mark notification as read
+      const response = await NotificationsAPI.markAsRead(notification.id);
+      
+      if (response.success) {
+        // Update local state
+        setNotifications(prev =>
+          prev.map(n =>
+            n.id === notification.id ? { ...n, read: true } : n
+          )
+        );
+        
+        // Update unread count
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        // Call the onNotificationClick callback if provided
+        if (onNotificationClick) {
+          onNotificationClick(notification);
+        } else {
+          // Navigate based on notification type
+          switch (notification.type) {
+            case NotificationType.NEW_MESSAGE:
+              if (notification.targetId) {
+                navigate(`/messages/${notification.targetId}`);
+              } else {
+                navigate('/messages');
+              }
+              break;
+            case NotificationType.PRICE_UPDATE:
+            case NotificationType.LISTING_SOLD:
+            case NotificationType.LISTING_INTEREST:
+            case NotificationType.LISTING_CREATED:
+              if (notification.listingId) {
+                // Based on the memory, we need to fetch all listings and find the specific one
+                // rather than using direct endpoints like /listings/:id
+                navigate(`/listings?id=${notification.listingId}`);
+              } else {
+                navigate('/listings');
+              }
+              break;
+            case NotificationType.NEW_LISTING_MATCH:
+              navigate('/listings?match=true');
+              break;
+            case NotificationType.ACCOUNT_WARNING:
+              navigate('/account/settings');
+              break;
+            case NotificationType.SYSTEM_ANNOUNCEMENT:
+            case NotificationType.SYSTEM_NOTICE:
+              // Stay on the current page, notification details are already shown
+              break;
+            default:
+              // Default behavior
+              break;
+          }
         }
       }
-
-      onNotificationClick?.(notification);
+      
       setShowNotifications(false);
     } catch (error: any) {
       console.error("Failed to mark notification as read:", error);
@@ -226,12 +269,58 @@ export default function NotificationBell({
                     }`}
                   >
                     <div className="flex items-start">
+                      <div className="flex-shrink-0 mr-2 mt-1">
+                        {(() => {
+                          // Get the color based on notification type
+                          const color = getNotificationColor(notification.type);
+                          
+                          // Select the appropriate icon based on notification type
+                          let Icon;
+                          switch (notification.type) {
+                            case NotificationType.NEW_MESSAGE:
+                              Icon = FaEnvelope;
+                              break;
+                            case NotificationType.PRICE_UPDATE:
+                              Icon = FaTag;
+                              break;
+                            case NotificationType.LISTING_SOLD:
+                              Icon = FaCheckCircle;
+                              break;
+                            case NotificationType.LISTING_INTEREST:
+                              Icon = FaHeart;
+                              break;
+                            case NotificationType.LISTING_CREATED:
+                              Icon = FaPlusCircle;
+                              break;
+                            case NotificationType.NEW_LISTING_MATCH:
+                              Icon = FaSearch;
+                              break;
+                            case NotificationType.ACCOUNT_WARNING:
+                              Icon = FaExclamationTriangle;
+                              break;
+                            case NotificationType.SYSTEM_ANNOUNCEMENT:
+                              Icon = FaBullhorn;
+                              break;
+                            case NotificationType.SYSTEM_NOTICE:
+                              Icon = FaInfoCircle;
+                              break;
+                            default:
+                              Icon = FaBell;
+                          }
+                          
+                          return (
+                            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-${color}-100 dark:bg-${color}-800`}>
+                              <Icon className={`w-3 h-3 text-${color}-500 dark:text-${color}-300`} />
+                            </span>
+                          );
+                        })()} 
+                      </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {notification.title}
+                          {notification.title || t(`notification.types.${notification.type.toLowerCase()}`)}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {notification.message}
+                          {formatNotificationMessage(notification)}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                           {timeAgo(notification.createdAt, "en")}
