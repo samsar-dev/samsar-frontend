@@ -756,6 +756,7 @@ export interface RealEstateDetails {
   bathrooms?: number;
   size: number;
   yearBuilt: number;
+  usageType?: string;
   houseDetails?: HouseDetails;
   apartmentDetails?: ApartmentDetails;
   condoDetails?: CondoDetails;
