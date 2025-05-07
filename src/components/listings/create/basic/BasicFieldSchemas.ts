@@ -99,7 +99,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
     }
   ],
   other: [
-    { label: 'Total Area (m²)', name: 'totalArea', type: 'number', required: true, placeholder: 'Enter total area in square meters' },
+    { label: 'Total Area (m²)', name: 'size', type: 'number', required: true, placeholder: 'Enter total area in square meters' },
     { 
       label: 'Year Built', 
       name: 'yearBuilt', 

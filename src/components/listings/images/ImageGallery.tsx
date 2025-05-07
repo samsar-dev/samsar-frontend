@@ -64,11 +64,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
         className="w-full rounded-2xl overflow-hidden shadow-md bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
         style={{ minHeight: 350, maxHeight: 450 }}
       >
-        <ResponsiveImage
-          src={imageUrls[selectedImage !== null ? selectedImage : 0]}
-          alt={`Main Image`}
-          className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
-        />
+        <button
+          className="w-full h-full"
+          onClick={() => setSelectedImage(selectedImage !== null ? selectedImage : 0)}
+          tabIndex={0}
+        >
+          <ResponsiveImage
+            src={imageUrls[selectedImage !== null ? selectedImage : 0]}
+            alt={`Main Image`}
+            className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
+          />
+        </button>
       </div>
       {/* Thumbnails Carousel */}
       {imageUrls.length > 1 && (
