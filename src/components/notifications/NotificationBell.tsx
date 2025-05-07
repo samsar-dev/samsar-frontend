@@ -3,7 +3,8 @@ import { Tooltip } from "@/components/ui";
 import { NEW_MESSAGE_ALERT } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/hooks";
-import type { Notification, NotificationType } from "@/types/notifications";
+import type { Notification } from "@/types/notifications";
+import { NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +27,7 @@ export default function NotificationBell({
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { socket } = useSocket();
+  const { socket, connected, connectionError } = useSocket();
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
@@ -39,11 +40,19 @@ export default function NotificationBell({
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
-        toast.error(response.error);
+        // Simply display a generic error message to avoid type issues
+        toast.error("Failed to load notifications");
       }
     } catch (error: any) {
       console.error("Failed to fetch notifications:", error);
-      toast.error(error?.error || "Failed to load notifications");
+      // Provide a more user-friendly error message
+      const errorMessage = error?.response?.status === 500
+        ? "Server error: Unable to load notifications at this time"
+        : error?.error || "Failed to load notifications";
+      toast.error(errorMessage);
+      // Initialize with empty data to prevent UI errors
+      setNotifications([]);
+      setUnreadCount(0);
     }
   };
   console.log("chatId", location.pathname.split("/")[2]);
@@ -53,51 +62,68 @@ export default function NotificationBell({
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (!socket) {
-      console.error("Socket not initialized");
+    // Only set up socket listeners if socket is available and connected
+    if (!socket || !connected) {
+      console.log("Socket not yet initialized or not connected, waiting...");
+      return;
     }
-    socket?.on(
-      NEW_MESSAGE_ALERT,
-      async (data: {
-        id: string
-        content: string;
-        userId: string;
-        type: string;
-        relatedId: string;
-        read: boolean;
-        createdAt: string;
-      }) => {
-        console.log("new message alert>>>>>>>>>>>>>", data);
-        console.log("chatId", location.pathname.split("/"));
-        if (location.pathname.split("/")[2] === data.relatedId) {
-          try {
-            const result = await NotificationsAPI.deleteNotification(
-              data.relatedId
-            );
-            console.log("notification deleted result:", result);
-            return;
-          } catch (error) {
-            console.error("Error deleting notification:", error);
-            return;
-          }
+    
+    // Log connection error if any
+    if (connectionError) {
+      console.warn("Socket connection error:", connectionError);
+    }
+
+    // Set up the event listener for new message alerts
+    const handleNewMessageAlert = async (data: {
+      id: string
+      content: string;
+      userId: string;
+      type: string;
+      relatedId: string;
+      read: boolean;
+      createdAt: string;
+    }) => {
+      console.log("new message alert received:", data);
+      console.log("chatId", location.pathname.split("/")[2]);
+      
+      // If user is in the chat related to this notification, delete it
+      if (location.pathname.split("/")[2] === data.relatedId) {
+        try {
+          const result = await NotificationsAPI.deleteNotification(
+            data.relatedId
+          );
+          console.log("notification deleted result:", result);
+          return;
+        } catch (error) {
+          console.error("Error deleting notification:", error);
+          return;
         }
-        const newNotification: Notification = {
-          id: data.relatedId,
-          userId: data.userId,
-          // user: { id: data.userId },
-          type: data.type as NotificationType,
-          title: "New Message",
-          message: data.content,
-          createdAt: data.createdAt,
-          // updatedAt: new Date(data.createdAt).toISOString(),
-          read: data.read,
-        };
-        console.log("newNotification>>>>>>>>>>>>>", newNotification);
-        setNotifications((prev) => [newNotification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
       }
-    );
-  }, [socket]);
+      
+      // Otherwise, create a new notification
+      const newNotification: Notification = {
+        id: data.relatedId,
+        userId: data.userId,
+        type: NotificationType.NEW_MESSAGE,
+        title: "New Message",
+        message: data.content,
+        createdAt: data.createdAt,
+        read: data.read,
+      };
+      
+      console.log("Adding new notification:", newNotification);
+      setNotifications((prev) => [newNotification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    };
+
+    // Register the event listener
+    socket.on(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+    
+    // Clean up the event listener when component unmounts or socket changes
+    return () => {
+      socket.off(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+    };
+  }, [socket, location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
