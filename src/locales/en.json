@@ -309,6 +309,21 @@
       "sell": "Sell",
       "rent": "Rent"
     },
+    "dropzone": {
+      "dragDrop": "Drag & drop photos here or click to choose",
+      "dragDropFriendly": "Drag & drop photos here or click to choose. We'll make them look great!",
+      "drop": "Drop your photos here",
+      "maxSize": "Maximum file size: {{maxSize}} per image"
+    },
+    "tip": {
+      "imageQuality": "Clear, well-lit images help your listings stand out! 📸"
+    },
+    "upload": {
+      "progress": "{{current}}% complete. {{hint}}"
+    },
+    "success": {
+      "imagesUploaded": "{{count}} photo{{count === 1 ? '' : 's'}} uploaded successfully. {{hint}}"
+    },
     "filters": {
       "action": "Action",
       "subcategory": "Category",

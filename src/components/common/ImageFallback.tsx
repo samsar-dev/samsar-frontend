@@ -7,19 +7,33 @@ interface ImageFallbackProps {
   src: string;
   alt: string;
   className?: string;
-  onError?: () => void;
+  loading?: "lazy" | "eager";
+  onError?: (error: React.SyntheticEvent) => void;
+  width?: number | string;
+  height?: number | string;
+  sizes?: string;
+  srcSet?: string;
 }
 
 const ImageFallback: React.FC<ImageFallbackProps> = ({
   src,
   alt,
   className = "",
+  loading = "lazy",
   onError,
+  width,
+  height,
+  sizes,
+  srcSet,
 }) => {
   const [isError, setIsError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src);
 
   useEffect(() => {
     setIsError(false);
+    setIsLoaded(false);
+    setImgSrc(src);
   }, [src]);
 
   if (isError) {
@@ -31,27 +45,39 @@ const ImageFallback: React.FC<ImageFallbackProps> = ({
           src={svgPlaceholder}
           alt="Image Unavailable"
           className="w-full h-full object-cover"
-          loading="lazy"
+          loading={loading}
           decoding="async"
           role="img"
           aria-label="Placeholder image"
+          width={width}
+          height={height}
         />
       </div>
     );
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={`w-full h-full object-cover ${className}`}
-      onError={() => {
-        setIsError(true);
-        onError?.();
-      }}
-      loading="lazy"
-      decoding="async"
-    />
+    <div className={`relative w-full h-full ${!isLoaded ? 'bg-gray-50 dark:bg-gray-800' : ''}`}>
+      <img
+        src={imgSrc}
+        alt={alt}
+        className={`w-full h-full object-cover ${className} transition-opacity duration-300`}
+        onError={(e) => {
+          setIsError(true);
+          onError?.(e);
+        }}
+        onLoad={(e) => {
+          console.log('Image loaded:', e);
+          setIsLoaded(true);
+        }}
+        loading={loading}
+        decoding="async"
+        width={width}
+        height={height}
+        sizes={sizes}
+        srcSet={srcSet}
+      />
+    </div>
   );
 };
 

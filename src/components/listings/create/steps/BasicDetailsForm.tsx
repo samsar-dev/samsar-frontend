@@ -214,7 +214,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             if (!parentObj[child]) {
               parentObj[child] = {};
             }
-            if (subChild) {
+            // Handle size field for real estate
+            if (parent === "details" && child === "realEstate" && subChild === "size") {
+              parentObj[child] = {
+                ...parentObj[child],
+                size: value,
+              };
+            } else if (subChild) {
               parentObj[child] = {
                 ...parentObj[child],
                 [subChild]: value,
@@ -278,26 +284,40 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           propertyType === PropertyType.APARTMENT ||
           propertyType === PropertyType.LAND
         ) {
-          // Create a minimal RealEstateDetails object with only the necessary fields
-          
-          const realEstateDetails: Partial<RealEstateDetails> = {
+          // Preserve existing real estate details if they exist
+          const existingDetails: Partial<RealEstateDetails> = prev.details?.realEstate || {
             id: '',
             listingId: '',
-            propertyType,
-            size: 0,
+            size: prev.details?.realEstate?.size || 0,
             yearBuilt: 0,
             condition: Condition.GOOD,
-            features: []
+            features: [],
+            bedrooms: 0,
+            bathrooms: 0,
+            floor: 0
           };
           
+          // Create a minimal RealEstateDetails object with only the necessary fields
+          const realEstateDetails: Partial<RealEstateDetails> = {
+            ...existingDetails,
+            propertyType,
+            size: existingDetails.size || 0, // Map size to totalArea
+            yearBuilt: existingDetails.yearBuilt || 0,
+            condition: existingDetails.condition || Condition.GOOD,
+            features: existingDetails.features || [],
+            bedrooms: existingDetails.bedrooms || 0,
+            bathrooms: existingDetails.bathrooms || 0
+          };
+
           // Add property-specific fields based on property type
-          if (propertyType === PropertyType.HOUSE || propertyType === PropertyType.APARTMENT) {
-            realEstateDetails.bedrooms = 0;
-            realEstateDetails.bathrooms = 0;
-          }
-          
-          if (propertyType === PropertyType.APARTMENT) {
-            realEstateDetails.floor = 0;
+          if (propertyType === PropertyType.HOUSE) {
+            realEstateDetails.constructionType = existingDetails.constructionType || '';
+          } else if (propertyType === PropertyType.APARTMENT) {
+            realEstateDetails.floor = existingDetails.floor || 0;
+            realEstateDetails.totalFloors = existingDetails.totalFloors || 0;
+            realEstateDetails.elevator = existingDetails.elevator || false;
+          } else if (propertyType === PropertyType.LAND) {
+            realEstateDetails.buildable = existingDetails.buildable || false;
           }
           
           // Assign the details to the form data

@@ -46,6 +46,27 @@ export const apartmentSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
+  {
+    name: "size",
+    label: "listings.size",
+    type: "number",
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "bedrooms",
+    label: "listings.bedrooms",
+    type: "number",
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "bathrooms",
+    label: "listings.bathrooms",
+    type: "number",
+    section: "essential",
+    required: true,
+  },
 
   // Advanced Section
   {
