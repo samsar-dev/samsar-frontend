@@ -1,11 +1,11 @@
 import apiClient from "./apiClient";
+import type { APIResponse, PaginatedData } from "@/types";
+
 import type {
-  APIResponse,
   Notification,
   NotificationCreateInput,
   NotificationUpdateInput,
-  PaginatedData,
-} from "@/types";
+} from "@/types/notifications";
 
 const BASE_URL = "/notifications";
 
@@ -16,10 +16,80 @@ export const NotificationsAPI = {
     unreadOnly?: boolean;
   }): Promise<APIResponse<PaginatedData<Notification>>> {
     try {
+      // const response = await apiClient.get<
+      //   APIResponse<PaginatedData<Notification>>
+      // >(BASE_URL, { params });
+      // return response.data;
       const response = await apiClient.get<
-        APIResponse<PaginatedData<Notification>>
+        APIResponse<{
+          items: Notification[];
+          pagination: {
+            page: number;
+            limit: number;
+            total: number;
+            pages: number;
+          };
+        }>
       >(BASE_URL, { params });
-      return response.data;
+
+      // Debug the response
+      console.log("Notifications API response:", response.data);
+
+      const data = response.data;
+
+      if (data.data) {
+        // Check if the data structure is as expected
+        if (data.data.items && data.data.pagination) {
+          // Response has the expected structure
+          return {
+            success: true,
+            data: {
+              items: data.data.items,
+              page: data.data.pagination.page,
+              limit: data.data.pagination.limit,
+              total: data.data.pagination.total,
+              hasMore: data.data.pagination.total > data.data.pagination.limit,
+            },
+          };
+        } else if (Array.isArray(data.data)) {
+          // If the backend accidentally returns a raw array (fallback)
+          console.log("Converting array response to expected format");
+          return {
+            success: true,
+            data: {
+              items: data.data.items,
+              page: data.data.pagination.page,
+              limit: data.data.pagination.limit,
+              total: data.data.pagination.total,
+              hasMore: data.data.pagination.total > data.data.pagination.limit,
+            },
+          };
+        } else {
+          // Unknown data structure, log it for debugging
+          console.warn("Unexpected notifications data structure:", data.data);
+          return {
+            success: true,
+            data: {
+              items: [],
+              page: 1,
+              limit: 10,
+              total: 0,
+              hasMore: false,
+            },
+          };
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          items: data.data.items,
+          page: data.data.pagination.page,
+          limit: data.data.pagination.limit,
+          total: data.data.pagination.total,
+          hasMore: data.data.pagination.total > data.data.pagination.limit,
+        },
+      };
     } catch (error) {
       console.error("Error fetching notifications:", error);
       throw error;
@@ -29,7 +99,7 @@ export const NotificationsAPI = {
   async getNotification(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.get<APIResponse<Notification>>(
-        `${BASE_URL}/${id}`,
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {
@@ -39,12 +109,12 @@ export const NotificationsAPI = {
   },
 
   async createNotification(
-    input: NotificationCreateInput,
+    input: NotificationCreateInput
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.post<APIResponse<Notification>>(
         BASE_URL,
-        input,
+        input
       );
       return response.data;
     } catch (error) {
@@ -55,12 +125,12 @@ export const NotificationsAPI = {
 
   async updateNotification(
     id: string,
-    input: NotificationUpdateInput,
+    input: NotificationUpdateInput
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
         `${BASE_URL}/${id}`,
-        input,
+        input
       );
       return response.data;
     } catch (error) {
@@ -72,7 +142,7 @@ export const NotificationsAPI = {
   async markAsRead(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
-        `${BASE_URL}/${id}/read`,
+        `${BASE_URL}/${id}/read`
       );
       return response.data;
     } catch (error) {
@@ -84,7 +154,7 @@ export const NotificationsAPI = {
   async markAllAsRead(): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.put<APIResponse<void>>(
-        `${BASE_URL}/read-all`,
+        `${BASE_URL}/read-all`
       );
       return response.data;
     } catch (error) {
@@ -96,7 +166,7 @@ export const NotificationsAPI = {
   async deleteNotification(id: string): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.delete<APIResponse<void>>(
-        `${BASE_URL}/${id}`,
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {

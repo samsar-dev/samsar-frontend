@@ -1,13 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { NotificationsAPI } from "@/api/notifications.api";
-import type { Notification } from "@/types/notifications";
-import { timeAgo } from "@/utils/dateUtils";
-import { toast } from "react-toastify";
-import { FaBell } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/ui";
+import { NEW_MESSAGE_ALERT } from "@/constants/socketEvents";
+import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/hooks";
+import type { Notification, NotificationType } from "@/types/notifications";
+import { timeAgo } from "@/utils/dateUtils";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaBell } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;
@@ -24,6 +26,7 @@ export default function NotificationBell({
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { socket } = useSocket();
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
@@ -32,7 +35,7 @@ export default function NotificationBell({
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
         setUnreadCount(
-          response.data.items.filter((n: Notification) => !n.read).length,
+          response.data.items.filter((n: Notification) => !n.read).length
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
@@ -43,12 +46,58 @@ export default function NotificationBell({
       toast.error(error?.error || "Failed to load notifications");
     }
   };
+  console.log("chatId", location.pathname.split("/")[2]);
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!socket) {
+      console.error("Socket not initialized");
+    }
+    socket?.on(
+      NEW_MESSAGE_ALERT,
+      async (data: {
+        id: string
+        content: string;
+        userId: string;
+        type: string;
+        relatedId: string;
+        read: boolean;
+        createdAt: string;
+      }) => {
+        console.log("new message alert>>>>>>>>>>>>>", data);
+        console.log("chatId", location.pathname.split("/"));
+        if (location.pathname.split("/")[2] === data.relatedId) {
+          try {
+            const result = await NotificationsAPI.deleteNotification(
+              data.relatedId
+            );
+            console.log("notification deleted result:", result);
+            return;
+          } catch (error) {
+            console.error("Error deleting notification:", error);
+            return;
+          }
+        }
+        const newNotification: Notification = {
+          id: data.relatedId,
+          userId: data.userId,
+          // user: { id: data.userId },
+          type: data.type as NotificationType,
+          title: "New Message",
+          message: data.content,
+          createdAt: data.createdAt,
+          // updatedAt: new Date(data.createdAt).toISOString(),
+          read: data.read,
+        };
+        console.log("newNotification>>>>>>>>>>>>>", newNotification);
+        setNotifications((prev) => [newNotification, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+      }
+    );
+  }, [socket]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,8 +125,8 @@ export default function NotificationBell({
         if (response.success) {
           setNotifications((prev) =>
             prev.map((n) =>
-              n.id === notification.id ? { ...n, read: true } : n,
-            ),
+              n.id === notification.id ? { ...n, read: true } : n
+            )
           );
           setUnreadCount((prev) => Math.max(0, prev - 1));
         } else if (response.error) {
@@ -122,13 +171,13 @@ export default function NotificationBell({
           aria-label={t("notifications.toggle")}
         >
           <FaBell className="w-5 h-5" />
-          {unreadCount > 0 && (
-            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none transform translate-x-1/2 -translate-y-1/2 bg-accent-red dark:bg-accent-red-dark text-white rounded-full">
-              {unreadCount}
-            </span>
-          )}
         </button>
       </Tooltip>
+      {unreadCount > 0 && (
+        <span className="absolute top-2 right-2 inline-flex items-center justify-center text-xs font-bold leading-none transform translate-x-1/2 -translate-y-1/2 bg-accent-red dark:bg-accent-red-dark text-blue-500 rounded-full">
+          {unreadCount}
+        </span>
+      )}
 
       {showNotifications && (
         <div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">

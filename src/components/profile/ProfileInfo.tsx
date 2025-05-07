@@ -5,11 +5,22 @@ import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
-import { FaCamera, FaUser, FaEnvelope, FaInfoCircle, FaCalendarAlt, FaMapMarkerAlt, FaCity } from "react-icons/fa";
+import {
+  FaCamera,
+  FaUser,
+  FaEnvelope,
+  FaInfoCircle,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaCity,
+  FaPhone,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-interface FormData {
+interface ProfileInfoFormData {
   username: string;
   email: string;
+  phone?: string;
   bio?: string;
   dateOfBirth?: string;
   street?: string;
@@ -19,16 +30,17 @@ interface FormData {
 const ProfileInfo = () => {
   const { t } = useTranslation();
   const { user, updateAuthUser } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<ProfileInfoFormData>({
     username: "",
     email: "",
     bio: "",
   });
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    undefined,
+    undefined
   );
 
   // Initialize form data when user data is available
@@ -37,6 +49,7 @@ const ProfileInfo = () => {
       setFormData({
         username: user.username || "",
         email: user.email || "",
+        phone: user.phone || "",
         bio: (user as unknown as UserProfile)?.bio || "",
         dateOfBirth: user.dateOfBirth || "",
         street: user.street || "",
@@ -50,7 +63,7 @@ const ProfileInfo = () => {
   }, [user]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -81,6 +94,9 @@ const ProfileInfo = () => {
       }
       if (formData.dateOfBirth) {
         formDataToSend.append("dateOfBirth", formData.dateOfBirth);
+      }
+      if (formData.phone) {
+        formDataToSend.append("phone", formData.phone);
       }
       if (formData.street) {
         formDataToSend.append("street", formData.street);
@@ -134,6 +150,12 @@ const ProfileInfo = () => {
       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
         <FaUser className="inline-block mr-2" size={20} />
         {t("profile.loading")}
+        <button
+          onClick={() => navigate("/login")}
+          className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Login
+        </button>
       </div>
     );
   }
@@ -148,7 +170,7 @@ const ProfileInfo = () => {
           {t("profile.update_info")}
         </p>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="p-6">
         <div className="flex flex-col items-center mb-8">
           <div className="relative group">
@@ -235,6 +257,23 @@ const ProfileInfo = () => {
 
           <div className="space-y-2">
             <label
+              htmlFor="phone"
+              className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              <FaPhone className="mr-2 text-gray-500 dark:text-gray-400" />
+              {t("Phone Number")}
+            </label>
+            <input
+              type="text"
+              id="phone"
+              name="phone"
+              value={formData.phone || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
+            />
+          </div>
+          <div className="space-y-2">
+            <label
               htmlFor="dateOfBirth"
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
@@ -300,7 +339,7 @@ const ProfileInfo = () => {
                 {t("common.saving")}
               </>
             ) : (
-              t("profile.save_changes")
+              t("Save Changes")
             )}
           </button>
         </div>

@@ -7,10 +7,7 @@ import {
   PropertyType,
   Condition,
 } from "@/types/enums";
-import type {
-  FormState,
-  RealEstateDetails,
-} from "@/types/listings";
+import type { FormState, RealEstateDetails } from "@/types/listings";
 import {
   FaCar,
   FaMoneyBillWave,
@@ -20,11 +17,9 @@ import {
 } from "react-icons/fa";
 import { realEstateBasicFields } from "@/components/listings/create/basic/BasicFieldSchemas";
 import { BiBuildingHouse } from "react-icons/bi";
-import FormField, { FormFieldValue } from "@/components/form/FormField";
+import FormField, { type FormFieldValue } from "@/components/form/FormField";
 
-import {
-  MapPin,
-} from "lucide-react";
+import { MapPin } from "lucide-react";
 const Select = lazy(() => import("react-select"));
 const ImageManager = lazy(() => import("../../images/ImageManager"));
 
@@ -33,8 +28,6 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
-
- 
 
 interface ExtendedVehicleDetails {
   vehicleType: VehicleType;
@@ -120,7 +113,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Generate model options based on selected make
   const getModelOptions = (
-    make: string,
+    make: string
   ): { value: string; label: string }[] => {
     if (
       !make ||
@@ -135,7 +128,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     if (!models || models.length === 0) {
       console.warn(
-        `No models found for make: ${make} and type: ${vehicleType}`,
+        `No models found for make: ${make} and type: ${vehicleType}`
       );
       return [];
     }
@@ -202,7 +195,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleInputChange = (
     path: keyof ExtendedFormState | string,
-    value: string | number,
+    value: string | number
   ) => {
     setFormData((prev) => {
       const newState = { ...prev };
@@ -252,7 +245,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleCategoryChange = (
     mainCategory: ListingCategory,
-    subCategory: VehicleType | PropertyType,
+    subCategory: VehicleType | PropertyType
   ) => {
     setFormData((prev: ExtendedFormState) => {
       const updatedData: ExtendedFormState = {
@@ -284,44 +277,34 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           propertyType === PropertyType.APARTMENT ||
           propertyType === PropertyType.LAND
         ) {
-          // Preserve existing real estate details if they exist
-          const existingDetails: Partial<RealEstateDetails> = prev.details?.realEstate || {
-            id: '',
-            listingId: '',
-            size: prev.details?.realEstate?.size || 0,
+          // Create a minimal RealEstateDetails object with only the necessary fields
+
+          const realEstateDetails: Partial<RealEstateDetails> = {
+            id: "",
+            listingId: "",
+            propertyType,
+            size: 0,
             yearBuilt: 0,
             condition: Condition.GOOD,
-            features: [],
-            bedrooms: 0,
-            bathrooms: 0,
-            floor: 0
-          };
-          
-          // Create a minimal RealEstateDetails object with only the necessary fields
-          const realEstateDetails: Partial<RealEstateDetails> = {
-            ...existingDetails,
-            propertyType,
-            size: existingDetails.size || 0, // Map size to totalArea
-            yearBuilt: existingDetails.yearBuilt || 0,
-            condition: existingDetails.condition || Condition.GOOD,
-            features: existingDetails.features || [],
-            bedrooms: existingDetails.bedrooms || 0,
-            bathrooms: existingDetails.bathrooms || 0
+            features: []
           };
 
           // Add property-specific fields based on property type
-          if (propertyType === PropertyType.HOUSE) {
-            realEstateDetails.constructionType = existingDetails.constructionType || '';
-          } else if (propertyType === PropertyType.APARTMENT) {
-            realEstateDetails.floor = existingDetails.floor || 0;
-            realEstateDetails.totalFloors = existingDetails.totalFloors || 0;
-            realEstateDetails.elevator = existingDetails.elevator || false;
-          } else if (propertyType === PropertyType.LAND) {
-            realEstateDetails.buildable = existingDetails.buildable || false;
+          if (
+            propertyType === PropertyType.HOUSE ||
+            propertyType === PropertyType.APARTMENT
+          ) {
+            realEstateDetails.bedrooms = 0;
+            realEstateDetails.bathrooms = 0;
           }
-          
+
+          if (propertyType === PropertyType.APARTMENT) {
+            realEstateDetails.floor = 0;
+          }
+
           // Assign the details to the form data
-          updatedData.details.realEstate = realEstateDetails as RealEstateDetails;
+          updatedData.details.realEstate =
+            realEstateDetails as RealEstateDetails;
         }
         delete updatedData.details.vehicles;
       }
@@ -447,7 +430,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           } else {
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
-              newErrors["details.realEstate.bedrooms"] = t("validBedroomsRequired");
+              newErrors["details.realEstate.bedrooms"] = t(
+                "validBedroomsRequired"
+              );
             }
           }
 
@@ -457,7 +442,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           } else {
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
-              newErrors["details.realEstate.bathrooms"] = t("validBathroomsRequired");
+              newErrors["details.realEstate.bathrooms"] = t(
+                "validBathroomsRequired"
+              );
             }
           }
           break;
@@ -484,8 +471,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
         case PropertyType.COMMERCIAL:
           // Validate usage type for commercial
-          if (!realEstate?.commercialDetails?.usageType) {
-            newErrors["details.realEstate.commercialDetails.usageType"] = t("fieldRequired");
+          if (!realEstate?.usageType) {
+            newErrors["details.realEstate.usageType"] = t("fieldRequired");
           }
           break;
       }
@@ -551,6 +538,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     console.log("Form validation result:", isValid);
 
     // Prepare the data to be submitted
+    console.log("Form data real estate:", formData.details?.realEstate);
     const dataToSubmit: ExtendedFormState = {
       ...formData,
       details: {
@@ -654,7 +642,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   value={formData.details?.vehicles?.model || ""}
                   onChange={(value: FormFieldValue) => {
                     const modelStr =
-                      typeof value === "object" && value !== null && "value" in value
+                      typeof value === "object" &&
+                      value !== null &&
+                      "value" in value
                         ? value.value
                         : String(value);
                     handleInputChange("details.vehicles.model", modelStr);
@@ -811,46 +801,47 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Add a new function to render real estate specific fields
 
+  const renderRealEstateFields = () => {
+    if (formData?.category?.mainCategory !== ListingCategory.REAL_ESTATE) {
+      return null;
+    }
 
-const renderRealEstateFields = () => {
-  if (formData?.category?.mainCategory !== ListingCategory.REAL_ESTATE) {
-    return null;
-  }
+    const subType = formData.category?.subCategory?.toLowerCase();
+    const fields =
+      realEstateBasicFields[subType as keyof typeof realEstateBasicFields];
 
-  const subType = formData.category?.subCategory?.toLowerCase();
-  const fields = realEstateBasicFields[subType as keyof typeof realEstateBasicFields];
+    console.log("Real estate fields:", fields);
 
-  if (!fields) return null;
+    if (!fields) return null;
 
-  return (
-    <div className="mt-6 space-y-6">
-      <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
-        {t("propertyDetails")}
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fields.map((field) => (
-          <div key={field.name}>
-            {renderFormField(
-              t(field.label),
-              `details.realEstate.${field.name}`,
-              field.type,
-              field.type === "select" ? field.options : undefined,
-              undefined,
-              t(field.placeholder || ""),
-              field.min,
-              field.max,
-              field.step,
-              field.required,
-              field.helpText ? t(field.helpText) : undefined,
-              field.type === "select"
-            )}
-          </div>
-        ))}
+    return (
+      <div className="mt-6 space-y-6">
+        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
+          {t("propertyDetails")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {fields.map((field) => (
+            <div key={field.name}>
+              {renderFormField(
+                t(field.label),
+                `details.realEstate.${field.name}`,
+                field.type,
+                field.type === "select" ? field.options : undefined,
+                undefined,
+                t(field.placeholder || ""),
+                field.min,
+                field.max,
+                field.step,
+                field.required,
+                field.helpText ? t(field.helpText) : undefined,
+                field.type === "select"
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-};
-
+    );
+  };
 
   const renderFormField = (
     label: string,
@@ -916,7 +907,7 @@ const renderRealEstateFields = () => {
                   fieldName,
                   type === "number"
                     ? parseFloat(e.target.value)
-                    : e.target.value,
+                    : e.target.value
                 )
               }
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
@@ -1056,7 +1047,7 @@ const renderRealEstateFields = () => {
           </div>
           <Select
             value={syrianCities.find(
-              (city) => city.value === formData.location,
+              (city) => city.value === formData.location
             )}
             onChange={handleLocationChange}
             options={syrianCities}
@@ -1128,7 +1119,7 @@ const renderRealEstateFields = () => {
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.VEHICLES,
-                    VehicleType.CAR,
+                    VehicleType.CAR
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-l-md focus:outline-none focus:z-10 ${
@@ -1148,7 +1139,7 @@ const renderRealEstateFields = () => {
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.REAL_ESTATE,
-                    PropertyType.HOUSE,
+                    PropertyType.HOUSE
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-r-md focus:outline-none focus:z-10 ${
@@ -1215,7 +1206,7 @@ const renderRealEstateFields = () => {
               undefined,
               <FaMoneyBillWave className="w-4 h-4" />,
               t("pricePlaceholder"),
-              0,
+              0
             )}
             {renderLocationField()}
           </div>
@@ -1226,7 +1217,7 @@ const renderRealEstateFields = () => {
             "textarea",
             undefined,
             <FaAlignLeft className="w-4 h-4" />,
-            t("descriptionPlaceholder"),
+            t("descriptionPlaceholder")
           )}
 
           {/* Image Manager Component */}
@@ -1253,7 +1244,7 @@ const renderRealEstateFields = () => {
                   setFormData((prev) => ({
                     ...prev,
                     existingImages: (prev.existingImages || []).filter(
-                      (img) => img !== url,
+                      (img) => img !== url
                     ),
                   }));
                 }}

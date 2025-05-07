@@ -183,34 +183,28 @@ const CreateListing: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasUnsavedChanges = JSON.stringify(formData) !== sessionStorage.getItem("createListingFormData");
+  const hasUnsavedChanges =
+    JSON.stringify(formData) !==
+    sessionStorage.getItem("createListingFormData");
 
   // Block navigation for React Router's useNavigate with a professional message
-  // Custom navigation handler that only shows warning when actually leaving the page
-  const handleNavigation = (navigateFn: () => void) => {
-    if (hasUnsavedChanges) {
-      const confirmed = window.confirm(
-        "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
-      );
-      if (confirmed) {
-        navigateFn();
-      }
-    } else {
-      navigateFn();
-    }
-  };
+  const handleNavigation = useBlockNavigation(
+    hasUnsavedChanges,
+    "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
+  );
 
-  // Handle back button without showing warning
+  // Use the custom navigation function instead of direct navigate
   const handleBack = () => {
     setStep((prev) => prev - 1);
   };
-  
-  // Add event listener for beforeunload to show confirmation dialog when refreshing or closing the tab
+
+  // Add event listener for beforeunload to show confirmation dialog when refreshing
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         // Standard message for browser's built-in dialog
-        const message = "Your listing data has not been saved. If you leave now, your progress will be lost.";
+        const message =
+          "Your listing data has not been saved. If you leave now, your progress will be lost.";
         e.preventDefault();
         e.returnValue = message;
         return message;
@@ -255,25 +249,24 @@ const CreateListing: React.FC = () => {
       console.error("Failed to clear form data from session storage:", error);
     }
   };
-  
+
   // Add a confirmation dialog when the user refreshes the page
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
-        const message = "You have unsaved changes in your listing. If you refresh this page, your data will still be available, but any unsaved changes may be lost.";
+        const message =
+          "You have unsaved changes in your listing. If you refresh this page, your data will still be available, but any unsaved changes may be lost.";
         e.preventDefault();
         e.returnValue = message;
         return message;
       }
     };
-    
+
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
-
-  
 
   const handleBasicDetailsSubmit = (data: FormState, isValid: boolean) => {
     if (isValid) {
@@ -313,7 +306,7 @@ const CreateListing: React.FC = () => {
                     condition:
                       data.details?.vehicles?.condition || Condition.LIKE_NEW,
                     features: Object.entries(
-                      data.details?.vehicles?.features || {},
+                      data.details?.vehicles?.features || {}
                     )
                       .filter(([_, value]) => value === true)
                       .map(([key]) => key),
@@ -326,13 +319,13 @@ const CreateListing: React.FC = () => {
                     serviceHistory:
                       data.details?.vehicles?.serviceHistory?.toString() || "",
                     previousOwners: Number(
-                      data.details?.vehicles?.previousOwners || 0,
+                      data.details?.vehicles?.previousOwners || 0
                     ),
                     registrationStatus:
                       data.details?.vehicles?.registrationStatus || "",
                     accidentFree: Boolean(data.details?.vehicles?.accidentFree),
                     customsCleared: Boolean(
-                      data.details?.vehicles?.customsCleared,
+                      data.details?.vehicles?.customsCleared
                     ),
                     insuranceType: data.details?.vehicles?.insuranceType || "",
                     fuelEfficiency:
@@ -343,21 +336,21 @@ const CreateListing: React.FC = () => {
                     wheelType: data.details?.vehicles?.wheelType || "",
                     // Safety Features
                     blindSpotMonitor: Boolean(
-                      data.details?.vehicles?.blindSpotMonitor,
+                      data.details?.vehicles?.blindSpotMonitor
                     ),
                     laneAssist: Boolean(data.details?.vehicles?.laneAssist),
                     adaptiveCruiseControl: Boolean(
-                      data.details?.vehicles?.adaptiveCruiseControl,
+                      data.details?.vehicles?.adaptiveCruiseControl
                     ),
                     tractionControl: Boolean(
-                      data.details?.vehicles?.tractionControl,
+                      data.details?.vehicles?.tractionControl
                     ),
                     abs: Boolean(data.details?.vehicles?.abs),
                     emergencyBrakeAssist: Boolean(
-                      data.details?.vehicles?.emergencyBrakeAssist,
+                      data.details?.vehicles?.emergencyBrakeAssist
                     ),
                     tirePressureMonitoring: Boolean(
-                      data.details?.vehicles?.tirePressureMonitoring,
+                      data.details?.vehicles?.tirePressureMonitoring
                     ),
                     // Camera Features
                     rearCamera: Boolean(data.details?.vehicles?.rearCamera),
@@ -365,22 +358,22 @@ const CreateListing: React.FC = () => {
                     dashCam: Boolean(data.details?.vehicles?.dashCam),
                     nightVision: Boolean(data.details?.vehicles?.nightVision),
                     parkingSensors: Boolean(
-                      data.details?.vehicles?.parkingSensors,
+                      data.details?.vehicles?.parkingSensors
                     ),
                     // Climate Features
                     climateControl: Boolean(
-                      data.details?.vehicles?.climateControl,
+                      data.details?.vehicles?.climateControl
                     ),
                     heatedSeats: Boolean(data.details?.vehicles?.heatedSeats),
                     ventilatedSeats: Boolean(
-                      data.details?.vehicles?.ventilatedSeats,
+                      data.details?.vehicles?.ventilatedSeats
                     ),
                     dualZoneClimate: Boolean(
-                      data.details?.vehicles?.dualZoneClimate,
+                      data.details?.vehicles?.dualZoneClimate
                     ),
                     rearAC: Boolean(data.details?.vehicles?.rearAC),
                     airQualitySensor: Boolean(
-                      data.details?.vehicles?.airQualitySensor,
+                      data.details?.vehicles?.airQualitySensor
                     ),
                     // Entertainment Features
                     bluetooth: Boolean(data.details?.vehicles?.bluetooth),
@@ -388,27 +381,27 @@ const CreateListing: React.FC = () => {
                     androidAuto: Boolean(data.details?.vehicles?.androidAuto),
                     premiumSound: Boolean(data.details?.vehicles?.premiumSound),
                     wirelessCharging: Boolean(
-                      data.details?.vehicles?.wirelessCharging,
+                      data.details?.vehicles?.wirelessCharging
                     ),
                     usbPorts: Boolean(data.details?.vehicles?.usbPorts),
                     cdPlayer: Boolean(data.details?.vehicles?.cdPlayer),
                     dvdPlayer: Boolean(data.details?.vehicles?.dvdPlayer),
                     rearSeatEntertainment: Boolean(
-                      data.details?.vehicles?.rearSeatEntertainment,
+                      data.details?.vehicles?.rearSeatEntertainment
                     ),
                     // Lighting Features
                     ledHeadlights: Boolean(
-                      data.details?.vehicles?.ledHeadlights,
+                      data.details?.vehicles?.ledHeadlights
                     ),
                     adaptiveHeadlights: Boolean(
-                      data.details?.vehicles?.adaptiveHeadlights,
+                      data.details?.vehicles?.adaptiveHeadlights
                     ),
                     ambientLighting: Boolean(
-                      data.details?.vehicles?.ambientLighting,
+                      data.details?.vehicles?.ambientLighting
                     ),
                     fogLights: Boolean(data.details?.vehicles?.fogLights),
                     automaticHighBeams: Boolean(
-                      data.details?.vehicles?.automaticHighBeams,
+                      data.details?.vehicles?.automaticHighBeams
                     ),
                     // Convenience Features
                     keylessEntry: Boolean(data.details?.vehicles?.keylessEntry),
@@ -416,13 +409,13 @@ const CreateListing: React.FC = () => {
                     spareKey: Boolean(data.details?.vehicles?.spareKey),
                     remoteStart: Boolean(data.details?.vehicles?.remoteStart),
                     powerTailgate: Boolean(
-                      data.details?.vehicles?.powerTailgate,
+                      data.details?.vehicles?.powerTailgate
                     ),
                     autoDimmingMirrors: Boolean(
-                      data.details?.vehicles?.autoDimmingMirrors,
+                      data.details?.vehicles?.autoDimmingMirrors
                     ),
                     rainSensingWipers: Boolean(
-                      data.details?.vehicles?.rainSensingWipers,
+                      data.details?.vehicles?.rainSensingWipers
                     ),
                   }
                 : undefined,
@@ -434,18 +427,22 @@ const CreateListing: React.FC = () => {
                     id: prev.details?.realEstate?.id || '',
                     listingId: prev.details?.realEstate?.listingId || '',
                     propertyType: PropertyType.HOUSE,
-                    size: data.details?.realEstate?.size || prev.details?.realEstate?.size || 0,
-                    yearBuilt: Number(data.details?.realEstate?.yearBuilt || new Date().getFullYear()),
-                    bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
-                    bathrooms: Number(data.details?.realEstate?.bathrooms || 0),
-                    condition: data.details?.realEstate?.condition || prev.details?.realEstate?.condition || Condition.LIKE_NEW,
+                    size: data.details?.realEstate?.size || "0",
+                    yearBuilt: parseInt(
+                      data.details?.realEstate?.yearBuilt.toString() ||
+                        new Date().getFullYear().toString()
+                    ),
+                    bedrooms: data.details?.realEstate?.bedrooms || "0",
+                    bathrooms: data.details?.realEstate?.bathrooms || "0",
+                    condition:
+                      data.details?.realEstate?.condition || Condition.LIKE_NEW,
                     constructionType:
                       data.details?.realEstate?.constructionType || "",
                     features: data.details?.realEstate?.features || [],
                     parking: data.details?.realEstate?.parking || "",
                     floor: Number(data.details?.realEstate?.floor || 1),
                     totalFloors: Number(
-                      data.details?.realEstate?.totalFloors || 1,
+                      data.details?.realEstate?.totalFloors || 1
                     ),
                     elevator: Boolean(data.details?.realEstate?.elevator),
                     balcony: Boolean(data.details?.realEstate?.balcony),
@@ -462,7 +459,7 @@ const CreateListing: React.FC = () => {
                     fireSafety: data.details?.realEstate?.fireSafety || [],
                     flooringType: data.details?.realEstate?.flooringType || "",
                     internetIncluded: Boolean(
-                      data.details?.realEstate?.internetIncluded,
+                      data.details?.realEstate?.internetIncluded
                     ),
                     windowType: data.details?.realEstate?.windowType || "",
                     accessibilityFeatures:
@@ -478,8 +475,13 @@ const CreateListing: React.FC = () => {
                       propertyType: PropertyType.HOUSE,
                       totalArea: data.details?.realEstate?.size || prev.details?.realEstate?.size || 0,
                       bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
-                      bathrooms: Number(data.details?.realEstate?.bathrooms || 0),
-                      yearBuilt: Number(data.details?.realEstate?.yearBuilt || new Date().getFullYear()),
+                      bathrooms: Number(
+                        data.details?.realEstate?.bathrooms || 0
+                      ),
+                      yearBuilt: Number(
+                        data.details?.realEstate?.yearBuilt ||
+                          new Date().getFullYear()
+                      ),
                     },
                   }
                 : undefined,
@@ -488,7 +490,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData),
+          JSON.stringify(updatedData)
         );
         return updatedData;
       });
@@ -508,6 +510,7 @@ const CreateListing: React.FC = () => {
 
   const handleAdvancedDetailsSubmit = (data: any, isValid: boolean) => {
     console.log("Advanced details form data:", data);
+    console.log("Advanced details form validity:", isValid);
     if (isValid) {
       console.log("Advanced details submitted:", data);
       // Ensure we preserve all feature values
@@ -754,6 +757,10 @@ const CreateListing: React.FC = () => {
                   data.details?.realEstate?.propertyType ||
                   prev.details?.realEstate?.propertyType ||
                   PropertyType.HOUSE;
+
+                console.log(propertyType);
+                console;
+
                 const baseDetails = {
                   size:
                     data.details?.realEstate?.size ||
@@ -772,240 +779,11 @@ const CreateListing: React.FC = () => {
                     [],
                 };
 
-                switch (propertyType) {
-                  case PropertyType.HOUSE: {
-                    const houseDetails: HouseDetails = {
-                      propertyType: PropertyType.HOUSE,
-                      totalArea:
-                        data.details?.realEstate?.size ||
-                        prev.details?.realEstate?.size ||
-                        0,
-                      bedrooms:
-                        data.details?.realEstate?.bedrooms ||
-                        prev.details?.realEstate?.bedrooms ||
-                        1,
-                      bathrooms:
-                        data.details?.realEstate?.bathrooms ||
-                        prev.details?.realEstate?.bathrooms ||
-                        1,
-                      yearBuilt:
-                        data.details?.realEstate?.yearBuilt ||
-                        prev.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear(),
-                      livingArea:
-                        data.details?.realEstate?.livingArea ||
-                        prev.details?.realEstate?.livingArea ||
-                        0,
-                      halfBathrooms:
-                        data.details?.realEstate?.halfBathrooms ||
-                        prev.details?.realEstate?.halfBathrooms ||
-                        0,
-                      stories:
-                        data.details?.realEstate?.stories ||
-                        prev.details?.realEstate?.stories ||
-                        1,
-                      hasGarden:
-                        data.details?.realEstate?.garden ??
-                        prev.details?.realEstate?.garden ??
-                        false,
-                      hasGarage:
-                        data.details?.realEstate?.garage ??
-                        prev.details?.realEstate?.garage ??
-                        false,
-                      floors:
-                        data.details?.realEstate?.floors ||
-                        prev.details?.realEstate?.floors ||
-                        1,
-                      parkingSpaces:
-                        data.details?.realEstate?.parkingSpaces ||
-                        prev.details?.realEstate?.parkingSpaces ||
-                        0,
-                      garage:
-                        data.details?.realEstate?.garage ??
-                        prev.details?.realEstate?.garage ??
-                        false,
-                      garden:
-                        data.details?.realEstate?.garden ??
-                        prev.details?.realEstate?.garden ??
-                        false,
-                      petsAllowed:
-                        data.details?.realEstate?.petsAllowed ??
-                        prev.details?.realEstate?.petsAllowed ??
-                        false,
-                      constructionType:
-                        data.details?.realEstate?.constructionType ||
-                        prev.details?.realEstate?.constructionType ||
-                        "",
-                      parking:
-                        data.details?.realEstate?.parking ||
-                        prev.details?.realEstate?.parking ||
-                        "",
-                    };
-                    return houseDetails;
-                  }
-                  case PropertyType.APARTMENT: {
-                    const apartmentDetails: ApartmentDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.APARTMENT,
-                      bedrooms:
-                        data.details?.realEstate?.bedrooms ||
-                        prev.details?.realEstate?.bedrooms ||
-                        1,
-                      bathrooms:
-                        data.details?.realEstate?.bathrooms ||
-                        prev.details?.realEstate?.bathrooms ||
-                        1,
-                      floor:
-                        data.details?.realEstate?.floor ||
-                        prev.details?.realEstate?.floor ||
-                        1,
-                      totalFloors:
-                        data.details?.realEstate?.totalFloors ||
-                        prev.details?.realEstate?.totalFloors ||
-                        1,
-                      elevator:
-                        data.details?.realEstate?.elevator ??
-                        prev.details?.realEstate?.elevator ??
-                        false,
-                      balcony:
-                        data.details?.realEstate?.balcony ??
-                        prev.details?.realEstate?.balcony ??
-                        false,
-                      storage:
-                        data.details?.realEstate?.storage ??
-                        prev.details?.realEstate?.storage ??
-                        false,
-                      heating:
-                        data.details?.realEstate?.heating ||
-                        prev.details?.realEstate?.heating ||
-                        "",
-                      cooling:
-                        data.details?.realEstate?.cooling ||
-                        prev.details?.realEstate?.cooling ||
-                        "",
-                      buildingAmenities:
-                        data.details?.realEstate?.buildingAmenities ||
-                        prev.details?.realEstate?.buildingAmenities ||
-                        [],
-                      energyRating:
-                        data.details?.realEstate?.energyRating ||
-                        prev.details?.realEstate?.energyRating ||
-                        "",
-                      furnished:
-                        data.details?.realEstate?.furnished ||
-                        prev.details?.realEstate?.furnished ||
-                        "",
-                      petPolicy:
-                        data.details?.realEstate?.petPolicy ||
-                        prev.details?.realEstate?.petPolicy ||
-                        "",
-                      view:
-                        data.details?.realEstate?.view ||
-                        prev.details?.realEstate?.view ||
-                        "",
-                      securityFeatures:
-                        data.details?.realEstate?.securityFeatures ||
-                        prev.details?.realEstate?.securityFeatures ||
-                        [],
-                      fireSafety:
-                        data.details?.realEstate?.fireSafety ||
-                        prev.details?.realEstate?.fireSafety ||
-                        [],
-                      flooringType:
-                        data.details?.realEstate?.flooringType ||
-                        prev.details?.realEstate?.flooringType ||
-                        "",
-                      internetIncluded:
-                        data.details?.realEstate?.internetIncluded ??
-                        prev.details?.realEstate?.internetIncluded ??
-                        false,
-                      windowType:
-                        data.details?.realEstate?.windowType ||
-                        prev.details?.realEstate?.windowType ||
-                        "",
-                      accessibilityFeatures:
-                        data.details?.realEstate?.accessibilityFeatures ||
-                        prev.details?.realEstate?.accessibilityFeatures ||
-                        [],
-                      renovationHistory:
-                        data.details?.realEstate?.renovationHistory ||
-                        prev.details?.realEstate?.renovationHistory ||
-                        "",
-                      parkingType:
-                        data.details?.realEstate?.parkingType ||
-                        prev.details?.realEstate?.parkingType ||
-                        "",
-                      utilities:
-                        data.details?.realEstate?.utilities ||
-                        prev.details?.realEstate?.utilities ||
-                        [],
-                      exposureDirection:
-                        data.details?.realEstate?.exposureDirection ||
-                        prev.details?.realEstate?.exposureDirection ||
-                        [],
-                      storageType:
-                        data.details?.realEstate?.storageType ||
-                        prev.details?.realEstate?.storageType ||
-                        [],
-                      constructionType:
-                        data.details?.realEstate?.constructionType ||
-                        prev.details?.realEstate?.constructionType ||
-                        "",
-                    };
-                    return apartmentDetails;
-                  }
-                  case PropertyType.LAND: {
-                    const landDetails: LandDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.LAND,
-                      zoning:
-                        data.details?.realEstate?.zoning ||
-                        prev.details?.realEstate?.zoning ||
-                        "",
-                      utilities:
-                        data.details?.realEstate?.utilities ??
-                        prev.details?.realEstate?.utilities ??
-                        false,
-                      roadAccess:
-                        data.details?.realEstate?.roadAccess ??
-                        prev.details?.realEstate?.roadAccess ??
-                        false,
-                      buildable:
-                        data.details?.realEstate?.buildable ??
-                        prev.details?.realEstate?.buildable ??
-                        true,
-                      fenced:
-                        data.details?.realEstate?.fenced ??
-                        prev.details?.realEstate?.fenced ??
-                        false,
-                      waterFeatures:
-                        data.details?.realEstate?.waterFeatures ??
-                        prev.details?.realEstate?.waterFeatures ??
-                        false,
-                      soilType:
-                        data.details?.realEstate?.soilType ||
-                        prev.details?.realEstate?.soilType ||
-                        "",
-                    };
-                    return landDetails;
-                  }
-                  default: {
-                    const defaultHouseDetails: HouseDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.HOUSE,
-                      bedrooms: 1,
-                      bathrooms: 1,
-                      floors: 1,
-                      parkingSpaces: 0,
-                      garage: false,
-                      garden: false,
-                      petsAllowed: false,
-                      constructionType: "",
-                      parking: "",
-                    };
-                    return defaultHouseDetails;
-                  }
-                }
+                return {
+                  ...baseDetails,
+                  ...data?.details?.realEstate,
+                  ...prev?.details?.realEstate,
+                };
               })()
             : undefined;
 
@@ -1027,7 +805,7 @@ const CreateListing: React.FC = () => {
         // Save to session storage
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(updatedData),
+          JSON.stringify(updatedData)
         );
         return updatedData;
       });
@@ -1063,7 +841,7 @@ const CreateListing: React.FC = () => {
       formData.append("location", data.location || "");
       formData.append(
         "listingAction",
-        (data.listingAction || "sell").toUpperCase(),
+        (data.listingAction || "sell").toUpperCase()
       );
       formData.append("mainCategory", data.category?.mainCategory || "");
       formData.append("subCategory", data.category?.subCategory || "");
@@ -1088,7 +866,7 @@ const CreateListing: React.FC = () => {
       if (data.images && data.images.length > 0) {
         // Filter to only include valid File objects
         const fileImages = data.images.filter(
-          (image): image is File => image instanceof File,
+          (image): image is File => image instanceof File
         );
         
         if (fileImages.length === 0) {
@@ -1111,7 +889,7 @@ const CreateListing: React.FC = () => {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File object",
+          typeof pair[1] === "string" ? pair[1] : "File object"
         );
       }
 

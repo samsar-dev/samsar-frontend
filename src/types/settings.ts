@@ -41,6 +41,7 @@ export interface Settings {
   notifications: NotificationPreferences;
   privacy: {
     showEmail: boolean;
+    showPhone: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
     profileVisibility?: "public" | "private";

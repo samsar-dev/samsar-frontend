@@ -436,6 +436,7 @@ class UserAPI extends AuthAPI {
           { headers: { "Content-Type": undefined }, withCredentials: true }
         )
       );
+      console.log("Profile update response:>>>>>>>>>>>>", response);
       return response.data;
     } catch (error: any) {
       return {
