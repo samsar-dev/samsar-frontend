@@ -397,9 +397,10 @@ const CreateListing: React.FC = () => {
                 ? {
                     propertyType: PropertyType.HOUSE,
                     size: data.details?.realEstate?.size || "0",
-                    yearBuilt:
-                      data.details?.realEstate?.yearBuilt ||
-                      new Date().getFullYear().toString(),
+                    yearBuilt: parseInt(
+                      data.details?.realEstate?.yearBuilt.toString() ||
+                        new Date().getFullYear().toString()
+                    ),
                     bedrooms: data.details?.realEstate?.bedrooms || "0",
                     bathrooms: data.details?.realEstate?.bathrooms || "0",
                     condition:
@@ -725,6 +726,10 @@ const CreateListing: React.FC = () => {
                   data.details?.realEstate?.propertyType ||
                   prev.details?.realEstate?.propertyType ||
                   PropertyType.HOUSE;
+
+                console.log(propertyType);
+                console;
+
                 const baseDetails = {
                   size:
                     data.details?.realEstate?.size ||
@@ -743,240 +748,11 @@ const CreateListing: React.FC = () => {
                     [],
                 };
 
-                switch (propertyType) {
-                  case PropertyType.HOUSE: {
-                    const houseDetails: HouseDetails = {
-                      propertyType: PropertyType.HOUSE,
-                      totalArea:
-                        data.details?.realEstate?.size ||
-                        prev.details?.realEstate?.size ||
-                        0,
-                      bedrooms:
-                        data.details?.realEstate?.bedrooms ||
-                        prev.details?.realEstate?.bedrooms ||
-                        1,
-                      bathrooms:
-                        data.details?.realEstate?.bathrooms ||
-                        prev.details?.realEstate?.bathrooms ||
-                        1,
-                      yearBuilt:
-                        data.details?.realEstate?.yearBuilt ||
-                        prev.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear(),
-                      livingArea:
-                        data.details?.realEstate?.livingArea ||
-                        prev.details?.realEstate?.livingArea ||
-                        0,
-                      halfBathrooms:
-                        data.details?.realEstate?.halfBathrooms ||
-                        prev.details?.realEstate?.halfBathrooms ||
-                        0,
-                      stories:
-                        data.details?.realEstate?.stories ||
-                        prev.details?.realEstate?.stories ||
-                        1,
-                      hasGarden:
-                        data.details?.realEstate?.garden ??
-                        prev.details?.realEstate?.garden ??
-                        false,
-                      hasGarage:
-                        data.details?.realEstate?.garage ??
-                        prev.details?.realEstate?.garage ??
-                        false,
-                      floors:
-                        data.details?.realEstate?.floors ||
-                        prev.details?.realEstate?.floors ||
-                        1,
-                      parkingSpaces:
-                        data.details?.realEstate?.parkingSpaces ||
-                        prev.details?.realEstate?.parkingSpaces ||
-                        0,
-                      garage:
-                        data.details?.realEstate?.garage ??
-                        prev.details?.realEstate?.garage ??
-                        false,
-                      garden:
-                        data.details?.realEstate?.garden ??
-                        prev.details?.realEstate?.garden ??
-                        false,
-                      petsAllowed:
-                        data.details?.realEstate?.petsAllowed ??
-                        prev.details?.realEstate?.petsAllowed ??
-                        false,
-                      constructionType:
-                        data.details?.realEstate?.constructionType ||
-                        prev.details?.realEstate?.constructionType ||
-                        "",
-                      parking:
-                        data.details?.realEstate?.parking ||
-                        prev.details?.realEstate?.parking ||
-                        "",
-                    };
-                    return houseDetails;
-                  }
-                  case PropertyType.APARTMENT: {
-                    const apartmentDetails: ApartmentDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.APARTMENT,
-                      bedrooms:
-                        data.details?.realEstate?.bedrooms ||
-                        prev.details?.realEstate?.bedrooms ||
-                        1,
-                      bathrooms:
-                        data.details?.realEstate?.bathrooms ||
-                        prev.details?.realEstate?.bathrooms ||
-                        1,
-                      floor:
-                        data.details?.realEstate?.floor ||
-                        prev.details?.realEstate?.floor ||
-                        1,
-                      totalFloors:
-                        data.details?.realEstate?.totalFloors ||
-                        prev.details?.realEstate?.totalFloors ||
-                        1,
-                      elevator:
-                        data.details?.realEstate?.elevator ??
-                        prev.details?.realEstate?.elevator ??
-                        false,
-                      balcony:
-                        data.details?.realEstate?.balcony ??
-                        prev.details?.realEstate?.balcony ??
-                        false,
-                      storage:
-                        data.details?.realEstate?.storage ??
-                        prev.details?.realEstate?.storage ??
-                        false,
-                      heating:
-                        data.details?.realEstate?.heating ||
-                        prev.details?.realEstate?.heating ||
-                        "",
-                      cooling:
-                        data.details?.realEstate?.cooling ||
-                        prev.details?.realEstate?.cooling ||
-                        "",
-                      buildingAmenities:
-                        data.details?.realEstate?.buildingAmenities ||
-                        prev.details?.realEstate?.buildingAmenities ||
-                        [],
-                      energyRating:
-                        data.details?.realEstate?.energyRating ||
-                        prev.details?.realEstate?.energyRating ||
-                        "",
-                      furnished:
-                        data.details?.realEstate?.furnished ||
-                        prev.details?.realEstate?.furnished ||
-                        "",
-                      petPolicy:
-                        data.details?.realEstate?.petPolicy ||
-                        prev.details?.realEstate?.petPolicy ||
-                        "",
-                      view:
-                        data.details?.realEstate?.view ||
-                        prev.details?.realEstate?.view ||
-                        "",
-                      securityFeatures:
-                        data.details?.realEstate?.securityFeatures ||
-                        prev.details?.realEstate?.securityFeatures ||
-                        [],
-                      fireSafety:
-                        data.details?.realEstate?.fireSafety ||
-                        prev.details?.realEstate?.fireSafety ||
-                        [],
-                      flooringType:
-                        data.details?.realEstate?.flooringType ||
-                        prev.details?.realEstate?.flooringType ||
-                        "",
-                      internetIncluded:
-                        data.details?.realEstate?.internetIncluded ??
-                        prev.details?.realEstate?.internetIncluded ??
-                        false,
-                      windowType:
-                        data.details?.realEstate?.windowType ||
-                        prev.details?.realEstate?.windowType ||
-                        "",
-                      accessibilityFeatures:
-                        data.details?.realEstate?.accessibilityFeatures ||
-                        prev.details?.realEstate?.accessibilityFeatures ||
-                        [],
-                      renovationHistory:
-                        data.details?.realEstate?.renovationHistory ||
-                        prev.details?.realEstate?.renovationHistory ||
-                        "",
-                      parkingType:
-                        data.details?.realEstate?.parkingType ||
-                        prev.details?.realEstate?.parkingType ||
-                        "",
-                      utilities:
-                        data.details?.realEstate?.utilities ||
-                        prev.details?.realEstate?.utilities ||
-                        [],
-                      exposureDirection:
-                        data.details?.realEstate?.exposureDirection ||
-                        prev.details?.realEstate?.exposureDirection ||
-                        [],
-                      storageType:
-                        data.details?.realEstate?.storageType ||
-                        prev.details?.realEstate?.storageType ||
-                        [],
-                      constructionType:
-                        data.details?.realEstate?.constructionType ||
-                        prev.details?.realEstate?.constructionType ||
-                        "",
-                    };
-                    return apartmentDetails;
-                  }
-                  case PropertyType.LAND: {
-                    const landDetails: LandDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.LAND,
-                      zoning:
-                        data.details?.realEstate?.zoning ||
-                        prev.details?.realEstate?.zoning ||
-                        "",
-                      utilities:
-                        data.details?.realEstate?.utilities ??
-                        prev.details?.realEstate?.utilities ??
-                        false,
-                      roadAccess:
-                        data.details?.realEstate?.roadAccess ??
-                        prev.details?.realEstate?.roadAccess ??
-                        false,
-                      buildable:
-                        data.details?.realEstate?.buildable ??
-                        prev.details?.realEstate?.buildable ??
-                        true,
-                      fenced:
-                        data.details?.realEstate?.fenced ??
-                        prev.details?.realEstate?.fenced ??
-                        false,
-                      waterFeatures:
-                        data.details?.realEstate?.waterFeatures ??
-                        prev.details?.realEstate?.waterFeatures ??
-                        false,
-                      soilType:
-                        data.details?.realEstate?.soilType ||
-                        prev.details?.realEstate?.soilType ||
-                        "",
-                    };
-                    return landDetails;
-                  }
-                  default: {
-                    const defaultHouseDetails: HouseDetails = {
-                      ...baseDetails,
-                      propertyType: PropertyType.HOUSE,
-                      bedrooms: 1,
-                      bathrooms: 1,
-                      floors: 1,
-                      parkingSpaces: 0,
-                      garage: false,
-                      garden: false,
-                      petsAllowed: false,
-                      constructionType: "",
-                      parking: "",
-                    };
-                    return defaultHouseDetails;
-                  }
-                }
+                return {
+                  ...baseDetails,
+                  ...data?.details?.realEstate,
+                  ...prev?.details?.realEstate,
+                };
               })()
             : undefined;
 
