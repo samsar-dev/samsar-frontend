@@ -207,7 +207,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             if (!parentObj[child]) {
               parentObj[child] = {};
             }
-            if (subChild) {
+            // Handle size field for real estate
+            if (parent === "details" && child === "realEstate" && subChild === "size") {
+              parentObj[child] = {
+                ...parentObj[child],
+                size: value,
+              };
+            } else if (subChild) {
               parentObj[child] = {
                 ...parentObj[child],
                 [subChild]: value,
@@ -280,7 +286,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             size: 0,
             yearBuilt: 0,
             condition: Condition.GOOD,
-            features: [],
+            features: []
           };
 
           // Add property-specific fields based on property type

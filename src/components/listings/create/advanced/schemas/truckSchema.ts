@@ -1,9 +1,9 @@
-import { ListingFieldSchema } from "../../../../../types/listings";
+import { ListingFieldSchema } from "@/types/listings";
 import {
   Condition,
   FuelType,
   TransmissionType,
-} from "../../../../../types/enums";
+} from "@/types/enums";
 
 export const truckSchema: ListingFieldSchema[] = [
   // Essential Section
@@ -107,7 +107,7 @@ export const truckSchema: ListingFieldSchema[] = [
     name: "fuelType",
     label: "fuelType",
     type: "select",
-    options: ["diesel", "gasoline", "electric", "hybrid"],
+    options: Object.values(FuelType),
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) =>

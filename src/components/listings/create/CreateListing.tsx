@@ -122,10 +122,10 @@ const initialFormState: FormState = {
     },
     realEstate: {
       propertyType: PropertyType.APARTMENT,
-      size: 0,
-      yearBuilt: 0,
+      totalArea: 0,
       bedrooms: 0,
       bathrooms: 0,
+      yearBuilt: 0,
       condition: Condition.NEW,
       features: [],
       floor: 0,
@@ -162,8 +162,23 @@ const CreateListing: React.FC = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormState>(() => {
     // Try to load saved form data from session storage
-    const savedData = sessionStorage.getItem("createListingFormData");
-    return savedData ? JSON.parse(savedData) : initialFormState;
+    try {
+      const savedData = sessionStorage.getItem("createListingFormData");
+      if (!savedData) return initialFormState;
+      
+      // Parse the saved data
+      const parsedData = JSON.parse(savedData);
+      
+      // Images can't be properly serialized/deserialized from session storage
+      // So we need to reset the images array to avoid corruption
+      return {
+        ...parsedData,
+        images: [] // Reset images to avoid corruption
+      };
+    } catch (error) {
+      console.error("Error loading form data from session storage:", error);
+      return initialFormState;
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -180,7 +195,7 @@ const CreateListing: React.FC = () => {
 
   // Use the custom navigation function instead of direct navigate
   const handleBack = () => {
-    handleNavigation(() => setStep((prev) => prev - 1));
+    setStep((prev) => prev - 1);
   };
 
   // Add event listener for beforeunload to show confirmation dialog when refreshing
@@ -205,7 +220,19 @@ const CreateListing: React.FC = () => {
   // Save form data to session storage whenever it changes
   useEffect(() => {
     try {
-      sessionStorage.setItem("createListingFormData", JSON.stringify(formData));
+      // Create a copy of formData without the images to avoid serialization issues
+      const dataToSave = {
+        ...formData,
+        // Don't store actual File objects in session storage as they can't be serialized properly
+        images: formData.images ? formData.images.map(img => {
+          // If it's already a string (URL), keep it
+          if (typeof img === 'string') return img;
+          // Otherwise, we can't store the File object
+          return null;
+        }).filter(Boolean) : []
+      };
+      
+      sessionStorage.setItem("createListingFormData", JSON.stringify(dataToSave));
       console.log("Form data saved to session storage");
     } catch (error) {
       console.error("Failed to save form data to session storage:", error);
@@ -395,6 +422,10 @@ const CreateListing: React.FC = () => {
             realEstate:
               data.category.mainCategory === ListingCategory.REAL_ESTATE
                 ? {
+                    ...prev.details?.realEstate, // Preserve existing real estate details
+                    ...data.details?.realEstate, // Merge with new data
+                    id: prev.details?.realEstate?.id || '',
+                    listingId: prev.details?.realEstate?.listingId || '',
                     propertyType: PropertyType.HOUSE,
                     size: data.details?.realEstate?.size || "0",
                     yearBuilt: parseInt(
@@ -442,7 +473,7 @@ const CreateListing: React.FC = () => {
                     storageType: data.details?.realEstate?.storageType || [],
                     houseDetails: {
                       propertyType: PropertyType.HOUSE,
-                      totalArea: Number(data.details?.realEstate?.size || 0),
+                      totalArea: data.details?.realEstate?.size || prev.details?.realEstate?.size || 0,
                       bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
                       bathrooms: Number(
                         data.details?.realEstate?.bathrooms || 0
@@ -833,13 +864,19 @@ const CreateListing: React.FC = () => {
 
       // Add images
       if (data.images && data.images.length > 0) {
+        // Filter to only include valid File objects
         const fileImages = data.images.filter(
           (image): image is File => image instanceof File
         );
+        
         if (fileImages.length === 0) {
           throw new Error("At least one image is required");
         }
+        
+        // Log image information for debugging
+        console.log(`Submitting ${fileImages.length} images:`);
         fileImages.forEach((image, index) => {
+          console.log(`Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`);
           formData.append("images", image);
         });
       } else {

@@ -1,4 +1,5 @@
 import { ListingFieldSchema } from "@/types/listings";
+import { Condition, TransmissionType, FuelType } from "@/types/enums";
 
 export const busSchema: ListingFieldSchema[] = [
   // Essential Section
@@ -24,18 +25,7 @@ export const busSchema: ListingFieldSchema[] = [
     name: "condition",
     label: "listings.condition",
     type: "select",
-    options: [
-      "new",
-      "excellent",
-      "good",
-      "fair",
-      "needsWork",
-      "certified",
-      "factoryRefurbished",
-      "commercialGrade",
-      "partiallyRestored",
-      "vintage",
-    ],
+    options: Object.values(Condition),
     section: "essential",
     required: true,
   },
@@ -121,7 +111,7 @@ export const busSchema: ListingFieldSchema[] = [
     name: "fuelType",
     label: "fuelType",
     type: "select",
-    options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
+    options: Object.values(FuelType),
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) =>
@@ -131,7 +121,7 @@ export const busSchema: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "listings.transmissionType",
     type: "select",
-    options: ["", "manual", "automatic", "semi_automatic"],
+    options: Object.values(TransmissionType),
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) =>
