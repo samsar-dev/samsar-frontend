@@ -462,43 +462,44 @@ const ListingDetails = () => {
           vehicleDetails = baseVehicle as any;
         }
 
+        // Only set vehicle features if this is a vehicle listing and vehicleDetails exists
         setFeatures({
-          safetyFeatures: featuresDetails.safetyFeatures.filter((feature) => {
+          safetyFeatures: isVehicleListing && vehicleDetails ? featuresDetails.safetyFeatures.filter((feature) => {
             return Object.entries(vehicleDetails).some(
               ([key, value]) => key === feature && value,
             );
-          }),
-          cameraFeatures: featuresDetails.cameraFeatures.filter((feature) => {
+          }) : [],
+          cameraFeatures: isVehicleListing && vehicleDetails ? featuresDetails.cameraFeatures.filter((feature) => {
             return Object.entries(vehicleDetails).some(
               ([key, value]) => key === feature && value,
             );
-          }),
-          climateFeatures: featuresDetails.climateFeatures.filter((feature) => {
+          }) : [],
+          climateFeatures: isVehicleListing && vehicleDetails ? featuresDetails.climateFeatures.filter((feature) => {
             return Object.entries(vehicleDetails).some(
               ([key, value]) => key === feature && value,
             );
-          }),
-          enternmentFeatures: featuresDetails.enternmentFeatures.filter(
+          }) : [],
+          enternmentFeatures: isVehicleListing && vehicleDetails ? featuresDetails.enternmentFeatures.filter(
             (feature) => {
               return Object.entries(vehicleDetails).some(
                 ([key, value]) => key === feature && value,
               );
             },
-          ),
-          lightingFeatures: featuresDetails.lightingFeatures.filter(
+          ) : [],
+          lightingFeatures: isVehicleListing && vehicleDetails ? featuresDetails.lightingFeatures.filter(
             (feature) => {
               return Object.entries(vehicleDetails).some(
                 ([key, value]) => key === feature && value,
               );
             },
-          ),
-          convenienceFeatures: featuresDetails.convenienceFeatures.filter(
+          ) : [],
+          convenienceFeatures: isVehicleListing && vehicleDetails ? featuresDetails.convenienceFeatures.filter(
             (feature) => {
               return Object.entries(vehicleDetails).some(
                 ([key, value]) => key === feature && value,
               );
             },
-          ),
+          ) : [],
         });
 
         console.log("[ListingDetails] vehicleDetails:", vehicleDetails);

@@ -130,7 +130,7 @@ function ChatSection({
         </div>
         <div className="flex items-center space-x-2">
           <div className="h-6 w-px bg-gray-200"></div>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => setInfoOpen(true)}>
             <MoreHorizontal className="h-5 w-5 text-gray-500" />
           </Button>
         </div>

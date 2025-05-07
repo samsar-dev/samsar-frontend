@@ -46,19 +46,22 @@ const apiClient: AxiosInstance = axios.create(apiConfig);
 // Request interceptor
 apiClient.interceptors.request.use(
   (config: RequestConfig) => {
-    // Only add auth header if the request requires authentication
-    if (config.headers?.requiresAuth !== false) {
+    // Handle public endpoints (no auth required)
+    if (config.headers?.requiresAuth === false) {
+      config.headers.Authorization = undefined;
+      config.withCredentials = false;
+    } else {
+      // Add auth header for protected endpoints
       const token = TokenManager.getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       } else {
         console.warn("No access token available for authenticated request");
       }
-    }
 
-    // Always ensure withCredentials is set for cross-origin requests
-    // This ensures cookies are sent with the request
-    config.withCredentials = true;
+      // Set withCredentials for protected endpoints
+      config.withCredentials = true;
+    }
 
     return config;
   },

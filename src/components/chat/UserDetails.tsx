@@ -13,6 +13,7 @@ import type { User } from "@/types";
 import { AccordionItem } from "@radix-ui/react-accordion";
 import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { Link } from "react-router-dom";
 
 function getInitials(name: string | undefined) {
   if (!name) return "US";
@@ -62,17 +63,19 @@ export default function UserDetails({
         </div>
 
         <div className="p-4 flex flex-col items-center justify-center">
-          <Avatar className="h-20 w-20 mb-2">
-            {participant.profilePicture ? (
-              <AvatarImage src={participant.profilePicture} />
-            ) : (
-              <AvatarFallback className="text-2xl">
-                {getInitials(participant.name)}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          <div className="font-medium">{participant.name}</div>
-          <div className="text-xs text-gray-500 mb-4">{participant.email}</div>
+          <Link to={`/profile/${participant.id}`} className="flex flex-col items-center">
+            <Avatar className="h-20 w-20 mb-2">
+              {participant.profilePicture ? (
+                <AvatarImage src={participant.profilePicture} />
+              ) : (
+                <AvatarFallback className="text-2xl">
+                  {getInitials(participant.name)}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="font-medium">{participant.name}</div>
+            <div className="text-xs text-gray-500 mb-4">{participant.email}</div>
+          </Link>
         </div>
 
         {/* Email Accordion */}
