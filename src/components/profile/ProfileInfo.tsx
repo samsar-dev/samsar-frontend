@@ -37,6 +37,10 @@ const ProfileInfo = () => {
     username: "",
     email: "",
     bio: "",
+    phone: "",
+    dateOfBirth: "",
+    street: "",
+    city: ""
   });
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
