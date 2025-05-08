@@ -160,15 +160,22 @@ class AuthAPI {
    * @param user User's registration data
    * @returns Authentication response
    */
-  static async register(user: FormData): Promise<AuthResponse> {
+  static async register(email: string, password: string, name: string): Promise<AuthResponse> {
     try {
+      const userData = {
+        email,
+        password,
+        name,
+        username: email.split('@')[0] // Generate username from email
+      };
+      
       const response = await AuthAPI.retryRequest(() =>
-        apiClient.post<AuthResponse>("/auth/register", user, {
+        apiClient.post<AuthResponse>('/auth/register', userData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'application/json',
             requiresAuth: false
           },
-          withCredentials: true,
+          withCredentials: true
         })
       );
 

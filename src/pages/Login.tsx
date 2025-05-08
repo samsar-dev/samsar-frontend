@@ -33,8 +33,28 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error(t("auth.enterBothEmailAndPassword"));
+    
+    // Enhanced input validation
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    if (!password) {
+      toast.error("Please enter your password");
+      return;
+    }
+
+    // Prevent login during cooldown period
+    if (cooldown && cooldown > 0) {
+      toast.error(`Please wait ${cooldown} seconds before trying again`);
       return;
     }
 
@@ -47,10 +67,21 @@ const Login = () => {
         navigate("/");
         toast.success(t("auth.successfullyLoggedIn"));
       }
-      // If not successful, error will be shown by the AuthContext error state
     } catch (error: any) {
       console.error("Login error:", error);
-      toast.error(error.message || "Failed to login");
+      
+      // Enhanced error handling with specific messages
+      if (error.response?.data?.error?.code === "INVALID_CREDENTIALS") {
+        toast.error("Invalid email or password. Please try again.");
+      } else if (error.response?.data?.error?.code === "ACCOUNT_LOCKED") {
+        toast.error("Your account has been temporarily locked due to multiple failed attempts. Please try again later.");
+      } else if (error.response?.status === 429) {
+        toast.error("Too many login attempts. Please try again later.");
+      } else if (error.response?.data?.error?.code === "USER_NOT_FOUND") {
+        toast.error("No account found with this email. Please check your email or create a new account.");
+      } else {
+        toast.error(error.message || "Login failed. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
