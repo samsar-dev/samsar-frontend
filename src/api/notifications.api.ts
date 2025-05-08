@@ -46,7 +46,8 @@ export const NotificationsAPI = {
                 page: data.data.pagination.page,
                 limit: data.data.pagination.limit,
                 total: data.data.pagination.total,
-                hasMore: data.data.pagination.total > data.data.pagination.limit,
+                hasMore:
+                  data.data.pagination.total > data.data.pagination.limit,
               },
             };
           } else if (Array.isArray(data.data)) {
@@ -80,7 +81,7 @@ export const NotificationsAPI = {
       } catch (apiError: any) {
         // Handle specific API errors
         console.error("API error fetching notifications:", apiError);
-        
+
         // If we get a 500 error, it might be due to backend issues
         // Return an empty successful response instead of throwing
         if (apiError?.response?.status === 500) {
@@ -96,7 +97,7 @@ export const NotificationsAPI = {
             },
           };
         }
-        
+
         // For other errors, rethrow to be handled by the outer catch
         throw apiError;
       }
@@ -121,7 +122,7 @@ export const NotificationsAPI = {
   async getNotification(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.get<APIResponse<Notification>>(
-        `${BASE_URL}/${id}`
+        `${BASE_URL}/${id}`,
       );
       return response.data;
     } catch (error) {
@@ -131,12 +132,12 @@ export const NotificationsAPI = {
   },
 
   async createNotification(
-    input: NotificationCreateInput
+    input: NotificationCreateInput,
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.post<APIResponse<Notification>>(
         BASE_URL,
-        input
+        input,
       );
       return response.data;
     } catch (error) {
@@ -147,12 +148,12 @@ export const NotificationsAPI = {
 
   async updateNotification(
     id: string,
-    input: NotificationUpdateInput
+    input: NotificationUpdateInput,
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
         `${BASE_URL}/${id}`,
-        input
+        input,
       );
       return response.data;
     } catch (error) {
@@ -164,7 +165,7 @@ export const NotificationsAPI = {
   async markAsRead(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
-        `${BASE_URL}/${id}/read`
+        `${BASE_URL}/${id}/read`,
       );
       return response.data;
     } catch (error) {
@@ -176,7 +177,7 @@ export const NotificationsAPI = {
   async markAllAsRead(): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.put<APIResponse<void>>(
-        `${BASE_URL}/read-all`
+        `${BASE_URL}/read-all`,
       );
       return response.data;
     } catch (error) {
@@ -188,7 +189,7 @@ export const NotificationsAPI = {
   async deleteNotification(id: string): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.delete<APIResponse<void>>(
-        `${BASE_URL}/${id}`
+        `${BASE_URL}/${id}`,
       );
       return response.data;
     } catch (error) {

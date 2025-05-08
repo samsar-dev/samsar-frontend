@@ -366,18 +366,18 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
                 <React.Fragment key={`${field.name}-${index}`}>
                   {Object.entries(field.featureGroups).map(
                     ([category, group]) => (
-                  <FeatureSection
-                    key={category}
-                    title={group.label}
-                    icon={getFeatureIcon(category)}
-                    features={group.features}
-                    values={
-                      isVehicle
-                        ? form.details?.vehicles || {}
-                        : form.details?.realEstate || {}
-                    }
-                    onChange={handleFeatureChange}
-                  />
+                      <FeatureSection
+                        key={category}
+                        title={group.label}
+                        icon={getFeatureIcon(category)}
+                        features={group.features}
+                        values={
+                          isVehicle
+                            ? form.details?.vehicles || {}
+                            : form.details?.realEstate || {}
+                        }
+                        onChange={handleFeatureChange}
+                      />
                     ),
                   )}
                 </React.Fragment>
@@ -385,7 +385,10 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
             }
             if (field.type === "colorpicker") {
               return (
-                <Suspense key={`suspense-${field.name}-${index}`} fallback={<div>Loading color picker...</div>}>
+                <Suspense
+                  key={`suspense-${field.name}-${index}`}
+                  fallback={<div>Loading color picker...</div>}
+                >
                   <ColorPickerField
                     key={field.name}
                     label={t(field.label)}
@@ -402,7 +405,10 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
               );
             }
             return (
-              <Suspense key={`suspense-${field.name}-${index}`} fallback={<div>Loading field...</div>}>
+              <Suspense
+                key={`suspense-${field.name}-${index}`}
+                fallback={<div>Loading field...</div>}
+              >
                 <FormField
                   key={field.name}
                   name={field.name}

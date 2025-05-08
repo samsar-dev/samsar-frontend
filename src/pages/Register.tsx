@@ -31,70 +31,77 @@ const Register: React.FC = () => {
     if (authError) clearError();
   };
 
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
 
-  // Validate name
-  if (!formData.name || formData.name.trim().length < 2) {
-    toast.error("Name must be at least 2 characters long");
-    setLoading(false);
-    return;
-  }
-
-  // Validate email format
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(formData.email)) {
-    toast.error("Please enter a valid email address");
-    setLoading(false);
-    return;
-  }
-
-  // Check password match
-  if (formData.password !== formData.confirmPassword) {
-    toast.error("Passwords do not match. Please try again.");
-    setLoading(false);
-    return;
-  }
-
-  // Validate password requirements with detailed feedback
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
-  if (!passwordRegex.test(formData.password)) {
-    const issues = [];
-    if (formData.password.length < 8) issues.push("at least 8 characters");
-    if (!/[A-Z]/.test(formData.password)) issues.push("one uppercase letter");
-    if (!/[a-z]/.test(formData.password)) issues.push("one lowercase letter");
-    if (!/\d/.test(formData.password)) issues.push("one number");
-    
-    toast.error(
-      `Password must contain ${issues.join(", ")}.`,
-      { autoClose: 5000 }
-    );
-    setLoading(false);
-    return;
-  }
-
-  try {
-    // Call register with the individual parameters
-    await register(formData.email, formData.password, formData.name);
-    toast.success("Registration successful! Welcome aboard.");
-    navigate("/");
-  } catch (error: any) {
-    console.error("Registration error:", error);
-    // Handle specific error codes
-    if (error.response?.data?.error?.code === "USER_EXISTS") {
-      toast.error("An account with this email already exists. Please log in instead.");
-    } else if (error.response?.data?.error?.code === "VALIDATION_ERROR") {
-      toast.error(error.response.data.error.message || "Please check your information and try again.");
-    } else if (error.response?.status === 429) {
-      toast.error("Too many attempts. Please try again later.");
-    } else {
-      toast.error(error.message || "Registration failed. Please try again later.");
+    // Validate name
+    if (!formData.name || formData.name.trim().length < 2) {
+      toast.error("Name must be at least 2 characters long");
+      setLoading(false);
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
+    // Check password match
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate password requirements with detailed feedback
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      const issues = [];
+      if (formData.password.length < 8) issues.push("at least 8 characters");
+      if (!/[A-Z]/.test(formData.password)) issues.push("one uppercase letter");
+      if (!/[a-z]/.test(formData.password)) issues.push("one lowercase letter");
+      if (!/\d/.test(formData.password)) issues.push("one number");
+
+      toast.error(`Password must contain ${issues.join(", ")}.`, {
+        autoClose: 5000,
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Call register with the individual parameters
+      await register(formData.email, formData.password, formData.name);
+      toast.success("Registration successful! Welcome aboard.");
+      navigate("/");
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      // Handle specific error codes
+      if (error.response?.data?.error?.code === "USER_EXISTS") {
+        toast.error(
+          "An account with this email already exists. Please log in instead.",
+        );
+      } else if (error.response?.data?.error?.code === "VALIDATION_ERROR") {
+        toast.error(
+          error.response.data.error.message ||
+            "Please check your information and try again.",
+        );
+      } else if (error.response?.status === 429) {
+        toast.error("Too many attempts. Please try again later.");
+      } else {
+        toast.error(
+          error.message || "Registration failed. Please try again later.",
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

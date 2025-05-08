@@ -18,7 +18,16 @@ import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { FaArrowLeft, FaCar, FaHistory, FaHome, FaInfo, FaSave, FaShieldAlt, FaTools, } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCar,
+  FaHistory,
+  FaHome,
+  FaInfo,
+  FaSave,
+  FaShieldAlt,
+  FaTools,
+} from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 interface EditFormData {
   title: string;
@@ -121,7 +130,7 @@ const EditListing = () => {
     lightingFeatures: [] as string[],
     convenienceFeatures: [] as string[],
   });
-  
+
   const [formData, setFormData] = useState<EditFormData>({
     title: "",
     description: "",
@@ -159,11 +168,11 @@ const EditListing = () => {
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section))
+    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
   )
     .filter(
       (sectionId: unknown): sectionId is SectionId =>
-        typeof sectionId === "string" && sectionId in SECTION_CONFIG
+        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
     )
     .map((sectionId: SectionId) => ({
       id: sectionId,
@@ -171,7 +180,7 @@ const EditListing = () => {
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
       fields: advancedSchema.filter(
-        (field: ListingFieldSchema) => field.section === sectionId
+        (field: ListingFieldSchema) => field.section === sectionId,
       ),
     }))
     .sort((a, b) => a.order - b.order);
@@ -201,30 +210,36 @@ const EditListing = () => {
 
             // Convert image URLs to strings for existing images
             const existingImages = (response.data.images || []).map(
-              (img: any) => (typeof img === "string" ? img : img.url)
+              (img: any) => (typeof img === "string" ? img : img.url),
             );
 
             // Extract vehicle details
             const vehicleDetails = response.data.details?.vehicles;
-            
+
             // Populate features similar to ListingDetails.tsx
             if (vehicleDetails) {
               setFeatures({
-                safetyFeatures: featuresDetails.safetyFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
-                  );
-                }),
-                cameraFeatures: featuresDetails.cameraFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
-                  );
-                }),
-                climateFeatures: featuresDetails.climateFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
-                  );
-                }),
+                safetyFeatures: featuresDetails.safetyFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
+                cameraFeatures: featuresDetails.cameraFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
+                climateFeatures: featuresDetails.climateFeatures.filter(
+                  (feature) => {
+                    return Object.entries(vehicleDetails).some(
+                      ([key, value]) => key === feature && value,
+                    );
+                  },
+                ),
                 enternmentFeatures: featuresDetails.enternmentFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
@@ -302,12 +317,12 @@ const EditListing = () => {
       // Add existing images as JSON string
       formDataObj.append(
         "existingImages",
-        JSON.stringify(formData.existingImages)
+        JSON.stringify(formData.existingImages),
       );
 
       // Add new images
       const newImages = formData.images.filter(
-        (img): img is File => img instanceof File
+        (img): img is File => img instanceof File,
       );
       newImages.forEach((image) => {
         formDataObj.append("images", image);
@@ -374,7 +389,7 @@ const EditListing = () => {
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[]
+    value: string | number | boolean | string[],
   ) => {
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -407,7 +422,7 @@ const EditListing = () => {
           "Setting warranty value:",
           processedValue,
           "type:",
-          typeof processedValue
+          typeof processedValue,
         );
       }
 
@@ -440,7 +455,7 @@ const EditListing = () => {
       // If the deleted image was an existing image (string URL), also remove it from existingImages
       if (typeof deletedImage === "string") {
         const newExistingImages = prev.existingImages.filter(
-          (img) => img !== deletedImage
+          (img) => img !== deletedImage,
         );
         return {
           ...prev,
@@ -521,7 +536,7 @@ const EditListing = () => {
             </h2>
             <ImageManager
               images={formData.images.filter(
-                (img): img is File => img instanceof File
+                (img): img is File => img instanceof File,
               )}
               onChange={handleImageChange}
               maxImages={10}
@@ -531,7 +546,7 @@ const EditListing = () => {
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
                   existingImages: prev.existingImages.filter(
-                    (img) => img !== url
+                    (img) => img !== url,
                   ),
                 }));
               }}
@@ -655,7 +670,7 @@ const EditListing = () => {
                     // Skip fields we're now handling separately
                     if (
                       ["transmissionType", "fuelType", "condition"].includes(
-                        field.name
+                        field.name,
                       )
                     ) {
                       return null;
@@ -698,14 +713,14 @@ const EditListing = () => {
                   })}
               </div>
             </div>
-            
+
             {/* Features Section */}
             {isVehicle && (
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
                   {t("Vehicle Features")}
                 </h2>
-                
+
                 {/* Safety Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -714,29 +729,42 @@ const EditListing = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.safetyFeatures.map((feature) => {
                       return (
-                        <div key={feature} className="flex items-center space-x-2">
+                        <div
+                          key={feature}
+                          className="flex items-center space-x-2"
+                        >
                           <input
                             type="checkbox"
                             id={feature}
-                            checked={Boolean(formData.details?.vehicles?.[feature])}
+                            checked={Boolean(
+                              formData.details?.vehicles?.[feature],
+                            )}
                             onChange={(e) => {
                               handleInputChange(feature, e.target.checked);
                               // Update features state when checkbox changes
                               if (e.target.checked) {
-                                setFeatures(prev => ({
+                                setFeatures((prev) => ({
                                   ...prev,
-                                  safetyFeatures: [...prev.safetyFeatures, feature]
+                                  safetyFeatures: [
+                                    ...prev.safetyFeatures,
+                                    feature,
+                                  ],
                                 }));
                               } else {
-                                setFeatures(prev => ({
+                                setFeatures((prev) => ({
                                   ...prev,
-                                  safetyFeatures: prev.safetyFeatures.filter(f => f !== feature)
+                                  safetyFeatures: prev.safetyFeatures.filter(
+                                    (f) => f !== feature,
+                                  ),
                                 }));
                               }
                             }}
                             className="h-4 w-4 text-blue-600 rounded"
                           />
-                          <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                          <label
+                            htmlFor={feature}
+                            className="text-sm text-gray-700 dark:text-gray-300"
+                          >
                             {t(`features.${feature}`) || feature}
                           </label>
                         </div>
@@ -744,7 +772,7 @@ const EditListing = () => {
                     })}
                   </div>
                 </div>
-                
+
                 {/* Camera Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -752,22 +780,32 @@ const EditListing = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.cameraFeatures.map((feature) => (
-                      <div key={feature} className="flex items-center space-x-2">
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
                           id={feature}
-                          checked={Boolean(formData.details?.vehicles?.[feature])}
-                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          checked={Boolean(
+                            formData.details?.vehicles?.[feature],
+                          )}
+                          onChange={(e) =>
+                            handleInputChange(feature, e.target.checked)
+                          }
                           className="h-4 w-4 text-blue-600 rounded"
                         />
-                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                        <label
+                          htmlFor={feature}
+                          className="text-sm text-gray-700 dark:text-gray-300"
+                        >
                           {t(`features.${feature}`) || feature}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Climate Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -775,22 +813,32 @@ const EditListing = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.climateFeatures.map((feature) => (
-                      <div key={feature} className="flex items-center space-x-2">
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
                           id={feature}
-                          checked={Boolean(formData.details?.vehicles?.[feature])}
-                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          checked={Boolean(
+                            formData.details?.vehicles?.[feature],
+                          )}
+                          onChange={(e) =>
+                            handleInputChange(feature, e.target.checked)
+                          }
                           className="h-4 w-4 text-blue-600 rounded"
                         />
-                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                        <label
+                          htmlFor={feature}
+                          className="text-sm text-gray-700 dark:text-gray-300"
+                        >
                           {t(`features.${feature}`) || feature}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Entertainment Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -798,22 +846,32 @@ const EditListing = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.enternmentFeatures.map((feature) => (
-                      <div key={feature} className="flex items-center space-x-2">
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
                           id={feature}
-                          checked={Boolean(formData.details?.vehicles?.[feature])}
-                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          checked={Boolean(
+                            formData.details?.vehicles?.[feature],
+                          )}
+                          onChange={(e) =>
+                            handleInputChange(feature, e.target.checked)
+                          }
                           className="h-4 w-4 text-blue-600 rounded"
                         />
-                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                        <label
+                          htmlFor={feature}
+                          className="text-sm text-gray-700 dark:text-gray-300"
+                        >
                           {t(`features.${feature}`) || feature}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Lighting Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -821,22 +879,32 @@ const EditListing = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.lightingFeatures.map((feature) => (
-                      <div key={feature} className="flex items-center space-x-2">
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
                           id={feature}
-                          checked={Boolean(formData.details?.vehicles?.[feature])}
-                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          checked={Boolean(
+                            formData.details?.vehicles?.[feature],
+                          )}
+                          onChange={(e) =>
+                            handleInputChange(feature, e.target.checked)
+                          }
                           className="h-4 w-4 text-blue-600 rounded"
                         />
-                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                        <label
+                          htmlFor={feature}
+                          className="text-sm text-gray-700 dark:text-gray-300"
+                        >
                           {t(`features.${feature}`) || feature}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Convenience Features */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
@@ -844,15 +912,25 @@ const EditListing = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {featuresDetails.convenienceFeatures.map((feature) => (
-                      <div key={feature} className="flex items-center space-x-2">
+                      <div
+                        key={feature}
+                        className="flex items-center space-x-2"
+                      >
                         <input
                           type="checkbox"
                           id={feature}
-                          checked={Boolean(formData.details?.vehicles?.[feature])}
-                          onChange={(e) => handleInputChange(feature, e.target.checked)}
+                          checked={Boolean(
+                            formData.details?.vehicles?.[feature],
+                          )}
+                          onChange={(e) =>
+                            handleInputChange(feature, e.target.checked)
+                          }
                           className="h-4 w-4 text-blue-600 rounded"
                         />
-                        <label htmlFor={feature} className="text-sm text-gray-700 dark:text-gray-300">
+                        <label
+                          htmlFor={feature}
+                          className="text-sm text-gray-700 dark:text-gray-300"
+                        >
                           {t(`features.${feature}`) || feature}
                         </label>
                       </div>

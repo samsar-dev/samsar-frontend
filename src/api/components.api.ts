@@ -29,14 +29,14 @@ export class ComponentsAPI {
 
   static async fetchComponentData(): Promise<APIResponse<ComponentData>> {
     const response = await apiClient.get<APIResponse<ComponentData>>(
-      `${this.BASE_PATH}/data`
+      `${this.BASE_PATH}/data`,
     );
     return response.data;
   }
 
   static async getComponent(id: string): Promise<APIResponse<ComponentData>> {
     const response = await apiClient.get<APIResponse<ComponentData>>(
-      `${this.BASE_PATH}/${id}`
+      `${this.BASE_PATH}/${id}`,
     );
     return response.data;
   }

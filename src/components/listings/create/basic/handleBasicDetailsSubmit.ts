@@ -1,10 +1,10 @@
 import {
-    Condition,
-    FuelType,
-    ListingCategory,
-    PropertyType,
-    TransmissionType,
-    VehicleType,
+  Condition,
+  FuelType,
+  ListingCategory,
+  PropertyType,
+  TransmissionType,
+  VehicleType,
 } from "@/types/enums";
 import type { TFunction } from "i18next";
 import type { Dispatch, SetStateAction } from "react";
@@ -18,7 +18,7 @@ export const handleBasicDetailsSubmit = (
   isValid: boolean,
   setFormData: Dispatch<SetStateAction<FormState>>,
   setStep: Dispatch<SetStateAction<number>>,
-  t: TFunction<"translation", undefined>
+  t: TFunction<"translation", undefined>,
 ) => {
   if (isValid) {
     setFormData((prev) => {
@@ -49,7 +49,9 @@ export const handleBasicDetailsSubmit = (
                   ).toString(),
                   mileage: Number(data.details?.vehicles?.mileage || 0),
                   fuelType:
-                    data.details?.vehicles?.fuelType || prev.details?.vehicles?.fuelType || FuelType.GASOLINE,
+                    data.details?.vehicles?.fuelType ||
+                    prev.details?.vehicles?.fuelType ||
+                    FuelType.GASOLINE,
                   transmissionType:
                     data.details?.vehicles?.transmissionType ||
                     prev.details?.vehicles?.transmissionType ||
@@ -67,50 +69,17 @@ export const handleBasicDetailsSubmit = (
                   size: data.details?.realEstate?.size || "0",
                   yearBuilt: parseInt(
                     data.details?.realEstate?.yearBuilt.toString() ||
-                      new Date().getFullYear().toString()
+                      new Date().getFullYear().toString(),
                   ),
                   bedrooms: data.details?.realEstate?.bedrooms || "0",
                   bathrooms: data.details?.realEstate?.bathrooms || "0",
                   condition:
                     data.details?.realEstate?.condition || Condition.LIKE_NEW,
-                  constructionType:
-                    data.details?.realEstate?.constructionType || "",
-                  features: data.details?.realEstate?.features || [],
-                  parking: data.details?.realEstate?.parking || "",
                   floor: Number(data.details?.realEstate?.floor || 1),
-                  totalFloors: Number(
-                    data.details?.realEstate?.totalFloors || 1
-                  ),
-                  flooringTypes: data.details?.realEstate?.flooringTypes || [],
-                  soilTypes: data.details?.realEstate?.soilTypes || [],
-                  topography: data.details?.realEstate?.topography || [],
-                  elevator: Boolean(data.details?.realEstate?.elevator),
-                  balcony: Boolean(data.details?.realEstate?.balcony),
-                  storage: Boolean(data.details?.realEstate?.storage),
-                  heating: data.details?.realEstate?.heating || "",
-                  cooling: data.details?.realEstate?.cooling || "",
-                  buildingAmenities:
-                    data.details?.realEstate?.buildingAmenities || [],
-                  energyRating: data.details?.realEstate?.energyRating || "",
-                  furnished: data.details?.realEstate?.furnished || "",
-                  view: data.details?.realEstate?.view || "",
-                  securityFeatures:
-                    data.details?.realEstate?.securityFeatures || [],
-                  fireSafety: data.details?.realEstate?.fireSafety || [],
-                  flooringType: data.details?.realEstate?.flooringType || "",
                   internetIncluded: Boolean(
-                    data.details?.realEstate?.internetIncluded
+                    data.details?.realEstate?.internetIncluded,
                   ),
-                  windowType: data.details?.realEstate?.windowType || "",
-                  accessibilityFeatures:
-                    data.details?.realEstate?.accessibilityFeatures || [],
-                  renovationHistory:
-                    data.details?.realEstate?.renovationHistory || "",
-                  parkingType: data.details?.realEstate?.parkingType || "",
-                  utilities: data.details?.realEstate?.utilities || [],
-                  exposureDirection:
-                    data.details?.realEstate?.exposureDirection || [],
-                  storageType: data.details?.realEstate?.storageType || [],
+
                   houseDetails: {
                     propertyType: PropertyType.HOUSE,
                     totalArea:
@@ -119,16 +88,16 @@ export const handleBasicDetailsSubmit = (
                       0,
                     bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
                     livingArea: Number(
-                      data.details?.realEstate?.livingArea || 0
+                      data.details?.realEstate?.livingArea || 0,
                     ),
                     stories: Number(data.details?.realEstate?.stories || 0),
                     bathrooms: Number(data.details?.realEstate?.bathrooms || 0),
                     yearBuilt: Number(
                       data.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear()
+                        new Date().getFullYear(),
                     ),
                     halfBathrooms: Number(
-                      data.details?.realEstate?.halfBathrooms || 0
+                      data.details?.realEstate?.halfBathrooms || 0,
                     ),
                   },
                 }
@@ -138,7 +107,7 @@ export const handleBasicDetailsSubmit = (
       // Save to session storage
       sessionStorage.setItem(
         "createListingFormData",
-        JSON.stringify(updatedData)
+        JSON.stringify(updatedData),
       );
       return updatedData;
     });

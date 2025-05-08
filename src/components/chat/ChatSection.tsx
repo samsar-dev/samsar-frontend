@@ -155,7 +155,7 @@ function ChatSection({
                   participant={participant!}
                   index={index}
                 />
-              )
+              ),
             )}
           </div>
           <div ref={scrollRef} className="w-full"></div>

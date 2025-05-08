@@ -5,7 +5,6 @@
       "personal_information": "المعلومات الشخصية",
       "update_info": "تحديث المعلومات",
       "change_photo": "تغيير الصورة"
-      
     },
     "Phone Number": "رقم الهاتف",
     "name": "الاسم",
@@ -48,7 +47,7 @@
     "all_types": "كل الأنواع",
     "search": "البحث...",
     "allCities": "جميع المدن",
-    
+
     "sortOptions": {
       "newestFirst": "الأحدث أولاً",
       "priceAsc": "السعر: من الأقل إلى الأعلى",

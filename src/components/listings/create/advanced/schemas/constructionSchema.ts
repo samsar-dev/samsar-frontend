@@ -43,8 +43,8 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return null;
-      if (typeof value === 'string' && /^\d+$/.test(value)) return null;
-      if (typeof value === 'number' && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
       return "Invalid weight format";
     },
   },
@@ -56,8 +56,8 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return null;
-      if (typeof value === 'string' && /^\d+$/.test(value)) return null;
-      if (typeof value === 'number' && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
       return "Invalid power format";
     },
   },
@@ -69,8 +69,8 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return null;
-      if (typeof value === 'string' && /^\d+$/.test(value)) return null;
-      if (typeof value === 'number' && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
       return "Invalid hours format";
     },
   },
@@ -82,8 +82,8 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: true,
     validate: (value: string | number | boolean) => {
       if (!value) return "Previous owners is required";
-      if (typeof value === 'number' && value >= 0) return null;
-      if (typeof value === 'string' && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
       return "Previous owners must be 0 or greater";
     },
   },
@@ -121,8 +121,8 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: false,
     validate: (value: string | number | boolean) => {
       if (!value) return null;
-      if (typeof value === 'string' && /^\d+$/.test(value)) return null;
-      if (typeof value === 'number' && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
       return "Invalid capacity format";
     },
   },
@@ -164,7 +164,7 @@ export const constructionSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  
+
   {
     name: "emissions",
     label: "listings.emissions",

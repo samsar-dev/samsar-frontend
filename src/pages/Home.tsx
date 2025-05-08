@@ -5,7 +5,7 @@ import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
- 
+
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -212,8 +212,6 @@ const Home: React.FC = () => {
       return;
     }
 
-
-
     try {
       setListings((prev) => ({ ...prev, loading: true }));
 
@@ -352,12 +350,8 @@ const Home: React.FC = () => {
     setSelectedCategory(category);
   }, []);
 
-   
-
   const handleSearch = useCallback(
     async (query: string) => {
-
-
       if (!query.trim()) {
         await fetchListings();
         return;
@@ -382,7 +376,7 @@ const Home: React.FC = () => {
         }));
       }
     },
-    [   fetchListings],
+    [fetchListings],
   );
 
   useEffect(() => {
@@ -650,7 +644,6 @@ const Home: React.FC = () => {
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-4 sm:py-6 md:py-8 min-h-[15vh] sm:min-h-[20vh] lg:min-h-[25vh]">
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">

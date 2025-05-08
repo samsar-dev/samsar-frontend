@@ -65,7 +65,7 @@ function Settings() {
 
   const handleNotificationToggle = (
     key: "email" | "push" | "desktop" | "message" | "listing" | "system",
-    checked: boolean
+    checked: boolean,
   ) => {
     if (key === "email" || key === "push" || key === "desktop") {
       updateSettings({
@@ -81,7 +81,7 @@ function Settings() {
           enabledTypes: checked
             ? [...(settings?.notifications?.enabledTypes || []), key]
             : settings?.notifications?.enabledTypes?.filter(
-                (type) => type !== key
+                (type) => type !== key,
               ) || [],
         },
       });
@@ -128,7 +128,7 @@ function Settings() {
                 <Toggle
                   checked={
                     settings?.notifications?.enabledTypes?.includes(
-                      "message"
+                      "message",
                     ) ?? false
                   }
                   onChange={(checked: boolean) =>
@@ -142,7 +142,7 @@ function Settings() {
                 <Toggle
                   checked={
                     settings?.notifications?.enabledTypes?.includes(
-                      "listing"
+                      "listing",
                     ) ?? false
                   }
                   onChange={(checked: boolean) =>

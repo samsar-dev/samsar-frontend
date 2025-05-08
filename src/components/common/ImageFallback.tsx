@@ -57,7 +57,9 @@ const ImageFallback: React.FC<ImageFallbackProps> = ({
   }
 
   return (
-    <div className={`relative w-full h-full ${!isLoaded ? 'bg-gray-50 dark:bg-gray-800' : ''}`}>
+    <div
+      className={`relative w-full h-full ${!isLoaded ? "bg-gray-50 dark:bg-gray-800" : ""}`}
+    >
       <img
         src={imgSrc}
         alt={alt}
@@ -67,7 +69,7 @@ const ImageFallback: React.FC<ImageFallbackProps> = ({
           onError?.(e);
         }}
         onLoad={(e) => {
-          console.log('Image loaded:', e);
+          console.log("Image loaded:", e);
           setIsLoaded(true);
         }}
         loading={loading}

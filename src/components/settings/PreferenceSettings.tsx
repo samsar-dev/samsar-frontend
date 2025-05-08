@@ -30,7 +30,7 @@ const defaultSettings: PreferenceSettingsType = {
     email: false,
     push: false,
     desktop: false,
-    enabledTypes: [] as Array<'message' | 'listing' | 'system'>,
+    enabledTypes: [] as Array<"message" | "listing" | "system">,
   },
 };
 
@@ -47,13 +47,13 @@ function PreferenceSettings({
       ...currentSettings,
       [key]: value,
     };
-    
+
     // If language is changed, update i18n and save to localStorage
-    if (key === 'language') {
+    if (key === "language") {
       // Convert to lowercase for storage and i18n
-      const langCode = value === LanguageCode.AR ? 'AR' : 'en';
-      localStorage.setItem('language', langCode);
-      import('i18next').then((i18n) => {
+      const langCode = value === LanguageCode.AR ? "AR" : "en";
+      localStorage.setItem("language", langCode);
+      import("i18next").then((i18n) => {
         i18n.changeLanguage(langCode);
       });
     }

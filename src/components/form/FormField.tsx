@@ -7,7 +7,14 @@ export type FormFieldValue = string | number | boolean | string[];
 export interface FormFieldProps {
   name: string;
   label: string;
-  type: "text" | "number" | "textarea" | "select" | "checkbox" | "color" | "boolean";
+  type:
+    | "text"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox"
+    | "color"
+    | "boolean";
   value: FormFieldValue;
   onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;

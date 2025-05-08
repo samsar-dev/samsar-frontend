@@ -35,10 +35,10 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   // Optimize image quality and format based on priority
   // Higher quality for priority images (LCP candidates)
   const imageQuality = priority ? 90 : 80;
-  
+
   // For priority images, use smaller initial width to improve LCP
   const initialWidth = priority ? 600 : 800;
-  
+
   const optimizedSrc = isR2Image
     ? `${baseUrl}?format=webp&quality=${imageQuality}&width=${initialWidth}`
     : src || placeholder;
@@ -46,13 +46,11 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   // Generate responsive URLs for R2 images with optimized quality and format
   const generateSrcSet = () => {
     if (!isR2Image || !baseUrl) return undefined;
-    
+
     // Optimize widths based on priority and device sizes
     // For priority images (LCP candidates), include smaller sizes first for faster loading
-    const widths = priority 
-      ? [400, 600, 800, 1200] 
-      : [800, 1200];
-      
+    const widths = priority ? [400, 600, 800, 1200] : [800, 1200];
+
     return widths
       .map((width) => {
         const optimizedUrl = `${baseUrl}?width=${width}&format=webp&quality=${imageQuality}`;
@@ -68,7 +66,9 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       link.rel = "preload";
       link.as = "image";
       // For priority images, preload a smaller version for faster LCP
-      link.href = isR2Image ? `${baseUrl}?format=webp&quality=${imageQuality}&width=600` : src;
+      link.href = isR2Image
+        ? `${baseUrl}?format=webp&quality=${imageQuality}&width=600`
+        : src;
       link.fetchPriority = "high";
 
       document.head.appendChild(link);
@@ -101,7 +101,7 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       role="img"
     >
       {loading && blur && !error && (
-        <div 
+        <div
           className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse z-0"
           aria-hidden="true"
         />

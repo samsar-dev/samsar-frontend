@@ -6,10 +6,24 @@ import { useAuth } from "@/hooks";
 import type { Notification } from "@/types/notifications";
 import { NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
-import { getNotificationColor, formatNotificationMessage } from "@/utils/notificationUtils";
+import {
+  getNotificationColor,
+  formatNotificationMessage,
+} from "@/utils/notificationUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaBell, FaEnvelope, FaTag, FaCheckCircle, FaHeart, FaPlusCircle, FaSearch, FaExclamationTriangle, FaBullhorn, FaInfoCircle } from "react-icons/fa";
+import {
+  FaBell,
+  FaEnvelope,
+  FaTag,
+  FaCheckCircle,
+  FaHeart,
+  FaPlusCircle,
+  FaSearch,
+  FaExclamationTriangle,
+  FaBullhorn,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -38,7 +52,7 @@ export default function NotificationBell({
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
         setUnreadCount(
-          response.data.items.filter((n: Notification) => !n.read).length
+          response.data.items.filter((n: Notification) => !n.read).length,
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
@@ -48,9 +62,10 @@ export default function NotificationBell({
     } catch (error: any) {
       console.error("Failed to fetch notifications:", error);
       // Provide a more user-friendly error message
-      const errorMessage = error?.response?.status === 500
-        ? "Server error: Unable to load notifications at this time"
-        : error?.error || "Failed to load notifications";
+      const errorMessage =
+        error?.response?.status === 500
+          ? "Server error: Unable to load notifications at this time"
+          : error?.error || "Failed to load notifications";
       toast.error(errorMessage);
       // Initialize with empty data to prevent UI errors
       setNotifications([]);
@@ -69,7 +84,7 @@ export default function NotificationBell({
       console.log("Socket not yet initialized or not connected, waiting...");
       return;
     }
-    
+
     // Log connection error if any
     if (connectionError) {
       console.warn("Socket connection error:", connectionError);
@@ -77,7 +92,7 @@ export default function NotificationBell({
 
     // Set up the event listener for new message alerts
     const handleNewMessageAlert = async (data: {
-      id: string
+      id: string;
       content: string;
       userId: string;
       type: string;
@@ -87,12 +102,12 @@ export default function NotificationBell({
     }) => {
       console.log("new message alert received:", data);
       console.log("chatId", location.pathname.split("/")[2]);
-      
+
       // If user is in the chat related to this notification, delete it
       if (location.pathname.split("/")[2] === data.relatedId) {
         try {
           const result = await NotificationsAPI.deleteNotification(
-            data.relatedId
+            data.relatedId,
           );
           console.log("notification deleted result:", result);
           return;
@@ -101,7 +116,7 @@ export default function NotificationBell({
           return;
         }
       }
-      
+
       // Otherwise, create a new notification
       const newNotification: Notification = {
         id: data.relatedId,
@@ -112,7 +127,7 @@ export default function NotificationBell({
         createdAt: data.createdAt,
         read: data.read,
       };
-      
+
       console.log("Adding new notification:", newNotification);
       setNotifications((prev) => [newNotification, ...prev]);
       setUnreadCount((prev) => prev + 1);
@@ -120,7 +135,7 @@ export default function NotificationBell({
 
     // Register the event listener
     socket.on(NEW_MESSAGE_ALERT, handleNewMessageAlert);
-    
+
     // Clean up the event listener when component unmounts or socket changes
     return () => {
       socket.off(NEW_MESSAGE_ALERT, handleNewMessageAlert);
@@ -150,18 +165,18 @@ export default function NotificationBell({
     try {
       // Mark notification as read
       const response = await NotificationsAPI.markAsRead(notification.id);
-      
+
       if (response.success) {
         // Update local state
-        setNotifications(prev =>
-          prev.map(n =>
-            n.id === notification.id ? { ...n, read: true } : n
-          )
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.id === notification.id ? { ...n, read: true } : n,
+          ),
         );
-        
+
         // Update unread count
-        setUnreadCount(prev => Math.max(0, prev - 1));
-        
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+
         // Call the onNotificationClick callback if provided
         if (onNotificationClick) {
           onNotificationClick(notification);
@@ -172,7 +187,7 @@ export default function NotificationBell({
               if (notification.targetId) {
                 navigate(`/messages/${notification.targetId}`);
               } else {
-                navigate('/messages');
+                navigate("/messages");
               }
               break;
             case NotificationType.PRICE_UPDATE:
@@ -184,14 +199,14 @@ export default function NotificationBell({
                 // rather than using direct endpoints like /listings/:id
                 navigate(`/listings?id=${notification.listingId}`);
               } else {
-                navigate('/listings');
+                navigate("/listings");
               }
               break;
             case NotificationType.NEW_LISTING_MATCH:
-              navigate('/listings?match=true');
+              navigate("/listings?match=true");
               break;
             case NotificationType.ACCOUNT_WARNING:
-              navigate('/account/settings');
+              navigate("/account/settings");
               break;
             case NotificationType.SYSTEM_ANNOUNCEMENT:
             case NotificationType.SYSTEM_NOTICE:
@@ -203,7 +218,7 @@ export default function NotificationBell({
           }
         }
       }
-      
+
       setShowNotifications(false);
     } catch (error: any) {
       console.error("Failed to mark notification as read:", error);
@@ -273,7 +288,7 @@ export default function NotificationBell({
                         {(() => {
                           // Get the color based on notification type
                           const color = getNotificationColor(notification.type);
-                          
+
                           // Select the appropriate icon based on notification type
                           let Icon;
                           switch (notification.type) {
@@ -307,17 +322,24 @@ export default function NotificationBell({
                             default:
                               Icon = FaBell;
                           }
-                          
+
                           return (
-                            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-${color}-100 dark:bg-${color}-800`}>
-                              <Icon className={`w-3 h-3 text-${color}-500 dark:text-${color}-300`} />
+                            <span
+                              className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-${color}-100 dark:bg-${color}-800`}
+                            >
+                              <Icon
+                                className={`w-3 h-3 text-${color}-500 dark:text-${color}-300`}
+                              />
                             </span>
                           );
-                        })()} 
+                        })()}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {notification.title || t(`notification.types.${notification.type.toLowerCase()}`)}
+                          {notification.title ||
+                            t(
+                              `notification.types.${notification.type.toLowerCase()}`,
+                            )}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           {formatNotificationMessage(notification)}

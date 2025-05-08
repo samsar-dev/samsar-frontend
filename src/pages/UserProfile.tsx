@@ -185,7 +185,6 @@ export const UserProfile = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
               className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
-
             >
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -226,7 +225,6 @@ export const UserProfile = () => {
 
             {/* Category Filters */}
             <motion.div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap px-1 sm:overflow-visible">
-
               {categoeryFillterOptions.map((filter) => (
                 <motion.div>
                   <Button
@@ -242,7 +240,6 @@ export const UserProfile = () => {
 
           {/* Listings Grid */}
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-
             {filteredListings?.map((listing) => (
               <ListingCard
                 listing={listing}

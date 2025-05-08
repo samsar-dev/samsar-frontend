@@ -232,7 +232,7 @@ const CreateListing: React.FC = () => {
 
       sessionStorage.setItem(
         "createListingFormData",
-        JSON.stringify(dataToSave)
+        JSON.stringify(dataToSave),
       );
       console.log("Form data saved to session storage");
     } catch (error) {
@@ -291,7 +291,7 @@ const CreateListing: React.FC = () => {
       formData.append("location", data.location || "");
       formData.append(
         "listingAction",
-        (data.listingAction || "sell").toUpperCase()
+        (data.listingAction || "sell").toUpperCase(),
       );
       formData.append("mainCategory", data.category?.mainCategory || "");
       formData.append("subCategory", data.category?.subCategory || "");
@@ -316,7 +316,7 @@ const CreateListing: React.FC = () => {
       if (data.images && data.images.length > 0) {
         // Filter to only include valid File objects
         const fileImages = data.images.filter(
-          (image): image is File => image instanceof File
+          (image): image is File => image instanceof File,
         );
 
         if (fileImages.length === 0) {
@@ -327,7 +327,7 @@ const CreateListing: React.FC = () => {
         console.log(`Submitting ${fileImages.length} images:`);
         fileImages.forEach((image, index) => {
           console.log(
-            `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`
+            `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
           );
           formData.append("images", image);
         });
@@ -341,7 +341,7 @@ const CreateListing: React.FC = () => {
         console.log(
           pair[0],
           ":",
-          typeof pair[1] === "string" ? pair[1] : "File object"
+          typeof pair[1] === "string" ? pair[1] : "File object",
         );
       }
 
@@ -409,7 +409,7 @@ const CreateListing: React.FC = () => {
                   isValid,
                   setFormData,
                   setStep,
-                  t
+                  t,
                 )
               }
             />
@@ -426,7 +426,7 @@ const CreateListing: React.FC = () => {
                   isValid,
                   setFormData,
                   setStep,
-                  t
+                  t,
                 )
               }
               onBack={handleBack}

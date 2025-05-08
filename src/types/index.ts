@@ -166,7 +166,6 @@ export type {
   MessageInput,
   Conversation,
   ConversationCreateInput,
-  ConversationUpdateInput,
 } from "./messaging";
 
 // 🌟 Socket Types
@@ -185,10 +184,10 @@ export type { ToastPosition, UIPreferences, UIContextType, Theme } from "./ui";
 export type { User, UserProfile, UserUpdateInput } from "./user";
 
 // 🌟 Settings Types
-export type { Settings, SettingsUpdate, SettingsContextType } from "./settings";
+export type { Settings, SettingsUpdate } from "./settings";
 
 // 🌟 Auth Types
-export type { AuthState, AuthContextType, AuthErrorCode } from "./auth";
+export type { AuthError, AuthState, AuthContextType } from "./auth";
 
 // Export all enums
 export {

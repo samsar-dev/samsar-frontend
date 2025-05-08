@@ -18,11 +18,11 @@ export const useBlockNavigation = (shouldBlock: boolean, message: string) => {
     // Handle back/forward browser navigation
     const handlePopState = (e: PopStateEvent) => {
       e.preventDefault();
-      
+
       // Use a custom styled dialog if available in the future
       // For now, use the standard browser confirm dialog
       const confirmed = window.confirm(message);
-      
+
       if (!confirmed) {
         // Prevent navigation and restore current location
         navigate(location.pathname + location.search, { replace: true });
@@ -33,7 +33,7 @@ export const useBlockNavigation = (shouldBlock: boolean, message: string) => {
       if (!shouldBlock) return;
 
       const target = e.target as HTMLElement;
-      const link = target.closest('a');
+      const link = target.closest("a");
       if (link) {
         e.preventDefault();
         const confirmed = window.confirm(message);
@@ -41,12 +41,12 @@ export const useBlockNavigation = (shouldBlock: boolean, message: string) => {
           // Prevent navigation if user cancels
           return;
         }
-        
+
         // Get the href from the link element
-        const href = link.getAttribute('href');
+        const href = link.getAttribute("href");
         if (href) {
           // Use window.location for external links
-          if (href.startsWith('http')) {
+          if (href.startsWith("http")) {
             window.location.href = href;
           } else {
             // Use navigate for internal links

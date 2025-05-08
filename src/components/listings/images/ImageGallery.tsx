@@ -66,7 +66,9 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
       >
         <button
           className="w-full h-full"
-          onClick={() => setSelectedImage(selectedImage !== null ? selectedImage : 0)}
+          onClick={() =>
+            setSelectedImage(selectedImage !== null ? selectedImage : 0)
+          }
           tabIndex={0}
         >
           <ResponsiveImage

@@ -18,8 +18,8 @@ const i18nConfig: InitOptions = {
   resources,
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",
-  supportedLngs: ['en', 'AR'],
-  load: 'languageOnly',
+  supportedLngs: ["en", "AR"],
+  load: "languageOnly",
   ns: ["common"],
   defaultNS: "common",
   interpolation: {
