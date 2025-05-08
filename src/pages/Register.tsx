@@ -31,37 +31,39 @@ const Register: React.FC = () => {
     if (authError) clearError();
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      setLoading(false);
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    toast.error("Passwords do not match");
+    setLoading(false);
+    return;
+  }
 
-    // Validate password requirements
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(formData.password)) {
-      toast.error(
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-      );
-      setLoading(false);
-      return;
-    }
+  // Validate password requirements
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+  if (!passwordRegex.test(formData.password)) {
+    toast.error(
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+    );
+    setLoading(false);
+    return;
+  }
 
-    try {
-      await register(formData.email, formData.password, formData.name);
-      navigate("/");
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      toast.error(error.message || "Failed to register");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // Generate username from email and pass parameters in correct order
+    const username = formData.email.split('@')[0];
+    await register(username, formData.email, formData.password);
+    navigate("/");
+  } catch (error: any) {
+    console.error("Registration error:", error);
+    toast.error(error.message || "Failed to register");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

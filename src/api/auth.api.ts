@@ -166,6 +166,7 @@ class AuthAPI {
         apiClient.post<AuthResponse>("/auth/register", user, {
           headers: {
             "Content-Type": "multipart/form-data",
+            requiresAuth: false
           },
           withCredentials: true,
         })
@@ -178,10 +179,12 @@ class AuthAPI {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(
-        "Registration error:",
-        axiosError.response?.data || axiosError
-      );
+      console.error("Registration error details:", {
+        status: axiosError.response?.status,
+        data: axiosError.response?.data,
+        config: axiosError.config,
+        message: axiosError.message
+      });
 
       if (axiosError.response?.status === 429) {
         return {

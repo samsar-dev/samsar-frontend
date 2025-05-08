@@ -234,7 +234,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       const formData = new FormData();
-      formData.append("username", username);
+      formData.append("name", username);
+      formData.append("username", email.split('@')[0]); // Generate username from email
       formData.append("email", email);
       formData.append("password", password);
       const response = await AuthAPI.register(formData);
