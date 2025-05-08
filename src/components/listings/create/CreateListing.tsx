@@ -6,18 +6,16 @@ import {
   ListingCategory,
   PropertyType,
   TransmissionType,
-  VehicleType
+  VehicleType,
 } from "@/types/enums";
-import { useBlockNavigation } from "@/utils/useBlockNavigation";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import type {
-  FormState
-} from "../../../types/listings";
+import type { FormState } from "../../../types/listings";
+import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
 import type { ExtendedFormState } from "./steps/AdvancedDetailsForm";
 const BasicDetailsForm = lazy(() => import("./steps/BasicDetailsForm"));
@@ -184,10 +182,10 @@ const CreateListing: React.FC = () => {
     sessionStorage.getItem("createListingFormData");
 
   // Block navigation for React Router's useNavigate with a professional message
-  const handleNavigation = useBlockNavigation(
-    hasUnsavedChanges,
-    "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
-  );
+  // const handleNavigation = useBlockNavigation(
+  //   hasUnsavedChanges,
+  //   "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
+  // );
 
   // Use the custom navigation function instead of direct navigate
   const handleBack = () => {
@@ -276,325 +274,6 @@ const CreateListing: React.FC = () => {
     localStorage.removeItem("createListingFormData");
   }, []);
 
-  const handleAdvancedDetailsSubmit = (
-    data: ExtendedFormState,
-    isValid: boolean
-  ) => {
-    console.log("Advanced details form data:", data);
-    console.log("Advanced details form validity:", isValid);
-    if (isValid) {
-      console.log("Advanced details submitted:", data);
-      // Ensure we preserve all feature values
-
-      setFormData((prev) => {
-        // Deep merge the details objects
-        const mergedVehicles =
-          data.category.mainCategory === ListingCategory.VEHICLES
-            ? {
-                ...prev.details?.vehicles,
-                ...data.details?.vehicles,
-                // Ensure all fields have proper fallback values
-                vehicleType:
-                  data.details?.vehicles?.vehicleType ||
-                  prev.details?.vehicles?.vehicleType ||
-                  VehicleType.CAR,
-                make:
-                  data.details?.vehicles?.make ||
-                  prev.details?.vehicles?.make ||
-                  "",
-                model:
-                  data.details?.vehicles?.model ||
-                  prev.details?.vehicles?.model ||
-                  "",
-                year:
-                  typeof data.details?.vehicles?.year === "string"
-                    ? parseInt(data.details.vehicles.year, 10)
-                    : data.details?.vehicles?.year ||
-                      prev.details?.vehicles?.year ||
-                      new Date().getFullYear(),
-                mileage:
-                  data.details?.vehicles?.mileage ||
-                  prev.details?.vehicles?.mileage ||
-                  0,
-                fuelType:
-                  data.details?.vehicles?.fuelType ||
-                  prev.details?.vehicles?.fuelType ||
-                  FuelType.GASOLINE,
-                transmissionType:
-                  data.details?.vehicles?.transmissionType ||
-                  prev.details?.vehicles?.transmissionType ||
-                  TransmissionType.AUTOMATIC,
-                color:
-                  data.details?.vehicles?.color ||
-                  prev.details?.vehicles?.color ||
-                  "#000000",
-                condition:
-                  data.details?.vehicles?.condition ||
-                  prev.details?.vehicles?.condition ||
-                  Condition.GOOD,
-                // Handle vehicle features as a properly typed object
-                features: {
-                  ...prev.details?.vehicles?.features,
-                  // Convenience features
-                  keylessEntry:
-                    data.details?.vehicles?.features?.keylessEntry ??
-                    prev.details?.vehicles?.features?.keylessEntry ??
-                    false,
-                  sunroof:
-                    data.details?.vehicles?.features?.sunroof ??
-                    prev.details?.vehicles?.features?.sunroof ??
-                    false,
-                  spareKey:
-                    data.details?.vehicles?.features?.spareKey ??
-                    prev.details?.vehicles?.features?.spareKey ??
-                    false,
-                  remoteStart:
-                    data.details?.vehicles?.features?.remoteStart ??
-                    prev.details?.vehicles?.features?.remoteStart ??
-                    false,
-                  powerTailgate:
-                    data.details?.vehicles?.features?.powerTailgate ??
-                    prev.details?.vehicles?.features?.powerTailgate ??
-                    false,
-                  autoDimmingMirrors:
-                    data.details?.vehicles?.features?.autoDimmingMirrors ??
-                    prev.details?.vehicles?.features?.autoDimmingMirrors ??
-                    false,
-                  rainSensingWipers:
-                    data.details?.vehicles?.features?.rainSensingWipers ??
-                    prev.details?.vehicles?.features?.rainSensingWipers ??
-                    false,
-                  // Safety features
-                  blindSpotMonitor:
-                    data.details?.vehicles?.features?.blindSpotMonitor ??
-                    prev.details?.vehicles?.features?.blindSpotMonitor ??
-                    false,
-                  laneAssist:
-                    data.details?.vehicles?.features?.laneAssist ??
-                    prev.details?.vehicles?.features?.laneAssist ??
-                    false,
-                  adaptiveCruiseControl:
-                    data.details?.vehicles?.features?.adaptiveCruiseControl ??
-                    prev.details?.vehicles?.features?.adaptiveCruiseControl ??
-                    false,
-                  tractionControl:
-                    data.details?.vehicles?.features?.tractionControl ??
-                    prev.details?.vehicles?.features?.tractionControl ??
-                    false,
-                  abs:
-                    data.details?.vehicles?.features?.abs ??
-                    prev.details?.vehicles?.features?.abs ??
-                    false,
-                  emergencyBrakeAssist:
-                    data.details?.vehicles?.features?.emergencyBrakeAssist ??
-                    prev.details?.vehicles?.features?.emergencyBrakeAssist ??
-                    false,
-                  tirePressureMonitoring:
-                    data.details?.vehicles?.features?.tirePressureMonitoring ??
-                    prev.details?.vehicles?.features?.tirePressureMonitoring ??
-                    false,
-                  // Camera features
-                  rearCamera:
-                    data.details?.vehicles?.features?.rearCamera ??
-                    prev.details?.vehicles?.features?.rearCamera ??
-                    false,
-                  camera360:
-                    data.details?.vehicles?.features?.camera360 ??
-                    prev.details?.vehicles?.features?.camera360 ??
-                    false,
-                  dashCam:
-                    data.details?.vehicles?.features?.dashCam ??
-                    prev.details?.vehicles?.features?.dashCam ??
-                    false,
-                  nightVision:
-                    data.details?.vehicles?.features?.nightVision ??
-                    prev.details?.vehicles?.features?.nightVision ??
-                    false,
-                  parkingSensors:
-                    data.details?.vehicles?.features?.parkingSensors ??
-                    prev.details?.vehicles?.features?.parkingSensors ??
-                    false,
-                  // Climate features
-                  climateControl:
-                    data.details?.vehicles?.features?.climateControl ??
-                    prev.details?.vehicles?.features?.climateControl ??
-                    false,
-                  heatedSeats:
-                    data.details?.vehicles?.features?.heatedSeats ??
-                    prev.details?.vehicles?.features?.heatedSeats ??
-                    false,
-                  ventilatedSeats:
-                    data.details?.vehicles?.features?.ventilatedSeats ??
-                    prev.details?.vehicles?.features?.ventilatedSeats ??
-                    false,
-                  dualZoneClimate:
-                    data.details?.vehicles?.features?.dualZoneClimate ??
-                    prev.details?.vehicles?.features?.dualZoneClimate ??
-                    false,
-                  rearAC:
-                    data.details?.vehicles?.features?.rearAC ??
-                    prev.details?.vehicles?.features?.rearAC ??
-                    false,
-                  airQualitySensor:
-                    data.details?.vehicles?.features?.airQualitySensor ??
-                    prev.details?.vehicles?.features?.airQualitySensor ??
-                    false,
-                  // Lighting features
-                  ledHeadlights:
-                    data.details?.vehicles?.features?.ledHeadlights ??
-                    prev.details?.vehicles?.features?.ledHeadlights ??
-                    false,
-                  adaptiveHeadlights:
-                    data.details?.vehicles?.features?.adaptiveHeadlights ??
-                    prev.details?.vehicles?.features?.adaptiveHeadlights ??
-                    false,
-                  ambientLighting:
-                    data.details?.vehicles?.features?.ambientLighting ??
-                    prev.details?.vehicles?.features?.ambientLighting ??
-                    false,
-                  fogLights:
-                    data.details?.vehicles?.features?.fogLights ??
-                    prev.details?.vehicles?.features?.fogLights ??
-                    false,
-                  automaticHighBeams:
-                    data.details?.vehicles?.features?.automaticHighBeams ??
-                    prev.details?.vehicles?.features?.automaticHighBeams ??
-                    false,
-                  // Entertainment features
-                  bluetooth:
-                    data.details?.vehicles?.features?.bluetooth ??
-                    prev.details?.vehicles?.features?.bluetooth ??
-                    false,
-                  appleCarPlay:
-                    data.details?.vehicles?.features?.appleCarPlay ??
-                    prev.details?.vehicles?.features?.appleCarPlay ??
-                    false,
-                  androidAuto:
-                    data.details?.vehicles?.features?.androidAuto ??
-                    prev.details?.vehicles?.features?.androidAuto ??
-                    false,
-                  premiumSound:
-                    data.details?.vehicles?.features?.premiumSound ??
-                    prev.details?.vehicles?.features?.premiumSound ??
-                    false,
-                  wirelessCharging:
-                    data.details?.vehicles?.features?.wirelessCharging ??
-                    prev.details?.vehicles?.features?.wirelessCharging ??
-                    false,
-                  usbPorts:
-                    data.details?.vehicles?.features?.usbPorts ??
-                    prev.details?.vehicles?.features?.usbPorts ??
-                    false,
-                  cdPlayer:
-                    data.details?.vehicles?.features?.cdPlayer ??
-                    prev.details?.vehicles?.features?.cdPlayer ??
-                    false,
-                  dvdPlayer:
-                    data.details?.vehicles?.features?.dvdPlayer ??
-                    prev.details?.vehicles?.features?.dvdPlayer ??
-                    false,
-                  rearSeatEntertainment:
-                    data.details?.vehicles?.features?.rearSeatEntertainment ??
-                    prev.details?.vehicles?.features?.rearSeatEntertainment ??
-                    false,
-                },
-                interiorColor:
-                  data.details?.vehicles?.interiorColor ||
-                  prev.details?.vehicles?.interiorColor ||
-                  "#000000",
-                engine:
-                  data.details?.vehicles?.engine ||
-                  prev.details?.vehicles?.engine ||
-                  "",
-                horsepower:
-                  data.details?.vehicles?.horsepower ||
-                  prev.details?.vehicles?.horsepower ||
-                  0,
-                torque:
-                  data.details?.vehicles?.torque ||
-                  prev.details?.vehicles?.torque ||
-                  0,
-                warranty:
-                  data.details?.vehicles?.warranty ||
-                  prev.details?.vehicles?.warranty ||
-                  "",
-              }
-            : undefined;
-
-        const mergedRealEstate =
-          data.category.mainCategory === ListingCategory.REAL_ESTATE
-            ? (() => {
-                const propertyType =
-                  data.details?.realEstate?.propertyType ||
-                  prev.details?.realEstate?.propertyType ||
-                  PropertyType.HOUSE;
-
-                console.log(propertyType);
-                console;
-
-                const baseDetails = {
-                  size:
-                    data.details?.realEstate?.size ||
-                    prev.details?.realEstate?.size ||
-                    0,
-                  yearBuilt:
-                    data.details?.realEstate?.yearBuilt ||
-                    prev.details?.realEstate?.yearBuilt ||
-                    new Date().getFullYear(),
-                  condition: (data.details?.realEstate?.condition ||
-                    prev.details?.realEstate?.condition ||
-                    Condition.GOOD) as Condition,
-                  features:
-                    data.details?.realEstate?.features ||
-                    prev.details?.realEstate?.features ||
-                    [],
-                };
-
-                return {
-                  ...baseDetails,
-                  ...data?.details?.realEstate,
-                  ...prev?.details?.realEstate,
-                };
-              })()
-            : undefined;
-
-        // Log the merged data objects
-        console.log("Merged vehicles data:", mergedVehicles);
-        console.log("Merged real estate data:", mergedRealEstate);
-
-        // Updated form data with merged details
-        const updatedData: FormState = {
-          ...prev,
-          details: {
-            vehicles: mergedVehicles,
-            realEstate: mergedRealEstate,
-          },
-        };
-
-        console.log("Updated form data after advanced details:", updatedData);
-
-        // Save to session storage
-        sessionStorage.setItem(
-          "createListingFormData",
-          JSON.stringify(updatedData)
-        );
-        return updatedData;
-      });
-
-      setStep((prev) => prev + 1);
-      toast.success(t("stepSaved"), {
-        id: "step-saved",
-        duration: 2000,
-      });
-    } else {
-      toast.error(t("completeAllRequiredFields"), {
-        id: "validation-error",
-        duration: 3000,
-      });
-      console.error("Advanced details form validation failed");
-    }
-  };
-
   const handleFinalSubmit = async (data: FormState) => {
     try {
       setIsSubmitting(true);
@@ -682,7 +361,7 @@ const CreateListing: React.FC = () => {
       });
 
       // Navigate to ListingSuccess with the listingId
-      if (response && response.data && response.data.id) {
+      if (response && response?.data && response?.data?.id) {
         navigate("/listingsuccess", { state: { listingId: response.data.id } });
       } else {
         navigate("/listings");
@@ -742,7 +421,13 @@ const CreateListing: React.FC = () => {
             <AdvancedDetailsForm
               formData={formData}
               onSubmit={(data, isValid) =>
-                handleAdvancedDetailsSubmit(data, isValid)
+                handleAdvancedDetailsSubmit(
+                  data,
+                  isValid,
+                  setFormData,
+                  setStep,
+                  t
+                )
               }
               onBack={handleBack}
             />

@@ -151,6 +151,118 @@ export interface ListingFieldSchema {
     | "climate";
 }
 
+export interface VehicleFeatures {
+  // Safety Features
+  accidentFree?: boolean;
+  blindSpotMonitor?: boolean;
+  laneAssist?: boolean;
+  adaptiveCruiseControl?: boolean;
+  tractionControl?: boolean;
+  abs?: boolean;
+  emergencyBrakeAssist?: boolean;
+  tirePressureMonitoring?: boolean;
+  distanceTempomat?: boolean;
+  distanceWarning?: boolean;
+  passengerAirbag?: boolean;
+  glarelessHighBeam?: boolean;
+  esp?: boolean;
+  driverAirbag?: boolean;
+  highBeamAssistant?: boolean;
+  speedLimitingSystem?: boolean;
+  isofix?: boolean;
+  fatigueWarningSystem?: boolean;
+  emergencyCallSystem?: boolean;
+  sideAirbag?: boolean;
+  trackHoldingAssistant?: boolean;
+  deadAngleAssistant?: boolean;
+  trafficSignRecognition?: boolean;
+  burglarAlarmSystem?: boolean;
+  immobilizer?: boolean;
+  centralLocking?: boolean;
+
+  // Camera Features
+  rearCamera?: boolean;
+  camera360?: boolean;
+  dashCam?: boolean;
+  nightVision?: boolean;
+  parkingSensors?: boolean;
+  parkingAid?: boolean;
+  parkingAidCamera?: boolean;
+  parkingAidSensorsRear?: boolean;
+  parkingAidSensorsFront?: boolean;
+
+  // Climate Features
+  climateControl?: boolean | string[];
+  heatedSeats?: boolean;
+  ventilatedSeats?: boolean;
+  dualZoneClimate?: boolean;
+  rearAC?: boolean;
+  airQualitySensor?: boolean;
+  airConditioning?: boolean;
+  twoZoneClimateControl?: boolean;
+
+  // Entertainment Features
+  bluetooth?: boolean;
+  appleCarPlay?: boolean;
+  androidAuto?: boolean;
+  premiumSound?: boolean;
+  wirelessCharging?: boolean;
+  usbPorts?: boolean;
+  cdPlayer?: boolean;
+  dvdPlayer?: boolean;
+  rearSeatEntertainment?: boolean;
+  androidCar?: boolean;
+  onBoardComputer?: boolean;
+  dabRadio?: boolean;
+  handsFreeCalling?: boolean;
+  integratedMusicStreaming?: boolean;
+  radio?: boolean;
+  soundSystem?: boolean;
+  wifiHotspot?: boolean;
+
+  // Lighting Features
+  ledHeadlights?: boolean;
+  adaptiveHeadlights?: boolean;
+  ambientLighting?: boolean;
+  fogLights?: boolean;
+  automaticHighBeams?: boolean;
+  ledDaytimeRunningLights?: boolean;
+  daytimeRunningLights?: boolean;
+  headlightCleaning?: boolean;
+  lightSensor?: boolean;
+
+  // Convenience Features
+  keylessEntry?: boolean;
+  sunroof?: boolean;
+  spareKey?: boolean;
+  remoteStart?: boolean;
+  powerTailgate?: boolean;
+  autoDimmingMirrors?: boolean;
+  rainSensingWipers?: boolean;
+  mountainDrivingAssistant?: boolean;
+  electricalWindowLifter?: boolean;
+  electricalSideMirrors?: boolean;
+  electricSeats?: boolean;
+  headUpDisplay?: boolean;
+  leatherSteeringWheel?: boolean;
+  lumbarSupport?: boolean;
+  multifunctionalSteeringWheel?: boolean;
+  navigationSystem?: string;
+  rainSensor?: boolean;
+  automaticStartStop?: boolean;
+  automaticDazzlingInteriorMirrors?: boolean;
+  switchingRockers?: boolean;
+  armrest?: boolean;
+  voiceControl?: boolean;
+  touchscreen?: boolean;
+
+  // Extras
+  aluminumRims?: boolean;
+  luggageCompartmentSeparation?: boolean;
+  summerTires?: boolean;
+  powerSteering?: boolean;
+}
+
 // Common fields for all vehicle types
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
@@ -166,7 +278,7 @@ export interface BaseVehicleDetails {
   gearbox?: string;
   color: string;
   condition: Condition;
-  features: string[];
+  features: VehicleFeatures;
   interiorColor: string;
   warranty?: string;
   previousOwners?: string | number;
