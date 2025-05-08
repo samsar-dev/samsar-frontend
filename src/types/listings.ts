@@ -155,7 +155,7 @@ export interface ListingFieldSchema {
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
   make: string;
-  vin: string;
+  // vin: string;
   insuranceType?: string;
   model: string;
   year: string;
@@ -573,7 +573,6 @@ export interface Location {
   city: string;
   state: string;
   country: string;
- 
 }
 
 export interface Category {
