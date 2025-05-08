@@ -95,7 +95,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
       if (!id) return false;
       return state.savedListings.includes(id);
     },
-    [state.savedListings],
+    [state.savedListings]
   );
 
   const isSaving = useCallback(
@@ -103,7 +103,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
       if (!id) return false;
       return state.savingIds.includes(id);
     },
-    [state.savingIds],
+    [state.savingIds]
   );
 
   const addToSaved = useCallback(async (id: string): Promise<void> => {
@@ -173,7 +173,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
         await addToSaved(id);
       }
     },
-    [isSaved, removeFromSaved, addToSaved],
+    [isSaved, removeFromSaved, addToSaved]
   );
 
   const clearSaved = useCallback((): void => {
@@ -204,7 +204,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
     try {
       const response = await listingsAPI.getSavedListings(
         user.id,
-        controller.signal,
+        controller.signal
       );
 
       if (response.success && response.data) {
@@ -214,7 +214,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
             ? response.data
                 .map((listing: { id?: string }) => listing.id)
                 .filter(
-                  (id: string | undefined): id is string => id !== undefined,
+                  (id: string | undefined): id is string => id !== undefined
                 )
             : [],
           isLoading: false,
@@ -271,18 +271,18 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
     fetchListings();
 
     // Set up periodic refresh
-    const refreshInterval = setInterval(() => {
-      if (!isRefreshing.current) {
-        fetchListings();
-      }
-    }, 30000); // Refresh every 30 seconds
+    // const refreshInterval = setInterval(() => {
+    //   if (!isRefreshing.current) {
+    //     fetchListings();
+    //   }
+    // }, 30000); // Refresh every 30 seconds
 
-    return () => {
-      clearInterval(refreshInterval);
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    // return () => {
+    //   clearInterval(refreshInterval);
+    //   if (abortControllerRef.current) {
+    //     abortControllerRef.current.abort();
+    //   }
+    // };
   }, [fetchListings]);
 
   // Sync with localStorage
@@ -293,7 +293,7 @@ export const SavedListingsProvider: React.FC<SavedListingsProviderProps> = ({
         JSON.stringify({
           listings: state.savedListings,
           timestamp: state.lastUpdated.getTime(),
-        }),
+        })
       );
     }
   }, [state.savedListings, state.lastUpdated]);
@@ -351,7 +351,7 @@ export const useSavedListings = (): SavedListingsContextType => {
   const context = useContext(SavedListingsContext);
   if (!context) {
     throw new Error(
-      "useSavedListings must be used within a SavedListingsProvider",
+      "useSavedListings must be used within a SavedListingsProvider"
     );
   }
   return context;
