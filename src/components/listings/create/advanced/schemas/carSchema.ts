@@ -97,18 +97,18 @@ export const carSchema: ListingFieldSchema[] = [
   },
 
   // ================= ADVANCED DETAILS =================
-  {
-    name: "vin",
-    label: "listings.fields.vin",
-    type: "text",
-    section: "advanced",
-    required: false,
-    validate: (value: string | number | boolean) => {
-      if (typeof value !== "string" || !value) return null;
-      if (!/^([A-HJ-NPR-Z0-9]{17})$/.test(value)) return "errors.invalidVin";
-      return null;
-    },
-  },
+  // {
+  //   name: "vin",
+  //   label: "listings.fields.vin",
+  //   type: "text",
+  //   section: "advanced",
+  //   required: false,
+  //   validate: (value: string | number | boolean) => {
+  //     if (typeof value !== "string" || !value) return null;
+  //     if (!/^([A-HJ-NPR-Z0-9]{17})$/.test(value)) return "errors.invalidVin";
+  //     return null;
+  //   },
+  // },
   {
     name: "bodyStyle",
     label: "listings.bodyStyle",
