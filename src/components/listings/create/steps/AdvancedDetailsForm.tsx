@@ -40,7 +40,7 @@ const ColorPickerField = lazy(
 );
 import { toast } from "react-hot-toast";
 
-interface ExtendedFormState extends Omit<FormState, "details"> {
+export interface ExtendedFormState extends Omit<FormState, "details"> {
   category: {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
