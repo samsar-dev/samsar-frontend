@@ -1,5 +1,17 @@
 {
   "common": {
+    "Save Changes": "حفظ التغييرات",
+    "profile": {
+      "personal_information": "المعلومات الشخصية",
+      "update_info": "تحديث المعلومات",
+      "change_photo": "تغيير الصورة"
+    },
+    "Phone Number": "رقم الهاتف",
+    "name": "الاسم",
+    "dropzone": {
+      "drop": "اسقط لرفع ",
+      "dragDropFriendly": "اسحب الصور هنا أو انقر لرفع. الحد الأقصى 5 ميجابايت لكل صورة"
+    },
     "edit": "تعديل",
     "submit": "إرسال",
     "no": "لا",

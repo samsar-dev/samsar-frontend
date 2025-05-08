@@ -1,5 +1,9 @@
 {
   "common": {
+    "dropzone": {
+      "drop": "Drop to upload 🚀",
+      "dragDropFriendly": "Drag photos here or click to upload. Max 5MB each"
+    },
     "edit": "Edit",
     "submit": "Submit",
     "no": "No",
