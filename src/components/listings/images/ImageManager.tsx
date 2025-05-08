@@ -444,22 +444,18 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           >
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
-          <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 font-medium">
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
             {isDragActive 
-              ? t("dropzone.drop", { hint: "Nice! Drop your photos here." })
-              : t("dropzone.dragDropFriendly", { hint: "Drag & drop photos here or click to choose. We'll make them look great!" })}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {t("dropzone.maxSize", { size: "5MB", hint: "per image" })}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {supportsWebP ? t("dropzone.webpSupport", { hint: "WebP compression enabled for smaller file sizes" }) : t("dropzone.jpgFallback", { hint: "Using JPEG for best compatibility" })}
-          </p>
-          <p className="text-xs text-gray-500 italic mt-2">
-            {t("tip.imageQuality", { hint: "Clear, well-lit images help your listings stand out! 📸" })}
+              ? t("common.dropzone.drop")
+              : t("common.dropzone.dragDropFriendly")}
           </p>
         </motion.div>
       </div>
+
+      {/* Image Count */}
+      <p className="text-xs text-gray-500 mt-1">
+        {images.length + existingImages.length} / {maxImages} {t("images.uploaded")}
+      </p>
 
       {/* Upload Progress */}
       {isUploading && (
