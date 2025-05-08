@@ -133,13 +133,7 @@ const baseVehicleSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
-  {
-    name: "year",
-    label: "listings.year",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
+
   {
     name: "condition",
     label: "listings.condition",

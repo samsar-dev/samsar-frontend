@@ -18,7 +18,7 @@ export interface UseCreateListingReturn {
   isSubmitting: boolean;
   handleFieldChange: (field: string, value: any) => void;
   handleSubmit: (
-    data: FormData | FormState
+    data: FormData | FormState,
   ) => Promise<SingleListingResponse | undefined>;
 }
 
@@ -206,7 +206,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
   };
 
   const handleSubmit = async (
-    data: FormData | FormState
+    data: FormData | FormState,
   ): Promise<SingleListingResponse | undefined> => {
     try {
       setIsSubmitting(true);
@@ -248,7 +248,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         formData.append("location", data.location || "");
         formData.append(
           "listingAction",
-          (data.listingAction || "sell").toUpperCase()
+          (data.listingAction || "sell").toUpperCase(),
         );
 
         // Add category information
@@ -304,7 +304,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   size: data.details?.realEstate?.size || "",
                   yearBuilt: parseInt(
                     data.details?.realEstate?.yearBuilt.toString() ||
-                      new Date().getFullYear().toString()
+                      new Date().getFullYear().toString(),
                   ),
                   bedrooms: data.details?.realEstate?.bedrooms || "",
                   bathrooms: data.details?.realEstate?.bathrooms || "",
@@ -331,7 +331,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         for (const [key, value] of formData.entries()) {
           console.log(
             `${key}:`,
-            value instanceof File ? `File: ${value.name}` : value
+            value instanceof File ? `File: ${value.name}` : value,
           );
         }
 

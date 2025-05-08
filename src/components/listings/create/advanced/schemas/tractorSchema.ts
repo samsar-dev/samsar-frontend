@@ -16,13 +16,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
-  {
-    name: "year",
-    label: "listings.year",
-    type: "number",
-    section: "essential",
-    required: true,
-  },
+
   {
     name: "color",
     label: "listings.exteriorColor",

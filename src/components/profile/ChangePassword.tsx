@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash, FaLock, FaShieldAlt, FaCheckCircle, FaTimesCircle, FaInfoCircle } from "react-icons/fa";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaShieldAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaInfoCircle,
+} from "react-icons/fa";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface FormData {
@@ -51,42 +59,42 @@ const ChangePassword = () => {
   const evaluatePasswordStrength = (password: string): PasswordStrength => {
     const feedback: string[] = [];
     let score = 0;
-    
+
     // Length check
     if (password.length >= 8) {
       score += 1;
     } else {
       feedback.push(t("profile.password_too_short"));
     }
-    
+
     // Uppercase check
     if (/[A-Z]/.test(password)) {
       score += 1;
     } else {
       feedback.push(t("profile.password_needs_uppercase"));
     }
-    
+
     // Lowercase check
     if (/[a-z]/.test(password)) {
       score += 1;
     } else {
       feedback.push(t("profile.password_needs_lowercase"));
     }
-    
+
     // Number check
     if (/[0-9]/.test(password)) {
       score += 1;
     } else {
       feedback.push(t("profile.password_needs_number"));
     }
-    
+
     // Special character check
     if (/[^A-Za-z0-9]/.test(password)) {
       score += 1;
     } else {
       feedback.push(t("profile.password_needs_special"));
     }
-    
+
     return {
       score,
       feedback,
@@ -190,7 +198,7 @@ const ChangePassword = () => {
     value: string,
     showPassword: boolean,
     setShowPassword: (show: boolean) => void,
-    icon: React.ReactNode
+    icon: React.ReactNode,
   ) => (
     <div className="space-y-2">
       <label
@@ -239,7 +247,7 @@ const ChangePassword = () => {
           {t("profile.password_description")}
         </p>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div className="space-y-4">
           {renderPasswordInput(
@@ -248,7 +256,7 @@ const ChangePassword = () => {
             formData.currentPassword,
             showCurrentPassword,
             setShowCurrentPassword,
-            <FaLock className="text-gray-500" />
+            <FaLock className="text-gray-500" />,
           )}
 
           {renderPasswordInput(
@@ -257,7 +265,7 @@ const ChangePassword = () => {
             formData.newPassword,
             showNewPassword,
             setShowNewPassword,
-            <FaLock className="text-gray-500" />
+            <FaLock className="text-gray-500" />,
           )}
 
           {/* Password strength indicator */}
@@ -267,7 +275,9 @@ const ChangePassword = () => {
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {t("profile.password_strength.label")}:
                 </span>
-                <span className={`text-xs font-medium ${passwordStrength.isValid ? 'text-green-500' : 'text-gray-500'}`}>
+                <span
+                  className={`text-xs font-medium ${passwordStrength.isValid ? "text-green-500" : "text-gray-500"}`}
+                >
                   {getStrengthText(passwordStrength.score)}
                 </span>
               </div>
@@ -277,31 +287,61 @@ const ChangePassword = () => {
                   style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
                 ></div>
               </div>
-              
+
               {/* Password requirements */}
               <div className="mt-3 space-y-2">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {t("profile.password_requirements")}:
                 </p>
                 <ul className="space-y-1 text-xs">
-                  <li className={`flex items-center ${formData.newPassword.length >= 8 ? 'text-green-500' : 'text-gray-500'}`}>
-                    {formData.newPassword.length >= 8 ? <FaCheckCircle className="mr-1" /> : <FaTimesCircle className="mr-1" />}
+                  <li
+                    className={`flex items-center ${formData.newPassword.length >= 8 ? "text-green-500" : "text-gray-500"}`}
+                  >
+                    {formData.newPassword.length >= 8 ? (
+                      <FaCheckCircle className="mr-1" />
+                    ) : (
+                      <FaTimesCircle className="mr-1" />
+                    )}
                     {t("profile.req_min_length")}
                   </li>
-                  <li className={`flex items-center ${/[A-Z]/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                    {/[A-Z]/.test(formData.newPassword) ? <FaCheckCircle className="mr-1" /> : <FaTimesCircle className="mr-1" />}
+                  <li
+                    className={`flex items-center ${/[A-Z]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
+                  >
+                    {/[A-Z]/.test(formData.newPassword) ? (
+                      <FaCheckCircle className="mr-1" />
+                    ) : (
+                      <FaTimesCircle className="mr-1" />
+                    )}
                     {t("profile.req_uppercase")}
                   </li>
-                  <li className={`flex items-center ${/[a-z]/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                    {/[a-z]/.test(formData.newPassword) ? <FaCheckCircle className="mr-1" /> : <FaTimesCircle className="mr-1" />}
+                  <li
+                    className={`flex items-center ${/[a-z]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
+                  >
+                    {/[a-z]/.test(formData.newPassword) ? (
+                      <FaCheckCircle className="mr-1" />
+                    ) : (
+                      <FaTimesCircle className="mr-1" />
+                    )}
                     {t("profile.req_lowercase")}
                   </li>
-                  <li className={`flex items-center ${/[0-9]/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                    {/[0-9]/.test(formData.newPassword) ? <FaCheckCircle className="mr-1" /> : <FaTimesCircle className="mr-1" />}
+                  <li
+                    className={`flex items-center ${/[0-9]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
+                  >
+                    {/[0-9]/.test(formData.newPassword) ? (
+                      <FaCheckCircle className="mr-1" />
+                    ) : (
+                      <FaTimesCircle className="mr-1" />
+                    )}
                     {t("profile.req_number")}
                   </li>
-                  <li className={`flex items-center ${/[^A-Za-z0-9]/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                    {/[^A-Za-z0-9]/.test(formData.newPassword) ? <FaCheckCircle className="mr-1" /> : <FaTimesCircle className="mr-1" />}
+                  <li
+                    className={`flex items-center ${/[^A-Za-z0-9]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
+                  >
+                    {/[^A-Za-z0-9]/.test(formData.newPassword) ? (
+                      <FaCheckCircle className="mr-1" />
+                    ) : (
+                      <FaTimesCircle className="mr-1" />
+                    )}
                     {t("profile.req_special")}
                   </li>
                 </ul>
@@ -315,9 +355,9 @@ const ChangePassword = () => {
             formData.confirmPassword,
             showConfirmPassword,
             setShowConfirmPassword,
-            <FaLock className="text-gray-500" />
+            <FaLock className="text-gray-500" />,
           )}
-          
+
           {/* Password match indicator */}
           {formData.newPassword && formData.confirmPassword && (
             <div className="flex items-center mt-1">

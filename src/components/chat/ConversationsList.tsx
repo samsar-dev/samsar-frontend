@@ -68,13 +68,13 @@ const ConversationsList = memo(function ConversationsList({
             {chats.length > 0 &&
               chats?.map((chat) => {
                 const participants = chat.participants.filter(
-                  (_i) => _i.id !== user?.id
+                  (_i) => _i.id !== user?.id,
                 )[0];
                 const lastMessageDate = chat.lastMessageAt
                   ? new Date(chat.lastMessageAt)
                   : null;
                 return (
-                  <div 
+                  <div
                     key={chat.id}
                     onClick={() => navigate(`/messages/${chat.id}`)}
                   >

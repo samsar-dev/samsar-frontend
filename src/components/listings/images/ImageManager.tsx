@@ -27,10 +27,10 @@ const ALLOWED_TYPES = {
 };
 
 const RESPONSIVE_SIZES = {
-  thumbnail: 400,  // For thumbnails and previews
-  medium: 800,     // For medium-sized displays
-  large: 1200,     // For large displays
-  original: 1920,  // Maximum width for original images
+  thumbnail: 400, // For thumbnails and previews
+  medium: 800, // For medium-sized displays
+  large: 1200, // For large displays
+  original: 1920, // Maximum width for original images
 };
 
 const ImageManager: React.FC<ImageManagerProps> = ({
@@ -45,17 +45,19 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null,
+  );
   const [editingImage, setEditingImage] = useState<{
     url: string;
     index: number;
   } | null>(null);
-  const [imageSizes, setImageSizes] = useState<{[key: string]: number}>({});
+  const [imageSizes, setImageSizes] = useState<{ [key: string]: number }>({});
   const [supportsWebP, setSupportsWebP] = useState<boolean | null>(null);
 
   // Keep track of created object URLs to properly clean them up
   const objectUrlsRef = useRef<string[]>([]);
-  
+
   // Check WebP support on component mount
   useEffect(() => {
     const checkWebP = async () => {
@@ -67,7 +69,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   useEffect(() => {
     // Clean up previous object URLs
-    objectUrlsRef.current.forEach(url => {
+    objectUrlsRef.current.forEach((url) => {
       try {
         URL.revokeObjectURL(url);
       } catch (error) {
@@ -77,26 +79,28 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     objectUrlsRef.current = [];
 
     // Create preview URLs for images
-    const urls = images.map((file: File) => {
-      try {
-        const url = URL.createObjectURL(file);
-        objectUrlsRef.current.push(url);
-        return url;
-      } catch (error) {
-        console.error("Error creating URL for file:", error);
-        return "";
-      }
-    }).filter(Boolean); // Remove any empty strings
+    const urls = images
+      .map((file: File) => {
+        try {
+          const url = URL.createObjectURL(file);
+          objectUrlsRef.current.push(url);
+          return url;
+        } catch (error) {
+          console.error("Error creating URL for file:", error);
+          return "";
+        }
+      })
+      .filter(Boolean); // Remove any empty strings
 
     // Log preview URLs for debugging
-    console.log('Created preview URLs:', urls);
+    console.log("Created preview URLs:", urls);
     setPreviewUrls(urls);
 
     setPreviewUrls(urls);
 
     // Cleanup function to revoke object URLs
     return () => {
-      objectUrlsRef.current.forEach(url => {
+      objectUrlsRef.current.forEach((url) => {
         try {
           URL.revokeObjectURL(url);
         } catch (error) {
@@ -110,28 +114,34 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const validateImage = async (file: File): Promise<boolean> => {
     // Check file size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(t("errors.fileTooLarge", { 
-        maxSize: "5MB",
-        hint: "Try compressing your image or choosing a smaller one."
-      }));
+      toast.error(
+        t("errors.fileTooLarge", {
+          maxSize: "5MB",
+          hint: "Try compressing your image or choosing a smaller one.",
+        }),
+      );
       return false;
     }
 
     // Check minimum file size
     if (file.size < MIN_FILE_SIZE) {
-      toast.error(t("errors.fileTooSmall", {
-        minSize: "5KB",
-        hint: "Try uploading a slightly higher quality photo so it looks great to buyers!"
-      }));
+      toast.error(
+        t("errors.fileTooSmall", {
+          minSize: "5KB",
+          hint: "Try uploading a slightly higher quality photo so it looks great to buyers!",
+        }),
+      );
       return false;
     }
 
     // Check file type
     if (!Object.keys(ALLOWED_TYPES).includes(file.type)) {
-      toast.error(t("errors.invalidFileType", {
-        formats: "JPG, PNG, or WebP",
-        hint: "These formats ensure your images look great everywhere."
-      }));
+      toast.error(
+        t("errors.invalidFileType", {
+          formats: "JPG, PNG, or WebP",
+          hint: "These formats ensure your images look great everywhere.",
+        }),
+      );
       return false;
     }
 
@@ -139,16 +149,20 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     try {
       const dimensions = await getImageDimensions(file);
       if (dimensions.width < 200 || dimensions.height < 200) {
-        toast.error(t("errors.imageTooSmall", {
-          minSize: "200×200",
-          hint: "Larger images help buyers see more details!"
-        }));
+        toast.error(
+          t("errors.imageTooSmall", {
+            minSize: "200×200",
+            hint: "Larger images help buyers see more details!",
+          }),
+        );
         return false;
       }
     } catch (error) {
-      toast.error(t("errors.invalidImage", {
-        hint: "The file might be corrupted. Try another one?"
-      }));
+      toast.error(
+        t("errors.invalidImage", {
+          hint: "The file might be corrupted. Try another one?",
+        }),
+      );
       return false;
     }
 
@@ -171,16 +185,16 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     const dimensions = await getImageDimensions(file);
     const isLargeImage = dimensions.width > 2000 || dimensions.height > 2000;
     const targetSize = isLargeImage ? 1.5 : 1; // Allow larger files for high-res images
-    
+
     // Don't compress if file is already small enough (less than 300KB)
     if (file.size < 300 * 1024) {
-      console.log('Image already small enough, skipping compression');
+      console.log("Image already small enough, skipping compression");
       return file;
     }
 
     // Determine optimal file type based on browser support and image content
-    const fileType = supportsWebP ? 'image/webp' : 'image/jpeg';
-    
+    const fileType = supportsWebP ? "image/webp" : "image/jpeg";
+
     // Optimize compression options based on image content and size
     const options = {
       maxSizeMB: targetSize,
@@ -193,17 +207,27 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     };
 
     try {
-      console.log('Compressing image:', file.name, 'Original size:', (file.size / 1024).toFixed(2), 'KB');
+      console.log(
+        "Compressing image:",
+        file.name,
+        "Original size:",
+        (file.size / 1024).toFixed(2),
+        "KB",
+      );
       const compressedBlob = await imageCompression(file, options);
-      console.log('Compressed size:', (compressedBlob.size / 1024).toFixed(2), 'KB');
+      console.log(
+        "Compressed size:",
+        (compressedBlob.size / 1024).toFixed(2),
+        "KB",
+      );
 
       // Update image size in state for display
-      const newSizes = {...imageSizes};
+      const newSizes = { ...imageSizes };
       newSizes[file.name] = compressedBlob.size;
       setImageSizes(newSizes);
 
       // Use appropriate extension based on compression type
-      const fileExt = fileType === 'image/webp' ? 'webp' : 'jpg';
+      const fileExt = fileType === "image/webp" ? "webp" : "jpg";
       const fileName = `image-${Date.now()}.${fileExt}`;
 
       return new File([compressedBlob], fileName, {
@@ -223,36 +247,36 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         const reader = new FileReader();
         reader.onload = (e) => {
           const view = new DataView(e.target?.result as ArrayBuffer);
-          if (view.getUint16(0, false) !== 0xFFD8) {
+          if (view.getUint16(0, false) !== 0xffd8) {
             resolve(1); // Not a JPEG
             return;
           }
-          
+
           const length = view.byteLength;
           let offset = 2;
-          
+
           while (offset < length) {
             const marker = view.getUint16(offset, false);
             offset += 2;
-            
-            if (marker === 0xFFE1) {
+
+            if (marker === 0xffe1) {
               if (view.getUint32(offset + 2, false) !== 0x45786966) {
                 resolve(1);
                 return;
               }
-              
+
               const little = view.getUint16(offset + 10, false) === 0x4949;
               offset += 12;
               const tags = view.getUint16(offset, little);
               offset += 2;
-              
+
               for (let i = 0; i < tags; i++) {
-                if (view.getUint16(offset + (i * 12), little) === 0x0112) {
-                  resolve(view.getUint16(offset + (i * 12) + 8, little));
+                if (view.getUint16(offset + i * 12, little) === 0x0112) {
+                  resolve(view.getUint16(offset + i * 12 + 8, little));
                   return;
                 }
               }
-            } else if ((marker & 0xFF00) !== 0xFF00) {
+            } else if ((marker & 0xff00) !== 0xff00) {
               break;
             } else {
               offset += view.getUint16(offset, false);
@@ -271,12 +295,16 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const checkWebPSupport = async (): Promise<boolean> => {
     // More reliable WebP detection that checks for actual encoding support
     if (!self.createImageBitmap) return false;
-    
-    const webpData = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
-    const blob = await fetch(webpData).then(r => r.blob());
-    
+
+    const webpData =
+      "data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
+    const blob = await fetch(webpData).then((r) => r.blob());
+
     try {
-      return await createImageBitmap(blob).then(() => true, () => false);
+      return await createImageBitmap(blob).then(
+        () => true,
+        () => false,
+      );
     } catch (e) {
       return false;
     }
@@ -294,44 +322,48 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     try {
       const validFiles = [];
       let processedCount = 0;
-      const newSizes = {...imageSizes};
-      
+      const newSizes = { ...imageSizes };
+
       for (const file of files) {
         // Store original size for display
         newSizes[file.name] = file.size;
-        
+
         const isValid = await validateImage(file);
         if (isValid) {
           try {
             // Analyze image to determine optimal compression strategy
             const dimensions = await getImageDimensions(file);
             const aspectRatio = dimensions.width / dimensions.height;
-            
+
             // Determine if image needs cropping based on aspect ratio
-            const needsCropping = (
+            const needsCropping =
               aspectRatio > 2.5 || // Too wide
               aspectRatio < 0.4 || // Too tall
               dimensions.width < 200 || // Too narrow
-              dimensions.height < 200 // Too short
-            );
-            
+              dimensions.height < 200; // Too short
+
             if (needsCropping) {
-              toast.info(t("info.imageCropRecommended", {
-                hint: "This image has unusual proportions. Consider cropping for better display."
-              }));
+              toast.info(
+                t("info.imageCropRecommended", {
+                  hint: "This image has unusual proportions. Consider cropping for better display.",
+                }),
+              );
             }
-            
+
             const compressed = await compressImage(file);
             validFiles.push(compressed);
-            
+
             // Update size for compressed file
             newSizes[compressed.name] = compressed.size;
           } catch (compressionError) {
-            console.error("Compression failed, using original file:", compressionError);
+            console.error(
+              "Compression failed, using original file:",
+              compressionError,
+            );
             validFiles.push(file); // Use original if compression fails
           }
         }
-        
+
         processedCount++;
         setUploadProgress((processedCount / files.length) * 100);
       }
@@ -343,10 +375,12 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         // Create a copy of the images array to avoid reference issues
         const newImages = [...images, ...validFiles];
         onChange(newImages);
-        toast.success(t("success.imagesUploaded", {
-          count: validFiles.length,
-          hint: "Your photos are looking great! ✨"
-        }));
+        toast.success(
+          t("success.imagesUploaded", {
+            count: validFiles.length,
+            hint: "Your photos are looking great! ✨",
+          }),
+        );
       }
     } catch (error) {
       toast.error(t("errors.uploadFailed"));
@@ -360,14 +394,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const handleImageDelete = (index: number) => {
     // Only revoke if it's a blob URL we created
     const url = previewUrls[index];
-    if (url && url.startsWith('blob:')) {
+    if (url && url.startsWith("blob:")) {
       try {
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error("Error revoking URL:", error);
       }
     }
-    
+
     // Create a new array without the deleted image
     const newImages = images.filter((_, i) => i !== index);
     onChange(newImages);
@@ -384,22 +418,25 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       // Create a more descriptive filename with timestamp
       const newFile = new File([editedBlob], `edited-image-${Date.now()}.jpg`, {
         type: "image/jpeg",
-        lastModified: Date.now()
+        lastModified: Date.now(),
       });
 
       // Create a deep copy of the images array to avoid reference issues
       const newImages = [...images];
       newImages[editingImage.index] = newFile;
-      
+
       // Revoke the old URL if it exists
-      if (previewUrls[editingImage.index] && previewUrls[editingImage.index].startsWith('blob:')) {
+      if (
+        previewUrls[editingImage.index] &&
+        previewUrls[editingImage.index].startsWith("blob:")
+      ) {
         try {
           URL.revokeObjectURL(previewUrls[editingImage.index]);
         } catch (error) {
           console.error("Error revoking URL:", error);
         }
       }
-      
+
       onChange(newImages);
       setEditingImage(null);
     } catch (error) {
@@ -432,20 +469,20 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         <motion.div
           animate={{
             scale: isDragActive ? 1.02 : 1,
-            borderColor: isDragActive ? '#3B82F6' : '#E5E7EB'
+            borderColor: isDragActive ? "#3B82F6" : "#E5E7EB",
           }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
           className="h-full w-full"
         >
           <input {...getInputProps()} />
           <motion.div
             animate={{ scale: isDragActive ? 1.1 : 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
-            {isDragActive 
+            {isDragActive
               ? t("common.dropzone.drop")
               : t("common.dropzone.dragDropFriendly")}
           </p>
@@ -454,7 +491,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {images.length + existingImages.length} / {maxImages} {t("images.uploaded")}
+        {images.length + existingImages.length} / {maxImages}{" "}
+        {t("images.uploaded")}
       </p>
 
       {/* Upload Progress */}
@@ -471,7 +509,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                 {t("upload.progress", {
                   current: Math.round(uploadProgress),
                   total: 100,
-                  hint: "Almost there! Your photos are being optimized..."
+                  hint: "Almost there! Your photos are being optimized...",
                 })}
               </span>
               <FaSpinner className="animate-spin text-blue-600" />
@@ -481,7 +519,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${uploadProgress}%` }}
-              transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg"
             />
           </div>
@@ -558,7 +596,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                   className="w-full h-full object-cover"
                   loading="lazy"
                   onError={(e: React.SyntheticEvent) => {
-                    console.error('Image error:', e);
+                    console.error("Image error:", e);
                   }}
                   width={300}
                   height={200}
@@ -567,15 +605,20 @@ const ImageManager: React.FC<ImageManagerProps> = ({
               {/* Display file size */}
               {images[index] && (
                 <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
-                  {(imageSizes[images[index].name] || images[index].size) 
-                    ? ((imageSizes[images[index].name] || images[index].size) / 1024).toFixed(1) + " KB"
+                  {imageSizes[images[index].name] || images[index].size
+                    ? (
+                        (imageSizes[images[index].name] || images[index].size) /
+                        1024
+                      ).toFixed(1) + " KB"
                     : ""}
                 </div>
               )}
               {/* Display image dimensions */}
               {images[index] && (
                 <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
-                  {imageSizes[images[index].name] ? `${Math.sqrt(imageSizes[images[index].name] * 1024 / 0.92)} × ${Math.sqrt(imageSizes[images[index].name] * 1024 / 0.92)}` : ""}
+                  {imageSizes[images[index].name]
+                    ? `${Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92)} × ${Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92)}`
+                    : ""}
                 </div>
               )}
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">

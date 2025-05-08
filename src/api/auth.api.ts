@@ -33,7 +33,7 @@ class AuthAPI {
     requestFn: () => Promise<AxiosResponse<T>>,
     retries = MAX_RETRIES,
     delay = RETRY_DELAY,
-    skip429Retry = false
+    skip429Retry = false,
   ): Promise<AxiosResponse<T>> {
     try {
       // Attempt the request
@@ -60,7 +60,7 @@ class AuthAPI {
               requestFn,
               retries - 1,
               delay,
-              skip429Retry
+              skip429Retry,
             );
           }
           // If refresh didn't work but didn't throw, clear auth and throw original error
@@ -108,7 +108,7 @@ class AuthAPI {
           requestFn,
           retries - 1,
           delay * 2, // Exponential backoff
-          skip429Retry
+          skip429Retry,
         );
       }
 
@@ -160,23 +160,27 @@ class AuthAPI {
    * @param user User's registration data
    * @returns Authentication response
    */
-  static async register(email: string, password: string, name: string): Promise<AuthResponse> {
+  static async register(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<AuthResponse> {
     try {
       const userData = {
         email,
         password,
         name,
-        username: email.split('@')[0] // Generate username from email
+        username: email.split("@")[0], // Generate username from email
       };
-      
+
       const response = await AuthAPI.retryRequest(() =>
-        apiClient.post<AuthResponse>('/auth/register', userData, {
+        apiClient.post<AuthResponse>("/auth/register", userData, {
           headers: {
-            'Content-Type': 'application/json',
-            requiresAuth: false
+            "Content-Type": "application/json",
+            requiresAuth: false,
           },
-          withCredentials: true
-        })
+          withCredentials: true,
+        }),
       );
 
       if (response.data.success && response.data.data?.tokens) {
@@ -190,7 +194,7 @@ class AuthAPI {
         status: axiosError.response?.status,
         data: axiosError.response?.data,
         config: axiosError.config,
-        message: axiosError.message
+        message: axiosError.message,
       });
 
       if (axiosError.response?.status === 429) {
@@ -226,7 +230,7 @@ class AuthAPI {
    * @returns Promise with success status and optional error
    */
   static async verifyToken(
-    token: string
+    token: string,
   ): Promise<{ success: boolean; error?: AuthError }> {
     try {
       await apiClient.get("/auth/verify-token", {
@@ -280,7 +284,7 @@ class AuthAPI {
         {
           // Don't retry this request if it fails with 401
           withCredentials: true,
-        }
+        },
       );
 
       if (!response.data.success) {
@@ -322,7 +326,7 @@ class AuthAPI {
         null,
         {
           withCredentials: true,
-        }
+        },
       );
 
       // Clear tokens regardless of response
@@ -361,7 +365,7 @@ class AuthAPI {
       const response = await AuthAPI.retryRequest(() =>
         apiClient.get<AuthResponse>("/auth/me", {
           withCredentials: true,
-        })
+        }),
       );
 
       if (!response.data) {
@@ -373,7 +377,7 @@ class AuthAPI {
       const axiosError = error as AxiosError;
       console.error(
         "Get profile error:",
-        axiosError.response?.data || axiosError
+        axiosError.response?.data || axiosError,
       );
 
       // Check if we need to refresh token
@@ -432,7 +436,7 @@ class UserAPI extends AuthAPI {
    * Updates user profile
    */
   static async updateProfile(
-    data: FormData
+    data: FormData,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
@@ -440,8 +444,8 @@ class UserAPI extends AuthAPI {
           "users/profile",
           data,
           // Ensure Content-Type is not set so browser/axios sets multipart/form-data
-          { headers: { "Content-Type": undefined }, withCredentials: true }
-        )
+          { headers: { "Content-Type": undefined }, withCredentials: true },
+        ),
       );
       console.log("Profile update response:>>>>>>>>>>>>", response);
       return response.data;
@@ -460,7 +464,7 @@ class UserAPI extends AuthAPI {
    * Gets a user's profile
    */
   static async getProfile(
-    userId: string
+    userId: string,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       // Create a new axios instance for this request to avoid auth headers
@@ -468,14 +472,15 @@ class UserAPI extends AuthAPI {
         baseURL: apiConfig.baseURL,
         timeout: apiConfig.timeout,
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
 
-      const response = await publicApiClient.get<{ success: boolean; data: AuthUser }>(
-        `/users/public-profile/${userId}`
-      );
+      const response = await publicApiClient.get<{
+        success: boolean;
+        data: AuthUser;
+      }>(`/users/public-profile/${userId}`);
       return response.data;
     } catch (error: any) {
       console.error("Public profile error:", error.response?.data);
@@ -493,15 +498,15 @@ class UserAPI extends AuthAPI {
    * Updates user settings
    */
   static async updateSettings(
-    settings: Record<string, any>
+    settings: Record<string, any>,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
       const response = await this.retryRequest(() =>
         apiClient.put<{ success: boolean; data: AuthUser }>(
           "users/settings",
           settings,
-          { withCredentials: true }
-        )
+          { withCredentials: true },
+        ),
       );
       return response.data;
     } catch (error: any) {

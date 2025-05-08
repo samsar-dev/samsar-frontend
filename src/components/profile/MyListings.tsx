@@ -199,7 +199,7 @@ export default function MyListings({ userId }: MyListingsProps) {
               {t("profile.total_listings", { count: total })}
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative">
               <select
@@ -209,14 +209,18 @@ export default function MyListings({ userId }: MyListingsProps) {
               >
                 <option value="newest">{t("listings.sort.newest")}</option>
                 <option value="oldest">{t("listings.sort.oldest")}</option>
-                <option value="price_high">{t("listings.sort.price_high")}</option>
-                <option value="price_low">{t("listings.sort.price_low")}</option>
+                <option value="price_high">
+                  {t("listings.sort.price_high")}
+                </option>
+                <option value="price_low">
+                  {t("listings.sort.price_low")}
+                </option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                 <FaSort size={14} />
               </div>
             </div>
-            
+
             <button
               onClick={handleCreateListing}
               className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
@@ -262,10 +266,7 @@ export default function MyListings({ userId }: MyListingsProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <MyListingCard
-                    listing={listing}
-                    onDelete={handleDelete}
-                  />
+                  <MyListingCard listing={listing} onDelete={handleDelete} />
                 </motion.div>
               ))}
             </div>

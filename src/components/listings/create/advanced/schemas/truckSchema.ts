@@ -1,9 +1,5 @@
 import { ListingFieldSchema } from "@/types/listings";
-import {
-  Condition,
-  FuelType,
-  TransmissionType,
-} from "@/types/enums";
+import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 export const truckSchema: ListingFieldSchema[] = [
   // Essential Section

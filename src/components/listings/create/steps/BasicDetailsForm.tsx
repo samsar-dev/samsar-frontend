@@ -113,7 +113,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Generate model options based on selected make
   const getModelOptions = (
-    make: string
+    make: string,
   ): { value: string; label: string }[] => {
     if (
       !make ||
@@ -128,7 +128,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     if (!models || models.length === 0) {
       console.warn(
-        `No models found for make: ${make} and type: ${vehicleType}`
+        `No models found for make: ${make} and type: ${vehicleType}`,
       );
       return [];
     }
@@ -195,7 +195,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleInputChange = (
     path: keyof ExtendedFormState | string,
-    value: string | number
+    value: string | number,
   ) => {
     setFormData((prev) => {
       const newState = { ...prev };
@@ -208,7 +208,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               parentObj[child] = {};
             }
             // Handle size field for real estate
-            if (parent === "details" && child === "realEstate" && subChild === "size") {
+            if (
+              parent === "details" &&
+              child === "realEstate" &&
+              subChild === "size"
+            ) {
               parentObj[child] = {
                 ...parentObj[child],
                 size: value,
@@ -245,7 +249,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleCategoryChange = (
     mainCategory: ListingCategory,
-    subCategory: VehicleType | PropertyType
+    subCategory: VehicleType | PropertyType,
   ) => {
     setFormData((prev: ExtendedFormState) => {
       const updatedData: ExtendedFormState = {
@@ -286,7 +290,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             size: 0,
             yearBuilt: 0,
             condition: Condition.GOOD,
-            features: []
+            features: [],
           };
 
           // Add property-specific fields based on property type
@@ -431,7 +435,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
               newErrors["details.realEstate.bedrooms"] = t(
-                "validBedroomsRequired"
+                "validBedroomsRequired",
               );
             }
           }
@@ -443,7 +447,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
               newErrors["details.realEstate.bathrooms"] = t(
-                "validBathroomsRequired"
+                "validBathroomsRequired",
               );
             }
           }
@@ -834,7 +838,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 field.step,
                 field.required,
                 field.helpText ? t(field.helpText) : undefined,
-                field.type === "select"
+                field.type === "select",
               )}
             </div>
           ))}
@@ -855,7 +859,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     step?: number,
     required: boolean = true,
     helpText?: string,
-    isSearchable?: boolean
+    isSearchable?: boolean,
   ) => {
     const fieldValue = fieldName
       .split(".")
@@ -907,7 +911,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   fieldName,
                   type === "number"
                     ? parseFloat(e.target.value)
-                    : e.target.value
+                    : e.target.value,
                 )
               }
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
@@ -1047,7 +1051,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           </div>
           <Select
             value={syrianCities.find(
-              (city) => city.value === formData.location
+              (city) => city.value === formData.location,
             )}
             onChange={handleLocationChange}
             options={syrianCities}
@@ -1119,7 +1123,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.VEHICLES,
-                    VehicleType.CAR
+                    VehicleType.CAR,
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-l-md focus:outline-none focus:z-10 ${
@@ -1139,7 +1143,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.REAL_ESTATE,
-                    PropertyType.HOUSE
+                    PropertyType.HOUSE,
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-r-md focus:outline-none focus:z-10 ${
@@ -1187,7 +1191,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               formData.details?.vehicles?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
-            undefined
+            undefined,
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}
@@ -1206,7 +1210,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               undefined,
               <FaMoneyBillWave className="w-4 h-4" />,
               t("pricePlaceholder"),
-              0
+              0,
             )}
             {renderLocationField()}
           </div>
@@ -1217,7 +1221,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             "textarea",
             undefined,
             <FaAlignLeft className="w-4 h-4" />,
-            t("descriptionPlaceholder")
+            t("descriptionPlaceholder"),
           )}
 
           {/* Image Manager Component */}
@@ -1244,7 +1248,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   setFormData((prev) => ({
                     ...prev,
                     existingImages: (prev.existingImages || []).filter(
-                      (img) => img !== url
+                      (img) => img !== url,
                     ),
                   }));
                 }}

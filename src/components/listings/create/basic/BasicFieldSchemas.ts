@@ -39,7 +39,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },
@@ -94,7 +94,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },
@@ -133,7 +133,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },
@@ -162,7 +162,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },
@@ -200,7 +200,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },
@@ -223,7 +223,7 @@ export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
         (_, i) => ({
           value: (1900 + i).toString(),
           label: (1900 + i).toString(),
-        })
+        }),
       ),
       placeholder: "Select year built",
     },

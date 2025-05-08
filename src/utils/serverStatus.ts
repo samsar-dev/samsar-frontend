@@ -35,13 +35,16 @@ class ServerStatusManager {
       }
 
       // If health check fails, try listings endpoint
-      const listingsResponse = await fetch(`${apiConfig.baseURL}/listings?limit=1&preview=true`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+      const listingsResponse = await fetch(
+        `${apiConfig.baseURL}/listings?limit=1&preview=true`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       this.isServerOnline = listingsResponse.ok;
     } catch (error) {
       console.error("Server status check failed:", error);

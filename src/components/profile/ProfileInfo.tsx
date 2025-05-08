@@ -40,11 +40,11 @@ const ProfileInfo = () => {
     phone: "",
     dateOfBirth: "",
     street: "",
-    city: ""
+    city: "",
   });
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    undefined
+    undefined,
   );
 
   // Initialize form data when user data is available
@@ -67,7 +67,7 @@ const ProfileInfo = () => {
   }, [user]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

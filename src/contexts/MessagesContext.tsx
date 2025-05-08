@@ -18,7 +18,7 @@ export interface MessagesContextType {
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   createConversation: (
     participantIds: string[],
-    initialMessage?: string
+    initialMessage?: string,
   ) => Promise<string>;
   markAsRead: (conversationId: string, messageId: string) => Promise<void>;
   setCurrentConversation: (conversationId: string) => Promise<void>;
@@ -89,12 +89,12 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       const messageInput: MessageInput = { content };
       const response = await messagesAPI.sendMessage(
         conversationId,
-        messageInput
+        messageInput,
       );
 
       if (response.status === 200 && response.data) {
         setMessages((prev) =>
-          [...prev, response.data].filter((m): m is Message => m !== null)
+          [...prev, response.data].filter((m): m is Message => m !== null),
         );
 
         // Update conversation's last message
@@ -106,8 +106,8 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
                   lastMessage: response.data,
                   updatedAt: response.data.createdAt,
                 } as Conversation)
-              : conv
-          )
+              : conv,
+          ),
         );
       }
     } catch (error) {
@@ -118,7 +118,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const createConversation = async (
     participantIds: string[],
-    initialMessage?: string
+    initialMessage?: string,
   ) => {
     if (!auth?.user)
       throw new Error("Must be logged in to create conversations");
@@ -133,7 +133,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.status === 200 && response.data) {
         // Only add non-null conversations
         setConversations((prev) =>
-          [...prev, response.data].filter((c): c is Conversation => c !== null)
+          [...prev, response.data].filter((c): c is Conversation => c !== null),
         );
         return response.data?.id;
       }
@@ -150,14 +150,14 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setMessages((prev) =>
         prev.map((message) =>
-          message.id === messageId ? { ...message, read: true } : message
-        )
+          message.id === messageId ? { ...message, read: true } : message,
+        ),
       );
 
       setConversations((prev) =>
         prev.map((conv) =>
-          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
-        )
+          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv,
+        ),
       );
     } catch (error) {
       console.error("Failed to mark messages as read:", error);
@@ -170,14 +170,18 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     if (conversation) {
       setCurrentConversation(conversation);
       await fetchMessages(conversationId);
-      if (conversation.lastMessage && !conversation.lastMessage.read && conversation.lastMessage.id) {
+      if (
+        conversation.lastMessage &&
+        !conversation.lastMessage.read &&
+        conversation.lastMessage.id
+      ) {
         await markAsRead(conversationId, conversation.lastMessage.id);
       }
     }
   };
 
   const toggleNotifications = () => {
-    setNotificationsEnabled(prev => !prev);
+    setNotificationsEnabled((prev) => !prev);
     // Update unread messages count when notifications are toggled
     if (notificationsEnabled) {
       setUnreadMessages(0);

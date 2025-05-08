@@ -33,20 +33,20 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Enhanced input validation
     if (!email.trim()) {
       toast.error("Please enter your email address");
       return;
     }
-    
+
     // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address");
       return;
     }
-    
+
     if (!password) {
       toast.error("Please enter your password");
       return;
@@ -69,16 +69,20 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      
+
       // Enhanced error handling with specific messages
       if (error.response?.data?.error?.code === "INVALID_CREDENTIALS") {
         toast.error("Invalid email or password. Please try again.");
       } else if (error.response?.data?.error?.code === "ACCOUNT_LOCKED") {
-        toast.error("Your account has been temporarily locked due to multiple failed attempts. Please try again later.");
+        toast.error(
+          "Your account has been temporarily locked due to multiple failed attempts. Please try again later.",
+        );
       } else if (error.response?.status === 429) {
         toast.error("Too many login attempts. Please try again later.");
       } else if (error.response?.data?.error?.code === "USER_NOT_FOUND") {
-        toast.error("No account found with this email. Please check your email or create a new account.");
+        toast.error(
+          "No account found with this email. Please check your email or create a new account.",
+        );
       } else {
         toast.error(error.message || "Login failed. Please try again later.");
       }

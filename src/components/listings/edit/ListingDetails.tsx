@@ -464,42 +464,54 @@ const ListingDetails = () => {
 
         // Only set vehicle features if this is a vehicle listing and vehicleDetails exists
         setFeatures({
-          safetyFeatures: isVehicleListing && vehicleDetails ? featuresDetails.safetyFeatures.filter((feature) => {
-            return Object.entries(vehicleDetails).some(
-              ([key, value]) => key === feature && value,
-            );
-          }) : [],
-          cameraFeatures: isVehicleListing && vehicleDetails ? featuresDetails.cameraFeatures.filter((feature) => {
-            return Object.entries(vehicleDetails).some(
-              ([key, value]) => key === feature && value,
-            );
-          }) : [],
-          climateFeatures: isVehicleListing && vehicleDetails ? featuresDetails.climateFeatures.filter((feature) => {
-            return Object.entries(vehicleDetails).some(
-              ([key, value]) => key === feature && value,
-            );
-          }) : [],
-          enternmentFeatures: isVehicleListing && vehicleDetails ? featuresDetails.enternmentFeatures.filter(
-            (feature) => {
-              return Object.entries(vehicleDetails).some(
-                ([key, value]) => key === feature && value,
-              );
-            },
-          ) : [],
-          lightingFeatures: isVehicleListing && vehicleDetails ? featuresDetails.lightingFeatures.filter(
-            (feature) => {
-              return Object.entries(vehicleDetails).some(
-                ([key, value]) => key === feature && value,
-              );
-            },
-          ) : [],
-          convenienceFeatures: isVehicleListing && vehicleDetails ? featuresDetails.convenienceFeatures.filter(
-            (feature) => {
-              return Object.entries(vehicleDetails).some(
-                ([key, value]) => key === feature && value,
-              );
-            },
-          ) : [],
+          safetyFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.safetyFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
+          cameraFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.cameraFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
+          climateFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.climateFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
+          enternmentFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.enternmentFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
+          lightingFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.lightingFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
+          convenienceFeatures:
+            isVehicleListing && vehicleDetails
+              ? featuresDetails.convenienceFeatures.filter((feature) => {
+                  return Object.entries(vehicleDetails).some(
+                    ([key, value]) => key === feature && value,
+                  );
+                })
+              : [],
         });
 
         console.log("[ListingDetails] vehicleDetails:", vehicleDetails);
@@ -948,8 +960,10 @@ const ListingDetails = () => {
                 {/* Vehicle History Section */}
                 {(listing?.details?.vehicles?.numberOfOwners ||
                   listing?.details?.vehicles?.previousOwners ||
-                  (listing?.details?.vehicles as any)?.serviceHistory !== undefined ||
-                  (listing?.details?.vehicles as any)?.accidentFree !== undefined ||
+                  (listing?.details?.vehicles as any)?.serviceHistory !==
+                    undefined ||
+                  (listing?.details?.vehicles as any)?.accidentFree !==
+                    undefined ||
                   listing?.details?.vehicles?.warranty ||
                   listing?.details?.vehicles?.registrationStatus) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
@@ -958,7 +972,8 @@ const ListingDetails = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Vehicle Owner */}
-                      {(listing?.details?.vehicles?.numberOfOwners || listing?.details?.vehicles?.previousOwners) && (
+                      {(listing?.details?.vehicles?.numberOfOwners ||
+                        listing?.details?.vehicles?.previousOwners) && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Vehicle Owner(s)
@@ -970,7 +985,8 @@ const ListingDetails = () => {
                         </div>
                       )}
                       {/* Service History */}
-                      {(listing?.details?.vehicles as any)?.serviceHistory !== undefined && (
+                      {(listing?.details?.vehicles as any)?.serviceHistory !==
+                        undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Service History
@@ -983,7 +999,8 @@ const ListingDetails = () => {
                         </div>
                       )}
                       {/* Accident Free */}
-                      {(listing?.details?.vehicles as any)?.accidentFree !== undefined && (
+                      {(listing?.details?.vehicles as any)?.accidentFree !==
+                        undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Accident Free
@@ -1069,14 +1086,17 @@ const ListingDetails = () => {
                           </p>
                         </div>
                       )}
-                      {(listing?.details?.vehicles as any)?.registrationExpiry && (
+                      {(listing?.details?.vehicles as any)
+                        ?.registrationExpiry && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Registration Expiry
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {new Date(
-                              (listing?.details?.vehicles as any).registrationExpiry
+                              (
+                                listing?.details?.vehicles as any
+                              ).registrationExpiry,
                             ).toLocaleDateString()}
                           </p>
                         </div>
@@ -1111,7 +1131,8 @@ const ListingDetails = () => {
                           </p>
                         </div>
                       )}
-                      {listing?.details?.vehicles?.customsCleared !== undefined && (
+                      {listing?.details?.vehicles?.customsCleared !==
+                        undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Customs Cleared
@@ -1133,13 +1154,17 @@ const ListingDetails = () => {
                           </p>
                         </div>
                       )}
-                      {(listing?.details?.vehicles as any)?.serviceHistoryDetails && (
+                      {(listing?.details?.vehicles as any)
+                        ?.serviceHistoryDetails && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             Service History Details
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)?.serviceHistoryDetails}
+                            {
+                              (listing?.details?.vehicles as any)
+                                ?.serviceHistoryDetails
+                            }
                           </p>
                         </div>
                       )}

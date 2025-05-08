@@ -16,7 +16,7 @@ export interface APIResponse<T = any> {
     errors?: any[];
   };
 }
- 
+
 export interface RequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
   requiresAuth?: boolean;
@@ -25,18 +25,19 @@ export interface RequestConfig extends InternalAxiosRequestConfig {
 // API configuration
 // Ensure we don't have duplicate /api in the URL path
 const getBaseUrl = () => {
-  let url = import.meta.env.MODE === "production"
-    ? import.meta.env.VITE_API_URL_PROD
-    : import.meta.env.VITE_API_URL || "http://localhost:5000";
-  
+  let url =
+    import.meta.env.MODE === "production"
+      ? import.meta.env.VITE_API_URL_PROD
+      : import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   // Normalize the URL to ensure it doesn't have a trailing slash
   url = url.endsWith("/") ? url.slice(0, -1) : url;
-  
+
   // Add /api only if it's not already there
   if (!url.endsWith("/api")) {
     url = `${url}/api`;
   }
-  
+
   return url;
 };
 
@@ -81,7 +82,7 @@ apiClient.interceptors.request.use(
   (error) => {
     console.error("Request interceptor error:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
@@ -124,7 +125,7 @@ apiClient.interceptors.response.use(
 
     // For public endpoints or other errors, just reject
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

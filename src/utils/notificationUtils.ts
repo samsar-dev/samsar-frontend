@@ -29,7 +29,9 @@ export const getNotificationColor = (type: NotificationType): string => {
 /**
  * Get the appropriate action for a notification based on its type
  */
-export const getNotificationAction = (notification: Notification): { path: string; query?: Record<string, string> } => {
+export const getNotificationAction = (
+  notification: Notification,
+): { path: string; query?: Record<string, string> } => {
   switch (notification.type) {
     case NotificationType.NEW_MESSAGE:
       return { path: `/messages/${notification.targetId}` };
@@ -39,7 +41,10 @@ export const getNotificationAction = (notification: Notification): { path: strin
     case NotificationType.LISTING_CREATED:
       return { path: `/listings/${notification.listingId}` };
     case NotificationType.NEW_LISTING_MATCH:
-      return { path: `/listings`, query: { match: notification.targetId || "" } };
+      return {
+        path: `/listings`,
+        query: { match: notification.targetId || "" },
+      };
     case NotificationType.ACCOUNT_WARNING:
       return { path: `/account/settings` };
     case NotificationType.SYSTEM_ANNOUNCEMENT:
@@ -81,12 +86,14 @@ export const getNotificationIcon = (type: NotificationType): string => {
 /**
  * Format a notification message with appropriate context
  */
-export const formatNotificationMessage = (notification: Notification): string => {
+export const formatNotificationMessage = (
+  notification: Notification,
+): string => {
   // If the notification already has a formatted message, use it
   if (notification.message) {
     return notification.message;
   }
-  
+
   // Otherwise, generate a generic message based on the notification type
   switch (notification.type) {
     case NotificationType.NEW_MESSAGE:

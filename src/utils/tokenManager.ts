@@ -1,10 +1,6 @@
 import type { AuthTokens, JWTPayload } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
-import {
-  setAuthToken,
-  getAuthToken,
-  setAuthRefreshToken,
-} from "./cookie";
+import { setAuthToken, getAuthToken, setAuthRefreshToken } from "./cookie";
 import { getItem, removeItem } from "./storage";
 
 export class TokenManager {
@@ -229,16 +225,16 @@ export class TokenManager {
   static clearTokens(): void {
     // Don't call clearAuthToken() here to avoid circular dependency
     // Instead, directly remove cookies using js-cookie
-    import("js-cookie").then(Cookies => {
+    import("js-cookie").then((Cookies) => {
       Cookies.default.remove("jwt", { path: "/" });
       Cookies.default.remove("refresh_token", { path: "/" });
     });
-    
+
     // Clear localStorage items
     removeItem("authTokens");
     localStorage.removeItem("token");
     localStorage.removeItem("authTokens");
-    
+
     // Reset JWT payload
     this.jwtPayload = null;
   }
@@ -287,7 +283,7 @@ export class TokenManager {
         if (missingFields.length > 0) {
           console.error(
             "Missing required fields in token payload:",
-            missingFields
+            missingFields,
           );
           return false;
         }

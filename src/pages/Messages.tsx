@@ -34,7 +34,7 @@ export default function ChatInterface() {
         setCurrentChat(conversation);
 
         setParticipant(
-          conversation.participants.find((p) => p.id !== user?.id) || null
+          conversation.participants.find((p) => p.id !== user?.id) || null,
         );
       }
     } catch (error) {

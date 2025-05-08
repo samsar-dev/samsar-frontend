@@ -55,7 +55,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         const response = await signup(
           signupData.email,
           signupData.password,
-          signupData.name
+          signupData.name,
         );
         if (response.success && response.data) {
           onSuccess?.();

@@ -18,7 +18,10 @@ export const constructionSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Equipment type is required" : null),
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Equipment type is required";
+      return null;
+    },
   },
   {
     name: "condition",
@@ -27,7 +30,10 @@ export const constructionSchema: ListingFieldSchema[] = [
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
     required: true,
-    validate: (value: string) => (!value ? "Condition is required" : null),
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Condition is required";
+      return null;
+    },
   },
   {
     name: "operatingWeight",
@@ -35,8 +41,12 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      /^\d+$/.test(value) ? null : "Invalid weight format",
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
+      return "Invalid weight format";
+    },
   },
   {
     name: "enginePower",
@@ -44,8 +54,12 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      /^\d+$/.test(value) ? null : "Invalid power format",
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
+      return "Invalid power format";
+    },
   },
   {
     name: "hoursUsed",
@@ -53,8 +67,12 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "text",
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      /^\d+$/.test(value) ? null : "Invalid hours format",
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
+      return "Invalid hours format";
+    },
   },
   {
     name: "previousOwners",
@@ -62,11 +80,11 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: true,
-    validate: (value: number) => {
-      if (value === undefined || value === null)
-        return "Previous owners is required";
-      if (value < 0) return "Previous owners must be 0 or greater";
-      return null;
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Previous owners is required";
+      if (typeof value === "number" && value >= 0) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      return "Previous owners must be 0 or greater";
     },
   },
   {
@@ -76,8 +94,10 @@ export const constructionSchema: ListingFieldSchema[] = [
     options: ["registered", "unregistered", "expired"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Registration status is required" : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Registration status is required";
+      return null;
+    },
   },
   {
     name: "serviceHistory",
@@ -86,8 +106,10 @@ export const constructionSchema: ListingFieldSchema[] = [
     options: ["full", "partial", "none"],
     section: "essential",
     required: true,
-    validate: (value: string) =>
-      !value ? "Service history is required" : null,
+    validate: (value: string | number | boolean) => {
+      if (!value) return "Service history is required";
+      return null;
+    },
   },
 
   // Advanced Section
@@ -97,8 +119,12 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string) =>
-      /^\d+$/.test(value) ? null : "Invalid capacity format",
+    validate: (value: string | number | boolean) => {
+      if (!value) return null;
+      if (typeof value === "string" && /^\d+$/.test(value)) return null;
+      if (typeof value === "number" && value >= 0) return null;
+      return "Invalid capacity format";
+    },
   },
   {
     name: "maintenanceHistory",
@@ -138,13 +164,7 @@ export const constructionSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  {
-    name: "yearManufactured",
-    label: "listings.yearManufactured",
-    type: "number",
-    section: "advanced",
-    required: false,
-  },
+
   {
     name: "emissions",
     label: "listings.emissions",

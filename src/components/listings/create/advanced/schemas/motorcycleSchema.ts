@@ -21,22 +21,6 @@ export const motorcycleSchema: ListingFieldSchema[] = [
       !value ? "Model is required" : null,
   },
   {
-    name: "year",
-    label: "listings.year",
-    type: "number",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) => {
-      if (!value) return "Year is required";
-      if (typeof value === "number") {
-        if (value < 1885) return "Year must be 1885 or later";
-        if (value > new Date().getFullYear())
-          return "Year cannot be in the future";
-      }
-      return null;
-    },
-  },
-  {
     name: "color",
     label: "listings.exteriorColor",
     type: "colorpicker",
