@@ -49,12 +49,6 @@ export const handleAdvancedDetailsSubmit = (
                 data.details?.vehicles?.model ||
                 prev.details?.vehicles?.model ||
                 "",
-              year:
-                typeof data.details?.vehicles?.year === "string"
-                  ? parseInt(data.details.vehicles.year, 10)
-                  : data.details?.vehicles?.year ||
-                    prev.details?.vehicles?.year ||
-                    new Date().getFullYear(),
               mileage:
                 data.details?.vehicles?.mileage ||
                 prev.details?.vehicles?.mileage ||
@@ -279,10 +273,6 @@ export const handleAdvancedDetailsSubmit = (
                   data.details?.realEstate?.size ||
                   prev.details?.realEstate?.size ||
                   0,
-                yearBuilt:
-                  data.details?.realEstate?.yearBuilt ||
-                  prev.details?.realEstate?.yearBuilt ||
-                  new Date().getFullYear(),
                 condition: (data.details?.realEstate?.condition ||
                   prev.details?.realEstate?.condition ||
                   Condition.GOOD) as Condition,
