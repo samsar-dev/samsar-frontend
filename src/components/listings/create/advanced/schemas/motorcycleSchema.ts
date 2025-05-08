@@ -419,7 +419,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "listings.serviceHistory",
-    type: "multiselect",
+    type: "select",
     options: [
       "fullDealerHistory",
       "partialDealerHistory",

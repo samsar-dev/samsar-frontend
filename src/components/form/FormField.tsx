@@ -1,13 +1,35 @@
-import React from "react";
 import clsx from "clsx";
-import Select, { SingleValue, ActionMeta } from "react-select";
+import { forwardRef } from "react";
+import Select from "react-select";
+import type { SingleValue, ActionMeta, MultiValue } from "react-select";
+import makeAnimated from "react-select/animated";
 
 export type FormFieldValue = string | number | boolean | string[];
+
+type OptionType = {
+  value: string;
+  label: string;
+};
+
+type HandleMultiSelectChangeProps = {
+  required?: boolean;
+  label: string;
+  customValidation?: (value: string[]) => string | undefined;
+  onChange: (value: string[] | null, error?: string) => void;
+};
 
 export interface FormFieldProps {
   name: string;
   label: string;
-  type: "text" | "number" | "textarea" | "select" | "checkbox" | "color" | "boolean";
+  type:
+    | "text"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox"
+    | "color"
+    | "boolean"
+    | "multiselect";
   value: FormFieldValue;
   onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
@@ -18,11 +40,13 @@ export interface FormFieldProps {
   min?: number;
   max?: number;
   prefix?: string;
-  customValidation?: (value: string) => string | undefined;
+  customValidation?: (
+    value: string | string[]
+  ) => string | string[] | undefined | null;
   isSearchable?: boolean;
 }
 
-export const FormField = React.forwardRef<
+export const FormField = forwardRef<
   HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
   FormFieldProps
 >((props, ref) => {
@@ -44,13 +68,15 @@ export const FormField = React.forwardRef<
     isSearchable,
   } = props;
 
+  console.log(props);
+
   const handleChange = (
     e:
       | React.ChangeEvent<
           HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
         >
       | SingleValue<{ value: string; label: string }>,
-    actionMeta?: ActionMeta<{ value: string; label: string }>,
+    actionMeta?: ActionMeta<{ value: string; label: string }>
   ) => {
     let newValue;
 
@@ -73,7 +99,7 @@ export const FormField = React.forwardRef<
     }
 
     // Run validation
-    let validationError: string | undefined;
+    let validationError: string | string[] | undefined | null;
 
     // First check if required field is empty
     if (
@@ -90,6 +116,28 @@ export const FormField = React.forwardRef<
     onChange(newValue, validationError);
   };
 
+  const handleMultiSelectChange = (
+    newValue: MultiValue<unknown>,
+    actionMeta?: ActionMeta<unknown>
+  ) => {
+    let newValueArr: string[] | null = null;
+
+    if (Array.isArray(newValue) && newValue.length > 0) {
+      newValueArr = newValue.map((item) => item.value);
+    }
+
+    // Run validation
+    let validationError: string | string[] | undefined | null;
+
+    if (required && (!newValueArr || newValueArr.length === 0)) {
+      validationError = `${label} is required`;
+    } else if (customValidation && newValue) {
+      validationError = customValidation(newValueArr || []);
+    }
+
+    onChange(newValueArr || [], validationError);
+  };
+
   const inputClasses = clsx(
     "block w-full rounded-lg border py-2 px-3 text-gray-900 shadow-sm transition-colors duration-200",
     "focus:outline-none focus:ring-2 focus:ring-offset-2",
@@ -98,8 +146,10 @@ export const FormField = React.forwardRef<
       "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500": error,
       "opacity-50 cursor-not-allowed": disabled,
       "pl-10": prefix,
-    },
+    }
   );
+
+  const animatedComponents = makeAnimated();
 
   const renderInput = () => {
     switch (type) {
@@ -180,6 +230,41 @@ export const FormField = React.forwardRef<
               </option>
             ))}
           </select>
+        );
+
+      case "multiselect":
+        return (
+          <Select
+            closeMenuOnSelect={false}
+            id={name}
+            name={name}
+            onChange={handleMultiSelectChange}
+            components={animatedComponents}
+            placeholder={placeholder || "Select an option"}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            isSearchable={true}
+            isMulti
+            isDisabled={disabled || false}
+            options={options}
+            styles={{
+              control: (base, state) => ({
+                ...base,
+                borderColor: error
+                  ? "var(--red-300)"
+                  : state.isFocused
+                    ? "var(--blue-500)"
+                    : "var(--gray-300)",
+                backgroundColor: error ? "var(--red-50)" : "white",
+                boxShadow: state.isFocused
+                  ? `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`
+                  : "none",
+                "&:hover": {
+                  borderColor: error ? "var(--red-400)" : "var(--blue-400)",
+                },
+              }),
+            }}
+          />
         );
 
       case "checkbox":
