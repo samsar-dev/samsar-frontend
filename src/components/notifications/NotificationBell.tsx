@@ -3,12 +3,14 @@ import { Tooltip } from "@/components/ui";
 import { NEW_MESSAGE_ALERT } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/hooks";
-import type { Notification, NotificationType } from "@/types/notifications";
+import type { Notification } from "@/types/notifications";
+import { NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
+import { getNotificationColor, formatNotificationMessage } from "@/utils/notificationUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaBell } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { FaBell, FaEnvelope, FaTag, FaCheckCircle, FaHeart, FaPlusCircle, FaSearch, FaExclamationTriangle, FaBullhorn, FaInfoCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 interface NotificationBellProps {
@@ -21,12 +23,13 @@ export default function NotificationBell({
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { socket } = useSocket();
+  const { socket, connected, connectionError } = useSocket();
 
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
@@ -39,11 +42,19 @@ export default function NotificationBell({
         );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
-        toast.error(response.error);
+        // Simply display a generic error message to avoid type issues
+        toast.error("Failed to load notifications");
       }
     } catch (error: any) {
       console.error("Failed to fetch notifications:", error);
-      toast.error(error?.error || "Failed to load notifications");
+      // Provide a more user-friendly error message
+      const errorMessage = error?.response?.status === 500
+        ? "Server error: Unable to load notifications at this time"
+        : error?.error || "Failed to load notifications";
+      toast.error(errorMessage);
+      // Initialize with empty data to prevent UI errors
+      setNotifications([]);
+      setUnreadCount(0);
     }
   };
   console.log("chatId", location.pathname.split("/")[2]);
@@ -53,51 +64,68 @@ export default function NotificationBell({
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (!socket) {
-      console.error("Socket not initialized");
+    // Only set up socket listeners if socket is available and connected
+    if (!socket || !connected) {
+      console.log("Socket not yet initialized or not connected, waiting...");
+      return;
     }
-    socket?.on(
-      NEW_MESSAGE_ALERT,
-      async (data: {
-        id: string
-        content: string;
-        userId: string;
-        type: string;
-        relatedId: string;
-        read: boolean;
-        createdAt: string;
-      }) => {
-        console.log("new message alert>>>>>>>>>>>>>", data);
-        console.log("chatId", location.pathname.split("/"));
-        if (location.pathname.split("/")[2] === data.relatedId) {
-          try {
-            const result = await NotificationsAPI.deleteNotification(
-              data.relatedId
-            );
-            console.log("notification deleted result:", result);
-            return;
-          } catch (error) {
-            console.error("Error deleting notification:", error);
-            return;
-          }
+    
+    // Log connection error if any
+    if (connectionError) {
+      console.warn("Socket connection error:", connectionError);
+    }
+
+    // Set up the event listener for new message alerts
+    const handleNewMessageAlert = async (data: {
+      id: string
+      content: string;
+      userId: string;
+      type: string;
+      relatedId: string;
+      read: boolean;
+      createdAt: string;
+    }) => {
+      console.log("new message alert received:", data);
+      console.log("chatId", location.pathname.split("/")[2]);
+      
+      // If user is in the chat related to this notification, delete it
+      if (location.pathname.split("/")[2] === data.relatedId) {
+        try {
+          const result = await NotificationsAPI.deleteNotification(
+            data.relatedId
+          );
+          console.log("notification deleted result:", result);
+          return;
+        } catch (error) {
+          console.error("Error deleting notification:", error);
+          return;
         }
-        const newNotification: Notification = {
-          id: data.relatedId,
-          userId: data.userId,
-          // user: { id: data.userId },
-          type: data.type as NotificationType,
-          title: "New Message",
-          message: data.content,
-          createdAt: data.createdAt,
-          // updatedAt: new Date(data.createdAt).toISOString(),
-          read: data.read,
-        };
-        console.log("newNotification>>>>>>>>>>>>>", newNotification);
-        setNotifications((prev) => [newNotification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
       }
-    );
-  }, [socket]);
+      
+      // Otherwise, create a new notification
+      const newNotification: Notification = {
+        id: data.relatedId,
+        userId: data.userId,
+        type: NotificationType.NEW_MESSAGE,
+        title: "New Message",
+        message: data.content,
+        createdAt: data.createdAt,
+        read: data.read,
+      };
+      
+      console.log("Adding new notification:", newNotification);
+      setNotifications((prev) => [newNotification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    };
+
+    // Register the event listener
+    socket.on(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+    
+    // Clean up the event listener when component unmounts or socket changes
+    return () => {
+      socket.off(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+    };
+  }, [socket, location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -120,21 +148,62 @@ export default function NotificationBell({
     if (!isAuthenticated) return;
 
     try {
-      if (!notification.read) {
-        const response = await NotificationsAPI.markAsRead(notification.id);
-        if (response.success) {
-          setNotifications((prev) =>
-            prev.map((n) =>
-              n.id === notification.id ? { ...n, read: true } : n
-            )
-          );
-          setUnreadCount((prev) => Math.max(0, prev - 1));
-        } else if (response.error) {
-          toast.error(response.error);
+      // Mark notification as read
+      const response = await NotificationsAPI.markAsRead(notification.id);
+      
+      if (response.success) {
+        // Update local state
+        setNotifications(prev =>
+          prev.map(n =>
+            n.id === notification.id ? { ...n, read: true } : n
+          )
+        );
+        
+        // Update unread count
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        // Call the onNotificationClick callback if provided
+        if (onNotificationClick) {
+          onNotificationClick(notification);
+        } else {
+          // Navigate based on notification type
+          switch (notification.type) {
+            case NotificationType.NEW_MESSAGE:
+              if (notification.targetId) {
+                navigate(`/messages/${notification.targetId}`);
+              } else {
+                navigate('/messages');
+              }
+              break;
+            case NotificationType.PRICE_UPDATE:
+            case NotificationType.LISTING_SOLD:
+            case NotificationType.LISTING_INTEREST:
+            case NotificationType.LISTING_CREATED:
+              if (notification.listingId) {
+                // Based on the memory, we need to fetch all listings and find the specific one
+                // rather than using direct endpoints like /listings/:id
+                navigate(`/listings?id=${notification.listingId}`);
+              } else {
+                navigate('/listings');
+              }
+              break;
+            case NotificationType.NEW_LISTING_MATCH:
+              navigate('/listings?match=true');
+              break;
+            case NotificationType.ACCOUNT_WARNING:
+              navigate('/account/settings');
+              break;
+            case NotificationType.SYSTEM_ANNOUNCEMENT:
+            case NotificationType.SYSTEM_NOTICE:
+              // Stay on the current page, notification details are already shown
+              break;
+            default:
+              // Default behavior
+              break;
+          }
         }
       }
-
-      onNotificationClick?.(notification);
+      
       setShowNotifications(false);
     } catch (error: any) {
       console.error("Failed to mark notification as read:", error);
@@ -200,12 +269,58 @@ export default function NotificationBell({
                     }`}
                   >
                     <div className="flex items-start">
+                      <div className="flex-shrink-0 mr-2 mt-1">
+                        {(() => {
+                          // Get the color based on notification type
+                          const color = getNotificationColor(notification.type);
+                          
+                          // Select the appropriate icon based on notification type
+                          let Icon;
+                          switch (notification.type) {
+                            case NotificationType.NEW_MESSAGE:
+                              Icon = FaEnvelope;
+                              break;
+                            case NotificationType.PRICE_UPDATE:
+                              Icon = FaTag;
+                              break;
+                            case NotificationType.LISTING_SOLD:
+                              Icon = FaCheckCircle;
+                              break;
+                            case NotificationType.LISTING_INTEREST:
+                              Icon = FaHeart;
+                              break;
+                            case NotificationType.LISTING_CREATED:
+                              Icon = FaPlusCircle;
+                              break;
+                            case NotificationType.NEW_LISTING_MATCH:
+                              Icon = FaSearch;
+                              break;
+                            case NotificationType.ACCOUNT_WARNING:
+                              Icon = FaExclamationTriangle;
+                              break;
+                            case NotificationType.SYSTEM_ANNOUNCEMENT:
+                              Icon = FaBullhorn;
+                              break;
+                            case NotificationType.SYSTEM_NOTICE:
+                              Icon = FaInfoCircle;
+                              break;
+                            default:
+                              Icon = FaBell;
+                          }
+                          
+                          return (
+                            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-${color}-100 dark:bg-${color}-800`}>
+                              <Icon className={`w-3 h-3 text-${color}-500 dark:text-${color}-300`} />
+                            </span>
+                          );
+                        })()} 
+                      </div>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {notification.title}
+                          {notification.title || t(`notification.types.${notification.type.toLowerCase()}`)}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {notification.message}
+                          {formatNotificationMessage(notification)}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                           {timeAgo(notification.createdAt, "en")}

@@ -217,9 +217,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const register = async (
-    username: string,
     email: string,
     password: string,
+    name: string,
   ): Promise<boolean> => {
     try {
       // Check if we're still in rate limit cooldown
@@ -233,11 +233,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("email", email);
-      formData.append("password", password);
-      const response = await AuthAPI.register(formData);
+      // Call the API with the parameters directly
+      const response = await AuthAPI.register(email, password, name);
 
       if (!response?.success) {
         handleAuthError(response?.error || null);

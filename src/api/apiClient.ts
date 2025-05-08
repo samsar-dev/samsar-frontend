@@ -23,11 +23,24 @@ export interface RequestConfig extends InternalAxiosRequestConfig {
 }
 
 // API configuration
-const baseURL =
-  import.meta.env.MODE === "production"
+// Ensure we don't have duplicate /api in the URL path
+const getBaseUrl = () => {
+  let url = import.meta.env.MODE === "production"
     ? import.meta.env.VITE_API_URL_PROD
-    : import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    : import.meta.env.VITE_API_URL || "http://localhost:5000";
+  
+  // Normalize the URL to ensure it doesn't have a trailing slash
+  url = url.endsWith("/") ? url.slice(0, -1) : url;
+  
+  // Add /api only if it's not already there
+  if (!url.endsWith("/api")) {
+    url = `${url}/api`;
+  }
+  
+  return url;
+};
 
+const baseURL = getBaseUrl();
 console.log("API Base URL:", baseURL); // For debugging
 
 export const apiConfig = {
@@ -46,19 +59,22 @@ const apiClient: AxiosInstance = axios.create(apiConfig);
 // Request interceptor
 apiClient.interceptors.request.use(
   (config: RequestConfig) => {
-    // Only add auth header if the request requires authentication
-    if (config.headers?.requiresAuth !== false) {
+    // Handle public endpoints (no auth required)
+    if (config.headers?.requiresAuth === false) {
+      config.headers.Authorization = undefined;
+      config.withCredentials = false;
+    } else {
+      // Add auth header for protected endpoints
       const token = TokenManager.getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       } else {
         console.warn("No access token available for authenticated request");
       }
-    }
 
-    // Always ensure withCredentials is set for cross-origin requests
-    // This ensures cookies are sent with the request
-    config.withCredentials = true;
+      // Set withCredentials for protected endpoints
+      config.withCredentials = true;
+    }
 
     return config;
   },

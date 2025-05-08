@@ -4,15 +4,12 @@ import type {
   AuthError,
   AuthErrorCode,
   AuthUser,
-  // AuthTokens is used by TokenManager.setTokens
-  AuthTokens,
 } from "../types/auth.types";
 
 import TokenManager from "../utils/tokenManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { API_URL_PROD } from "@/config";
-import { Cookie } from "lucide-react";
 import Cookies from "js-cookie";
+import { apiConfig } from "./apiClient";
 
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
@@ -43,7 +40,7 @@ class AuthAPI {
       return await requestFn();
     } catch (error) {
       // Ensure we're dealing with an AxiosError
-      if (!axios.isAxiosError(error)) {
+      if (!(error instanceof AxiosError)) {
         throw error; // Not an Axios error, just rethrow
       }
 
@@ -163,14 +160,22 @@ class AuthAPI {
    * @param user User's registration data
    * @returns Authentication response
    */
-  static async register(user: FormData): Promise<AuthResponse> {
+  static async register(email: string, password: string, name: string): Promise<AuthResponse> {
     try {
+      const userData = {
+        email,
+        password,
+        name,
+        username: email.split('@')[0] // Generate username from email
+      };
+      
       const response = await AuthAPI.retryRequest(() =>
-        apiClient.post<AuthResponse>("/auth/register", user, {
+        apiClient.post<AuthResponse>('/auth/register', userData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'application/json',
+            requiresAuth: false
           },
-          withCredentials: true,
+          withCredentials: true
         })
       );
 
@@ -181,10 +186,12 @@ class AuthAPI {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(
-        "Registration error:",
-        axiosError.response?.data || axiosError
-      );
+      console.error("Registration error details:", {
+        status: axiosError.response?.status,
+        data: axiosError.response?.data,
+        config: axiosError.config,
+        message: axiosError.message
+      });
 
       if (axiosError.response?.status === 429) {
         return {
@@ -456,11 +463,22 @@ class UserAPI extends AuthAPI {
     userId: string
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      const response = await axios.get<{ success: boolean; data: AuthUser }>(
-        `${API_URL_PROD}/users/public-profile/${userId}`
+      // Create a new axios instance for this request to avoid auth headers
+      const publicApiClient = axios.create({
+        baseURL: apiConfig.baseURL,
+        timeout: apiConfig.timeout,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      const response = await publicApiClient.get<{ success: boolean; data: AuthUser }>(
+        `/users/public-profile/${userId}`
       );
       return response.data;
     } catch (error: any) {
+      console.error("Public profile error:", error.response?.data);
       return {
         success: false,
         error: {
