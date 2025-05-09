@@ -1,3 +1,4 @@
+import { TransmissionType } from "@/types/enums";
 import { ListingFieldSchema } from "@/types/listings";
 
 export const tractorSchema: ListingFieldSchema[] = [
@@ -63,17 +64,11 @@ export const tractorSchema: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "listings.transmissionType",
     type: "select",
-    options: [
-      "",
-      "manual",
-      "powerShift",
-      "cvt",
-      "hydrostatic",
-      "automatic",
-      "shuttle",
-    ],
+    options: Object.values(TransmissionType),
     section: "essential",
     required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Transmission type is required" : null,
   },
   {
     name: "fuelType",
@@ -282,7 +277,11 @@ export const tractorSchema: ListingFieldSchema[] = [
       cab: {
         label: "Cab Features",
         features: [
-          { name: "airConditioning", label: "Air Conditioning", type: "toggle" },
+          {
+            name: "airConditioning",
+            label: "Air Conditioning",
+            type: "toggle",
+          },
           { name: "heating", label: "Heating", type: "toggle" },
           { name: "airSuspension", label: "Air Suspension", type: "toggle" },
           { name: "soundproofing", label: "Soundproofing", type: "toggle" },
@@ -295,7 +294,11 @@ export const tractorSchema: ListingFieldSchema[] = [
       seating: {
         label: "Seating Features",
         features: [
-          { name: "airSuspensionSeat", label: "Air Suspension Seat", type: "toggle" },
+          {
+            name: "airSuspensionSeat",
+            label: "Air Suspension Seat",
+            type: "toggle",
+          },
           { name: "mechanicalSeat", label: "Mechanical Seat", type: "toggle" },
           { name: "heatedSeat", label: "Heated Seat", type: "toggle" },
           { name: "ventilatedSeat", label: "Ventilated Seat", type: "toggle" },
@@ -307,10 +310,22 @@ export const tractorSchema: ListingFieldSchema[] = [
         label: "Steering Features",
         features: [
           { name: "powerSteering", label: "Power Steering", type: "toggle" },
-          { name: "hydrostaticSteering", label: "Hydrostatic Steering", type: "toggle" },
+          {
+            name: "hydrostaticSteering",
+            label: "Hydrostatic Steering",
+            type: "toggle",
+          },
           { name: "autoSteer", label: "Auto Steer", type: "toggle" },
-          { name: "gpsReadySteering", label: "GPS Ready Steering", type: "toggle" },
-          { name: "joystickSteering", label: "Joystick Steering", type: "toggle" },
+          {
+            name: "gpsReadySteering",
+            label: "GPS Ready Steering",
+            type: "toggle",
+          },
+          {
+            name: "joystickSteering",
+            label: "Joystick Steering",
+            type: "toggle",
+          },
         ],
       },
       lighting: {
@@ -329,15 +344,39 @@ export const tractorSchema: ListingFieldSchema[] = [
         label: "Technology Features",
         features: [
           { name: "gps", label: "GPS", type: "toggle" },
-          { name: "autoSteerTech", label: "Auto Steer Technology", type: "toggle" },
-          { name: "variableRateTech", label: "Variable Rate Technology", type: "toggle" },
+          {
+            name: "autoSteerTech",
+            label: "Auto Steer Technology",
+            type: "toggle",
+          },
+          {
+            name: "variableRateTech",
+            label: "Variable Rate Technology",
+            type: "toggle",
+          },
           { name: "sectionControl", label: "Section Control", type: "toggle" },
-          { name: "yieldMonitoring", label: "Yield Monitoring", type: "toggle" },
+          {
+            name: "yieldMonitoring",
+            label: "Yield Monitoring",
+            type: "toggle",
+          },
           { name: "telemetry", label: "Telemetry", type: "toggle" },
           { name: "digitalMonitor", label: "Digital Monitor", type: "toggle" },
-          { name: "touchscreenMonitor", label: "Touchscreen Monitor", type: "toggle" },
-          { name: "performanceMonitor", label: "Performance Monitor", type: "toggle" },
-          { name: "implementMonitor", label: "Implement Monitor", type: "toggle" },
+          {
+            name: "touchscreenMonitor",
+            label: "Touchscreen Monitor",
+            type: "toggle",
+          },
+          {
+            name: "performanceMonitor",
+            label: "Performance Monitor",
+            type: "toggle",
+          },
+          {
+            name: "implementMonitor",
+            label: "Implement Monitor",
+            type: "toggle",
+          },
           { name: "cameraMonitor", label: "Camera Monitor", type: "toggle" },
         ],
       },

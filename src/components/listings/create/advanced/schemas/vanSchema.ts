@@ -215,12 +215,12 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    validate: (value: string | number | boolean) => {
-      if (!value) return null;
-      if (typeof value === "string" && !/^-?\d+(\.\d+)?°[CF]$/.test(value))
-        return "Invalid temperature format";
-      return null;
-    },
+    // validate: (value: string | number | boolean) => {
+    //   if (!value) return null;
+    //   if (typeof value === "string" && !/^-?\d+(\.\d+)?°[CF]$/.test(value))
+    //     return "Invalid temperature format";
+    //   return null;
+    // },
   },
   {
     name: "interiorHeight",
@@ -271,7 +271,7 @@ export const vanSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  
+
   // ================= SAFETY FEATURES =================
   {
     name: "safetyFeatures",
@@ -311,18 +311,42 @@ export const vanSchema: ListingFieldSchema[] = [
           },
           { name: "backupCamera", label: "Backup Camera", type: "toggle" },
           { name: "parkingSensors", label: "Parking Sensors", type: "toggle" },
-          { name: "blindSpotMonitor", label: "Blind Spot Monitor", type: "toggle" },
-          { name: "crossTrafficAlert", label: "Cross Traffic Alert", type: "toggle" },
+          {
+            name: "blindSpotMonitor",
+            label: "Blind Spot Monitor",
+            type: "toggle",
+          },
+          {
+            name: "crossTrafficAlert",
+            label: "Cross Traffic Alert",
+            type: "toggle",
+          },
         ],
       },
       safety: {
         label: "Safety Features",
         features: [
           { name: "abs", label: "ABS", type: "toggle" },
-          { name: "tractionControl", label: "Traction Control", type: "toggle" },
-          { name: "stabilityControl", label: "Stability Control", type: "toggle" },
-          { name: "tirePressureMonitoring", label: "Tire Pressure Monitoring", type: "toggle" },
-          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          {
+            name: "tractionControl",
+            label: "Traction Control",
+            type: "toggle",
+          },
+          {
+            name: "stabilityControl",
+            label: "Stability Control",
+            type: "toggle",
+          },
+          {
+            name: "tirePressureMonitoring",
+            label: "Tire Pressure Monitoring",
+            type: "toggle",
+          },
+          {
+            name: "fireExtinguisher",
+            label: "Fire Extinguisher",
+            type: "toggle",
+          },
           { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
         ],
       },
@@ -343,7 +367,11 @@ export const vanSchema: ListingFieldSchema[] = [
           { name: "rearCamera", label: "Rear Camera", type: "toggle" },
           { name: "camera360", label: "360° Camera", type: "toggle" },
           { name: "dashCam", label: "Dash Cam", type: "toggle" },
-          { name: "parkingAidCamera", label: "Parking Aid Camera", type: "toggle" },
+          {
+            name: "parkingAidCamera",
+            label: "Parking Aid Camera",
+            type: "toggle",
+          },
         ],
       },
       entertainment: {
@@ -352,9 +380,17 @@ export const vanSchema: ListingFieldSchema[] = [
           { name: "bluetooth", label: "Bluetooth", type: "toggle" },
           { name: "appleCarPlay", label: "Apple CarPlay", type: "toggle" },
           { name: "androidAuto", label: "Android Auto", type: "toggle" },
-          { name: "premiumSound", label: "Premium Sound System", type: "toggle" },
+          {
+            name: "premiumSound",
+            label: "Premium Sound System",
+            type: "toggle",
+          },
           { name: "usbPorts", label: "USB Ports", type: "toggle" },
-          { name: "infotainment", label: "Infotainment System", type: "toggle" },
+          {
+            name: "infotainment",
+            label: "Infotainment System",
+            type: "toggle",
+          },
           { name: "navigation", label: "Navigation System", type: "toggle" },
           { name: "gps", label: "GPS", type: "toggle" },
         ],
@@ -373,8 +409,16 @@ export const vanSchema: ListingFieldSchema[] = [
       climate: {
         label: "Climate Features",
         features: [
-          { name: "airConditioning", label: "Air Conditioning", type: "toggle" },
-          { name: "rearClimateControl", label: "Rear Climate Control", type: "toggle" },
+          {
+            name: "airConditioning",
+            label: "Air Conditioning",
+            type: "toggle",
+          },
+          {
+            name: "rearClimateControl",
+            label: "Rear Climate Control",
+            type: "toggle",
+          },
           { name: "heatedSeats", label: "Heated Seats", type: "toggle" },
         ],
       },
