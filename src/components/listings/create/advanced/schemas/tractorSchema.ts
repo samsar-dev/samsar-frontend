@@ -2,20 +2,6 @@ import { ListingFieldSchema } from "@/types/listings";
 
 export const tractorSchema: ListingFieldSchema[] = [
   // Essential Section
-  {
-    name: "make",
-    label: "listings.make",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "model",
-    label: "listings.model",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
 
   {
     name: "color",

@@ -218,39 +218,97 @@ export const truckSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
-    name: "navigation",
-    label: "listings.navigation",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "infotainment",
-    label: "listings.infotainment",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
     name: "safetyFeatures",
     label: "listings.safetyFeatures",
-    type: "multiselect",
-    options: [
-      "abs",
-      "laneAssist",
-      "collisionWarning",
-      "fireExtinguisher",
-      "firstAidKit",
-      "other",
-    ],
+    type: "featureGroup",
+    featureGroups: {
+      "braking": {
+        label: "Braking Systems",
+        features: [
+          { name: "abs", label: "ABS", type: "toggle" },
+          { name: "emergencyBraking", label: "Emergency Braking", type: "toggle" },
+          { name: "hillStartAssist", label: "Hill Start Assist", type: "toggle" }
+        ]
+      },
+      "driverAssist": {
+        label: "Driver Assistance",
+        features: [
+          { name: "laneAssist", label: "Lane Assist", type: "toggle" },
+          { name: "collisionWarning", label: "Collision Warning", type: "toggle" },
+          { name: "blindSpotMonitoring", label: "Blind Spot Monitoring", type: "toggle" }
+        ]
+      },
+      "emergencyEquipment": {
+        label: "Emergency Equipment",
+        features: [
+          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
+          { name: "emergencyTriangle", label: "Emergency Triangle", type: "toggle" }
+        ]
+      }
+    },
     section: "advanced",
     required: false,
   },
   {
-    name: "suspensionType",
-    label: "listings.suspensionType",
-    type: "select",
-    options: ["air", "leaf", "coil", "torsion", "other"],
+    name: "vehicleFeatures",
+    label: "listings.vehicleFeatures",
+    type: "featureGroup",
+    featureGroups: {
+      "infotainment": {
+        label: "Infotainment",
+        features: [
+          { name: "navigation", label: "Navigation System", type: "toggle" },
+          { name: "infotainment", label: "Infotainment System", type: "toggle" },
+          { name: "gps", label: "GPS", type: "toggle" },
+          { name: "bluetooth", label: "Bluetooth", type: "toggle" }
+        ]
+      },
+      "lighting": {
+        label: "Lighting",
+        features: [
+          { name: "LED", label: "LED Lights", type: "toggle" },
+          { name: "halogen", label: "Halogen Lights", type: "toggle" },
+          { name: "workLights", label: "Work Lights", type: "toggle" },
+          { name: "beacon", label: "Beacon Lights", type: "toggle" },
+          { name: "strobe", label: "Strobe Lights", type: "toggle" }
+        ]
+      },
+      "comfort": {
+        label: "Comfort Features",
+        features: [
+          { name: "cruiseControl", label: "Cruise Control", type: "toggle" },
+          { name: "climateControl", label: "Climate Control", type: "toggle" },
+          { name: "powerWindows", label: "Power Windows", type: "toggle" },
+          { name: "powerMirrors", label: "Power Mirrors", type: "toggle" }
+        ]
+      }
+    },
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "cargoFeatures",
+    label: "listings.cargoFeatures",
+    type: "featureGroup",
+    featureGroups: {
+      "cargoCapacity": {
+        label: "Cargo Capacity",
+        features: [
+          { name: "payload", label: "Payload Capacity", type: "toggle" },
+          { name: "cargoCover", label: "Cargo Cover", type: "toggle" },
+          { name: "cargoTieDowns", label: "Cargo Tie Downs", type: "toggle" }
+        ]
+      },
+      "cargoSecurity": {
+        label: "Cargo Security",
+        features: [
+          { name: "lockableCargoArea", label: "Lockable Cargo Area", type: "toggle" },
+          { name: "cargoDivider", label: "Cargo Divider", type: "toggle" },
+          { name: "securityCameras", label: "Security Cameras", type: "toggle" }
+        ]
+      }
+    },
     section: "advanced",
     required: false,
   },
@@ -262,24 +320,10 @@ export const truckSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
-    name: "payload",
-    label: "payload",
-    type: "number",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "gps",
-    label: "listings.gps",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "lighting",
-    label: "listings.lighting",
-    type: "multiselect",
-    options: ["LED", "halogen", "workLights", "beacon", "strobe", "other"],
+    name: "suspensionType",
+    label: "listings.suspensionType",
+    type: "select",
+    options: ["air", "leaf", "coil", "torsion", "other"],
     section: "advanced",
     required: false,
   },
