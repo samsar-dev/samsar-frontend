@@ -130,7 +130,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "serviceHistory",
-    type: "select",
+    type: "multiselect",
     options: ["full", "partial", "none"],
     section: "essential",
     required: true,
