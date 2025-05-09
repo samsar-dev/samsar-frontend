@@ -41,6 +41,8 @@ export const handleBasicDetailsSubmit = (
           vehicles:
             data.category?.mainCategory === ListingCategory.VEHICLES
               ? {
+                  ...prev.details?.vehicles,
+                  ...data.details?.vehicles,
                   vehicleType: VehicleType.CAR,
                   make:
                     data.details?.vehicles?.make ||
