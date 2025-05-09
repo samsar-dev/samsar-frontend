@@ -249,43 +249,6 @@ export const vanSchema: ListingFieldSchema[] = [
     },
   },
   {
-    name: "drivingAssistance",
-    label: "listings.drivingAssistance",
-    type: "multiselect",
-    options: [
-      "Backup Camera",
-      "Parking Sensors",
-      "Lane Departure Warning",
-      "Blind Spot Monitor",
-      "Cross Traffic Alert",
-      "Other",
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "features",
-    label: "features",
-    type: "multiselect",
-    options: [
-      "Air Conditioning",
-      "Power Steering",
-      "Power Windows",
-      "Power Locks",
-      "Anti-lock Brakes",
-      "Navigation System",
-      "Bluetooth",
-      "Cruise Control",
-      "Other",
-    ],
-    section: "advanced",
-    required: false,
-    validate: (value: string | number | boolean) => {
-      if (!value) return "At least one feature is recommended";
-      return null;
-    },
-  },
-  {
     name: "emissions",
     label: "listings.emissions",
     type: "select",
@@ -301,50 +264,6 @@ export const vanSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
-    name: "gps",
-    label: "listings.gps",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "infotainment",
-    label: "listings.infotainment",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "navigation",
-    label: "listings.navigation",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "safetyFeatures",
-    label: "listings.safetyFeatures",
-    type: "multiselect",
-    options: [
-      "abs",
-      "laneAssist",
-      "collisionWarning",
-      "fireExtinguisher",
-      "firstAidKit",
-      "other",
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "lighting",
-    label: "listings.lighting",
-    type: "multiselect",
-    options: ["LED", "halogen", "workLights", "beacon", "strobe", "other"],
-    section: "advanced",
-    required: false,
-  },
-  {
     name: "seatingConfiguration",
     label: "listings.seatingConfiguration",
     type: "select",
@@ -352,18 +271,131 @@ export const vanSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
+  
+  // ================= SAFETY FEATURES =================
   {
-    name: "airConditioning",
-    label: "listings.airConditioning",
-    type: "checkbox",
+    name: "safetyFeatures",
+    label: "listings.fields.safetyFeatures",
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      airbags: {
+        label: "Airbags",
+        features: [
+          { name: "frontAirbags", label: "Front Airbags", type: "toggle" },
+          { name: "sideAirbags", label: "Side Airbags", type: "toggle" },
+          { name: "curtainAirbags", label: "Curtain Airbags", type: "toggle" },
+          { name: "kneeAirbags", label: "Knee Airbags", type: "toggle" },
+        ],
+      },
+      driverAssist: {
+        label: "Driver Assistance",
+        features: [
+          { name: "cruiseControl", label: "Cruise Control", type: "toggle" },
+          {
+            name: "adaptiveCruiseControl",
+            label: "Adaptive Cruise Control",
+            type: "toggle",
+          },
+          {
+            name: "laneDepartureWarning",
+            label: "Lane Departure Warning",
+            type: "toggle",
+          },
+          { name: "laneKeepAssist", label: "Lane Keep Assist", type: "toggle" },
+          {
+            name: "automaticEmergencyBraking",
+            label: "Automatic Emergency Braking",
+            type: "toggle",
+          },
+          { name: "backupCamera", label: "Backup Camera", type: "toggle" },
+          { name: "parkingSensors", label: "Parking Sensors", type: "toggle" },
+          { name: "blindSpotMonitor", label: "Blind Spot Monitor", type: "toggle" },
+          { name: "crossTrafficAlert", label: "Cross Traffic Alert", type: "toggle" },
+        ],
+      },
+      safety: {
+        label: "Safety Features",
+        features: [
+          { name: "abs", label: "ABS", type: "toggle" },
+          { name: "tractionControl", label: "Traction Control", type: "toggle" },
+          { name: "stabilityControl", label: "Stability Control", type: "toggle" },
+          { name: "tirePressureMonitoring", label: "Tire Pressure Monitoring", type: "toggle" },
+          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
+        ],
+      },
+    },
   },
+
+  // ================= VEHICLE FEATURES =================
   {
-    name: "rearClimateControl",
-    label: "listings.rearClimateControl",
-    type: "checkbox",
+    name: "features",
+    label: "listings.fields.vehicleFeatures",
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      cameras: {
+        label: "Camera Features",
+        features: [
+          { name: "rearCamera", label: "Rear Camera", type: "toggle" },
+          { name: "camera360", label: "360° Camera", type: "toggle" },
+          { name: "dashCam", label: "Dash Cam", type: "toggle" },
+          { name: "parkingAidCamera", label: "Parking Aid Camera", type: "toggle" },
+        ],
+      },
+      entertainment: {
+        label: "Entertainment Features",
+        features: [
+          { name: "bluetooth", label: "Bluetooth", type: "toggle" },
+          { name: "appleCarPlay", label: "Apple CarPlay", type: "toggle" },
+          { name: "androidAuto", label: "Android Auto", type: "toggle" },
+          { name: "premiumSound", label: "Premium Sound System", type: "toggle" },
+          { name: "usbPorts", label: "USB Ports", type: "toggle" },
+          { name: "infotainment", label: "Infotainment System", type: "toggle" },
+          { name: "navigation", label: "Navigation System", type: "toggle" },
+          { name: "gps", label: "GPS", type: "toggle" },
+        ],
+      },
+      lighting: {
+        label: "Lighting Features",
+        features: [
+          { name: "ledLights", label: "LED Lights", type: "toggle" },
+          { name: "halogenLights", label: "Halogen Lights", type: "toggle" },
+          { name: "workLights", label: "Work Lights", type: "toggle" },
+          { name: "beaconLights", label: "Beacon Lights", type: "toggle" },
+          { name: "strobeLights", label: "Strobe Lights", type: "toggle" },
+          { name: "fogLights", label: "Fog Lights", type: "toggle" },
+        ],
+      },
+      climate: {
+        label: "Climate Features",
+        features: [
+          { name: "airConditioning", label: "Air Conditioning", type: "toggle" },
+          { name: "rearClimateControl", label: "Rear Climate Control", type: "toggle" },
+          { name: "heatedSeats", label: "Heated Seats", type: "toggle" },
+        ],
+      },
+      convenience: {
+        label: "Convenience Features",
+        features: [
+          { name: "powerSteering", label: "Power Steering", type: "toggle" },
+          { name: "powerWindows", label: "Power Windows", type: "toggle" },
+          { name: "powerLocks", label: "Power Locks", type: "toggle" },
+          { name: "keylessEntry", label: "Keyless Entry", type: "toggle" },
+          { name: "remoteStart", label: "Remote Start", type: "toggle" },
+        ],
+      },
+      cargo: {
+        label: "Cargo Features",
+        features: [
+          { name: "roofRack", label: "Roof Rack", type: "toggle" },
+          { name: "cargoTieDowns", label: "Cargo Tie-Downs", type: "toggle" },
+          { name: "loadingRamp", label: "Loading Ramp", type: "toggle" },
+        ],
+      },
+    },
   },
 ];

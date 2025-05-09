@@ -158,19 +158,24 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "comfortFeatures",
     label: "listings.comfortFeatures",
-    type: "multiselect",
-    options: [
-      "recliningSeats",
-      "footRests",
-      "armRests",
-      "trayTables",
-      "readingLights",
-      "curtains",
-      "toilets",
-      "waterDispenser",
-    ],
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      comfort: {
+        label: "Comfort Features",
+        features: [
+          { name: "recliningSeats", label: "Reclining Seats", type: "toggle" },
+          { name: "footRests", label: "Footrests", type: "toggle" },
+          { name: "armRests", label: "Armrests", type: "toggle" },
+          { name: "trayTables", label: "Tray Tables", type: "toggle" },
+          { name: "readingLights", label: "Reading Lights", type: "toggle" },
+          { name: "curtains", label: "Curtains", type: "toggle" },
+          { name: "toilets", label: "Toilets", type: "toggle" },
+          { name: "waterDispenser", label: "Water Dispenser", type: "toggle" },
+        ],
+      },
+    },
   },
   {
     name: "seatType",
@@ -206,18 +211,23 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "accessibilityFeatures",
-    label: "listings.accessibilityFeatures",
-    type: "multiselect",
-    options: [
-      "lowFloor",
-      "kneeling",
-      "audioAnnouncements",
-      "brailleSignage",
-      "prioritySeating",
-      "handrails",
-    ],
+    label: "listings.fields.accessibilityFeatures",
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      accessibility: {
+        label: "Accessibility Features",
+        features: [
+          { name: "lowFloor", label: "Low Floor", type: "toggle" },
+          { name: "kneeling", label: "Kneeling System", type: "toggle" },
+          { name: "audioAnnouncements", label: "Audio Announcements", type: "toggle" },
+          { name: "brailleSignage", label: "Braille Signage", type: "toggle" },
+          { name: "prioritySeating", label: "Priority Seating", type: "toggle" },
+          { name: "handrails", label: "Handrails", type: "toggle" },
+        ],
+      },
+    },
   },
 
   // Safety Features
@@ -230,22 +240,40 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "safetyFeatures",
-    label: "listings.safetyFeatures",
-    type: "multiselect",
-    options: [
-      "abs",
-      "laneAssist",
-      "collisionWarning",
-      "fireExtinguisher",
-      "firstAidKit",
-      "emergencyHammer",
-      "speedLimiter",
-      "tirePressureMonitoring",
-      "reverseCamera",
-      "blindSpotDetection",
-    ],
+    label: "listings.fields.safetyFeatures",
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      airbags: {
+        label: "Airbags",
+        features: [
+          { name: "frontAirbags", label: "Front Airbags", type: "toggle" },
+          { name: "sideAirbags", label: "Side Airbags", type: "toggle" },
+          { name: "curtainAirbags", label: "Curtain Airbags", type: "toggle" },
+        ],
+      },
+      driverAssist: {
+        label: "Driver Assistance",
+        features: [
+          { name: "abs", label: "ABS", type: "toggle" },
+          { name: "laneAssist", label: "Lane Assist", type: "toggle" },
+          { name: "collisionWarning", label: "Collision Warning", type: "toggle" },
+          { name: "speedLimiter", label: "Speed Limiter", type: "toggle" },
+          { name: "tirePressureMonitoring", label: "Tire Pressure Monitoring", type: "toggle" },
+          { name: "reverseCamera", label: "Reverse Camera", type: "toggle" },
+          { name: "blindSpotDetection", label: "Blind Spot Detection", type: "toggle" },
+        ],
+      },
+      emergency: {
+        label: "Emergency Equipment",
+        features: [
+          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
+          { name: "emergencyHammer", label: "Emergency Hammer", type: "toggle" },
+        ],
+      },
+    },
   },
   {
     name: "seatBelts",

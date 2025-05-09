@@ -134,37 +134,12 @@ export const constructionSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
-    name: "attachments",
-    label: "listings.attachments",
-    type: "multiselect",
-    options: ["Bucket", "Hammer", "Auger", "Grapple", "Fork", "Blade", "Other"],
-    section: "advanced",
-    required: false,
-  },
-  {
     name: "hydraulicSystem",
     label: "listings.hydraulicSystem",
     type: "text",
     section: "advanced",
     required: false,
   },
-  {
-    name: "safetyFeatures",
-    label: "listings.safetyFeatures",
-    type: "multiselect",
-    options: [
-      "ROPS",
-      "FOPS",
-      "Backup Camera",
-      "Safety Sensors",
-      "Emergency Stop",
-      "Fire Suppression",
-      "Other",
-    ],
-    section: "advanced",
-    required: false,
-  },
-
   {
     name: "emissions",
     label: "listings.emissions",
@@ -186,13 +161,6 @@ export const constructionSchema: ListingFieldSchema[] = [
     label: "listings.tireType",
     type: "select",
     options: ["tracks", "tires", "dualTires", "foamFilled", "solid"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "gps",
-    label: "listings.gps",
-    type: "checkbox",
     section: "advanced",
     required: false,
   },
@@ -225,12 +193,83 @@ export const constructionSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
+  
+  // ================= SAFETY FEATURES =================
   {
-    name: "lighting",
-    label: "listings.lighting",
-    type: "multiselect",
-    options: ["LED", "halogen", "workLights", "beacon", "strobe", "other"],
+    name: "safetyFeatures",
+    label: "listings.fields.safetyFeatures",
+    type: "featureGroup",
     section: "advanced",
     required: false,
+    featureGroups: {
+      protection: {
+        label: "Protection Systems",
+        features: [
+          { name: "rops", label: "ROPS (Rollover Protection)", type: "toggle" },
+          { name: "fops", label: "FOPS (Falling Object Protection)", type: "toggle" },
+          { name: "emergencyStop", label: "Emergency Stop", type: "toggle" },
+          { name: "fireSuppression", label: "Fire Suppression", type: "toggle" },
+        ],
+      },
+      monitoring: {
+        label: "Monitoring Systems",
+        features: [
+          { name: "backupCamera", label: "Backup Camera", type: "toggle" },
+          { name: "safetySensors", label: "Safety Sensors", type: "toggle" },
+          { name: "proximityWarning", label: "Proximity Warning", type: "toggle" },
+          { name: "loadMonitoring", label: "Load Monitoring", type: "toggle" },
+        ],
+      },
+    },
+  },
+  
+  // ================= VEHICLE FEATURES =================
+  {
+    name: "features",
+    label: "listings.fields.vehicleFeatures",
+    type: "featureGroup",
+    section: "advanced",
+    required: false,
+    featureGroups: {
+      attachments: {
+        label: "Attachments",
+        features: [
+          { name: "bucket", label: "Bucket", type: "toggle" },
+          { name: "hammer", label: "Hammer", type: "toggle" },
+          { name: "auger", label: "Auger", type: "toggle" },
+          { name: "grapple", label: "Grapple", type: "toggle" },
+          { name: "fork", label: "Fork", type: "toggle" },
+          { name: "blade", label: "Blade", type: "toggle" },
+        ],
+      },
+      lighting: {
+        label: "Lighting Features",
+        features: [
+          { name: "ledLights", label: "LED Lights", type: "toggle" },
+          { name: "halogenLights", label: "Halogen Lights", type: "toggle" },
+          { name: "workLights", label: "Work Lights", type: "toggle" },
+          { name: "beaconLights", label: "Beacon Lights", type: "toggle" },
+          { name: "strobeLights", label: "Strobe Lights", type: "toggle" },
+        ],
+      },
+      technology: {
+        label: "Technology Features",
+        features: [
+          { name: "gps", label: "GPS", type: "toggle" },
+          { name: "telematics", label: "Telematics", type: "toggle" },
+          { name: "remoteDiagnostics", label: "Remote Diagnostics", type: "toggle" },
+          { name: "fleetManagement", label: "Fleet Management", type: "toggle" },
+        ],
+      },
+      comfort: {
+        label: "Comfort Features",
+        features: [
+          { name: "heatedSeat", label: "Heated Seat", type: "toggle" },
+          { name: "airSuspensionSeat", label: "Air Suspension Seat", type: "toggle" },
+          { name: "bluetooth", label: "Bluetooth", type: "toggle" },
+          { name: "radio", label: "Radio", type: "toggle" },
+        ],
+      },
+    },
   },
 ];

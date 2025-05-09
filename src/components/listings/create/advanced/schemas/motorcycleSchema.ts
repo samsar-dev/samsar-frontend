@@ -3,24 +3,6 @@ import { ListingFieldSchema } from "@/types/listings";
 export const motorcycleSchema: ListingFieldSchema[] = [
   // Essential Section
   {
-    name: "make",
-    label: "listings.make",
-    type: "text",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Make is required" : null,
-  },
-  {
-    name: "model",
-    label: "listings.model",
-    type: "text",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Model is required" : null,
-  },
-  {
     name: "color",
     label: "listings.exteriorColor",
     type: "colorpicker",
