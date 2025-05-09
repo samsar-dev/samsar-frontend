@@ -18,7 +18,7 @@ export const handleBasicDetailsSubmit = (
   isValid: boolean,
   setFormData: Dispatch<SetStateAction<FormState>>,
   setStep: Dispatch<SetStateAction<number>>,
-  t: TFunction<"translation", undefined>,
+  t: TFunction<"translation", undefined>
 ) => {
   if (isValid) {
     setFormData((prev) => {
@@ -30,7 +30,7 @@ export const handleBasicDetailsSubmit = (
         price:
           typeof data.price === "string"
             ? parseFloat(data.price) || 0
-            : data.price,
+            : (data.price ?? prev.price),
         location: data.location || prev.location,
         images: data.images || prev.images,
         category: {
@@ -39,15 +39,27 @@ export const handleBasicDetailsSubmit = (
         },
         details: {
           vehicles:
-            data.category.mainCategory === ListingCategory.VEHICLES
+            data.category?.mainCategory === ListingCategory.VEHICLES
               ? {
                   vehicleType: VehicleType.CAR,
-                  make: data.details?.vehicles?.make || "",
-                  model: data.details?.vehicles?.model || "",
+                  make:
+                    data.details?.vehicles?.make ||
+                    prev.details?.vehicles?.make ||
+                    "",
+                  model:
+                    data.details?.vehicles?.model ||
+                    prev.details?.vehicles?.model ||
+                    "",
                   year: (
-                    data.details?.vehicles?.year || new Date().getFullYear()
+                    data.details?.vehicles?.year ||
+                    prev.details?.vehicles?.year ||
+                    new Date().getFullYear()
                   ).toString(),
-                  mileage: Number(data.details?.vehicles?.mileage || 0),
+                  mileage: Number(
+                    data.details?.vehicles?.mileage ||
+                      prev.details?.vehicles?.mileage ||
+                      0
+                  ),
                   fuelType:
                     data.details?.vehicles?.fuelType ||
                     prev.details?.vehicles?.fuelType ||
@@ -59,25 +71,42 @@ export const handleBasicDetailsSubmit = (
                 }
               : undefined,
           realEstate:
-            data.category.mainCategory === ListingCategory.REAL_ESTATE
+            data.category?.mainCategory === ListingCategory.REAL_ESTATE
               ? {
-                  ...prev.details?.realEstate, // Preserve existing real estate details
-                  ...data.details?.realEstate, // Merge with new data
+                  ...prev.details?.realEstate,
+                  ...data.details?.realEstate,
                   id: prev.details?.realEstate?.id || "",
                   listingId: prev.details?.realEstate?.listingId || "",
                   propertyType: PropertyType.HOUSE,
-                  size: data.details?.realEstate?.size || "0",
+                  size:
+                    data.details?.realEstate?.size ||
+                    prev.details?.realEstate?.size ||
+                    "0",
                   yearBuilt: parseInt(
-                    data.details?.realEstate?.yearBuilt.toString() ||
-                      new Date().getFullYear().toString(),
+                    data.details?.realEstate?.yearBuilt?.toString() ||
+                      prev.details?.realEstate?.yearBuilt?.toString() ||
+                      new Date().getFullYear().toString()
                   ),
-                  bedrooms: data.details?.realEstate?.bedrooms || "0",
-                  bathrooms: data.details?.realEstate?.bathrooms || "0",
+                  bedrooms:
+                    data.details?.realEstate?.bedrooms ||
+                    prev.details?.realEstate?.bedrooms ||
+                    "0",
+                  bathrooms:
+                    data.details?.realEstate?.bathrooms ||
+                    prev.details?.realEstate?.bathrooms ||
+                    "0",
                   condition:
-                    data.details?.realEstate?.condition || Condition.LIKE_NEW,
-                  floor: Number(data.details?.realEstate?.floor || 1),
+                    data.details?.realEstate?.condition ||
+                    prev.details?.realEstate?.condition ||
+                    Condition.LIKE_NEW,
+                  floor: Number(
+                    data.details?.realEstate?.floor ||
+                      prev.details?.realEstate?.floor ||
+                      1
+                  ),
                   internetIncluded: Boolean(
-                    data.details?.realEstate?.internetIncluded,
+                    data.details?.realEstate?.internetIncluded ??
+                      prev.details?.realEstate?.internetIncluded
                   ),
 
                   houseDetails: {
@@ -86,18 +115,35 @@ export const handleBasicDetailsSubmit = (
                       data.details?.realEstate?.size ||
                       prev.details?.realEstate?.size ||
                       0,
-                    bedrooms: Number(data.details?.realEstate?.bedrooms || 0),
-                    livingArea: Number(
-                      data.details?.realEstate?.livingArea || 0,
+                    bedrooms: Number(
+                      data.details?.realEstate?.bedrooms ||
+                        prev.details?.realEstate?.bedrooms ||
+                        0
                     ),
-                    stories: Number(data.details?.realEstate?.stories || 0),
-                    bathrooms: Number(data.details?.realEstate?.bathrooms || 0),
+                    livingArea: Number(
+                      data.details?.realEstate?.livingArea ||
+                        prev.details?.realEstate?.livingArea ||
+                        0
+                    ),
+                    stories: Number(
+                      data.details?.realEstate?.stories ||
+                        prev.details?.realEstate?.stories ||
+                        0
+                    ),
+                    bathrooms: Number(
+                      data.details?.realEstate?.bathrooms ||
+                        prev.details?.realEstate?.bathrooms ||
+                        0
+                    ),
                     yearBuilt: Number(
                       data.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear(),
+                        prev.details?.realEstate?.yearBuilt ||
+                        new Date().getFullYear()
                     ),
                     halfBathrooms: Number(
-                      data.details?.realEstate?.halfBathrooms || 0,
+                      data.details?.realEstate?.halfBathrooms ||
+                        prev.details?.realEstate?.halfBathrooms ||
+                        0
                     ),
                   },
                 }
@@ -107,7 +153,7 @@ export const handleBasicDetailsSubmit = (
       // Save to session storage
       sessionStorage.setItem(
         "createListingFormData",
-        JSON.stringify(updatedData),
+        JSON.stringify(updatedData)
       );
       return updatedData;
     });

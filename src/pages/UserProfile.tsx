@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { FaClock, FaEnvelope, FaPhone } from "react-icons/fa";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import TokenManager from "@/utils/tokenManager";
 
 interface UserProfileData {
   id: string;
@@ -46,7 +47,8 @@ export const UserProfile = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await UserAPI.getProfile(userId!);
+        const accessToken = TokenManager.getAccessToken();
+        const response = await UserAPI.getProfile(userId!, accessToken!);
         const userData = response.data;
         if (!userData) {
           throw new Error("User not found");
