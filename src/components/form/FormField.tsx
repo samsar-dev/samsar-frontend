@@ -68,8 +68,6 @@ export const FormField = forwardRef<
     isSearchable,
   } = props;
 
-  console.log(props);
-
   const handleChange = (
     e:
       | React.ChangeEvent<
