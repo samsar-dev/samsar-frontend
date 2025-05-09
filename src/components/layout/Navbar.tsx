@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
   };
 
   const dropdownClasses =
-    "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200";
+    "absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200";
   const activeDropdownClasses = "transform opacity-100 scale-100";
   const inactiveDropdownClasses =
     "transform opacity-0 scale-95 pointer-events-none";

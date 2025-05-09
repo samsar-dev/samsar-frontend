@@ -30,6 +30,42 @@ export const tractorSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Condition is required" : null,
   },
+ 
+  {
+    name: "transmissionType",
+    label: "listings.transmissionType",
+    type: "select",
+    options: Object.values(TransmissionType),
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Transmission type is required" : null,
+  },
+  {
+    name: "mileage",
+    label: "listings.mileage",
+    type: "number",
+    section: "essential",
+    required: true,
+  },
+  {
+    name: "fuelType",
+    label: "listings.fuelType",
+    type: "select",
+    options: [
+      "",
+      "diesel",
+      "biodiesel",
+      "gasoline",
+      "electric",
+      "hybrid",
+      "lpg",
+      "cng",
+    ],
+    section: "essential",
+    required: true,
+  },
+
   {
     name: "hours",
     label: "listings.hours",
@@ -53,41 +89,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     required: true,
   },
 
-  {
-    name: "mileage",
-    label: "listings.mileage",
-    type: "number",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "transmissionType",
-    label: "listings.transmissionType",
-    type: "select",
-    options: Object.values(TransmissionType),
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Transmission type is required" : null,
-  },
-  {
-    name: "fuelType",
-    label: "listings.fuelType",
-    type: "select",
-    options: [
-      "",
-      "diesel",
-      "biodiesel",
-      "gasoline",
-      "electric",
-      "hybrid",
-      "lpg",
-      "cng",
-    ],
-    section: "essential",
-    required: true,
-  },
-
+  
   // Advanced Section
   // Engine & Performance
   {

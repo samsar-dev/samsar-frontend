@@ -65,6 +65,16 @@ export const truckSchema: ListingFieldSchema[] = [
     },
   },
   {
+    name: "fuelType",
+    label: "fuelType",
+    type: "select",
+    options: Object.values(FuelType),
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Fuel type is required" : null,
+  },
+  {
     name: "cabType",
     label: "cabType",
     type: "select",
@@ -99,16 +109,7 @@ export const truckSchema: ListingFieldSchema[] = [
       !value ? "Registration status is required" : null,
   },
 
-  {
-    name: "fuelType",
-    label: "fuelType",
-    type: "select",
-    options: Object.values(FuelType),
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Fuel type is required" : null,
-  },
+ 
 
   // Advanced Section
   {
