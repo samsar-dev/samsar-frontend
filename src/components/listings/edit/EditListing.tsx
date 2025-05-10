@@ -353,7 +353,13 @@ const EditListing = () => {
       const response = await listingsAPI.updateListing(id, formDataObj);
       if (response.success) {
         toast.success(t("listings.updateSuccess"));
-        navigate("/profile/listings");
+        navigate("/listingsuccess", { 
+          state: { 
+            listingId: id,
+            isUpdate: true, 
+            title: formData.title
+          } 
+        });
       } else {
         const errorMessage = response.error || t("listings.updateFailed");
         console.error("Update failed:", errorMessage);

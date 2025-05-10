@@ -138,39 +138,25 @@ function ChatSection({
 
       {/* Chat messages */}
       <ScrollArea className="flex-1 p-4">
-        <div className="space-y-6">
-          <div className="space-y-6">
-            {messages?.map((message, index) =>
-              message.senderId === user?.id ? (
+        <div className="space-y-6" key="messages-container">
+          {messages?.map((message, index) => (
+            <div key={message.id} className="flex flex-col">
+              {message.senderId === user?.id ? (
                 <UserMessageBubble
-                  key={message.id}
                   message={message}
                   user={user}
                   index={index}
                 />
               ) : (
                 <ParticipantMessageBubble
-                  key={message.id}
                   message={message}
                   participant={participant!}
                   index={index}
                 />
-              ),
-            )}
-          </div>
-          <div ref={scrollRef} className="w-full"></div>
-
-          {/* privious date show */}
-          {/* <div className="text-center text-xs text-gray-400">Today, 8 July</div> */}
-
-          {/* user typing */}
-          {/* <div className="flex items-center space-x-2 absolute bottom-0 ">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src="/placeholder.svg?height=24&width=24" />
-              <AvatarFallback>NI</AvatarFallback>
-            </Avatar>
-            <div className="text-xs text-gray-500">Nickolay is typing ...</div>
-          </div> */}
+              )}
+            </div>
+          ))}
+          <div key="scroll-ref" ref={scrollRef} className="w-full"></div>
         </div>
       </ScrollArea>
 

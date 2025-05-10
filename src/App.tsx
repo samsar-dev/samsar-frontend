@@ -8,14 +8,13 @@ import {
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { setupAuthDebugger } from "@/utils/authDebug";
-import TokenManager from "@/utils/tokenManager";
+import { TokenManager } from "@/utils/tokenManager";
 import { type ReactElement, useEffect, useState } from "react";
-import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
-import { router } from "./routes/Routes";
+import Routes from "./routes/Routes";
 import SocketProvider from "./contexts/SocketContext";
 
 const App: () => ReactElement = () => {
@@ -44,29 +43,40 @@ const App: () => ReactElement = () => {
     );
   }
 
+
+
   return (
-    <UIProvider>
-      <AuthProvider>
-        <NotificationsProvider>
-          <FavoritesProvider>
-            <ListingsProvider>
-              <SettingsProvider>
-                <SavedListingsProvider>
-                  <MessagesProvider>
-                    <SocketProvider>
-                      <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                        <RouterProvider router={router} />
-                        <ToastContainer />
-                      </div>
-                    </SocketProvider>
-                  </MessagesProvider>
-                </SavedListingsProvider>
-              </SettingsProvider>
-            </ListingsProvider>
-          </FavoritesProvider>
-        </NotificationsProvider>
-      </AuthProvider>
-    </UIProvider>
+    <AuthProvider>
+      <SocketProvider>
+        <UIProvider>
+          <SettingsProvider>
+            <FavoritesProvider>
+              <ListingsProvider>
+                <MessagesProvider>
+                  <SavedListingsProvider>
+                    <NotificationsProvider>
+                      <Routes />
+                      <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="light"
+                      />
+                    </NotificationsProvider>
+                  </SavedListingsProvider>
+                </MessagesProvider>
+              </ListingsProvider>
+            </FavoritesProvider>
+          </SettingsProvider>
+        </UIProvider>
+      </SocketProvider>
+    </AuthProvider>
   );
 };
 

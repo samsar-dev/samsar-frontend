@@ -129,6 +129,7 @@
   "listings": {
     "sell": "Sell",
     "rent": "Rent",
+    "updateSuccess": "Your listing has been successfully updated!",
     "vehicleType": "Vehicle Type",
     "miles": "Miles",
     "transmissionTypes": {

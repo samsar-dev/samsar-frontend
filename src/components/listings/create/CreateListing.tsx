@@ -1,5 +1,4 @@
 import { useCreateListing } from "@/hooks/useCreateListing";
-import { useBlocker } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import isEqual from "lodash/isEqual";
@@ -215,22 +214,7 @@ const CreateListing: React.FC = () => {
   };
   
 
-  // Block navigation using React Router's useBlocker
-  useBlocker(
-    useCallback(
-      (transition: any) => {
-        const isLeavingCreatePage = !transition.location.pathname.startsWith("/listings/create");
-  
-        if (hasUnsavedChanges && isLeavingCreatePage) {
-          const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-          return confirmLeave;
-        }
-  
-        return true;
-      },
-      [hasUnsavedChanges]
-    )
-  );
+
 
   // Save form data to session storage only when there are changes
   useEffect(() => {

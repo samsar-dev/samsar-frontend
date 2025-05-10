@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import { Layout } from "@/components/layout";
 
 // Loading fallback
 import LoadingSpinner from "@/components/common/LoadingSpinner"; // or create a small spinner
@@ -48,44 +49,46 @@ const Routes = (): JSX.Element => {
         </div>
       }
     >
-      <RouterRoutes>
-        {/* Public routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/search" element={<Search />} />
+      <Layout>
+        <RouterRoutes>
+          {/* Public routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/search" element={<Search />} />
 
-        <Route path="/listings/:id" element={<ListingDetails />} />
-        <Route path="/listings" element={<Navigate to="/" replace />} />
-        <Route path="/vehicles" element={<Vehicles />} />
-        <Route path="/realestate" element={<RealEstate />} />
-        <Route path="/listingsuccess" element={<ListingSuccess />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
-        <Route path="/users/:userId" element={<UserProfile />} />
+          <Route path="/listings/:id" element={<ListingDetails />} />
+          <Route path="/listings" element={<Navigate to="/" replace />} />
+          <Route path="/vehicles" element={<Vehicles />} />
+          <Route path="/realestate" element={<RealEstate />} />
+          <Route path="/listingsuccess" element={<ListingSuccess />} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/users/:userId" element={<UserProfile />} />
 
 
-        {/* Protected routes */}
-        <Route
-          element={
-            <PrivateRoute>
-              <Outlet />
-            </PrivateRoute>
-          }
-        >
-          <Route path="/profile" element={<Profile />}>
-            <Route index element={<ProfileInfo />} />
-            <Route path="listings" element={<MyListings />} />
-            <Route path="password" element={<ChangePassword />} />
+          {/* Protected routes */}
+          <Route
+            element={
+              <PrivateRoute>
+                <Outlet />
+              </PrivateRoute>
+            }
+          >
+            <Route path="/profile" element={<Profile />}>
+              <Route index element={<ProfileInfo />} />
+              <Route path="listings" element={<MyListings />} />
+              <Route path="password" element={<ChangePassword />} />
+            </Route>
+
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/listings/create" element={<CreateListing />} />
+            <Route path="/listings/:id/edit" element={<EditListing />} />
+            <Route path="/saved-listings" element={<SavedListings />} />
+            <Route path="/messages/" element={<Messages />} />
+            <Route path="/messages/:chatId" element={<Messages />} />
           </Route>
-
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/listings/create" element={<CreateListing />} />
-          <Route path="/listings/:id/edit" element={<EditListing />} />
-          <Route path="/saved-listings" element={<SavedListings />} />
-          <Route path="/messages/" element={<Messages />} />
-          <Route path="/messages/:chatId" element={<Messages />} />
-        </Route>
-      </RouterRoutes>
+        </RouterRoutes>
+      </Layout>
     </Suspense>
   );
 };
