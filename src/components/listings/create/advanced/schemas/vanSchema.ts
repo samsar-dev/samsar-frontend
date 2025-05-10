@@ -38,16 +38,6 @@ export const vanSchema: ListingFieldSchema[] = [
       !value ? "Van type is required" : null,
   },
   {
-    name: "engineType",
-    label: "listings.engineType",
-    type: "select",
-    options: Object.values(FuelType),
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Engine type is required" : null,
-  },
-  {
     name: "transmissionType",
     label: "listings.transmissionType",
     type: "select",
@@ -70,6 +60,29 @@ export const vanSchema: ListingFieldSchema[] = [
       return null;
     },
   },
+  {
+    name: "fuelType",
+    label: "fuelType",
+    type: "select",
+    options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Fuel type is required" : null,
+  },
+ 
+
+  {
+    name: "engineType",
+    label: "listings.engineType",
+    type: "select",
+    options: Object.values(FuelType),
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Engine type is required" : null,
+  },
+ 
   {
     name: "cargoVolume",
     label: "cargoVolume",
@@ -96,26 +109,7 @@ export const vanSchema: ListingFieldSchema[] = [
       return null;
     },
   },
-  {
-    name: "fuelType",
-    label: "fuelType",
-    type: "select",
-    options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Fuel type is required" : null,
-  },
-  {
-    name: "transmissionType",
-    label: "listings.transmissionType",
-    type: "select",
-    options: ["", "manual", "automatic", "automated"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Transmission type is required" : null,
-  },
+
   {
     name: "previousOwners",
     label: "listings.previousOwners",

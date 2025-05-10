@@ -1,5 +1,4 @@
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { Layout } from "@/components/layout";
 import {
   AuthProvider,
   FavoritesProvider,
@@ -11,11 +10,12 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { setupAuthDebugger } from "@/utils/authDebug";
 import TokenManager from "@/utils/tokenManager";
 import { type ReactElement, useEffect, useState } from "react";
+import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
-import AppRoutes from "./routes/Routes";
+import { router } from "./routes/Routes";
 import SocketProvider from "./contexts/SocketContext";
 
 const App: () => ReactElement = () => {
@@ -55,10 +55,8 @@ const App: () => ReactElement = () => {
                   <MessagesProvider>
                     <SocketProvider>
                       <div className="min-h-screen bg-background-primary text-text-primary dark:bg-background-primary-dark dark:text-text-primary-dark">
-                        <Layout>
-                          <AppRoutes />
-                          <ToastContainer />
-                        </Layout>
+                        <RouterProvider router={router} />
+                        <ToastContainer />
                       </div>
                     </SocketProvider>
                   </MessagesProvider>

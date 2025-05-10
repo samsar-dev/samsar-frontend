@@ -22,6 +22,16 @@ export const motorcycleSchema: ListingFieldSchema[] = [
       !value ? "Condition is required" : null,
   },
   {
+    name: "transmissionType",
+    label: "listings.transmissionType",
+    type: "select",
+    options: ["", "manual", "automatic", "semiAutomatic", "dct", "cvt"],
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Transmission type is required" : null,
+  },
+  {
     name: "mileage",
     label: "listings.mileage",
     type: "number",
@@ -34,6 +44,17 @@ export const motorcycleSchema: ListingFieldSchema[] = [
       return null;
     },
   },
+  {
+    name: "fuelType",
+    label: "listings.fuelType",
+    type: "select",
+    options: ["", "gasoline", "electric", "hybrid", "diesel"],
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Fuel type is required" : null,
+  },
+
   {
     name: "engineSize",
     label: "listings.engineSize",
@@ -121,26 +142,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Brake system is required" : null,
   },
-  {
-    name: "fuelType",
-    label: "listings.fuelType",
-    type: "select",
-    options: ["", "gasoline", "electric", "hybrid", "diesel"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Fuel type is required" : null,
-  },
-  {
-    name: "transmissionType",
-    label: "listings.transmissionType",
-    type: "select",
-    options: ["", "manual", "automatic", "semiAutomatic", "dct", "cvt"],
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Transmission type is required" : null,
-  },
+
 
   // Advanced Section
   // Performance & Technical

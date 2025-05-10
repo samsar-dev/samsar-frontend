@@ -40,13 +40,7 @@ export const carSchema: ListingFieldSchema[] = [
     required: true,
   },
 
-  {
-    name: "previousOwners",
-    label: "listings.previousOwners",
-    type: "number",
-    section: "essential",
-    required: false,
-  },
+
 
   {
     name: "transmissionType",
@@ -94,6 +88,13 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
+  },
+  {
+    name: "previousOwners",
+    label: "listings.previousOwners",
+    type: "number",
+    section: "essential",
+    required: false,
   },
 
   // ================= ADVANCED DETAILS =================

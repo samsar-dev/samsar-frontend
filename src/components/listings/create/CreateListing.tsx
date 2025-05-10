@@ -1,4 +1,8 @@
 import { useCreateListing } from "@/hooks/useCreateListing";
+import { useBlocker } from "react-router-dom";
+import { useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import isEqual from "lodash/isEqual";
 import {
   Condition,
   FuelType,
@@ -13,7 +17,6 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
@@ -154,98 +157,117 @@ const CreateListing: React.FC = () => {
   const navigate = useNavigate();
   const { handleSubmit: submitListing } = useCreateListing();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<FormState>(() => {
-    // Try to load saved form data from session storage
-    try {
-      const savedData = sessionStorage.getItem("createListingFormData");
-      if (!savedData) return initialFormState;
-
-      // Parse the saved data
-      const parsedData = JSON.parse(savedData);
-
-      // Images can't be properly serialized/deserialized from session storage
-      // So we need to reset the images array to avoid corruption
-      return {
-        ...parsedData,
-        images: [], // Reset images to avoid corruption
-      };
-    } catch (error) {
-      console.error("Error loading form data from session storage:", error);
-      return initialFormState;
-    }
-  });
+  const [formData, setFormData] = useState<FormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasUnsavedChanges =
-    JSON.stringify(formData) !==
-    sessionStorage.getItem("createListingFormData");
+  // Track form changes to ensure hasUnsavedChanges works correctly
+  const hasUnsavedChanges = !isEqual(formData, initialFormState);
 
-  // Block navigation for React Router's useNavigate with a professional message
-  // const handleNavigation = useBlockNavigation(
-  //   hasUnsavedChanges,
-  //   "You have unsaved changes in your listing. If you leave this page, all your data will be lost. Would you like to continue?"
-  // );
+  // Log changes state for debugging
+  useEffect(() => {
+    console.log("Unsaved changes state:", {
+      hasUnsavedChanges,
+      formData: { ...formData, images: formData.images?.length }, // Log image count instead of actual images
+      initialFormState: { ...initialFormState, images: initialFormState.images?.length }
+    });
+  }, [formData, hasUnsavedChanges]);
+
+  const location = useLocation();
+
+  // Handle browser back button navigation
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (
+        hasUnsavedChanges &&
+        location.pathname === "/listings/create"
+      ) {
+        const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+        if (!confirmLeave) {
+          // Push them back to where they were
+          window.history.pushState(null, "", window.location.pathname);
+        }
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [hasUnsavedChanges, location.pathname]);
+
+  // Handle programmatic navigation
+  const handleLeave = (target: string) => {
+    if (
+      hasUnsavedChanges &&
+      location.pathname === "/listings/create" &&
+      !window.confirm("You have unsaved changes. Are you sure you want to leave?")
+    ) {
+      return;
+    }
+
+    navigate(target);
+  };
 
   // Use the custom navigation function instead of direct navigate
   const handleBack = () => {
     setStep((prev) => prev - 1);
   };
+  
 
-  // Add event listener for beforeunload to show confirmation dialog when refreshing
+  // Block navigation using React Router's useBlocker
+  useBlocker(
+    useCallback(
+      (transition: any) => {
+        const isLeavingCreatePage = !transition.location.pathname.startsWith("/listings/create");
+  
+        if (hasUnsavedChanges && isLeavingCreatePage) {
+          const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+          return confirmLeave;
+        }
+  
+        return true;
+      },
+      [hasUnsavedChanges]
+    )
+  );
+
+  // Save form data to session storage only when there are changes
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        // Standard message for browser's built-in dialog
-        const message =
-          "Your listing data has not been saved. If you leave now, your progress will be lost.";
-        e.preventDefault();
-        e.returnValue = message;
-        return message;
+    if (hasUnsavedChanges) {
+      try {
+        // Create a copy of formData without the images to avoid serialization issues
+        const dataToSave = {
+          ...formData,
+          // Don't store actual File objects in session storage as they can't be serialized properly
+          images: formData.images
+            ? formData.images
+                .map((img) => {
+                  // If it's already a string (URL), keep it
+                  if (typeof img === "string") return img;
+                  // Otherwise, we can't store the File object
+                  return null;
+                })
+                .filter(Boolean)
+            : [],
+        };
+
+        sessionStorage.setItem(
+          "createListingFormData",
+          JSON.stringify(dataToSave),
+        );
+        console.log("Form data saved to session storage");
+      } catch (error) {
+        console.error("Failed to save form data to session storage:", error);
       }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
-
-  // Save form data to session storage whenever it changes
-  useEffect(() => {
-    try {
-      // Create a copy of formData without the images to avoid serialization issues
-      const dataToSave = {
-        ...formData,
-        // Don't store actual File objects in session storage as they can't be serialized properly
-        images: formData.images
-          ? formData.images
-              .map((img) => {
-                // If it's already a string (URL), keep it
-                if (typeof img === "string") return img;
-                // Otherwise, we can't store the File object
-                return null;
-              })
-              .filter(Boolean)
-          : [],
-      };
-
-      sessionStorage.setItem(
-        "createListingFormData",
-        JSON.stringify(dataToSave),
-      );
-      console.log("Form data saved to session storage");
-    } catch (error) {
-      console.error("Failed to save form data to session storage:", error);
     }
-  }, [formData]);
+  }, [formData, hasUnsavedChanges]);
 
   // Clear form data from session storage only when form is successfully submitted
   // This ensures data is preserved during accidental page refreshes or navigations
   const clearSavedFormData = () => {
     try {
       sessionStorage.removeItem("createListingFormData");
-      console.log("Form data cleared from session storage");
     } catch (error) {
       console.error("Failed to clear form data from session storage:", error);
     }
@@ -254,25 +276,19 @@ const CreateListing: React.FC = () => {
   // Add a confirmation dialog when the user refreshes the page
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        const message =
-          "You have unsaved changes in your listing. If you refresh this page, your data will still be available, but any unsaved changes may be lost.";
-        e.preventDefault();
-        e.returnValue = message;
-        return message;
-      }
+      if (!hasUnsavedChanges || location.pathname !== "/listings/create") return;
+
+      const confirmationMessage = "You have unsaved changes. Are you sure you want to leave?";
+      e.preventDefault();
+      e.returnValue = confirmationMessage; // Works in all modern browsers
+      return confirmationMessage;
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasUnsavedChanges]);
-
-  useEffect(() => {
-    clearSavedFormData();
-    localStorage.removeItem("createListingFormData");
-  }, []);
+  }, [hasUnsavedChanges, location.pathname]); // 
 
   const handleFinalSubmit = async (data: FormState) => {
     try {

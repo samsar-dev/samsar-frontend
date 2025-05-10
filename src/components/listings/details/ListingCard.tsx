@@ -190,15 +190,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {vehicleDetails.transmission && (
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
-              {t(
-                `common:enums.transmission.${vehicleDetails.transmission.toUpperCase().replace(/_/g, "")}`,
-              )}
+              {t(`listings.fields.transmissionTypes.${vehicleDetails.transmission}`)}
             </p>
           )}
           {vehicleDetails.fuelType && (
             <p className="flex items-center gap-2">
               {renderIcon("FaGasPump", "text-blue-500 mr-1")}{" "}
-              {t(`enums.fuel.${vehicleDetails.fuelType.toLowerCase()}`)}
+              {t(`listings.fields.fuelTypes.${vehicleDetails.fuelType}`)}
             </p>
           )}
         </div>
@@ -347,7 +345,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     <div className="font-medium text-gray-800 dark:text-gray-200">
                       {vehicleDetails?.fuelType
                         ? t(
-                            `enums.fuel.${String(vehicleDetails.fuelType).toLowerCase()}`,
+                            `listings.fields.fuelTypes.${(() => {
+                              if (!vehicleDetails.fuelType) return "";
+                              return vehicleDetails.fuelType;
+                            })()}`,
                           )
                         : t("common.notProvided")}
                     </div>
@@ -361,7 +362,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
                       {vehicleDetails?.transmissionType ||
                       vehicleDetails?.transmission
                         ? t(
-                            `enums.transmission.${String(vehicleDetails.transmissionType || vehicleDetails.transmission).toLowerCase()}`,
+                            `listings.fields.transmissionTypes.${(() => {
+                              const transmissionValue = vehicleDetails.transmissionType || vehicleDetails.transmission;
+                              if (!transmissionValue) return "";
+                              if (transmissionValue === 'semiAutomatic') return 'SEMI_AUTOMATIC';
+                              if (transmissionValue === 'dualClutch') return 'DUAL_CLUTCH';
+                              return transmissionValue.toUpperCase();
+                            })()}`,
                           )
                         : t("common.notProvided")}
                     </div>
