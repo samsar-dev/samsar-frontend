@@ -168,7 +168,10 @@ const CreateListing: React.FC = () => {
     console.log("Unsaved changes state:", {
       hasUnsavedChanges,
       formData: { ...formData, images: formData.images?.length }, // Log image count instead of actual images
-      initialFormState: { ...initialFormState, images: initialFormState.images?.length }
+      initialFormState: {
+        ...initialFormState,
+        images: initialFormState.images?.length,
+      },
     });
   }, [formData, hasUnsavedChanges]);
 
@@ -177,11 +180,10 @@ const CreateListing: React.FC = () => {
   // Handle browser back button navigation
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      if (
-        hasUnsavedChanges &&
-        location.pathname === "/listings/create"
-      ) {
-        const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+      if (hasUnsavedChanges && location.pathname === "/listings/create") {
+        const confirmLeave = window.confirm(
+          "You have unsaved changes. Are you sure you want to leave?",
+        );
         if (!confirmLeave) {
           // Push them back to where they were
           window.history.pushState(null, "", window.location.pathname);
@@ -200,7 +202,9 @@ const CreateListing: React.FC = () => {
     if (
       hasUnsavedChanges &&
       location.pathname === "/listings/create" &&
-      !window.confirm("You have unsaved changes. Are you sure you want to leave?")
+      !window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?",
+      )
     ) {
       return;
     }
@@ -212,9 +216,6 @@ const CreateListing: React.FC = () => {
   const handleBack = () => {
     setStep((prev) => prev - 1);
   };
-  
-
-
 
   // Save form data to session storage only when there are changes
   useEffect(() => {
@@ -260,9 +261,11 @@ const CreateListing: React.FC = () => {
   // Add a confirmation dialog when the user refreshes the page
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!hasUnsavedChanges || location.pathname !== "/listings/create") return;
+      if (!hasUnsavedChanges || location.pathname !== "/listings/create")
+        return;
 
-      const confirmationMessage = "You have unsaved changes. Are you sure you want to leave?";
+      const confirmationMessage =
+        "You have unsaved changes. Are you sure you want to leave?";
       e.preventDefault();
       e.returnValue = confirmationMessage; // Works in all modern browsers
       return confirmationMessage;
@@ -272,7 +275,7 @@ const CreateListing: React.FC = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasUnsavedChanges, location.pathname]); // 
+  }, [hasUnsavedChanges, location.pathname]); //
 
   const handleFinalSubmit = async (data: FormState) => {
     try {

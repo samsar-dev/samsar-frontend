@@ -109,8 +109,6 @@ export const truckSchema: ListingFieldSchema[] = [
       !value ? "Registration status is required" : null,
   },
 
- 
-
   // Advanced Section
   {
     name: "vin",
@@ -223,30 +221,54 @@ export const truckSchema: ListingFieldSchema[] = [
     label: "listings.safetyFeatures",
     type: "featureGroup",
     featureGroups: {
-      "braking": {
+      braking: {
         label: "Braking Systems",
         features: [
           { name: "abs", label: "ABS", type: "toggle" },
-          { name: "emergencyBraking", label: "Emergency Braking", type: "toggle" },
-          { name: "hillStartAssist", label: "Hill Start Assist", type: "toggle" }
-        ]
+          {
+            name: "emergencyBraking",
+            label: "Emergency Braking",
+            type: "toggle",
+          },
+          {
+            name: "hillStartAssist",
+            label: "Hill Start Assist",
+            type: "toggle",
+          },
+        ],
       },
-      "driverAssist": {
+      driverAssist: {
         label: "Driver Assistance",
         features: [
           { name: "laneAssist", label: "Lane Assist", type: "toggle" },
-          { name: "collisionWarning", label: "Collision Warning", type: "toggle" },
-          { name: "blindSpotMonitoring", label: "Blind Spot Monitoring", type: "toggle" }
-        ]
+          {
+            name: "collisionWarning",
+            label: "Collision Warning",
+            type: "toggle",
+          },
+          {
+            name: "blindSpotMonitoring",
+            label: "Blind Spot Monitoring",
+            type: "toggle",
+          },
+        ],
       },
-      "emergencyEquipment": {
+      emergencyEquipment: {
         label: "Emergency Equipment",
         features: [
-          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          {
+            name: "fireExtinguisher",
+            label: "Fire Extinguisher",
+            type: "toggle",
+          },
           { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
-          { name: "emergencyTriangle", label: "Emergency Triangle", type: "toggle" }
-        ]
-      }
+          {
+            name: "emergencyTriangle",
+            label: "Emergency Triangle",
+            type: "toggle",
+          },
+        ],
+      },
     },
     section: "advanced",
     required: false,
@@ -256,34 +278,38 @@ export const truckSchema: ListingFieldSchema[] = [
     label: "listings.vehicleFeatures",
     type: "featureGroup",
     featureGroups: {
-      "infotainment": {
+      infotainment: {
         label: "Infotainment",
         features: [
           { name: "navigation", label: "Navigation System", type: "toggle" },
-          { name: "infotainment", label: "Infotainment System", type: "toggle" },
+          {
+            name: "infotainment",
+            label: "Infotainment System",
+            type: "toggle",
+          },
           { name: "gps", label: "GPS", type: "toggle" },
-          { name: "bluetooth", label: "Bluetooth", type: "toggle" }
-        ]
+          { name: "bluetooth", label: "Bluetooth", type: "toggle" },
+        ],
       },
-      "lighting": {
+      lighting: {
         label: "Lighting",
         features: [
           { name: "LED", label: "LED Lights", type: "toggle" },
           { name: "halogen", label: "Halogen Lights", type: "toggle" },
           { name: "workLights", label: "Work Lights", type: "toggle" },
           { name: "beacon", label: "Beacon Lights", type: "toggle" },
-          { name: "strobe", label: "Strobe Lights", type: "toggle" }
-        ]
+          { name: "strobe", label: "Strobe Lights", type: "toggle" },
+        ],
       },
-      "comfort": {
+      comfort: {
         label: "Comfort Features",
         features: [
           { name: "cruiseControl", label: "Cruise Control", type: "toggle" },
           { name: "climateControl", label: "Climate Control", type: "toggle" },
           { name: "powerWindows", label: "Power Windows", type: "toggle" },
-          { name: "powerMirrors", label: "Power Mirrors", type: "toggle" }
-        ]
-      }
+          { name: "powerMirrors", label: "Power Mirrors", type: "toggle" },
+        ],
+      },
     },
     section: "advanced",
     required: false,
@@ -293,22 +319,30 @@ export const truckSchema: ListingFieldSchema[] = [
     label: "listings.cargoFeatures",
     type: "featureGroup",
     featureGroups: {
-      "cargoCapacity": {
+      cargoCapacity: {
         label: "Cargo Capacity",
         features: [
           { name: "payload", label: "Payload Capacity", type: "toggle" },
           { name: "cargoCover", label: "Cargo Cover", type: "toggle" },
-          { name: "cargoTieDowns", label: "Cargo Tie Downs", type: "toggle" }
-        ]
+          { name: "cargoTieDowns", label: "Cargo Tie Downs", type: "toggle" },
+        ],
       },
-      "cargoSecurity": {
+      cargoSecurity: {
         label: "Cargo Security",
         features: [
-          { name: "lockableCargoArea", label: "Lockable Cargo Area", type: "toggle" },
+          {
+            name: "lockableCargoArea",
+            label: "Lockable Cargo Area",
+            type: "toggle",
+          },
           { name: "cargoDivider", label: "Cargo Divider", type: "toggle" },
-          { name: "securityCameras", label: "Security Cameras", type: "toggle" }
-        ]
-      }
+          {
+            name: "securityCameras",
+            label: "Security Cameras",
+            type: "toggle",
+          },
+        ],
+      },
     },
     section: "advanced",
     required: false,

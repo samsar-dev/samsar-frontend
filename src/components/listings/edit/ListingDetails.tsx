@@ -885,7 +885,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `listings.fields.transmissionTypes.${(listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission)}`,
+                              `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
                             )}
                           </p>
                         </div>

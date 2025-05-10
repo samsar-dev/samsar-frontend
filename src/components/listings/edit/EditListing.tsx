@@ -309,7 +309,7 @@ const EditListing = () => {
 
     try {
       setSaving(true);
-      
+
       // Store the original price for comparison
       const originalPrice = listing.price;
       const newPrice = Number(formData.price);
@@ -365,20 +365,22 @@ const EditListing = () => {
       const response = await listingsAPI.updateListing(id, formDataObj);
       if (response.success) {
         toast.success(t("listings.updateSuccess"));
-        
+
         // Create price drop notification if price was reduced
         if (isPriceReduced) {
           try {
             const priceReduction = originalPrice - newPrice;
-            const percentReduction = Math.round((priceReduction / originalPrice) * 100);
-            
+            const percentReduction = Math.round(
+              (priceReduction / originalPrice) * 100,
+            );
+
             // Create notification in the database
             await NotificationsAPI.createNotification({
               type: NotificationType.PRICE_UPDATE,
               content: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
-              relatedListingId: id
+              relatedListingId: id,
             });
-            
+
             // Emit socket event for real-time notification
             if (socket) {
               socket.emit(PRICE_CHANGE, {
@@ -387,27 +389,32 @@ const EditListing = () => {
                 oldPrice: originalPrice,
                 newPrice: newPrice,
                 percentReduction: percentReduction,
-                userId: user?.id
+                userId: user?.id,
               });
               console.log("Price change socket event emitted");
             } else {
-              console.warn("Socket not available for price change notification");
+              console.warn(
+                "Socket not available for price change notification",
+              );
             }
-            
+
             console.log("Price drop notification created");
           } catch (notificationError) {
-            console.error("Failed to create price drop notification:", notificationError);
+            console.error(
+              "Failed to create price drop notification:",
+              notificationError,
+            );
             // Don't block the main flow if notification creation fails
           }
         }
-        
-        navigate("/listingsuccess", { 
-          state: { 
+
+        navigate("/listingsuccess", {
+          state: {
             listingId: id,
-            isUpdate: true, 
+            isUpdate: true,
             title: formData.title,
-            isPriceReduced: isPriceReduced
-          } 
+            isPriceReduced: isPriceReduced,
+          },
         });
       } else {
         const errorMessage = response.error || t("listings.updateFailed");

@@ -143,7 +143,6 @@ export const motorcycleSchema: ListingFieldSchema[] = [
       !value ? "Brake system is required" : null,
   },
 
-
   // Advanced Section
   // Performance & Technical
   {

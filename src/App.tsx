@@ -43,8 +43,6 @@ const App: () => ReactElement = () => {
     );
   }
 
-
-
   return (
     <AuthProvider>
       <SocketProvider>

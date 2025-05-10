@@ -30,7 +30,7 @@ export const tractorSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Condition is required" : null,
   },
- 
+
   {
     name: "transmissionType",
     label: "listings.transmissionType",
@@ -89,7 +89,6 @@ export const tractorSchema: ListingFieldSchema[] = [
     required: true,
   },
 
-  
   // Advanced Section
   // Engine & Performance
   {

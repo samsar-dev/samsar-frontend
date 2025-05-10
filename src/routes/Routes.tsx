@@ -18,19 +18,19 @@ const Profile = lazy(() => import("@/pages/Profile"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Search = lazy(() => import("@/pages/Search"));
 const ListingDetails = lazy(
-  () => import("@/components/listings/edit/ListingDetails")
+  () => import("@/components/listings/edit/ListingDetails"),
 );
 const CreateListing = lazy(
-  () => import("@/components/listings/create/CreateListing")
+  () => import("@/components/listings/create/CreateListing"),
 );
 const EditListing = lazy(
-  () => import("@/components/listings/edit/EditListing")
+  () => import("@/components/listings/edit/EditListing"),
 );
 const Messages = lazy(() => import("@/pages/Messages"));
 
 const Settings = lazy(() => import("@/pages/Settings"));
 const ChangePassword = lazy(
-  () => import("@/components/profile/ChangePassword")
+  () => import("@/components/profile/ChangePassword"),
 );
 const MyListings = lazy(() => import("@/components/profile/MyListings"));
 const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo"));
@@ -64,7 +64,6 @@ const Routes = (): JSX.Element => {
           <Route path="/listingsuccess" element={<ListingSuccess />} />
           <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/users/:userId" element={<UserProfile />} />
-
 
           {/* Protected routes */}
           <Route

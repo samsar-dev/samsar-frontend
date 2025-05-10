@@ -40,8 +40,6 @@ export const carSchema: ListingFieldSchema[] = [
     required: true,
   },
 
-
-
   {
     name: "transmissionType",
     label: "listings.transmissionType",

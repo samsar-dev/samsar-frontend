@@ -18,7 +18,7 @@ export const handleBasicDetailsSubmit = (
   isValid: boolean,
   setFormData: Dispatch<SetStateAction<FormState>>,
   setStep: Dispatch<SetStateAction<number>>,
-  t: TFunction<"translation", undefined>
+  t: TFunction<"translation", undefined>,
 ) => {
   if (isValid) {
     setFormData((prev) => {
@@ -60,7 +60,7 @@ export const handleBasicDetailsSubmit = (
                   mileage: Number(
                     data.details?.vehicles?.mileage ||
                       prev.details?.vehicles?.mileage ||
-                      0
+                      0,
                   ),
                   fuelType:
                     data.details?.vehicles?.fuelType ||
@@ -87,7 +87,7 @@ export const handleBasicDetailsSubmit = (
                   yearBuilt: parseInt(
                     data.details?.realEstate?.yearBuilt?.toString() ||
                       prev.details?.realEstate?.yearBuilt?.toString() ||
-                      new Date().getFullYear().toString()
+                      new Date().getFullYear().toString(),
                   ),
                   bedrooms:
                     data.details?.realEstate?.bedrooms ||
@@ -104,11 +104,11 @@ export const handleBasicDetailsSubmit = (
                   floor: Number(
                     data.details?.realEstate?.floor ||
                       prev.details?.realEstate?.floor ||
-                      1
+                      1,
                   ),
                   internetIncluded: Boolean(
                     data.details?.realEstate?.internetIncluded ??
-                      prev.details?.realEstate?.internetIncluded
+                      prev.details?.realEstate?.internetIncluded,
                   ),
 
                   houseDetails: {
@@ -120,32 +120,32 @@ export const handleBasicDetailsSubmit = (
                     bedrooms: Number(
                       data.details?.realEstate?.bedrooms ||
                         prev.details?.realEstate?.bedrooms ||
-                        0
+                        0,
                     ),
                     livingArea: Number(
                       data.details?.realEstate?.livingArea ||
                         prev.details?.realEstate?.livingArea ||
-                        0
+                        0,
                     ),
                     stories: Number(
                       data.details?.realEstate?.stories ||
                         prev.details?.realEstate?.stories ||
-                        0
+                        0,
                     ),
                     bathrooms: Number(
                       data.details?.realEstate?.bathrooms ||
                         prev.details?.realEstate?.bathrooms ||
-                        0
+                        0,
                     ),
                     yearBuilt: Number(
                       data.details?.realEstate?.yearBuilt ||
                         prev.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear()
+                        new Date().getFullYear(),
                     ),
                     halfBathrooms: Number(
                       data.details?.realEstate?.halfBathrooms ||
                         prev.details?.realEstate?.halfBathrooms ||
-                        0
+                        0,
                     ),
                   },
                 }
@@ -155,7 +155,7 @@ export const handleBasicDetailsSubmit = (
       // Save to session storage
       sessionStorage.setItem(
         "createListingFormData",
-        JSON.stringify(updatedData)
+        JSON.stringify(updatedData),
       );
       return updatedData;
     });

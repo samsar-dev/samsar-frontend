@@ -2,7 +2,7 @@ import { ListingFieldSchema } from "@/types/listings";
 
 export const constructionSchema: ListingFieldSchema[] = [
   // Essential Section
- 
+
   {
     name: "condition",
     label: "listings.condition",
@@ -116,7 +116,6 @@ export const constructionSchema: ListingFieldSchema[] = [
     },
   },
 
-
   // Advanced Section
   {
     name: "maxLiftingCapacity",
@@ -207,7 +206,7 @@ export const constructionSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  
+
   // ================= SAFETY FEATURES =================
   {
     name: "safetyFeatures",
@@ -220,9 +219,17 @@ export const constructionSchema: ListingFieldSchema[] = [
         label: "Protection Systems",
         features: [
           { name: "rops", label: "ROPS (Rollover Protection)", type: "toggle" },
-          { name: "fops", label: "FOPS (Falling Object Protection)", type: "toggle" },
+          {
+            name: "fops",
+            label: "FOPS (Falling Object Protection)",
+            type: "toggle",
+          },
           { name: "emergencyStop", label: "Emergency Stop", type: "toggle" },
-          { name: "fireSuppression", label: "Fire Suppression", type: "toggle" },
+          {
+            name: "fireSuppression",
+            label: "Fire Suppression",
+            type: "toggle",
+          },
         ],
       },
       monitoring: {
@@ -230,13 +237,17 @@ export const constructionSchema: ListingFieldSchema[] = [
         features: [
           { name: "backupCamera", label: "Backup Camera", type: "toggle" },
           { name: "safetySensors", label: "Safety Sensors", type: "toggle" },
-          { name: "proximityWarning", label: "Proximity Warning", type: "toggle" },
+          {
+            name: "proximityWarning",
+            label: "Proximity Warning",
+            type: "toggle",
+          },
           { name: "loadMonitoring", label: "Load Monitoring", type: "toggle" },
         ],
       },
     },
   },
-  
+
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
@@ -271,15 +282,27 @@ export const constructionSchema: ListingFieldSchema[] = [
         features: [
           { name: "gps", label: "GPS", type: "toggle" },
           { name: "telematics", label: "Telematics", type: "toggle" },
-          { name: "remoteDiagnostics", label: "Remote Diagnostics", type: "toggle" },
-          { name: "fleetManagement", label: "Fleet Management", type: "toggle" },
+          {
+            name: "remoteDiagnostics",
+            label: "Remote Diagnostics",
+            type: "toggle",
+          },
+          {
+            name: "fleetManagement",
+            label: "Fleet Management",
+            type: "toggle",
+          },
         ],
       },
       comfort: {
         label: "Comfort Features",
         features: [
           { name: "heatedSeat", label: "Heated Seat", type: "toggle" },
-          { name: "airSuspensionSeat", label: "Air Suspension Seat", type: "toggle" },
+          {
+            name: "airSuspensionSeat",
+            label: "Air Suspension Seat",
+            type: "toggle",
+          },
           { name: "bluetooth", label: "Bluetooth", type: "toggle" },
           { name: "radio", label: "Radio", type: "toggle" },
         ],

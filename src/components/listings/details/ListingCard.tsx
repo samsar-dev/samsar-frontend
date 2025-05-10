@@ -190,7 +190,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {vehicleDetails.transmission && (
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
-              {t(`listings.fields.transmissionTypes.${vehicleDetails.transmission}`)}
+              {t(
+                `listings.fields.transmissionTypes.${vehicleDetails.transmission}`,
+              )}
             </p>
           )}
           {vehicleDetails.fuelType && (
@@ -363,10 +365,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
                       vehicleDetails?.transmission
                         ? t(
                             `listings.fields.transmissionTypes.${(() => {
-                              const transmissionValue = vehicleDetails.transmissionType || vehicleDetails.transmission;
+                              const transmissionValue =
+                                vehicleDetails.transmissionType ||
+                                vehicleDetails.transmission;
                               if (!transmissionValue) return "";
-                              if (transmissionValue === 'semiAutomatic') return 'SEMI_AUTOMATIC';
-                              if (transmissionValue === 'dualClutch') return 'DUAL_CLUTCH';
+                              if (transmissionValue === "semiAutomatic")
+                                return "SEMI_AUTOMATIC";
+                              if (transmissionValue === "dualClutch")
+                                return "DUAL_CLUTCH";
                               return transmissionValue.toUpperCase();
                             })()}`,
                           )

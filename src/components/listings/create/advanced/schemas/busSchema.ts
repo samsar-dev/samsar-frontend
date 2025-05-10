@@ -121,7 +121,6 @@ export const busSchema: ListingFieldSchema[] = [
     },
   },
 
-  
   {
     name: "engine",
     label: "engine",
@@ -131,7 +130,7 @@ export const busSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Engine details are required" : null,
   },
-  
+
   {
     name: "serviceHistory",
     label: "serviceHistory",
@@ -226,9 +225,17 @@ export const busSchema: ListingFieldSchema[] = [
         features: [
           { name: "lowFloor", label: "Low Floor", type: "toggle" },
           { name: "kneeling", label: "Kneeling System", type: "toggle" },
-          { name: "audioAnnouncements", label: "Audio Announcements", type: "toggle" },
+          {
+            name: "audioAnnouncements",
+            label: "Audio Announcements",
+            type: "toggle",
+          },
           { name: "brailleSignage", label: "Braille Signage", type: "toggle" },
-          { name: "prioritySeating", label: "Priority Seating", type: "toggle" },
+          {
+            name: "prioritySeating",
+            label: "Priority Seating",
+            type: "toggle",
+          },
           { name: "handrails", label: "Handrails", type: "toggle" },
         ],
       },
@@ -263,19 +270,39 @@ export const busSchema: ListingFieldSchema[] = [
         features: [
           { name: "abs", label: "ABS", type: "toggle" },
           { name: "laneAssist", label: "Lane Assist", type: "toggle" },
-          { name: "collisionWarning", label: "Collision Warning", type: "toggle" },
+          {
+            name: "collisionWarning",
+            label: "Collision Warning",
+            type: "toggle",
+          },
           { name: "speedLimiter", label: "Speed Limiter", type: "toggle" },
-          { name: "tirePressureMonitoring", label: "Tire Pressure Monitoring", type: "toggle" },
+          {
+            name: "tirePressureMonitoring",
+            label: "Tire Pressure Monitoring",
+            type: "toggle",
+          },
           { name: "reverseCamera", label: "Reverse Camera", type: "toggle" },
-          { name: "blindSpotDetection", label: "Blind Spot Detection", type: "toggle" },
+          {
+            name: "blindSpotDetection",
+            label: "Blind Spot Detection",
+            type: "toggle",
+          },
         ],
       },
       emergency: {
         label: "Emergency Equipment",
         features: [
-          { name: "fireExtinguisher", label: "Fire Extinguisher", type: "toggle" },
+          {
+            name: "fireExtinguisher",
+            label: "Fire Extinguisher",
+            type: "toggle",
+          },
           { name: "firstAidKit", label: "First Aid Kit", type: "toggle" },
-          { name: "emergencyHammer", label: "Emergency Hammer", type: "toggle" },
+          {
+            name: "emergencyHammer",
+            label: "Emergency Hammer",
+            type: "toggle",
+          },
         ],
       },
     },

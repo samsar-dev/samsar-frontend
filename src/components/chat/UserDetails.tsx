@@ -128,7 +128,7 @@ export default function UserDetails({
           type="single"
           collapsible
           defaultValue="bio"
-          className="w-full"
+          className="w-full mb-4"
         >
           <AccordionItem value="bio" className="border-b border-gray-100 -mt-4">
             <AccordionTrigger className="p-4 flex items-center justify-between">
@@ -151,6 +151,26 @@ export default function UserDetails({
                   <Copy className="h-3 w-3 mr-1" /> Copy link
                 </Button>
               </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        {/* Location Accordion */}
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="city"
+          className="w-full"
+        >
+          <AccordionItem
+            value="city"
+            className="border-b border-gray-100 -mt-4"
+          >
+            <AccordionTrigger className="p-4 flex items-center justify-between">
+              <div className="text-sm text-gray-500">City</div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 text-sm">
+              {participant.location || "No city provided."}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

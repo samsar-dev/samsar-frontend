@@ -41,7 +41,7 @@ export interface FormFieldProps {
   max?: number;
   prefix?: string;
   customValidation?: (
-    value: string | string[]
+    value: string | string[],
   ) => string | string[] | undefined | null;
   isSearchable?: boolean;
 }
@@ -74,7 +74,7 @@ export const FormField = forwardRef<
           HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
         >
       | SingleValue<{ value: string; label: string }>,
-    actionMeta?: ActionMeta<{ value: string; label: string }>
+    actionMeta?: ActionMeta<{ value: string; label: string }>,
   ) => {
     let newValue;
 
@@ -116,7 +116,7 @@ export const FormField = forwardRef<
 
   const handleMultiSelectChange = (
     newValue: MultiValue<unknown>,
-    actionMeta?: ActionMeta<unknown>
+    actionMeta?: ActionMeta<unknown>,
   ) => {
     let newValueArr: string[] | null = null;
 
@@ -144,7 +144,7 @@ export const FormField = forwardRef<
       "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500": error,
       "opacity-50 cursor-not-allowed": disabled,
       "pl-10": prefix,
-    }
+    },
   );
 
   const animatedComponents = makeAnimated();

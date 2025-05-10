@@ -70,7 +70,6 @@ export const vanSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Fuel type is required" : null,
   },
- 
 
   {
     name: "engineType",
@@ -82,7 +81,7 @@ export const vanSchema: ListingFieldSchema[] = [
     validate: (value: string | number | boolean) =>
       !value ? "Engine type is required" : null,
   },
- 
+
   {
     name: "cargoVolume",
     label: "cargoVolume",

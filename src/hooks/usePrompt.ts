@@ -10,13 +10,17 @@ import { useBlocker } from "react-router-dom";
 export function usePrompt(when: boolean, message: string) {
   useBlocker(
     useCallback(
-      (_args: { currentLocation: any; nextLocation: any; historyAction: any }) => {
+      (_args: {
+        currentLocation: any;
+        nextLocation: any;
+        historyAction: any;
+      }) => {
         if (!when) return true;
 
         const confirmLeave = window.confirm(message);
         return confirmLeave;
       },
-      [when, message]
-    )
+      [when, message],
+    ),
   );
 }

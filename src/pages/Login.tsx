@@ -64,7 +64,7 @@ const Login = () => {
     try {
       // Only navigate to home page if login is successful
       const success = await login(email, password);
-      
+
       // The navigation now only happens if login is successful
       if (success) {
         toast.success(t("auth.successfullyLoggedIn"));

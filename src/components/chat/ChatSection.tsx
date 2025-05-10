@@ -10,7 +10,13 @@ import { NEW_MESSAGE } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import type { Conversation, Message, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
-import { ImageIcon, MoreHorizontal, Paperclip, Send } from "lucide-react";
+import {
+  ImageIcon,
+  MoreHorizontal,
+  Paperclip,
+  Send,
+  Smile,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +34,9 @@ function ChatSection({
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { socket } = useSocket();
 
@@ -37,6 +45,28 @@ function ChatSection({
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const handleEmojiClick = (emoji: string) => {
+    setInputMessage((prev) => prev + emoji);
+    setShowEmojiPicker(false);
+  };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSendMessage = async () => {
     const receiverId = participant?.id;
@@ -47,6 +77,7 @@ function ChatSection({
       throw new Error("Socket not initialized");
     }
     const soketData: Message = {
+      id: `temp-${Date.now()}`, // Add a temporary unique ID for new messages
       content: inputMessage,
       senderId: user?.id,
       recipientId: receiverId,
@@ -172,7 +203,7 @@ function ChatSection({
           <div className="flex-1 mx-3 relative">
             <Input
               placeholder="Type Something ..."
-              className="pr-20 py-2 rounded-full border-gray-200"
+              className="pl-12"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -182,29 +213,100 @@ function ChatSection({
                 }
               }}
             />
-            {/* <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+            <div
+              className="absolute left-2 bottom-full mb-2"
+              ref={emojiPickerRef}
+            >
+              {showEmojiPicker && (
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-2 w-64">
+                  <div className="mb-2 border-b pb-2">
+                    <div className="flex overflow-x-auto space-x-2 pb-2">
+                      <button className="p-1 hover:bg-gray-100 rounded">
+                        <Smile className="h-8 w-8 text-gray-500" />
+                      </button>
+                      {/* Category buttons can be added here */}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-8 gap-1">
+                    {[
+                      "😀",
+                      "😁",
+                      "😂",
+                      "🤣",
+                      "😃",
+                      "😄",
+                      "😅",
+                      "😆",
+                      "😉",
+                      "😊",
+                      "😋",
+                      "😎",
+                      "😍",
+                      "😘",
+                      "😗",
+                      "😙",
+                      "😚",
+                      "🙂",
+                      "🤗",
+                      "🤔",
+                      "🤨",
+                      "😐",
+                      "😑",
+                      "😶",
+                      "🙄",
+                      "😏",
+                      "😣",
+                      "😥",
+                      "😮",
+                      "🤐",
+                      "😯",
+                      "😪",
+                      "😫",
+                      "😴",
+                      "😌",
+                      "😛",
+                      "😜",
+                      "😝",
+                      "🤤",
+                      "😒",
+                      "👍",
+                      "👎",
+                      "👏",
+                      "🙌",
+                      "👋",
+                      "🤝",
+                      "💪",
+                      "❤️",
+                    ].map((emoji, index) => (
+                      <button
+                        key={index}
+                        className="p-1 hover:bg-gray-100 rounded text-xl"
+                        onClick={() => handleEmojiClick(emoji)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full"
+                className="h-10 w-10 rounded-full"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               >
-                <Paperclip className="h-4 w-4 text-gray-400" />
+                <Smile className="h-8 w-8 text-gray-500" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-full"
-              >
-                <ImageIcon className="h-4 w-4 text-gray-400" />
-              </Button>
-            </div> */}
+            </div>
           </div>
           <Button
             size="icon"
             className="rounded-full bg-blue-500 hover:bg-blue-600"
             onClick={handleSendMessage}
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-6 w-6" />
           </Button>
         </div>
       </div>

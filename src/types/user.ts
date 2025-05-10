@@ -9,6 +9,7 @@ export interface User {
   phone?: string;
   bio?: string;
   profilePicture?: string;
+  location?: string;
   role: "user" | "admin";
   createdAt: string;
   updatedAt: string;
