@@ -184,6 +184,8 @@
       "transmission": "Transmission",
       "propertyType": "Property Type",
       "totalArea": "Total Area",
+      "yes": "Yes",
+      "no": "No",
       "condition": "Condition",
       "mileage": "Mileage",
       "yearBuilt": "Year Built",
@@ -199,6 +201,7 @@
         "diesel": "Diesel",
         "electric": "Electric",
         "hybrid": "Hybrid",
+        "pluginHybrid": "Plug-in Hybrid",
         "lpg": "LPG",
         "cng": "CNG",
         "other": "Other"
@@ -208,7 +211,8 @@
         "AUTOMATIC": "Automatic",
         "SEMI_AUTOMATIC": "Semi-Automatic",
         "CONTINUOUSLY_VARIABLE": "Continuously Variable Transmission (CVT)",
-        "DUAL_CLUTCH": "Dual Clutch"
+        "DUAL_CLUTCH": "Dual Clutch",
+        "dualClutch": "Dual Clutch"
       },
       "propertyTypes": {
         "house": "House",

@@ -62,10 +62,17 @@ const Login = () => {
     clearError();
 
     try {
+      // Only navigate to home page if login is successful
       const success = await login(email, password);
+      
+      // The navigation now only happens if login is successful
       if (success) {
-        navigate("/");
         toast.success(t("auth.successfullyLoggedIn"));
+        navigate("/");
+      } else {
+        // If login returns false, it means there was an error but it was handled by the auth context
+        // We stay on the login page and don't navigate
+        setPassword(""); // Clear password field for security
       }
     } catch (error: any) {
       console.error("Login error:", error);

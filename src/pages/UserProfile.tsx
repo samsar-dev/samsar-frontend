@@ -49,7 +49,7 @@ export const UserProfile = () => {
         setLoading(true);
         const accessToken = TokenManager.getAccessToken();
         const response = await UserAPI.getProfile(userId!, accessToken!);
-        const userData = response.data;
+        const userData = response.data as UserProfileData;
         if (!userData) {
           throw new Error("User not found");
         }
