@@ -1,4 +1,8 @@
 import { listingsAPI } from "@/api/listings.api";
+import { NotificationsAPI } from "@/api/notifications.api";
+import { NotificationType } from "@/types/notifications";
+import { useSocket } from "@/hooks/useSocket";
+import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
 import type { FormFieldProps } from "@/components/form/FormField";
 import type { SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
@@ -116,6 +120,8 @@ const EditListing = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { socket } = useSocket();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -298,10 +304,16 @@ const EditListing = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!id || !listing) return;
 
     try {
       setSaving(true);
+      
+      // Store the original price for comparison
+      const originalPrice = listing.price;
+      const newPrice = Number(formData.price);
+      const isPriceReduced = newPrice < originalPrice;
 
       // Create FormData object
       const formDataObj = new FormData();
@@ -353,11 +365,50 @@ const EditListing = () => {
       const response = await listingsAPI.updateListing(id, formDataObj);
       if (response.success) {
         toast.success(t("listings.updateSuccess"));
+        
+        // Create price drop notification if price was reduced
+        if (isPriceReduced) {
+          try {
+            const priceReduction = originalPrice - newPrice;
+            const percentReduction = Math.round((priceReduction / originalPrice) * 100);
+            
+            // Create notification in the database
+            await NotificationsAPI.createNotification({
+              type: NotificationType.PRICE_UPDATE,
+              title: "Price Drop Alert",
+              message: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
+              targetId: id,
+              targetType: "listing"
+            });
+            
+            // Emit socket event for real-time notification
+            if (socket) {
+              socket.emit(PRICE_CHANGE, {
+                listingId: id,
+                title: formData.title,
+                oldPrice: originalPrice,
+                newPrice: newPrice,
+                percentReduction: percentReduction,
+                userId: user?.id
+              });
+              console.log("Price change socket event emitted");
+            } else {
+              console.warn("Socket not available for price change notification");
+            }
+            
+            console.log("Price drop notification created");
+          } catch (notificationError) {
+            console.error("Failed to create price drop notification:", notificationError);
+            // Don't block the main flow if notification creation fails
+          }
+        }
+        
         navigate("/listingsuccess", { 
           state: { 
             listingId: id,
             isUpdate: true, 
-            title: formData.title
+            title: formData.title,
+            isPriceReduced: isPriceReduced
           } 
         });
       } else {

@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaCheckCircle, FaEye, FaEdit, FaHome } from "react-icons/fa";
+import { FaCheckCircle, FaEye, FaEdit, FaHome, FaTag } from "react-icons/fa";
 
 const ListingSuccess = () => {
   const location = useLocation();
-  const { listingId, isUpdate, title } = location.state || {};
+  const { listingId, isUpdate, title, isPriceReduced } = location.state || {};
 
   return (
     <motion.div
@@ -20,6 +20,19 @@ const ListingSuccess = () => {
           ? `Your listing "${title}" was successfully updated!` 
           : "Your listing was successfully uploaded!"}
       </h1>
+      
+      {isPriceReduced && (
+        <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
+          <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-medium">
+            <FaTag />
+            <span>Price drop notification sent to interested users!</span>
+          </div>
+          <p className="text-blue-600 dark:text-blue-400 text-sm mt-1">
+            Users who saved this listing will be notified about the price reduction.
+          </p>
+        </div>
+      )}
+      
       <p className="text-gray-600 dark:text-gray-400">
         What would you like to do next?
       </p>
