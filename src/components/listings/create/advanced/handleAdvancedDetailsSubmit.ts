@@ -21,7 +21,7 @@ export const handleAdvancedDetailsSubmit = (
   isValid: boolean,
   setFormData: Dispatch<SetStateAction<FormState>>,
   setStep: Dispatch<SetStateAction<number>>,
-  t: TFunction<"translation", undefined>,
+  t: TFunction<"translation", undefined>
 ) => {
   console.log("Advanced details form data:", data);
   console.log("Advanced details form validity:", isValid);
@@ -308,7 +308,7 @@ export const handleAdvancedDetailsSubmit = (
       // Save to session storage
       sessionStorage.setItem(
         "createListingFormData",
-        JSON.stringify(updatedData),
+        JSON.stringify(updatedData)
       );
       return updatedData;
     });

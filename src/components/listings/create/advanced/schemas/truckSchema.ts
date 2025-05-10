@@ -197,7 +197,7 @@ export const truckSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "listings.serviceHistory",
-    type: "select",
+    type: "multiselect",
     options: ["full", "partial", "none"],
     section: "advanced",
     required: false,
