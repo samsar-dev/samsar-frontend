@@ -31,10 +31,12 @@ export interface Notification {
 
 export interface NotificationCreateInput {
   type: NotificationType;
-  title: string;
-  message: string;
-  targetId?: string;
-  targetType?: string;
+  content: string;
+  userId?: string;
+  relatedId?: string;
+  relatedListingId?: string;
+  relatedUserId?: string;
+  relatedMessageId?: string;
 }
 
 export interface NotificationUpdateInput {

@@ -375,10 +375,8 @@ const EditListing = () => {
             // Create notification in the database
             await NotificationsAPI.createNotification({
               type: NotificationType.PRICE_UPDATE,
-              title: "Price Drop Alert",
-              message: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
-              targetId: id,
-              targetType: "listing"
+              content: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
+              relatedListingId: id
             });
             
             // Emit socket event for real-time notification
