@@ -182,7 +182,16 @@ export const constructionSchema: ListingFieldSchema[] = [
   {
     name: "hydraulicOutlets",
     label: "listings.hydraulicOutlets",
-    type: "number",
+    type: "multiselect",
+    options: [
+      "standard",
+      "deluxe",
+      "electrohydraulic",
+      "powerBeyond",
+      "frontRemotes",
+      "midRemotes",
+      "rearRemotes",
+    ],
     section: "advanced",
     required: false,
   },
