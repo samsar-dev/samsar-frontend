@@ -1,3 +1,4 @@
+import React, { useState, useEffect, Suspense, lazy, useMemo, useCallback } from "react";
 import ImageFallback from "@/components/common/ImageFallback";
 import {
   Condition,
@@ -9,12 +10,6 @@ import {
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { motion } from "framer-motion";
-import React, {
-  Suspense,
-  lazy,
-  useEffect,
-  useState
-} from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCar,
@@ -67,10 +62,16 @@ const pageTransition = {
   transition: { duration: 0.3 },
 };
 
-const ReviewSection = React.memo<ReviewSectionProps>(
-  ({ formData, onSubmit, onBack, onEdit, isSubmitting, error }) => {
-    const { t } = useTranslation();
-    const [loading, setLoading] = useState(false);
+const ReviewSection = React.memo<ReviewSectionProps>(({
+  formData,
+  onSubmit,
+  onBack,
+  onEdit,
+  isSubmitting,
+  error,
+}) => {
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
 
     // Format price with currency and thousands separator
     const formatPrice = (price: number) => {
@@ -976,5 +977,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     );
   }
 ); // Close the React.memo wrapper
+
+});  // Close the React.memo wrapper
 
 export default ReviewSection;
