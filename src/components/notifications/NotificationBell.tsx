@@ -107,7 +107,11 @@ export default function NotificationBell({
               if (notification.listingId) {
                 // Remove 'cma' prefix if it exists
                 const listingId = notification.listingId.replace('cma', '');
-                navigate(`/listings/${listingId}`);
+                // Remove '/public' from the path if it exists
+                const path = notification.listingId.includes('/public/')
+                  ? notification.listingId.replace('/public/', '/')
+                  : notification.listingId;
+                navigate(`/listings/${path}`);
               } else {
                 navigate("/listings");
               }
