@@ -1,15 +1,19 @@
 import { NotificationsAPI } from "@/api/notifications.api";
 import { Tooltip } from "@/components/ui";
-import { NEW_MESSAGE_ALERT } from "@/constants/socketEvents";
+import { NEW_MESSAGE_ALERT, PRICE_CHANGE } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
 import { useAuth } from "@/hooks";
-import type { Notification } from "@/types/notifications";
+import type {
+  Notification,
+  PriceUpdateNotification,
+} from "@/types/notifications";
 import { NotificationType } from "@/types/notifications";
 import { timeAgo } from "@/utils/dateUtils";
 import {
   getNotificationColor,
   formatNotificationMessage,
 } from "@/utils/notificationUtils";
+import { set } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -51,9 +55,6 @@ export default function NotificationBell({
       const response = await NotificationsAPI.getNotifications();
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
-        setUnreadCount(
-          response.data.items.filter((n: Notification) => !n.read).length,
-        );
       } else if (response.error) {
         console.error("Failed to fetch notifications:", response.error);
         // Simply display a generic error message to avoid type issues
@@ -69,95 +70,9 @@ export default function NotificationBell({
       toast.error(errorMessage);
       // Initialize with empty data to prevent UI errors
       setNotifications([]);
-      setUnreadCount(0);
     }
   };
   console.log("chatId", location.pathname.split("/")[2]);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    // Only set up socket listeners if socket is available and connected
-    if (!socket || !connected) {
-      console.log("Socket not yet initialized or not connected, waiting...");
-      return;
-    }
-
-    // Log connection error if any
-    if (connectionError) {
-      console.warn("Socket connection error:", connectionError);
-    }
-
-    // Set up the event listener for new message alerts
-    const handleNewMessageAlert = async (data: {
-      id: string;
-      content: string;
-      userId: string;
-      type: string;
-      relatedId: string;
-      read: boolean;
-      createdAt: string;
-    }) => {
-      console.log("new message alert received:", data);
-      console.log("chatId", location.pathname.split("/")[2]);
-
-      // If user is in the chat related to this notification, delete it
-      if (location.pathname.split("/")[2] === data.relatedId) {
-        try {
-          const result = await NotificationsAPI.deleteNotification(
-            data.relatedId,
-          );
-          console.log("notification deleted result:", result);
-          return;
-        } catch (error) {
-          console.error("Error deleting notification:", error);
-          return;
-        }
-      }
-
-      // Otherwise, create a new notification
-      const newNotification: Notification = {
-        id: data.relatedId,
-        userId: data.userId,
-        type: NotificationType.NEW_MESSAGE,
-        title: "New Message",
-        message: data.content,
-        createdAt: data.createdAt,
-        read: data.read,
-      };
-
-      console.log("Adding new notification:", newNotification);
-      setNotifications((prev) => [newNotification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    };
-
-    // Register the event listener
-    socket.on(NEW_MESSAGE_ALERT, handleNewMessageAlert);
-
-    // Clean up the event listener when component unmounts or socket changes
-    return () => {
-      socket.off(NEW_MESSAGE_ALERT, handleNewMessageAlert);
-    };
-  }, [socket, location.pathname]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    setShowNotifications(false);
-  }, [location.pathname]);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!isAuthenticated) return;
@@ -169,13 +84,8 @@ export default function NotificationBell({
       if (response.success) {
         // Update local state
         setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === notification.id ? { ...n, read: true } : n,
-          ),
+          prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
         );
-
-        // Update unread count
-        setUnreadCount((prev) => Math.max(0, prev - 1));
 
         // Call the onNotificationClick callback if provided
         if (onNotificationClick) {
@@ -243,6 +153,115 @@ export default function NotificationBell({
       toast.error("Failed to update notifications");
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    // Only set up socket listeners if socket is available and connected
+    if (!socket || !connected) {
+      console.log("Socket not yet initialized or not connected, waiting...");
+      return;
+    }
+
+    // Log connection error if any
+    if (connectionError) {
+      console.warn("Socket connection error:", connectionError);
+      return;
+    }
+
+    // Set up the event listener for new message alerts
+    const handleNewMessageAlert = async (data: {
+      id: string;
+      content: string;
+      userId: string;
+      type: string;
+      relatedId: string;
+      read: boolean;
+      createdAt: string;
+    }) => {
+      console.log("new message alert received:", data);
+      console.log("chatId", location.pathname.split("/")[2]);
+
+      // If user is in the chat related to this notification, delete it
+      if (location.pathname.split("/")[2] === data.relatedId) {
+        try {
+          const result = await NotificationsAPI.deleteNotification(
+            data.relatedId
+          );
+          console.log("notification deleted result:", result);
+          return;
+        } catch (error) {
+          console.error("Error deleting notification:", error);
+          return;
+        }
+      }
+
+      // Otherwise, create a new notification
+      const newNotification: Notification = {
+        id: data.relatedId,
+        userId: data.userId,
+        type: NotificationType.NEW_MESSAGE,
+        title: "New Message",
+        message: data.content,
+        createdAt: data.createdAt,
+        read: data.read,
+      };
+
+      console.log("Adding new notification:", newNotification);
+      setNotifications((prev) => [newNotification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    };
+
+    const handleNewMessagePriceChange = (data: PriceUpdateNotification) => {
+      console.log("new price change alert received:", data);
+      const newNotification: Notification = {
+        id: data.id,
+        userId: data.userId,
+        type: data.type,
+        createdAt: data.createdAt.toString(),
+        read: data.read,
+        title: data.title,
+        message: data.content,
+        updatedAt: data.createdAt.toString(),
+      };
+      setNotifications((prev) => [newNotification, ...prev]);
+    };
+
+    // Register the event listener
+    socket.on(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+
+    // Fetch notification of favorites listing price is down
+    socket.on(PRICE_CHANGE, handleNewMessagePriceChange);
+
+    // Clean up the event listener when component unmounts or socket changes
+    return () => {
+      socket.off(NEW_MESSAGE_ALERT, handleNewMessageAlert);
+      socket.off(PRICE_CHANGE, handleNewMessagePriceChange);
+    };
+  }, [socket, location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setShowNotifications(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    setUnreadCount(notifications?.filter((n) => !n.read)?.length);
+  }, [notifications]);
 
   if (!isAuthenticated) return null;
 
@@ -338,11 +357,13 @@ export default function NotificationBell({
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {notification.title ||
                             t(
-                              `notification.types.${notification.type.toLowerCase()}`,
+                              `notification.types.${notification.type.toLowerCase()}`
                             )}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatNotificationMessage(notification)}
+                          {formatNotificationMessage(notification).length > 50
+                            ? `${formatNotificationMessage(notification).substring(0, 50)}...`
+                            : formatNotificationMessage(notification)}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                           {timeAgo(notification.createdAt, "en")}

@@ -1,5 +1,5 @@
-import { APIResponse, PaginatedData } from "./api";
-import { User } from "./user";
+import type { APIResponse, PaginatedData } from "./api";
+import type { User } from "./user";
 
 // Match backend enum values for consistent type handling
 export enum NotificationType {
@@ -28,6 +28,17 @@ export interface Notification {
   targetId?: string;
   targetType?: string;
 }
+
+export type PriceUpdateNotification = {
+  type: NotificationType;
+  id: string;
+  content: string;
+  title: string;
+  userId: string; // or number, depending on your system
+  relatedListingId: string; // or number, adjust as needed
+  read: boolean;
+  createdAt: Date;
+};
 
 export interface NotificationCreateInput {
   type: NotificationType;

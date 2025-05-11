@@ -1,7 +1,6 @@
 import { listingsAPI } from "@/api/listings.api";
 import { NotificationsAPI } from "@/api/notifications.api";
 import { NotificationType } from "@/types/notifications";
-import { useSocket } from "@/hooks/useSocket";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
 import type { FormFieldProps } from "@/components/form/FormField";
@@ -33,6 +32,7 @@ import {
   FaTools,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSocket } from "@/contexts/SocketContext";
 interface EditFormData {
   title: string;
   description: string;
@@ -175,11 +175,11 @@ const EditListing = () => {
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
+    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section))
   )
     .filter(
       (sectionId: unknown): sectionId is SectionId =>
-        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
+        typeof sectionId === "string" && sectionId in SECTION_CONFIG
     )
     .map((sectionId: SectionId) => ({
       id: sectionId,
@@ -187,7 +187,7 @@ const EditListing = () => {
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
       fields: advancedSchema.filter(
-        (field: ListingFieldSchema) => field.section === sectionId,
+        (field: ListingFieldSchema) => field.section === sectionId
       ),
     }))
     .sort((a, b) => a.order - b.order);
@@ -217,7 +217,7 @@ const EditListing = () => {
 
             // Convert image URLs to strings for existing images
             const existingImages = (response.data.images || []).map(
-              (img: any) => (typeof img === "string" ? img : img.url),
+              (img: any) => (typeof img === "string" ? img : img.url)
             );
 
             // Extract vehicle details
@@ -229,44 +229,44 @@ const EditListing = () => {
                 safetyFeatures: featuresDetails.safetyFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
                 cameraFeatures: featuresDetails.cameraFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
                 climateFeatures: featuresDetails.climateFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
                 enternmentFeatures: featuresDetails.enternmentFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
                 lightingFeatures: featuresDetails.lightingFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
                 convenienceFeatures: featuresDetails.convenienceFeatures.filter(
                   (feature) => {
                     return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
+                      ([key, value]) => key === feature && value
                     );
-                  },
+                  }
                 ),
               });
             }
@@ -330,12 +330,12 @@ const EditListing = () => {
       // Add existing images as JSON string
       formDataObj.append(
         "existingImages",
-        JSON.stringify(formData.existingImages),
+        JSON.stringify(formData.existingImages)
       );
 
       // Add new images
       const newImages = formData.images.filter(
-        (img): img is File => img instanceof File,
+        (img): img is File => img instanceof File
       );
       newImages.forEach((image) => {
         formDataObj.append("images", image);
@@ -372,38 +372,38 @@ const EditListing = () => {
           try {
             const priceReduction = originalPrice - newPrice;
             const percentReduction = Math.round(
-              (priceReduction / originalPrice) * 100,
+              (priceReduction / originalPrice) * 100
             );
 
-            // Create notification in the database
-            await NotificationsAPI.createNotification({
-              type: NotificationType.PRICE_UPDATE,
-              content: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
-              relatedListingId: id,
-            });
+            // // Create notification in the database
+            // await NotificationsAPI.createNotification({
+            //   type: NotificationType.PRICE_UPDATE,
+            //   content: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
+            //   relatedListingId: id,
+            // });
 
             // Emit socket event for real-time notification
-            if (socket) {
-              socket.emit(PRICE_CHANGE, {
-                listingId: id,
-                title: formData.title,
-                oldPrice: originalPrice,
-                newPrice: newPrice,
-                percentReduction: percentReduction,
-                userId: user?.id,
-              });
-              console.log("Price change socket event emitted");
-            } else {
-              console.warn(
-                "Socket not available for price change notification",
+            if (!socket) {
+              console.error(
+                "Socket not available for price change notification"
               );
+              return;
             }
 
+            console.log("Emitting price change socket event", priceReduction);
+            socket.emit(PRICE_CHANGE, {
+              listingId: id,
+              title: formData.title,
+              oldPrice: originalPrice,
+              newPrice: newPrice,
+              percentReduction: percentReduction,
+              userId: user?.id,
+            });
             console.log("Price drop notification created");
           } catch (notificationError) {
             console.error(
               "Failed to create price drop notification:",
-              notificationError,
+              notificationError
             );
             // Don't block the main flow if notification creation fails
           }
@@ -452,7 +452,7 @@ const EditListing = () => {
 
   const handleInputChange = (
     field: string,
-    value: string | number | boolean | string[],
+    value: string | number | boolean | string[]
   ) => {
     setFormData((prevForm) => {
       const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -485,7 +485,7 @@ const EditListing = () => {
           "Setting warranty value:",
           processedValue,
           "type:",
-          typeof processedValue,
+          typeof processedValue
         );
       }
 
@@ -518,7 +518,7 @@ const EditListing = () => {
       // If the deleted image was an existing image (string URL), also remove it from existingImages
       if (typeof deletedImage === "string") {
         const newExistingImages = prev.existingImages.filter(
-          (img) => img !== deletedImage,
+          (img) => img !== deletedImage
         );
         return {
           ...prev,
@@ -599,7 +599,7 @@ const EditListing = () => {
             </h2>
             <ImageManager
               images={formData.images.filter(
-                (img): img is File => img instanceof File,
+                (img): img is File => img instanceof File
               )}
               onChange={handleImageChange}
               maxImages={10}
@@ -609,7 +609,7 @@ const EditListing = () => {
                   ...prev,
                   images: prev.images.filter((img) => img !== url),
                   existingImages: prev.existingImages.filter(
-                    (img) => img !== url,
+                    (img) => img !== url
                   ),
                 }));
               }}
@@ -733,7 +733,7 @@ const EditListing = () => {
                     // Skip fields we're now handling separately
                     if (
                       ["transmissionType", "fuelType", "condition"].includes(
-                        field.name,
+                        field.name
                       )
                     ) {
                       return null;
@@ -800,7 +800,7 @@ const EditListing = () => {
                             type="checkbox"
                             id={feature}
                             checked={Boolean(
-                              formData.details?.vehicles?.[feature],
+                              formData.details?.vehicles?.[feature]
                             )}
                             onChange={(e) => {
                               handleInputChange(feature, e.target.checked);
@@ -817,7 +817,7 @@ const EditListing = () => {
                                 setFeatures((prev) => ({
                                   ...prev,
                                   safetyFeatures: prev.safetyFeatures.filter(
-                                    (f) => f !== feature,
+                                    (f) => f !== feature
                                   ),
                                 }));
                               }
@@ -851,7 +851,7 @@ const EditListing = () => {
                           type="checkbox"
                           id={feature}
                           checked={Boolean(
-                            formData.details?.vehicles?.[feature],
+                            formData.details?.vehicles?.[feature]
                           )}
                           onChange={(e) =>
                             handleInputChange(feature, e.target.checked)
@@ -884,7 +884,7 @@ const EditListing = () => {
                           type="checkbox"
                           id={feature}
                           checked={Boolean(
-                            formData.details?.vehicles?.[feature],
+                            formData.details?.vehicles?.[feature]
                           )}
                           onChange={(e) =>
                             handleInputChange(feature, e.target.checked)
@@ -917,7 +917,7 @@ const EditListing = () => {
                           type="checkbox"
                           id={feature}
                           checked={Boolean(
-                            formData.details?.vehicles?.[feature],
+                            formData.details?.vehicles?.[feature]
                           )}
                           onChange={(e) =>
                             handleInputChange(feature, e.target.checked)
@@ -950,7 +950,7 @@ const EditListing = () => {
                           type="checkbox"
                           id={feature}
                           checked={Boolean(
-                            formData.details?.vehicles?.[feature],
+                            formData.details?.vehicles?.[feature]
                           )}
                           onChange={(e) =>
                             handleInputChange(feature, e.target.checked)
@@ -983,7 +983,7 @@ const EditListing = () => {
                           type="checkbox"
                           id={feature}
                           checked={Boolean(
-                            formData.details?.vehicles?.[feature],
+                            formData.details?.vehicles?.[feature]
                           )}
                           onChange={(e) =>
                             handleInputChange(feature, e.target.checked)
