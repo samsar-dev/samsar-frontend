@@ -977,7 +977,4 @@ const ReviewSection = React.memo<ReviewSectionProps>(({
     );
   }
 ); // Close the React.memo wrapper
-
-});  // Close the React.memo wrapper
-
 export default ReviewSection;
