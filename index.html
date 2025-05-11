@@ -1,57 +1,63 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Essential Meta -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Marketplace - Buy and sell items locally"
-    />
+    <meta name="description" content="Marketplace - Buy and sell items locally" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Marketplace Team" />
+
+    <title>Marketplace - Buy and Sell Locally</title>
 
     <!-- Favicon -->
     <link
       rel="icon"
       href="https://pub-8286d937dc154304815f9bb5a41c5c64.r2.dev/favicon.ico"
+      type="image/x-icon"
     />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
 
-    <!-- Fonts -->
+    <!-- Fonts: Combined & Preloaded -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="preload"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
       rel="preload"
       as="style"
       onload="this.onload=null;this.rel='stylesheet'"
     />
     <noscript>
       <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
     </noscript>
 
-    <title>Marketplace - Buy and Sell Locally</title>
+    <!-- Preload Hero or LCP Image -->
+    <link rel="preload" as="image" href="/images/hero.jpg" fetchpriority="high" />
 
-    <!-- Open Graph Meta Tags -->
+    <!-- Social: Open Graph -->
     <meta property="og:title" content="Marketplace - Buy and Sell Locally" />
     <meta property="og:description" content="Find amazing deals near you" />
     <meta property="og:image" content="/og-image.jpg" />
     <meta property="og:url" content="https://yourmarketplace.com" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Marketplace - Buy and Sell Locally" />
+    <meta name="twitter:description" content="Find amazing deals near you" />
+    <meta name="twitter:image" content="/og-image.jpg" />
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900">
+
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <!-- Main App Script -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
