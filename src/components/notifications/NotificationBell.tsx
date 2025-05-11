@@ -105,9 +105,10 @@ export default function NotificationBell({
             case NotificationType.LISTING_INTEREST:
             case NotificationType.LISTING_CREATED:
               if (notification.listingId) {
-                // Based on the memory, we need to fetch all listings and find the specific one
-                // rather than using direct endpoints like /listings/:id
-                navigate(`/listings?id=${notification.listingId}`);
+                // Remove any 'cma' prefix from the ID as per memory
+                const cleanId = notification.listingId.replace('cma-', '');
+                // Navigate to the specific listing using the public endpoint
+                navigate(`/listings/public/${cleanId}`);
               } else {
                 navigate("/listings");
               }
