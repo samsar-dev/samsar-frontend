@@ -34,17 +34,6 @@ if (typeof document !== 'undefined') {
 
 // Optimize context providers by combining related ones
 const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) => {
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    // Initialize providers
-    setInitialized(true);
-  }, []);
-
-  if (!initialized) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <ListingsProvider>
       <FavoritesProvider>
@@ -58,17 +47,6 @@ const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) 
 
 // Optimize UI providers
 const UIProviders = memo(({ children }: { children: React.ReactNode }) => {
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    // Initialize providers
-    setInitialized(true);
-  }, []);
-
-  if (!initialized) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <UIProvider>
       <SettingsProvider>
@@ -122,19 +100,21 @@ const App: () => ReactElement = () => {
       <UIProviders>
         <CombinedDataProvider>
           <CommunicationProviders>
-            <Routes />
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
+            <div className="min-h-screen">
+              <Routes />
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </div>
           </CommunicationProviders>
         </CombinedDataProvider>
       </UIProviders>
