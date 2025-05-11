@@ -143,6 +143,7 @@ export interface UIPreferences {
   sidebarCollapsed: boolean;
   denseMode: boolean;
   enableSoundEffects: boolean;
+  toastPosition: ToastPosition;
 }
 
 export interface UIState {

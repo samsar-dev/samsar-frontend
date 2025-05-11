@@ -100,21 +100,19 @@ const App: () => ReactElement = () => {
       <UIProviders>
         <CombinedDataProvider>
           <CommunicationProviders>
-            <div className="min-h-screen">
-              <Routes />
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
-            </div>
+            <Routes />
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
           </CommunicationProviders>
         </CombinedDataProvider>
       </UIProviders>

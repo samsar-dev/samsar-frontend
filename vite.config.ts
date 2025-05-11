@@ -2,24 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
-import { visualizer } from "rollup-plugin-visualizer"; // Add this after installing the package
 
 // Ensure __dirname works correctly with ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: ['@babel/plugin-transform-react-jsx']
-      }
-    }),
-    process.env.ANALYZE === "true" && visualizer({
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ].filter(Boolean),
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -31,9 +19,8 @@ export default defineConfig({
       "@contexts": path.resolve(__dirname, "src/contexts"),
       "@hooks": path.resolve(__dirname, "src/hooks"),
       "@pages": path.resolve(__dirname, "src/pages"),
-      "@utils": path.resolve(__dirname, "src/utils")
+      "@utils": path.resolve(__dirname, "src/utils"),
     },
-    dedupe: ['react', 'react-dom']
   },
   server: {
     port: parseInt(process.env.VITE_PORT || "3000"),
@@ -81,19 +68,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     sourcemap: process.env.VITE_ENV === "development",
     minify: "terser",
-    cssCodeSplit: true,
-    modulePreload: {
-      polyfill: true,
-    },
-    reportCompressedSize: true,
     terserOptions: {
       compress: {
         drop_console: process.env.VITE_ENV !== "development",
         drop_debugger: true,
-        pure_funcs: process.env.VITE_ENV !== "development" ? ['console.log'] : [],
-      },
-      mangle: {
-        safari10: true,
       },
     },
     rollupOptions: {
@@ -101,47 +79,16 @@ export default defineConfig({
         entryFileNames: "assets/[name]-[hash].js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash].[ext]",
-        manualChunks: (id) => {
-          // Core libraries that change infrequently
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-router')) {
-              return 'vendor-router';
-            }
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'vendor-i18n';
-            }
-            if (id.includes('lodash') || id.includes('date-fns')) {
-              return 'vendor-utils';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-animations';
-            }
-            if (id.includes('headlessui') || id.includes('react-icons') || id.includes('lucide-react')) {
-              return 'vendor-ui';
-            }
-            // All other node_modules
-            return 'vendor-other';
-          }
-          
-          // Application code splitting
-          if (id.includes('/components/listings/')) {
-            return 'app-listings';
-          }
-          if (id.includes('/components/profile/')) {
-            return 'app-profile';
-          }
-          if (id.includes('/components/common/')) {
-            return 'app-common';
-          }
-          if (id.includes('/contexts/')) {
-            return 'app-contexts';
-          }
-          if (id.includes('/hooks/')) {
-            return 'app-hooks';
-          }
+        manualChunks: {
+          vendor: [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "i18next",
+            "react-i18next",
+          ],
+          utils: ["lodash", "date-fns", "framer-motion"],
+          ui: ["@headlessui/react", "react-icons", "lucide-react"],
         },
       },
     },
@@ -165,9 +112,6 @@ export default defineConfig({
       "date-fns",
       "framer-motion",
       "lodash",
-      "@headlessui/react",
-      "react-icons",
-      "lucide-react",
     ],
     esbuildOptions: {
       target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],

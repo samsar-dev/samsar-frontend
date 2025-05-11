@@ -19,7 +19,7 @@ const defaultPreferences: UIPreferences = {
   sidebarCollapsed: false,
   denseMode: false,
   enableSoundEffects: false,
-  toastPosition: "top-right",
+  toastPosition: "top-right" as ToastPosition,
 };
 
 /**
