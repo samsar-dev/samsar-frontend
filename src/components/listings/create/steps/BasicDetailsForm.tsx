@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {

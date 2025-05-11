@@ -105,10 +105,8 @@ export default function NotificationBell({
             case NotificationType.LISTING_INTEREST:
             case NotificationType.LISTING_CREATED:
               if (notification.listingId) {
-                // Remove any 'cma' prefix from the ID as per memory
-                const cleanId = notification.listingId.replace('cma-', '');
-                // Navigate to the specific listing using the public endpoint
-                navigate(`/listings/public/${cleanId}`);
+                // Keep the listing ID as is (with 'cma' prefix)
+                navigate(`/listings/public/${notification.listingId}`);
               } else {
                 navigate("/listings");
               }
