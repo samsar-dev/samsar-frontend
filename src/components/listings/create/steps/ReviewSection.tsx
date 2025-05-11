@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy, useMemo, useCallback } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import ImageFallback from "@/components/common/ImageFallback";
 import {
   Condition,
@@ -20,14 +20,7 @@ import {
   FaImages,
   FaTag,
 } from "react-icons/fa";
-
-const ResponsiveImage = lazy(
-  () => import("@/components/media/ResponsiveImage")
-);
-
-// Example: If you have a heavy component for images or advanced details, lazy load it here
-// const ImageGallery = lazy(() => import("@/components/common/ImageGallery"));
-// const AdvancedDetails = lazy(() => import("@/components/common/AdvancedDetails"));
+import ResponsiveImage from "@/components/media/ResponsiveImage";
 import type {
   ListingFieldSchema,
   RealEstateDetails,

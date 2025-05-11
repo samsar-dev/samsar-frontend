@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
@@ -20,8 +20,8 @@ import { BiBuildingHouse } from "react-icons/bi";
 import FormField, { type FormFieldValue } from "@/components/form/FormField";
 
 import { MapPin } from "lucide-react";
-const Select = lazy(() => import("react-select"));
-const ImageManager = lazy(() => import("../../images/ImageManager"));
+import Select from "react-select";
+import ImageManager from "../../images/ImageManager";
 
 // Import vehicle model data from vehicleModels file
 import {

@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy, useMemo, useCallback } from "react";
+import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -29,15 +29,20 @@ import {
 } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
+
+interface FeatureItem {
+  name: string;
+  label: string;
+  type: string;
+  description?: string;
+}
 import type { SectionId } from "../advanced/listingsAdvancedFieldSchema";
 import {
   listingsAdvancedFieldSchema,
   SECTION_CONFIG,
 } from "../advanced/listingsAdvancedFieldSchema";
-const FormField = lazy(() => import("@/components/form/FormField"));
-const ColorPickerField = lazy(
-  () => import("@/components/listings/forms/ColorPickerField"),
-);
+import FormField from "@/components/form/FormField";
+import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import { toast } from "react-hot-toast";
 
 export interface ExtendedFormState extends Omit<FormState, "details"> {
@@ -74,13 +79,6 @@ interface AdvancedDetailsFormProps {
   onBack: () => void;
 }
 
-interface Section {
-  id: SectionId;
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  order: number;
-  fields: ListingFieldSchema[];
-}
 
 export function getIconComponent(iconName: string) {
   const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -106,13 +104,15 @@ export function getIconComponent(iconName: string) {
   return iconMap[iconName] || FaCog;
 }
 
-const FeatureSection: React.FC<{
+interface FeatureSectionProps {
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  features: ListingFieldSchema[];
+  features: FeatureItem[];
   values: Record<string, boolean>;
   onChange: (name: string, checked: boolean) => void;
-}> = ({ title, icon: Icon, features, values, onChange }) => {
+}
+
+const FeatureSection: React.FC<FeatureSectionProps> = ({ title, icon: Icon, features, values, onChange }) => {
   const { t } = useTranslation();
   // Expand by default
   const [isExpanded, setIsExpanded] = useState(true);
