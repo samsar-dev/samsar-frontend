@@ -41,6 +41,7 @@ interface EditFormData {
   details: {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
+    
   };
   images: (string | File)[];
   existingImages: string[];
