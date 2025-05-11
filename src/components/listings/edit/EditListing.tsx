@@ -10,7 +10,8 @@ import {
   SECTION_CONFIG,
 } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import ListingCard from "@/components/listings/details/ListingCard";
-const ColorPickerField = lazy(() => import("@/components/listings/forms/ColorPickerField"));
+// Import ColorPickerField statically to avoid issues with React Children in production
+import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -18,7 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";
 import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import {
@@ -745,17 +746,15 @@ const EditListing = () => {
 
                     if (field.type === "colorpicker") {
                       return (
-                        <Suspense fallback={<div className="h-12 bg-gray-200 animate-pulse rounded" />}>
-                          <ColorPickerField
-                            key={field.name || idx}
-                            label={field.label}
-                            value={(currentValue as string) || "#000000"}
-                            onChange={(value) =>
-                              handleInputChange(field.name, value)
-                            }
-                            required={field.required}
-                          />
-                        </Suspense>
+                        <ColorPickerField
+                          key={field.name || idx}
+                          label={field.label}
+                          value={(currentValue as string) || "#000000"}
+                          onChange={(value) =>
+                            handleInputChange(field.name, value)
+                          }
+                          required={field.required}
+                        />
                       );
                     }
                     return (
