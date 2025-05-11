@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, Suspense, lazy, useMemo, useCallback } from "react";
 import ImageFallback from "@/components/common/ImageFallback";
 
 const ResponsiveImage = lazy(
@@ -76,7 +76,7 @@ const pageTransition = {
   transition: { duration: 0.3 },
 };
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({
+const ReviewSection = React.memo<ReviewSectionProps>(({
   formData,
   onSubmit,
   onBack,
@@ -973,5 +973,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     </motion.div>
   );
 };
+
+});  // Close the React.memo wrapper
 
 export default ReviewSection;

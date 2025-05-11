@@ -638,57 +638,63 @@ const Home: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-[100svh] bg-gray-50 dark:bg-transparent">
-      {/* Preload the first listing image for LCP optimization */}
+    <div className="min-h-[100svh] bg-gray-50 dark:bg-[#0f172a] transition-colors duration-300">
+      {/* Preload for LCP Optimization */}
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-4 sm:py-6 md:py-8 min-h-[15vh] sm:min-h-[20vh] lg:min-h-[25vh]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4">
-              {t("home.find_perfect")}{" "}
-              {selectedCategory === ListingCategory.VEHICLES
-                ? t("home.vehicle")
-                : t("home.property")}
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg text-blue-100 mb-8">
-              {selectedCategory === ListingCategory.VEHICLES
-                ? t("home.discover_vehicle")
-                : t("home.discover_property")}
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
-              <button
-                onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.VEHICLES
-                    ? "bg-white text-blue-600"
-                    : "bg-blue-700 text-white hover:bg-blue-600"
-                }`}
-              >
-                <FaCar className="mr-2" />
-                {t("navigation.vehicles")}
-              </button>
-              <button
-                onClick={() =>
-                  handleCategoryChange(ListingCategory.REAL_ESTATE)
-                }
-                className={`flex items-center px-6 py-3 rounded-lg transition-colors ${
-                  selectedCategory === ListingCategory.REAL_ESTATE
-                    ? "bg-white text-blue-600"
-                    : "bg-blue-700 text-white hover:bg-blue-600"
-                }`}
-              >
-                <FaHome className="mr-2" />
-                {t("navigation.real_estate")}
-              </button>
-            </div>
+  
+      {/* Header */}
+      <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
+        {/* Optional Decorative Background Pattern */}
+        <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-no-repeat opacity-5 pointer-events-none" />
+  
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow-sm">
+            {t("home.find_perfect")}{" "}
+            {selectedCategory === ListingCategory.VEHICLES
+              ? t("home.vehicle")
+              : t("home.property")}
+          </h1>
+          <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
+            {selectedCategory === ListingCategory.VEHICLES
+              ? t("home.discover_vehicle")
+              : t("home.discover_property")}
+          </p>
+  
+          {/* Category Buttons */}
+          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+            <button
+              onClick={() => handleCategoryChange(ListingCategory.VEHICLES)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
+                selectedCategory === ListingCategory.VEHICLES
+                  ? "bg-white text-blue-600"
+                  : "bg-blue-700 text-white hover:bg-blue-800"
+              }`}
+            >
+              <FaCar className="text-lg" />
+              {t("navigation.vehicles")}
+            </button>
+  
+            <button
+              onClick={() => handleCategoryChange(ListingCategory.REAL_ESTATE)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
+                selectedCategory === ListingCategory.REAL_ESTATE
+                  ? "bg-white text-blue-600"
+                  : "bg-blue-700 text-white hover:bg-blue-800"
+              }`}
+            >
+              <FaHome className="text-lg" />
+              {t("navigation.real_estate")}
+            </button>
           </div>
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      </header>
+  
+      {/* Listings Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {renderContent()}
-      </div>
+      </main>
     </div>
   );
 };

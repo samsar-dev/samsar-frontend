@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -57,18 +57,16 @@ export interface ExtendedFormState extends Omit<FormState, "details"> {
   status: ListingStatus;
 }
 
+// Restrict FormFieldType to only the types that are supported by the FormField component
 type FormFieldType =
   | "text"
   | "number"
   | "select"
   | "textarea"
   | "checkbox"
-  | "date"
-  | "colorpicker"
+  | "color"
   | "multiselect"
-  | "email"
-  | "password"
-  | "tel";
+  | "boolean";  // Added boolean, removed unsupported types
 
 interface AdvancedDetailsFormProps {
   formData: any;
@@ -200,7 +198,7 @@ const FeatureSection: React.FC<{
   );
 };
 
-const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
+const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(({
   formData,
   onSubmit,
   onBack,
@@ -239,11 +237,11 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
   const isVehicle =
     form.category.mainCategory === ListingCategoryValue.VEHICLES;
   const currentSchema =
-    listingsAdvancedFieldSchema[form.category.subCategory] || [];
+    listingsAdvancedFieldSchema[form.category.subCategory as keyof typeof listingsAdvancedFieldSchema] || [];
 
   // Get unique sections from the schema and sort them according to SECTION_CONFIG
   const sections = Array.from(
-    new Set(currentSchema.map((field) => field.section)),
+    new Set(currentSchema.map((field: ListingFieldSchema) => field.section)),
   )
     .filter((sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG)
     .map((sectionId) => ({
@@ -251,14 +249,14 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       title: SECTION_CONFIG[sectionId].label,
       icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
       order: SECTION_CONFIG[sectionId].order,
-      fields: currentSchema.filter((field) => field.section === sectionId),
+      fields: currentSchema.filter((field: ListingFieldSchema) => field.section === sectionId),
     }))
     .sort((a, b) => a.order - b.order);
 
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
 
-    currentSchema.forEach((field) => {
+    currentSchema.forEach((field: ListingFieldSchema) => {
       const value = isVehicle
         ? (form.details?.vehicles?.[field.name] ?? "")
         : (form.details?.realEstate?.[field.name] ?? "");
@@ -338,7 +336,7 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
 
     // Group fields by their feature category
     const featureGroups = activeFields.reduce(
-      (groups, field) => {
+      (groups: Record<string, ListingFieldSchema[]>, field: ListingFieldSchema) => {
         if (field.featureCategory) {
           if (!groups[field.featureCategory]) {
             groups[field.featureCategory] = [];
@@ -565,6 +563,6 @@ const AdvancedDetailsForm: React.FC<AdvancedDetailsFormProps> = ({
       </div>
     </form>
   );
-};
+});
 
 export default AdvancedDetailsForm;

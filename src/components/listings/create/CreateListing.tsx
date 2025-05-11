@@ -1,5 +1,5 @@
 import { useCreateListing } from "@/hooks/useCreateListing";
-import { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import isEqual from "lodash/isEqual";
 import {
@@ -20,20 +20,27 @@ import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
 import type { ExtendedFormState } from "./steps/AdvancedDetailsForm";
+
+// Lazy load components to reduce initial bundle size
 const BasicDetailsForm = lazy(() => import("./steps/BasicDetailsForm"));
 const AdvancedDetailsForm = lazy(() => import("./steps/AdvancedDetailsForm"));
 const ReviewSection = lazy(() => import("./steps/ReviewSection"));
 
-// Animation variants for lightweight transitions
+// Animation variants for lightweight transitions - optimized for performance
 const pageTransition = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 10 }, // Reduced y distance for faster animation
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
+  exit: { opacity: 0, y: -10 }, // Reduced y distance for faster animation
   transition: {
-    duration: 0.3,
+    duration: 0.2, // Reduced duration for faster transitions
     ease: "easeInOut",
   },
 };
+
+// Memoized step components to prevent unnecessary re-renders
+const MemoizedBasicDetailsForm = React.memo(BasicDetailsForm);
+const MemoizedAdvancedDetailsForm = React.memo(AdvancedDetailsForm);
+const MemoizedReviewSection = React.memo(ReviewSection);
 
 const initialFormState: FormState = {
   title: "",
@@ -213,9 +220,9 @@ const CreateListing: React.FC = () => {
   };
 
   // Use the custom navigation function instead of direct navigate
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setStep((prev) => prev - 1);
-  };
+  }, []);
 
   // Save form data to session storage only when there are changes
   useEffect(() => {
@@ -250,13 +257,13 @@ const CreateListing: React.FC = () => {
 
   // Clear form data from session storage only when form is successfully submitted
   // This ensures data is preserved during accidental page refreshes or navigations
-  const clearSavedFormData = () => {
+  const clearSavedFormData = useCallback(() => {
     try {
       sessionStorage.removeItem("createListingFormData");
     } catch (error) {
       console.error("Failed to clear form data from session storage:", error);
     }
-  };
+  }, []);
 
   // Add a confirmation dialog when the user refreshes the page
   useEffect(() => {
@@ -275,9 +282,9 @@ const CreateListing: React.FC = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasUnsavedChanges, location.pathname]); //
+  }, [hasUnsavedChanges, location.pathname]);
 
-  const handleFinalSubmit = async (data: FormState) => {
+  const handleFinalSubmit = useCallback(async (data: FormState) => {
     try {
       setIsSubmitting(true);
 
@@ -378,9 +385,9 @@ const CreateListing: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [submitListing, clearSavedFormData, navigate, t]);
 
-  const handleEditSection = (section: string) => {
+  const handleEditSection = useCallback((section: string) => {
     // Save the current form data
     const currentData = { ...formData };
 
@@ -397,23 +404,17 @@ const CreateListing: React.FC = () => {
         }
       }, 100);
     }
-  };
+  }, [formData]);
 
-  const renderStep = () => {
+  const renderStep = useCallback(() => {
     switch (step) {
       case 1:
         return (
           <Suspense fallback={<div>Loading...</div>}>
-            <BasicDetailsForm
+            <MemoizedBasicDetailsForm
               initialData={formData}
               onSubmit={(data, isValid) =>
-                handleBasicDetailsSubmit(
-                  data as ExtendedFormState,
-                  isValid,
-                  setFormData,
-                  setStep,
-                  t,
-                )
+                handleBasicDetailsSubmit(data, isValid, setFormData, setStep, t)
               }
             />
           </Suspense>
@@ -421,7 +422,7 @@ const CreateListing: React.FC = () => {
       case 2:
         return (
           <Suspense fallback={<div>Loading...</div>}>
-            <AdvancedDetailsForm
+            <MemoizedAdvancedDetailsForm
               formData={formData}
               onSubmit={(data, isValid) =>
                 handleAdvancedDetailsSubmit(
@@ -439,7 +440,7 @@ const CreateListing: React.FC = () => {
       case 3:
         return (
           <Suspense fallback={<div>Loading...</div>}>
-            <ReviewSection
+            <MemoizedReviewSection
               formData={formData}
               onSubmit={(formData: FormState) => {
                 handleFinalSubmit(formData);
@@ -452,13 +453,14 @@ const CreateListing: React.FC = () => {
       default:
         return null;
     }
-  };
+  }, [step, formData, handleBack, handleEditSection, t]);
 
-  const stepIcons = [
-    { icon: FaCarSide, label: t("basicDetails") },
-    { icon: FaCog, label: t("advancedDetails") },
-    { icon: FaCheckCircle, label: t("review") },
-  ];
+  // Define step icons for the progress indicator - memoized to prevent recreation on each render
+  const stepIcons = useMemo(() => [
+    { icon: FaCarSide, label: t("steps.basicDetails") },
+    { icon: FaCog, label: t("steps.advancedDetails") },
+    { icon: FaCheckCircle, label: t("steps.review") },
+  ], [t]);
 
   if (error) {
     return (
