@@ -11,8 +11,7 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: ['@babel/plugin-transform-react-jsx'],
-        presets: ['@babel/preset-react']
+        plugins: ['@babel/plugin-transform-react-jsx']
       }
     }),
     process.env.ANALYZE === "true" && visualizer({
@@ -32,13 +31,9 @@ export default defineConfig({
       "@contexts": path.resolve(__dirname, "src/contexts"),
       "@hooks": path.resolve(__dirname, "src/hooks"),
       "@pages": path.resolve(__dirname, "src/pages"),
-      "@utils": path.resolve(__dirname, "src/utils"),
-      'react/jsx-runtime': 'react/jsx-runtime.js'
+      "@utils": path.resolve(__dirname, "src/utils")
     },
     dedupe: ['react', 'react-dom']
-  },
-  optimizeDeps: {
-    include: ['react/jsx-runtime']
   },
   server: {
     port: parseInt(process.env.VITE_PORT || "3000"),
