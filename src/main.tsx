@@ -50,12 +50,6 @@ const preloadAssets = () => {
 
 // Error boundary component
 const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
-  const [hasError, setHasError] = React.useState(false);
-
-  if (hasError) {
-    return <div>Something went wrong. Please refresh the page.</div>;
-  }
-
   return children;
 };
 
