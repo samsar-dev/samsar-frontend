@@ -37,6 +37,9 @@ export default defineConfig({
     },
     dedupe: ['react', 'react-dom']
   },
+  optimizeDeps: {
+    include: ['react/jsx-runtime']
+  },
   server: {
     port: parseInt(process.env.VITE_PORT || "3000"),
     open: process.env.VITE_OPEN_BROWSER === "true",
