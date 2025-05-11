@@ -2,12 +2,19 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
+import viteCompression from "vite-plugin-compression";
 
-// Ensure __dirname works correctly with ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteCompression({
+      threshold: 10240, // Compress files >10KB
+      algorithm: "brotliCompress",
+      ext: ".br",
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -33,21 +40,17 @@ export default defineConfig({
         secure: false,
         ws: true,
         configure: (proxy, _options) => {
-          proxy.on("error", (err: Error & { code?: string }, _req, _res) => {
+          proxy.on("error", (err: { code?: string; message: string }, _req, _res) => {
             console.log("Proxy Error:", err.message);
             if (err.code === "ECONNREFUSED") {
-              console.log(
-                "Backend server is not running. Please start the backend server.",
-              );
+              console.log("Backend server is not running. Please start the backend server.");
             }
           });
           proxy.on("proxyReq", (proxyReq, req, _res) => {
             console.log(`[Proxy] ${req.method} ${req.url}`);
           });
           proxy.on("proxyRes", (proxyRes, req, _res) => {
-            console.log(
-              `[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`,
-            );
+            console.log(`[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`);
           });
         },
       },
@@ -68,10 +71,11 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     sourcemap: process.env.VITE_ENV === "development",
     minify: "terser",
+    assetsInlineLimit: 2048,
     terserOptions: {
       compress: {
         drop_console: process.env.VITE_ENV !== "development",
-        drop_debugger: true,
+        drop_debugger: process.env.VITE_ENV !== "development",
       },
     },
     rollupOptions: {
@@ -79,16 +83,15 @@ export default defineConfig({
         entryFileNames: "assets/[name]-[hash].js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash].[ext]",
-        manualChunks: {
-          vendor: [
-            "react",
-            "react-dom",
-            "react-router-dom",
-            "i18next",
-            "react-i18next",
-          ],
-          utils: ["lodash", "date-fns", "framer-motion"],
-          ui: ["@headlessui/react", "react-icons", "lucide-react"],
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react")) return "vendor-react";
+            if (id.includes("i18next")) return "vendor-i18n";
+            if (id.includes("date-fns")) return "vendor-date";
+            if (id.includes("framer-motion")) return "vendor-motion";
+            if (id.includes("@headlessui")) return "vendor-ui";
+            if (id.includes("lucide-react")) return "vendor-icons";
+          }
         },
       },
     },
@@ -116,17 +119,12 @@ export default defineConfig({
     esbuildOptions: {
       target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
       define: {
-        "process.env.NODE_ENV": JSON.stringify(
-          process.env.NODE_ENV || "development",
-        ),
+        "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
       },
     },
   },
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },
     target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
-  },
-  define: {
-    "process.env": {},
   },
 });
