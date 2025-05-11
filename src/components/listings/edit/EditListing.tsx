@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";
 import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
-import { useEffect, useState, lazy } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import {
@@ -745,15 +745,17 @@ const EditListing = () => {
 
                     if (field.type === "colorpicker") {
                       return (
-                        <ColorPickerField
-                          key={field.name || idx}
-                          label={field.label}
-                          value={(currentValue as string) || "#000000"}
-                          onChange={(value) =>
-                            handleInputChange(field.name, value)
-                          }
-                          required={field.required}
-                        />
+                        <Suspense fallback={<div className="h-12 bg-gray-200 animate-pulse rounded" />}>
+                          <ColorPickerField
+                            key={field.name || idx}
+                            label={field.label}
+                            value={(currentValue as string) || "#000000"}
+                            onChange={(value) =>
+                              handleInputChange(field.name, value)
+                            }
+                            required={field.required}
+                          />
+                        </Suspense>
                       );
                     }
                     return (
