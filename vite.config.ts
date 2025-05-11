@@ -9,8 +9,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    react(),
-    // Add visualizer to analyze bundle size (creates stats.html)
+    react({
+      babel: {
+        plugins: ['@babel/plugin-transform-react-jsx']
+      }
+    }),
     process.env.ANALYZE === "true" && visualizer({
       open: true,
       gzipSize: true,
@@ -30,6 +33,7 @@ export default defineConfig({
       "@pages": path.resolve(__dirname, "src/pages"),
       "@utils": path.resolve(__dirname, "src/utils"),
     },
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: parseInt(process.env.VITE_PORT || "3000"),
