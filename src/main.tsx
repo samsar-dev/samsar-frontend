@@ -48,8 +48,28 @@ const preloadAssets = () => {
   }
 };
 
+// Error boundary component
+const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
+  const [hasError, setHasError] = React.useState(false);
+
+  if (hasError) {
+    return <div>Something went wrong. Please refresh the page.</div>;
+  }
+
+  return children;
+};
+
 // Ensure React is properly initialized
 const initializeReact = () => {
+  // Wait for DOM to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  } else {
+    initializeApp();
+  }
+};
+
+const initializeApp = () => {
   const container = document.getElementById("root");
   if (!container) {
     throw new Error("Failed to find the root element");
@@ -63,7 +83,9 @@ const initializeReact = () => {
     <React.StrictMode>
       <HelmetProvider>
         <BrowserRouter>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </BrowserRouter>
       </HelmetProvider>
     </React.StrictMode>,
