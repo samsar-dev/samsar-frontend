@@ -48,22 +48,28 @@ const preloadAssets = () => {
   }
 };
 
+// Ensure React is properly initialized
+const initializeReact = () => {
+  const container = document.getElementById("root");
+  if (!container) {
+    throw new Error("Failed to find the root element");
+  }
+
+  // Create root with error boundary
+  const root = createRoot(container);
+
+  // Use concurrent mode features
+  root.render(
+    <React.StrictMode>
+      <HelmetProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </HelmetProvider>
+    </React.StrictMode>,
+  );
+};
+
+// Initialize React after assets are preloaded
 preloadAssets();
-
-const container = document.getElementById("root");
-if (!container) {
-  throw new Error("Failed to find the root element");
-}
-
-const root = createRoot(container);
-
-// Use concurrent mode features
-root.render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </HelmetProvider>
-  </React.StrictMode>,
-);
+initializeReact();
