@@ -10,7 +10,7 @@ import {
   SECTION_CONFIG,
 } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
 import ListingCard from "@/components/listings/details/ListingCard";
-import ColorPickerField from "@/components/listings/forms/ColorPickerField";
+const ColorPickerField = lazy(() => import("@/components/listings/forms/ColorPickerField"));
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";
 import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import {
