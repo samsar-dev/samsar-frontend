@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
@@ -9,6 +9,8 @@ import type {
   SecuritySettings as SecuritySettingsType,
   NotificationPreferences,
 } from "@/types/settings";
+import { te } from "date-fns/locale";
+import { SettingsAPI } from "@/api";
 
 interface ToggleProps {
   checked: boolean;
@@ -53,7 +55,34 @@ interface SettingsState {
 function Settings() {
   const { t, i18n } = useTranslation();
   const { settings, updateSettings } = useSettings();
+  // debounce state
+  const [debouncedToggles, setDebouncedToggles] = useState(settings);
   const isRTL = i18n.language === "ar";
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedToggles(settings);
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [settings]);
+
+  useEffect(() => {
+    console.log("settings", settings);
+    const sendUpdateSettingsToServer = async () => {
+      try {
+        const response = await SettingsAPI.updatePrivacySettings(settings);
+        console.log("response", response);
+        if (!response.ok) {
+          throw new Error("Failed to update settings");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    
+    sendUpdateSettingsToServer();
+  }, [debouncedToggles]);
 
   const handlePreferenceUpdate = (preferences: PreferenceSettingsType) => {
     updateSettings({ preferences });
@@ -65,27 +94,14 @@ function Settings() {
 
   const handleNotificationToggle = (
     key: "email" | "push" | "desktop" | "message" | "listing" | "system",
-    checked: boolean,
+    checked: boolean
   ) => {
-    if (key === "email" || key === "push" || key === "desktop") {
-      updateSettings({
-        notifications: {
-          ...settings?.notifications,
-          [key]: checked,
-        },
-      });
-    } else {
-      updateSettings({
-        notifications: {
-          ...settings?.notifications,
-          enabledTypes: checked
-            ? [...(settings?.notifications?.enabledTypes || []), key]
-            : settings?.notifications?.enabledTypes?.filter(
-                (type) => type !== key,
-              ) || [],
-        },
-      });
-    }
+    updateSettings({
+      notifications: {
+        ...settings?.notifications,
+        [key]: checked,
+      },
+    });
   };
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
@@ -126,11 +142,7 @@ function Settings() {
               <div className="flex items-center justify-between">
                 <span>{t("settings.messageNotifications")}</span>
                 <Toggle
-                  checked={
-                    settings?.notifications?.enabledTypes?.includes(
-                      "message",
-                    ) ?? false
-                  }
+                  checked={settings?.notifications?.message ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("message", checked)
                   }
@@ -140,11 +152,7 @@ function Settings() {
               <div className="flex items-center justify-between">
                 <span>{t("settings.listingNotifications")}</span>
                 <Toggle
-                  checked={
-                    settings?.notifications?.enabledTypes?.includes(
-                      "listing",
-                    ) ?? false
-                  }
+                  checked={settings?.notifications?.listing ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("listing", checked)
                   }
@@ -154,10 +162,7 @@ function Settings() {
               <div className="flex items-center justify-between">
                 <span>{t("settings.systemNotifications")}</span>
                 <Toggle
-                  checked={
-                    settings?.notifications?.enabledTypes?.includes("system") ??
-                    false
-                  }
+                  checked={settings?.notifications?.system ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("system", checked)
                   }
@@ -255,7 +260,7 @@ function Settings() {
               <div className="flex items-center justify-between">
                 <span>{t("Show Phone Numer")}</span>
                 <Toggle
-                  checked={settings?.privacy?.showEmail ?? false}
+                  checked={settings?.privacy?.showPhone ?? false}
                   onChange={(checked: boolean) =>
                     handlePrivacyUpdate({ showPhone: checked })
                   }
