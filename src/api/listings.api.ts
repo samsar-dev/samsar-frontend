@@ -620,16 +620,22 @@ export const listingsAPI: ListingsAPI = {
         error: undefined,
       };
     } catch (error: unknown) {
-      // Don't log aborted request errors
-      if (error instanceof Error && error.name !== "AbortError") {
-        console.error("Error fetching listings:", error);
+      // Handle canceled requests gracefully
+      if (error instanceof Error && (error.name === "AbortError" || error.name === "CanceledError")) {
+        return {
+          success: false,
+          data: null,
+          error: "Request canceled",
+        };
       }
+
+      // Log other errors
+      console.error("Error fetching listings:", error);
 
       return {
         success: false,
         data: null,
-        error:
-          error instanceof Error ? error.message : "Failed to fetch listings",
+        error: error instanceof Error ? error.message : "Failed to fetch listings",
       };
     }
   },

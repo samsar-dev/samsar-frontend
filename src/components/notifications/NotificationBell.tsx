@@ -271,7 +271,7 @@ export default function NotificationBell({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <Tooltip content={t("notifications.title")} position="bottom">
+      <Tooltip content={t("notifications.title")} position="bottom" className="cursor-pointer">
         <button
           onClick={() => setShowNotifications(!showNotifications)}
           className="p-2 rounded-lg text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"

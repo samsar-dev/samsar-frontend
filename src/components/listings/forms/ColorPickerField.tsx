@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import Tooltip from "@/components/ui/Tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface ColorPickerFieldProps {
   label: string;

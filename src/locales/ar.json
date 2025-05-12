@@ -4,7 +4,8 @@
     "profile": {
       "personal_information": "المعلومات الشخصية",
       "update_info": "تحديث المعلومات",
-      "change_photo": "تغيير الصورة"
+      "change_photo": "تغيير الصورة",
+      "daryannabo16": "داريان نابو"
     },
     "Phone Number": "رقم الهاتف",
     "name": "الاسم",
@@ -404,7 +405,10 @@
     "load_error": "فشل في تحميل الملف الشخصي",
     "password_mismatch": "كلمات المرور غير متطابقة",
     "password_updated": "تم تحديث كلمة المرور بنجاح",
-    "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟"
+    "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه القائمة؟",
+    "personal_information": "المعلومات الشخصية",
+    "update_info": "تحديث المعلومات",
+    "change_photo": "تغيير الصورة"
   },
   "listings": {
     "basicDetails": "التفاصيل الأساسية",

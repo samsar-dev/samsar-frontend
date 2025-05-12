@@ -3,6 +3,8 @@ import { forwardRef } from "react";
 import Select from "react-select";
 import type { SingleValue, ActionMeta, MultiValue } from "react-select";
 import makeAnimated from "react-select/animated";
+import { Tooltip } from "@/components/ui/tooltip";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export type FormFieldValue = string | number | boolean | string[];
 
@@ -44,13 +46,14 @@ export interface FormFieldProps {
     value: string | string[],
   ) => string | string[] | undefined | null;
   isSearchable?: boolean;
+  tooltip?: string;
 }
 
 export const FormField = forwardRef<
   HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
   FormFieldProps
->((props, ref) => {
-  const {
+>(
+  ({
     name,
     label,
     type,
@@ -66,8 +69,8 @@ export const FormField = forwardRef<
     prefix,
     customValidation,
     isSearchable,
-  } = props;
-
+    tooltip,
+  }, ref) => {
   const handleChange = (
     e:
       | React.ChangeEvent<
@@ -313,16 +316,23 @@ export const FormField = forwardRef<
 
   return (
     <div className="mb-4">
-      <label
-        htmlFor={name}
-        className={clsx("mb-1 block text-sm font-medium", {
-          "text-gray-700": !error,
-          "text-red-600": error,
-        })}
-      >
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
+      <div className="flex items-center gap-1">
+        <label
+          htmlFor={name}
+          className={clsx("mb-1 block text-sm font-medium", {
+            "text-gray-700": !error,
+            "text-red-600": error,
+          })}
+        >
+          {label}
+          {required && <span className="text-red-500">*</span>}
+        </label>
+        {tooltip && (
+          <Tooltip content={tooltip} position="right">
+            <QuestionMarkCircleIcon className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+          </Tooltip>
+        )}
+      </div>
       {renderInput()}
       {error && (
         <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>

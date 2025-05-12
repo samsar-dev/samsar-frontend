@@ -4,7 +4,7 @@ import type { ComponentData, APIResponse } from "@/types/common";
 // Import components with default imports for layout components
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import Tooltip from "@/components/ui/Tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Import components with named imports for UI components

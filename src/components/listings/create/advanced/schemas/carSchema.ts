@@ -15,6 +15,7 @@ export const carSchema: ListingFieldSchema[] = [
         return "Exterior color is required";
       return null;
     },
+    tooltip: "The color of the vehicle's exterior paint or finish.",
   },
   {
     name: "interiorColor",
@@ -27,6 +28,7 @@ export const carSchema: ListingFieldSchema[] = [
         return "Interior color is required";
       return null;
     },
+    tooltip: "The color of the vehicle's interior upholstery and trim.",
   },
   {
     name: "condition",
@@ -38,6 +40,7 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
+    tooltip: "The overall state of the vehicle, indicating how well it has been maintained and its current working condition.",
   },
 
   {
@@ -55,6 +58,7 @@ export const carSchema: ListingFieldSchema[] = [
         return "errors.transmissionRequired";
       return null;
     },
+    tooltip: "The type of transmission system in the vehicle. Common types include Automatic, Manual, and CVT (Continuously Variable Transmission).",
   },
   {
     name: "mileage",
@@ -75,6 +79,7 @@ export const carSchema: ListingFieldSchema[] = [
       }
       return null;
     },
+    tooltip: "The total distance the vehicle has traveled, typically measured in kilometers or miles.",
   },
   {
     name: "fuelType",
@@ -86,6 +91,7 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
+    tooltip: "The type of fuel the vehicle uses. Common types include Petrol, Diesel, Electric, and Hybrid.",
   },
   {
     name: "previousOwners",
@@ -93,6 +99,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: false,
+    tooltip: "The number of previous owners the vehicle has had. A lower number generally indicates better maintenance history.",
   },
 
   // ================= ADVANCED DETAILS =================
@@ -128,6 +135,7 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
+    tooltip: "The physical design and shape of the vehicle's body, such as Sedan, SUV, or Coupe.",
   },
   {
     name: "driveType",
@@ -136,6 +144,7 @@ export const carSchema: ListingFieldSchema[] = [
     options: ["fwd", "rwd", "awd", "fourwd"],
     section: "advanced",
     required: false,
+    tooltip: "The drive type indicates which wheels receive power from the engine. FWD (Front-Wheel Drive), RWD (Rear-Wheel Drive), AWD (All-Wheel Drive), and 4WD (Four-Wheel Drive) are common configurations.",
   },
 
   {
@@ -144,6 +153,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
+    tooltip: "The engine number is a unique identifier assigned by the manufacturer to each engine. It's typically found on the engine block or in the vehicle's documentation.",
   },
 
   {
@@ -157,6 +167,7 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
+    tooltip: "The maintenance and repair history of the vehicle, including any services, repairs, or replacements made.",
   },
   {
     name: "accidentFree",
@@ -164,6 +175,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "checkbox",
     section: "advanced",
     required: false,
+    tooltip: "Whether the vehicle has been involved in any accidents or has any damage.",
   },
   {
     name: "importStatus",
@@ -175,6 +187,7 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
+    tooltip: "Whether the vehicle was manufactured locally or imported from another country.",
   },
   {
     name: "registrationExpiry",
@@ -182,6 +195,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "date",
     section: "advanced",
     required: false,
+    tooltip: "The date when the vehicle's registration expires.",
   },
   {
     name: "warranty",
@@ -190,106 +204,57 @@ export const carSchema: ListingFieldSchema[] = [
     options: [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },
-      { value: "transferable", label: "Transferable" },
     ],
     section: "advanced",
     required: false,
+    tooltip: "Whether the vehicle still has a valid warranty, and if it can be transferred to a new owner.",
   },
   {
-    name: "insuranceType",
-    label: "listings.fields.insuranceType",
-    type: "select",
-    options: [
-      { value: "comprehensive", label: "Comprehensive" },
-      { value: "thirdParty", label: "Third Party" },
-      { value: "none", label: "None" },
-    ],
+    name: "emissionClass",
+    label: "listings.fields.emissionClass",
+    type: "text",
     section: "advanced",
     required: false,
+    tooltip: "The European emission standard that the vehicle meets (e.g., Euro 6, Euro 7). This indicates the vehicle's environmental impact and compliance with emission regulations.",
   },
-  {
-    name: "upholsteryMaterial",
-    label: "listings.fields.upholsteryMaterial",
-    type: "select",
-    options: [
-      { value: "leather", label: "Leather" },
-      { value: "fabric", label: "Fabric" },
-      { value: "other", label: "Other" },
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "tireCondition",
-    label: "listings.fields.tireCondition",
-    type: "select",
-    options: [
-      { value: "new", label: "New" },
-      { value: "", label: "" },
-      { value: "worn", label: "Worn" },
-    ],
-    section: "advanced",
-    required: false,
-  },
-
-  // === Engine & Performance ===
   {
     name: "engineSize",
     label: "listings.fields.engineSize",
-    type: "select",
-    options: [
-      "",
-      "1.0L",
-      "1.2L",
-      "1.4L",
-      "1.6L",
-      "1.8L",
-      "2.0L",
-      "2.5L",
-      "3.0L",
-      "4.0L",
-      "5.0L",
-    ].map((val) => ({
-      value: val,
-      label: val,
-    })),
+    type: "text",
     section: "advanced",
     required: false,
+    tooltip: "The engine displacement or size, typically measured in cubic centimeters (cc) or liters (L). For example, 1.6L or 2000cc.",
   },
   {
     name: "horsepower",
     label: "listings.fields.horsepower",
     type: "select",
     options: [
-      "upTo100",
-      "101-150",
-      "151-200",
-      "201-250",
-      "251-300",
-      "301-400",
-      "401-500",
-      "501-600",
-      "600+",
+      "0-100",
+      "100-200",
+      "200-300",
+      "300-400",
+      "400-500",
+      "500+",
     ].map((val) => ({ value: val, label: val })),
     section: "advanced",
     required: false,
+    tooltip: "The power output of the vehicle's engine, typically measured in horsepower (hp). Higher values indicate more powerful engines.",
   },
   {
     name: "torque",
     label: "listings.fields.torque",
     type: "select",
     options: [
-      "upTo150",
-      "151-200",
-      "201-250",
-      "251-300",
-      "301-350",
-      "351-400",
-      "401-450",
-      "450+",
+      "0-200",
+      "200-300",
+      "300-400",
+      "400-500",
+      "500+",
     ].map((val) => ({ value: val, label: val })),
     section: "advanced",
     required: false,
+    tooltip: "The rotational force of the vehicle's engine, typically measured in newton-meters (Nm). Higher torque values provide better acceleration and pulling power.",
   },
 
   // === Exterior & Interior ===
@@ -310,30 +275,21 @@ export const carSchema: ListingFieldSchema[] = [
     ].map((val) => ({ value: val, label: val })),
     section: "advanced",
     required: false,
+    tooltip: "The overall design and shape of the vehicle's body.",
   },
   {
     name: "roofType",
     label: "listings.fields.roofType",
     type: "select",
-    options: ["fixed", "sunroof", "moonroof", "convertible"].map((val) => ({
-      value: val,
-      label: val,
-    })),
-    section: "advanced",
-    required: false,
-  },
-
-  // ================= ADDITIONAL DETAILS =================
-  {
-    name: "customsCleared",
-    label: "listings.fields.customsCleared",
-    type: "select",
     options: [
-      { value: "yes", label: "Yes" },
-      { value: "no", label: "No" },
+      { value: "fixed", label: "Fixed" },
+      { value: "sunroof", label: "Sunroof" },
+      { value: "moonroof", label: "Moonroof" },
+      { value: "convertible", label: "Convertible" },
     ],
     section: "advanced",
     required: false,
+    tooltip: "The type of roof the vehicle has, such as fixed, sunroof, moonroof, or convertible. This affects the vehicle's appearance and functionality.",
   },
   {
     name: "warrantyPeriod",
@@ -346,6 +302,7 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
+    tooltip: "The length of time the vehicle's warranty is valid, typically measured in months or years.",
   },
   {
     name: "serviceHistoryDetails",
@@ -353,6 +310,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "textarea",
     section: "advanced",
     required: false,
+    tooltip: "Additional details about the vehicle's service history, including any maintenance or repairs made.",
   },
   {
     name: "additionalNotes",
@@ -360,6 +318,7 @@ export const carSchema: ListingFieldSchema[] = [
     type: "textarea",
     section: "advanced",
     required: false,
+    tooltip: "Any additional information about the vehicle that may be relevant to potential buyers.",
   },
   {
     name: "navigationSystem",

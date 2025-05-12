@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { CanceledError } from "axios";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
@@ -262,15 +263,22 @@ const Home: React.FC = () => {
     } catch (error) {
       if (
         error instanceof Error &&
-        (error.name === "AbortError" || error.message.includes("aborted"))
+        (error.name === "AbortError" || error.name === "CanceledError" || error.message === "Request canceled")
       ) {
+        // Clear error state for canceled requests
+        setListings((prev) => ({
+          ...prev,
+          error: null,
+          loading: false,
+        }));
         return;
       }
+
+      // Log and show error for actual errors
       console.error("Error fetching listings:", error);
       setListings((prev) => ({
         ...prev,
-        error:
-          error instanceof Error ? error.message : "Failed to fetch listings",
+        error: error instanceof Error ? error.message : "Failed to fetch listings",
         loading: false,
       }));
     }

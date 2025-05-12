@@ -149,6 +149,7 @@ export interface ListingFieldSchema {
     | "cameras"
     | "safety"
     | "climate";
+  tooltip?: string;
 }
 
 export interface VehicleFeatures {

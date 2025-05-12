@@ -17,7 +17,7 @@ interface UserProfileData {
   id: string;
   username: string;
   email: string;
-  phone?: number;
+  phone?: string;
   bio?: string;
   profilePicture?: string;
   location?: string;
@@ -102,84 +102,90 @@ export const UserProfile = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Profile Header */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-        {/* Cover Image */}
-        <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900" />
-
-        <div className="p-4 sm:p-6 -mt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-4 px-2 sm:px-4"
-          >
-            {/* Profile Picture */}
+      </div> 
+        {/* Cover with all content inside */}
+        <div className="relative h-auto bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900">
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/30 z-0" />
+  
+          {/* Profile Content */}
+          <div className="relative z-10 px-4 sm:px-6 py-6 text-white">
             <motion.div
-              initial={{ opacity: 0, y: 2 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-              className="flex-shrink-0 self-center sm:self-start"
+              transition={{ duration: 0.5 }}
+              className="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-6"
             >
-              {profile.profilePicture ? (
-                <img
-                  src={profile.profilePicture}
-                  alt={profile.username}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-800">
-                  <span className="text-3xl font-bold text-gray-500 dark:text-gray-400">
-                    {profile.username[0].toUpperCase()}
-                  </span>
-                </div>
-              )}
-              <span className="w-fit items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 absolute top-5 -right-[74px]">
-                {profile.status === "ONLINE" ? t("online") : t("offline")}
-              </span>
-            </motion.div>
+              {/* Profile Picture */}
+              <motion.div
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+                className="flex-shrink-0 self-center sm:self-start relative"
+              >
+                {profile.profilePicture ? (
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.username}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-800">
+                    <span className="text-3xl font-bold text-gray-500 dark:text-gray-400">
+                      {profile.username[0].toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <div className="mt-3 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 w-fit mx-auto">
+  {profile.status === "ONLINE" ? t("online") : t("offline")}
+</div>
 
-            {/* Profile Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 5 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-              className="flex-1 w-full"
-            >
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {profile?.username ? profile?.username : "UserName"}
-              </h1>
-              <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
-                <span>{profile.location ? profile.location : "Location"}</span>
-              </div>
-              <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                <span>@{profile.username}</span>
-              </div>
-            </motion.div>
+              </motion.div>
 
-            <div>
-              {profile.email && (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-200">
-                  <FaEnvelope className="w-4 h-4" />
-                  <span>{profile.email}</span>
-                </div>
-              )}
-              {profile.phone && (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-200">
-                  <FaPhone className="w-4 h-4" />
-                  <span>{profile.phone}</span>
-                </div>
-              )}
-              {profile.createdAt && (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <FaClock className="w-4 h-4" />
-                  <span>
-                    {t("Joined")}{" "}
-                    {formatDistanceToNow(new Date(profile.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </span>
-                </div>
-              )}
-            </div>
+              {/* Profile Info */}
+              <motion.div
+  initial={{ opacity: 0, x: 5 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ delay: 0.2, duration: 0.3 }}
+  className="flex-1 w-full space-y-1"
+>
+  <h1 className="text-xl font-semibold text-white/90">{profile?.username || "UserName"}</h1>
+  <div className="text-sm text-white/80">{profile.location || "Location"}</div>
+  <div className="text-sm text-white/80">@{profile.username}</div>
+</motion.div>
+
+  
+              {/* Contact Info */}
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="flex flex-col items-start gap-2 text-white text-sm"
+              >
+                {profile.email && (
+                  <div className="flex items-center gap-2 text-white/90">
+                    <FaEnvelope className="w-4 h-4" />
+                    <span>{profile.email}</span>
+                  </div>
+                )}
+                {profile.phone && (
+                  <div className="flex items-center gap-2 text-white/90">
+                    <FaPhone className="w-4 h-4" />
+                    <span>{profile.phone}</span>
+                  </div>
+                )}
+                {profile.createdAt && (
+                  <div className="flex items-center gap-2 text-white/80">
+                    <FaClock className="w-4 h-4" />
+                    <span>
+                      {t("Joined")}{" "}
+                      {formatDistanceToNow(new Date(profile.createdAt), {
+                        addSuffix: true,
+                      })}
+                      </span>
+                  </div>
+                )}
+              </motion.div>
 
             {/* Action Buttons */}
             <motion.div
@@ -268,6 +274,6 @@ export const UserProfile = () => {
       )}
     </div>
   );
-};
+}
 
 export default UserProfile;
