@@ -46,6 +46,13 @@ export interface AuthUser {
   bio?: string;
   location?: string;
   preferences?: any;
+
+  allowMessaging?: boolean;
+  listingNotifications?: boolean;
+  messageNotifications?: boolean;
+  showEmail?: boolean;
+  showOnlineStatus?: boolean;
+  showPhoneNumber?: boolean;
 }
 
 export interface AuthTokens {
@@ -77,7 +84,7 @@ export interface AuthContextType extends AuthState {
   register: (
     username: string,
     email: string,
-    password: string,
+    password: string
   ) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;

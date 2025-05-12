@@ -11,7 +11,10 @@ export interface NotificationPreferences {
   email: boolean;
   push: boolean;
   desktop: boolean;
-  enabledTypes: Array<"message" | "listing" | "system">;
+  listing: boolean;
+  message: boolean;
+  system: boolean;
+  enabledTypes?: Array<"message" | "listing" | "system">;
 }
 
 export interface PreferenceSettings {

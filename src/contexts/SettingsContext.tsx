@@ -1,6 +1,6 @@
-import React, { createContext, useCallback, useState } from "react";
-import type { Settings, SettingsUpdate } from "@/types/settings";
 import { LanguageCode, ThemeType } from "@/types/enums";
+import type { Settings, SettingsUpdate } from "@/types/settings";
+import React, { createContext, useCallback, useState } from "react";
 
 export interface SettingsContextType {
   settings: Settings;
@@ -17,6 +17,9 @@ const defaultSettings: Settings = {
       email: true,
       push: true,
       desktop: true,
+      listing: true,
+      message: true,
+      system: true,
     },
   },
   security: {
@@ -28,6 +31,9 @@ const defaultSettings: Settings = {
     email: true,
     push: true,
     desktop: true,
+    listing: true,
+    message: true,
+    system: true,
   },
   privacy: {
     showEmail: false,
@@ -38,7 +44,7 @@ const defaultSettings: Settings = {
 };
 
 export const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
