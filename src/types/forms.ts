@@ -6,3 +6,12 @@ export type FormState = Omit<
 > & {
   price: string | number;
 };
+
+export type ExtendedFormState = FormState & {
+  status: ListingStatus;
+  listingAction: ListingAction;
+  category: {
+    mainCategory: ListingCategory;
+    subCategory: VehicleType | PropertyType;
+  };
+};

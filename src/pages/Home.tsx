@@ -11,8 +11,6 @@ import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { CanceledError } from "axios";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
@@ -54,7 +52,7 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES,
   );
-  const [selectedPrice, setSelectedPrice] = useState<string>("");
+  const [selectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     popular: [],
@@ -64,7 +62,7 @@ const Home: React.FC = () => {
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  // Removed unused filter visibility state
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
   useEffect(() => {
@@ -358,34 +356,7 @@ const Home: React.FC = () => {
     setSelectedCategory(category);
   }, []);
 
-  const handleSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
-        await fetchListings();
-        return;
-      }
-
-      try {
-        setListings((prev) => ({ ...prev, loading: true }));
-        const searchResults = await listingsAPI.search(query);
-
-        setListings({
-          all: searchResults.data?.listings || [],
-          popular: [],
-          loading: false,
-          error: null,
-        });
-      } catch (error) {
-        setListings((prev) => ({
-          ...prev,
-          loading: false,
-          error:
-            error instanceof Error ? error.message : t("errors.search_failed"),
-        }));
-      }
-    },
-    [fetchListings],
-  );
+  // Search functionality removed as it's not currently used
 
   useEffect(() => {
     const subcategories = Array.from(
@@ -488,23 +459,25 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 px-2 sm:px-0 mt-4 mb-6">
+        <div className="flex flex-row justify-between items-center gap-2 px-2 sm:px-0 mt-4 mb-6 w-full">
           <button
             onClick={toggleFilters}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-full sm:w-auto self-start"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-auto"
           >
             <MdFilterList className="w-5 h-5" />
             <span className="text-sm">{t("common.Filters")}</span>
           </button>
 
           {/* Sort By - Always Visible */}
-          <div className="relative inline-block text-left w-52">
+          <div className="relative inline-block text-left w-auto max-w-[160px] sm:w-52">
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="relative">
-                <Listbox.Button className="w-full flex justify-between items-center px-4 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {sortOptions.find((opt) => opt.value === sortBy)?.label ||
-                    t("common.filters.sort_by")}
-                  <HiSelector className="w-5 h-5 text-gray-400" />
+                <Listbox.Button className="w-full flex justify-between items-center px-3 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <span className="truncate">
+                    {sortOptions.find((opt) => opt.value === sortBy)?.label ||
+                      t("common.filters.sort_by")}
+                  </span>
+                  <HiSelector className="w-5 h-5 ml-1 flex-shrink-0 text-gray-400" />
                 </Listbox.Button>
                 <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
                   {sortOptions.map((option) => (
@@ -554,8 +527,6 @@ const Home: React.FC = () => {
             selectedBuiltYear={selectedBuiltYear}
             setSelectedBuiltYear={setSelectedBuiltYear}
             isLoading={listings.loading}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
           />
         )}
 

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { FormState } from "@/types/listings";
 import {
-  ListingCategory,
-  VehicleType,
-  FuelType,
-  TransmissionType,
   Condition,
+  ListingCategory,
   PropertyType,
+  TransmissionType,
+  VehicleType,
+  ListingStatus,
+  ListingAction,
 } from "@/types/enums";
+import { VehicleFeatures } from "@/types/listings";
 import { listingsAPI, createListing } from "@/api/listings.api";
 import { toast } from "react-hot-toast";
 import type { APIResponse, SingleListingResponse } from "@/api/listings.api";
@@ -63,7 +65,7 @@ const initialFormState: FormState = {
       customModel: "",
     },
   },
-  listingAction: "sell",
+  listingAction: ListingAction.SELL,
 };
 
 export const useCreateListing = (): UseCreateListingReturn => {
@@ -266,8 +268,12 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   ...data.details?.vehicles,
                   vehicleType:
                     data.details?.vehicles?.vehicleType || VehicleType.CAR,
-                  make: data.details?.vehicles?.make || "",
-                  model: data.details?.vehicles?.model || "",
+                  make: data.details?.vehicles?.make === "OTHER_MAKE" && data.details?.vehicles?.customMake 
+                    ? data.details?.vehicles?.customMake 
+                    : data.details?.vehicles?.make || "",
+                  model: data.details?.vehicles?.model === "CUSTOM_MODEL" && data.details?.vehicles?.customModel 
+                    ? data.details?.vehicles?.customModel 
+                    : data.details?.vehicles?.model || "",
                   year:
                     data.details?.vehicles?.year ||
                     new Date().getFullYear().toString(),
@@ -279,7 +285,9 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   color: data.details?.vehicles?.color || "#000000",
                   condition:
                     data.details?.vehicles?.condition || Condition.GOOD,
-                  features: data.details?.vehicles?.features || [],
+                  features: {
+                ...(data.details?.vehicles?.features as VehicleFeatures),
+              },
                   interiorColor:
                     data.details?.vehicles?.interiorColor || "#000000",
                   warranty: data.details?.vehicles?.warranty?.toString() || "",

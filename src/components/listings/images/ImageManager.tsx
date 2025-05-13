@@ -41,7 +41,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   existingImages = [],
   onDeleteExisting,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'listings']);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -455,7 +455,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold mb-4">{t("upload_images")}</h3>
+      <h3 className="text-lg font-semibold mb-4">{t("listings.upload_images")}</h3>
 
       {/* Dropzone */}
       <div
@@ -482,17 +482,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
-            {isDragActive
-              ? t("common.dropzone.drop")
-              : t("common.dropzone.dragDropFriendly")}
+            {isDragActive ? t("listings:images.dragDrop") : t("listings:images.dragDropFriendly")}
           </p>
         </motion.div>
       </div>
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {images.length + existingImages.length} / {maxImages}{" "}
-        {t("images.uploaded")}
+        {images.length + existingImages.length} / {maxImages}{" "}{t("listings:images.uploaded")}
       </p>
 
       {/* Upload Progress */}
@@ -506,7 +503,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-600">
-                {t("upload.progress", {
+                {t("listings.upload.progress", {
                   current: Math.round(uploadProgress),
                   total: 100,
                   hint: "Almost there! Your photos are being optimized...",
@@ -557,14 +554,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                     <button
                       onClick={() => handleImageEdit(index, url)}
                       className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors duration-200"
-                      title={t("edit")}
+                      title={t("listings.edit")}
                     >
                       <FaEdit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => onDeleteExisting?.(url)}
                       className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
-                      title={t("delete")}
+                      title={t("listings.delete")}
                     >
                       <FaTrash className="w-4 h-4" />
                     </button>

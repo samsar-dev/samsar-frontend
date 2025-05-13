@@ -20,15 +20,21 @@ import { constructionModels } from "@/components/listings/data/subcategories/con
 // Define the vehicle models mapping with proper type checking
 const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
   [VehicleType.CAR]: {
-    regular: carModels.regular || {},
+    regular: {
+      ...carModels.regular || {},
+    },
     electric: carModels.electric || {},
   },
   [VehicleType.TRUCK]: {
-    regular: trucksModels.regular || {},
+    regular: {
+      ...trucksModels.regular || {},
+    },
     electric: trucksModels.electric || {},
   },
   [VehicleType.MOTORCYCLE]: {
-    regular: motorcycleModels.regular || {},
+    regular: {
+      ...motorcycleModels.regular || {},
+    },
     electric: motorcycleModels.electric || {},
   },
   [VehicleType.RV]: {
@@ -36,19 +42,27 @@ const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
     electric: {},
   },
   [VehicleType.BUS]: {
-    regular: busesModels.regular || {},
+    regular: {
+      ...busesModels.regular || {},
+    },
     electric: busesModels.electric || {},
   },
   [VehicleType.VAN]: {
-    regular: vansModels.regular || {},
+    regular: {
+      ...vansModels.regular || {},
+    },
     electric: vansModels.electric || {},
   },
   [VehicleType.TRACTOR]: {
-    regular: tractorsModels.regular || {},
+    regular: {
+      ...tractorsModels.regular || {},
+    },
     electric: tractorsModels.electric || {},
   },
   [VehicleType.CONSTRUCTION]: {
-    regular: constructionModels.regular || {},
+    regular: {
+      ...constructionModels.regular || {},
+    },
     electric: constructionModels.electric || {},
   },
   [VehicleType.OTHER]: {
@@ -83,6 +97,11 @@ export const getModelsForMakeAndType = (
   type: VehicleType,
 ): string[] => {
   try {
+    // Special case for OTHER_MAKE - return a default "Other" model
+    if (make === "OTHER_MAKE") {
+      return ["OTHER_MODEL"];
+    }
+    
     const vehicleData = vehicleModelsByType[type];
     if (!vehicleData) {
       console.warn(`No data found for vehicle type: ${type}`);

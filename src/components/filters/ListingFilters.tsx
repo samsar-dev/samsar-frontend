@@ -36,8 +36,6 @@ interface ListingFiltersProps {
   selectedBuiltYear: string | null;
   setSelectedBuiltYear: (value: string | null) => void;
   isLoading?: boolean;
-  sortBy: string;
-  setSortBy: (value: string) => void;
 }
 
 // Mapping of subcategories to icons
@@ -75,8 +73,6 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   selectedBuiltYear,
   setSelectedBuiltYear,
   isLoading = false,
-  sortBy,
-  setSortBy,
 }) => {
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
@@ -158,16 +154,27 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-2 mb-4 relative z-20 w-full max-w-full">
-      <div className="flex flex-col gap-4 sm:hidden w-full">
-        {/* Mobile: Filters full-width and left-aligned */}
-        <div className="w-full">
-          <span className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
-            {t("common.Filters")}
-          </span>
-        </div>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 mb-4 relative z-20 w-full max-w-full">
+      <div className="flex flex-row justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <span className="text-base font-semibold text-gray-700 dark:text-gray-200">
+          {t("common.Filters")}
+        </span>
+        <button 
+          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          onClick={() => {
+            setSelectedSubcategory(null);
+            setSelectedMake(null);
+            setSelectedModel(null);
+            setSelectedYear(null);
+            setSelectedLocation(null);
+            setSelectedBuiltYear(null);
+            setSelectedAction(null);
+          }}
+        >
+          {t("common.reset") || "Reset"}
+        </button>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full">
+      <div className="grid grid-cols-1 gap-2 sm:gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full">
         {/* Subcategory Filter */}
         {/* Subcategory Filter */}
         <div className="space-y-2">

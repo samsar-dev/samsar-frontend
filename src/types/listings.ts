@@ -267,6 +267,8 @@ export interface VehicleFeatures {
 // Common fields for all vehicle types
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
+  customMake?: string;
+  customModel?: string;
   make: string;
   // vin: string;
   insuranceType?: string;

@@ -19,7 +19,7 @@ import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
-import type { ExtendedFormState } from "./steps/AdvancedDetailsForm";
+// Import types from the components where they're used directly
 
 // Lazy load components to reduce initial bundle size
 const BasicDetailsForm = lazy(() => import("./steps/BasicDetailsForm"));
@@ -140,7 +140,7 @@ const initialFormState: FormState = {
       cooling: "",
       buildingAmenities: [],
       energyRating: "",
-      furnished: false,
+      furnished: "", // Changed from boolean to string to match RealEstateDetails interface
       view: "",
       securityFeatures: [],
       fireSafety: [],
@@ -313,13 +313,51 @@ const CreateListing: React.FC = () => {
           throw new Error("Category and subcategory are required");
         }
 
-        const details = {
-          vehicles: data.details.vehicles ? data.details.vehicles : undefined,
-          realEstate: data.details.realEstate
-            ? data.details.realEstate
-            : undefined,
+        // Process vehicle details to ensure serviceHistory is properly formatted
+        let processedDetails: {
+          vehicles: any | undefined;
+          realEstate: any | undefined;
+        } = {
+          vehicles: undefined,
+          realEstate: undefined,
         };
-        formData.append("details", JSON.stringify(details));
+        
+        if (data.details.vehicles) {
+          // Format serviceHistory as an object with a set property if it exists
+          const vehicleDetails: any = { ...data.details.vehicles };
+          
+          // Handle serviceHistory - ensure it's formatted as expected by the backend
+          // The backend expects serviceHistory as an object with a set property
+          if (vehicleDetails.serviceHistory !== undefined) {
+            // If it's an empty string or falsy value, set it to a valid default format
+            if (!vehicleDetails.serviceHistory) {
+              vehicleDetails.serviceHistory = { set: [] };
+            } 
+            // If it's a string value, convert it to the expected object format
+            else if (typeof vehicleDetails.serviceHistory === 'string') {
+              vehicleDetails.serviceHistory = { 
+                set: [vehicleDetails.serviceHistory] 
+              };
+            }
+            // If it's already an array, ensure it's in the correct format
+            else if (Array.isArray(vehicleDetails.serviceHistory)) {
+              vehicleDetails.serviceHistory = { 
+                set: vehicleDetails.serviceHistory 
+              };
+            }
+          } else {
+            // If serviceHistory is undefined, set a default empty value
+            vehicleDetails.serviceHistory = { set: [] };
+          }
+          
+          processedDetails.vehicles = vehicleDetails;
+        }
+        
+        if (data.details.realEstate) {
+          processedDetails.realEstate = data.details.realEstate;
+        }
+        
+        formData.append("details", JSON.stringify(processedDetails));
       }
 
       // Add images
@@ -371,8 +409,8 @@ const CreateListing: React.FC = () => {
       });
 
       // Navigate to ListingSuccess with the listingId
-      if (response && response?.data && response?.data?.id) {
-        navigate("/listingsuccess", { state: { listingId: response.data.id } });
+      if (response && response.id) {
+        navigate("/listingsuccess", { state: { listingId: response.id } });
       } else {
         navigate("/listings");
       }
@@ -423,7 +461,10 @@ const CreateListing: React.FC = () => {
         return (
           <Suspense fallback={<div>Loading...</div>}>
             <MemoizedAdvancedDetailsForm
-              formData={formData}
+              formData={{
+                ...formData,
+                status: 'ACTIVE' // Add the required status property
+              }}
               onSubmit={(data, isValid) =>
                 handleAdvancedDetailsSubmit(
                   data,

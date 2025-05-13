@@ -96,11 +96,9 @@ export const constructionSchema: ListingFieldSchema[] = [
     type: "select",
     options: ["full", "partial", "none"],
     section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) => {
-      if (!value) return "Service history is required";
-      return null;
-    },
+    required: false,
+    validate: (value: string | number | boolean) => null,
+    // Default to "none" if not provided - this will be handled in the form submission
   },
   {
     name: "hoursUsed",

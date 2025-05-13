@@ -8,9 +8,11 @@ import arTranslation from "@/locales/ar.json";
 const resources = {
   en: {
     common: enTranslation,
+    listings: enTranslation.listings,
   },
   AR: {
     common: arTranslation,
+    listings: arTranslation.listings,
   },
 };
 
@@ -20,8 +22,10 @@ const i18nConfig: InitOptions = {
   fallbackLng: "en",
   supportedLngs: ["en", "AR"],
   load: "languageOnly",
-  ns: ["common"],
+  ns: ["common", "listings"],
   defaultNS: "common",
+  fallbackNS: "common",
+  nsSeparator: ":",
   interpolation: {
     escapeValue: false,
   },

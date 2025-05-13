@@ -137,9 +137,8 @@ export const busSchema: ListingFieldSchema[] = [
     type: "multiselect",
     options: ["full", "partial", "none"],
     section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) =>
-      !value ? "Service history is required" : null,
+    required: false,
+    validate: (value: string | number | boolean) => null,
   },
 
   // Advanced Section

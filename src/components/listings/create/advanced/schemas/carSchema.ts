@@ -210,14 +210,6 @@ export const carSchema: ListingFieldSchema[] = [
     tooltip: "Whether the vehicle still has a valid warranty, and if it can be transferred to a new owner.",
   },
   {
-    name: "emissionClass",
-    label: "listings.fields.emissionClass",
-    type: "text",
-    section: "advanced",
-    required: false,
-    tooltip: "The European emission standard that the vehicle meets (e.g., Euro 6, Euro 7). This indicates the vehicle's environmental impact and compliance with emission regulations.",
-  },
-  {
     name: "engineSize",
     label: "listings.fields.engineSize",
     type: "text",
@@ -281,15 +273,27 @@ export const carSchema: ListingFieldSchema[] = [
     name: "roofType",
     label: "listings.fields.roofType",
     type: "select",
+    options: ["fixed", "sunroof", "moonroof", "convertible"].map((val) => ({
+      value: val,
+      label: val,
+    })),
+    section: "advanced",
+    required: false,
+    tooltip: "The type of roof the vehicle has, such as fixed, sunroof, moonroof, or convertible.",
+  },
+
+  // ================= ADDITIONAL DETAILS =================
+  {
+    name: "customsCleared",
+    label: "listings.fields.customsCleared",
+    type: "select",
     options: [
-      { value: "fixed", label: "Fixed" },
-      { value: "sunroof", label: "Sunroof" },
-      { value: "moonroof", label: "Moonroof" },
-      { value: "convertible", label: "Convertible" },
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
     ],
     section: "advanced",
     required: false,
-    tooltip: "The type of roof the vehicle has, such as fixed, sunroof, moonroof, or convertible. This affects the vehicle's appearance and functionality.",
+    tooltip: "Whether the vehicle has been cleared through customs, indicating that it has been imported and is compliant with local regulations.",
   },
   {
     name: "warrantyPeriod",
