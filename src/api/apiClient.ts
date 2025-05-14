@@ -52,6 +52,9 @@ export const apiConfig = {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+  // Add explicit CORS settings
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 };
 
 // Create axios instance

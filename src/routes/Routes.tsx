@@ -28,6 +28,7 @@ const prefetchComponent = (importFn: () => Promise<any>) => {
 const importHome = () => import("@/pages/Home");
 const importLogin = () => import("@/pages/Login");
 const importRegister = () => import("@/pages/Register");
+const importVerifyEmail = () => import("@/pages/VerifyEmail");
 const importProfile = () => import("@/pages/Profile");
 const importUserProfile = () => import("@/pages/UserProfile");
 const importSearch = () => import("@/pages/Search");
@@ -49,6 +50,7 @@ const importPrivateRoute = () => import("@/components/auth/AuthRoute");
 const Home = lazy(importHome);
 const Login = lazy(importLogin);
 const Register = lazy(importRegister);
+const VerifyEmail = lazy(importVerifyEmail);
 const Profile = lazy(importProfile);
 const UserProfile = lazy(importUserProfile);
 const Search = lazy(importSearch);
@@ -122,6 +124,7 @@ const Routes = (): JSX.Element => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/search" element={<Search />} />
 
           <Route path="/listings/:id" element={<ListingDetails />} />

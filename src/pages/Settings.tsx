@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import SecuritySettings from "@/components/settings/SecuritySettings";
+import DeleteAccount from "@/components/settings/DeleteAccount";
 
 import type {
   PreferenceSettings as PreferenceSettingsType,
@@ -286,7 +287,7 @@ function Settings() {
             <h2 className="text-xl font-semibold mb-6">
               {t("settings.delete_account")}
             </h2>
-            {/* <DeleteAccount /> */}
+            <DeleteAccount />
           </div>
         </div>
       </div>

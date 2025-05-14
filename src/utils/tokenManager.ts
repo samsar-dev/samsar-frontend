@@ -21,15 +21,24 @@ export class TokenManager {
     try {
       // Try to get token from cookie first
       const token = getAuthToken();
-      console.log("token>>>>>>>>>>>>>>>>>", token);
+      
+      // Check if we're on the email verification page
+      const isVerificationPage = window.location.pathname.includes('/verify-email');
+      if (isVerificationPage) {
+        // Don't redirect from verification page even if not authenticated
+        return false;
+      }
+      
       if (!token) {
         // Fallback to localStorage
         const storedTokens = getItem("authTokens");
         if (storedTokens) {
           try {
             const tokens = JSON.parse(storedTokens) as AuthTokens;
-            this.setTokens(tokens);
-            return true;
+            if (tokens && tokens.accessToken) {
+              this.setTokens(tokens);
+              return true;
+            }
           } catch (error: unknown) {
             console.error("Error restoring tokens from storage:", error);
             this.clearTokens();

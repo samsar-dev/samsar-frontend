@@ -93,21 +93,14 @@ const ProfileInfo = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("username", formData.username);
       formDataToSend.append("email", formData.email);
-      if (formData.bio) {
-        formDataToSend.append("bio", formData.bio);
-      }
-      if (formData.dateOfBirth) {
-        formDataToSend.append("dateOfBirth", formData.dateOfBirth);
-      }
-      if (formData.phone) {
-        formDataToSend.append("phone", formData.phone);
-      }
-      if (formData.street) {
-        formDataToSend.append("street", formData.street);
-      }
-      if (formData.city) {
-        formDataToSend.append("city", formData.city);
-      }
+      
+      // Always send these fields, even if empty, to allow complete removal
+      formDataToSend.append("bio", formData.bio || "");
+      formDataToSend.append("dateOfBirth", formData.dateOfBirth || "");
+      formDataToSend.append("phone", formData.phone || "");
+      formDataToSend.append("street", formData.street || "");
+      formDataToSend.append("city", formData.city || "");
+      
       if (avatar) {
         formDataToSend.append("profilePicture", avatar);
       }
@@ -120,13 +113,13 @@ const ProfileInfo = () => {
         if (response.data.profilePicture) {
           setAvatarPreview(response.data.profilePicture);
         }
-        toast.success(t("profile.profile_updated"));
+        toast.success(t("profile.updated"));
       } else {
-        throw new Error(t("profile.profile_error"));
+        throw new Error(t("profile.update_error"));
       }
     } catch (err) {
-      setError(t("profile.profile_error"));
-      toast.error(t("profile.profile_error"));
+      setError(t("profile.update_error"));
+      toast.error(t("profile.update_error"));
     } finally {
       setLoading(false);
     }

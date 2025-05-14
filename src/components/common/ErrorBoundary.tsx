@@ -2,7 +2,7 @@ declare const process: { env: { NODE_ENV: string } };
 
 import type { ReactNode } from "react";
 import React, { Component } from "react";
-import type { ErrorInfo } from "@/types/ui";
+import type { ErrorInfo } from "react";
 
 interface Props {
   children: ReactNode;
@@ -21,6 +21,8 @@ class ErrorBoundary extends Component<Props, State> {
     error: null,
   };
 
+  private _isMounted = false;
+
   public static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
@@ -28,22 +30,49 @@ class ErrorBoundary extends Component<Props, State> {
     };
   }
 
+  public componentDidMount() {
+    this._isMounted = true;
+  }
+
+  public componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error:", error);
-    console.error("Error Info:", errorInfo);
-    this.props.onError?.(error, errorInfo as ErrorInfo);
+    console.error("❌ Error caught by ErrorBoundary:", error);
+    console.error("🛠️ Error Info:", errorInfo);
+
+    // Optional external logging
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    } else if (process.env.NODE_ENV === "production") {
+      // Example: send to your API or logging service (e.g. Sentry)
+      fetch("/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: error.message,
+          stack: error.stack,
+          info: errorInfo.componentStack,
+        }),
+      });
+    }
   }
 
   private handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+    if (this._isMounted) {
+      this.setState({ hasError: false, error: null });
+    }
   };
 
   public render() {
     if (this.state.hasError) {
+      // Custom fallback provided
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
+      // Default fallback
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <div className="max-w-md w-full space-y-8 text-center">
@@ -52,7 +81,7 @@ class ErrorBoundary extends Component<Props, State> {
                 Something went wrong
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {this.state.error?.message || "An unexpected error occurred"}
+                {this.state.error?.message || "An unexpected error occurred."}
               </p>
               <div className="space-x-4">
                 <button
@@ -69,8 +98,10 @@ class ErrorBoundary extends Component<Props, State> {
                 </button>
               </div>
             </div>
-            {process.env.NODE_ENV === "development" && this.state.error && (
-              <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md text-left overflow-auto text-sm">
+
+            {/* Show stack only in development */}
+            {process.env.NODE_ENV === "development" && this.state.error?.stack && (
+              <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md text-left overflow-auto text-sm text-red-600 dark:text-red-300">
                 {this.state.error.stack}
               </pre>
             )}

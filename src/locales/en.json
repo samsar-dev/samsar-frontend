@@ -18,6 +18,7 @@
     "back": "Back",
     "continue": "Continue",
     "submitting": "Submitting...",
+    
     "formSteps": {
       "basicDetails": "Basic Details",
       "advancedDetails": "Advanced Details",
@@ -72,6 +73,57 @@
     "appName": "Vehicle and Real Estate Market",
     "forRent": "For Rent",
     "notProvided": "Not Provided",
+    "vehicles": "Vehicles",
+    "realEstate": "Real Estate",
+    "propertyType": {
+      "label": "Property Type",
+      "placeholder": "Select property type"
+    },
+    "propertyTypes": {
+      "HOUSE": "House",
+      "APARTMENT": "Apartment",
+      "CONDO": "Condo",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial Property",
+      "OTHER": "Other"
+    },
+    "propertyDetails": {
+      "title": "Property Details",
+      "size": "Size",
+      "sizePlaceholder": "Enter size in square meters",
+      "yearBuilt": "Year Built",
+      "yearBuiltPlaceholder": "Enter year built",
+      "bedrooms": "Bedrooms",
+      "bedroomsPlaceholder": "Enter number of bedrooms",
+      "bathrooms": "Bathrooms",
+      "bathroomsPlaceholder": "Enter number of bathrooms",
+      "bathroomsHelp": "Enter the number of bathrooms"
+    },
+    "listingDetails": {
+      "label": "Listing Details",
+      "title": {
+        "label": "Title",
+        "placeholder": "Enter a descriptive title for your listing"
+      },
+      "size": {
+        "label": "Size",
+        "placeholder": "Enter size in square meters"
+      },
+      "yearBuilt": {
+        "label": "Year Built",
+        "placeholder": "Enter year built"
+      },
+      "bedrooms": {
+        "label": "Bedrooms",
+        "placeholder": "Enter number of bedrooms",
+        "help": "Enter the number of bedrooms"
+      },
+      "bathrooms": {
+        "label": "Bathrooms",
+        "placeholder": "Enter number of bathrooms",
+        "help": "Enter the number of bathrooms"
+      }
+    },
     "vehicleTypes": {
       "CAR": "Car",
       "TRUCK": "Truck",
@@ -90,7 +142,26 @@
     "logging_out": "Logging out...",
     "successfullyLoggedIn": "Successfully logged in!",
     "loginToMessage": "You need to be logged in to send messages",
-    "enterBothEmailAndPassword": "Please enter both email and password"
+    "enterBothEmailAndPassword": "Please enter both email and password",
+    "email": "Email",
+    "back_to_login": "Back to Login",
+    "verification": {
+      "verifying": "Verifying your email...",
+      "success": "Email verified successfully!",
+      "success_title": "Email Verified!",
+      "success_message": "Your email has been successfully verified. You can now log in to your account.",
+      "failed_title": "Verification Failed",
+      "failed": "Email verification failed",
+      "server_error": "Server error. Please try again later.",
+      "missing_token": "Verification token is missing",
+      "invalid_token": "Invalid or expired verification token",
+      "resend_title": "Didn't receive the email?",
+      "resend": "Resend Verification Email",
+      "resending": "Sending...",
+      "resent": "Verification email has been sent",
+      "resend_failed": "Failed to resend verification email",
+      "email_required": "Email is required"
+    }
   },
   "navigation": {
     "home": "Home",
