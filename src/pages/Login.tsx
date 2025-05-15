@@ -78,7 +78,11 @@ const Login = () => {
       console.error("Login error:", error);
 
       // Enhanced error handling with specific messages
-      if (error.response?.data?.error?.code === "INVALID_CREDENTIALS") {
+      if (error.response?.data?.error?.code === "EMAIL_NOT_VERIFIED") {
+        toast.info("Please verify your email to continue. A verification code has been sent to your email.");
+        // Redirect to verification code page
+        navigate("/verify-code", { state: { email } });
+      } else if (error.response?.data?.error?.code === "INVALID_CREDENTIALS") {
         toast.error("Invalid email or password. Please try again.");
       } else if (error.response?.data?.error?.code === "ACCOUNT_LOCKED") {
         toast.error(
@@ -90,6 +94,10 @@ const Login = () => {
         toast.error(
           "No account found with this email. Please check your email or create a new account.",
         );
+      } else if (error.response?.data?.error?.code === "VERIFICATION_EXPIRED") {
+        toast.info("Your verification has expired. A new verification code has been sent to your email.");
+        // Redirect to verification code page
+        navigate("/verify-code", { state: { email } });
       } else {
         toast.error(error.message || "Login failed. Please try again later.");
       }

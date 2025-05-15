@@ -77,8 +77,9 @@ const Register: React.FC = () => {
     try {
       // Call register with the individual parameters
       await register(formData.email, formData.password, formData.name);
-      toast.success("Registration successful! Welcome aboard.");
-      navigate("/");
+      toast.success("Registration successful! Please verify your email.");
+      // Redirect to verification code page with email in state
+      navigate("/verify-code", { state: { email: formData.email } });
     } catch (error: any) {
       console.error("Registration error:", error);
       // Handle specific error codes
