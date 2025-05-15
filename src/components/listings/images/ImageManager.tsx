@@ -482,14 +482,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
-            {isDragActive ? t("listings:images.dragDrop") : t("listings:images.dragDropFriendly")}
+            {isDragActive ? t("listings.images.dragDrop") : t("listings.images.dragDropFriendly")}
           </p>
         </motion.div>
       </div>
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {images.length + existingImages.length} / {maxImages}{" "}{t("listings:images.uploaded")}
+        {images.length + existingImages.length} / {maxImages}{" "}{t("listings.images.uploaded")}
       </p>
 
       {/* Upload Progress */}
@@ -559,7 +559,11 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                       <FaEdit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onDeleteExisting?.(url)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDeleteExisting?.(url);
+                      }}
                       className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
                       title={t("listings.delete")}
                     >

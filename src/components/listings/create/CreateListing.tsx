@@ -454,6 +454,9 @@ const CreateListing: React.FC = () => {
               onSubmit={(data, isValid) =>
                 handleBasicDetailsSubmit(data, isValid, setFormData, setStep, t)
               }
+              onImageDelete={() => {
+                // Prevent form advancement when deleting images
+              }}
             />
           </Suspense>
         );

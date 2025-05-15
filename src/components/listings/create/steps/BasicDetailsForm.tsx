@@ -51,11 +51,13 @@ interface ExtendedFormState extends Omit<FormState, "details"> {
 interface BasicDetailsFormProps {
   initialData: Partial<ExtendedFormState>;
   onSubmit: (data: ExtendedFormState, isValid: boolean) => void;
+  onImageDelete?: () => void;
 }
 
 const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   initialData,
   onSubmit,
+  onImageDelete,
 }) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<ExtendedFormState>({
@@ -72,7 +74,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         vehicleType: VehicleType.CAR,
         make: "",
         model: "",
-        year: new Date().getFullYear().toString(),
+        year: "",
       },
     },
     images: [],
@@ -285,7 +287,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           vehicleType: subCategory as VehicleType,
           make: "",
           model: "",
-          year: new Date().getFullYear().toString(),
+          year: "",
           condition: Condition.GOOD,
           features: [],
         };
@@ -746,8 +748,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const renderYearField = () => {
-    const yearValue =
-      formData.details?.vehicles?.year || new Date().getFullYear().toString();
+    const yearValue = formData.details?.vehicles?.year || "";
     const years = getYearOptions();
 
     return (
@@ -1076,7 +1077,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     { value: "HOMS", label: t("cities.HOMS") },
     { value: "LATTAKIA", label: t("cities.LATTAKIA") },
     { value: "HAMA", label: t("cities.HAMA") },
-    { value: "DEIR EZZOR", label: t("cities.DEIR EZZOR") },
+    { value: "DEIR_EZZOR", label: t("cities.DEIR_EZZOR") },
     { value: "HASEKEH", label: t("cities.HASEKEH") },
     { value: "QAMISHLI", label: t("cities.QAMISHLI") },
     { value: "RAQQA", label: t("cities.RAQQA") },
@@ -1265,7 +1266,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               t("pricePlaceholder"),
               0,
             )}
-            {renderLocationField()}
+            {renderFormField(
+              t("location"),
+              "location",
+              "select",
+              syrianCities,
+              <MapPin className="w-4 h-4" />,
+              t("selectLocation"),
+              undefined,
+              undefined,
+              undefined,
+              true,
+              undefined,
+              true
+            )}
           </div>
 
           {renderFormField(
@@ -1276,38 +1290,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             <FaAlignLeft className="w-4 h-4" />,
             t("descriptionPlaceholder"),
           )}
-
-          {/* Image Manager Component */}
-          <div className="mt-6">
-            <Suspense fallback={<div>Loading images...</div>}>
-              <ImageManager
-                images={formData.images as File[]}
-                onChange={(newImages) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    images: newImages,
-                  }));
-                  // Clear any image-related errors
-                  setErrors((prev) => {
-                    const newErrors = { ...prev };
-                    delete newErrors.images;
-                    return newErrors;
-                  });
-                }}
-                maxImages={10}
-                error={errors.images}
-                existingImages={formData.existingImages as string[]}
-                onDeleteExisting={(url) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    existingImages: (prev.existingImages || []).filter(
-                      (img) => img !== url,
-                    ),
-                  }));
-                }}
-              />
-            </Suspense>
-          </div>
         </div>
 
         <div className="flex justify-end pt-6">
@@ -1327,6 +1309,37 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Image Manager Component */}
+      <div className="mt-6">
+        <Suspense fallback={<div>Loading images...</div>}>
+          <ImageManager
+            images={formData.images as File[]}
+            onChange={(newImages) => {
+              setFormData((prev) => ({
+                ...prev,
+                images: newImages,
+              }));
+              // Clear any image-related errors
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.images;
+                return newErrors;
+              });
+            }}
+            maxImages={10}
+            error={errors.images}
+            existingImages={formData.existingImages as string[]}
+            onDeleteExisting={(url) => {
+              setFormData((prev) => ({
+                ...prev,
+                existingImages: (prev.existingImages || []).filter((img) => img !== url)
+              }));
+              onImageDelete?.();
+            }}  
+          />
+        </Suspense>
+      </div>
 
       {/* Loading overlay */}
       {isSubmitting && (

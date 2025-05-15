@@ -7,11 +7,17 @@ import arTranslation from "@/locales/ar.json";
 
 const resources = {
   en: {
-    common: enTranslation,
+    common: {
+      ...enTranslation,
+      listings: undefined // Remove listings from common
+    },
     listings: enTranslation.listings,
   },
   AR: {
-    common: arTranslation,
+    common: {
+      ...arTranslation,
+      listings: undefined // Remove listings from common
+    },
     listings: arTranslation.listings,
   },
 };

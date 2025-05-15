@@ -19,8 +19,9 @@ export const handleBasicDetailsSubmit = (
   setFormData: Dispatch<SetStateAction<FormState>>,
   setStep: Dispatch<SetStateAction<number>>,
   t: TFunction<"translation", undefined>,
+  isImageDelete: boolean = false,
 ) => {
-  if (isValid) {
+  if (isValid && !isImageDelete) {
     setFormData((prev) => {
       // Merge the new data with the existing data, preserving all fields
       const updatedData: FormState = {

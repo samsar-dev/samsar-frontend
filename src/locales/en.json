@@ -1,8 +1,16 @@
 {
   "common": {
-    "dropzone": {
-      "drop": "Drop to upload 🚀",
-      "dragDropFriendly": "Drag photos here or click to upload. Max 5MB each"
+    "reset": "Reset",
+    "categories": {
+      "vehicle": {
+        "CAR": "Cars",
+        "TRUCK": "Trucks",
+        "MOTORCYCLE": "Motorcycles",
+        "VAN": "Vans",
+        "BUS": "Buses",
+        "TRACTOR": "Tractors",
+        "RV": "RVs"
+      }
     },
     "edit": "Edit",
     "submit": "Submit",
@@ -37,6 +45,19 @@
     },
     "notifications": {
       "toggle": "Toggle Notifications"
+    },
+    "listings": {
+      "upload_images": "Upload Images",
+      "upload.progress": "Uploading...",
+      "images.dragDrop": "Drop to upload",
+      "images.dragDropFriendly": "Drag images here or click to upload",
+      "images.uploaded": "uploaded",
+      "images.existingImages": "Existing Images",
+      "images.edit": "Edit",
+      "images.delete": "Delete",
+      "images.progress": "Uploading...",
+      "images.maxImages": "Maximum images allowed: {{count}}",
+      "images.noFileChosen": "No file chosen"
     },
     "privacy": "Privacy",
     "settings": {
@@ -383,12 +404,6 @@
     "actions": {
       "sell": "Sell",
       "rent": "Rent"
-    },
-    "dropzone": {
-      "dragDrop": "Drag & drop photos here or click to choose",
-      "dragDropFriendly": "Drag & drop photos here or click to choose. We'll make them look great!",
-      "drop": "Drop your photos here",
-      "maxSize": "Maximum file size: {{maxSize}} per image"
     },
     "tip": {
       "imageQuality": "Clear, well-lit images help your listings stand out! 📸"
@@ -762,7 +777,19 @@
       "safety": "Safety",
       "features": "Features",
       "outdoor": "Outdoor",
-      "security": "Security"
+      "security": "Security",
+      "CAR": "Cars",
+      "TRUCK": "Trucks",
+      "MOTORCYCLE": "Motorcycles",
+      "VAN": "Vans",
+      "BUS": "Buses",
+      "TRACTOR": "Tractors",
+      "RV": "RVs",
+      "HOUSE": "Houses",
+      "APARTMENT": "Apartments",
+      "CONDO": "Condos",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial Properties"
     },
     "cities": {
       "DAMASCUS": "Damascus",
