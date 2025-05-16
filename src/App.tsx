@@ -13,7 +13,7 @@ import { TokenManager } from "@/utils/tokenManager";
 import { type ReactElement, useEffect, useState, memo } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { SpeedInsights } from "@vercel/speed-insights/react";
+// Speed Insights removed due to error reporting issues
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import Routes from "./routes/Routes";
@@ -141,7 +141,7 @@ const App: () => ReactElement = () => {
                   theme="light"
                 />
                 <Routes />
-                <SpeedInsights />
+                { /* Speed Insights removed due to error reporting issues */ }
               </ErrorBoundary>
             </CommunicationProviders>
           </CombinedDataProvider>
