@@ -6,11 +6,11 @@ interface TooltipProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
 }
 
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ content, children, className = "", delay = 0, position = 'top' }, ref) => {
+  ({ content, children, className = "", delay = 0, position = "top" }, ref) => {
     const [showTooltip, setShowTooltip] = useState(false);
     let timeout: NodeJS.Timeout;
 
@@ -25,17 +25,17 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 
     // Calculate position classes based on position prop
     const positionClasses = {
-      top: 'bottom-full mt-2',
-      bottom: 'top-full -mt-2',
-      left: 'right-full -ml-2',
-      right: 'left-full -mr-2'
+      top: "bottom-full mt-2",
+      bottom: "top-full -mt-2",
+      left: "right-full -ml-2",
+      right: "left-full -mr-2",
     };
 
     const horizontalClasses = {
-      top: 'left-1/2 -translate-x-1/2',
-      bottom: 'left-1/2 -translate-x-1/2',
-      left: 'top-1/2 -translate-y-1/2',
-      right: 'top-1/2 -translate-y-1/2'
+      top: "left-1/2 -translate-x-1/2",
+      bottom: "left-1/2 -translate-x-1/2",
+      left: "top-1/2 -translate-y-1/2",
+      right: "top-1/2 -translate-y-1/2",
     };
 
     return (
@@ -62,7 +62,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         </AnimatePresence>
       </div>
     );
-  }
+  },
 );
 
 Tooltip.displayName = "Tooltip";

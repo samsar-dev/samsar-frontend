@@ -7,9 +7,9 @@ import "./config/i18n"; // Import i18n configuration
 import "./assets/css/index.css";
 
 // Performance monitoring
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   // Report web vitals if in production
-  import('web-vitals').then(({ onCLS, onFCP, onLCP }) => {
+  import("web-vitals").then(({ onCLS, onFCP, onLCP }) => {
     // Report metrics with a threshold of 1000ms
     const reportMetric = (metric: any) => {
       console.log({
@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production') {
         value: metric.value,
         delta: metric.delta,
         id: metric.id,
-        rating: metric.rating
+        rating: metric.rating,
       });
     };
 
@@ -29,17 +29,14 @@ if (process.env.NODE_ENV === 'production') {
 
 // Preload critical assets
 const preloadAssets = () => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Preload important routes when idle
-    if ('requestIdleCallback' in window) {
+    if ("requestIdleCallback" in window) {
       window.requestIdleCallback(() => {
         // Preload common assets like images, fonts, etc.
-        const imagesToPreload = [
-          '/logo.png',
-          '/placeholder.jpg'
-        ];
-        
-        imagesToPreload.forEach(src => {
+        const imagesToPreload = ["/logo.png", "/placeholder.jpg"];
+
+        imagesToPreload.forEach((src) => {
           const img = new Image();
           img.src = src;
         });
@@ -56,8 +53,8 @@ const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
 // Ensure React is properly initialized
 const initializeReact = () => {
   // Wait for DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeApp);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeApp);
   } else {
     initializeApp();
   }

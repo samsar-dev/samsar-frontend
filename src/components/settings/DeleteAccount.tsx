@@ -5,7 +5,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { getAuthToken } from "@/utils/cookie";
 import { ACTIVE_API_URL } from "@/config";
 
-
 const DeleteAccount = () => {
   const { user, logout } = useAuth();
   const [showModal, setShowModal] = useState(false);
@@ -36,7 +35,7 @@ const DeleteAccount = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ password }),
@@ -44,24 +43,33 @@ const DeleteAccount = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to delete account");
+        throw new Error(
+          data.error || data.message || "Failed to delete account",
+        );
       }
 
       // Clear all auth tokens and session data
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      
+      document.cookie =
+        "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie =
+        "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
       await logout();
       navigate("/", { replace: true });
     } catch (err) {
-      console.error('Delete account error:', err);
-      
+      console.error("Delete account error:", err);
+
       if (err instanceof Error) {
-        setError(err.message || "Failed to delete account. Please check your password and try again.");
+        setError(
+          err.message ||
+            "Failed to delete account. Please check your password and try again.",
+        );
       } else {
-        setError("Failed to delete account. Please check your password and try again.");
+        setError(
+          "Failed to delete account. Please check your password and try again.",
+        );
       }
     } finally {
       setLoading(false);
@@ -76,7 +84,9 @@ const DeleteAccount = () => {
       </h2>
 
       <p className="text-gray-600 dark:text-gray-400 mb-4">
-        Once you delete your account, there is no going back. This action will permanently delete your account and all your listings. Please be certain.
+        Once you delete your account, there is no going back. This action will
+        permanently delete your account and all your listings. Please be
+        certain.
       </p>
 
       <div className="mt-6">
@@ -95,11 +105,16 @@ const DeleteAccount = () => {
               Confirm Account Deletion
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Are you sure you want to delete your account? This action cannot be undone. All your listings will be permanently deleted along with your account.
+              Are you sure you want to delete your account? This action cannot
+              be undone. All your listings will be permanently deleted along
+              with your account.
             </p>
             <form onSubmit={handleDelete} className="space-y-4">
               <div className="relative">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Password
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">

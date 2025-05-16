@@ -268,12 +268,16 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   ...data.details?.vehicles,
                   vehicleType:
                     data.details?.vehicles?.vehicleType || VehicleType.CAR,
-                  make: data.details?.vehicles?.make === "OTHER_MAKE" && data.details?.vehicles?.customMake 
-                    ? data.details?.vehicles?.customMake 
-                    : data.details?.vehicles?.make || "",
-                  model: data.details?.vehicles?.model === "CUSTOM_MODEL" && data.details?.vehicles?.customModel 
-                    ? data.details?.vehicles?.customModel 
-                    : data.details?.vehicles?.model || "",
+                  make:
+                    data.details?.vehicles?.make === "OTHER_MAKE" &&
+                    data.details?.vehicles?.customMake
+                      ? data.details?.vehicles?.customMake
+                      : data.details?.vehicles?.make || "",
+                  model:
+                    data.details?.vehicles?.model === "CUSTOM_MODEL" &&
+                    data.details?.vehicles?.customModel
+                      ? data.details?.vehicles?.customModel
+                      : data.details?.vehicles?.model || "",
                   year:
                     data.details?.vehicles?.year ||
                     new Date().getFullYear().toString(),
@@ -286,8 +290,8 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   condition:
                     data.details?.vehicles?.condition || Condition.GOOD,
                   features: {
-                ...(data.details?.vehicles?.features as VehicleFeatures),
-              },
+                    ...(data.details?.vehicles?.features as VehicleFeatures),
+                  },
                   interiorColor:
                     data.details?.vehicles?.interiorColor || "#000000",
                   warranty: data.details?.vehicles?.warranty?.toString() || "",

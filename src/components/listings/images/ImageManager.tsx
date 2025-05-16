@@ -41,7 +41,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   existingImages = [],
   onDeleteExisting,
 }) => {
-  const { t } = useTranslation(['common', 'listings']);
+  const { t } = useTranslation(["common", "listings"]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -455,7 +455,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold mb-4">{t("listings.upload_images")}</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        {t("listings.upload_images")}
+      </h3>
 
       {/* Dropzone */}
       <div
@@ -482,14 +484,17 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
-            {isDragActive ? t("listings.images.dragDrop") : t("listings.images.dragDropFriendly")}
+            {isDragActive
+              ? t("listings.images.dragDrop")
+              : t("listings.images.dragDropFriendly")}
           </p>
         </motion.div>
       </div>
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {images.length + existingImages.length} / {maxImages}{" "}{t("listings.images.uploaded")}
+        {images.length + existingImages.length} / {maxImages}{" "}
+        {t("listings.images.uploaded")}
       </p>
 
       {/* Upload Progress */}

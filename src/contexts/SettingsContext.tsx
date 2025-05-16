@@ -44,7 +44,7 @@ const defaultSettings: Settings = {
 };
 
 export const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({

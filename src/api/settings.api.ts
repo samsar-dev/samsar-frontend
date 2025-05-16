@@ -46,24 +46,24 @@ export class SettingsAPI {
   }
 
   static async updateNotificationSettings(
-    settings: NotificationSettings
+    settings: NotificationSettings,
   ): Promise<APIResponse<NotificationSettings>> {
     const response = await apiClient.patch(
       `${this.BASE_PATH}/notifications`,
-      settings
+      settings,
     );
     return response.data;
   }
 
   static async updatePrivacySettings(
-    settings: Settings
+    settings: Settings,
   ): Promise<APIResponse<PrivacySettings>> {
     const response = await apiClient.post(
       `${this.BASE_PATH}`,
       { notifications: settings.notifications, privacy: settings.privacy },
       {
         requiresAuth: true, // Add this to ensure auth token is sent
-      } as RequestConfig
+      } as RequestConfig,
     );
     // const response = await axios.post(
     //   `${this.BASE_PATH}`,

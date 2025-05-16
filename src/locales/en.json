@@ -12,150 +12,213 @@
         "RV": "RVs"
       }
     },
-    "edit": "Edit",
-    "submit": "Submit",
-    "no": "No",
-    "notSpecified": "Not specified",
-    "cancel": "Cancel",
-    "language": "Language",
-    "english": "English",
-    "arabic": "Arabic",
-    "selectLanguage": "Select Language",
-    "try_again": "Try Again",
-    "saving": "Saving...",
-    "back": "Back",
-    "continue": "Continue",
-    "submitting": "Submitting...",
-    
-    "formSteps": {
-      "basicDetails": "Basic Details",
-      "advancedDetails": "Advanced Details",
-      "forRent": "For Rent",
-      "notifications": {
-        "toggle": "Toggle Notifications"
-      }
-    },
     "sortOptions": {
       "newestFirst": "Newest First",
       "priceAsc": "Price: Low to High",
       "priceDesc": "Price: High to Low",
       "locationAsc": "Location: A to Z",
-      "locationDesc": "Location: Z to A",
-      "sortOptions": "Sort Options"
+      "locationDesc": "Location: Z to A"
     },
+    "all": "All",
+    "search": "Search",
+    "Filters": "Filters",
+    "appName": "Best Website"
+  },
+  "profile": {
+    "title": "Profile",
+    "info": "Profile Information",
+    "my_listings": "My Listings",
+    "change_password": "Change Password",
+    "viewing": "Viewing {{username}}'s Profile",
+    "date of birth": "Date of Birth",
+    "name": "Name",
+    "email": "Email",
+    "bio": "Bio",
+    "street": "Street",
+    "city": "City",
+    "country": "Country",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm Password",
+    "save_changes": "Save Changes",
+    "total_listings": "Total Listings: {{count}}",
+    "no_listings": "You haven't created any listings yet",
+    "loading_more": "Loading more...",
+    "load_more": "Load More",
+    "listing_deleted": "Listing deleted successfully",
+    "delete_error": "Error deleting listing",
+    "fetch_error": "Failed to load listings",
+    "updated": "Profile updated successfully",
+    "load_error": "Failed to load profile",
+    "password_mismatch": "Passwords do not match",
+    "password_updated": "Password updated successfully",
+    "confirm_delete": "Are you sure you want to delete this listing?",
+    "password_too_short": "Password must be at least 8 characters long",
+    "password_needs_uppercase": "Password must contain at least one uppercase letter",
+    "password_needs_lowercase": "Password must contain at least one lowercase letter",
+    "personal_information": "Personal Information",
+    "update_info": "Update Information",
+    "change_photo": "Change Photo",
+    "security_settings": "Security Settings",
+    "password_description": "Change your account password for enhanced security",
+    "password_requirements": "Password requirements",
+    "verification_code": "Verification Code",
+    "verification_code_placeholder": "Enter the 6-digit code sent to your email",
+    "verification_code_help": "Enter the verification code we sent to your email address",
+    "security_tips": "Security Tips",
+    "tip_unique": "Use a unique password that you haven't used on other sites",
+    "tip_manager": "Consider using a password manager to generate and store strong passwords",
+    "request_verification": "Send Verification Code",
+    "update_password": "Update Password",
+    "updating": "Updating...",
+    "sending_verification": "Sending verification code...",
+    "verification_code_required": "Verification code is required",
+    "verification_code_sent": "Verification code has been sent to your email",
+    "verification_code_error": "Failed to send verification code",
+    "passwords_match": "Passwords match",
+    "passwords_dont_match": "Passwords don't match",
+    "req_min_length": "At least 8 characters",
+    "req_uppercase": "At least one uppercase letter",
+    "req_lowercase": "At least one lowercase letter",
+    "req_number": "At least one number",
+    "req_special": "At least one special character",
+    "password_needs_number": "Password needs at least one number",
+    "password_needs_special": "Password needs at least one special character",
+    "same_password": "New password cannot be the same as current password",
+    "password_not_strong": "Password is not strong enough",
+    "password_strength": {
+      "label": "Password strength",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong",
+      "excellent": "Excellent"
+    },
+    "update_error": "Failed to update password"
+  },
+  "editButton": "Edit",
+  "submit": "Submit",
+  "no": "No",
+  "notSpecified": "Not specified",
+  "cancel": "Cancel",
+  "language": "Language",
+  "english": "English",
+  "arabic": "Arabic",
+  "selectLanguage": "Select Language",
+  "try_again": "Try Again",
+  "saving": "Saving...",
+  "back": "Back",
+  "continue": "Continue",
+  "submitting": "Submitting...",
+
+  "formSteps": {
+    "basicDetails": "Basic Details",
+    "advancedDetails": "Advanced Details",
+    "forRent": "For Rent",
     "notifications": {
       "toggle": "Toggle Notifications"
-    },
-    "listings": {
-      "upload_images": "Upload Images",
-      "upload.progress": "Uploading...",
-      "images.dragDrop": "Drop to upload",
-      "images.dragDropFriendly": "Drag images here or click to upload",
-      "images.uploaded": "uploaded",
-      "images.existingImages": "Existing Images",
-      "images.edit": "Edit",
-      "images.delete": "Delete",
-      "images.progress": "Uploading...",
-      "images.maxImages": "Maximum images allowed: {{count}}",
-      "images.noFileChosen": "No file chosen"
-    },
-    "privacy": "Privacy",
-    "settings": {
-      "theme": "Theme",
-      "themes": {
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System"
-      },
-      "timezone": "Timezone"
-    },
-    "footer": {
-      "careers": {
-        "title": "Careers"
-      },
-      "terms": {
-        "title": "Terms of Service"
-      }
-    },
-
-    "next": "Next",
-    "previous": "Previous",
-    "overview": "Overview",
-    "uploadImages": "Upload Images",
-    "messagePlaceholder": "Type your message here...",
-    "sending": "Sending...",
-    "search": "Search...",
-    "allCities": "All Cities",
-    "Filters": "Filters",
-    "all": "All",
-    "all_types": "All Types",
-    "beds": "Beds",
-    "baths": "Baths",
-    "appName": "Vehicle and Real Estate Market",
-    "forRent": "For Rent",
-    "notProvided": "Not Provided",
-    "vehicles": "Vehicles",
-    "realEstate": "Real Estate",
-    "propertyType": {
-      "label": "Property Type",
-      "placeholder": "Select property type"
-    },
-    "propertyTypes": {
-      "HOUSE": "House",
-      "APARTMENT": "Apartment",
-      "CONDO": "Condo",
-      "LAND": "Land",
-      "COMMERCIAL": "Commercial Property",
-      "OTHER": "Other"
-    },
-    "propertyDetails": {
-      "title": "Property Details",
-      "size": "Size",
-      "sizePlaceholder": "Enter size in square meters",
-      "yearBuilt": "Year Built",
-      "yearBuiltPlaceholder": "Enter year built",
-      "bedrooms": "Bedrooms",
-      "bedroomsPlaceholder": "Enter number of bedrooms",
-      "bathrooms": "Bathrooms",
-      "bathroomsPlaceholder": "Enter number of bathrooms",
-      "bathroomsHelp": "Enter the number of bathrooms"
-    },
-    "listingDetails": {
-      "label": "Listing Details",
-      "title": {
-        "label": "Title",
-        "placeholder": "Enter a descriptive title for your listing"
-      },
-      "size": {
-        "label": "Size",
-        "placeholder": "Enter size in square meters"
-      },
-      "yearBuilt": {
-        "label": "Year Built",
-        "placeholder": "Enter year built"
-      },
-      "bedrooms": {
-        "label": "Bedrooms",
-        "placeholder": "Enter number of bedrooms",
-        "help": "Enter the number of bedrooms"
-      },
-      "bathrooms": {
-        "label": "Bathrooms",
-        "placeholder": "Enter number of bathrooms",
-        "help": "Enter the number of bathrooms"
-      }
-    },
-    "vehicleTypes": {
-      "CAR": "Car",
-      "TRUCK": "Truck",
-      "MOTORCYCLE": "Motorcycle",
-      "BUS": "Bus",
-      "VAN": "Van",
-      "TRACTOR": "Tractor",
-      "CONSTRUCTION": "Construction Equipment",
-      "RV": "Recreational Vehicle",
-      "OTHER": "Other"
     }
+  },
+  "listings": {
+    "upload_images": "Upload Images",
+    "upload.progress": "Uploading...",
+    "images.dragDrop": "Drop to upload",
+    "images.dragDropFriendly": "Drag images here or click to upload",
+    "images.uploaded": "uploaded",
+    "images.existingImages": "Existing Images",
+    "images.edit": "Edit",
+    "images.delete": "Delete",
+    "images.progress": "Uploading...",
+    "images.maxImages": "Maximum images allowed: {{count}}",
+    "images.noFileChosen": "No file chosen"
+  },
+  "privacy": "Privacy",
+  "settings": {
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "timezone": "Timezone"
+  },
+  "next": "Next",
+  "previous": "Previous",
+  "overview": "Overview",
+  "uploadImages": "Upload Images",
+  "messagePlaceholder": "Type your message here...",
+  "sending": "Sending...",
+  "search": "Search...",
+  "allCities": "All Cities",
+  "Filters": "Filters",
+  "all": "All",
+  "all_types": "All Types",
+  "beds": "Beds",
+  "baths": "Baths",
+  "appName": "Vehicle and Real Estate Market",
+  "forRent": "For Rent",
+  "notProvided": "Not Provided",
+  "vehicles": "Vehicles",
+  "realEstate": "Real Estate",
+  "propertyType": {
+    "label": "Property Type",
+    "placeholder": "Select property type"
+  },
+  "propertyTypes": {
+    "HOUSE": "House",
+    "APARTMENT": "Apartment",
+    "CONDO": "Condo",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial Property",
+    "OTHER": "Other"
+  },
+  "propertyDetails": {
+    "title": "Property Details",
+    "size": "Size",
+    "sizePlaceholder": "Enter size in square meters",
+    "yearBuilt": "Year Built",
+    "yearBuiltPlaceholder": "Enter year built",
+    "bedrooms": "Bedrooms",
+    "bedroomsPlaceholder": "Enter number of bedrooms",
+    "bathrooms": "Bathrooms",
+    "bathroomsPlaceholder": "Enter number of bathrooms",
+    "bathroomsHelp": "Enter the number of bathrooms"
+  },
+  "listingDetails": {
+    "label": "Listing Details",
+    "title": {
+      "label": "Title",
+      "placeholder": "Enter a descriptive title for your listing"
+    },
+    "size": {
+      "label": "Size",
+      "placeholder": "Enter size in square meters"
+    },
+    "yearBuilt": {
+      "label": "Year Built",
+      "placeholder": "Enter year built"
+    },
+    "bedrooms": {
+      "label": "Bedrooms",
+      "placeholder": "Enter number of bedrooms",
+      "help": "Enter the number of bedrooms"
+    },
+    "bathrooms": {
+      "label": "Bathrooms",
+      "placeholder": "Enter number of bathrooms",
+      "help": "Enter the number of bathrooms"
+    }
+  },
+  "vehicleTypes": {
+    "CAR": "Car",
+    "TRUCK": "Truck",
+    "MOTORCYCLE": "Motorcycle",
+    "BUS": "Bus",
+    "VAN": "Van",
+    "TRACTOR": "Tractor",
+    "CONSTRUCTION": "Construction Equipment",
+    "RV": "Recreational Vehicle",
+    "OTHER": "Other"
   },
   "auth": {
     "login": "Login",
@@ -216,6 +279,7 @@
   "listings": {
     "sell": "Sell",
     "rent": "Rent",
+    "saved_listings": "Saved Listings",
     "updateSuccess": "Your listing has been successfully updated!",
     "vehicleType": "Vehicle Type",
     "miles": "Miles",
@@ -487,7 +551,8 @@
     "unread": "{{count}} unread notifications",
     "no_unread": "No unread notifications",
     "mark_all_read": "Mark all as read",
-    "clear_all": "Clear all"
+    "clear_all": "Clear all",
+    "toggle": "Toggle notifications"
   },
   "search": {
     "placeholder": "Search listings...",
@@ -563,9 +628,15 @@
     "email": "Email",
     "phone": "Phone",
     "all_rights_reserved": "All rights reserved.",
-    "careers": "Careers",
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "careers": {
+      "title": "Careers"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "terms": {
+      "title": "Terms of Service"
+    }
   },
   "home": {
     "find_perfect": "Find your perfect",
@@ -611,43 +682,6 @@
     "invalidCategoryDetails": "Please provide all required details for the selected category",
     "loginToMessage": "You need to be logged in to send messages"
   },
-  "profile": {
-    "title": "Profile",
-    "info": "Profile Information",
-    "my_listings": "My Listings",
-    "change_password": "Change Password",
-    "viewing": "Viewing {{username}}'s Profile",
-    "date of birth": "Date of Birth",
-    "name": "Name",
-    "email": "Email",
-    "bio": "Bio",
-    "street": "Street",
-    "city": "City",
-    "country": "Country",
-    "current_password": "Current Password",
-    "new_password": "New Password",
-    "confirm_password": "Confirm Password",
-    "save_changes": "Save Changes",
-    "total_listings": "Total Listings: {{count}}",
-    "no_listings": "You haven't created any listings yet",
-    "loading_more": "Loading more...",
-    "load_more": "Load More",
-    "listing_deleted": "Listing deleted successfully",
-    "delete_error": "Error deleting listing",
-    "fetch_error": "Failed to load listings",
-    "updated": "Profile updated successfully",
-    "update_error": "Failed to update profile",
-    "load_error": "Failed to load profile",
-    "password_mismatch": "Passwords do not match",
-    "password_updated": "Password updated successfully",
-    "confirm_delete": "Are you sure you want to delete this listing?",
-    "password_too_short": "Password must be at least 8 characters long",
-    "password_needs_uppercase": "Password must contain at least one uppercase letter",
-    "password_needs_lowercase": "Password must contain at least one lowercase letter",
-    "personal_information": "Personal Information",
-    "update_info": "Update Information",
-    "change_photo": "Change Photo"
-  },
   "cities": {
     "DAMASCUS": "Damascus",
     "ALEPPO": "Aleppo",
@@ -680,7 +714,7 @@
     "enterDetails": "Enter Details",
     "nextStep": "Next Step",
     "previousStep": "Previous Step",
-    "submit": "Submit Listing",
+    "submitListing": "Submit Listing",
     "selectVehicleType": "Select Vehicle Type",
     "selectPropertyType": "Select Property Type",
     "addMoreDetails": "Add More Details",

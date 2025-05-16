@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { ACTIVE_API_URL } from '@/config';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { FaCheckCircle, FaExclamationTriangle, FaEnvelope, FaLock } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ACTIVE_API_URL } from "@/config";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
+import {
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaEnvelope,
+  FaLock,
+} from "react-icons/fa";
 
 const VerifyCode = () => {
   const { t } = useTranslation();
@@ -12,41 +17,41 @@ const VerifyCode = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = location.state || {};
-  
-  const [verificationCode, setVerificationCode] = useState('');
+
+  const [verificationCode, setVerificationCode] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [resending, setResending] = useState(false);
 
   useEffect(() => {
     // If no email was passed, redirect to login
     if (!email) {
-      toast.error('Email information missing. Please try again.');
-      navigate('/login');
+      toast.error("Email information missing. Please try again.");
+      navigate("/login");
     }
   }, [email, navigate]);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!verificationCode) {
-      toast.error('Please enter the verification code');
+      toast.error("Please enter the verification code");
       return;
     }
 
     setVerifying(true);
-    setError('');
+    setError("");
 
     try {
       const response = await fetch(`${ACTIVE_API_URL}/auth/verify-email/code`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           code: verificationCode,
-          email 
+          email,
         }),
       });
 
@@ -54,17 +59,20 @@ const VerifyCode = () => {
 
       if (response.ok && data.success) {
         setSuccess(true);
-        toast.success('Email verified successfully!');
+        toast.success("Email verified successfully!");
         // Redirect to login after 3 seconds
         setTimeout(() => {
-          navigate('/login');
+          navigate("/login");
         }, 3000);
       } else {
-        setError(data.error?.message || 'Failed to verify email. Please check your code and try again.');
+        setError(
+          data.error?.message ||
+            "Failed to verify email. Please check your code and try again.",
+        );
       }
     } catch (err) {
-      console.error('Error verifying email:', err);
-      setError('Server error. Please try again later.');
+      console.error("Error verifying email:", err);
+      setError("Server error. Please try again later.");
     } finally {
       setVerifying(false);
     }
@@ -72,31 +80,36 @@ const VerifyCode = () => {
 
   const handleResendCode = async () => {
     if (!email) {
-      toast.error('Email information missing. Please try again.');
+      toast.error("Email information missing. Please try again.");
       return;
     }
 
     setResending(true);
 
     try {
-      const response = await fetch(`${ACTIVE_API_URL}/auth/resend-verification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${ACTIVE_API_URL}/auth/resend-verification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
         },
-        body: JSON.stringify({ email }),
-      });
+      );
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success('Verification code has been resent to your email');
+        toast.success("Verification code has been resent to your email");
       } else {
-        toast.error(data.error?.message || 'Failed to resend verification code');
+        toast.error(
+          data.error?.message || "Failed to resend verification code",
+        );
       }
     } catch (err) {
-      console.error('Error resending verification:', err);
-      toast.error('Server error. Please try again later.');
+      console.error("Error resending verification:", err);
+      toast.error("Server error. Please try again later.");
     } finally {
       setResending(false);
     }
@@ -116,7 +129,7 @@ const VerifyCode = () => {
             </p>
             <div className="mt-6">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Go to Login
@@ -137,8 +150,9 @@ const VerifyCode = () => {
             Verify Your Email
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-300">
-            We've sent a verification code to <span className="font-medium">{email}</span>. 
-            Please enter the code below to verify your email address.
+            We've sent a verification code to{" "}
+            <span className="font-medium">{email}</span>. Please enter the code
+            below to verify your email address.
           </p>
         </div>
 
@@ -147,7 +161,9 @@ const VerifyCode = () => {
             <div className="flex">
               <FaExclamationTriangle className="h-5 w-5 text-red-500" />
               <div className="ml-3">
-                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </p>
               </div>
             </div>
           </div>
@@ -155,7 +171,10 @@ const VerifyCode = () => {
 
         <form onSubmit={handleVerifyCode} className="mt-8 space-y-6">
           <div>
-            <label htmlFor="verification-code" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="verification-code"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Verification Code
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
@@ -188,7 +207,7 @@ const VerifyCode = () => {
                   Verifying...
                 </>
               ) : (
-                'Verify Email'
+                "Verify Email"
               )}
             </button>
           </div>
@@ -196,21 +215,21 @@ const VerifyCode = () => {
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Didn't receive the code?{' '}
+            Didn't receive the code?{" "}
             <button
               type="button"
               onClick={handleResendCode}
               disabled={resending}
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
             >
-              {resending ? 'Resending...' : 'Resend Code'}
+              {resending ? "Resending..." : "Resend Code"}
             </button>
           </p>
         </div>
 
         <div className="mt-6">
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
             className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Back to Login

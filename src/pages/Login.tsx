@@ -79,7 +79,9 @@ const Login = () => {
 
       // Enhanced error handling with specific messages
       if (error.response?.data?.error?.code === "EMAIL_NOT_VERIFIED") {
-        toast.info("Please verify your email to continue. A verification code has been sent to your email.");
+        toast.info(
+          "Please verify your email to continue. A verification code has been sent to your email.",
+        );
         // Redirect to verification code page
         navigate("/verify-code", { state: { email } });
       } else if (error.response?.data?.error?.code === "INVALID_CREDENTIALS") {
@@ -95,7 +97,9 @@ const Login = () => {
           "No account found with this email. Please check your email or create a new account.",
         );
       } else if (error.response?.data?.error?.code === "VERIFICATION_EXPIRED") {
-        toast.info("Your verification has expired. A new verification code has been sent to your email.");
+        toast.info(
+          "Your verification has expired. A new verification code has been sent to your email.",
+        );
         // Redirect to verification code page
         navigate("/verify-code", { state: { email } });
       } else {

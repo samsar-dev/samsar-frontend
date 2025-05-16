@@ -17,6 +17,7 @@ interface FormData {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
+  verificationCode: string;
 }
 
 interface PasswordStrength {
@@ -35,7 +36,10 @@ const ChangePassword = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+    verificationCode: "",
   });
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
     score: 0,
     feedback: [],
@@ -137,6 +141,28 @@ const ChangePassword = () => {
     return null;
   };
 
+  const requestVerificationCode = async () => {
+    setVerificationLoading(true);
+    try {
+      // Use the UserAPI to request verification code
+      const response = await UserAPI.requestPasswordChangeVerification();
+
+      if (response.success) {
+        setVerificationSent(true);
+        toast.success(response.message || t("profile.verification_code_sent"));
+      } else {
+        toast.error(
+          response.error?.message || t("profile.verification_code_error"),
+        );
+      }
+    } catch (error) {
+      console.error("Error requesting verification code:", error);
+      toast.error(t("profile.verification_code_error"));
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -146,30 +172,45 @@ const ChangePassword = () => {
       return;
     }
 
+    // If verification code hasn't been sent yet, request it first
+    if (!verificationSent) {
+      await requestVerificationCode();
+      return;
+    }
+
+    // If verification code is empty, show error
+    if (!formData.verificationCode) {
+      toast.error(t("profile.verification_code_required"));
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("currentPassword", formData.currentPassword);
-      formDataToSend.append("password", formData.newPassword); // Changed to match backend expectation
-
-      const response = await UserAPI.updateProfile(formDataToSend);
+      // Use the new changePasswordWithVerification method
+      const response = await UserAPI.changePasswordWithVerification(
+        formData.currentPassword,
+        formData.newPassword,
+        formData.verificationCode,
+      );
 
       // More detailed logging and error handling
       console.log("Password Update Response:", response);
 
       if (response.success) {
-        toast.success(t("profile.password_updated"));
+        toast.success(response.message || t("profile.password_updated"));
         setFormData({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
+          verificationCode: "",
         });
         setPasswordStrength({
           score: 0,
           feedback: [],
           isValid: false,
         });
+        setVerificationSent(false);
       } else {
         // Log the specific error from the API
         console.error("Password Update Error:", response.error);
@@ -392,19 +433,53 @@ const ChangePassword = () => {
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
+        {verificationSent && (
+          <div className="mt-6">
+            <label
+              htmlFor="verificationCode"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              {t("profile.verification_code")}
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaShieldAlt className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                id="verificationCode"
+                name="verificationCode"
+                type="text"
+                autoComplete="one-time-code"
+                required
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder={t("profile.verification_code_placeholder")}
+                value={formData.verificationCode}
+                onChange={handleChange}
+              />
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              {t("profile.verification_code_help")}
+            </p>
+          </div>
+        )}
+
+        <div className="mt-8">
           <button
             type="submit"
-            disabled={loading}
-            className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-primary text-white rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-colors flex items-center justify-center"
+            disabled={loading || verificationLoading}
           >
-            {loading ? (
-              <span className="flex items-center">
+            {loading || verificationLoading ? (
+              <>
                 <LoadingSpinner size="sm" className="mr-2" />
-                {t("common.saving")}
-              </span>
+                {verificationSent
+                  ? t("profile.updating")
+                  : t("profile.sending_verification")}
+              </>
+            ) : verificationSent ? (
+              t("profile.update_password")
             ) : (
-              t("profile.change_password")
+              t("profile.request_verification")
             )}
           </button>
         </div>

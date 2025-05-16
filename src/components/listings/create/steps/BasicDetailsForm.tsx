@@ -664,20 +664,27 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   value={formData.details?.vehicles?.customModel || ""}
                   onChange={(value: FormFieldValue) => {
                     const customModelStr = String(value);
-                    handleInputChange("details.vehicles.customModel", customModelStr);
+                    handleInputChange(
+                      "details.vehicles.customModel",
+                      customModelStr,
+                    );
 
                     // Update title immediately when custom model changes
                     if (formData.details?.vehicles?.year) {
                       let make = "";
-                      
-                      if (formData.details?.vehicles?.make === "OTHER_MAKE" && formData.details.vehicles.customMake) {
+
+                      if (
+                        formData.details?.vehicles?.make === "OTHER_MAKE" &&
+                        formData.details.vehicles.customMake
+                      ) {
                         make = formData.details.vehicles.customMake;
                       } else if (formData.details?.vehicles?.make) {
                         make = formData.details.vehicles.make;
                       }
-                      
-                      const autoTitle = make ? `${make} ${customModelStr} ${formData.details.vehicles.year}` : 
-                        `${customModelStr} ${formData.details.vehicles.year}`;
+
+                      const autoTitle = make
+                        ? `${make} ${customModelStr} ${formData.details.vehicles.year}`
+                        : `${customModelStr} ${formData.details.vehicles.year}`;
                       handleInputChange("title", autoTitle);
                     }
                   }}
@@ -764,24 +771,30 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Auto-generate title if fields are filled
           let make = "";
           let model = "";
-          
+
           // Get make (custom or regular)
-          if (formData.details?.vehicles?.make === "OTHER_MAKE" && formData.details.vehicles.customMake) {
+          if (
+            formData.details?.vehicles?.make === "OTHER_MAKE" &&
+            formData.details.vehicles.customMake
+          ) {
             make = formData.details.vehicles.customMake;
           } else if (formData.details?.vehicles?.make) {
             make = formData.details.vehicles.make;
           }
-          
+
           // Get model (custom or regular)
-          if (formData.details?.vehicles?.model === "CUSTOM_MODEL" && formData.details.vehicles.customModel) {
+          if (
+            formData.details?.vehicles?.model === "CUSTOM_MODEL" &&
+            formData.details.vehicles.customModel
+          ) {
             model = formData.details.vehicles.customModel;
           } else if (formData.details?.vehicles?.model) {
             model = formData.details.vehicles.model;
           }
-          
+
           // Generate title based on available information
           let autoTitle = yearStr; // Start with just the year
-          
+
           if (make && model) {
             autoTitle = `${make} ${model} ${yearStr}`;
           } else if (make) {
@@ -789,7 +802,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           } else if (model) {
             autoTitle = `${model} ${yearStr}`;
           }
-          
+
           handleInputChange("title", autoTitle);
         }}
         error={
@@ -821,19 +834,24 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             onChange={(value) => {
               const newValue = typeof value === "string" ? value : "";
               handleInputChange("details.vehicles.customMake", newValue);
-              
+
               // Update the title with the custom make
               if (formData.details?.vehicles?.year) {
                 const year = formData.details.vehicles.year;
                 let model = "";
-                
-                if (formData.details?.vehicles?.model === "CUSTOM_MODEL" && formData.details.vehicles.customModel) {
+
+                if (
+                  formData.details?.vehicles?.model === "CUSTOM_MODEL" &&
+                  formData.details.vehicles.customModel
+                ) {
                   model = formData.details.vehicles.customModel;
                 } else if (formData.details?.vehicles?.model) {
                   model = formData.details.vehicles.model;
                 }
-                
-                const autoTitle = model ? `${newValue} ${model} ${year}` : `${newValue} ${year}`;
+
+                const autoTitle = model
+                  ? `${newValue} ${model} ${year}`
+                  : `${newValue} ${year}`;
                 handleInputChange("title", autoTitle);
               }
             }}
@@ -885,7 +903,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 field.max,
                 field.step,
                 field.required,
-                field.helpText ? t(`common.propertyDetails.${field.name}Help`) : undefined,
+                field.helpText
+                  ? t(`common.propertyDetails.${field.name}Help`)
+                  : undefined,
                 field.type === "select",
               )}
             </div>
@@ -1031,14 +1051,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   const renderRealEstateSelect = () => {
     return (
       <div className="mb-6">
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            {formData?.category?.mainCategory === ListingCategory.VEHICLES
-              ? t("vehicleType")
-              : t("propertyType")}
-            <span className="text-red-600 ml-1" aria-hidden="true">
-              *
-            </span>
-          </label>
+        <label className="block text-sm font-medium mb-1 text-gray-700">
+          {formData?.category?.mainCategory === ListingCategory.VEHICLES
+            ? t("vehicleType")
+            : t("propertyType")}
+          <span className="text-red-600 ml-1" aria-hidden="true">
+            *
+          </span>
+        </label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {Object.values(PropertyType).map((type) => (
             <button
@@ -1278,7 +1298,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               undefined,
               true,
               undefined,
-              true
+              true,
             )}
           </div>
 
@@ -1333,10 +1353,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             onDeleteExisting={(url) => {
               setFormData((prev) => ({
                 ...prev,
-                existingImages: (prev.existingImages || []).filter((img) => img !== url)
+                existingImages: (prev.existingImages || []).filter(
+                  (img) => img !== url,
+                ),
               }));
               onImageDelete?.();
-            }}  
+            }}
           />
         </Suspense>
       </div>

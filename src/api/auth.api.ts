@@ -433,6 +433,91 @@ class AuthAPI {
  */
 class UserAPI extends AuthAPI {
   /**
+   * Requests a verification code for password change
+   * @returns Promise with success status
+   */
+  static async requestPasswordChangeVerification(): Promise<{
+    success: boolean;
+    message?: string;
+    error?: AuthError;
+  }> {
+    try {
+      const response = await apiClient.post(
+        "/auth/send-password-change-verification",
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      return {
+        success: true,
+        message:
+          response.data.message || "Verification code sent to your email",
+      };
+    } catch (error) {
+      console.error("Error requesting password change verification:", error);
+      return {
+        success: false,
+        error: {
+          code: "EMAIL_SEND_FAILED" as AuthErrorCode,
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to send verification email",
+        },
+      };
+    }
+  }
+
+  /**
+   * Verifies a password change with verification code
+   * @param currentPassword Current password
+   * @param newPassword New password
+   * @param verificationCode Verification code sent to email
+   * @returns Promise with success status
+   */
+  static async changePasswordWithVerification(
+    currentPassword: string,
+    newPassword: string,
+    verificationCode: string,
+  ): Promise<{ success: boolean; message?: string; error?: AuthError }> {
+    try {
+      const response = await apiClient.post(
+        "/auth/change-password",
+        {
+          currentPassword,
+          newPassword,
+          verificationCode,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      return {
+        success: true,
+        message: response.data.message || "Password changed successfully",
+      };
+    } catch (error) {
+      console.error("Error changing password:", error);
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: {
+          code:
+            (axiosError.response?.data as any)?.error?.code ||
+            ("PASSWORD_CHANGE_FAILED" as AuthErrorCode),
+          message:
+            (axiosError.response?.data as any)?.error?.message ||
+            (error instanceof Error
+              ? error.message
+              : "Failed to change password"),
+        },
+      };
+    }
+  }
+  /**
    * Updates user profile
    */
   static async updateProfile(

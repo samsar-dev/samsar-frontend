@@ -21,14 +21,15 @@ export class TokenManager {
     try {
       // Try to get token from cookie first
       const token = getAuthToken();
-      
+
       // Check if we're on the email verification page
-      const isVerificationPage = window.location.pathname.includes('/verify-email');
+      const isVerificationPage =
+        window.location.pathname.includes("/verify-email");
       if (isVerificationPage) {
         // Don't redirect from verification page even if not authenticated
         return false;
       }
-      
+
       if (!token) {
         // Fallback to localStorage
         const storedTokens = getItem("authTokens");

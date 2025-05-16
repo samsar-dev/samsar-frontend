@@ -100,11 +100,12 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Show stack only in development */}
-            {process.env.NODE_ENV === "development" && this.state.error?.stack && (
-              <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md text-left overflow-auto text-sm text-red-600 dark:text-red-300">
-                {this.state.error.stack}
-              </pre>
-            )}
+            {process.env.NODE_ENV === "development" &&
+              this.state.error?.stack && (
+                <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md text-left overflow-auto text-sm text-red-600 dark:text-red-300">
+                  {this.state.error.stack}
+                </pre>
+              )}
           </div>
         </div>
       );

@@ -621,7 +621,10 @@ export const listingsAPI: ListingsAPI = {
       };
     } catch (error: unknown) {
       // Handle canceled requests gracefully
-      if (error instanceof Error && (error.name === "AbortError" || error.name === "CanceledError")) {
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.name === "CanceledError")
+      ) {
         return {
           success: false,
           data: null,
@@ -635,7 +638,8 @@ export const listingsAPI: ListingsAPI = {
       return {
         success: false,
         data: null,
-        error: error instanceof Error ? error.message : "Failed to fetch listings",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch listings",
       };
     }
   },

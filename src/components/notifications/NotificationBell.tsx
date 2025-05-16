@@ -84,7 +84,9 @@ export default function NotificationBell({
       if (response.success) {
         // Update local state
         setNotifications((prev) =>
-          prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+          prev.map((n) =>
+            n.id === notification.id ? { ...n, read: true } : n,
+          ),
         );
 
         // Call the onNotificationClick callback if provided
@@ -106,10 +108,10 @@ export default function NotificationBell({
             case NotificationType.LISTING_CREATED:
               if (notification.listingId) {
                 // Remove 'cma' prefix if it exists
-                const listingId = notification.listingId.replace('cma', '');
+                const listingId = notification.listingId.replace("cma", "");
                 // Remove '/public' from the path if it exists
-                const path = notification.listingId.includes('/public/')
-                  ? notification.listingId.replace('/public/', '/')
+                const path = notification.listingId.includes("/public/")
+                  ? notification.listingId.replace("/public/", "/")
                   : notification.listingId;
                 navigate(`/listings/${path}`);
               } else {
@@ -192,7 +194,7 @@ export default function NotificationBell({
       if (location.pathname.split("/")[2] === data.relatedId) {
         try {
           const result = await NotificationsAPI.deleteNotification(
-            data.relatedId
+            data.relatedId,
           );
           console.log("notification deleted result:", result);
           return;
@@ -271,7 +273,11 @@ export default function NotificationBell({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <Tooltip content={t("notifications.title")} position="bottom" className="cursor-pointer">
+      <Tooltip
+        content={t("notifications.title")}
+        position="bottom"
+        className="cursor-pointer"
+      >
         <button
           onClick={() => setShowNotifications(!showNotifications)}
           className="p-2 rounded-lg text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
@@ -361,7 +367,7 @@ export default function NotificationBell({
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {notification.title ||
                             t(
-                              `notification.types.${notification.type.toLowerCase()}`
+                              `notification.types.${notification.type.toLowerCase()}`,
                             )}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">

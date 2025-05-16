@@ -19,56 +19,54 @@ import Routes from "./routes/Routes";
 import SocketProvider from "./contexts/SocketContext";
 
 // Add resource hints for external resources
-if (typeof document !== 'undefined') {
+if (typeof document !== "undefined") {
   // Preconnect to API server
-  const preconnectLink = document.createElement('link');
-  preconnectLink.rel = 'preconnect';
-  preconnectLink.href = 'https://tijara-backend-production.up.railway.app';
+  const preconnectLink = document.createElement("link");
+  preconnectLink.rel = "preconnect";
+  preconnectLink.href = "https://tijara-backend-production.up.railway.app";
   document.head.appendChild(preconnectLink);
-  
+
   // DNS prefetch
-  const dnsPrefetchLink = document.createElement('link');
-  dnsPrefetchLink.rel = 'dns-prefetch';
-  dnsPrefetchLink.href = 'https://tijara-backend-production.up.railway.app';
+  const dnsPrefetchLink = document.createElement("link");
+  dnsPrefetchLink.rel = "dns-prefetch";
+  dnsPrefetchLink.href = "https://tijara-backend-production.up.railway.app";
   document.head.appendChild(dnsPrefetchLink);
 }
 
 // Optimize context providers by combining related ones
-const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) => {
-  return (
-    <ListingsProvider>
-      <FavoritesProvider>
-        <SavedListingsProvider>
-          {children}
-        </SavedListingsProvider>
-      </FavoritesProvider>
-    </ListingsProvider>
-  );
-});
+const CombinedDataProvider = memo(
+  ({ children }: { children: React.ReactNode }) => {
+    return (
+      <ListingsProvider>
+        <FavoritesProvider>
+          <SavedListingsProvider>{children}</SavedListingsProvider>
+        </FavoritesProvider>
+      </ListingsProvider>
+    );
+  },
+);
 
 // Optimize UI providers
 const UIProviders = memo(({ children }: { children: React.ReactNode }) => {
   return (
     <UIProvider>
-      <SettingsProvider>
-        {children}
-      </SettingsProvider>
+      <SettingsProvider>{children}</SettingsProvider>
     </UIProvider>
   );
 });
 
 // Optimize communication providers
-const CommunicationProviders = memo(({ children }: { children: React.ReactNode }) => {
-  return (
-    <SocketProvider>
-      <MessagesProvider>
-        <NotificationsProvider>
-          {children}
-        </NotificationsProvider>
-      </MessagesProvider>
-    </SocketProvider>
-  );
-});
+const CommunicationProviders = memo(
+  ({ children }: { children: React.ReactNode }) => {
+    return (
+      <SocketProvider>
+        <MessagesProvider>
+          <NotificationsProvider>{children}</NotificationsProvider>
+        </MessagesProvider>
+      </SocketProvider>
+    );
+  },
+);
 
 const App: () => ReactElement = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -116,7 +114,8 @@ const App: () => ReactElement = () => {
                         Something went wrong with this view
                       </h2>
                       <p className="text-gray-600 dark:text-gray-400">
-                        We've encountered an error rendering this page. Please try refreshing.
+                        We've encountered an error rendering this page. Please
+                        try refreshing.
                       </p>
                       <button
                         onClick={() => window.location.reload()}

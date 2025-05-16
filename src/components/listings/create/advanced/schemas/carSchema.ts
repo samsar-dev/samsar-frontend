@@ -40,7 +40,8 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
-    tooltip: "The overall state of the vehicle, indicating how well it has been maintained and its current working condition.",
+    tooltip:
+      "The overall state of the vehicle, indicating how well it has been maintained and its current working condition.",
   },
 
   {
@@ -58,7 +59,8 @@ export const carSchema: ListingFieldSchema[] = [
         return "errors.transmissionRequired";
       return null;
     },
-    tooltip: "The type of transmission system in the vehicle. Common types include Automatic, Manual, and CVT (Continuously Variable Transmission).",
+    tooltip:
+      "The type of transmission system in the vehicle. Common types include Automatic, Manual, and CVT (Continuously Variable Transmission).",
   },
   {
     name: "mileage",
@@ -79,7 +81,8 @@ export const carSchema: ListingFieldSchema[] = [
       }
       return null;
     },
-    tooltip: "The total distance the vehicle has traveled, typically measured in kilometers or miles.",
+    tooltip:
+      "The total distance the vehicle has traveled, typically measured in kilometers or miles.",
   },
   {
     name: "fuelType",
@@ -91,7 +94,8 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "essential",
     required: true,
-    tooltip: "The type of fuel the vehicle uses. Common types include Petrol, Diesel, Electric, and Hybrid.",
+    tooltip:
+      "The type of fuel the vehicle uses. Common types include Petrol, Diesel, Electric, and Hybrid.",
   },
   {
     name: "previousOwners",
@@ -99,7 +103,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "number",
     section: "essential",
     required: false,
-    tooltip: "The number of previous owners the vehicle has had. A lower number generally indicates better maintenance history.",
+    tooltip:
+      "The number of previous owners the vehicle has had. A lower number generally indicates better maintenance history.",
   },
 
   // ================= ADVANCED DETAILS =================
@@ -135,7 +140,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "The physical design and shape of the vehicle's body, such as Sedan, SUV, or Coupe.",
+    tooltip:
+      "The physical design and shape of the vehicle's body, such as Sedan, SUV, or Coupe.",
   },
   {
     name: "driveType",
@@ -144,7 +150,8 @@ export const carSchema: ListingFieldSchema[] = [
     options: ["fwd", "rwd", "awd", "fourwd"],
     section: "advanced",
     required: false,
-    tooltip: "The drive type indicates which wheels receive power from the engine. FWD (Front-Wheel Drive), RWD (Rear-Wheel Drive), AWD (All-Wheel Drive), and 4WD (Four-Wheel Drive) are common configurations.",
+    tooltip:
+      "The drive type indicates which wheels receive power from the engine. FWD (Front-Wheel Drive), RWD (Rear-Wheel Drive), AWD (All-Wheel Drive), and 4WD (Four-Wheel Drive) are common configurations.",
   },
 
   {
@@ -153,7 +160,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    tooltip: "The engine number is a unique identifier assigned by the manufacturer to each engine. It's typically found on the engine block or in the vehicle's documentation.",
+    tooltip:
+      "The engine number is a unique identifier assigned by the manufacturer to each engine. It's typically found on the engine block or in the vehicle's documentation.",
   },
 
   {
@@ -167,7 +175,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "The maintenance and repair history of the vehicle, including any services, repairs, or replacements made.",
+    tooltip:
+      "The maintenance and repair history of the vehicle, including any services, repairs, or replacements made.",
   },
   {
     name: "accidentFree",
@@ -175,7 +184,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "checkbox",
     section: "advanced",
     required: false,
-    tooltip: "Whether the vehicle has been involved in any accidents or has any damage.",
+    tooltip:
+      "Whether the vehicle has been involved in any accidents or has any damage.",
   },
   {
     name: "importStatus",
@@ -187,7 +197,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "Whether the vehicle was manufactured locally or imported from another country.",
+    tooltip:
+      "Whether the vehicle was manufactured locally or imported from another country.",
   },
   {
     name: "registrationExpiry",
@@ -207,7 +218,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "Whether the vehicle still has a valid warranty, and if it can be transferred to a new owner.",
+    tooltip:
+      "Whether the vehicle still has a valid warranty, and if it can be transferred to a new owner.",
   },
   {
     name: "engineSize",
@@ -215,38 +227,33 @@ export const carSchema: ListingFieldSchema[] = [
     type: "text",
     section: "advanced",
     required: false,
-    tooltip: "The engine displacement or size, typically measured in cubic centimeters (cc) or liters (L). For example, 1.6L or 2000cc.",
+    tooltip:
+      "The engine displacement or size, typically measured in cubic centimeters (cc) or liters (L). For example, 1.6L or 2000cc.",
   },
   {
     name: "horsepower",
     label: "listings.fields.horsepower",
     type: "select",
-    options: [
-      "0-100",
-      "100-200",
-      "200-300",
-      "300-400",
-      "400-500",
-      "500+",
-    ].map((val) => ({ value: val, label: val })),
+    options: ["0-100", "100-200", "200-300", "300-400", "400-500", "500+"].map(
+      (val) => ({ value: val, label: val }),
+    ),
     section: "advanced",
     required: false,
-    tooltip: "The power output of the vehicle's engine, typically measured in horsepower (hp). Higher values indicate more powerful engines.",
+    tooltip:
+      "The power output of the vehicle's engine, typically measured in horsepower (hp). Higher values indicate more powerful engines.",
   },
   {
     name: "torque",
     label: "listings.fields.torque",
     type: "select",
-    options: [
-      "0-200",
-      "200-300",
-      "300-400",
-      "400-500",
-      "500+",
-    ].map((val) => ({ value: val, label: val })),
+    options: ["0-200", "200-300", "300-400", "400-500", "500+"].map((val) => ({
+      value: val,
+      label: val,
+    })),
     section: "advanced",
     required: false,
-    tooltip: "The rotational force of the vehicle's engine, typically measured in newton-meters (Nm). Higher torque values provide better acceleration and pulling power.",
+    tooltip:
+      "The rotational force of the vehicle's engine, typically measured in newton-meters (Nm). Higher torque values provide better acceleration and pulling power.",
   },
 
   // === Exterior & Interior ===
@@ -279,7 +286,8 @@ export const carSchema: ListingFieldSchema[] = [
     })),
     section: "advanced",
     required: false,
-    tooltip: "The type of roof the vehicle has, such as fixed, sunroof, moonroof, or convertible.",
+    tooltip:
+      "The type of roof the vehicle has, such as fixed, sunroof, moonroof, or convertible.",
   },
 
   // ================= ADDITIONAL DETAILS =================
@@ -293,7 +301,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "Whether the vehicle has been cleared through customs, indicating that it has been imported and is compliant with local regulations.",
+    tooltip:
+      "Whether the vehicle has been cleared through customs, indicating that it has been imported and is compliant with local regulations.",
   },
   {
     name: "warrantyPeriod",
@@ -306,7 +315,8 @@ export const carSchema: ListingFieldSchema[] = [
     ],
     section: "advanced",
     required: false,
-    tooltip: "The length of time the vehicle's warranty is valid, typically measured in months or years.",
+    tooltip:
+      "The length of time the vehicle's warranty is valid, typically measured in months or years.",
   },
   {
     name: "serviceHistoryDetails",
@@ -314,7 +324,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "textarea",
     section: "advanced",
     required: false,
-    tooltip: "Additional details about the vehicle's service history, including any maintenance or repairs made.",
+    tooltip:
+      "Additional details about the vehicle's service history, including any maintenance or repairs made.",
   },
   {
     name: "additionalNotes",
@@ -322,7 +333,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "textarea",
     section: "advanced",
     required: false,
-    tooltip: "Any additional information about the vehicle that may be relevant to potential buyers.",
+    tooltip:
+      "Any additional information about the vehicle that may be relevant to potential buyers.",
   },
   {
     name: "navigationSystem",

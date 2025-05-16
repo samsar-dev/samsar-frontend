@@ -65,3 +65,4 @@ playwright-report/
 .yarn/install-state.gz
 .pnpm-store/
 .pnp.*
+node_modules

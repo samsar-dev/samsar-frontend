@@ -93,14 +93,14 @@ const ProfileInfo = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("username", formData.username);
       formDataToSend.append("email", formData.email);
-      
+
       // Always send these fields, even if empty, to allow complete removal
       formDataToSend.append("bio", formData.bio || "");
       formDataToSend.append("dateOfBirth", formData.dateOfBirth || "");
       formDataToSend.append("phone", formData.phone || "");
       formDataToSend.append("street", formData.street || "");
       formDataToSend.append("city", formData.city || "");
-      
+
       if (avatar) {
         formDataToSend.append("profilePicture", avatar);
       }

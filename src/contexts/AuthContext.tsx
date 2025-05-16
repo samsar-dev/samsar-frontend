@@ -170,11 +170,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (!response?.success) {
         // Special handling for email verification errors
-        if (response?.error?.code === "EMAIL_NOT_VERIFIED" || response?.error?.code === "VERIFICATION_EXPIRED") {
+        if (
+          response?.error?.code === "EMAIL_NOT_VERIFIED" ||
+          response?.error?.code === "VERIFICATION_EXPIRED"
+        ) {
           // Don't handle this error here, let the component handle it for redirection
           throw { response: { data: { error: response.error } } };
         }
-        
+
         handleAuthError(response?.error || null);
         return false;
       }
@@ -244,11 +247,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (!response?.success) {
         // Special handling for email verification errors
-        if (response?.error?.code === "EMAIL_NOT_VERIFIED" || response?.error?.code === "VERIFICATION_EXPIRED") {
+        if (
+          response?.error?.code === "EMAIL_NOT_VERIFIED" ||
+          response?.error?.code === "VERIFICATION_EXPIRED"
+        ) {
           // Don't handle this error here, let the component handle it for redirection
           throw { response: { data: { error: response.error } } };
         }
-        
+
         handleAuthError(response?.error || null);
         return false;
       }

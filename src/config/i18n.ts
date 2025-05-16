@@ -9,14 +9,14 @@ const resources = {
   en: {
     common: {
       ...enTranslation,
-      listings: undefined // Remove listings from common
+      listings: undefined, // Remove listings from common
     },
     listings: enTranslation.listings,
   },
   AR: {
     common: {
       ...arTranslation,
-      listings: undefined // Remove listings from common
+      listings: undefined, // Remove listings from common
     },
     listings: arTranslation.listings,
   },

@@ -21,19 +21,19 @@ import { constructionModels } from "@/components/listings/data/subcategories/con
 const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
   [VehicleType.CAR]: {
     regular: {
-      ...carModels.regular || {},
+      ...(carModels.regular || {}),
     },
     electric: carModels.electric || {},
   },
   [VehicleType.TRUCK]: {
     regular: {
-      ...trucksModels.regular || {},
+      ...(trucksModels.regular || {}),
     },
     electric: trucksModels.electric || {},
   },
   [VehicleType.MOTORCYCLE]: {
     regular: {
-      ...motorcycleModels.regular || {},
+      ...(motorcycleModels.regular || {}),
     },
     electric: motorcycleModels.electric || {},
   },
@@ -43,25 +43,25 @@ const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
   },
   [VehicleType.BUS]: {
     regular: {
-      ...busesModels.regular || {},
+      ...(busesModels.regular || {}),
     },
     electric: busesModels.electric || {},
   },
   [VehicleType.VAN]: {
     regular: {
-      ...vansModels.regular || {},
+      ...(vansModels.regular || {}),
     },
     electric: vansModels.electric || {},
   },
   [VehicleType.TRACTOR]: {
     regular: {
-      ...tractorsModels.regular || {},
+      ...(tractorsModels.regular || {}),
     },
     electric: tractorsModels.electric || {},
   },
   [VehicleType.CONSTRUCTION]: {
     regular: {
-      ...constructionModels.regular || {},
+      ...(constructionModels.regular || {}),
     },
     electric: constructionModels.electric || {},
   },
@@ -101,7 +101,7 @@ export const getModelsForMakeAndType = (
     if (make === "OTHER_MAKE") {
       return ["OTHER_MODEL"];
     }
-    
+
     const vehicleData = vehicleModelsByType[type];
     if (!vehicleData) {
       console.warn(`No data found for vehicle type: ${type}`);

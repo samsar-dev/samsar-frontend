@@ -159,7 +159,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         <span className="text-base font-semibold text-gray-700 dark:text-gray-200">
           {t("common.Filters")}
         </span>
-        <button 
+        <button
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
           onClick={() => {
             setSelectedSubcategory(null);

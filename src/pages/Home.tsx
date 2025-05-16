@@ -261,7 +261,9 @@ const Home: React.FC = () => {
     } catch (error) {
       if (
         error instanceof Error &&
-        (error.name === "AbortError" || error.name === "CanceledError" || error.message === "Request canceled")
+        (error.name === "AbortError" ||
+          error.name === "CanceledError" ||
+          error.message === "Request canceled")
       ) {
         // Clear error state for canceled requests
         setListings((prev) => ({
@@ -276,7 +278,8 @@ const Home: React.FC = () => {
       console.error("Error fetching listings:", error);
       setListings((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : "Failed to fetch listings",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch listings",
         loading: false,
       }));
     }
@@ -622,12 +625,12 @@ const Home: React.FC = () => {
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
-  
+
       {/* Header */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
         {/* Optional Decorative Background Pattern */}
         <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-no-repeat opacity-5 pointer-events-none" />
-  
+
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow-sm">
             {t("home.find_perfect")}{" "}
@@ -640,7 +643,7 @@ const Home: React.FC = () => {
               ? t("home.discover_vehicle")
               : t("home.discover_property")}
           </p>
-  
+
           {/* Category Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             <button
@@ -654,7 +657,7 @@ const Home: React.FC = () => {
               <FaCar className="text-lg" />
               {t("navigation.vehicles")}
             </button>
-  
+
             <button
               onClick={() => handleCategoryChange(ListingCategory.REAL_ESTATE)}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
@@ -669,7 +672,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </header>
-  
+
       {/* Listings Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {renderContent()}

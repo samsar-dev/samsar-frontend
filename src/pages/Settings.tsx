@@ -80,8 +80,8 @@ function Settings() {
       } catch (error) {
         console.error(error);
       }
-    }
-    
+    };
+
     sendUpdateSettingsToServer();
   }, [debouncedToggles]);
 
@@ -95,7 +95,7 @@ function Settings() {
 
   const handleNotificationToggle = (
     key: "email" | "push" | "desktop" | "message" | "listing" | "system",
-    checked: boolean
+    checked: boolean,
   ) => {
     updateSettings({
       notifications: {

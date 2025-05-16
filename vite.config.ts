@@ -40,17 +40,24 @@ export default defineConfig({
         secure: false,
         ws: true,
         configure: (proxy, _options) => {
-          proxy.on("error", (err: { code?: string; message: string }, _req, _res) => {
-            console.log("Proxy Error:", err.message);
-            if (err.code === "ECONNREFUSED") {
-              console.log("Backend server is not running. Please start the backend server.");
-            }
-          });
+          proxy.on(
+            "error",
+            (err: { code?: string; message: string }, _req, _res) => {
+              console.log("Proxy Error:", err.message);
+              if (err.code === "ECONNREFUSED") {
+                console.log(
+                  "Backend server is not running. Please start the backend server.",
+                );
+              }
+            },
+          );
           proxy.on("proxyReq", (proxyReq, req, _res) => {
             console.log(`[Proxy] ${req.method} ${req.url}`);
           });
           proxy.on("proxyRes", (proxyRes, req, _res) => {
-            console.log(`[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`);
+            console.log(
+              `[Proxy] ${proxyRes.statusCode} ${req.method} ${req.url}`,
+            );
           });
         },
       },
@@ -119,7 +126,9 @@ export default defineConfig({
     esbuildOptions: {
       target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
       define: {
-        "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
+        "process.env.NODE_ENV": JSON.stringify(
+          process.env.NODE_ENV || "development",
+        ),
       },
     },
   },

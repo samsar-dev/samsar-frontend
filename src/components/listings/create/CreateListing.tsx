@@ -284,165 +284,171 @@ const CreateListing: React.FC = () => {
     };
   }, [hasUnsavedChanges, location.pathname]);
 
-  const handleFinalSubmit = useCallback(async (data: FormState) => {
-    try {
-      setIsSubmitting(true);
+  const handleFinalSubmit = useCallback(
+    async (data: FormState) => {
+      try {
+        setIsSubmitting(true);
 
-      // Create FormData object
-      const formData = new FormData();
+        // Create FormData object
+        const formData = new FormData();
 
-      // Log the data being submitted
-      console.log("Submitting form data:", data);
+        // Log the data being submitted
+        console.log("Submitting form data:", data);
 
-      // Add basic fields
-      formData.append("title", data.title || "");
-      formData.append("description", data.description || "");
-      formData.append("price", data.price?.toString() || "");
-      formData.append("location", data.location || "");
-      formData.append(
-        "listingAction",
-        (data.listingAction || "sell").toUpperCase(),
-      );
-      formData.append("mainCategory", data.category?.mainCategory || "");
-      formData.append("subCategory", data.category?.subCategory || "");
-
-      // Add details
-      if (data.details) {
-        // Ensure we have valid category data
-        if (!data.category?.mainCategory || !data.category?.subCategory) {
-          throw new Error("Category and subcategory are required");
-        }
-
-        // Process vehicle details to ensure serviceHistory is properly formatted
-        let processedDetails: {
-          vehicles: any | undefined;
-          realEstate: any | undefined;
-        } = {
-          vehicles: undefined,
-          realEstate: undefined,
-        };
-        
-        if (data.details.vehicles) {
-          // Format serviceHistory as an object with a set property if it exists
-          const vehicleDetails: any = { ...data.details.vehicles };
-          
-          // Handle serviceHistory - ensure it's formatted as expected by the backend
-          // The backend expects serviceHistory as an object with a set property
-          if (vehicleDetails.serviceHistory !== undefined) {
-            // If it's an empty string or falsy value, set it to a valid default format
-            if (!vehicleDetails.serviceHistory) {
-              vehicleDetails.serviceHistory = { set: [] };
-            } 
-            // If it's a string value, convert it to the expected object format
-            else if (typeof vehicleDetails.serviceHistory === 'string') {
-              vehicleDetails.serviceHistory = { 
-                set: [vehicleDetails.serviceHistory] 
-              };
-            }
-            // If it's already an array, ensure it's in the correct format
-            else if (Array.isArray(vehicleDetails.serviceHistory)) {
-              vehicleDetails.serviceHistory = { 
-                set: vehicleDetails.serviceHistory 
-              };
-            }
-          } else {
-            // If serviceHistory is undefined, set a default empty value
-            vehicleDetails.serviceHistory = { set: [] };
-          }
-          
-          processedDetails.vehicles = vehicleDetails;
-        }
-        
-        if (data.details.realEstate) {
-          processedDetails.realEstate = data.details.realEstate;
-        }
-        
-        formData.append("details", JSON.stringify(processedDetails));
-      }
-
-      // Add images
-      if (data.images && data.images.length > 0) {
-        // Filter to only include valid File objects
-        const fileImages = data.images.filter(
-          (image): image is File => image instanceof File,
+        // Add basic fields
+        formData.append("title", data.title || "");
+        formData.append("description", data.description || "");
+        formData.append("price", data.price?.toString() || "");
+        formData.append("location", data.location || "");
+        formData.append(
+          "listingAction",
+          (data.listingAction || "sell").toUpperCase(),
         );
+        formData.append("mainCategory", data.category?.mainCategory || "");
+        formData.append("subCategory", data.category?.subCategory || "");
 
-        if (fileImages.length === 0) {
+        // Add details
+        if (data.details) {
+          // Ensure we have valid category data
+          if (!data.category?.mainCategory || !data.category?.subCategory) {
+            throw new Error("Category and subcategory are required");
+          }
+
+          // Process vehicle details to ensure serviceHistory is properly formatted
+          let processedDetails: {
+            vehicles: any | undefined;
+            realEstate: any | undefined;
+          } = {
+            vehicles: undefined,
+            realEstate: undefined,
+          };
+
+          if (data.details.vehicles) {
+            // Format serviceHistory as an object with a set property if it exists
+            const vehicleDetails: any = { ...data.details.vehicles };
+
+            // Handle serviceHistory - ensure it's formatted as expected by the backend
+            // The backend expects serviceHistory as an object with a set property
+            if (vehicleDetails.serviceHistory !== undefined) {
+              // If it's an empty string or falsy value, set it to a valid default format
+              if (!vehicleDetails.serviceHistory) {
+                vehicleDetails.serviceHistory = { set: [] };
+              }
+              // If it's a string value, convert it to the expected object format
+              else if (typeof vehicleDetails.serviceHistory === "string") {
+                vehicleDetails.serviceHistory = {
+                  set: [vehicleDetails.serviceHistory],
+                };
+              }
+              // If it's already an array, ensure it's in the correct format
+              else if (Array.isArray(vehicleDetails.serviceHistory)) {
+                vehicleDetails.serviceHistory = {
+                  set: vehicleDetails.serviceHistory,
+                };
+              }
+            } else {
+              // If serviceHistory is undefined, set a default empty value
+              vehicleDetails.serviceHistory = { set: [] };
+            }
+
+            processedDetails.vehicles = vehicleDetails;
+          }
+
+          if (data.details.realEstate) {
+            processedDetails.realEstate = data.details.realEstate;
+          }
+
+          formData.append("details", JSON.stringify(processedDetails));
+        }
+
+        // Add images
+        if (data.images && data.images.length > 0) {
+          // Filter to only include valid File objects
+          const fileImages = data.images.filter(
+            (image): image is File => image instanceof File,
+          );
+
+          if (fileImages.length === 0) {
+            throw new Error("At least one image is required");
+          }
+
+          // Log image information for debugging
+          console.log(`Submitting ${fileImages.length} images:`);
+          fileImages.forEach((image, index) => {
+            console.log(
+              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
+            );
+            formData.append("images", image);
+          });
+        } else {
           throw new Error("At least one image is required");
         }
 
-        // Log image information for debugging
-        console.log(`Submitting ${fileImages.length} images:`);
-        fileImages.forEach((image, index) => {
+        // Log the FormData entries for debugging
+        console.log("FormData entries:");
+        for (const pair of formData.entries()) {
           console.log(
-            `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
+            pair[0],
+            ":",
+            typeof pair[1] === "string" ? pair[1] : "File object",
           );
-          formData.append("images", image);
-        });
-      } else {
-        throw new Error("At least one image is required");
-      }
-
-      // Log the FormData entries for debugging
-      console.log("FormData entries:");
-      for (const pair of formData.entries()) {
-        console.log(
-          pair[0],
-          ":",
-          typeof pair[1] === "string" ? pair[1] : "File object",
-        );
-      }
-
-      // Submit the form
-      const response = await submitListing(formData);
-
-      // Clear form data from session storage after successful submission
-      clearSavedFormData();
-
-      // Reset form and navigate
-      setFormData(initialFormState);
-      setStep(1);
-      localStorage.removeItem("createListingFormData");
-      toast.success(t("listings.createListing"), {
-        duration: 3000,
-        icon: "🎉",
-      });
-
-      // Navigate to ListingSuccess with the listingId
-      if (response && response.id) {
-        navigate("/listingsuccess", { state: { listingId: response.id } });
-      } else {
-        navigate("/listings");
-      }
-    } catch (error) {
-      console.error("Error submitting listing:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to create listing";
-      setError(errorMessage);
-      toast.error(t("errors.failedToCreateListing"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [submitListing, clearSavedFormData, navigate, t]);
-
-  const handleEditSection = useCallback((section: string) => {
-    // Save the current form data
-    const currentData = { ...formData };
-
-    // Go back to step 1 and restore the data
-    setStep(1);
-    setFormData(currentData);
-
-    // If editing images, focus the image upload section
-    if (section === "images") {
-      setTimeout(() => {
-        const imageUpload = document.querySelector("#image-upload");
-        if (imageUpload) {
-          imageUpload.scrollIntoView({ behavior: "smooth" });
         }
-      }, 100);
-    }
-  }, [formData]);
+
+        // Submit the form
+        const response = await submitListing(formData);
+
+        // Clear form data from session storage after successful submission
+        clearSavedFormData();
+
+        // Reset form and navigate
+        setFormData(initialFormState);
+        setStep(1);
+        localStorage.removeItem("createListingFormData");
+        toast.success(t("listings.createListing"), {
+          duration: 3000,
+          icon: "🎉",
+        });
+
+        // Navigate to ListingSuccess with the listingId
+        if (response && response.id) {
+          navigate("/listingsuccess", { state: { listingId: response.id } });
+        } else {
+          navigate("/listings");
+        }
+      } catch (error) {
+        console.error("Error submitting listing:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to create listing";
+        setError(errorMessage);
+        toast.error(t("errors.failedToCreateListing"));
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [submitListing, clearSavedFormData, navigate, t],
+  );
+
+  const handleEditSection = useCallback(
+    (section: string) => {
+      // Save the current form data
+      const currentData = { ...formData };
+
+      // Go back to step 1 and restore the data
+      setStep(1);
+      setFormData(currentData);
+
+      // If editing images, focus the image upload section
+      if (section === "images") {
+        setTimeout(() => {
+          const imageUpload = document.querySelector("#image-upload");
+          if (imageUpload) {
+            imageUpload.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      }
+    },
+    [formData],
+  );
 
   const renderStep = useCallback(() => {
     switch (step) {
@@ -466,7 +472,7 @@ const CreateListing: React.FC = () => {
             <MemoizedAdvancedDetailsForm
               formData={{
                 ...formData,
-                status: 'ACTIVE' // Add the required status property
+                status: "ACTIVE", // Add the required status property
               }}
               onSubmit={(data, isValid) =>
                 handleAdvancedDetailsSubmit(
@@ -500,11 +506,14 @@ const CreateListing: React.FC = () => {
   }, [step, formData, handleBack, handleEditSection, t]);
 
   // Define step icons for the progress indicator - memoized to prevent recreation on each render
-  const stepIcons = useMemo(() => [
-    { icon: FaCarSide, label: t("steps.basicDetails") },
-    { icon: FaCog, label: t("steps.advancedDetails") },
-    { icon: FaCheckCircle, label: t("steps.review") },
-  ], [t]);
+  const stepIcons = useMemo(
+    () => [
+      { icon: FaCarSide, label: t("steps.basicDetails") },
+      { icon: FaCog, label: t("steps.advancedDetails") },
+      { icon: FaCheckCircle, label: t("steps.review") },
+    ],
+    [t],
+  );
 
   if (error) {
     return (

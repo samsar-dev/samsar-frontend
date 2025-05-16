@@ -13,9 +13,9 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Prefetching utility
 const prefetchComponent = (importFn: () => Promise<any>) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Use requestIdleCallback for non-critical preloading when browser is idle
-    if ('requestIdleCallback' in window) {
+    if ("requestIdleCallback" in window) {
       window.requestIdleCallback(() => importFn());
     } else {
       // Fallback for browsers without requestIdleCallback
@@ -33,12 +33,16 @@ const importVerifyCode = () => import("@/pages/VerifyCode");
 const importProfile = () => import("@/pages/Profile");
 const importUserProfile = () => import("@/pages/UserProfile");
 const importSearch = () => import("@/pages/Search");
-const importListingDetails = () => import("@/components/listings/edit/ListingDetails");
-const importCreateListing = () => import("@/components/listings/create/CreateListing");
-const importEditListing = () => import("@/components/listings/edit/EditListing");
+const importListingDetails = () =>
+  import("@/components/listings/edit/ListingDetails");
+const importCreateListing = () =>
+  import("@/components/listings/create/CreateListing");
+const importEditListing = () =>
+  import("@/components/listings/edit/EditListing");
 const importMessages = () => import("@/pages/Messages");
 const importSettings = () => import("@/pages/Settings");
-const importChangePassword = () => import("@/components/profile/ChangePassword");
+const importChangePassword = () =>
+  import("@/components/profile/ChangePassword");
 const importMyListings = () => import("@/components/profile/MyListings");
 const importProfileInfo = () => import("@/components/profile/ProfileInfo");
 const importSavedListings = () => import("@/components/profile/SavedListings");
@@ -81,22 +85,22 @@ const ListingSkeleton = () => (
 
 const Routes = (): JSX.Element => {
   const location = useLocation();
-  
+
   // Intelligent prefetching based on current route
   useEffect(() => {
     // Prefetch related routes when on certain pages
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       // When on homepage, prefetch search and popular listing pages
       prefetchComponent(importSearch);
       prefetchComponent(importVehicles);
       prefetchComponent(importRealEstate);
-    } else if (location.pathname.includes('/listings/')) {
+    } else if (location.pathname.includes("/listings/")) {
       // When viewing a listing, prefetch edit listing component
       prefetchComponent(importEditListing);
-    } else if (location.pathname === '/search') {
+    } else if (location.pathname === "/search") {
       // When on search page, prefetch listing details
       prefetchComponent(importListingDetails);
-    } else if (location.pathname === '/profile') {
+    } else if (location.pathname === "/profile") {
       // When on profile, prefetch related components
       prefetchComponent(importMyListings);
       prefetchComponent(importChangePassword);
@@ -106,7 +110,8 @@ const Routes = (): JSX.Element => {
     <Suspense
       fallback={
         <div className="container mx-auto p-4">
-          {location.pathname.includes('/search') || location.pathname === '/' ? (
+          {location.pathname.includes("/search") ||
+          location.pathname === "/" ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
                 <ListingSkeleton key={i} />
