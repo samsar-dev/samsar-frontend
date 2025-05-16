@@ -45,18 +45,10 @@ class ErrorBoundary extends Component<Props, State> {
     // Optional external logging
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
-    } else if (process.env.NODE_ENV === "production") {
-      // Example: send to your API or logging service (e.g. Sentry)
-      fetch("/api/log-error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: error.message,
-          stack: error.stack,
-          info: errorInfo.componentStack,
-        }),
-      });
     }
+    // Error logging to API endpoint removed to prevent 405 errors
+    // If you need error logging, consider implementing a proper error logging service
+    // like Sentry or LogRocket
   }
 
   private handleRetry = () => {
