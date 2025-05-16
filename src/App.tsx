@@ -13,6 +13,7 @@ import { TokenManager } from "@/utils/tokenManager";
 import { type ReactElement, useEffect, useState, memo } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import Routes from "./routes/Routes";
@@ -127,20 +128,21 @@ const App: () => ReactElement = () => {
                   </div>
                 }
               >
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="light"
+                />
                 <Routes />
+                <SpeedInsights />
               </ErrorBoundary>
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
             </CommunicationProviders>
           </CombinedDataProvider>
         </UIProviders>
@@ -149,4 +151,4 @@ const App: () => ReactElement = () => {
   );
 };
 
-export default App;
+export default memo(App);
