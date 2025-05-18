@@ -6,14 +6,14 @@ export const tractorSchema: ListingFieldSchema[] = [
 
   {
     name: "color",
-    label: "listings.exteriorColor",
+    label: "fields.exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
   },
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: [
       "new",
@@ -33,7 +33,7 @@ export const tractorSchema: ListingFieldSchema[] = [
 
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "fields.transmissionType",
     type: "select",
     options: Object.values(TransmissionType),
     section: "essential",
@@ -43,14 +43,14 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "mileage",
-    label: "listings.mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "fuelType",
-    label: "listings.fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: [
       "",
@@ -68,21 +68,21 @@ export const tractorSchema: ListingFieldSchema[] = [
 
   {
     name: "hours",
-    label: "listings.hours",
+    label: "fields.hours",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "horsepower",
-    label: "listings.horsepower",
+    label: "fields.horsepower",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "driveSystem",
-    label: "listings.driveSystem",
+    label: "fields.driveSystem",
     type: "select",
     options: ["2WD", "4WD", "MFWD", "AWD", "tracked"],
     section: "essential",
@@ -93,7 +93,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   // Engine & Performance
   {
     name: "engineSpecs",
-    label: "listings.engineSpecs",
+    label: "fields.engineSpecs",
     type: "multiselect",
     options: [
       "turbocharged",
@@ -107,28 +107,28 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "engineManufacturer",
-    label: "listings.engineManufacturer",
+    label: "fields.engineManufacturer",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "engineModel",
-    label: "listings.engineModel",
+    label: "fields.engineModel",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "displacement",
-    label: "listings.displacement",
+    label: "fields.displacement",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "cylinders",
-    label: "listings.cylinders",
+    label: "fields.cylinders",
     type: "select",
     options: ["2", "3", "4", "5", "6", "8", "other"],
     section: "advanced",
@@ -136,14 +136,14 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "torque",
-    label: "listings.torque",
+    label: "fields.torque",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "emissions",
-    label: "listings.emissions",
+    label: "fields.emissions",
     type: "select",
     options: [
       "Tier4Final",
@@ -162,7 +162,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   // Hydraulics & PTO
   {
     name: "hydraulicSystem",
-    label: "listings.hydraulicSystem",
+    label: "fields.hydraulicSystem",
     type: "select",
     options: ["open", "closed", "loadSensing", "pressureCompensated", "other"],
     section: "advanced",
@@ -170,14 +170,14 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "hydraulicFlow",
-    label: "listings.hydraulicFlow",
+    label: "fields.hydraulicFlow",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "hydraulicOutlets",
-    label: "listings.hydraulicOutlets",
+    label: "fields.hydraulicOutlets",
     type: "multiselect",
     options: [
       "standard",
@@ -193,7 +193,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "ptoSystem",
-    label: "listings.ptoSystem",
+    label: "fields.ptoSystem",
     type: "multiselect",
     options: [
       "rear540",
@@ -210,7 +210,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "ptoHorsepower",
-    label: "listings.ptoHorsepower",
+    label: "fields.ptoHorsepower",
     type: "number",
     section: "advanced",
     required: false,
@@ -219,7 +219,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   // Implements & Attachments
   {
     name: "frontAttachments",
-    label: "listings.frontAttachments",
+    label: "fields.frontAttachments",
     type: "multiselect",
     options: [
       "loader",
@@ -236,7 +236,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "rearAttachments",
-    label: "listings.rearAttachments",
+    label: "fields.rearAttachments",
     type: "multiselect",
     options: [
       "backhoe",
@@ -253,7 +253,7 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "threePointHitch",
-    label: "listings.threePointHitch",
+    label: "fields.threePointHitch",
     type: "select",
     options: ["category1", "category2", "category3", "category4", "none"],
     section: "advanced",
@@ -261,16 +261,59 @@ export const tractorSchema: ListingFieldSchema[] = [
   },
   {
     name: "hitchCapacity",
-    label: "listings.hitchCapacity",
+    label: "fields.hitchCapacity",
     type: "number",
     section: "advanced",
     required: false,
   },
-
+ // Maintenance & Documentation
+ {
+  name: "serviceHistory",
+  label: "fields.serviceHistory",
+  type: "multiselect",
+  options: [
+    "fullDealerHistory",
+    "partialDealerHistory",
+    "fullServiceRecords",
+    "partialServiceRecords",
+    "noHistory",
+  ],
+  section: "advanced",
+  required: false,
+},
+{
+  name: "warranty",
+  label: "fields.warranty",
+  type: "select",
+  options: [
+    "manufacturer",
+    "extended",
+    "powertrain",
+    "comprehensive",
+    "none",
+  ],
+  section: "advanced",
+  required: false,
+},
+{
+  name: "modifications",
+  label: "fields.modifications",
+  type: "text",
+  section: "advanced",
+  required: false,
+},
+{
+  name: "electricalSystem",
+  label: "fields.electricalSystem",
+  type: "select",
+  options: ["12V", "24V", "dual", "other"],
+  section: "advanced",
+  required: false,
+},
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
-    label: "listings.fields.vehicleFeatures",
+    label: "fields.vehicleFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -383,49 +426,7 @@ export const tractorSchema: ListingFieldSchema[] = [
       },
     },
   },
-  {
-    name: "electricalSystem",
-    label: "listings.electricalSystem",
-    type: "select",
-    options: ["12V", "24V", "dual", "other"],
-    section: "advanced",
-    required: false,
-  },
 
-  // Maintenance & Documentation
-  {
-    name: "serviceHistory",
-    label: "listings.serviceHistory",
-    type: "multiselect",
-    options: [
-      "fullDealerHistory",
-      "partialDealerHistory",
-      "fullServiceRecords",
-      "partialServiceRecords",
-      "noHistory",
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "warranty",
-    label: "listings.warranty",
-    type: "select",
-    options: [
-      "manufacturer",
-      "extended",
-      "powertrain",
-      "comprehensive",
-      "none",
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "modifications",
-    label: "listings.modifications",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
+
+ 
 ];

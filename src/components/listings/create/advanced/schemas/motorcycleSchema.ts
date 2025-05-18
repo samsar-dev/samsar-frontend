@@ -4,7 +4,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "color",
-    label: "listings.exteriorColor",
+    label: "fields.exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -13,7 +13,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
@@ -23,7 +23,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "fields.transmissionType",
     type: "select",
     options: ["", "manual", "automatic", "semiAutomatic", "dct", "cvt"],
     section: "essential",
@@ -33,7 +33,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "mileage",
-    label: "listings.mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -46,7 +46,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "listings.fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: ["", "gasoline", "electric", "hybrid", "diesel"],
     section: "essential",
@@ -57,7 +57,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
 
   {
     name: "engineSize",
-    label: "listings.engineSize",
+    label: "fields.engineSize",
     type: "select",
     options: [
       "50cc",
@@ -83,7 +83,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "engineType",
-    label: "listings.engineType",
+    label: "fields.engineType",
     type: "select",
     options: [
       "singleCylinder",
@@ -103,7 +103,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "fields.previousOwners",
     type: "number",
     section: "essential",
     required: true,
@@ -116,7 +116,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "listings.registrationStatus",
+    label: "fields.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired", "sorn"],
     section: "essential",
@@ -126,7 +126,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "brakeSystem",
-    label: "listings.brakeSystem",
+    label: "fields.brakeSystem",
     type: "multiselect",
     options: [
       "frontDisc",
@@ -147,14 +147,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Performance & Technical
   {
     name: "powerOutput",
-    label: "listings.powerOutput",
+    label: "fields.powerOutput",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "torque",
-    label: "listings.torque",
+    label: "fields.torque",
     type: "number",
     section: "advanced",
     required: false,
@@ -162,7 +162,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
 
   {
     name: "fuelSystem",
-    label: "listings.fuelSystem",
+    label: "fields.fuelSystem",
     type: "select",
     options: ["carburetor", "fuelInjection", "directInjection"],
     section: "advanced",
@@ -170,7 +170,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "coolingSystem",
-    label: "listings.coolingSystem",
+    label: "fields.coolingSystem",
     type: "select",
     options: ["airCooled", "liquidCooled", "oilCooled", "hybrid"],
     section: "advanced",
@@ -180,7 +180,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Chassis & Suspension
   {
     name: "frameType",
-    label: "listings.frameType",
+    label: "fields.frameType",
     type: "select",
     options: [
       "tubular",
@@ -195,7 +195,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "frontSuspension",
-    label: "listings.frontSuspension",
+    label: "fields.frontSuspension",
     type: "multiselect",
     options: [
       "telescopicFork",
@@ -210,7 +210,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "rearSuspension",
-    label: "listings.rearSuspension",
+    label: "fields.rearSuspension",
     type: "multiselect",
     options: [
       "twinShock",
@@ -224,7 +224,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "wheelType",
-    label: "listings.wheelType",
+    label: "fields.wheelType",
     type: "select",
     options: ["alloy", "spoked", "carbon", "hybrid"],
     section: "advanced",
@@ -234,7 +234,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Rider Aids & Electronics
   {
     name: "startType",
-    label: "listings.startType",
+    label: "fields.startType",
     type: "multiselect",
     options: ["electric", "kickStart", "both", "keyless"],
     section: "advanced",
@@ -242,7 +242,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "riderAids",
-    label: "listings.riderAids",
+    label: "fields.riderAids",
     type: "multiselect",
     options: [
       "abs",
@@ -260,7 +260,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "electronics",
-    label: "listings.electronics",
+    label: "fields.electronics",
     type: "multiselect",
     options: [
       "digitalDisplay",
@@ -278,7 +278,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "lighting",
-    label: "listings.lighting",
+    label: "fields.lighting",
     type: "multiselect",
     options: [
       "LED",
@@ -295,7 +295,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Comfort & Ergonomics
   {
     name: "seatType",
-    label: "listings.seatType",
+    label: "fields.seatType",
     type: "multiselect",
     options: [
       "single",
@@ -311,14 +311,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "seatHeight",
-    label: "listings.seatHeight",
+    label: "fields.seatHeight",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "handlebarType",
-    label: "listings.handlebarType",
+    label: "fields.handlebarType",
     type: "select",
     options: ["standard", "clipOn", "riser", "touring", "custom"],
     section: "advanced",
@@ -326,7 +326,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "comfortFeatures",
-    label: "listings.comfortFeatures",
+    label: "fields.comfortFeatures",
     type: "multiselect",
     options: [
       "heatedGrips",
@@ -344,7 +344,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Storage & Accessories
   {
     name: "storageOptions",
-    label: "listings.storageOptions",
+    label: "fields.storageOptions",
     type: "multiselect",
     options: ["saddlebags", "topBox", "tankBag", "luggageRack", "integrated"],
     section: "advanced",
@@ -352,7 +352,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "protectiveEquipment",
-    label: "listings.protectiveEquipment",
+    label: "fields.protectiveEquipment",
     type: "multiselect",
     options: [
       "crashBars",
@@ -367,7 +367,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "customParts",
-    label: "listings.customParts",
+    label: "fields.customParts",
     type: "multiselect",
     options: [
       "exhaust",
@@ -385,7 +385,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   // Documentation & History
   {
     name: "serviceHistory",
-    label: "listings.serviceHistory",
+    label: "fields.serviceHistory",
     type: "multiselect",
     options: [
       "fullDealerHistory",
@@ -399,14 +399,14 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "modifications",
-    label: "listings.modifications",
+    label: "fields.modifications",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "warranty",
-    label: "listings.warranty",
+    label: "fields.warranty",
     type: "select",
     options: ["manufacturer", "extended", "aftermarket", "none"],
     section: "advanced",
@@ -414,7 +414,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
   },
   {
     name: "emissions",
-    label: "listings.emissions",
+    label: "fields.emissions",
     type: "select",
     options: ["Euro5", "Euro4", "Euro3", "Euro2", "nonEuro", "unknown"],
     section: "advanced",

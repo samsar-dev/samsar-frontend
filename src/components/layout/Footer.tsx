@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-border-primary dark:border-border-primary-dark">
           <p className="text-center text-text-muted dark:text-text-muted-dark">
-            &copy; {currentYear} {t("common.appName")}.{" "}
+            &copy; {currentYear} {t("appName")}.{" "}
             {t("footer.all_rights_reserved")}
           </p>
         </div>

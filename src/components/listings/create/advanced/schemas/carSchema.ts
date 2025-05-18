@@ -6,7 +6,7 @@ export const carSchema: ListingFieldSchema[] = [
   // ================= ESSENTIAL DETAILS =================
   {
     name: "color",
-    label: "listings.fields.exteriorColor",
+    label: "fields.exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -19,7 +19,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "interiorColor",
-    label: "listings.fields.interiorColor",
+    label: "fields.interiorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -32,7 +32,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "condition",
-    label: "listings.fields.condition",
+    label: "fields.condition",
     type: "select",
     options: Object.values(Condition).map((value) => ({
       value,
@@ -46,7 +46,7 @@ export const carSchema: ListingFieldSchema[] = [
 
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "fields.transmissionType",
     type: "select",
     options: Object.values(TransmissionType).map((value) => ({
       value,
@@ -64,7 +64,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "mileage",
-    label: "listings.fields.mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -86,7 +86,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "listings.fields.fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: Object.values(FuelType).map((value) => ({
       value,
@@ -99,7 +99,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "previousOwners",
     type: "number",
     section: "essential",
     required: false,
@@ -110,7 +110,7 @@ export const carSchema: ListingFieldSchema[] = [
   // ================= ADVANCED DETAILS =================
   // {
   //   name: "vin",
-  //   label: "listings.fields.vin",
+  //   label: "fields.vin",
   //   type: "text",
   //   section: "advanced",
   //   required: false,
@@ -122,7 +122,7 @@ export const carSchema: ListingFieldSchema[] = [
   // },
   {
     name: "bodyStyle",
-    label: "listings.bodyStyle",
+    label: "fields.bodyStyle",
     type: "select",
     options: [
       "sedan",
@@ -145,7 +145,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "driveType",
-    label: "listings.driveType",
+    label: "fields.driveType",
     type: "select",
     options: ["fwd", "rwd", "awd", "fourwd"],
     section: "advanced",
@@ -156,7 +156,7 @@ export const carSchema: ListingFieldSchema[] = [
 
   {
     name: "engineNumber",
-    label: "listings.fields.engineNumber",
+    label: "fields.engineNumber",
     type: "text",
     section: "advanced",
     required: false,
@@ -166,7 +166,7 @@ export const carSchema: ListingFieldSchema[] = [
 
   {
     name: "serviceHistory",
-    label: "listings.fields.serviceHistory",
+    label: "fields.serviceHistory",
     type: "multiselect",
     options: [
       { value: "full", label: "Full Service History" },
@@ -180,7 +180,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "accidentFree",
-    label: "listings.fields.accidentFree",
+    label: "fields.accidentFree",
     type: "checkbox",
     section: "advanced",
     required: false,
@@ -189,7 +189,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "importStatus",
-    label: "listings.fields.importStatus",
+    label: "fields.importStatus",
     type: "select",
     options: [
       { value: "local", label: "Local" },
@@ -202,7 +202,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationExpiry",
-    label: "listings.fields.registrationExpiry",
+    label: "fields.registrationExpiry",
     type: "date",
     section: "advanced",
     required: false,
@@ -210,7 +210,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "warranty",
-    label: "listings.fields.warranty",
+    label: "fields.warranty",
     type: "select",
     options: [
       { value: "yes", label: "Yes" },
@@ -223,7 +223,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "engineSize",
-    label: "listings.fields.engineSize",
+    label: "fields.engineSize",
     type: "text",
     section: "advanced",
     required: false,
@@ -232,7 +232,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "horsepower",
-    label: "listings.fields.horsepower",
+    label: "fields.horsepower",
     type: "select",
     options: ["0-100", "100-200", "200-300", "300-400", "400-500", "500+"].map(
       (val) => ({ value: val, label: val }),
@@ -244,7 +244,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "torque",
-    label: "listings.fields.torque",
+    label: "fields.torque",
     type: "select",
     options: ["0-200", "200-300", "300-400", "400-500", "500+"].map((val) => ({
       value: val,
@@ -259,7 +259,7 @@ export const carSchema: ListingFieldSchema[] = [
   // === Exterior & Interior ===
   {
     name: "bodyType",
-    label: "listings.fields.bodyType",
+    label: "fields.bodyType",
     type: "select",
     options: [
       "sedan",
@@ -278,7 +278,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "roofType",
-    label: "listings.fields.roofType",
+    label: "fields.roofType",
     type: "select",
     options: ["fixed", "sunroof", "moonroof", "convertible"].map((val) => ({
       value: val,
@@ -293,7 +293,7 @@ export const carSchema: ListingFieldSchema[] = [
   // ================= ADDITIONAL DETAILS =================
   {
     name: "customsCleared",
-    label: "listings.fields.customsCleared",
+    label: "fields.customsCleared",
     type: "select",
     options: [
       { value: "yes", label: "Yes" },
@@ -306,7 +306,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "warrantyPeriod",
-    label: "listings.fields.warrantyPeriod",
+    label: "fields.warrantyPeriod",
     type: "select",
     options: [
       { value: "3", label: "3 months" },
@@ -320,7 +320,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "serviceHistoryDetails",
-    label: "listings.fields.serviceHistoryDetails",
+    label: "fields.serviceHistoryDetails",
     type: "textarea",
     section: "advanced",
     required: false,
@@ -329,7 +329,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "additionalNotes",
-    label: "listings.fields.additionalNotes",
+    label: "fields.additionalNotes",
     type: "textarea",
     section: "advanced",
     required: false,
@@ -338,7 +338,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
   {
     name: "navigationSystem",
-    label: "listings.navigationSystem",
+    label: "fields.navigationSystem",
     type: "select",
     options: ["built-in", "portable", "none"],
     section: "advanced",
@@ -347,7 +347,7 @@ export const carSchema: ListingFieldSchema[] = [
   // ================= SAFETY FEATURES =================
   {
     name: "safetyFeatures",
-    label: "listings.fields.safetyFeatures",
+    label: "fields.safetyFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -389,13 +389,13 @@ export const carSchema: ListingFieldSchema[] = [
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
-    label: "listings.fields.vehicleFeatures",
+    label: "fields.vehicleFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
     featureGroups: {
       safety: {
-        label: "Safety Features",
+        label: "featureCategories.safety",
         features: [
           {
             name: "blindSpotMonitor",
@@ -539,7 +539,7 @@ export const carSchema: ListingFieldSchema[] = [
         ],
       },
       entertainment: {
-        label: "Entertainment Features",
+        label: "featureCategories.entertainment",
         features: [
           { name: "bluetooth", label: "features.bluetooth", type: "toggle" },
           {
@@ -688,7 +688,7 @@ export const carSchema: ListingFieldSchema[] = [
         ],
       },
       convenience: {
-        label: "Convenience Features",
+        label: "featureCategories.convenience",
         features: [
           {
             name: "keylessEntry",

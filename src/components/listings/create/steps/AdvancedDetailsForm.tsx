@@ -206,7 +206,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
 const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
   ({ formData, onSubmit, onBack }) => {
     console.log("[AdvancedDetailsForm] props:", formData, onSubmit, onBack);
-    const { t } = useTranslation();
+    const { t } = useTranslation(['listings']);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [activeSection, setActiveSection] = useState<SectionId>("essential");
@@ -563,7 +563,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
             disabled={isSubmitting}
             className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:hover:bg-gray-700"
           >
-            {t("common.back")}
+            {t("back")}
           </button>
           <button
             type="submit"
@@ -573,12 +573,12 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
             {isSubmitting ? (
               <>
                 <span className="animate-spin">⌛</span>
-                <span>{t("common.submitting")}</span>
+                <span>{t("saving")}</span>
               </>
             ) : (
               <>
                 <FaCog className="w-5 h-5" />
-                <span>{t("common.continue")}</span>
+                <span>{t("continue")}</span>
               </>
             )}
           </button>

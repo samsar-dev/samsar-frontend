@@ -39,7 +39,7 @@ function PreferenceSettings({
   onUpdate,
   isRTL = false,
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('settings');
   const currentSettings = { ...defaultSettings, ...settings };
 
   const handleChange = (key: keyof PreferenceSettingsType, value: any) => {
@@ -74,7 +74,7 @@ function PreferenceSettings({
   return (
     <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`}>
       <div>
-        <h3 className="text-lg font-medium">{t("settings.language")}</h3>
+        <h3 className="text-lg font-medium">{t("language")}</h3>
         <select
           value={currentSettings.language}
           onChange={(e) =>
@@ -91,7 +91,7 @@ function PreferenceSettings({
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("common.settings.theme")}</h3>
+        <h3 className="text-lg font-medium">{t("themes.title")}</h3>
         <select
           value={currentSettings.theme}
           onChange={(e) => handleChange("theme", e.target.value as ThemeType)}
@@ -99,14 +99,14 @@ function PreferenceSettings({
         >
           {SUPPORTED_THEMES.map((theme) => (
             <option key={theme.value} value={theme.value}>
-              {t(`settings.themes.${theme.value.toLowerCase()}`)}
+              {t(`themes.${theme.value.toLowerCase()}`)}
             </option>
           ))}
         </select>
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("common.settings.timezone")}</h3>
+        <h3 className="text-lg font-medium">{t("timezone")}</h3>
         <select
           value={currentSettings.timezone}
           onChange={(e) => handleChange("timezone", e.target.value)}
@@ -121,7 +121,7 @@ function PreferenceSettings({
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("settings.notifications")}</h3>
+        <h3 className="text-lg font-medium">{t("notifications.title")}</h3>
         <div className="mt-4 space-y-4">
           <div className="flex items-start">
             <div className="flex h-5 items-center">
@@ -135,10 +135,10 @@ function PreferenceSettings({
             </div>
             <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
               <label htmlFor="email" className="font-medium text-gray-700">
-                {t("settings.emailNotifications")}
+                {t("notifications.email")}
               </label>
               <p className="text-gray-500">
-                {t("settings.receiveUpdatesViaEmail")}
+                {t("notifications.receiveUpdatesViaEmail")}
               </p>
             </div>
           </div>
@@ -155,10 +155,10 @@ function PreferenceSettings({
             </div>
             <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
               <label htmlFor="push" className="font-medium text-gray-700">
-                {t("settings.pushNotifications")}
+                {t("notifications.push")}
               </label>
               <p className="text-gray-500">
-                {t("settings.receiveUpdatesViaPush")}
+                {t("notifications.receiveUpdatesViaPush")}
               </p>
             </div>
           </div>
@@ -175,10 +175,10 @@ function PreferenceSettings({
             </div>
             <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
               <label htmlFor="desktop" className="font-medium text-gray-700">
-                {t("settings.desktopNotifications")}
+                {t("notifications.desktopNotifications")}
               </label>
               <p className="text-gray-500">
-                {t("settings.receiveUpdatesViaDesktop")}
+                {t("notifications.receiveUpdatesViaDesktop")}
               </p>
             </div>
           </div>

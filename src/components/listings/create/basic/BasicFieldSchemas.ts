@@ -1,4 +1,3 @@
-// types/realEstateBasicFields.ts
 export type PropertySubtype =
   | "house"
   | "apartment"
@@ -8,7 +7,7 @@ export type PropertySubtype =
   | "other";
 
 export interface BasicField {
-  label: string;
+  label: string; // i18n translation key
   name: string;
   type: "number" | "boolean" | "select";
   required: boolean;
@@ -17,215 +16,205 @@ export interface BasicField {
   min?: number;
   max?: number;
   step?: number;
-  options?: Array<{ value: string; label: string }>; // for select
+  options?: Array<{ value: string; label: string }>;
 }
+
+const yearOptions: Array<{ value: string; label: string }> = Array.from(
+  { length: new Date().getFullYear() - 1900 + 1 },
+  (_, i) => {
+    const year = (1900 + i).toString();
+    return { value: year, label: year };
+  }
+);
 
 export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {
   house: [
     {
-      label: "Total Area (m²)",
+      label: "propertyDetails.totalArea",
       name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter total area in square meters",
+      placeholder: "propertyDetails.totalAreaPlaceholder",
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
     {
-      label: "Bedrooms",
+      label: "propertyDetails.bedrooms",
       name: "bedrooms",
       type: "number",
       required: true,
-      placeholder: "Enter number of bedrooms",
+      placeholder: "propertyDetails.bedroomsPlaceholder",
     },
     {
-      label: "Bathrooms",
+      label: "propertyDetails.bathrooms",
       name: "bathrooms",
       type: "number",
       required: true,
-      placeholder: "Enter number of bathrooms",
-      helpText: "Half bathrooms allowed",
+      placeholder: "propertyDetails.bathroomsPlaceholder",
+      helpText: "propertyDetails.bathroomsHelpText",
       step: 0.5,
     },
   ],
   apartment: [
     {
-      label: "Total Area (m²)",
+      label: "propertyDetails.totalArea",
       name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter total area in square meters",
+      placeholder: "propertyDetails.totalAreaPlaceholder",
     },
-    { label: "Bedrooms", name: "bedrooms", type: "number", required: true },
     {
-      label: "Bathrooms",
+      label: "propertyDetails.bedrooms",
+      name: "bedrooms",
+      type: "number",
+      required: true,
+      placeholder: "propertyDetails.bedroomsPlaceholder",
+    },
+    {
+      label: "propertyDetails.bathrooms",
       name: "bathrooms",
       type: "number",
       required: true,
+      placeholder: "propertyDetails.bathroomsPlaceholder",
       step: 0.5,
     },
     {
-      label: "Floor Level",
+      label: "propertyDetails.floorLevel",
       name: "floor",
       type: "number",
       required: true,
       min: 1,
       max: 100,
+      placeholder: "propertyDetails.floorLevelPlaceholder",
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
   ],
   condo: [
     {
-      label: "Total Area (m²)",
+      label: "propertyDetails.totalArea",
       name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter total area in square meters",
+      placeholder: "propertyDetails.totalAreaPlaceholder",
     },
-    { label: "Bedrooms", name: "bedrooms", type: "number", required: true },
     {
-      label: "Bathrooms",
+      label: "propertyDetails.bedrooms",
+      name: "bedrooms",
+      type: "number",
+      required: true,
+      placeholder: "propertyDetails.bedroomsPlaceholder",
+    },
+    {
+      label: "propertyDetails.bathrooms",
       name: "bathrooms",
       type: "number",
       required: true,
+      placeholder: "propertyDetails.bathroomsPlaceholder",
       step: 0.5,
     },
     {
-      label: "Floor Level",
+      label: "propertyDetails.floorLevel",
       name: "floor",
       type: "number",
       required: true,
       min: 1,
       max: 100,
+      placeholder: "propertyDetails.floorLevelPlaceholder",
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
   ],
   land: [
     {
-      label: "Land Area (m²)",
+      label: "propertyDetails.landArea",
       name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter land area in square meters",
+      placeholder: "propertyDetails.landAreaPlaceholder",
     },
     {
-      label: "Is Buildable",
+      label: "propertyDetails.isBuildable",
       name: "buildable",
       type: "boolean",
       required: true,
+      placeholder: "propertyDetails.isBuildablePlaceholder",
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
   ],
   commercial: [
     {
-      label: "Total Area (m²)",
+      label: "propertyDetails.totalArea",
       name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter total area in square meters",
+      placeholder: "propertyDetails.totalAreaPlaceholder",
     },
     {
-      label: "Usage Type",
+      label: "propertyDetails.usageType",
       name: "usageType",
       type: "select",
       required: true,
+      placeholder: "propertyDetails.usageTypePlaceholder",
       options: [
-        { value: "Retail", label: "Retail" },
-        { value: "Office", label: "Office" },
-        { value: "Industrial", label: "Industrial" },
-        { value: "Warehouse", label: "Warehouse" },
-        { value: "Hospitality", label: "Hospitality" },
-        { value: "Mixed-use", label: "Mixed-use" },
-        { value: "Other", label: "Other" },
+        { value: "Retail", label: "propertyDetails.usageTypeRetail" },
+        { value: "Office", label: "propertyDetails.usageTypeOffice" },
+        { value: "Industrial", label: "propertyDetails.usageTypeIndustrial" },
+        { value: "Warehouse", label: "propertyDetails.usageTypeWarehouse" },
+        { value: "Hospitality", label: "propertyDetails.usageTypeHospitality" },
+        { value: "Mixed-use", label: "propertyDetails.usageTypeMixedUse" },
+        { value: "Other", label: "propertyDetails.usageTypeOther" },
       ],
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
   ],
   other: [
     {
-      label: "Total Area (m²)",
-      name: "totalArea",
+      label: "propertyDetails.totalArea",
+      name: "size",
       type: "number",
       required: true,
-      placeholder: "Enter total area in square meters",
+      placeholder: "propertyDetails.totalAreaPlaceholder",
     },
     {
-      label: "Year Built",
+      label: "propertyDetails.yearBuilt",
       name: "yearBuilt",
       type: "select",
       required: true,
-      options: Array.from(
-        { length: new Date().getFullYear() - 1900 + 1 },
-        (_, i) => ({
-          value: (1900 + i).toString(),
-          label: (1900 + i).toString(),
-        }),
-      ),
-      placeholder: "Select year built",
+      options: yearOptions,
+      placeholder: "propertyDetails.yearBuiltPlaceholder",
     },
   ],
 };

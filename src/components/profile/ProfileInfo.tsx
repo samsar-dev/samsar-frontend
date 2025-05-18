@@ -28,7 +28,7 @@ interface ProfileInfoFormData {
 }
 
 const ProfileInfo = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('profile');
   const { user, updateAuthUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -113,13 +113,13 @@ const ProfileInfo = () => {
         if (response.data.profilePicture) {
           setAvatarPreview(response.data.profilePicture);
         }
-        toast.success(t("profile.updated"));
+        toast.success(t("updated"));
       } else {
-        throw new Error(t("profile.update_error"));
+        throw new Error(t("update_error"));
       }
     } catch (err) {
-      setError(t("profile.update_error"));
-      toast.error(t("profile.update_error"));
+      setError(t("update_error"));
+      toast.error(t("update_error"));
     } finally {
       setLoading(false);
     }
@@ -146,7 +146,7 @@ const ProfileInfo = () => {
     return (
       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
         <FaUser className="inline-block mr-2" size={20} />
-        {t("profile.loading")}
+        {t("loading")}
         <button
           onClick={() => navigate("/login")}
           className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -161,10 +161,10 @@ const ProfileInfo = () => {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-          {t("profile.personal_information")}
+          {t("personal_information")}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {t("profile.update_info")}
+          {t("update_info")}
         </p>
       </div>
 
@@ -193,7 +193,7 @@ const ProfileInfo = () => {
             </label>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            {t("profile.change_photo")}
+            {t("change_photo")}
           </p>
         </div>
 
@@ -204,7 +204,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaUser className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.name")}
+              {t("name")}
             </label>
             <input
               type="text"
@@ -222,7 +222,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaEnvelope className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.email")}
+              {t("email")}
             </label>
             <input
               type="email"
@@ -240,7 +240,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaInfoCircle className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.bio")}
+              {t("bio")}
             </label>
             <textarea
               id="bio"
@@ -275,7 +275,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaCalendarAlt className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.date of birth")}
+              {t("date of birth")}
             </label>
             <input
               type="date"
@@ -293,7 +293,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaMapMarkerAlt className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.street")}
+              {t("street")}
             </label>
             <input
               type="text"
@@ -311,7 +311,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaCity className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("profile.city")}
+              {t("city")}
             </label>
             <input
               type="text"

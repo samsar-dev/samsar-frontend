@@ -20,7 +20,7 @@ const defaultSettings: SecuritySettingsType = {
 };
 
 function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('settings');
 
   // Merge provided settings with defaults to ensure no missing properties
   const mergedSettings = { ...defaultSettings, ...settings };
@@ -52,7 +52,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
   return (
     <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`}>
       <div>
-        <h3 className="text-lg font-medium">{t("settings.twoFactorAuth")}</h3>
+        <h3 className="text-lg font-medium">{t("security.twoFactorAuth")}</h3>
         <div className="mt-4 space-y-4">
           <div className="flex items-start">
             <div className="flex h-5 items-center">
@@ -71,10 +71,10 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
                 htmlFor="twoFactorEnabled"
                 className="font-medium text-gray-700"
               >
-                {t("settings.enableTwoFactorAuth")}
+                {t("security.enableTwoFactorAuth")}
               </label>
               <p className="text-gray-500">
-                {t("settings.twoFactorDescription")}
+                {t("security.twoFactorDescription")}
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
                 htmlFor="twoFactorMethod"
                 className="block text-sm font-medium text-gray-700"
               >
-                {t("settings.authMethod")}
+                {t("security.authMethod")}
               </label>
               <select
                 id="twoFactorMethod"
@@ -95,9 +95,9 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
                 }
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               >
-                <option value="email">{t("settings.email")}</option>
+                <option value="email">{t("security.email")}</option>
                 <option value="authenticator">
-                  {t("settings.authenticatorApp")}
+                  {t("security.authenticatorApp")}
                 </option>
               </select>
             </div>
@@ -107,7 +107,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
 
       <div>
         <h3 className="text-lg font-medium">
-          {t("settings.loginNotifications")}
+          {t("security.loginNotifications")}
         </h3>
         <div className="mt-4">
           <div className="flex items-start">
@@ -127,10 +127,10 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
                 htmlFor="loginNotifications"
                 className="font-medium text-gray-700"
               >
-                {t("settings.enableLoginNotifications")}
+                {t("security.enableLoginNotifications")}
               </label>
               <p className="text-gray-500">
-                {t("settings.loginNotificationsDescription")}
+                {t("security.loginNotificationsDescription")}
               </p>
             </div>
           </div>
@@ -138,13 +138,13 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium">{t("settings.autoLogout")}</h3>
+        <h3 className="text-lg font-medium">{t("security.autoLogout")}</h3>
         <div className="mt-4">
           <label
             htmlFor="autoLogoutTime"
             className="block text-sm font-medium text-gray-700"
           >
-            {t("settings.autoLogoutTime")}
+            {t("security.autoLogoutTime")}
           </label>
           <input
             type="number"
@@ -165,7 +165,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
 
       <div>
         <h3 className="text-lg font-medium">
-          {t("settings.connectedAccounts")}
+          {t("security.connectedAccounts")}
         </h3>
         <div className="mt-4 space-y-4">
           {["google", "facebook", "twitter"].map((provider) => (
@@ -190,7 +190,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
                   {provider.charAt(0).toUpperCase() + provider.slice(1)}
                 </label>
                 <p className="text-gray-500">
-                  {t("settings.connectAccount", { provider })}
+                  {t("security.connectAccount", { provider })}
                 </p>
               </div>
             </div>

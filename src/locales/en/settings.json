@@ -1,0 +1,97 @@
+{
+  "title": "Settings",
+  "settingsDescription": "Manage your account settings and preferences",
+  "preferences": "Preferences",
+  "language": "Language",
+  "themes": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "timezone": "Timezone",
+  "utc": "UTC",
+  "languageSettings": "Language Settings",
+  "notifications": {
+    "title": "Notifications",
+    "emailNotifications": "Email Notifications",
+    "receiveUpdatesViaEmail": "Receive updates via email",
+    "pushNotifications": "Push Notifications",
+    "receiveUpdatesViaPush": "Receive updates via push notifications",
+    "desktopNotifications": "Desktop Notifications",
+    "receiveUpdatesViaDesktop": "Receive desktop notifications",
+    "messageNotifications": "Message Notifications",
+    "listingNotifications": "Listing Notifications",
+    "systemNotifications": "System Notifications",
+    "toggle": "Toggle Notifications",
+    "empty": "No notifications yet",
+    "email": "Email Notifications",
+    "push": "Push Notifications",
+    "sms": "SMS Notifications",
+    "newMessage": "New Message Notifications",
+    "listingUpdates": "Listing Updates",
+    "priceDrops": "Price Drop Alerts",
+    "newListings": "New Listings Alerts",
+    "marketingEmails": "Marketing Emails"
+  },
+  "account": {
+    "title": "Account",
+    "personalInfo": "Personal Information",
+    "changePassword": "Change Password",
+    "deleteAccount": "Delete Account",
+    "deactivateAccount": "Deactivate Account",
+    "confirmDelete": "Are you sure you want to delete your account? This action cannot be undone."
+  },
+  "connectedAccounts": {
+    "title": "Connected Accounts",
+    "google": "Google",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "connectAccount": "Connect Account"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "profileVisibility": "Profile Visibility",
+    "public": "Public",
+    "showOnlineStatus": "Show online status",
+ 
+    "showPhoneNumber": "Show phone number",
+    "allowMessaging": "Allow direct messaging",
+    "deleteAccount": "Delete Account",
+    "visibility": "Profile Visibility",
+    "showEmail": "Show email to other users",
+    "showPhone": "Show phone number to other users",
+    "showLocation": "Show location to other users",
+    "dataUsage": "Data Usage",
+    "cookieSettings": "Cookie Settings",
+    "policy": "Privacy Policy"
+  },
+  "security": {
+    "title": "Security",
+    "twoFactorAuth": "Two-Factor Authentication",
+    "enableTwoFactorAuth": "Enable Two-Factor Authentication",
+    "twoFactorDescription": "Add an extra layer of security to your account",
+    "loginNotifications": "Login Notifications",
+    "enableLoginNotifications": "Enable login notifications",
+    "loginNotificationsDescription": "Get notified when there's a new login to your account",
+    "autoLogout": "Auto Logout",
+    "autoLogoutTime": "Auto logout after (minutes)",
+    "connectedAccounts": "Connected Accounts",
+    "connectAccount": "Connect {{provider}} account",
+    "connectedAccount": "Connected with {{provider}}",
+    "loginHistory": "Login History",
+    "connectedDevices": "Connected Devices",
+    "sessionTimeout": "Session Timeout",
+    "passwordRequirements": "Password Requirements"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "theme": "Theme",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
+    "systemDefault": "System Default",
+    "fontSize": "Font Size"
+  },
+  "save": "Save Changes",
+  "cancel": "Cancel",
+  "reset": "Reset to Default"
+}

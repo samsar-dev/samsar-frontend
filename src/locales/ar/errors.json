@@ -1,0 +1,47 @@
+{
+  "general": {
+    "somethingWentWrong": "حدث خطأ ما",
+    "tryAgainLater": "يرجى المحاولة مرة أخرى لاحقاً",
+    "pageNotFound": "الصفحة غير موجودة",
+    "unauthorized": "غير مصرح بالوصول",
+    "forbidden": "الوصول ممنوع",
+    "serverError": "خطأ في الخادم",
+    "connectionError": "خطأ في الاتصال",
+    "timeoutError": "انتهت مهلة الطلب"
+  },
+  "auth": {
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "accountLocked": "الحساب مغلق",
+    "tooManyAttempts": "محاولات تسجيل دخول كثيرة جداً",
+    "sessionExpired": "انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى"
+  },
+  "form": {
+    "requiredField": "هذا الحقل مطلوب",
+    "invalidFormat": "صيغة غير صالحة",
+    "invalidEmail": "بريد إلكتروني غير صالح",
+    "invalidPhone": "رقم هاتف غير صالح",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "weakPassword": "كلمة المرور ضعيفة جداً"
+  },
+  "listings": {
+    "failedToLoad": "فشل في تحميل الإعلانات",
+    "failedToCreate": "فشل في إنشاء الإعلان",
+    "failedToUpdate": "فشل في تحديث الإعلان",
+    "failedToDelete": "فشل في حذف الإعلان",
+    "noListingsFound": "لم يتم العثور على إعلانات {type}",
+    "removedFromSaved": "تمت الإزالة من الإعلانات المحفوظة",
+    "failedToRemoveFavorite": "فشل في إزالة المفضلة"
+  },
+  "upload": {
+    "fileTooLarge": "الملف كبير جداً",
+    "invalidFileType": "نوع ملف غير صالح",
+    "uploadFailed": "فشل التحميل",
+    "tooManyFiles": "عدد كبير جداً من الملفات"
+  },
+  "api": {
+    "routeNotFound": "المسار غير موجود",
+    "duplicateEntry": "العنصر موجود بالفعل",
+    "validationError": "خطأ في التحقق",
+    "notFound": "المورد غير موجود"
+  }
+}

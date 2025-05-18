@@ -4,7 +4,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: ["new", "excellent", "good", "fair", "needsWork", "fixer-upper"],
     section: "essential",
@@ -12,21 +12,21 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "floor",
-    label: "listings.floor",
+    label: "fields.floor",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "totalFloors",
-    label: "listings.totalFloors",
+    label: "fields.totalFloors",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "parking",
-    label: "listings.parking",
+    label: "fields.parking",
     type: "select",
     options: ["garage", "underground", "street", "none"],
     section: "essential",
@@ -34,35 +34,35 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "elevator",
-    label: "listings.elevator",
+    label: "fields.elevator",
     type: "checkbox",
     section: "essential",
     required: true,
   },
   {
     name: "price",
-    label: "listings.price",
+    label: "fields.price",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "size",
-    label: "listings.size",
+    label: "fields.size",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "bedrooms",
-    label: "listings.bedrooms",
+    label: "fields.bedrooms",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "bathrooms",
-    label: "listings.bathrooms",
+    label: "fields.bathrooms",
     type: "number",
     section: "essential",
     required: true,
@@ -71,21 +71,21 @@ export const apartmentSchema: ListingFieldSchema[] = [
   // Advanced Section
   {
     name: "balcony",
-    label: "listings.balcony",
+    label: "fields.balcony",
     type: "checkbox",
     section: "advanced",
     required: false,
   },
   {
     name: "storage",
-    label: "listings.storage",
+    label: "fields.storage",
     type: "checkbox",
     section: "advanced",
     required: false,
   },
   {
     name: "heating",
-    label: "listings.heating",
+    label: "fields.heating",
     type: "select",
     options: ["central", "individual", "district", "none"],
     section: "advanced",
@@ -93,7 +93,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "cooling",
-    label: "listings.cooling",
+    label: "fields.cooling",
     type: "select",
     options: ["central", "split", "window", "none"],
     section: "advanced",
@@ -101,7 +101,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "buildingAmenities",
-    label: "listings.buildingAmenities",
+    label: "fields.buildingAmenities",
     type: "multiselect",
     options: [
       "gym",
@@ -130,7 +130,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "energyRating",
-    label: "listings.energyRating",
+    label: "fields.energyRating",
     type: "select",
     options: ["A+", "A", "B", "C", "D", "E", "F", "G", "unknown"],
     section: "advanced",
@@ -138,7 +138,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "furnished",
-    label: "listings.furnished",
+    label: "fields.furnished",
     type: "select",
     options: ["yes", "no", "partially"],
     section: "advanced",
@@ -146,7 +146,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "petPolicy",
-    label: "listings.petPolicy",
+    label: "fields.petPolicy",
     type: "select",
     options: ["allowed", "notAllowed", "negotiable"],
     section: "advanced",
@@ -154,7 +154,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "view",
-    label: "listings.view",
+    label: "fields.view",
     type: "select",
     options: ["sea", "city", "garden", "mountain", "none"],
     section: "advanced",
@@ -162,7 +162,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "securityFeatures",
-    label: "listings.securityFeatures",
+    label: "fields.securityFeatures",
     type: "multiselect",
     options: [
       "alarm",
@@ -187,7 +187,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "fireSafety",
-    label: "listings.fireSafety",
+    label: "fields.fireSafety",
     type: "multiselect",
     options: [
       "sprinklers",
@@ -210,7 +210,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "flooringType",
-    label: "listings.flooringType",
+    label: "fields.flooringType",
     type: "select",
     options: [
       "tile",
@@ -235,14 +235,14 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "internetIncluded",
-    label: "listings.internetIncluded",
+    label: "fields.internetIncluded",
     type: "checkbox",
     section: "advanced",
     required: false,
   },
   {
     name: "windowType",
-    label: "listings.windowType",
+    label: "fields.windowType",
     type: "select",
     options: [
       "doublePane",
@@ -262,7 +262,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "accessibilityFeatures",
-    label: "listings.accessibilityFeatures",
+    label: "fields.accessibilityFeatures",
     type: "multiselect",
     options: [
       "wheelchair",
@@ -290,7 +290,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "kitchenFeatures",
-    label: "listings.kitchenFeatures",
+    label: "fields.kitchenFeatures",
     type: "multiselect",
     options: [
       "island",
@@ -319,7 +319,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "bathroomFeatures",
-    label: "listings.bathroomFeatures",
+    label: "fields.bathroomFeatures",
     type: "multiselect",
     options: [
       "dualVanities",
@@ -346,7 +346,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "renovationHistory",
-    label: "listings.renovationHistory",
+    label: "fields.renovationHistory",
     type: "select",
     options: [
       "recentlyRenovated",
@@ -365,7 +365,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "nearbyAmenities",
-    label: "listings.nearbyAmenities",
+    label: "fields.nearbyAmenities",
     type: "multiselect",
     options: [
       "publicTransport",
@@ -392,7 +392,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "leaseTerms",
-    label: "listings.leaseTerms",
+    label: "fields.leaseTerms",
     type: "multiselect",
     options: [
       "shortTerm",
@@ -416,7 +416,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "soundproofing",
-    label: "listings.soundproofing",
+    label: "fields.soundproofing",
     type: "select",
     options: ["premium", "enhanced", "standard", "basic", "none", "unknown"],
     section: "advanced",
@@ -424,7 +424,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "viewType",
-    label: "listings.viewType",
+    label: "fields.viewType",
     type: "multiselect",
     options: [
       "cityView",
@@ -443,7 +443,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "parkingType",
-    label: "listings.parkingType",
+    label: "fields.parkingType",
     type: "select",
     options: [
       "covered",
@@ -465,7 +465,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "utilities",
-    label: "listings.utilities",
+    label: "fields.utilities",
     type: "multiselect",
     options: [
       "water",
@@ -492,7 +492,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "smartHomeFeatures",
-    label: "listings.smartHomeFeatures",
+    label: "fields.smartHomeFeatures",
     type: "multiselect",
     options: [
       "smartThermostat",
@@ -516,7 +516,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "communityFeatures",
-    label: "listings.communityFeatures",
+    label: "fields.communityFeatures",
     type: "multiselect",
     options: [
       "doorman",
@@ -541,7 +541,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "exposureDirection",
-    label: "listings.exposureDirection",
+    label: "fields.exposureDirection",
     type: "multiselect",
     options: ["north", "south", "east", "west"],
     section: "advanced",
@@ -549,7 +549,7 @@ export const apartmentSchema: ListingFieldSchema[] = [
   },
   {
     name: "storageType",
-    label: "listings.storageType",
+    label: "fields.storageType",
     type: "multiselect",
     options: ["basement", "attic", "closet", "external", "none"],
     section: "advanced",

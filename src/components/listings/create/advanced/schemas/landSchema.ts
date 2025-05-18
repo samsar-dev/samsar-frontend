@@ -4,7 +4,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: ["new", "excellent", "good", "fair", "needsWork"],
     section: "essential",
@@ -12,7 +12,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "zoning",
-    label: "listings.zoning",
+    label: "fields.zoning",
     type: "select",
     options: [
       "residential",
@@ -29,7 +29,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "utilities",
-    label: "listings.utilities",
+    label: "fields.utilities",
     type: "multiselect",
     options: [
       "electricity",
@@ -45,7 +45,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "accessRoad",
-    label: "listings.accessRoad",
+    label: "fields.accessRoad",
     type: "select",
     options: ["paved", "gravel", "dirt", "seasonalAccess", "none"],
     section: "essential",
@@ -53,7 +53,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "parcelNumber",
-    label: "listings.parcelNumber",
+    label: "fields.parcelNumber",
     type: "text",
     section: "essential",
     required: false,
@@ -63,7 +63,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Topographical Features
   {
     name: "topography",
-    label: "listings.topography",
+    label: "fields.topography",
     type: "multiselect",
     options: [
       "flat",
@@ -81,14 +81,14 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "elevation",
-    label: "listings.elevation",
+    label: "fields.elevation",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "waterFeatures",
-    label: "listings.waterFeatures",
+    label: "fields.waterFeatures",
     type: "multiselect",
     options: [
       "creek",
@@ -106,7 +106,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "naturalFeatures",
-    label: "listings.naturalFeatures",
+    label: "fields.naturalFeatures",
     type: "multiselect",
     options: [
       "woods",
@@ -125,7 +125,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Development & Zoning
   {
     name: "buildable",
-    label: "listings.buildable",
+    label: "fields.buildable",
     type: "select",
     options: [
       "readyToBuild",
@@ -139,7 +139,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "buildingRestrictions",
-    label: "listings.buildingRestrictions",
+    label: "fields.buildingRestrictions",
     type: "multiselect",
     options: [
       "setbacks",
@@ -154,7 +154,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "permitsInPlace",
-    label: "listings.permitsInPlace",
+    label: "fields.permitsInPlace",
     type: "multiselect",
     options: [
       "building",
@@ -171,7 +171,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Environmental Factors
   {
     name: "environmentalFeatures",
-    label: "listings.environmentalFeatures",
+    label: "fields.environmentalFeatures",
     type: "multiselect",
     options: [
       "wetlands",
@@ -185,7 +185,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "soilTypes",
-    label: "listings.soilTypes",
+    label: "fields.soilTypes",
     type: "multiselect",
     options: ["clay", "loam", "sandy", "silt", "peat", "rocky", "unknown"],
     section: "advanced",
@@ -193,7 +193,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "floodZone",
-    label: "listings.floodZone",
+    label: "fields.floodZone",
     type: "select",
     options: [
       "zoneA",
@@ -210,7 +210,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Rights & Access
   {
     name: "mineralRights",
-    label: "listings.mineralRights",
+    label: "fields.mineralRights",
     type: "multiselect",
     options: [
       "oil",
@@ -226,7 +226,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "waterRights",
-    label: "listings.waterRights",
+    label: "fields.waterRights",
     type: "multiselect",
     options: ["riparian", "appropriative", "shared", "none", "unknown"],
     section: "advanced",
@@ -234,7 +234,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "easements",
-    label: "listings.easements",
+    label: "fields.easements",
     type: "multiselect",
     options: [
       "utility",
@@ -252,7 +252,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Infrastructure & Improvements
   {
     name: "boundaryFeatures",
-    label: "listings.boundaryFeatures",
+    label: "fields.boundaryFeatures",
     type: "multiselect",
     options: [
       "fenced",
@@ -267,7 +267,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "fencingType",
-    label: "listings.fencingType",
+    label: "fields.fencingType",
     type: "multiselect",
     options: [
       "barbedWire",
@@ -283,7 +283,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "irrigation",
-    label: "listings.irrigation",
+    label: "fields.irrigation",
     type: "multiselect",
     options: ["sprinkler", "drip", "flood", "well", "pond", "none"],
     section: "advanced",
@@ -291,7 +291,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "improvements",
-    label: "listings.improvements",
+    label: "fields.improvements",
     type: "multiselect",
     options: [
       "barn",
@@ -311,7 +311,7 @@ export const landSchema: ListingFieldSchema[] = [
   // Documentation & Studies
   {
     name: "documentsAvailable",
-    label: "listings.documentsAvailable",
+    label: "fields.documentsAvailable",
     type: "multiselect",
     options: [
       "survey",
@@ -328,7 +328,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "previousUse",
-    label: "listings.previousUse",
+    label: "fields.previousUse",
     type: "multiselect",
     options: [
       "agricultural",
@@ -344,7 +344,7 @@ export const landSchema: ListingFieldSchema[] = [
   },
   {
     name: "propertyHistory",
-    label: "listings.propertyHistory",
+    label: "fields.propertyHistory",
     type: "text",
     section: "advanced",
     required: false,

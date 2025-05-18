@@ -1,0 +1,85 @@
+{
+  "fuelType": {
+    "GASOLINE": "Gasoline",
+    "DIESEL": "Diesel",
+    "ELECTRIC": "Electric",
+    "HYBRID": "Hybrid",
+    "PLUGIN_HYBRID": "Plug-in Hybrid",
+    "LPG": "LPG",
+    "CNG": "CNG",
+    "HYDROGEN": "Hydrogen",
+    "OTHER": "Other"
+  },
+  "transmission": {
+    "AUTOMATIC": "Automatic",
+    "MANUAL": "Manual",
+    "SEMI_AUTOMATIC": "Semi-Automatic",
+    "CVT": "CVT",
+    "DUAL_CLUTCH": "Dual Clutch",
+    "OTHER": "Other"
+  },
+  "condition": {
+    "NEW": "New",
+    "USED": "Used",
+    "CERTIFIED_PRE_OWNED": "Certified Pre-Owned",
+    "SALVAGE": "Salvage",
+    "OTHER": "Other"
+  },
+  "driveType": {
+    "FWD": "Front-Wheel Drive",
+    "RWD": "Rear-Wheel Drive",
+    "AWD": "All-Wheel Drive",
+    "FOUR_WHEEL_DRIVE": "Four-Wheel Drive",
+    "OTHER": "Other"
+  },
+  "bodyType": {
+    "SEDAN": "Sedan",
+    "SUV": "SUV",
+    "HATCHBACK": "Hatchback",
+    "COUPE": "Coupe",
+    "CONVERTIBLE": "Convertible",
+    "WAGON": "Wagon",
+    "VAN": "Van",
+    "TRUCK": "Truck",
+    "OTHER": "Other"
+  },
+  "propertyType": {
+    "HOUSE": "House",
+    "APARTMENT": "Apartment",
+    "CONDO": "Condo",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial",
+    "OTHER": "Other"
+  },
+  "listingType": {
+    "FOR_SALE": "For Sale",
+    "FOR_RENT": "For Rent"
+  },
+  "mileageRanges": {
+    "0-10000": "0-10,000",
+    "10000-30000": "10,000-30,000",
+    "30000-60000": "30,000-60,000",
+    "60000-100000": "60,000-100,000",
+    "100000-150000": "100,000-150,000",
+    "150000+": "150,000+"
+  },
+  "priceRanges": {
+    "0-5000": "$0-$5,000",
+    "5000-10000": "$5,000-$10,000",
+    "10000-15000": "$10,000-$15,000",
+    "15000-20000": "$15,000-$20,000",
+    "20000-30000": "$20,000-$30,000",
+    "30000-50000": "$30,000-$50,000",
+    "50000+": "$50,000+"
+  },
+  "sizeRanges": {
+    "0-50": "0-50 m²",
+    "50-100": "50-100 m²",
+    "100-150": "100-150 m²",
+    "150-200": "150-200 m²",
+    "200-300": "200-300 m²",
+    "300-400": "300-400 m²",
+    "400-500": "400-500 m²",
+    "500+": "500+ m²"
+  }
+}

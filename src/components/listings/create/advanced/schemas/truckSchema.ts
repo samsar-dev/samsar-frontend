@@ -5,7 +5,7 @@ export const truckSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "color",
-    label: "exteriorColor",
+    label: "fields.exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -14,7 +14,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: Object.values(Condition),
     section: "essential",
@@ -22,7 +22,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "truckType",
-    label: "listings.truckType",
+    label: "fields.truckType",
     type: "select",
     options: [
       "pickup",
@@ -44,7 +44,7 @@ export const truckSchema: ListingFieldSchema[] = [
 
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "fields.transmissionType",
     type: "select",
     options: Object.values(TransmissionType),
     section: "essential",
@@ -53,7 +53,7 @@ export const truckSchema: ListingFieldSchema[] = [
 
   {
     name: "mileage",
-    label: "mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -66,7 +66,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: Object.values(FuelType),
     section: "essential",
@@ -76,7 +76,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "cabType",
-    label: "cabType",
+    label: "fields.cabType",
     type: "select",
     options: ["regular", "extended", "crew", "sleeper"],
     section: "essential",
@@ -87,7 +87,7 @@ export const truckSchema: ListingFieldSchema[] = [
 
   {
     name: "previousOwners",
-    label: "previousOwners",
+    label: "fields.previousOwners",
     type: "number",
     section: "essential",
     required: true,
@@ -100,7 +100,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "registrationStatus",
+    label: "fields.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "essential",
@@ -112,91 +112,91 @@ export const truckSchema: ListingFieldSchema[] = [
   // Advanced Section
   {
     name: "vin",
-    label: "listings.fields.vin",
+    label: "fields.vin",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "engineNumber",
-    label: "listings.fields.engineNumber",
+    label: "fields.engineNumber",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "registrationExpiry",
-    label: "listings.fields.registrationExpiry",
+    label: "fields.registrationExpiry",
     type: "date",
     section: "advanced",
     required: false,
   },
   {
     name: "insuranceType",
-    label: "listings.fields.insuranceType",
+    label: "fields.insuranceType",
     type: "select",
     options: [
-      "listings.fields.insuranceType.comprehensive",
-      "listings.fields.insuranceType.thirdParty",
-      "listings.fields.insuranceType.none",
+      "insuranceType.comprehensive",
+      "insuranceType.thirdParty",
+      "insuranceType.none",
     ],
     section: "advanced",
     required: false,
   },
   {
     name: "upholsteryMaterial",
-    label: "listings.fields.upholsteryMaterial",
+    label: "fields.upholsteryMaterial",
     type: "select",
     options: [
-      "listings.fields.upholsteryMaterial.leather",
-      "listings.fields.upholsteryMaterial.fabric",
-      "listings.fields.upholsteryMaterial.other",
+      "upholsteryMaterial.leather",
+      "upholsteryMaterial.fabric",
+      "upholsteryMaterial.other",
     ],
     section: "advanced",
     required: false,
   },
   {
     name: "tireCondition",
-    label: "listings.fields.tireCondition",
+    label: "fields.tireCondition",
     type: "select",
     options: [
-      "listings.fields.tireCondition.new",
-      "listings.fields.tireCondition.good",
-      "listings.fields.tireCondition.worn",
+      "tireCondition.new",
+      "tireCondition.good",
+      "tireCondition.worn",
     ],
     section: "advanced",
     required: false,
   },
   {
     name: "importStatus",
-    label: "listings.fields.importStatus",
+    label: "fields.importStatus",
     type: "select",
     options: [
-      "listings.fields.importStatus.local",
-      "listings.fields.importStatus.imported",
+      "importStatus.local",
+      "importStatus.imported",
     ],
     section: "advanced",
     required: false,
   },
   {
     name: "accidentFree",
-    label: "listings.fields.accidentFree",
+    label: "fields.accidentFree",
     type: "checkbox",
     section: "advanced",
     required: false,
   },
   {
     name: "previousOwners",
-    label: "listings.fields.previousOwners",
+    label: "fields.previousOwners",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "serviceHistory",
-    label: "listings.serviceHistory",
+    label: "fields.serviceHistory",
     type: "multiselect",
-    options: ["full", "partial", "none"],
+    options: ["serviceHistory.full", "serviceHistory.partial", "serviceHistory.none"],
     section: "advanced",
     required: false,
   },
@@ -210,7 +210,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "emissions",
-    label: "listings.emissions",
+    label: "emissions",
     type: "select",
     options: ["Euro 6", "Euro 5", "Euro 4", "Euro 3", "Other", "Unknown"],
     section: "advanced",
@@ -218,7 +218,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "safetyFeatures",
-    label: "listings.safetyFeatures",
+    label: "safetyFeatures",
     type: "featureGroup",
     featureGroups: {
       braking: {
@@ -275,7 +275,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "vehicleFeatures",
-    label: "listings.vehicleFeatures",
+    label: "fields.vehicleFeatures",
     type: "featureGroup",
     featureGroups: {
       infotainment: {
@@ -316,7 +316,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "cargoFeatures",
-    label: "listings.cargoFeatures",
+    label: "cargoFeatures",
     type: "featureGroup",
     featureGroups: {
       cargoCapacity: {
@@ -349,14 +349,14 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "warranty",
-    label: "listings.warranty",
+    label: "warranty",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "suspensionType",
-    label: "listings.suspensionType",
+    label: "suspensionType",
     type: "select",
     options: ["air", "leaf", "coil", "torsion", "other"],
     section: "advanced",
@@ -364,7 +364,7 @@ export const truckSchema: ListingFieldSchema[] = [
   },
   {
     name: "seatConfiguration",
-    label: "listings.seatConfiguration",
+    label: "seatConfiguration",
     type: "select",
     options: ["standard", "bench", "bucket", "other"],
     section: "advanced",

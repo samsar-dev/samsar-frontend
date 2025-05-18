@@ -1,0 +1,44 @@
+{
+  "title": "الملف الشخصي",
+  "info": "معلومات الملف الشخصي",
+  "personal_information": "المعلومات الشخصية",
+  "update_info": "تحديث المعلومات",
+  "change_photo": "تغيير الصورة",
+  "my_listings": "إعلاناتي",
+  "saved_listings": "الإعلانات المحفوظة",
+  "messages": "الرسائل",
+  "change_password": "تغيير كلمة المرور",
+  "current_password": "كلمة المرور الحالية",
+  "new_password": "كلمة المرور الجديدة",
+  "confirm_new_password": "تأكيد كلمة المرور الجديدة",
+  "username": "اسم المستخدم",
+  "email": "البريد الإلكتروني",
+  "phone": "رقم الهاتف",
+  "name": "الاسم",
+  "bio": "السيرة الذاتية",
+  "phone_number": "رقم الهاتف",
+  "date_of_birth": "تاريخ الميلاد",
+  "street": "الشارع",
+  "city": "المدينة",
+  "settings": {
+    "title": "الإعدادات",
+    "preferences": "التفضيلات",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "privacy": "الخصوصية",
+    "security": "الأمان",
+    "account": "الحساب"
+  },
+  "privacy": {
+    "title": "إعدادات الخصوصية",
+    "show_email": "إظهار البريد الإلكتروني للمستخدمين الآخرين",
+    "show_phone": "إظهار رقم الهاتف للمستخدمين الآخرين",
+    "show_location": "إظهار الموقع للمستخدمين الآخرين"
+  },
+  "security": {
+    "title": "إعدادات الأمان",
+    "two_factor": "المصادقة الثنائية",
+    "login_history": "سجل تسجيل الدخول",
+    "devices": "الأجهزة"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "about_marketplace": "عن السوق",
+  "marketplace_description": "منصتك الموثوقة لشراء وبيع العناصر في مجتمعك المحلي.",
+  "quick_links": "روابط سريعة",
+  "contact_us": "اتصل بنا",
+  "help_center": "مركز المساعدة",
+  "terms_of_service": "شروط الخدمة",
+  "privacy_policy": "سياسة الخصوصية",
+  "copyright": "© 2025 أفضل موقع. جميع الحقوق محفوظة.",
+  "follow_us": "تابعنا",
+  "newsletter": {
+    "title": "اشترك في نشرتنا الإخبارية",
+    "placeholder": "أدخل بريدك الإلكتروني",
+    "button": "اشترك",
+    "success": "شكراً لاشتراكك!",
+    "error": "فشل الاشتراك. يرجى المحاولة مرة أخرى."
+  },
+  "links": {
+    "about": "من نحن",
+    "careers": "وظائف",
+    "blog": "المدونة",
+    "press": "الصحافة",
+    "partners": "الشركاء",
+    "investors": "المستثمرون",
+    "advertise": "أعلن معنا",
+    "support": "الدعم",
+    "faq": "الأسئلة الشائعة",
+    "contact": "اتصل بنا",
+    "feedback": "التعليقات"
+  },
+  "careers": {
+    "title": "وظائف"
+  },
+  "terms": {
+    "title": "شروط الخدمة"
+  },
+  "all_rights_reserved": "جميع الحقوق محفوظة",
+  "categories": "الفئات"
+}

@@ -1,0 +1,35 @@
+{
+  "find_perfect": "Find Your Perfect",
+  "vehicle": "Vehicle",
+  "discover_vehicle": "Discover Vehicle",
+  "property": "Property",
+  "discover_property": "Discover Property",
+  "trending_now": "Trending Now",
+  "featured_listings": "Featured Listings",
+  "recent_listings": "Recent Listings",
+  "popular_categories": "Popular Categories",
+  "browse_by_category": "Browse by Category",
+  "browse_all": "Browse All",
+  "view_all": "View All",
+  "hero": {
+    "title": "Find Your Dream Vehicle or Property",
+    "subtitle": "Browse thousands of listings in your area",
+    "search_placeholder": "Search for vehicles, properties, and more"
+  },
+  "stats": {
+    "active_listings": "Active Listings",
+    "happy_customers": "Happy Customers",
+    "cities_covered": "Cities Covered",
+    "trusted_sellers": "Trusted Sellers"
+  },
+  "cta": {
+    "sell_vehicle": "Sell Your Vehicle",
+    "list_property": "List Your Property",
+    "start_now": "Start Now",
+    "learn_more": "Learn More"
+  },
+  "testimonials": {
+    "title": "What Our Users Say",
+    "subtitle": "Hear from our satisfied customers"
+  }
+}

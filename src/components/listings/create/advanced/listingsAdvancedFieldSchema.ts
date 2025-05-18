@@ -61,12 +61,12 @@ export const SECTION_CONFIG: Record<SectionId, SectionConfig> = {
   essential: {
     order: 1,
     icon: "FaCarSide",
-    label: "sections.essential",
+    label: "essentialDetails",
   },
   advanced: {
     order: 2,
     icon: "FaCog",
-    label: "sections.advanced",
+    label: "advancedDetails",
   },
 };
 

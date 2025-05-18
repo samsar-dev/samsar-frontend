@@ -5,7 +5,7 @@ export const busSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "color",
-    label: "exteriorColor",
+    label: "fields.exteriorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -14,7 +14,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "interiorColor",
-    label: "interiorColor",
+    label: "fields.interiorColor",
     type: "colorpicker",
     section: "essential",
     required: true,
@@ -23,7 +23,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: Object.values(Condition),
     section: "essential",
@@ -31,7 +31,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "transmissionType",
     type: "select",
     options: Object.values(TransmissionType),
     section: "essential",
@@ -42,7 +42,7 @@ export const busSchema: ListingFieldSchema[] = [
 
   {
     name: "mileage",
-    label: "mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -55,7 +55,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: Object.values(FuelType),
     section: "essential",
@@ -66,7 +66,7 @@ export const busSchema: ListingFieldSchema[] = [
 
   {
     name: "previousOwners",
-    label: "previousOwners",
+    label: "fields.previousOwners",
     type: "number",
     section: "essential",
     required: true,
@@ -79,7 +79,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "busType",
-    label: "listings.busType",
+    label: "fields.busType",
     type: "select",
     options: [
       "schoolBus",
@@ -99,7 +99,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "registrationStatus",
+    label: "fields.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "essential",
@@ -109,7 +109,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "seatingCapacity",
-    label: "listings.seatingCapacity",
+    label: "fields.seatingCapacity",
     type: "number",
     section: "essential",
     required: true,
@@ -123,7 +123,7 @@ export const busSchema: ListingFieldSchema[] = [
 
   {
     name: "engine",
-    label: "engine",
+    label: "fields.engineDetails",
     type: "text",
     section: "essential",
     required: true,
@@ -133,7 +133,7 @@ export const busSchema: ListingFieldSchema[] = [
 
   {
     name: "serviceHistory",
-    label: "serviceHistory",
+    label: "fields.serviceHistory",
     type: "multiselect",
     options: ["full", "partial", "none"],
     section: "essential",
@@ -142,10 +142,198 @@ export const busSchema: ListingFieldSchema[] = [
   },
 
   // Advanced Section
+ 
+
+ 
+  {
+    name: "seatBelts",
+    label: "fields.seatBelts",
+    type: "select",
+    options: ["all", "driver", "none"],
+    section: "advanced",
+    required: false,
+  },
+  // Entertainment & Technology
+  {
+    name: "entertainmentFeatures",
+    label: "fields.entertainmentFeatures",
+    type: "multiselect",
+    options: [
+      "tv",
+      "dvdPlayer",
+      "audioSystem",
+      "wifi",
+      "usbCharging",
+      "wirelessCharging",
+      "bluetooth",
+    ],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "navigationSystem",
+    label: "fields.navigationSystem",
+    type: "select",
+    options: ["built-in", "portable", "none"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "communicationSystem",
+    label: "fields.communicationSystem",
+    type: "multiselect",
+    options: ["pa", "intercom", "radioSystem"],
+    section: "advanced",
+    required: false,
+  },
+
+  // Maintenance & Documentation
+  {
+    name: "maintenanceHistory",
+    label: "fields.maintenanceHistory",
+    type: "select",
+    options: ["complete", "partial", "minimal", "unknown"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "lastInspectionDate",
+    label: "fields.lastInspectionDate",
+    type: "date",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "warranty",
+    label: "fields.warranty",
+    type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "certifications",
+    label: "fields.certifications",
+    type: "multiselect",
+    options: ["safety", "emissions", "accessibility", "tourism"],
+    section: "advanced",
+    required: false,
+  },
+
+  // Storage & Capacity
+  {
+    name: "luggageCompartments",
+    label: "fields.luggageCompartments",
+    type: "number",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "luggageRacks",
+    label: "fields.luggageRacks",
+    type: "checkbox",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "fuelTankCapacity",
+    label: "fields.fuelTankCapacity",
+    type: "number",
+    section: "advanced",
+    required: false,
+  },
+   // Technical Specifications
+   {
+    name: "emissionStandard",
+    label: "fields.emissionStandard",
+    type: "select",
+    options: ["Euro 6", "Euro 5", "Euro 4", "Euro 3", "Other", "Unknown"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "enginePower",
+    label: "fields.enginePower",
+    type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "engineTorque",
+    label: "fields.engineTorque",
+    type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "suspension",
+    label: "fields.suspension",
+    type: "multiselect",
+    options: ["air", "leaf", "electronic", "hydraulic"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "brakeSystem",
+    label: "fields.brakeSystem",
+    type: "multiselect",
+    options: ["abs", "disc", "drum", "retarder", "engineBrake"],
+    section: "advanced",
+    required: false,
+  },
+
+  
+   
+
+ 
+
+  
+
+   // Accessibility Features
+   {
+    name: "wheelchairAccessible",
+    label: "fields.wheelchairAccessible",
+    type: "checkbox",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "wheelchairLift",
+    label: "fields.wheelchairLift",
+    type: "checkbox",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "seatType",
+    label: "fields.seatType",
+    type: "select",
+    options: ["standard", "luxury", "sleeper", "executive"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "seatMaterial",
+    label: "fields.seatMaterial",
+    type: "select",
+    options: ["fabric", "leather", "vinyl", "other"],
+    section: "advanced",
+    required: false,
+  },
+  
+
+  // Safety Features
+  {
+    name: "emergencyExits",
+    label: "fields.emergencyExits",
+    type: "number",
+    section: "advanced",
+    required: false,
+  },
+
   // Comfort Features
   {
     name: "airConditioning",
-    label: "comfort.airConditioning",
+    label: "fields.airConditioning",
     type: "select",
     options: ["none", "front", "full", "zoneControl"],
     section: "advanced",
@@ -153,14 +341,14 @@ export const busSchema: ListingFieldSchema[] = [
   },
   {
     name: "luggageSpace",
-    label: "listings.luggageSpace",
+    label: "fields.luggageSpace",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "comfortFeatures",
-    label: "listings.comfortFeatures",
+    label: "fields.comfortFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -180,41 +368,10 @@ export const busSchema: ListingFieldSchema[] = [
       },
     },
   },
-  {
-    name: "seatType",
-    label: "listings.seatType",
-    type: "select",
-    options: ["standard", "luxury", "sleeper", "executive"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "seatMaterial",
-    label: "listings.seatMaterial",
-    type: "select",
-    options: ["fabric", "leather", "vinyl", "other"],
-    section: "advanced",
-    required: false,
-  },
 
-  // Accessibility Features
-  {
-    name: "wheelchairAccessible",
-    label: "accessibility.wheelchairAccessible",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "wheelchairLift",
-    label: "listings.wheelchairLift",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
   {
     name: "accessibilityFeatures",
-    label: "listings.fields.accessibilityFeatures",
+    label: "fields.accessibilityFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -240,18 +397,9 @@ export const busSchema: ListingFieldSchema[] = [
       },
     },
   },
-
-  // Safety Features
-  {
-    name: "emergencyExits",
-    label: "safety.emergencyExits",
-    type: "number",
-    section: "advanced",
-    required: false,
-  },
   {
     name: "safetyFeatures",
-    label: "listings.fields.safetyFeatures",
+    label: "fields.safetyFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -306,141 +454,5 @@ export const busSchema: ListingFieldSchema[] = [
       },
     },
   },
-  {
-    name: "seatBelts",
-    label: "listings.seatBelts",
-    type: "select",
-    options: ["all", "driver", "none"],
-    section: "advanced",
-    required: false,
-  },
-
-  // Technical Specifications
-  {
-    name: "emissionStandard",
-    label: "listings.emissionStandard",
-    type: "select",
-    options: ["Euro 6", "Euro 5", "Euro 4", "Euro 3", "Other", "Unknown"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "enginePower",
-    label: "listings.enginePower",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "engineTorque",
-    label: "listings.engineTorque",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "suspension",
-    label: "listings.suspension",
-    type: "multiselect",
-    options: ["air", "leaf", "electronic", "hydraulic"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "brakeSystem",
-    label: "listings.brakeSystem",
-    type: "multiselect",
-    options: ["abs", "disc", "drum", "retarder", "engineBrake"],
-    section: "advanced",
-    required: false,
-  },
-
-  // Entertainment & Technology
-  {
-    name: "entertainmentFeatures",
-    label: "listings.entertainmentFeatures",
-    type: "multiselect",
-    options: [
-      "tv",
-      "dvdPlayer",
-      "audioSystem",
-      "wifi",
-      "usbCharging",
-      "wirelessCharging",
-      "bluetooth",
-    ],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "navigationSystem",
-    label: "listings.navigationSystem",
-    type: "select",
-    options: ["built-in", "portable", "none"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "communicationSystem",
-    label: "listings.communicationSystem",
-    type: "multiselect",
-    options: ["pa", "intercom", "radioSystem"],
-    section: "advanced",
-    required: false,
-  },
-
-  // Maintenance & Documentation
-  {
-    name: "maintenanceHistory",
-    label: "listings.maintenanceHistory",
-    type: "select",
-    options: ["complete", "partial", "minimal", "unknown"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "lastInspectionDate",
-    label: "listings.lastInspectionDate",
-    type: "date",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "warranty",
-    label: "listings.warranty",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "certifications",
-    label: "listings.certifications",
-    type: "multiselect",
-    options: ["safety", "emissions", "accessibility", "tourism"],
-    section: "advanced",
-    required: false,
-  },
-
-  // Storage & Capacity
-  {
-    name: "luggageCompartments",
-    label: "listings.luggageCompartments",
-    type: "number",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "luggageRacks",
-    label: "listings.luggageRacks",
-    type: "checkbox",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "fuelTankCapacity",
-    label: "listings.fuelTankCapacity",
-    type: "number",
-    section: "advanced",
-    required: false,
-  },
 ];
+

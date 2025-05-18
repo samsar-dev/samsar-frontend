@@ -1,0 +1,74 @@
+{
+  "transmission": {
+    "AUTOMATIC": "أوتوماتيك",
+    "MANUAL": "يدوي",
+    "SEMI_AUTOMATIC": "شبه أوتوماتيك",
+    "CVT": "ناقل حركة متغير باستمرار",
+    "DUAL_CLUTCH": "قابض مزدوج",
+    "OTHER": "أخرى"
+  },
+  "fuelType": {
+    "GASOLINE": "بنزين",
+    "DIESEL": "ديزل",
+    "ELECTRIC": "كهربائي",
+    "HYBRID": "هجين",
+    "PLUGIN_HYBRID": "هجين قابل للشحن",
+    "LPG": "غاز البترول المسال",
+    "CNG": "غاز طبيعي مضغوط",
+    "HYDROGEN": "هيدروجين",
+    "OTHER": "أخرى"
+  },
+  "condition": {
+    "NEW": "جديد",
+    "USED": "مستعمل",
+    "CERTIFIED_PRE_OWNED": "مستعمل معتمد",
+    "SALVAGE": "مستصلح",
+    "OTHER": "أخرى"
+  },
+  "driveType": {
+    "FWD": "دفع أمامي",
+    "RWD": "دفع خلفي",
+    "AWD": "دفع رباعي دائم",
+    "FOUR_WHEEL_DRIVE": "دفع رباعي",
+    "OTHER": "أخرى"
+  },
+  "vehicleType": {
+    "CAR": "سيارة",
+    "TRUCK": "شاحنة",
+    "MOTORCYCLE": "دراجة نارية",
+    "RV": "مركبة ترفيهية",
+    "BUS": "حافلة",
+    "VAN": "فان",
+    "TRACTOR": "جرار",
+    "CONSTRUCTION": "معدات إنشائية",
+    "OTHER": "أخرى"
+  },
+  "propertyType": {
+    "HOUSE": "منزل",
+    "APARTMENT": "شقة",
+    "CONDO": "شقة تمليك",
+    "LAND": "أرض",
+    "COMMERCIAL": "عقار تجاري",
+    "OTHER": "أخرى"
+  },
+  "listingType": {
+    "FOR_SALE": "للبيع",
+    "FOR_RENT": "للإيجار"
+  },
+  "cities": {
+    "DAMASCUS": "دمشق",
+    "ALEPPO": "حلب",
+    "HOMS": "حمص",
+    "LATTAKIA": "اللاذقية",
+    "HAMA": "حماة",
+    "DEIR_EZZOR": "دير الزور",
+    "HASEKEH": "الحسكة",
+    "QAMISHLI": "القامشلي",
+    "RAQQA": "الرقة",
+    "TARTOUS": "طرطوس",
+    "IDLIB": "إدلب",
+    "DARA": "درعا",
+    "SWEDIA": "السويداء",
+    "QUNEITRA": "القنيطرة"
+  }
+}

@@ -44,7 +44,7 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation("common");
+  const { t, i18n } = useTranslation('common');
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);
@@ -396,60 +396,23 @@ const Home: React.FC = () => {
   const sortOptions = [
     {
       value: "newestFirst",
-      label:
-        t("common.sortOptions.newestFirst") !== "common.sortOptions.newestFirst"
-          ? t("common.sortOptions.newestFirst")
-          : (() => {
-              console.warn(
-                "Missing translation: common.sortOptions.newestFirst",
-              );
-              return "Newest First";
-            })(),
+      label: "Newest First",
     },
     {
       value: "priceAsc",
-      label:
-        t("common.sortOptions.priceAsc") !== "common.sortOptions.priceAsc"
-          ? t("common.sortOptions.priceAsc")
-          : (() => {
-              console.warn("Missing translation: common.sortOptions.priceAsc");
-              return "Price: Low to High";
-            })(),
+      label: "Price: Low to High",
     },
     {
       value: "priceDesc",
-      label:
-        t("common.sortOptions.priceDesc") !== "common.sortOptions.priceDesc"
-          ? t("common.sortOptions.priceDesc")
-          : (() => {
-              console.warn("Missing translation: common.sortOptions.priceDesc");
-              return "Price: High to Low";
-            })(),
+      label: "Price: High to Low",
     },
     {
       value: "locationAsc",
-      label:
-        t("common.sortOptions.locationAsc") !== "common.sortOptions.locationAsc"
-          ? t("common.sortOptions.locationAsc")
-          : (() => {
-              console.warn(
-                "Missing translation: common.sortOptions.locationAsc",
-              );
-              return "Location: A to Z";
-            })(),
+      label: "Location: A to Z",
     },
     {
       value: "locationDesc",
-      label:
-        t("common.sortOptions.locationDesc") !==
-        "common.sortOptions.locationDesc"
-          ? t("common.sortOptions.locationDesc")
-          : (() => {
-              console.warn(
-                "Missing translation: common.sortOptions.locationDesc",
-              );
-              return "Location: Z to A";
-            })(),
+      label: "Location: Z to A",
     },
   ];
 
@@ -468,7 +431,7 @@ const Home: React.FC = () => {
             className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-auto"
           >
             <MdFilterList className="w-5 h-5" />
-            <span className="text-sm">{t("common.Filters")}</span>
+            <span className="text-sm">Filters</span>
           </button>
 
           {/* Sort By - Always Visible */}
@@ -478,7 +441,7 @@ const Home: React.FC = () => {
                 <Listbox.Button className="w-full flex justify-between items-center px-3 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <span className="truncate">
                     {sortOptions.find((opt) => opt.value === sortBy)?.label ||
-                      t("common.filters.sort_by")}
+                      "Sort by"}
                   </span>
                   <HiSelector className="w-5 h-5 ml-1 flex-shrink-0 text-gray-400" />
                 </Listbox.Button>
@@ -557,7 +520,7 @@ const Home: React.FC = () => {
                 <div className="text-red-500 whitespace-pre-wrap">
                   {typeof listings.error === "string"
                     ? listings.error
-                    : t("errors.fetch_failed")}
+                    : "Failed to fetch listings"}
                 </div>
               )}
               <motion.button
@@ -566,7 +529,7 @@ const Home: React.FC = () => {
                 onClick={fetchListings}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {t("common.try_again")}
+                Try Again
               </motion.button>
             </motion.div>
           )}
@@ -580,7 +543,7 @@ const Home: React.FC = () => {
             className="mt-12"
           >
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-              {t("home.trending_now")}
+              Trending Now
             </h3>
             <motion.div
               initial={{ opacity: 0 }}
@@ -640,8 +603,8 @@ const Home: React.FC = () => {
           </h1>
           <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
             {selectedCategory === ListingCategory.VEHICLES
-              ? t("home.discover_vehicle")
-              : t("home.discover_property")}
+              ? "Find your dream vehicle"
+              : "Discover amazing properties"}
           </p>
 
           {/* Category Buttons */}
@@ -655,7 +618,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaCar className="text-lg" />
-              {t("navigation.vehicles")}
+              Vehicles
             </button>
 
             <button
@@ -667,7 +630,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaHome className="text-lg" />
-              {t("navigation.real_estate")}
+              Real Estate
             </button>
           </div>
         </div>

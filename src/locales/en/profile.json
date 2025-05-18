@@ -1,0 +1,51 @@
+{
+  "title": "Profile",
+  "info": "Profile Information",
+  "personal_information": "Personal Information",
+  "update_info": "Update Information",
+  "change_photo": "Change Photo",
+  "my_listings": "My Listings",
+  "total_listings": "{{count}} listings",
+  "saved_listings": "Saved Listings",
+  "messages": "Messages",
+  "change_password": "Change Password",
+  "current_password": "Current Password",
+  "new_password": "New Password",
+  "confirm_password": "Confirm Password",
+  "confirm_new_password": "Confirm New Password",
+  "username": "Username",
+  "email": "Email",
+  "phone": "Phone Number",
+  "name": "Name",
+  "bio": "Bio",
+  "phone_number": "Phone Number",
+  "date_of_birth": "Date of Birth",
+  "street": "Street",
+  "city": "City",
+  "settings": {
+    "title": "Settings",
+    "preferences": "Preferences",
+    "language": "Language",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "security": "Security",
+    "account": "Account"
+  },
+  "privacy": {
+    "title": "Privacy Settings",
+    "show_email": "Show email to other users",
+    "show_phone": "Show phone number to other users",
+    "show_location": "Show location to other users"
+  },
+  "security": {
+    "title": "Security Settings",
+    "two_factor": "Two-factor authentication",
+    "login_history": "Login history",
+    "devices": "Devices"
+  },
+  "security_tips": "Security Tips",
+  "tip_unique": "Use a unique password that you don't use for other accounts",
+  "tip_manager": "Consider using a password manager to generate and store strong passwords",
+  "request_verification": "Request Verification Code",
+  "password_description": "Update your password to keep your account secure. Make sure to use a strong password that includes uppercase and lowercase letters, numbers, and special characters."
+}

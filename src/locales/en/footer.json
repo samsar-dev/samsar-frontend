@@ -1,0 +1,39 @@
+{
+  "about_marketplace": "About Marketplace",
+  "marketplace_description": "Your trusted platform for buying and selling items in your local community.",
+  "quick_links": "Quick Links",
+  "contact_us": "Contact Us",
+  "help_center": "Help Center",
+  "terms_of_service": "Terms of Service",
+  "privacy_policy": "Privacy Policy",
+  "copyright": "© 2025 Best Website. All rights reserved.",
+  "follow_us": "Follow Us",
+  "newsletter": {
+    "title": "Subscribe to our newsletter",
+    "placeholder": "Enter your email",
+    "button": "Subscribe",
+    "success": "Thank you for subscribing!",
+    "error": "Failed to subscribe. Please try again."
+  },
+  "links": {
+    "about": "About Us",
+    "careers": "Careers",
+    "blog": "Blog",
+    "press": "Press",
+    "partners": "Partners",
+    "investors": "Investors",
+    "advertise": "Advertise with Us",
+    "support": "Support",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "feedback": "Feedback"
+  },
+  "careers": {
+    "title": "Careers"
+  },
+  "terms": {
+    "title": "Terms of Service"
+  },
+  "all_rights_reserved": "All rights reserved",
+  "categories": "Categories"
+}

@@ -1,0 +1,74 @@
+{
+  "transmission": {
+    "AUTOMATIC": "Automatic",
+    "MANUAL": "Manual",
+    "SEMI_AUTOMATIC": "Semi-Automatic",
+    "CVT": "CVT",
+    "DUAL_CLUTCH": "Dual Clutch",
+    "OTHER": "Other"
+  },
+  "fuelType": {
+    "GASOLINE": "Gasoline",
+    "DIESEL": "Diesel",
+    "ELECTRIC": "Electric",
+    "HYBRID": "Hybrid",
+    "PLUGIN_HYBRID": "Plug-in Hybrid",
+    "LPG": "LPG",
+    "CNG": "CNG",
+    "HYDROGEN": "Hydrogen",
+    "OTHER": "Other"
+  },
+  "condition": {
+    "NEW": "New",
+    "USED": "Used",
+    "CERTIFIED_PRE_OWNED": "Certified Pre-Owned",
+    "SALVAGE": "Salvage",
+    "OTHER": "Other"
+  },
+  "driveType": {
+    "FWD": "Front-Wheel Drive",
+    "RWD": "Rear-Wheel Drive",
+    "AWD": "All-Wheel Drive",
+    "FOUR_WHEEL_DRIVE": "Four-Wheel Drive",
+    "OTHER": "Other"
+  },
+  "vehicleType": {
+    "CAR": "Car",
+    "TRUCK": "Truck",
+    "MOTORCYCLE": "Motorcycle",
+    "RV": "RV",
+    "BUS": "Bus",
+    "VAN": "Van",
+    "TRACTOR": "Tractor",
+    "CONSTRUCTION": "Construction Equipment",
+    "OTHER": "Other"
+  },
+  "propertyType": {
+    "HOUSE": "House",
+    "APARTMENT": "Apartment",
+    "CONDO": "Condo",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial",
+    "OTHER": "Other"
+  },
+  "listingType": {
+    "FOR_SALE": "For Sale",
+    "FOR_RENT": "For Rent"
+  },
+  "cities": {
+    "DAMASCUS": "Damascus",
+    "ALEPPO": "Aleppo",
+    "HOMS": "Homs",
+    "LATTAKIA": "Latakia",
+    "HAMA": "Hama",
+    "DEIR_EZZOR": "Deir Ezzor",
+    "HASEKEH": "Hasekeh",
+    "QAMISHLI": "Qamishli",
+    "RAQQA": "Raqqa",
+    "TARTOUS": "Tartous",
+    "IDLIB": "Idlib",
+    "DARA": "Dara",
+    "SWEDIA": "Swedia",
+    "QUNEITRA": "Quneitra"
+  }
+}

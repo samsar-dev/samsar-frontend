@@ -1,0 +1,35 @@
+{
+  "find_perfect": "ابحث عن",
+  "vehicle": "مركبتك المثالية",
+  "discover_vehicle": "اكتشف سيارة أحلامك",
+  "property": "عقارك المثالي",
+  "discover_property": "اكتشف عقارك المثالي",
+  "trending_now": "الرائج الآن",
+  "featured_listings": "إعلانات مميزة",
+  "recent_listings": "أحدث الإعلانات",
+  "popular_categories": "الفئات الشائعة",
+  "browse_by_category": "تصفح حسب الفئة",
+  "browse_all": "تصفح الكل",
+  "view_all": "عرض الكل",
+  "hero": {
+    "title": "ابحث عن سيارة أحلامك أو عقارك المثالي",
+    "subtitle": "تصفح آلاف الإعلانات في منطقتك",
+    "search_placeholder": "ابحث عن مركبات، عقارات، والمزيد"
+  },
+  "stats": {
+    "active_listings": "إعلانات نشطة",
+    "happy_customers": "عملاء سعداء",
+    "cities_covered": "مدن مشمولة",
+    "trusted_sellers": "بائعين موثوقين"
+  },
+  "cta": {
+    "sell_vehicle": "بيع مركبتك",
+    "list_property": "أعلن عن عقارك",
+    "start_now": "ابدأ الآن",
+    "learn_more": "اعرف المزيد"
+  },
+  "testimonials": {
+    "title": "ماذا يقول مستخدمونا",
+    "subtitle": "اسمع من عملائنا الراضين"
+  }
+}

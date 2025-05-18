@@ -666,13 +666,13 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         <div>
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-lg font-medium">
-              {t("listings.uploadedImages")} ({formData.images.length})
+              {t("listings.images.uploadedImages")} ({formData.images.length})
             </h3>
             <button
               type="button"
               onClick={() => onEdit("images")}
               className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
-              aria-label={t("listings.editImages")}
+              aria-label={t("listings.images.edit")}
             >
               <FaEdit className="w-5 h-5" />
               <span className="text-sm">{t("common.edit")}</span>
@@ -686,7 +686,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
               >
                 <ImageFallback
                   src={url}
-                  alt={`${t("listings.image")} ${index + 1}`}
+                  alt={`${t("listings.images.image")} ${index + 1}`}
                   className="object-cover w-full h-full"
                 />
               </div>

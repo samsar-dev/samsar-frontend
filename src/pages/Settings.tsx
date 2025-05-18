@@ -54,7 +54,7 @@ interface SettingsState {
 }
 
 function Settings() {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('settings');
   const { settings, updateSettings } = useSettings();
   // debounce state
   const [debouncedToggles, setDebouncedToggles] = useState(settings);
@@ -115,16 +115,16 @@ function Settings() {
     >
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
           <p className="mt-2 text-gray-600">
-            {t("settings.settingsDescription")}
+            {t("settingsDescription")}
           </p>
         </div>
 
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
-              {t("settings.preferences")}
+              {t("preferences")}
             </h2>
             <PreferenceSettings
               settings={settings?.preferences || {}}
@@ -137,67 +137,67 @@ function Settings() {
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
-              {t("settings.notifications")}
+              {t("notifications.title")}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span>{t("settings.messageNotifications")}</span>
+                <span>{t("notifications.messageNotifications")}</span>
                 <Toggle
                   checked={settings?.notifications?.message ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("message", checked)
                   }
-                  label={t("settings.messageNotifications")}
+                  label={t("notifications.messageNotifications")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.listingNotifications")}</span>
+                <span>{t("notifications.listingNotifications")}</span>
                 <Toggle
                   checked={settings?.notifications?.listing ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("listing", checked)
                   }
-                  label={t("settings.listingNotifications")}
+                  label={t("notifications.listingNotifications")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.systemNotifications")}</span>
+                <span>{t("notifications.systemNotifications")}</span>
                 <Toggle
                   checked={settings?.notifications?.system ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("system", checked)
                   }
-                  label={t("settings.systemNotifications")}
+                  label={t("notifications.systemNotifications")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.emailNotifications")}</span>
+                <span>{t("notifications.email")}</span>
                 <Toggle
                   checked={settings?.notifications?.email ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("email", checked)
                   }
-                  label={t("settings.emailNotifications")}
+                  label={t("notifications.email")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.pushNotifications")}</span>
+                <span>{t("notifications.push")}</span>
                 <Toggle
                   checked={settings?.notifications?.push ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("push", checked)
                   }
-                  label={t("settings.pushNotifications")}
+                  label={t("notifications.push")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.desktopNotifications")}</span>
+                <span>{t("notifications.desktopNotifications")}</span>
                 <Toggle
                   checked={settings?.notifications?.desktop ?? false}
                   onChange={(checked: boolean) =>
                     handleNotificationToggle("desktop", checked)
                   }
-                  label={t("settings.desktopNotifications")}
+                  label={t("notifications.desktopNotifications")}
                 />
               </div>
             </div>
@@ -207,7 +207,7 @@ function Settings() {
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
-              {t("settings.security")}
+              {t("security.title")}
             </h2>
             <SecuritySettings
               settings={settings?.security || {}}
@@ -220,11 +220,11 @@ function Settings() {
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
-              {t("settings.privacy")}
+              {t("privacy.title")}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span>{t("settings.profileVisibility")}</span>
+                <span>{t("privacy.profileVisibility")}</span>
                 <select
                   value={settings?.privacy?.profileVisibility ?? "public"}
                   onChange={(e) =>
@@ -234,28 +234,28 @@ function Settings() {
                   }
                   className="form-select"
                 >
-                  <option value="public">{t("settings.public")}</option>
-                  <option value="private">{t("settings.private")}</option>
+                  <option value="public">{t("privacy.public")}</option>
+                  <option value="private">{t("privacy.private")}</option>
                 </select>
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.showOnlineStatus")}</span>
+                <span>{t("privacy.showOnlineStatus")}</span>
                 <Toggle
                   checked={settings?.privacy?.showOnlineStatus ?? false}
                   onChange={(checked: boolean) =>
                     handlePrivacyUpdate({ showOnlineStatus: checked })
                   }
-                  label={t("settings.showOnlineStatus")}
+                  label={t("privacy.showOnlineStatus")}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.showEmail")}</span>
+                <span>{t("privacy.showEmail")}</span>
                 <Toggle
                   checked={settings?.privacy?.showEmail ?? false}
                   onChange={(checked: boolean) =>
                     handlePrivacyUpdate({ showEmail: checked })
                   }
-                  label={t("settings.showEmail")}
+                  label={t("privacy.showEmail")}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -269,13 +269,13 @@ function Settings() {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <span>{t("settings.allowMessaging")}</span>
+                <span>{t("privacy.allowMessaging")}</span>
                 <Toggle
                   checked={settings?.privacy?.allowMessaging ?? false}
                   onChange={(checked: boolean) =>
                     handlePrivacyUpdate({ allowMessaging: checked })
                   }
-                  label={t("settings.allowMessaging")}
+                  label={t("privacy.allowMessaging")}
                 />
               </div>
             </div>
@@ -285,7 +285,7 @@ function Settings() {
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-6">
-              {t("settings.delete_account")}
+              {t("account.deleteAccount")}
             </h2>
             <DeleteAccount />
           </div>

@@ -1,0 +1,238 @@
+{
+  "appName": "Best Website",
+  "all": "الكل",
+  "all_types": "جميع الأنواع",
+  "search": "البحث",
+  "category": "الفئة",
+  "vehicles": "المركبات",
+  "realEstate": "العقارات",
+  "vehicleType": "نوع المركبة",
+  "propertyType": "نوع العقار",
+  "next": "التالي",
+  "previous": "السابق",
+  "submit": "إرسال",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "edit": "تعديل",
+  "delete": "حذف",
+  "yes": "نعم",
+  "no": "لا",
+  "notSpecified": "غير محدد",
+  "notProvided": "غير متوفر",
+  "title": "العنوان",
+  "titlePlaceholder": "أدخل عنواناً للإعلان",
+  "loading": "جاري التحميل...",
+  "saving": "جاري الحفظ...",
+  "continue": "استمرار",
+  "back": "رجوع",
+  "overview": "نظرة عامة",
+  "essentialDetails": "التفاصيل الأساسية",
+  "basicDetails": "التفاصيل الأساسية",
+  "advancedDetails": "التفاصيل المتقدمة",
+  "review": "مراجعة",
+  "steps": {
+    "basicDetails": "التفاصيل الأساسية",
+    "advancedDetails": "التفاصيل المتقدمة",
+    "review": "مراجعة"
+  },
+  "propertyDetails": {
+    "title": "تفاصيل العقار",
+    "totalArea": "المساحة الإجمالية",
+    "totalAreaPlaceholder": "أدخل المساحة الإجمالية بالمتر المربع",
+    "yearBuilt": "سنة البناء",
+    "yearBuiltPlaceholder": "أدخل سنة البناء",
+    "bedrooms": "غرف النوم",
+    "bedroomsPlaceholder": "عدد غرف النوم",
+    "bathrooms": "دورات المياه",
+    "bathroomsPlaceholder": "عدد دورات المياه",
+    "bathroomsHelpText": "عدد دورات المياه في العقار",
+    "price": "السعر",
+    "pricePlaceholder": "مثال: 50000 ل.س",
+    "location": "الموقع",
+    "selectLocation": "اختر الموقع",
+    "description": "الوصف",
+    "descriptionPlaceholder": "أخبرنا المزيد عن إعلانك... (مثل المميزات والحالة وسبب البيع)"
+  },
+  "vehicleTypes": {
+    "CAR": "سيارة",
+    "TRUCK": "شاحنة",
+    "MOTORCYCLE": "دراجة نارية",
+    "RV": "سيارة سكنية",
+    "BUS": "حافلة",
+    "VAN": "فان",
+    "TRACTOR": "جرار",
+    "CONSTRUCTION": "معدات بناء",
+    "OTHER": "أخرى"
+  },
+  "propertyTypes": {
+    "HOUSE": "منزل",
+    "APARTMENT": "شقة",
+    "CONDO": "شقة فندقية",
+    "LAND": "أرض",
+    "COMMERCIAL": "تجاري",
+    "OTHER": "أخرى"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "vehicles": "المركبات",
+    "real_estate": "العقارات"
+  },
+  "createListing": "إنشاء إعلان",
+  "myListings": "إعلاناتي",
+  "savedListings": "الإعلانات المحفوظة",
+  "messages": "الرسائل",
+  "profile": "الملف الشخصي",
+  "settings": "الإعدادات",
+  "logout": "تسجيل الخروج",
+  "auth": {
+    "logging_out": "جاري تسجيل الخروج...",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور"
+  },
+  "listings": {
+    "fields": {
+      "mileage": "المسافة المقطوعة",
+      "year": "السنة",
+      "fuelType": "نوع الوقود",
+      "transmission": "ناقل الحركة",
+      "condition": "الحالة",
+      "fuelTypes": {
+        "gasoline": "بنزين"
+      },
+      "transmissionTypes": {
+        "AUTOMATIC": "أوتوماتيك",
+        "automatic": "أوتوماتيك"
+      },
+      "conditions": {
+        "new": "جديد",
+        "used": "مستعمل"
+      }
+    },
+    "year": "السنة",
+    "basicInformation": "المعلومات الأساسية",
+    "title": "العنوان",
+    "price": "السعر",
+    "location": "الموقع",
+    "listingAction": "إجراءات الإعلان",
+    "essentialDetails": "التفاصيل الأساسية",
+    "appearance": "المظهر",
+    "exteriorColor": "اللون الخارجي",
+    "interiorColor": "اللون الداخلي",
+    "description": "الوصف"
+  },
+  "home": {
+    "find_perfect": "ابحث عن",
+    "vehicle": "مركبتك المثالية",
+    "property": "عقارك المثالي",
+    "discover_vehicle": "اكتشف المركبات"
+  },
+  "language": {
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "selectLanguage": "اختر اللغة"
+  },
+  "sortOptions": {
+    "newestFirst": "الأحدث أولاً",
+    "priceAsc": "السعر: من الأقل إلى الأعلى",
+    "priceDesc": "السعر: من الأعلى إلى الأقل",
+    "locationAsc": "الموقع: أ إلى ي",
+    "locationDesc": "الموقع: ي إلى أ"
+  },
+  "cities": {
+    "HOMS": "حمص",
+    "DAMASCUS": "دمشق",
+    "ALEPPO": "حلب",
+    "LATTAKIA": "اللاذقية",
+    "HAMA": "حماة",
+    "DEIR_EZZOR": "دير الزور",
+    "HASEKEH": "الحسكة",
+    "QAMISHLI": "القامشلي",
+    "RAQQA": "الرقة",
+    "TARTOUS": "طرطوس",
+    "IDLIB": "إدلب",
+    "DARA": "درعا",
+    "SWEDIA": "السويداء",
+    "QUNEITRA": "القنيطرة"
+  },
+  "ui": {
+    "tryAgain": "حاول مرة أخرى",
+    "viewMore": "عرض المزيد",
+    "viewLess": "عرض أقل",
+    "showAll": "عرض الكل",
+    "hideAll": "إخفاء الكل",
+    "collapse": "طي",
+    "expand": "توسيع",
+    "close": "إغلاق"
+  },
+  "Filters": "الفلاتر",
+  "forRent": "للإيجار",
+  "forSale": "للبيع",
+  "allCities": "جميع المدن",
+  "reset": "إعادة تعيين",
+  "categories": {
+    "vehicle": {
+      "CAR": "سيارة",
+      "TRUCK": "شاحنة",
+      "MOTORCYCLE": "دراجة نارية",
+      "VAN": "فان",
+      "BUS": "حافلة",
+      "TRACTOR": "جرار",
+      "RV": "سيارة سكنية"
+    }
+  },
+  "subcategories": {
+    "property": {
+      "HOUSE": "منزل",
+      "APARTMENT": "شقة",
+      "CONDO": "شقة فندقية",
+      "LAND": "أرض",
+      "COMMERCIAL": "تجاري"
+    },
+    "OTHER": "أخرى"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "toggle": "تبديل الإشعارات",
+    "empty": "لا توجد إشعارات بعد"
+  },
+  "footer": {
+    "quick_links": "روابط سريعة",
+    "about_marketplace": "حول السوق",
+    "contact_us": "اتصل بنا",
+    "careers": {
+      "title": "الوظائف"
+    },
+    "terms": {
+      "title": "شروط الخدمة"
+    },
+    "categories": "الفئات",
+    "all_rights_reserved": "جميع الحقوق محفوظة",
+    "social": {
+      "facebook": "فيسبوك",
+      "twitter": "تويتر",
+      "instagram": "إنستغرام",
+      "linkedin": "لينكد إن"
+    }
+  },
+  "navigation.home": "الرئيسية",
+  "navigation.vehicles": "المركبات",
+  "navigation.real_estate": "العقارات",
+  "auth.login": "تسجيل الدخول",
+  "auth.register": "التسجيل",
+  "footer.quick_links": "روابط سريعة",
+  "footer.about_marketplace": "حول السوق",
+  "footer.contact_us": "اتصل بنا",
+  "footer.careers.title": "الوظائف",
+  "footer.terms.title": "شروط الخدمة",
+  "footer.categories": "الفئات",
+  "footer.all_rights_reserved": "جميع الحقوق محفوظة",
+  "sortOptions.newestFirst": "الأحدث أولاً",
+  "sortOptions.priceAsc": "السعر: من الأقل إلى الأعلى",
+  "sortOptions.priceDesc": "السعر: من الأعلى إلى الأقل",
+  "sortOptions.locationAsc": "الموقع: أ إلى ي",
+  "sortOptions.locationDesc": "الموقع: ي إلى أ"
+}

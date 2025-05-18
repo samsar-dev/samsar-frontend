@@ -1,0 +1,239 @@
+{
+  "appName": "Best Website",
+  "all": "All",
+  "all_types": "All Types",
+  "search": "Search",
+  "category": "Category",
+  "vehicles": "Vehicles",
+  "realEstate": "Real Estate",
+  "vehicleType": "Vehicle Type",
+  "propertyType": "Property Type",
+  "next": "Next",
+  "previous": "Previous",
+  "submit": "Submit",
+  "cancel": "Cancel",
+  "save": "Save",
+  "edit": "Edit",
+  "delete": "Delete",
+  "yes": "Yes",
+  "no": "No",
+  "notSpecified": "Not Specified",
+  "notProvided": "Not Provided",
+  "title": "Title",
+  "titlePlaceholder": "Enter a title for your listing",
+  "loading": "Loading...",
+  "saving": "Saving...",
+  "continue": "Continue",
+  "back": "Back",
+  "overview": "Overview",
+  "essentialDetails": "Essential Details",
+  "basicDetails": "Basic Details",
+  "advancedDetails": "Advanced Details",
+  "review": "Review",
+  "steps": {
+    "basicDetails": "Basic Details",
+    "advancedDetails": "Advanced Details",
+    "review": "Review"
+  },
+  "propertyDetails": {
+    "title": "Property Details",
+    "totalArea": "Total Area",
+    "totalAreaPlaceholder": "Enter total area in square meters",
+    "yearBuilt": "Year Built",
+    "yearBuiltPlaceholder": "Enter year of construction",
+    "bedrooms": "Bedrooms",
+    "bedroomsPlaceholder": "Number of bedrooms",
+    "bathrooms": "Bathrooms",
+    "bathroomsPlaceholder": "Number of bathrooms",
+    "bathroomsHelpText": "Number of bathrooms in the property",
+    "price": "Price",
+    "pricePlaceholder": "e.g. 50000 SYP",
+    "location": "Location",
+    "selectLocation": "Select location",
+    "description": "Description",
+    "descriptionPlaceholder": "Tell us more about your listing... (e.g. features, condition, reason for selling)"
+  },
+  "vehicleTypes": {
+    "CAR": "Car",
+    "TRUCK": "Truck",
+    "MOTORCYCLE": "Motorcycle",
+    "RV": "RV",
+    "BUS": "Bus",
+    "VAN": "Van",
+    "TRACTOR": "Tractor",
+    "CONSTRUCTION": "Construction",
+    "OTHER": "Other"
+  },
+  "propertyTypes": {
+    "HOUSE": "House",
+    "APARTMENT": "Apartment",
+    "CONDO": "Condo",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial",
+    "OTHER": "Other"
+  },
+  "navigation": {
+    "home": "Home",
+    "vehicles": "Vehicles",
+    "real_estate": "Real Estate"
+  
+  },
+  "createListing": "Create Listing",
+  "myListings": "My Listings",
+  "savedListings": "Saved Listings",
+  "messages": "Messages",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout",
+  "auth": {
+    "logging_out": "Logging out...",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "listings": {
+    "fields": {
+      "mileage": "Mileage",
+      "year": "Year",
+      "fuelType": "Fuel Type",
+      "transmission": "Transmission",
+      "condition": "Condition",
+      "fuelTypes": {
+        "gasoline": "Gasoline"
+      },
+      "transmissionTypes": {
+        "AUTOMATIC": "Automatic",
+        "automatic": "Automatic"
+      },
+      "conditions": {
+        "new": "New",
+        "used": "Used"
+      }
+    },
+    "year": "Year",
+    "basicInformation": "Basic Information",
+    "title": "Title",
+    "price": "Price",
+    "location": "Location",
+    "listingAction": "Listing Action",
+    "essentialDetails": "Essential Details",
+    "appearance": "Appearance",
+    "exteriorColor": "Exterior Color",
+    "interiorColor": "Interior Color",
+    "description": "Description"
+  },
+  "home": {
+    "find_perfect": "Find Your Perfect",
+    "vehicle": "Vehicle",
+    "property": "Property",
+    "discover_vehicle": "Discover Vehicle"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "Arabic",
+    "selectLanguage": "Select Language"
+  },
+  "sortOptions": {
+    "newestFirst": "Newest First",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low",
+    "locationAsc": "Location: A to Z",
+    "locationDesc": "Location: Z to A"
+  },
+  "cities": {
+    "HOMS": "Homs",
+    "DAMASCUS": "Damascus",
+    "ALEPPO": "Aleppo",
+    "LATTAKIA": "Lattakia",
+    "HAMA": "Hama",
+    "DEIR_EZZOR": "Deir Ezzor",
+    "HASEKEH": "Hasekeh",
+    "QAMISHLI": "Qamishli",
+    "RAQQA": "Raqqa",
+    "TARTOUS": "Tartous",
+    "IDLIB": "Idlib",
+    "DARA": "Dara",
+    "SWEDIA": "Sweden",
+    "QUNEITRA": "Quneitra"
+  },
+  "ui": {
+    "tryAgain": "Try Again",
+    "viewMore": "View More",
+    "viewLess": "View Less",
+    "showAll": "Show All",
+    "hideAll": "Hide All",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "close": "Close"
+  },
+  "Filters": "Filters",
+  "forRent": "For Rent",
+  "forSale": "For Sale",
+  "allCities": "All Cities",
+  "reset": "Reset",
+  "categories": {
+    "vehicle": {
+      "CAR": "Car",
+      "TRUCK": "Truck",
+      "MOTORCYCLE": "Motorcycle",
+      "VAN": "Van",
+      "BUS": "Bus",
+      "TRACTOR": "Tractor",
+      "RV": "RV"
+    }
+  },
+  "subcategories": {
+    "property": {
+      "HOUSE": "House",
+      "APARTMENT": "Apartment",
+      "CONDO": "Condo",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial"
+    },
+    "OTHER": "Other"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "toggle": "Toggle Notifications",
+    "empty": "No notifications yet"
+  },
+  "footer": {
+    "quick_links": "Quick Links",
+    "about_marketplace": "About Marketplace",
+    "contact_us": "Contact Us",
+    "careers": {
+      "title": "Careers"
+    },
+    "terms": {
+      "title": "Terms of Service"
+    },
+    "categories": "Categories",
+    "all_rights_reserved": "All Rights Reserved",
+    "social": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    }
+  },
+  "navigation.home": "Home",
+  "navigation.vehicles": "Vehicles",
+  "navigation.real_estate": "Real Estate",
+  "auth.login": "Login",
+  "auth.register": "Register",
+  "footer.quick_links": "Quick Links",
+  "footer.about_marketplace": "About Marketplace",
+  "footer.contact_us": "Contact Us",
+  "footer.careers.title": "Careers",
+  "footer.terms.title": "Terms of Service",
+  "footer.categories": "Categories",
+  "footer.all_rights_reserved": "All Rights Reserved",
+  "sortOptions.newestFirst": "Newest First",
+  "sortOptions.priceAsc": "Price: Low to High",
+  "sortOptions.priceDesc": "Price: High to Low",
+  "sortOptions.locationAsc": "Location: A to Z",
+  "sortOptions.locationDesc": "Location: Z to A"
+}

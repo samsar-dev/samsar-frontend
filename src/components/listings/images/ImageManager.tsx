@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
+import { isMobile } from "react-device-detect";
 import imageCompression from "browser-image-compression";
 import { FaTrash, FaImage, FaSpinner, FaEdit } from "react-icons/fa";
 import ImageEditor from "./ImageEditor";
+import DraggableImage from "./DraggableImage";
 import PreloadImages from "@/components/media/PreloadImages";
 import ImageFallback from "@/components/common/ImageFallback";
 
@@ -41,7 +46,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   existingImages = [],
   onDeleteExisting,
 }) => {
-  const { t } = useTranslation(["common", "listings"]);
+  const { t } = useTranslation("listings");
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -375,21 +380,38 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         // Create a copy of the images array to avoid reference issues
         const newImages = [...images, ...validFiles];
         onChange(newImages);
-        toast.success(
-          t("success.imagesUploaded", {
-            count: validFiles.length,
-            hint: "Your photos are looking great! ✨",
-          }),
-        );
+        toast.success(t("images.upload_success"));
       }
     } catch (error) {
-      toast.error(t("errors.uploadFailed"));
+      toast.error(t("upload.uploadFailed"));
       console.error("Error uploading images:", error);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
     }
   };
+
+  // Move image in the array (for drag-and-drop reordering)
+  const moveImage = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      // Create copies of the arrays to avoid mutating state directly
+      const newImages = [...images];
+      const newPreviewUrls = [...previewUrls];
+
+      // Remove items from their original position
+      const [movedImage] = newImages.splice(fromIndex, 1);
+      const [movedPreviewUrl] = newPreviewUrls.splice(fromIndex, 1);
+
+      // Insert items at their new position
+      newImages.splice(toIndex, 0, movedImage);
+      newPreviewUrls.splice(toIndex, 0, movedPreviewUrl);
+
+      // Update state
+      setPreviewUrls(newPreviewUrls);
+      onChange(newImages);
+    },
+    [images, previewUrls, onChange]
+  );
 
   const handleImageDelete = (index: number) => {
     // Only revoke if it's a blob URL we created
@@ -441,7 +463,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       setEditingImage(null);
     } catch (error) {
       console.error("Error saving edited image:", error);
-      toast.error(t("errors.editFailed"));
+      toast.error(t("upload.uploadFailed"));
     }
   };
 
@@ -456,7 +478,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">
-        {t("listings.upload_images")}
+        {t("images.title")}
       </h3>
 
       {/* Dropzone */}
@@ -484,17 +506,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
             <FaImage className="mx-auto h-12 w-12 text-gray-400" />
           </motion.div>
           <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mt-2">
-            {isDragActive
-              ? t("listings.images.dragDrop")
-              : t("listings.images.dragDropFriendly")}
+            {t("images.dragDropFriendly")}
           </p>
         </motion.div>
       </div>
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {images.length + existingImages.length} / {maxImages}{" "}
-        {t("listings.images.uploaded")}
+        {t("images.uploaded")} ({images.length + existingImages.length} / {maxImages})
       </p>
 
       {/* Upload Progress */}
@@ -508,7 +527,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-600">
-                {t("listings.upload.progress", {
+                {t("images.progress", {
                   current: Math.round(uploadProgress),
                   total: 100,
                   hint: "Almost there! Your photos are being optimized...",
@@ -532,121 +551,66 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       {existingImages.length > 0 && (
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {t("listings.existingImages")} ({existingImages.length})
+            {t("images.existingImages")} ({existingImages.length})
           </h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <AnimatePresence>
-              {existingImages.map((url, index) => (
-                <motion.div
-                  key={url}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="relative pt-[75%] group"
-                >
-                  {/* Preload the first existing image for LCP */}
-                  {index === 0 && url && <PreloadImages imageUrls={[url]} />}
-                  <ImageFallback
-                    src={url}
-                    alt={`Existing ${index + 1}`}
-                    className="absolute inset-0 w-full h-full object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
-                    loading="lazy"
-                    onError={() => {
-                      // Handle error if needed
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleImageEdit(index, url)}
-                      className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors duration-200"
-                      title={t("listings.edit")}
-                    >
-                      <FaEdit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onDeleteExisting?.(url);
-                      }}
-                      className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
-                      title={t("listings.delete")}
-                    >
-                      <FaTrash className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+          <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {existingImages.map((url, index) => {
+                  // Calculate the combined index (existing images come after new images)
+                  const combinedIndex = previewUrls.length + index;
+                  
+                  return (
+                    <DraggableImage
+                      key={`existing-${index}`}
+                      url={url}
+                      index={combinedIndex}
+                      moveImage={moveImage}
+                      onDelete={() => onDeleteExisting?.(url)}
+                      onEdit={(url, idx) => handleImageEdit(idx - previewUrls.length, url)}
+                      isUploading={isUploading}
+                      isExisting={true}
+                    />
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </DndProvider>
         </div>
       )}
 
-      {/* New Images Preview */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-        <AnimatePresence>
-          {previewUrls.map((url, index) => (
-            <motion.div
-              key={url}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="relative pt-[75%] group"
-            >
-              {/* Preload the first preview image for LCP */}
-              {index === 0 && url && <PreloadImages imageUrls={[url]} />}
-              <div className="absolute inset-0 w-full h-full overflow-hidden rounded-lg">
-                <ImageFallback
-                  src={url}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e: React.SyntheticEvent) => {
-                    console.error("Image error:", e);
-                  }}
-                  width={300}
-                  height={200}
+      {/* Image Preview with Drag and Drop */}
+      <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+          <AnimatePresence>
+            {previewUrls.map((url, index) => {
+              // Calculate file size display
+              const fileSize = images[index] && (
+                (imageSizes[images[index].name] || images[index].size) / 1024
+              ).toFixed(1) + " KB";
+              
+              // Calculate dimensions display (approximate)
+              const dimensions = images[index] && imageSizes[images[index].name] 
+                ? `${Math.round(Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92))}px`
+                : "";
+                
+              return (
+                <DraggableImage
+                  key={`preview-${index}`}
+                  url={url}
+                  index={index}
+                  moveImage={moveImage}
+                  onDelete={handleImageDelete}
+                  onEdit={(url, idx) => handleImageEdit(idx, url)}
+                  isUploading={isUploading}
+                  fileSize={fileSize}
+                  dimensions={dimensions}
                 />
-              </div>
-              {/* Display file size */}
-              {images[index] && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
-                  {imageSizes[images[index].name] || images[index].size
-                    ? (
-                        (imageSizes[images[index].name] || images[index].size) /
-                        1024
-                      ).toFixed(1) + " KB"
-                    : ""}
-                </div>
-              )}
-              {/* Display image dimensions */}
-              {images[index] && (
-                <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-md">
-                  {imageSizes[images[index].name]
-                    ? `${Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92)} × ${Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92)}`
-                    : ""}
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
-                <button
-                  onClick={() => handleImageEdit(index, url)}
-                  className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors duration-200"
-                  title={t("edit")}
-                >
-                  <FaEdit className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleImageDelete(index)}
-                  className="p-2 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors duration-200"
-                  title={t("delete")}
-                >
-                  <FaTrash className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      </DndProvider>
 
       {/* Error Message */}
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

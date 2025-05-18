@@ -1,55 +1,63 @@
 import i18n from "i18next";
 import { InitOptions } from "i18next";
 import { initReactI18next } from "react-i18next";
+import Backend from "i18next-http-backend";
 
-import enTranslation from "@/locales/en.json";
-import arTranslation from "@/locales/ar.json";
+// Import all translations using the index files
+import enTranslations from "@/locales/en";
+import arTranslations from "@/locales/ar";
 
+// Define the resources structure with all namespaces
 const resources = {
-  en: {
-    common: {
-      ...enTranslation,
-      listings: undefined, // Remove listings from common
-    },
-    listings: enTranslation.listings,
-  },
-  AR: {
-    common: {
-      ...arTranslation,
-      listings: undefined, // Remove listings from common
-    },
-    listings: arTranslation.listings,
-  },
+  en: enTranslations,
+  ar: arTranslations
 };
 
 const i18nConfig: InitOptions = {
   resources,
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",
-  supportedLngs: ["en", "AR"],
+  supportedLngs: ["en", "ar"],
   load: "languageOnly",
-  ns: ["common", "listings"],
+  ns: [
+    "common", 
+    "auth", 
+    "profile", 
+    "listings", 
+    "filters", 
+    "features", 
+    "options", 
+    "form", 
+    "errors", 
+    "home", 
+    "footer", 
+    "categories", 
+    "enums", 
+    "settings"
+  ],
   defaultNS: "common",
   fallbackNS: "common",
-  nsSeparator: ":",
+  keySeparator: ".", // Use dot as key separator
   interpolation: {
     escapeValue: false,
   },
   returnObjects: true,
-  debug: true, // Enable debug mode
-  saveMissing: true, // Save missing translations
+  returnEmptyString: false,
+  debug: process.env.NODE_ENV === "development", // Only enable debug in development
+  saveMissing: process.env.NODE_ENV === "development", // Only save missing translations in development
+  saveMissingTo: "all", // Save missing translations to all languages
+  missingKeyHandler: (lng, ns, key) => {
+    console.log(`Missing translation: ${key} in namespace ${ns} for language ${lng}`);
+  }
 };
 
-i18n.use(initReactI18next).init(i18nConfig);
+i18n
+  .use(Backend)
+  .use(initReactI18next)
+  .init(i18nConfig);
 
 // Set document direction based on language
 const currentLanguage = localStorage.getItem("language") || "en";
 document.dir = currentLanguage === "ar" ? "rtl" : "ltr";
-
-// Debug logging
-console.log("i18n Resources:", resources);
-console.log("i18n Current Language:", i18n.language);
-console.log("i18n Translations:", i18n.t("common:sortOptions"));
-console.log("Document direction set to:", document.dir);
 
 export default i18n;

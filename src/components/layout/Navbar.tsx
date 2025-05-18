@@ -26,14 +26,10 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('common');
 
-  // Detect direction (ltr/rtl)
-  const dir =
-    i18n.dir && typeof i18n.dir === "function"
-      ? i18n.dir()
-      : document?.documentElement?.dir || "ltr";
-  const isRTL = dir === "rtl";
+  // Detect RTL based on language
+  const isRTL = i18n.language === "ar" || i18n.language.startsWith("ar-");
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -150,7 +146,7 @@ const Navbar: React.FC = () => {
                     setSelectedSubcategory("");
                   }}
                 >
-                  <option value="all">{t("common.all")}</option>
+                  <option value="all">{t("all")}</option>
                   <option value="vehicles">{t("navigation.vehicles")}</option>
                   <option value="realEstate">
                     {t("navigation.real_estate")}
@@ -164,32 +160,16 @@ const Navbar: React.FC = () => {
                     value={selectedSubcategory}
                     onChange={(e) => setSelectedSubcategory(e.target.value)}
                   >
-                    <option value="">{t("common.all_types")}</option>
-                    <option value="CAR">
-                      {t("listings.vehicleTypes.CAR")}
-                    </option>
-                    <option value="TRUCK">
-                      {t("listings.vehicleTypes.TRUCK")}
-                    </option>
-                    <option value="MOTORCYCLE">
-                      {t("listings.vehicleTypes.MOTORCYCLE")}
-                    </option>
-                    <option value="RV">{t("listings.vehicleTypes.RV")}</option>
-                    <option value="BUS">
-                      {t("listings.vehicleTypes.BUS")}
-                    </option>
-                    <option value="VAN">
-                      {t("listings.vehicleTypes.VAN")}
-                    </option>
-                    <option value="TRACTOR">
-                      {t("listings.vehicleTypes.TRACTOR")}
-                    </option>
-                    <option value="CONSTRUCTION">
-                      {t("listings.vehicleTypes.CONSTRUCTION")}
-                    </option>
-                    <option value="OTHER">
-                      {t("listings.vehicleTypes.OTHER")}
-                    </option>
+                    <option value="">All Types</option>
+                    <option value="CAR">Car</option>
+                    <option value="TRUCK">Truck</option>
+                    <option value="MOTORCYCLE">Motorcycle</option>
+                    <option value="RV">RV</option>
+                    <option value="BUS">Bus</option>
+                    <option value="VAN">Van</option>
+                    <option value="TRACTOR">Tractor</option>
+                    <option value="CONSTRUCTION">Construction</option>
+                    <option value="OTHER">Other</option>
                   </select>
                 )}
                 {selectedCategory === "realEstate" && (
@@ -198,32 +178,20 @@ const Navbar: React.FC = () => {
                     value={selectedSubcategory}
                     onChange={(e) => setSelectedSubcategory(e.target.value)}
                   >
-                    <option value="">{t("common.all_types")}</option>
-                    <option value="HOUSE">
-                      {t("common.realEstateTypes.HOUSE")}
-                    </option>
-                    <option value="APARTMENT">
-                      {t("common.realEstateTypes.APARTMENT")}
-                    </option>
-                    <option value="CONDO">
-                      {t("common.realEstateTypes.CONDO")}
-                    </option>
-                    <option value="LAND">
-                      {t("common.realEstateTypes.LAND")}
-                    </option>
-                    <option value="COMMERCIAL">
-                      {t("common.realEstateTypes.COMMERCIAL")}
-                    </option>
-                    <option value="OTHER">
-                      {t("common.realEstateTypes.OTHER")}
-                    </option>
+                    <option value="">All Types</option>
+                    <option value="HOUSE">House</option>
+                    <option value="APARTMENT">Apartment</option>
+                    <option value="CONDO">Condo</option>
+                    <option value="LAND">Land</option>
+                    <option value="COMMERCIAL">Commercial</option>
+                    <option value="OTHER">Other</option>
                   </select>
                 )}
 
                 <div className="flex-1">
                   <SearchBar
                     onSearch={handleSearch}
-                    placeholder={t("common.search")}
+                    placeholder={t("search")}
                     category={selectedCategory}
                     subcategory={selectedSubcategory}
                   />
@@ -244,7 +212,7 @@ const Navbar: React.FC = () => {
               <>
                 {/* Listings Menu */}
                 <div className="relative listings-menu">
-                  <Tooltip content={t("navigation.listings")} position="bottom">
+                  <Tooltip content="Listings" position="bottom">
                     <button
                       onClick={toggleListingsMenu}
                       className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
@@ -264,7 +232,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaPlus />
-                      {t("navigation.create_listing")}
+                      Create Listing
                     </Link>
 
                     <Link
@@ -272,7 +240,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt />
-                      {t("profile.my_listings")}
+                      My Listings
                     </Link>
 
                     <Link
@@ -280,7 +248,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaHeart className="text-red-500" />
-                      {t("listings.saved_listings")}
+                      Saved Listings
                     </Link>
                   </div>
                 </div>
@@ -289,7 +257,7 @@ const Navbar: React.FC = () => {
                 <NotificationBell />
 
                 {/* Messages */}
-                <Tooltip content={t("navigation.messages")} position="bottom">
+                <Tooltip content="Messages" position="bottom">
                   <Link
                     to="/messages"
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
@@ -331,14 +299,14 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaUser />
-                      {t("navigation.profile")}
+                      Profile
                     </Link>
                     <Link
                       to="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaCog />
-                      {t("navigation.settings")}
+                      Settings
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -351,8 +319,8 @@ const Navbar: React.FC = () => {
                         <FaSignOutAlt />
                       )}
                       {isLoggingOut
-                        ? t("auth.logging_out")
-                        : t("navigation.logout")}
+                        ? t("loggingOut")
+                        : t("logout")}
                     </button>
                   </div>
                 </div>
@@ -363,13 +331,13 @@ const Navbar: React.FC = () => {
                   to="/login"
                   className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  {t("auth.login")}
+                  Login
                 </Link>
                 <Link
                   to="/register"
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                 >
-                  {t("auth.register")}
+                  Register
                 </Link>
               </div>
             )}

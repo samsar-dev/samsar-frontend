@@ -4,7 +4,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Essential Section
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: ["new", "excellent", "good", "fair", "needsWork"],
     section: "essential",
@@ -12,28 +12,28 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "livingArea",
-    label: "listings.livingArea",
+    label: "fields.livingArea",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "halfBathrooms",
-    label: "listings.halfBathrooms",
+    label: "fields.halfBathrooms",
     type: "number",
     section: "essential",
     required: false,
   },
   {
     name: "stories",
-    label: "listings.stories",
+    label: "fields.stories",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "parking",
-    label: "listings.parking",
+    label: "fields.parking",
     type: "select",
     options: ["attachedGarage", "detachedGarage", "carport", "street", "none"],
     section: "essential",
@@ -41,14 +41,14 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "parkingSpaces",
-    label: "listings.parkingSpaces",
+    label: "fields.parkingSpaces",
     type: "number",
     section: "essential",
     required: true,
   },
   {
     name: "constructionType",
-    label: "listings.constructionType",
+    label: "fields.constructionType",
     type: "select",
     options: [
       "brick",
@@ -68,7 +68,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // HVAC & Energy
   {
     name: "heating",
-    label: "listings.heating",
+    label: "fields.heating",
     type: "multiselect",
     options: [
       "central",
@@ -85,7 +85,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "cooling",
-    label: "listings.cooling",
+    label: "fields.cooling",
     type: "multiselect",
     options: [
       "central",
@@ -100,7 +100,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "energyFeatures",
-    label: "listings.energyFeatures",
+    label: "fields.energyFeatures",
     type: "multiselect",
     options: [
       "solarPanels",
@@ -116,7 +116,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "energyRating",
-    label: "listings.energyRating",
+    label: "fields.energyRating",
     type: "select",
     options: ["A+", "A", "B", "C", "D", "E", "F", "G", "unknown"],
     section: "advanced",
@@ -126,7 +126,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Interior Features
   {
     name: "basement",
-    label: "listings.basement",
+    label: "fields.basement",
     type: "select",
     options: ["finished", "unfinished", "partial", "walkout", "none"],
     section: "advanced",
@@ -134,7 +134,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "basementFeatures",
-    label: "listings.basementFeatures",
+    label: "fields.basementFeatures",
     type: "multiselect",
     options: [
       "bathroom",
@@ -150,7 +150,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "attic",
-    label: "listings.attic",
+    label: "fields.attic",
     type: "select",
     options: ["finished", "unfinished", "none"],
     section: "advanced",
@@ -158,7 +158,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "flooringTypes",
-    label: "listings.flooringTypes",
+    label: "fields.flooringTypes",
     type: "multiselect",
     options: [
       "hardwood",
@@ -177,7 +177,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "windowFeatures",
-    label: "listings.windowFeatures",
+    label: "fields.windowFeatures",
     type: "multiselect",
     options: [
       "bayWindow",
@@ -194,7 +194,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "kitchenFeatures",
-    label: "listings.kitchenFeatures",
+    label: "fields.kitchenFeatures",
     type: "multiselect",
     options: [
       "island",
@@ -212,7 +212,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "bathroomFeatures",
-    label: "listings.bathroomFeatures",
+    label: "fields.bathroomFeatures",
     type: "multiselect",
     options: [
       "dualVanities",
@@ -230,7 +230,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Exterior & Structure
   {
     name: "roofType",
-    label: "listings.roofType",
+    label: "fields.roofType",
     type: "select",
     options: [
       "asphaltShingle",
@@ -246,14 +246,14 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "roofAge",
-    label: "listings.roofAge",
+    label: "fields.roofAge",
     type: "number",
     section: "advanced",
     required: false,
   },
   {
     name: "foundation",
-    label: "listings.foundation",
+    label: "fields.foundation",
     type: "select",
     options: ["concrete", "crawlSpace", "slab", "pier", "stone", "other"],
     section: "advanced",
@@ -261,7 +261,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "exteriorFeatures",
-    label: "listings.exteriorFeatures",
+    label: "fields.exteriorFeatures",
     type: "multiselect",
     options: [
       "porch",
@@ -278,7 +278,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "outdoorFeatures",
-    label: "listings.outdoorFeatures",
+    label: "fields.outdoorFeatures",
     type: "multiselect",
     options: [
       "pool",
@@ -297,7 +297,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "landscaping",
-    label: "listings.landscaping",
+    label: "fields.landscaping",
     type: "multiselect",
     options: [
       "professional",
@@ -315,7 +315,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Systems & Utilities
   {
     name: "waterSystem",
-    label: "listings.waterSystem",
+    label: "fields.waterSystem",
     type: "select",
     options: ["municipal", "well", "shared well", "cistern"],
     section: "advanced",
@@ -323,7 +323,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "sewerSystem",
-    label: "listings.sewerSystem",
+    label: "fields.sewerSystem",
     type: "select",
     options: ["municipal", "septic", "other"],
     section: "advanced",
@@ -331,7 +331,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "utilities",
-    label: "listings.utilities",
+    label: "fields.utilities",
     type: "multiselect",
     options: [
       "electricity",
@@ -348,7 +348,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Smart Home & Security
   {
     name: "smartHomeFeatures",
-    label: "listings.smartHomeFeatures",
+    label: "fields.smartHomeFeatures",
     type: "multiselect",
     options: [
       "thermostat",
@@ -365,7 +365,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "securityFeatures",
-    label: "listings.securityFeatures",
+    label: "fields.securityFeatures",
     type: "multiselect",
     options: [
       "alarm",
@@ -383,7 +383,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Community & HOA
   {
     name: "communityFeatures",
-    label: "listings.communityFeatures",
+    label: "fields.communityFeatures",
     type: "multiselect",
     options: [
       "pool",
@@ -401,7 +401,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "hoaFeatures",
-    label: "listings.hoaFeatures",
+    label: "fields.hoaFeatures",
     type: "multiselect",
     options: [
       "landscaping",
@@ -418,7 +418,7 @@ export const houseSchema: ListingFieldSchema[] = [
   // Additional Features
   {
     name: "furnished",
-    label: "listings.furnished",
+    label: "fields.furnished",
     type: "select",
     options: ["fully", "partially", "unfurnished"],
     section: "advanced",
@@ -426,7 +426,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "appliances",
-    label: "listings.appliances",
+    label: "fields.appliances",
     type: "multiselect",
     options: [
       "refrigerator",
@@ -443,7 +443,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "petFeatures",
-    label: "listings.petFeatures",
+    label: "fields.petFeatures",
     type: "multiselect",
     options: ["dogRun", "petDoor", "fencedYard", "catDoor", "petWashStation"],
     section: "advanced",
@@ -451,7 +451,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "accessibility",
-    label: "listings.accessibility",
+    label: "fields.accessibility",
     type: "multiselect",
     options: [
       "wheelchair",
@@ -467,7 +467,7 @@ export const houseSchema: ListingFieldSchema[] = [
   },
   {
     name: "storageFeatures",
-    label: "listings.storageFeatures",
+    label: "fields.storageFeatures",
     type: "multiselect",
     options: [
       "attic",

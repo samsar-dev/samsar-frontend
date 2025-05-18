@@ -15,7 +15,7 @@ interface MyListingsProps {
 }
 
 export default function MyListings({ userId }: MyListingsProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('listings');
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -143,19 +143,19 @@ export default function MyListings({ userId }: MyListingsProps) {
     try {
       const response = await listingsAPI.delete(listingId);
       if (response.success) {
-        toast.success(t("listings.deleted"));
+        toast.success(t("deleted"));
         // Remove the deleted listing from the current state
         setListings((prev) =>
           prev.filter((listing) => listing.id !== listingId),
         );
         setTotal((prev) => prev - 1);
       } else {
-        toast.error(response.error || t("listings.delete_error"));
+        toast.error(response.error || t("delete_error"));
       }
     } catch (err) {
       console.error("Error deleting listing:", err);
       toast.error(
-        err instanceof Error ? err.message : t("listings.delete_error"),
+        err instanceof Error ? err.message : t("delete_error"),
       );
     }
   };
@@ -193,10 +193,10 @@ export default function MyListings({ userId }: MyListingsProps) {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-              {t("profile.my_listings")}
+              {t("my_listings")}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t("profile.total_listings", { count: total })}
+              {t("total_listings", { count: total })}
             </p>
           </div>
 
@@ -207,13 +207,13 @@ export default function MyListings({ userId }: MyListingsProps) {
                 onChange={(e) => handleSortChange(e.target.value)}
                 className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="newest">{t("listings.sort.newest")}</option>
-                <option value="oldest">{t("listings.sort.oldest")}</option>
+                <option value="newest">{t("sort.newest")}</option>
+                <option value="oldest">{t("sort.oldest")}</option>
                 <option value="price_high">
-                  {t("listings.sort.price_high")}
+                  {t("sort.price_high")}
                 </option>
                 <option value="price_low">
-                  {t("listings.sort.price_low")}
+                  {t("sort.price_low")}
                 </option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
@@ -226,7 +226,7 @@ export default function MyListings({ userId }: MyListingsProps) {
               className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
             >
               <FaPlus className="mr-2" />
-              {t("listings.create_new")}
+              {t("create_new")}
             </button>
           </div>
         </div>
@@ -243,17 +243,17 @@ export default function MyListings({ userId }: MyListingsProps) {
                   <FaBoxOpen className="h-10 w-10 text-gray-400 dark:text-gray-500" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  {t("listings.no_listings")}
+                  {t("no_listings")}
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 max-w-md">
-                  {t("listings.no_listings_description")}
+                  {t("no_listings_description")}
                 </p>
                 <button
                   onClick={handleCreateListing}
                   className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <FaPlus className="mr-2 -ml-1" />
-                  {t("listings.create_first")}
+                  {t("create_first")}
                 </button>
               </div>
             </motion.div>

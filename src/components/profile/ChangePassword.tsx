@@ -27,7 +27,7 @@ interface PasswordStrength {
 }
 
 const ChangePassword = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('profile');
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -68,35 +68,35 @@ const ChangePassword = () => {
     if (password.length >= 8) {
       score += 1;
     } else {
-      feedback.push(t("profile.password_too_short"));
+      feedback.push(t("password_too_short"));
     }
 
     // Uppercase check
     if (/[A-Z]/.test(password)) {
       score += 1;
     } else {
-      feedback.push(t("profile.password_needs_uppercase"));
+      feedback.push(t("password_needs_uppercase"));
     }
 
     // Lowercase check
     if (/[a-z]/.test(password)) {
       score += 1;
     } else {
-      feedback.push(t("profile.password_needs_lowercase"));
+      feedback.push(t("password_needs_lowercase"));
     }
 
     // Number check
     if (/[0-9]/.test(password)) {
       score += 1;
     } else {
-      feedback.push(t("profile.password_needs_number"));
+      feedback.push(t("password_needs_number"));
     }
 
     // Special character check
     if (/[^A-Za-z0-9]/.test(password)) {
       score += 1;
     } else {
-      feedback.push(t("profile.password_needs_special"));
+      feedback.push(t("password_needs_special"));
     }
 
     return {
@@ -115,27 +115,27 @@ const ChangePassword = () => {
   };
 
   const getStrengthText = (score: number): string => {
-    if (score <= 1) return t("profile.password_strength.weak");
-    if (score <= 2) return t("profile.password_strength.fair");
-    if (score <= 3) return t("profile.password_strength.good");
-    if (score <= 4) return t("profile.password_strength.strong");
-    return t("profile.password_strength.excellent");
+    if (score <= 1) return t("password_strength.weak");
+    if (score <= 2) return t("password_strength.fair");
+    if (score <= 3) return t("password_strength.good");
+    if (score <= 4) return t("password_strength.strong");
+    return t("password_strength.excellent");
   };
 
   const validateForm = (): string | null => {
     // Check if new password matches confirm password
     if (formData.newPassword !== formData.confirmPassword) {
-      return t("profile.password_mismatch");
+      return t("password_mismatch");
     }
 
     // Check if new password is same as current password
     if (formData.newPassword === formData.currentPassword) {
-      return t("profile.same_password");
+      return t("same_password");
     }
 
     // Check password strength
     if (!passwordStrength.isValid) {
-      return t("profile.password_not_strong");
+      return t("password_not_strong");
     }
 
     return null;
@@ -149,15 +149,15 @@ const ChangePassword = () => {
 
       if (response.success) {
         setVerificationSent(true);
-        toast.success(response.message || t("profile.verification_code_sent"));
+        toast.success(response.message || t("verification_code_sent"));
       } else {
         toast.error(
-          response.error?.message || t("profile.verification_code_error"),
+          response.error?.message || t("verification_code_error"),
         );
       }
     } catch (error) {
       console.error("Error requesting verification code:", error);
-      toast.error(t("profile.verification_code_error"));
+      toast.error(t("verification_code_error"));
     } finally {
       setVerificationLoading(false);
     }
@@ -180,7 +180,7 @@ const ChangePassword = () => {
 
     // If verification code is empty, show error
     if (!formData.verificationCode) {
-      toast.error(t("profile.verification_code_required"));
+      toast.error(t("verification_code_required"));
       return;
     }
 
@@ -198,7 +198,7 @@ const ChangePassword = () => {
       console.log("Password Update Response:", response);
 
       if (response.success) {
-        toast.success(response.message || t("profile.password_updated"));
+        toast.success(response.message || t("password_updated"));
         setFormData({
           currentPassword: "",
           newPassword: "",
@@ -219,14 +219,14 @@ const ChangePassword = () => {
             ? response.error.message
             : typeof response.error === "string"
               ? response.error
-              : t("profile.update_error");
+              : t("update_error");
         toast.error(errorMessage);
         throw new Error(errorMessage); // Throw error to prevent clearing form
       }
     } catch (error) {
       console.error("Password Update Catch Error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : t("profile.update_error");
+        error instanceof Error ? error.message : t("update_error");
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -282,10 +282,10 @@ const ChangePassword = () => {
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
           <FaShieldAlt className="mr-2 text-blue-500" />
-          {t("profile.security_settings")}
+          {t("security_settings")}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {t("profile.password_description")}
+          {t("password_description")}
         </p>
       </div>
 
@@ -293,7 +293,7 @@ const ChangePassword = () => {
         <div className="space-y-4">
           {renderPasswordInput(
             "currentPassword",
-            t("profile.current_password"),
+            t("current_password"),
             formData.currentPassword,
             showCurrentPassword,
             setShowCurrentPassword,
@@ -302,7 +302,7 @@ const ChangePassword = () => {
 
           {renderPasswordInput(
             "newPassword",
-            t("profile.new_password"),
+            t("new_password"),
             formData.newPassword,
             showNewPassword,
             setShowNewPassword,
@@ -314,7 +314,7 @@ const ChangePassword = () => {
             <div className="mt-2 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("profile.password_strength.label")}:
+                  {t("password_strength.label")}:
                 </span>
                 <span
                   className={`text-xs font-medium ${passwordStrength.isValid ? "text-green-500" : "text-gray-500"}`}
@@ -332,7 +332,7 @@ const ChangePassword = () => {
               {/* Password requirements */}
               <div className="mt-3 space-y-2">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("profile.password_requirements")}:
+                  {t("password_requirements")}:
                 </p>
                 <ul className="space-y-1 text-xs">
                   <li
@@ -343,7 +343,7 @@ const ChangePassword = () => {
                     ) : (
                       <FaTimesCircle className="mr-1" />
                     )}
-                    {t("profile.req_min_length")}
+                    {t("req_min_length")}
                   </li>
                   <li
                     className={`flex items-center ${/[A-Z]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
@@ -353,7 +353,7 @@ const ChangePassword = () => {
                     ) : (
                       <FaTimesCircle className="mr-1" />
                     )}
-                    {t("profile.req_uppercase")}
+                    {t("req_uppercase")}
                   </li>
                   <li
                     className={`flex items-center ${/[a-z]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
@@ -363,7 +363,7 @@ const ChangePassword = () => {
                     ) : (
                       <FaTimesCircle className="mr-1" />
                     )}
-                    {t("profile.req_lowercase")}
+                    {t("req_lowercase")}
                   </li>
                   <li
                     className={`flex items-center ${/[0-9]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
@@ -373,7 +373,7 @@ const ChangePassword = () => {
                     ) : (
                       <FaTimesCircle className="mr-1" />
                     )}
-                    {t("profile.req_number")}
+                    {t("req_number")}
                   </li>
                   <li
                     className={`flex items-center ${/[^A-Za-z0-9]/.test(formData.newPassword) ? "text-green-500" : "text-gray-500"}`}
@@ -383,7 +383,7 @@ const ChangePassword = () => {
                     ) : (
                       <FaTimesCircle className="mr-1" />
                     )}
-                    {t("profile.req_special")}
+                    {t("req_special")}
                   </li>
                 </ul>
               </div>
@@ -392,7 +392,7 @@ const ChangePassword = () => {
 
           {renderPasswordInput(
             "confirmPassword",
-            t("profile.confirm_password"),
+            t("confirm_password"),
             formData.confirmPassword,
             showConfirmPassword,
             setShowConfirmPassword,
@@ -405,12 +405,12 @@ const ChangePassword = () => {
               {formData.newPassword === formData.confirmPassword ? (
                 <span className="text-xs text-green-500 flex items-center">
                   <FaCheckCircle className="mr-1" />
-                  {t("profile.passwords_match")}
+                  {t("passwords_match")}
                 </span>
               ) : (
                 <span className="text-xs text-red-500 flex items-center">
                   <FaTimesCircle className="mr-1" />
-                  {t("profile.passwords_dont_match")}
+                  {t("passwords_dont_match")}
                 </span>
               )}
             </div>
@@ -423,11 +423,11 @@ const ChangePassword = () => {
             <FaInfoCircle className="text-blue-500 mt-1 flex-shrink-0" />
             <div className="ml-3">
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                {t("profile.security_tips")}
+                {t("security_tips")}
               </h3>
               <div className="mt-2 text-sm text-blue-700 dark:text-blue-400 space-y-1">
-                <p>{t("profile.tip_unique")}</p>
-                <p>{t("profile.tip_manager")}</p>
+                <p>{t("tip_unique")}</p>
+                <p>{t("tip_manager")}</p>
               </div>
             </div>
           </div>
@@ -439,7 +439,7 @@ const ChangePassword = () => {
               htmlFor="verificationCode"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              {t("profile.verification_code")}
+              {t("verification_code")}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -452,13 +452,13 @@ const ChangePassword = () => {
                 autoComplete="one-time-code"
                 required
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder={t("profile.verification_code_placeholder")}
+                placeholder={t("verification_code_placeholder")}
                 value={formData.verificationCode}
                 onChange={handleChange}
               />
             </div>
             <p className="mt-2 text-sm text-gray-500">
-              {t("profile.verification_code_help")}
+              {t("verification_code_help")}
             </p>
           </div>
         )}
@@ -473,13 +473,13 @@ const ChangePassword = () => {
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
                 {verificationSent
-                  ? t("profile.updating")
-                  : t("profile.sending_verification")}
+                  ? t("updating")
+                  : t("sending_verification")}
               </>
             ) : verificationSent ? (
-              t("profile.update_password")
+              t("update_password")
             ) : (
-              t("profile.request_verification")
+              t("request_verification")
             )}
           </button>
         </div>

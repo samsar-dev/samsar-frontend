@@ -1,0 +1,86 @@
+{
+  "title": "Filters",
+  "all": "All",
+  "all_types": "All Types",
+  "beds": "Beds",
+  "baths": "Baths",
+  "price_range": "Price Range",
+  "min_price": "Min Price",
+  "max_price": "Max Price",
+  "year_range": "Year Range",
+  "min_year": "Min Year",
+  "max_year": "Max Year",
+  "mileage_range": "Mileage Range",
+  "min_mileage": "Min Mileage",
+  "max_mileage": "Max Mileage",
+  "size_range": "Size Range",
+  "min_size": "Min Size",
+  "max_size": "Max Size",
+  "sort_by": "Sort By",
+  "sortBy": "Sort By",
+  "allCities": "All Cities",
+  "clear_all": "Clear All",
+  "reset": "Reset",
+  "apply_filters": "Apply Filters",
+  "more_filters": "More Filters",
+  "less_filters": "Less Filters",
+  "filter_results": "Filter Results",
+  "results_count": "{count} results found",
+  "no_results": "No results found",
+  "filters": "Filters",
+  "subcategory": "Subcategory",
+  "all_subcategories": "All Subcategories",
+  "action": "Action",
+  "location": "Location",
+  "built_year": "Year Built",
+  "make": "Make",
+  "all_makes": "All Makes",
+  "model": "Model",
+  "all_models": "All Models",
+  "year": "Year",
+  "all_years": "All Years",
+  "builtYearOptions": {
+    "any": "Any Year",
+    "2023": "2023 and newer",
+    "2010": "2010 and newer",
+    "2000": "Before 2000"
+  },
+  "sorting": {
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "price_asc": "Price: Low to High",
+    "price_desc": "Price: High to Low",
+    "location_asc": "Location: A to Z",
+    "location_desc": "Location: Z to A",
+    "relevance": "Most Relevant",
+    "popularity": "Most Popular"
+  },
+  "categories": {
+    "vehicle": {
+      "CAR": "Car",
+      "TRUCK": "Truck",
+      "MOTORCYCLE": "Motorcycle",
+      "VAN": "Van",
+      "BUS": "Bus",
+      "TRACTOR": "Tractor",
+      "RV": "RV"
+    }
+  },
+  "subcategories": {
+    "property": {
+      "HOUSE": "House",
+      "APARTMENT": "Apartment",
+      "CONDO": "Condo",
+      "LAND": "Land",
+      "COMMERCIAL": "Commercial"
+    },
+    "OTHER": "Other"
+  },
+  "actions": {
+    "SELL": "For Sale",
+    "RENT": "For Rent"
+  },
+  "loading": "Loading...",
+  "no_options_available": "No options available",
+  "select_an_option": "Select an option"
+}

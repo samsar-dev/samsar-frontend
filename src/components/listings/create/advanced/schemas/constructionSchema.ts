@@ -5,7 +5,7 @@ export const constructionSchema: ListingFieldSchema[] = [
 
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: ["new", "likeNew", "excellent", "good", "fair", "poor", "salvage"],
     section: "essential",
@@ -17,7 +17,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "equipmentType",
-    label: "listings.equipmentType",
+    label: "fields.equipmentType",
     type: "select",
     options: [
       "Excavator",
@@ -38,7 +38,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "operatingWeight",
-    label: "listings.operatingWeight",
+    label: "fields.operatingWeight",
     type: "text",
     section: "essential",
     required: true,
@@ -51,7 +51,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "enginePower",
-    label: "listings.enginePower",
+    label: "fields.enginePower",
     type: "text",
     section: "essential",
     required: true,
@@ -65,7 +65,7 @@ export const constructionSchema: ListingFieldSchema[] = [
 
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "previousOwners",
     type: "number",
     section: "essential",
     required: true,
@@ -79,7 +79,7 @@ export const constructionSchema: ListingFieldSchema[] = [
 
   {
     name: "registrationStatus",
-    label: "listings.registrationStatus",
+    label: "fields.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "essential",
@@ -92,7 +92,7 @@ export const constructionSchema: ListingFieldSchema[] = [
 
   {
     name: "serviceHistory",
-    label: "listings.serviceHistory",
+    label: "fields.serviceHistory",
     type: "select",
     options: ["full", "partial", "none"],
     section: "essential",
@@ -102,7 +102,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "hoursUsed",
-    label: "listings.hoursUsed",
+    label: "fields.hoursUsed",
     type: "text",
     section: "essential",
     required: true,
@@ -117,7 +117,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   // Advanced Section
   {
     name: "maxLiftingCapacity",
-    label: "listings.maxLiftingCapacity",
+    label: "fields.maxLiftingCapacity",
     type: "text",
     section: "advanced",
     required: false,
@@ -130,21 +130,21 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "maintenanceHistory",
-    label: "listings.maintenanceHistory",
+    label: "fields.maintenanceHistory",
     type: "textarea",
     section: "advanced",
     required: false,
   },
   {
     name: "hydraulicSystem",
-    label: "listings.hydraulicSystem",
+    label: "fields.hydraulicSystem",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "emissions",
-    label: "listings.emissions",
+    label: "fields.emissions",
     type: "select",
     options: ["Tier 4", "Tier 3", "Tier 2", "Stage V", "Other", "Unknown"],
     section: "advanced",
@@ -152,7 +152,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "operatorCabType",
-    label: "listings.operatorCabType",
+    label: "fields.operatorCabType",
     type: "select",
     options: ["enclosed", "open", "airConditioned", "heated"],
     section: "advanced",
@@ -160,7 +160,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "tireType",
-    label: "listings.tireType",
+    label: "fields.tireType",
     type: "select",
     options: ["tracks", "tires", "dualTires", "foamFilled", "solid"],
     section: "advanced",
@@ -168,14 +168,14 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "warranty",
-    label: "listings.warranty",
+    label: "fields.warranty",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "ptoType",
-    label: "listings.ptoType",
+    label: "fields.ptoType",
     type: "select",
     options: ["none", "540", "1000", "other"],
     section: "advanced",
@@ -183,7 +183,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "hydraulicOutlets",
-    label: "listings.hydraulicOutlets",
+    label: "fields.hydraulicOutlets",
     type: "multiselect",
     options: [
       "standard",
@@ -199,7 +199,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   },
   {
     name: "implementCompatibility",
-    label: "listings.implementCompatibility",
+    label: "fields.implementCompatibility",
     type: "text",
     section: "advanced",
     required: false,
@@ -208,7 +208,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   // ================= SAFETY FEATURES =================
   {
     name: "safetyFeatures",
-    label: "listings.fields.safetyFeatures",
+    label: "fields.safetyFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -249,7 +249,7 @@ export const constructionSchema: ListingFieldSchema[] = [
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
-    label: "listings.fields.vehicleFeatures",
+    label: "fields.vehicleFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,

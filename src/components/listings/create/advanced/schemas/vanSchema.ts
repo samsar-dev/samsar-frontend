@@ -6,7 +6,7 @@ export const vanSchema: ListingFieldSchema[] = [
 
   {
     name: "condition",
-    label: "listings.condition",
+    label: "fields.condition",
     type: "select",
     options: Object.values(Condition),
     section: "essential",
@@ -16,7 +16,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "vanType",
-    label: "listings.vanType",
+    label: "fields.vanType",
     type: "select",
     options: [
       "cargo",
@@ -39,7 +39,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "transmissionType",
-    label: "listings.transmissionType",
+    label: "fields.transmissionType",
     type: "select",
     options: Object.values(TransmissionType),
     section: "essential",
@@ -49,7 +49,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "mileage",
-    label: "mileage",
+    label: "fields.mileage",
     type: "number",
     section: "essential",
     required: true,
@@ -62,7 +62,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "fuelType",
-    label: "fuelType",
+    label: "fields.fuelType",
     type: "select",
     options: ["", "diesel", "gasoline", "electric", "hybrid", "cng"],
     section: "essential",
@@ -73,7 +73,7 @@ export const vanSchema: ListingFieldSchema[] = [
 
   {
     name: "engineType",
-    label: "listings.engineType",
+    label: "fields.engineType",
     type: "select",
     options: Object.values(FuelType),
     section: "essential",
@@ -84,7 +84,7 @@ export const vanSchema: ListingFieldSchema[] = [
 
   {
     name: "cargoVolume",
-    label: "cargoVolume",
+    label: "fields.cargoVolume",
     type: "number",
     section: "essential",
     required: true,
@@ -97,7 +97,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "payloadCapacity",
-    label: "payloadCapacity",
+    label: "fields.payloadCapacity",
     type: "number",
     section: "essential",
     required: true,
@@ -111,7 +111,7 @@ export const vanSchema: ListingFieldSchema[] = [
 
   {
     name: "previousOwners",
-    label: "listings.previousOwners",
+    label: "fields.previousOwners",
     type: "number",
     section: "advanced",
     required: false,
@@ -123,7 +123,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "registrationStatus",
-    label: "listings.registrationStatus",
+    label: "fields.registrationStatus",
     type: "select",
     options: ["registered", "unregistered", "expired"],
     section: "advanced",
@@ -131,7 +131,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "serviceHistory",
-    label: "listings.serviceHistory",
+    label: "fields.serviceHistory",
     type: "select",
     options: ["full", "partial", "none"],
     section: "advanced",
@@ -142,14 +142,14 @@ export const vanSchema: ListingFieldSchema[] = [
 
   {
     name: "engine",
-    label: "listings.engine",
+    label: "fields.engine",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "horsepower",
-    label: "listings.horsepower",
+    label: "fields.horsepower",
     type: "number",
     section: "advanced",
     required: false,
@@ -161,7 +161,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "torque",
-    label: "listings.torque",
+    label: "fields.torque",
     type: "number",
     section: "advanced",
     required: false,
@@ -173,7 +173,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "roofHeight",
-    label: "listings.roofHeight",
+    label: "fields.roofHeight",
     type: "select",
     options: ["Low", "Medium", "High", "Super High"],
     section: "advanced",
@@ -181,7 +181,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "loadingFeatures",
-    label: "listings.loadingFeatures",
+    label: "loadingFeatures",
     type: "multiselect",
     options: [
       "Side Door",
@@ -196,7 +196,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "refrigeration",
-    label: "listings.refrigeration",
+    label: "fields.refrigeration",
     type: "select",
     options: ["yes", "no"],
     section: "advanced",
@@ -204,7 +204,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "temperatureRange",
-    label: "listings.temperatureRange",
+    label: "fields.temperatureRange",
     type: "text",
     section: "advanced",
     required: false,
@@ -217,7 +217,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "interiorHeight",
-    label: "listings.interiorHeight",
+    label: "fields.interiorHeight",
     type: "text",
     section: "advanced",
     required: false,
@@ -230,7 +230,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "interiorLength",
-    label: "listings.interiorLength",
+    label: "fields.interiorLength",
     type: "text",
     section: "advanced",
     required: false,
@@ -243,7 +243,7 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "emissions",
-    label: "listings.emissions",
+    label: "fields.emissions",
     type: "select",
     options: ["Euro 6", "Euro 5", "Euro 4", "Euro 3", "Other", "Unknown"],
     section: "advanced",
@@ -251,14 +251,14 @@ export const vanSchema: ListingFieldSchema[] = [
   },
   {
     name: "warranty",
-    label: "listings.warranty",
+    label: "fields.warranty",
     type: "text",
     section: "advanced",
     required: false,
   },
   {
     name: "seatingConfiguration",
-    label: "listings.seatingConfiguration",
+    label: "fields.seatingConfiguration",
     type: "select",
     options: ["2-seater", "5-seater", "7-seater", "9-seater", "other"],
     section: "advanced",
@@ -268,7 +268,7 @@ export const vanSchema: ListingFieldSchema[] = [
   // ================= SAFETY FEATURES =================
   {
     name: "safetyFeatures",
-    label: "listings.fields.safetyFeatures",
+    label: "fields.safetyFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,
@@ -349,7 +349,7 @@ export const vanSchema: ListingFieldSchema[] = [
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
-    label: "listings.fields.vehicleFeatures",
+    label: "fields.vehicleFeatures",
     type: "featureGroup",
     section: "advanced",
     required: false,

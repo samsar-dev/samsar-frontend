@@ -39,7 +39,7 @@ export default function NotificationBell({
   onNotificationClick,
 }: NotificationBellProps) {
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -274,7 +274,7 @@ export default function NotificationBell({
   return (
     <div className="relative" ref={dropdownRef}>
       <Tooltip
-        content={t("notifications.title")}
+        content="Notifications"
         position="bottom"
         className="cursor-pointer"
       >
@@ -296,11 +296,11 @@ export default function NotificationBell({
         <div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">
           <div className="p-4 max-h-96 overflow-y-auto">
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-              {t("notifications.title")}
+              Notifications
             </h3>
             {notifications.length === 0 ? (
               <p className="text-text-muted dark:text-text-muted-dark py-2">
-                {t("notifications.empty")}
+                No notifications
               </p>
             ) : (
               <ul className="space-y-2">
@@ -392,7 +392,7 @@ export default function NotificationBell({
                 onClick={handleMarkAllAsRead}
                 className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mt-2"
               >
-                {t("notifications.mark_all_read")}
+                Mark all as read
               </button>
             )}
           </div>

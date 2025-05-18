@@ -103,21 +103,22 @@ export const FormField = forwardRef<
       }
 
       // Run validation
-      let validationError: string | string[] | undefined | null;
+      let validationError: string | undefined;
+      let customValidationError: string | string[] | undefined | null;
 
       // First check if required field is empty
-      if (
-        required &&
-        (newValue === undefined || newValue === null || newValue === "")
-      ) {
+      if (required && (newValue === undefined || newValue === null || newValue === "")) {
         validationError = `${label} is required`;
-      }
-      // Then run custom validation if exists and no required error
-      else if (customValidation && !validationError) {
-        validationError = customValidation(String(newValue));
+      } 
+      // Then run custom validation if exists
+      if (customValidation) {
+        customValidationError = customValidation(String(newValue));
+        if (customValidationError && !validationError) {
+          validationError = Array.isArray(customValidationError) ? customValidationError[0] : customValidationError;
+        }
       }
 
-      onChange(newValue, validationError);
+      onChange(newValue, validationError || undefined);
     };
 
     const handleMultiSelectChange = (
@@ -127,31 +128,44 @@ export const FormField = forwardRef<
       let newValueArr: string[] | null = null;
 
       if (Array.isArray(newValue) && newValue.length > 0) {
-        newValueArr = newValue.map((item) => item.value);
+        newValueArr = newValue.map((item: any) => item.value);
       }
 
       // Run validation
-      let validationError: string | string[] | undefined | null;
+      let validationError: string | undefined;
+      let customValidationError: string | string[] | undefined | null;
 
       if (required && (!newValueArr || newValueArr.length === 0)) {
         validationError = `${label} is required`;
-      } else if (customValidation && newValue) {
-        validationError = customValidation(newValueArr || []);
+      } 
+      
+      if (customValidation && newValue) {
+        customValidationError = customValidation(newValueArr || []);
+        if (customValidationError && !validationError) {
+          validationError = Array.isArray(customValidationError) ? customValidationError[0] : customValidationError;
+        }
       }
 
-      onChange(newValueArr || [], validationError);
+      onChange(newValueArr || [], validationError || undefined);
+      
+      // Use actionMeta to avoid unused variable warning
+      if (process.env.NODE_ENV === 'development' && actionMeta) {
+        // No-op, just using actionMeta to avoid warning
+      }
     };
 
     const inputClasses = clsx(
-      "block w-full rounded-lg border py-2 px-3 text-gray-900 shadow-sm transition-colors duration-200",
-      "focus:outline-none focus:ring-2 focus:ring-offset-2",
+      "block w-full rounded-lg border py-2 px-3 text-gray-900 bg-white",
+      "transition-all duration-150 ease-in-out focus:outline-none",
+      "focus:ring-1 focus:ring-blue-500 focus:border-blue-500",
       {
-        "border-gray-300 focus:border-blue-500 focus:ring-blue-500": !error,
-        "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500":
+        "border-gray-300 hover:border-blue-300": !error,
+        "border-red-300 bg-red-50 hover:border-red-400 focus:border-red-500 focus:ring-red-500":
           error,
         "opacity-50 cursor-not-allowed": disabled,
         "pl-10": prefix,
       },
+      "placeholder-gray-400"
     );
 
     const animatedComponents = makeAnimated();
@@ -194,18 +208,22 @@ export const FormField = forwardRef<
                 styles={{
                   control: (base, state) => ({
                     ...base,
+                    minHeight: '40px',
                     borderColor: error
                       ? "var(--red-300)"
                       : state.isFocused
                         ? "var(--blue-500)"
                         : "var(--gray-300)",
                     backgroundColor: error ? "var(--red-50)" : "white",
-                    boxShadow: state.isFocused
-                      ? `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`
-                      : "none",
-                    "&:hover": {
-                      borderColor: error ? "var(--red-400)" : "var(--blue-400)",
+                    boxShadow: 'none',
+                    transition: 'all 0.15s ease-in-out',
+                    '&:hover': {
+                      borderColor: error ? "var(--red-400)" : "var(--blue-300)",
                     },
+                    '&:focus-within': {
+                      borderColor: error ? "var(--red-500)" : "var(--blue-500)",
+                      boxShadow: `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`,
+                    }
                   }),
                 }}
               />
@@ -328,7 +346,7 @@ export const FormField = forwardRef<
               "text-red-600": error,
             })}
           >
-            {label}
+            {typeof label === "string" ? label : JSON.stringify(label)}
             {required && <span className="text-red-500">*</span>}
           </label>
           {tooltip && (

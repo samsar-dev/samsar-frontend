@@ -20,7 +20,7 @@ interface TabItem {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('profile');
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams();
@@ -34,8 +34,8 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
       id: "profile",
       path: isViewingOtherProfile ? `/profile/${userId}` : "/profile",
       label: isViewingOtherProfile
-        ? t("profile.viewing", { username: "User" })
-        : t("profile.info"),
+        ? t("viewing", { username: "User" })
+        : t("info"),
       icon: "👤",
     },
     {
@@ -43,7 +43,7 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
       path: isViewingOtherProfile
         ? `/profile/${userId}/listings`
         : "/profile/listings",
-      label: t("profile.my_listings"),
+      label: t("my_listings"),
       icon: "📂",
     },
   ];
@@ -53,7 +53,7 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
     tabs.push({
       id: "password",
       path: "/profile/password",
-      label: t("profile.change_password"),
+      label: t("change_password"),
       icon: "🔒",
     });
   }
@@ -69,7 +69,7 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
           {/* Sidebar Navigation */}
           <div className="md:w-64 bg-gray-50 dark:bg-gray-900 p-6">
             <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-              {t("profile.title")}
+              {t("title")}
             </h2>
             <nav className="space-y-2">
               {tabs.map((tab) => (

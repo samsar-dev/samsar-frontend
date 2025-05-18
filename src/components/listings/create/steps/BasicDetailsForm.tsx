@@ -18,7 +18,7 @@ import {
 import { realEstateBasicFields } from "@/components/listings/create/basic/BasicFieldSchemas";
 import { BiBuildingHouse } from "react-icons/bi";
 import FormField, { type FormFieldValue } from "@/components/form/FormField";
-
+import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
 import { MapPin } from "lucide-react";
 import Select from "react-select";
 import ImageManager from "../../images/ImageManager";
@@ -59,7 +59,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onSubmit,
   onImageDelete,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common", "listings", "form", "errors"]);
+  const commonT = (key: string) => t(key, { ns: 'common' });
+  const formT = (key: string) => t(key, { ns: 'form' });
   const [formData, setFormData] = useState<ExtendedFormState>({
     title: "",
     description: "",
@@ -111,7 +113,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         value: make,
         label: make,
       }))
-      .concat([{ value: "OTHER_MAKE", label: "Other" }]);
+      .concat([{ value: "OTHER_MAKE", label: formT("other") }]);
   };
 
   // Generate model options based on selected make
@@ -136,15 +138,15 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return [];
     }
 
-    // Add "Custom" option only if make is not "Other_MAKE"
-    const options = models.map((model) => ({
-      value: model,
-      label: model,
-    }));
+      // Add "Custom" option only if make is not "Other_MAKE"
+      const options = models.map((model) => ({
+        value: model,
+        label: model,
+      }));
 
-    if (make !== "OTHER_MAKE") {
-      options.push({ value: "CUSTOM_MODEL", label: "Custom" });
-    }
+      if (make !== "OTHER_MAKE") {
+        options.push({ value: "CUSTOM_MODEL", label: t("custom", { ns: 'form' }) });
+      }
 
     return options;
   };
@@ -355,62 +357,70 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     const newErrors: { [key: string]: string } = {};
 
     // Basic fields validation
-    if (!formData.title?.trim()) newErrors.title = t("fieldRequired");
+    if (!formData.title?.trim())      newErrors.title = formT("validation.required");
     if (!formData.description?.trim())
-      newErrors.description = t("fieldRequired");
+      newErrors.description = formT("validation.required");
     if (!formData.price) {
-      newErrors.price = t("fieldRequired");
+      newErrors.price = formT("validation.required");
     } else {
       const price = parseFloat(formData.price.toString());
       if (isNaN(price) || price <= 0) {
-        newErrors.price = t("validPriceRequired");
+        newErrors.price = formT("validPriceRequired");
       }
     }
-    if (!formData.location?.trim()) newErrors.location = t("fieldRequired");
+    if (!formData.location?.trim())      newErrors.location = formT("validation.required");
     if (!formData.category?.mainCategory) {
-      newErrors.mainCategory = t("categoryRequired");
+      newErrors.mainCategory = formT("validation.required");
     }
     if (!formData.category?.subCategory) {
-      newErrors.subCategory = t("subcategoryRequired");
+      newErrors.subCategory = formT("validation.required");
     }
-    // Image validation is now handled by ImageManager component
+    // Validate minimum number of images (soft minimum: 6, required minimum: 2)
+    const totalImages = (formData.images?.length || 0) + (formData.existingImages?.length || 0);
+    if (totalImages < 2) {
+      newErrors.images = "Please add at least 2 images";
+    } else if (totalImages < 6) {
+      // This is a soft validation that shows a warning but doesn't block submission
+      // The message is shown in the UI but doesn't prevent form submission
+      console.warn("Less than 6 images uploaded. Consider adding more for better visibility.");
+    }
 
     // Vehicle specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
       const vehicles = formData.details?.vehicles;
 
       if (!vehicles?.vehicleType) {
-        newErrors["details.vehicles.vehicleType"] = t("fieldRequired");
+        newErrors["details.vehicles.vehicleType"] = formT("validation.required");
       }
 
       // Validate make
       if (!vehicles?.make) {
-        newErrors["details.vehicles.make"] = t("fieldRequired");
+        newErrors["details.vehicles.make"] = formT("validation.required");
       } else if (vehicles.make === "OTHER_MAKE") {
         // Validate custom make when "Other" is selected
         if (!vehicles.customMake?.trim()) {
-          newErrors["details.vehicles.customMake"] = t("fieldRequired");
+          newErrors["details.vehicles.customMake"] = formT("fieldRequired");
         }
       }
 
       // Validate model
       if (!vehicles?.model) {
-        newErrors["details.vehicles.model"] = t("fieldRequired");
+        newErrors["details.vehicles.model"] = formT("validation.required");
       } else if (vehicles.model === "CUSTOM_MODEL") {
         // Validate custom model when "Custom" is selected
         if (!vehicles.customModel?.trim()) {
-          newErrors["details.vehicles.customModel"] = t("fieldRequired");
+          newErrors["details.vehicles.customModel"] = formT("fieldRequired");
         }
       }
 
       // Validate year
       if (!vehicles?.year) {
-        newErrors["details.vehicles.year"] = t("fieldRequired");
+        newErrors["details.vehicles.year"] = formT("validation.required");
       } else {
         const year = parseInt(vehicles.year.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-          newErrors["details.vehicles.year"] = t("validYearRequired");
+          newErrors["details.vehicles.year"] = formT("validYearRequired");
         }
       }
     }
@@ -422,22 +432,22 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       // Validate size (required for all property types)
       if (!realEstate?.size) {
-        newErrors["details.realEstate.size"] = t("fieldRequired");
+        newErrors["details.realEstate.size"] = formT("validation.required");
       } else {
         const area = parseFloat(realEstate.size.toString());
         if (isNaN(area) || area <= 0) {
-          newErrors["details.realEstate.size"] = t("validAreaRequired");
+          newErrors["details.realEstate.size"] = formT("validAreaRequired");
         }
       }
 
       // Validate year built (required for all property types)
       if (!realEstate?.yearBuilt) {
-        newErrors["details.realEstate.yearBuilt"] = t("fieldRequired");
+        newErrors["details.realEstate.yearBuilt"] = formT("validation.required");
       } else {
         const year = parseInt(realEstate.yearBuilt.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-          newErrors["details.realEstate.yearBuilt"] = t("validYearRequired");
+          newErrors["details.realEstate.yearBuilt"] = formT("validYearRequired");
         }
       }
 
@@ -448,11 +458,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.CONDO:
           // Validate bedrooms for house, apartment, and condo
           if (!realEstate?.bedrooms) {
-            newErrors["details.realEstate.bedrooms"] = t("fieldRequired");
+            newErrors["details.realEstate.bedrooms"] = formT("validation.required");
           } else {
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
-              newErrors["details.realEstate.bedrooms"] = t(
+              newErrors["details.realEstate.bedrooms"] = formT(
                 "validBedroomsRequired",
               );
             }
@@ -460,11 +470,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           // Validate bathrooms for house, apartment, and condo
           if (!realEstate?.bathrooms) {
-            newErrors["details.realEstate.bathrooms"] = t("fieldRequired");
+            newErrors["details.realEstate.bathrooms"] = formT("validation.required");
           } else {
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
-              newErrors["details.realEstate.bathrooms"] = t(
+              newErrors["details.realEstate.bathrooms"] = formT(
                 "validBathroomsRequired",
               );
             }
@@ -475,11 +485,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.CONDO:
           // Validate floor for apartment and condo
           if (!realEstate?.floor) {
-            newErrors["details.realEstate.floor"] = t("fieldRequired");
+            newErrors["details.realEstate.floor"] = formT("validation.required");
           } else {
             const floor = parseInt(realEstate.floor.toString());
             if (isNaN(floor) || floor < 1 || floor > 100) {
-              newErrors["details.realEstate.floor"] = t("validFloorRequired");
+              newErrors["details.realEstate.floor"] = formT("validFloorRequired");
             }
           }
           break;
@@ -487,14 +497,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.LAND:
           // Validate buildable for land
           if (realEstate?.buildable === undefined) {
-            newErrors["details.realEstate.buildable"] = t("fieldRequired");
+            newErrors["details.realEstate.buildable"] = formT("fieldRequired");
           }
           break;
 
         case PropertyType.COMMERCIAL:
           // Validate usage type for commercial
           if (!realEstate?.usageType) {
-            newErrors["details.realEstate.usageType"] = t("fieldRequired");
+            newErrors["details.realEstate.usageType"] = formT("validation.required");
           }
           break;
       }
@@ -713,7 +723,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     return (
       <FormField
         name="field-make"
-        label={t("make")}
+        label={formT("make")}
         type="select"
         value={makeValue}
         onChange={(value) => handleMakeChange(value as string)}
@@ -724,7 +734,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         }
         options={makes}
         required={true}
-        placeholder={t("selectMake")}
+        placeholder={formT("selectMake")}
         isSearchable={true}
       />
     );
@@ -737,7 +747,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     return (
       <FormField
         name="field-model"
-        label={t("model")}
+        label={formT("model")}
         type="select"
         value={modelValue}
         onChange={(value) => handleModelChange(value as string)}
@@ -748,7 +758,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         }
         options={models}
         required={true}
-        placeholder={t("selectModel")}
+        placeholder={formT("selectModel")}
         isSearchable={true}
       />
     );
@@ -761,7 +771,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     return (
       <FormField
         name="field-year"
-        label={t("year")}
+        label={formT("year")}
         type="select"
         value={yearValue}
         onChange={(value) => {
@@ -812,7 +822,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         }
         options={years}
         required={true}
-        placeholder={t("selectYear")}
+        placeholder={formT("selectYear")}
         isSearchable={true}
       />
     );
@@ -828,7 +838,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         <div className="mt-2">
           <FormField
             name="custom-make"
-            label={t("customMake")}
+            label={formT("customMake")}
             type="text"
             value={customMakeValue}
             onChange={(value) => {
@@ -860,7 +870,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 ? errors["details.vehicles.customMake"]
                 : undefined
             }
-            placeholder={t("enterMake")}
+            placeholder={formT("enterMake")}
             required={true}
           />
         </div>
@@ -871,6 +881,27 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Add a new function to render real estate specific fields
 
+  // Helper function for safe translation with debugging
+  const safeTranslate = (text: string, ns: 'common' | 'form' = 'common'): string => {
+    if (!text) return '';
+    if (/^\d+$/.test(text)) return text; // raw number string like year
+    
+    try {
+      // If the text is a translation key (contains a dot), use it as is
+      if (text.includes('.')) {
+        const translated = commonT(text);
+        return translated || text; // Return the key if translation not found
+      }
+      
+      // Otherwise, use the appropriate translator based on namespace
+      const translated = ns === 'common' ? commonT(text) : formT(text);
+      return translated || text;
+    } catch (error) {
+      console.error('Translation error:', { text, ns, error });
+      return text;
+    }
+  };
+
   const renderRealEstateFields = () => {
     if (formData?.category?.mainCategory !== ListingCategory.REAL_ESTATE) {
       return null;
@@ -880,36 +911,58 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     const fields =
       realEstateBasicFields[subType as keyof typeof realEstateBasicFields];
 
-    console.log("Real estate fields:", fields);
+    // Validate field types
+    fields.forEach((field) => {
+      if (typeof field.label !== "string") {
+        console.error("❌ Invalid label type:", field);
+      }
+      if (field.placeholder && typeof field.placeholder !== "string") {
+        console.error("❌ Invalid placeholder type:", field);
+      }
+      if (field.helpText && typeof field.helpText !== "string") {
+        console.error("❌ Invalid helpText type:", field);
+      }
+    });
 
     if (!fields) return null;
 
+    console.log("🏷️ Label raw t():", t("common:propertyDetails"));
     return (
       <div className="mt-6 space-y-6">
         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
-          {t("common.propertyDetails.title")}
+          {commonT("propertyDetails.title")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fields.map((field) => (
-            <div key={field.name}>
-              {renderFormField(
-                t(`common.propertyDetails.${field.name}`),
-                `details.realEstate.${field.name}`,
-                field.type,
-                field.type === "select" ? field.options : undefined,
-                undefined,
-                t(`common.propertyDetails.${field.name}Placeholder` || ""),
-                field.min,
-                field.max,
-                field.step,
-                field.required,
-                field.helpText
-                  ? t(`common.propertyDetails.${field.name}Help`)
-                  : undefined,
-                field.type === "select",
-              )}
-            </div>
-          ))}
+          {fields.map((field) => {
+            const translatedLabel = safeTranslate(field.label);
+            const translatedPlaceholder = field.placeholder ? safeTranslate(field.placeholder) : "";
+            const translatedHelpText = field.helpText ? safeTranslate(field.helpText) : undefined;
+            const translatedOptions = field.type === "select"
+              ? field.options?.map((opt) => ({
+                  ...opt,
+                  label: /^\d+$/.test(opt.label) ? opt.label : safeTranslate(opt.label),
+                }))
+              : undefined;
+
+            return (
+              <div key={field.name}>
+                {renderFormField(
+                  typeof translatedLabel === "string" ? translatedLabel : String(translatedLabel),
+                  `details.realEstate.${field.name}`,
+                  field.type,
+                  translatedOptions,
+                  undefined,
+                  typeof translatedPlaceholder === "string" ? translatedPlaceholder : String(translatedPlaceholder),
+                  field.min,
+                  field.max,
+                  field.step,
+                  field.required,
+                  typeof translatedHelpText === "string" ? translatedHelpText : String(translatedHelpText),
+                  field.type === "select",
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -929,6 +982,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     helpText?: string,
     isSearchable?: boolean,
   ) => {
+    // Ensure label and placeholder are properly translated
+    const displayLabel = safeTranslate(label);
+    const displayPlaceholder = placeholder ? safeTranslate(placeholder) : '';
+    const displayHelpText = helpText ? safeTranslate(helpText) : undefined;
     const fieldValue = fieldName
       .split(".")
       .reduce((obj: any, key) => obj?.[key], formData);
@@ -1012,7 +1069,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     return (
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-          {t("vehicleType")}
+          {formT("vehicleType")}
           <span className="text-red-600 ml-1" aria-hidden="true">
             *
           </span>
@@ -1035,8 +1092,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               <FaCarAlt className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
                 {formData?.category?.mainCategory === ListingCategory.VEHICLES
-                  ? t(`common.vehicleTypes.${type}`)
-                  : t(`common.propertyTypes.${type}`)}
+                  ? commonT(`vehicleTypes.${type}`)
+                  : commonT(`propertyTypes.${type}`)}
               </span>
             </button>
           ))}
@@ -1053,8 +1110,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1 text-gray-700">
           {formData?.category?.mainCategory === ListingCategory.VEHICLES
-            ? t("vehicleType")
-            : t("propertyType")}
+            ? formT("vehicleType")
+            : formT("propertyType")}
           <span className="text-red-600 ml-1" aria-hidden="true">
             *
           </span>
@@ -1077,8 +1134,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               <FaHome className="h-6 w-6 mb-2" />
               <span className="text-sm font-medium">
                 {formData?.category?.mainCategory === ListingCategory.VEHICLES
-                  ? t(`common.vehicleTypes.${type}`)
-                  : t(`common.propertyTypes.${type}`)}
+                  ? commonT(`vehicleTypes.${type}`)
+                  : commonT(`propertyTypes.${type}`)}
               </span>
             </button>
           ))}
@@ -1092,20 +1149,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Syrian cities data
   const syrianCities = [
-    { value: "DAMASCUS", label: t("cities.DAMASCUS") },
-    { value: "ALEPPO", label: t("cities.ALEPPO") },
-    { value: "HOMS", label: t("cities.HOMS") },
-    { value: "LATTAKIA", label: t("cities.LATTAKIA") },
-    { value: "HAMA", label: t("cities.HAMA") },
-    { value: "DEIR_EZZOR", label: t("cities.DEIR_EZZOR") },
-    { value: "HASEKEH", label: t("cities.HASEKEH") },
-    { value: "QAMISHLI", label: t("cities.QAMISHLI") },
-    { value: "RAQQA", label: t("cities.RAQQA") },
-    { value: "TARTOUS", label: t("cities.TARTOUS") },
-    { value: "IDLIB", label: t("cities.IDLIB") },
-    { value: "DARA", label: t("cities.DARA") },
-    { value: "SWEDIA", label: t("cities.SWEDIA") },
-    { value: "QUNEITRA", label: t("cities.QUNEITRA") },
+    { value: "DAMASCUS", label: commonT("cities.DAMASCUS") },
+    { value: "ALEPPO", label: commonT("cities.ALEPPO") },
+    { value: "HOMS", label: commonT("cities.HOMS") },
+    { value: "LATTAKIA", label: commonT("cities.LATTAKIA") },
+    { value: "HAMA", label: commonT("cities.HAMA") },
+    { value: "DEIR_EZZOR", label: commonT("cities.DEIR_EZZOR") },
+    { value: "HASEKEH", label: commonT("cities.HASEKEH") },
+    { value: "QAMISHLI", label: commonT("cities.QAMISHLI") },
+    { value: "RAQQA", label: commonT("cities.RAQQA") },
+    { value: "TARTOUS", label: commonT("cities.TARTOUS") },
+    { value: "IDLIB", label: commonT("cities.IDLIB") },
+    { value: "DARA", label: commonT("cities.DARA") },
+    { value: "SWEDIA", label: commonT("cities.SWEDIA") },
+    { value: "QUNEITRA", label: commonT("cities.QUNEITRA") },
   ];
 
   const handleLocationChange = (selected: any) => {
@@ -1116,7 +1173,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     return (
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t("location")}
+          {formT("location")}
           <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
@@ -1131,7 +1188,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             options={syrianCities}
             className="react-select-container"
             classNamePrefix="react-select"
-            placeholder={t("selectLocation")}
+            placeholder={formT("selectLocation")}
             isClearable
             styles={{
               control: (baseStyles, state) => ({
@@ -1187,7 +1244,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         {/* Category Selection Tab */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
-            {t("common.category")}
+            {commonT("category")}
           </h2>
 
           <div className="flex justify-start mb-6">
@@ -1210,7 +1267,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 }
               >
                 <FaCar className="inline-block mr-2 -mt-1" />
-                {t("common.vehicles")}
+                {commonT("vehicles")}
               </button>
               <button
                 type="button"
@@ -1232,7 +1289,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 }
               >
                 <BiBuildingHouse className="inline-block mr-2 -mt-1" />
-                {t("common.realEstate")}
+                {commonT("realEstate")}
               </button>
             </div>
           </div>
@@ -1246,7 +1303,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         {/* Basic Details Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
-            {t("listingDetails")}
+            {commonT("essentialDetails")}
           </h2>
 
           {/* Title field with auto-generation helper text */}
@@ -1278,21 +1335,21 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {renderFormField(
-              t("price"),
+              commonT("price"),
               "price",
               "number",
               undefined,
               <FaMoneyBillWave className="w-4 h-4" />,
-              t("pricePlaceholder"),
+              commonT("propertyDetails.pricePlaceholder"),
               0,
             )}
             {renderFormField(
-              t("location"),
+              commonT("location"),
               "location",
               "select",
               syrianCities,
               <MapPin className="w-4 h-4" />,
-              t("selectLocation"),
+              commonT("propertyDetails.selectLocation"),
               undefined,
               undefined,
               undefined,
@@ -1303,13 +1360,56 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           </div>
 
           {renderFormField(
-            t("description"),
+            commonT("description"),
             "description",
             "textarea",
             undefined,
             <FaAlignLeft className="w-4 h-4" />,
-            t("descriptionPlaceholder"),
+            commonT("propertyDetails.descriptionPlaceholder"),
           )}
+        </div>
+
+        {/* Image Manager Component */}
+        <div className="mt-6">
+          <CollapsibleTip title="Photo Tips">
+            <p className="mb-2">Listings with at least 6 photos get 3x more views!</p>
+            {((formData.images?.length || 0) + (formData.existingImages?.length || 0) < 6) && (
+              <p className="text-amber-600">
+                Add at least 2 photos (recommended: 6+)
+              </p>
+            )}
+          </CollapsibleTip>
+          <div className="mt-4">
+            <Suspense fallback={<div>Loading images...</div>}>
+              <ImageManager
+                images={formData.images as File[]}
+                onChange={(newImages) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    images: newImages,
+                  }));
+                  // Clear any image-related errors
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.images;
+                    return newErrors;
+                  });
+                }}
+                maxImages={10}
+                error={errors.images}
+                existingImages={formData.existingImages as string[]}
+                onDeleteExisting={(url) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    existingImages: (prev.existingImages || []).filter(
+                      (img) => img !== url,
+                    ),
+                  }));
+                  onImageDelete?.();
+                }}
+              />
+            </Suspense>
+          </div>
         </div>
 
         <div className="flex justify-end pt-6">
@@ -1321,47 +1421,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             {isSubmitting ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                {t("submitting")}
+                {formT("submitting")}
               </div>
             ) : (
-              t("next")
+              formT("next")
             )}
           </button>
         </div>
       </form>
-
-      {/* Image Manager Component */}
-      <div className="mt-6">
-        <Suspense fallback={<div>Loading images...</div>}>
-          <ImageManager
-            images={formData.images as File[]}
-            onChange={(newImages) => {
-              setFormData((prev) => ({
-                ...prev,
-                images: newImages,
-              }));
-              // Clear any image-related errors
-              setErrors((prev) => {
-                const newErrors = { ...prev };
-                delete newErrors.images;
-                return newErrors;
-              });
-            }}
-            maxImages={10}
-            error={errors.images}
-            existingImages={formData.existingImages as string[]}
-            onDeleteExisting={(url) => {
-              setFormData((prev) => ({
-                ...prev,
-                existingImages: (prev.existingImages || []).filter(
-                  (img) => img !== url,
-                ),
-              }));
-              onImageDelete?.();
-            }}
-          />
-        </Suspense>
-      </div>
 
       {/* Loading overlay */}
       {isSubmitting && (

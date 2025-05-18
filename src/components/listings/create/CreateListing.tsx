@@ -548,7 +548,7 @@ const CreateListing: React.FC = () => {
             className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
             tabIndex={0}
           >
-            {t("listings.createListing")}
+            {t("create.title")}
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400" tabIndex={0}>
             {t("create.subtitle")}
