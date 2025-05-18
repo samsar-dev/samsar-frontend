@@ -410,7 +410,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       setPreviewUrls(newPreviewUrls);
       onChange(newImages);
     },
-    [images, previewUrls, onChange]
+    [images, previewUrls, onChange],
   );
 
   const handleImageDelete = (index: number) => {
@@ -477,9 +477,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold mb-4">
-        {t("images.title")}
-      </h3>
+      <h3 className="text-lg font-semibold mb-4">{t("images.title")}</h3>
 
       {/* Dropzone */}
       <div
@@ -513,7 +511,8 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
       {/* Image Count */}
       <p className="text-xs text-gray-500 mt-1">
-        {t("images.uploaded")} ({images.length + existingImages.length} / {maxImages})
+        {t("images.uploaded")} ({images.length + existingImages.length} /{" "}
+        {maxImages})
       </p>
 
       {/* Upload Progress */}
@@ -559,7 +558,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                 {existingImages.map((url, index) => {
                   // Calculate the combined index (existing images come after new images)
                   const combinedIndex = previewUrls.length + index;
-                  
+
                   return (
                     <DraggableImage
                       key={`existing-${index}`}
@@ -567,7 +566,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                       index={combinedIndex}
                       moveImage={moveImage}
                       onDelete={() => onDeleteExisting?.(url)}
-                      onEdit={(url, idx) => handleImageEdit(idx - previewUrls.length, url)}
+                      onEdit={(url, idx) =>
+                        handleImageEdit(idx - previewUrls.length, url)
+                      }
                       isUploading={isUploading}
                       isExisting={true}
                     />
@@ -585,15 +586,18 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           <AnimatePresence>
             {previewUrls.map((url, index) => {
               // Calculate file size display
-              const fileSize = images[index] && (
-                (imageSizes[images[index].name] || images[index].size) / 1024
-              ).toFixed(1) + " KB";
-              
+              const fileSize =
+                images[index] &&
+                (
+                  (imageSizes[images[index].name] || images[index].size) / 1024
+                ).toFixed(1) + " KB";
+
               // Calculate dimensions display (approximate)
-              const dimensions = images[index] && imageSizes[images[index].name] 
-                ? `${Math.round(Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92))}px`
-                : "";
-                
+              const dimensions =
+                images[index] && imageSizes[images[index].name]
+                  ? `${Math.round(Math.sqrt((imageSizes[images[index].name] * 1024) / 0.92))}px`
+                  : "";
+
               return (
                 <DraggableImage
                   key={`preview-${index}`}

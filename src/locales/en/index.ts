@@ -1,17 +1,17 @@
-import common from './common.json';
-import auth from './auth.json';
-import profile from './profile.json';
-import listings from './listings.json';
-import filters from './filters.json';
-import features from './features.json';
-import options from './options.json';
-import form from './form.json';
-import errors from './errors.json';
-import home from './home.json';
-import footer from './footer.json';
-import categories from './categories.json';
-import enums from './enums.json';
-import settings from './settings.json';
+import common from "./common.json";
+import auth from "./auth.json";
+import profile from "./profile.json";
+import listings from "./listings.json";
+import filters from "./filters.json";
+import features from "./features.json";
+import options from "./options.json";
+import form from "./form.json";
+import errors from "./errors.json";
+import home from "./home.json";
+import footer from "./footer.json";
+import categories from "./categories.json";
+import enums from "./enums.json";
+import settings from "./settings.json";
 
 export default {
   common,
@@ -27,5 +27,5 @@ export default {
   footer,
   categories,
   enums,
-  settings
+  settings,
 };

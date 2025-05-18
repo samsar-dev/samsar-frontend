@@ -76,34 +76,34 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
-  const { t } = useTranslation(['filters', 'common']);
+  const { t } = useTranslation(["filters", "common"]);
   const [localLoading, setLocalLoading] = useState(false);
-  
+
   // Common translations
   const common = {
-    filters: t('filters'),
-    reset: t('reset'),
+    filters: t("filters"),
+    reset: t("reset"),
     categories: {
       vehicle: {
-        CAR: t('categories.vehicle.CAR'),
-        TRUCK: t('categories.vehicle.TRUCK'),
-        MOTORCYCLE: t('categories.vehicle.MOTORCYCLE'),
-        VAN: t('categories.vehicle.VAN'),
-        BUS: t('categories.vehicle.BUS'),
-        TRACTOR: t('categories.vehicle.TRACTOR'),
-        RV: t('categories.vehicle.RV')
-      }
+        CAR: t("categories.vehicle.CAR"),
+        TRUCK: t("categories.vehicle.TRUCK"),
+        MOTORCYCLE: t("categories.vehicle.MOTORCYCLE"),
+        VAN: t("categories.vehicle.VAN"),
+        BUS: t("categories.vehicle.BUS"),
+        TRACTOR: t("categories.vehicle.TRACTOR"),
+        RV: t("categories.vehicle.RV"),
+      },
     },
     subcategories: {
       property: {
-        HOUSE: t('subcategories.property.HOUSE'),
-        APARTMENT: t('subcategories.property.APARTMENT'),
-        CONDO: t('subcategories.property.CONDO'),
-        LAND: t('subcategories.property.LAND'),
-        COMMERCIAL: t('subcategories.property.COMMERCIAL')
+        HOUSE: t("subcategories.property.HOUSE"),
+        APARTMENT: t("subcategories.property.APARTMENT"),
+        CONDO: t("subcategories.property.CONDO"),
+        LAND: t("subcategories.property.LAND"),
+        COMMERCIAL: t("subcategories.property.COMMERCIAL"),
       },
-      OTHER: t('subcategories.OTHER')
-    }
+      OTHER: t("subcategories.OTHER"),
+    },
   };
 
   // Get available makes for the selected subcategory
@@ -204,7 +204,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         {/* Subcategory Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('subcategory')}
+            {t("subcategory")}
           </label>
           <Listbox
             value={selectedSubcategory || ""}
@@ -247,7 +247,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                         <span
                           className={`block truncate ${selected ? "font-medium" : "font-normal"}`}
                         >
-                          {t('all_subcategories')}
+                          {t("all_subcategories")}
                         </span>
                         {selected ? (
                           <span
@@ -299,7 +299,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         {/* Action Filter - moved below filters for better UX */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('action')}
+            {t("action")}
           </label>
           <div className="flex gap-2">
             <button
@@ -313,7 +313,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
               } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {t('actions.SELL')}
+              {t("actions.SELL")}
             </button>
             <button
               onClick={() =>
@@ -326,7 +326,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
               } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {t('actions.RENT')}
+              {t("actions.RENT")}
             </button>
           </div>
         </div>
@@ -334,7 +334,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         {/* Location Filter - Available for both vehicle and real estate */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('location')}
+            {t("location")}
           </label>
           <select
             name="location"
@@ -343,7 +343,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 z-[60] ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={localLoading}
           >
-            <option value="">{t('allCities', { ns: 'common' })}</option>
+            <option value="">{t("allCities", { ns: "common" })}</option>
             <option value="DAMASCUS">{t("cities.DAMASCUS")}</option>
             <option value="ALEPPO">{t("cities.ALEPPO")}</option>
             <option value="HOMS">{t("cities.HOMS")}</option>
@@ -365,7 +365,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         {selectedCategory === ListingCategory.REAL_ESTATE && (
           <div className="space-y-2 z-[60]">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t('built_year')}
+              {t("built_year")}
             </label>
             <Listbox
               value={selectedBuiltYear || ""}
@@ -379,7 +379,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   <span className="truncate">
                     {selectedBuiltYear
                       ? t(`builtYearOptions.${selectedBuiltYear}`)
-                      : t('builtYearOptions.any')}
+                      : t("builtYearOptions.any")}
                   </span>
                 </Listbox.Button>
                 <Transition
@@ -395,7 +395,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                         `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
                       }
                     >
-                      {t('builtYearOptions.any')}
+                      {t("builtYearOptions.any")}
                     </Listbox.Option>
                     <Listbox.Option
                       value="2023"
@@ -403,7 +403,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                         `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
                       }
                     >
-                      {t('builtYearOptions.2023')}
+                      {t("builtYearOptions.2023")}
                     </Listbox.Option>
                     <Listbox.Option
                       value="2010"
@@ -411,7 +411,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                         `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
                       }
                     >
-                      {t('builtYearOptions.2010')}
+                      {t("builtYearOptions.2010")}
                     </Listbox.Option>
                     <Listbox.Option
                       value="2000"
@@ -419,7 +419,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                         `${active ? "bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"} cursor-default select-none relative py-2 pl-3 pr-9`
                       }
                     >
-                      {t('builtYearOptions.2000')}
+                      {t("builtYearOptions.2000")}
                     </Listbox.Option>
                   </Listbox.Options>
                 </Transition>
@@ -433,7 +433,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           availableMakes.length > 0 && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('make')}
+                {t("make")}
               </label>
               <select
                 value={selectedMake || ""}
@@ -443,7 +443,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   localLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <option value="">{t('all_makes')}</option>
+                <option value="">{t("all_makes")}</option>
                 {availableMakes.map((make) => (
                   <option key={make} value={make}>
                     {make}
@@ -457,7 +457,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         {selectedMake && availableModels.length > 0 && (
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t('model')}
+              {t("model")}
             </label>
             <select
               value={selectedModel || ""}
@@ -467,7 +467,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                 localLoading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              <option value="">{t('all_models')}</option>
+              <option value="">{t("all_models")}</option>
               {availableModels.map((model) => (
                 <option key={model} value={model}>
                   {model}
@@ -482,7 +482,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           isVehicleCategory(selectedSubcategory)) && (
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t('year')}
+              {t("year")}
             </label>
             <Listbox
               value={selectedYear || ""}
@@ -496,7 +496,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                   }`}
                 >
                   <span className="truncate">
-                    {selectedYear || t('all_years')}
+                    {selectedYear || t("all_years")}
                   </span>
                 </Listbox.Button>
                 <Transition

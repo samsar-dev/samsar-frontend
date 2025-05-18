@@ -27,7 +27,7 @@ interface PasswordStrength {
 }
 
 const ChangePassword = () => {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation("profile");
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -151,9 +151,7 @@ const ChangePassword = () => {
         setVerificationSent(true);
         toast.success(response.message || t("verification_code_sent"));
       } else {
-        toast.error(
-          response.error?.message || t("verification_code_error"),
-        );
+        toast.error(response.error?.message || t("verification_code_error"));
       }
     } catch (error) {
       console.error("Error requesting verification code:", error);
@@ -472,9 +470,7 @@ const ChangePassword = () => {
             {loading || verificationLoading ? (
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
-                {verificationSent
-                  ? t("updating")
-                  : t("sending_verification")}
+                {verificationSent ? t("updating") : t("sending_verification")}
               </>
             ) : verificationSent ? (
               t("update_password")

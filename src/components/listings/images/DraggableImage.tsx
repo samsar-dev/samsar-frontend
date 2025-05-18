@@ -48,7 +48,8 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       if (dragIndex === hoverIndex) return;
 
       const hoverBoundingRect = ref.current.getBoundingClientRect();
-      const hoverMiddleX = (hoverBoundingRect.right - hoverBoundingRect.left) / 2;
+      const hoverMiddleX =
+        (hoverBoundingRect.right - hoverBoundingRect.left) / 2;
       const clientOffset = monitor.getClientOffset();
       if (!clientOffset) return;
       const hoverClientX = clientOffset.x - hoverBoundingRect.left;
@@ -67,7 +68,10 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
     <motion.div
       ref={ref}
       className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
-      style={{ opacity: isDragging ? 0.5 : 1, cursor: isUploading ? "wait" : "grab" }}
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: isUploading ? "wait" : "grab",
+      }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >

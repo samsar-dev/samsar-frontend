@@ -266,50 +266,50 @@ export const tractorSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
- // Maintenance & Documentation
- {
-  name: "serviceHistory",
-  label: "fields.serviceHistory",
-  type: "multiselect",
-  options: [
-    "fullDealerHistory",
-    "partialDealerHistory",
-    "fullServiceRecords",
-    "partialServiceRecords",
-    "noHistory",
-  ],
-  section: "advanced",
-  required: false,
-},
-{
-  name: "warranty",
-  label: "fields.warranty",
-  type: "select",
-  options: [
-    "manufacturer",
-    "extended",
-    "powertrain",
-    "comprehensive",
-    "none",
-  ],
-  section: "advanced",
-  required: false,
-},
-{
-  name: "modifications",
-  label: "fields.modifications",
-  type: "text",
-  section: "advanced",
-  required: false,
-},
-{
-  name: "electricalSystem",
-  label: "fields.electricalSystem",
-  type: "select",
-  options: ["12V", "24V", "dual", "other"],
-  section: "advanced",
-  required: false,
-},
+  // Maintenance & Documentation
+  {
+    name: "serviceHistory",
+    label: "fields.serviceHistory",
+    type: "multiselect",
+    options: [
+      "fullDealerHistory",
+      "partialDealerHistory",
+      "fullServiceRecords",
+      "partialServiceRecords",
+      "noHistory",
+    ],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "warranty",
+    label: "fields.warranty",
+    type: "select",
+    options: [
+      "manufacturer",
+      "extended",
+      "powertrain",
+      "comprehensive",
+      "none",
+    ],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "modifications",
+    label: "fields.modifications",
+    type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "electricalSystem",
+    label: "fields.electricalSystem",
+    type: "select",
+    options: ["12V", "24V", "dual", "other"],
+    section: "advanced",
+    required: false,
+  },
   // ================= VEHICLE FEATURES =================
   {
     name: "features",
@@ -426,7 +426,4 @@ export const tractorSchema: ListingFieldSchema[] = [
       },
     },
   },
-
-
- 
 ];

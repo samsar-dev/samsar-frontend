@@ -208,12 +208,12 @@
     "balcony": "Balcony",
     "storage": "Storage",
     "windowType": "Window Type",
- 
+
     "accessRoad": "Access Road",
     "parcelNumber": "Parcel Number",
     "topography": "Topography",
     "elevation": "Elevation",
-    
+
     "waterFeatures": "Water Features",
     "naturalFeatures": "Natural Features",
     "buildable": "Buildable",
@@ -232,23 +232,23 @@
     "documentsAvailable": "Documents Available",
     "previousUse": "Previous Use",
     "propertyDetails": {
-        "totalArea": "Total Area",
-        "totalAreaPlaceholder": "Enter total area (sqm)",
-        "bedrooms": "Bedrooms",
-        "bedroomsPlaceholder": "Enter number of bedrooms",
-        "bathrooms": "Bathrooms",
-        "bathroomsPlaceholder": "Enter number of bathrooms",
-        "bathroomsHelpText": "0.5 indicates a half bathroom (toilet only)",
-        "floorLevel": "Floor Level",
-        "floorLevelPlaceholder": "Enter floor level",
-        "yearBuilt": "Year Built",
-        "yearBuiltPlaceholder": "Select year built",
-        "landArea": "Land Area",
-        "landAreaPlaceholder": "Enter land area (sqm)",
-        "isBuildable": "Is Buildable",
-        "isBuildablePlaceholder": "Select buildable status",
-        "usageType": "Usage Type",
-        "usageTypePlaceholder": "Select usage type"
+      "totalArea": "Total Area",
+      "totalAreaPlaceholder": "Enter total area (sqm)",
+      "bedrooms": "Bedrooms",
+      "bedroomsPlaceholder": "Enter number of bedrooms",
+      "bathrooms": "Bathrooms",
+      "bathroomsPlaceholder": "Enter number of bathrooms",
+      "bathroomsHelpText": "0.5 indicates a half bathroom (toilet only)",
+      "floorLevel": "Floor Level",
+      "floorLevelPlaceholder": "Enter floor level",
+      "yearBuilt": "Year Built",
+      "yearBuiltPlaceholder": "Select year built",
+      "landArea": "Land Area",
+      "landAreaPlaceholder": "Enter land area (sqm)",
+      "isBuildable": "Is Buildable",
+      "isBuildablePlaceholder": "Select buildable status",
+      "usageType": "Usage Type",
+      "usageTypePlaceholder": "Select usage type"
     },
     "propertyHistory": "Property History",
     "hours": "Operating Hours",
@@ -315,94 +315,92 @@
     "hitchCapacity": "Hitch Capacity (kg)",
     "electricalSystem": "Electrical System",
     "powerOutput": "Power Output (HP)",
-    
-    
-    
+
     "engineSizeOptions": {
-    "50cc": "50cc",
-    "125cc": "125cc",
-    "250cc": "250cc",
-    "300cc": "300cc",
-    "400cc": "400cc",
-    "500cc": "500cc",
-    "600cc": "600cc",
-    "650cc": "650cc",
-    "750cc": "750cc",
-    "800cc": "800cc",
-    "900cc": "900cc",
-    "1000cc": "1000cc",
-    "1200cc": "1200cc",
-    "1400cc": "1400cc",
-    "1500cc+": "1500cc+"
+      "50cc": "50cc",
+      "125cc": "125cc",
+      "250cc": "250cc",
+      "300cc": "300cc",
+      "400cc": "400cc",
+      "500cc": "500cc",
+      "600cc": "600cc",
+      "650cc": "650cc",
+      "750cc": "750cc",
+      "800cc": "800cc",
+      "900cc": "900cc",
+      "1000cc": "1000cc",
+      "1200cc": "1200cc",
+      "1400cc": "1400cc",
+      "1500cc+": "1500cc+"
+    },
+
+    "engineTypeOptions": {
+      "singleCylinder": "Single Cylinder",
+      "parallel-twin": "Parallel Twin",
+      "v-twin": "V-Twin",
+      "inline-3": "Inline 3",
+      "inline-4": "Inline 4",
+      "v4": "V4",
+      "boxer": "Boxer",
+      "rotary": "Rotary",
+      "electric": "Electric"
+    },
+
+    "brakeSystemOptions": {
+      "abs": "ABS",
+      "cbs": "Combined Braking System (CBS)",
+      "linked": "Linked Brakes",
+      "standard": "Standard",
+      "corneringABS": "Cornering ABS"
+    },
+
+    "suspensionTypeOptions": {
+      "standard": "Standard",
+      "upsideDownForks": "Upside Down Forks",
+      "electronic": "Electronic Suspension",
+      "semiActive": "Semi-Active Suspension"
+    },
+
+    "tireTypeOptions": {
+      "sport": "Sport",
+      "touring": "Touring",
+      "cruiser": "Cruiser",
+      "offRoad": "Off-Road",
+      "dualSport": "Dual-Sport",
+      "scooter": "Scooter"
+    },
+
+    "fuelTypes": {
+      "GASOLINE": "Gasoline",
+      "DIESEL": "Diesel",
+      "ELECTRIC": "Electric",
+      "HYBRID": "Hybrid"
+    },
+    "transmissionTypes": {
+      "AUTOMATIC": "Automatic",
+      "MANUAL": "Manual",
+      "SEMI_AUTOMATIC": "Semi-automatic"
+    },
+    "conditionTypes": {
+      "NEW": "New",
+      "USED": "Used",
+      "LIKE_NEW": "Like New",
+      "EXCELLENT": "Excellent",
+      "GOOD": "Good",
+      "FAIR": "Fair",
+      "POOR": "Poor",
+      "SALVAGE": "Salvage"
+    },
+    "condition": "Condition",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "no": "No",
+    "roofType": "Roof Type",
+    "customsCleared": "Customs Cleared",
+    "warrantyPeriod": "Warranty Period",
+    "serviceHistoryDetails": "Service History Details"
   },
-  
-  "engineTypeOptions": {
-    "singleCylinder": "Single Cylinder",
-    "parallel-twin": "Parallel Twin",
-    "v-twin": "V-Twin",
-    "inline-3": "Inline 3",
-    "inline-4": "Inline 4",
-    "v4": "V4",
-    "boxer": "Boxer",
-    "rotary": "Rotary",
-    "electric": "Electric"
-  },
-  
-  "brakeSystemOptions": {
-    "abs": "ABS",
-    "cbs": "Combined Braking System (CBS)",
-    "linked": "Linked Brakes",
-    "standard": "Standard",
-    "corneringABS": "Cornering ABS"
-  },
-  
-  "suspensionTypeOptions": {
-    "standard": "Standard",
-    "upsideDownForks": "Upside Down Forks",
-    "electronic": "Electronic Suspension",
-    "semiActive": "Semi-Active Suspension"
-  },
-  
-  "tireTypeOptions": {
-    "sport": "Sport",
-    "touring": "Touring",
-    "cruiser": "Cruiser",
-    "offRoad": "Off-Road",
-    "dualSport": "Dual-Sport",
-    "scooter": "Scooter"
-  },
-  
-  "fuelTypes": {
-    "GASOLINE": "Gasoline",
-    "DIESEL": "Diesel",
-    "ELECTRIC": "Electric",
-    "HYBRID": "Hybrid"
-  },
-  "transmissionTypes": {
-    "AUTOMATIC": "Automatic",
-    "MANUAL": "Manual",
-    "SEMI_AUTOMATIC": "Semi-automatic"
-  },
-  "conditionTypes": {
-    "NEW": "New",
-    "USED": "Used",
-    "LIKE_NEW": "Like New",
-    "EXCELLENT": "Excellent",
-    "GOOD": "Good",
-    "FAIR": "Fair",
-    "POOR": "Poor",
-    "SALVAGE": "Salvage"
-  },
-  "condition": "Condition",
-  "make": "Make",
-  "model": "Model",
-  "year": "Year",
-  "no": "No",
-  "roofType": "Roof Type",
-  "customsCleared": "Customs Cleared",
-  "warrantyPeriod": "Warranty Period",
-  "serviceHistoryDetails": "Service History Details"
-},
   "insuranceType": {
     "comprehensive": "Comprehensive",
     "thirdParty": "Third Party",
@@ -429,7 +427,7 @@
   },
   "dateFormat": "mm/dd/yyyy",
   "dateFormatPlaceholder": "mm/dd/yyyy",
-  
+
   "conditionOptions": {
     "new": "New",
     "likeNew": "Like New",
@@ -439,19 +437,19 @@
     "poor": "Poor",
     "salvage": "Salvage"
   },
-  
+
   "registrationStatusOptions": {
     "registered": "Registered",
     "unregistered": "Unregistered",
     "expired": "Expired"
   },
-  
+
   "serviceHistoryOptions": {
     "full": "Full Service History",
     "partial": "Partial Service History",
     "none": "No Service History"
   },
-  
+
   "houseConditionOptions": {
     "new": "New Construction",
     "excellent": "Excellent",
@@ -459,7 +457,7 @@
     "fair": "Fair",
     "needsWork": "Needs Work"
   },
-  
+
   "parkingOptions": {
     "attachedGarage": "Attached Garage",
     "detachedGarage": "Detached Garage",
@@ -467,7 +465,7 @@
     "street": "Street Parking",
     "none": "No Parking"
   },
-  
+
   "constructionTypeOptions": {
     "brick": "Brick",
     "wood": "Wood Frame",
@@ -477,7 +475,7 @@
     "stucco": "Stucco",
     "other": "Other"
   },
-  
+
   "heatingOptions": {
     "central": "Central Heating",
     "forcedAir": "Forced Air",
@@ -488,7 +486,7 @@
     "woodStove": "Wood Stove",
     "pelletStove": "Pellet Stove"
   },
-  
+
   "coolingOptions": {
     "central": "Central Air",
     "window": "Window Units",
@@ -497,7 +495,7 @@
     "geothermal": "Geothermal",
     "none": "No Cooling"
   },
-  
+
   "zoningOptions": {
     "residential": "Residential",
     "commercial": "Commercial",
@@ -508,7 +506,7 @@
     "conservationDistrict": "Conservation District",
     "other": "Other"
   },
-  
+
   "utilityOptions": {
     "electricity": "Electricity",
     "water": "Water",
@@ -518,7 +516,7 @@
     "internet": "Internet",
     "cable": "Cable"
   },
-  
+
   "accessRoadOptions": {
     "paved": "Paved Road",
     "gravel": "Gravel Road",
@@ -526,7 +524,7 @@
     "seasonalAccess": "Seasonal Access",
     "none": "No Road Access"
   },
-  
+
   "topographyOptions": {
     "flat": "Flat",
     "gentlySloped": "Gently Sloped",
@@ -538,7 +536,7 @@
     "oceanfront": "Oceanfront",
     "mountainous": "Mountainous"
   },
-  
+
   "waterFeatureOptions": {
     "creek": "Creek",
     "river": "River",
@@ -549,7 +547,7 @@
     "ocean": "Ocean",
     "stream": "Stream"
   },
-  
+
   "foundationOptions": {
     "concrete": "Concrete Slab",
     "crawlSpace": "Crawl Space",
@@ -558,7 +556,7 @@
     "stone": "Stone",
     "other": "Other"
   },
-  
+
   "features": {
     "bluetooth": "Bluetooth",
     "navigation": "Navigation System",
@@ -571,7 +569,7 @@
     "keylessEntry": "Keyless Entry",
     "pushButtonStart": "Push Button Start"
   },
-  
+
   "featureCategories": {
     "safety": "Safety Features",
     "entertainment": "Entertainment Features",
@@ -584,7 +582,7 @@
     "priceRequired": "Please enter a valid price",
     "yearRequired": "Please enter a valid year"
   },
-  
+
   "validation": {
     "validPriceRequired": "Please enter a valid price",
     "validYearRequired": "Please enter a valid year",

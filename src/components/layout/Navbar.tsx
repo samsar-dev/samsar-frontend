@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation("common");
 
   // Detect RTL based on language
   const isRTL = i18n.language === "ar" || i18n.language.startsWith("ar-");
@@ -318,9 +318,7 @@ const Navbar: React.FC = () => {
                       ) : (
                         <FaSignOutAlt />
                       )}
-                      {isLoggingOut
-                        ? t("loggingOut")
-                        : t("logout")}
+                      {isLoggingOut ? t("loggingOut") : t("logout")}
                     </button>
                   </div>
                 </div>

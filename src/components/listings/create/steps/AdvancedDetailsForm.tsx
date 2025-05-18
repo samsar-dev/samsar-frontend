@@ -206,7 +206,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
 const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
   ({ formData, onSubmit, onBack }) => {
     console.log("[AdvancedDetailsForm] props:", formData, onSubmit, onBack);
-    const { t } = useTranslation(['listings']);
+    const { t } = useTranslation(["listings"]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [activeSection, setActiveSection] = useState<SectionId>("essential");

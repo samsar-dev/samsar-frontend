@@ -28,7 +28,7 @@ interface ProfileInfoFormData {
 }
 
 const ProfileInfo = () => {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation("profile");
   const { user, updateAuthUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);

@@ -10,7 +10,7 @@ import arTranslations from "@/locales/ar";
 // Define the resources structure with all namespaces
 const resources = {
   en: enTranslations,
-  ar: arTranslations
+  ar: arTranslations,
 };
 
 const i18nConfig: InitOptions = {
@@ -20,20 +20,20 @@ const i18nConfig: InitOptions = {
   supportedLngs: ["en", "ar"],
   load: "languageOnly",
   ns: [
-    "common", 
-    "auth", 
-    "profile", 
-    "listings", 
-    "filters", 
-    "features", 
-    "options", 
-    "form", 
-    "errors", 
-    "home", 
-    "footer", 
-    "categories", 
-    "enums", 
-    "settings"
+    "common",
+    "auth",
+    "profile",
+    "listings",
+    "filters",
+    "features",
+    "options",
+    "form",
+    "errors",
+    "home",
+    "footer",
+    "categories",
+    "enums",
+    "settings",
   ],
   defaultNS: "common",
   fallbackNS: "common",
@@ -47,14 +47,13 @@ const i18nConfig: InitOptions = {
   saveMissing: process.env.NODE_ENV === "development", // Only save missing translations in development
   saveMissingTo: "all", // Save missing translations to all languages
   missingKeyHandler: (lng, ns, key) => {
-    console.log(`Missing translation: ${key} in namespace ${ns} for language ${lng}`);
-  }
+    console.log(
+      `Missing translation: ${key} in namespace ${ns} for language ${lng}`,
+    );
+  },
 };
 
-i18n
-  .use(Backend)
-  .use(initReactI18next)
-  .init(i18nConfig);
+i18n.use(Backend).use(initReactI18next).init(i18nConfig);
 
 // Set document direction based on language
 const currentLanguage = localStorage.getItem("language") || "en";

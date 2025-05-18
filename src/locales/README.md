@@ -38,22 +38,22 @@ locales/
 To use translations in your components, import the `useTranslation` hook from `react-i18next` and specify the namespace:
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 function MyComponent() {
   // Use a specific namespace
-  const { t } = useTranslation('listings');
-  
+  const { t } = useTranslation("listings");
+
   // Or use multiple namespaces
-  const { t: tCommon } = useTranslation('common');
-  const { t: tFeatures } = useTranslation('features');
-  
+  const { t: tCommon } = useTranslation("common");
+  const { t: tFeatures } = useTranslation("features");
+
   return (
     <div>
-      <h1>{tCommon('appName')}</h1>
-      <p>{t('vehicleDetails')}</p>
+      <h1>{tCommon("appName")}</h1>
+      <p>{t("vehicleDetails")}</p>
       <ul>
-        <li>{tFeatures('safety.blindSpotMonitor')}</li>
+        <li>{tFeatures("safety.blindSpotMonitor")}</li>
       </ul>
     </div>
   );
@@ -68,22 +68,22 @@ function MyComponent() {
 
 ## Namespaces
 
-| Namespace    | Purpose                                               |
-|--------------|-------------------------------------------------------|
-| common       | General app text, buttons, UI elements                |
-| auth         | Login, register, password reset, verification         |
-| profile      | User profile, settings, security, privacy             |
-| listings     | Creating, editing, and displaying listings            |
-| filters      | Search and filter labels, options, sorting            |
-| features     | Vehicle/property features (organized by categories)   |
-| options      | Dropdown values: fuel type, transmission, etc.        |
-| form         | Form field labels, placeholders, validation messages  |
-| errors       | Generic error messages and API feedback               |
-| home         | Home screen banners, titles, marketing text           |
-| footer       | Footer content like privacy, terms, about, contact    |
-| categories   | Listing categories and subcategories                  |
-| enums        | Enum translations (transmission, fuelType, etc.)      |
-| settings     | Settings tabs, 2FA, theme, notifications              |
+| Namespace  | Purpose                                              |
+| ---------- | ---------------------------------------------------- |
+| common     | General app text, buttons, UI elements               |
+| auth       | Login, register, password reset, verification        |
+| profile    | User profile, settings, security, privacy            |
+| listings   | Creating, editing, and displaying listings           |
+| filters    | Search and filter labels, options, sorting           |
+| features   | Vehicle/property features (organized by categories)  |
+| options    | Dropdown values: fuel type, transmission, etc.       |
+| form       | Form field labels, placeholders, validation messages |
+| errors     | Generic error messages and API feedback              |
+| home       | Home screen banners, titles, marketing text          |
+| footer     | Footer content like privacy, terms, about, contact   |
+| categories | Listing categories and subcategories                 |
+| enums      | Enum translations (transmission, fuelType, etc.)     |
+| settings   | Settings tabs, 2FA, theme, notifications             |
 
 ## Migration
 

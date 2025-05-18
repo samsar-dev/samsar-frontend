@@ -39,7 +39,7 @@ function PreferenceSettings({
   onUpdate,
   isRTL = false,
 }: Props) {
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation("settings");
   const currentSettings = { ...defaultSettings, ...settings };
 
   const handleChange = (key: keyof PreferenceSettingsType, value: any) => {

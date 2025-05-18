@@ -20,7 +20,7 @@ const defaultSettings: SecuritySettingsType = {
 };
 
 function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation("settings");
 
   // Merge provided settings with defaults to ensure no missing properties
   const mergedSettings = { ...defaultSettings, ...settings };

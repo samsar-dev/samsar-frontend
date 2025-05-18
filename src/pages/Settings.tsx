@@ -54,7 +54,7 @@ interface SettingsState {
 }
 
 function Settings() {
-  const { t, i18n } = useTranslation('settings');
+  const { t, i18n } = useTranslation("settings");
   const { settings, updateSettings } = useSettings();
   // debounce state
   const [debouncedToggles, setDebouncedToggles] = useState(settings);
@@ -116,16 +116,12 @@ function Settings() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold">{t("title")}</h1>
-          <p className="mt-2 text-gray-600">
-            {t("settingsDescription")}
-          </p>
+          <p className="mt-2 text-gray-600">{t("settingsDescription")}</p>
         </div>
 
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("preferences")}
-            </h2>
+            <h2 className="text-xl font-semibold mb-6">{t("preferences")}</h2>
             <PreferenceSettings
               settings={settings?.preferences || {}}
               onUpdate={handlePreferenceUpdate}
@@ -219,9 +215,7 @@ function Settings() {
 
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("privacy.title")}
-            </h2>
+            <h2 className="text-xl font-semibold mb-6">{t("privacy.title")}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span>{t("privacy.profileVisibility")}</span>

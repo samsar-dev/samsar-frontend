@@ -20,7 +20,7 @@ interface TabItem {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation("profile");
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams();

@@ -44,7 +44,7 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation("common");
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);

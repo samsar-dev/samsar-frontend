@@ -60,8 +60,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onImageDelete,
 }) => {
   const { t } = useTranslation(["common", "listings", "form", "errors"]);
-  const commonT = (key: string) => t(key, { ns: 'common' });
-  const formT = (key: string) => t(key, { ns: 'form' });
+  const commonT = (key: string) => t(key, { ns: "common" });
+  const formT = (key: string) => t(key, { ns: "form" });
   const [formData, setFormData] = useState<ExtendedFormState>({
     title: "",
     description: "",
@@ -138,15 +138,18 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return [];
     }
 
-      // Add "Custom" option only if make is not "Other_MAKE"
-      const options = models.map((model) => ({
-        value: model,
-        label: model,
-      }));
+    // Add "Custom" option only if make is not "Other_MAKE"
+    const options = models.map((model) => ({
+      value: model,
+      label: model,
+    }));
 
-      if (make !== "OTHER_MAKE") {
-        options.push({ value: "CUSTOM_MODEL", label: t("custom", { ns: 'form' }) });
-      }
+    if (make !== "OTHER_MAKE") {
+      options.push({
+        value: "CUSTOM_MODEL",
+        label: t("custom", { ns: "form" }),
+      });
+    }
 
     return options;
   };
@@ -357,7 +360,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     const newErrors: { [key: string]: string } = {};
 
     // Basic fields validation
-    if (!formData.title?.trim())      newErrors.title = formT("validation.required");
+    if (!formData.title?.trim()) newErrors.title = formT("validation.required");
     if (!formData.description?.trim())
       newErrors.description = formT("validation.required");
     if (!formData.price) {
@@ -368,7 +371,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         newErrors.price = formT("validPriceRequired");
       }
     }
-    if (!formData.location?.trim())      newErrors.location = formT("validation.required");
+    if (!formData.location?.trim())
+      newErrors.location = formT("validation.required");
     if (!formData.category?.mainCategory) {
       newErrors.mainCategory = formT("validation.required");
     }
@@ -376,13 +380,16 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       newErrors.subCategory = formT("validation.required");
     }
     // Validate minimum number of images (soft minimum: 6, required minimum: 2)
-    const totalImages = (formData.images?.length || 0) + (formData.existingImages?.length || 0);
+    const totalImages =
+      (formData.images?.length || 0) + (formData.existingImages?.length || 0);
     if (totalImages < 2) {
       newErrors.images = "Please add at least 2 images";
     } else if (totalImages < 6) {
       // This is a soft validation that shows a warning but doesn't block submission
       // The message is shown in the UI but doesn't prevent form submission
-      console.warn("Less than 6 images uploaded. Consider adding more for better visibility.");
+      console.warn(
+        "Less than 6 images uploaded. Consider adding more for better visibility.",
+      );
     }
 
     // Vehicle specific validation
@@ -390,7 +397,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       const vehicles = formData.details?.vehicles;
 
       if (!vehicles?.vehicleType) {
-        newErrors["details.vehicles.vehicleType"] = formT("validation.required");
+        newErrors["details.vehicles.vehicleType"] = formT(
+          "validation.required",
+        );
       }
 
       // Validate make
@@ -442,12 +451,15 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       // Validate year built (required for all property types)
       if (!realEstate?.yearBuilt) {
-        newErrors["details.realEstate.yearBuilt"] = formT("validation.required");
+        newErrors["details.realEstate.yearBuilt"] = formT(
+          "validation.required",
+        );
       } else {
         const year = parseInt(realEstate.yearBuilt.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-          newErrors["details.realEstate.yearBuilt"] = formT("validYearRequired");
+          newErrors["details.realEstate.yearBuilt"] =
+            formT("validYearRequired");
         }
       }
 
@@ -458,7 +470,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.CONDO:
           // Validate bedrooms for house, apartment, and condo
           if (!realEstate?.bedrooms) {
-            newErrors["details.realEstate.bedrooms"] = formT("validation.required");
+            newErrors["details.realEstate.bedrooms"] = formT(
+              "validation.required",
+            );
           } else {
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
@@ -470,7 +484,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           // Validate bathrooms for house, apartment, and condo
           if (!realEstate?.bathrooms) {
-            newErrors["details.realEstate.bathrooms"] = formT("validation.required");
+            newErrors["details.realEstate.bathrooms"] = formT(
+              "validation.required",
+            );
           } else {
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
@@ -485,11 +501,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.CONDO:
           // Validate floor for apartment and condo
           if (!realEstate?.floor) {
-            newErrors["details.realEstate.floor"] = formT("validation.required");
+            newErrors["details.realEstate.floor"] = formT(
+              "validation.required",
+            );
           } else {
             const floor = parseInt(realEstate.floor.toString());
             if (isNaN(floor) || floor < 1 || floor > 100) {
-              newErrors["details.realEstate.floor"] = formT("validFloorRequired");
+              newErrors["details.realEstate.floor"] =
+                formT("validFloorRequired");
             }
           }
           break;
@@ -504,7 +523,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.COMMERCIAL:
           // Validate usage type for commercial
           if (!realEstate?.usageType) {
-            newErrors["details.realEstate.usageType"] = formT("validation.required");
+            newErrors["details.realEstate.usageType"] = formT(
+              "validation.required",
+            );
           }
           break;
       }
@@ -882,22 +903,25 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Add a new function to render real estate specific fields
 
   // Helper function for safe translation with debugging
-  const safeTranslate = (text: string, ns: 'common' | 'form' = 'common'): string => {
-    if (!text) return '';
+  const safeTranslate = (
+    text: string,
+    ns: "common" | "form" = "common",
+  ): string => {
+    if (!text) return "";
     if (/^\d+$/.test(text)) return text; // raw number string like year
-    
+
     try {
       // If the text is a translation key (contains a dot), use it as is
-      if (text.includes('.')) {
+      if (text.includes(".")) {
         const translated = commonT(text);
         return translated || text; // Return the key if translation not found
       }
-      
+
       // Otherwise, use the appropriate translator based on namespace
-      const translated = ns === 'common' ? commonT(text) : formT(text);
+      const translated = ns === "common" ? commonT(text) : formT(text);
       return translated || text;
     } catch (error) {
-      console.error('Translation error:', { text, ns, error });
+      console.error("Translation error:", { text, ns, error });
       return text;
     }
   };
@@ -935,29 +959,42 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fields.map((field) => {
             const translatedLabel = safeTranslate(field.label);
-            const translatedPlaceholder = field.placeholder ? safeTranslate(field.placeholder) : "";
-            const translatedHelpText = field.helpText ? safeTranslate(field.helpText) : undefined;
-            const translatedOptions = field.type === "select"
-              ? field.options?.map((opt) => ({
-                  ...opt,
-                  label: /^\d+$/.test(opt.label) ? opt.label : safeTranslate(opt.label),
-                }))
+            const translatedPlaceholder = field.placeholder
+              ? safeTranslate(field.placeholder)
+              : "";
+            const translatedHelpText = field.helpText
+              ? safeTranslate(field.helpText)
               : undefined;
+            const translatedOptions =
+              field.type === "select"
+                ? field.options?.map((opt) => ({
+                    ...opt,
+                    label: /^\d+$/.test(opt.label)
+                      ? opt.label
+                      : safeTranslate(opt.label),
+                  }))
+                : undefined;
 
             return (
               <div key={field.name}>
                 {renderFormField(
-                  typeof translatedLabel === "string" ? translatedLabel : String(translatedLabel),
+                  typeof translatedLabel === "string"
+                    ? translatedLabel
+                    : String(translatedLabel),
                   `details.realEstate.${field.name}`,
                   field.type,
                   translatedOptions,
                   undefined,
-                  typeof translatedPlaceholder === "string" ? translatedPlaceholder : String(translatedPlaceholder),
+                  typeof translatedPlaceholder === "string"
+                    ? translatedPlaceholder
+                    : String(translatedPlaceholder),
                   field.min,
                   field.max,
                   field.step,
                   field.required,
-                  typeof translatedHelpText === "string" ? translatedHelpText : String(translatedHelpText),
+                  typeof translatedHelpText === "string"
+                    ? translatedHelpText
+                    : String(translatedHelpText),
                   field.type === "select",
                 )}
               </div>
@@ -984,7 +1021,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   ) => {
     // Ensure label and placeholder are properly translated
     const displayLabel = safeTranslate(label);
-    const displayPlaceholder = placeholder ? safeTranslate(placeholder) : '';
+    const displayPlaceholder = placeholder ? safeTranslate(placeholder) : "";
     const displayHelpText = helpText ? safeTranslate(helpText) : undefined;
     const fieldValue = fieldName
       .split(".")
@@ -1372,8 +1409,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         {/* Image Manager Component */}
         <div className="mt-6">
           <CollapsibleTip title="Photo Tips">
-            <p className="mb-2">Listings with at least 6 photos get 3x more views!</p>
-            {((formData.images?.length || 0) + (formData.existingImages?.length || 0) < 6) && (
+            <p className="mb-2">
+              Listings with at least 6 photos get 3x more views!
+            </p>
+            {(formData.images?.length || 0) +
+              (formData.existingImages?.length || 0) <
+              6 && (
               <p className="text-amber-600">
                 Add at least 2 photos (recommended: 6+)
               </p>

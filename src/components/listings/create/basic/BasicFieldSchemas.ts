@@ -24,7 +24,7 @@ const yearOptions: Array<{ value: string; label: string }> = Array.from(
   (_, i) => {
     const year = (1900 + i).toString();
     return { value: year, label: year };
-  }
+  },
 );
 
 export const realEstateBasicFields: Record<PropertySubtype, BasicField[]> = {

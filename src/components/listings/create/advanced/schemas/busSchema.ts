@@ -142,9 +142,7 @@ export const busSchema: ListingFieldSchema[] = [
   },
 
   // Advanced Section
- 
 
- 
   {
     name: "seatBelts",
     label: "fields.seatBelts",
@@ -241,8 +239,8 @@ export const busSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-   // Technical Specifications
-   {
+  // Technical Specifications
+  {
     name: "emissionStandard",
     label: "fields.emissionStandard",
     type: "select",
@@ -281,15 +279,8 @@ export const busSchema: ListingFieldSchema[] = [
     required: false,
   },
 
-  
-   
-
- 
-
-  
-
-   // Accessibility Features
-   {
+  // Accessibility Features
+  {
     name: "wheelchairAccessible",
     label: "fields.wheelchairAccessible",
     type: "checkbox",
@@ -319,7 +310,6 @@ export const busSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
   },
-  
 
   // Safety Features
   {
@@ -455,4 +445,3 @@ export const busSchema: ListingFieldSchema[] = [
     },
   },
 ];
-

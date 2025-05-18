@@ -107,14 +107,19 @@ export const FormField = forwardRef<
       let customValidationError: string | string[] | undefined | null;
 
       // First check if required field is empty
-      if (required && (newValue === undefined || newValue === null || newValue === "")) {
+      if (
+        required &&
+        (newValue === undefined || newValue === null || newValue === "")
+      ) {
         validationError = `${label} is required`;
-      } 
+      }
       // Then run custom validation if exists
       if (customValidation) {
         customValidationError = customValidation(String(newValue));
         if (customValidationError && !validationError) {
-          validationError = Array.isArray(customValidationError) ? customValidationError[0] : customValidationError;
+          validationError = Array.isArray(customValidationError)
+            ? customValidationError[0]
+            : customValidationError;
         }
       }
 
@@ -137,19 +142,21 @@ export const FormField = forwardRef<
 
       if (required && (!newValueArr || newValueArr.length === 0)) {
         validationError = `${label} is required`;
-      } 
-      
+      }
+
       if (customValidation && newValue) {
         customValidationError = customValidation(newValueArr || []);
         if (customValidationError && !validationError) {
-          validationError = Array.isArray(customValidationError) ? customValidationError[0] : customValidationError;
+          validationError = Array.isArray(customValidationError)
+            ? customValidationError[0]
+            : customValidationError;
         }
       }
 
       onChange(newValueArr || [], validationError || undefined);
-      
+
       // Use actionMeta to avoid unused variable warning
-      if (process.env.NODE_ENV === 'development' && actionMeta) {
+      if (process.env.NODE_ENV === "development" && actionMeta) {
         // No-op, just using actionMeta to avoid warning
       }
     };
@@ -165,7 +172,7 @@ export const FormField = forwardRef<
         "opacity-50 cursor-not-allowed": disabled,
         "pl-10": prefix,
       },
-      "placeholder-gray-400"
+      "placeholder-gray-400",
     );
 
     const animatedComponents = makeAnimated();
@@ -208,22 +215,22 @@ export const FormField = forwardRef<
                 styles={{
                   control: (base, state) => ({
                     ...base,
-                    minHeight: '40px',
+                    minHeight: "40px",
                     borderColor: error
                       ? "var(--red-300)"
                       : state.isFocused
                         ? "var(--blue-500)"
                         : "var(--gray-300)",
                     backgroundColor: error ? "var(--red-50)" : "white",
-                    boxShadow: 'none',
-                    transition: 'all 0.15s ease-in-out',
-                    '&:hover': {
+                    boxShadow: "none",
+                    transition: "all 0.15s ease-in-out",
+                    "&:hover": {
                       borderColor: error ? "var(--red-400)" : "var(--blue-300)",
                     },
-                    '&:focus-within': {
+                    "&:focus-within": {
                       borderColor: error ? "var(--red-500)" : "var(--blue-500)",
                       boxShadow: `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`,
-                    }
+                    },
                   }),
                 }}
               />

@@ -15,7 +15,7 @@ interface MyListingsProps {
 }
 
 export default function MyListings({ userId }: MyListingsProps) {
-  const { t } = useTranslation('listings');
+  const { t } = useTranslation("listings");
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -154,9 +154,7 @@ export default function MyListings({ userId }: MyListingsProps) {
       }
     } catch (err) {
       console.error("Error deleting listing:", err);
-      toast.error(
-        err instanceof Error ? err.message : t("delete_error"),
-      );
+      toast.error(err instanceof Error ? err.message : t("delete_error"));
     }
   };
 
@@ -209,12 +207,8 @@ export default function MyListings({ userId }: MyListingsProps) {
               >
                 <option value="newest">{t("sort.newest")}</option>
                 <option value="oldest">{t("sort.oldest")}</option>
-                <option value="price_high">
-                  {t("sort.price_high")}
-                </option>
-                <option value="price_low">
-                  {t("sort.price_low")}
-                </option>
+                <option value="price_high">{t("sort.price_high")}</option>
+                <option value="price_low">{t("sort.price_low")}</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                 <FaSort size={14} />

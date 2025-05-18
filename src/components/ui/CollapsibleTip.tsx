@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 interface CollapsibleTipProps {
   title: string;
@@ -8,10 +8,10 @@ interface CollapsibleTipProps {
   className?: string;
 }
 
-export const CollapsibleTip = ({ 
-  title, 
-  children, 
-  className = '' 
+export const CollapsibleTip = ({
+  title,
+  children,
+  className = "",
 }: CollapsibleTipProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,13 +27,13 @@ export const CollapsibleTip = ({
         <InformationCircleIcon className="w-4 h-4 mr-1" />
         <span>{title}</span>
       </button>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
             id="tip-content"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
             className="overflow-hidden"

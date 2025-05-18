@@ -39,7 +39,7 @@ export default function NotificationBell({
   onNotificationClick,
 }: NotificationBellProps) {
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const location = useLocation();
   const navigate = useNavigate();
 
