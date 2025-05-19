@@ -13,7 +13,7 @@ const Login = () => {
   const [cooldown, setCooldown] = useState<number | null>(null);
   const { login, error: authError, clearError, retryAfter } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
 
   useEffect(() => {
     if (retryAfter) {
@@ -67,7 +67,7 @@ const Login = () => {
 
       // The navigation now only happens if login is successful
       if (success) {
-        toast.success(t("auth.successfullyLoggedIn"));
+        toast.success(t('successfullyLoggedIn'));
         navigate("/");
       } else {
         // If login returns false, it means there was an error but it was handled by the auth context
@@ -122,7 +122,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            {t('signIn')}
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -137,7 +137,7 @@ const Login = () => {
                 type="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder={t('email')}
                 value={email}
                 onChange={handleInputChange(setEmail)}
                 disabled={loading}
@@ -153,7 +153,7 @@ const Login = () => {
                 type={showPassword ? "text" : "password"}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm pr-10"
-                placeholder="Password"
+                placeholder={t('password')}
                 value={password}
                 onChange={handleInputChange(setPassword)}
                 disabled={loading}
@@ -174,24 +174,24 @@ const Login = () => {
 
           {authError?.code === "INVALID_CREDENTIALS" && (
             <div className="text-red-500 text-sm text-center">
-              Incorrect email or password.
+                <span>{t('errors.invalidCredentials')}</span>
             </div>
           )}
           {authError?.code === "EMAIL_NOT_VERIFIED" && (
             <div className="text-red-500 text-sm text-center">
-              Please verify your email before logging in.
+                <span>{t('verification.verificationRequired')}</span>
             </div>
           )}
           {authError?.code === "ACCOUNT_DISABLED" && (
             <div className="text-red-500 text-sm text-center">
-              Your account has been disabled. Contact support.
+                <span>{t('errors.accountDisabled')}</span>
             </div>
           )}
           {authError?.code === "RATE_LIMIT" && (
             <div className="text-red-500 text-sm text-center">
               {authError.message}
               {cooldown && (
-                <span> Please wait {cooldown}s before trying again.</span>
+                <span>{t('form.cooldownMessage', { seconds: cooldown })}</span>
               )}
             </div>
           )}

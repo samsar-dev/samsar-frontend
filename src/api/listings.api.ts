@@ -756,62 +756,8 @@ export const listingsAPI: ListingsAPI = {
       const hasNewImages = newImages.length > 0;
       console.log("Has new images:", hasNewImages, "Count:", newImages.length);
 
-      // ATTEMPT 1: Try using x-www-form-urlencoded for simple cases
-      if (!hasNewImages) {
-        try {
-          console.log("ATTEMPT 1: Using x-www-form-urlencoded");
-
-          // Create a URLSearchParams object
-          const params = new URLSearchParams();
-          params.append("title", title);
-          params.append("description", description);
-          params.append("price", String(price));
-          params.append("category", category);
-          params.append("location", location);
-          params.append("status", status);
-
-          // Add existingImages as a properly formatted JSON string
-          params.append("existingImages", JSON.stringify(existingImages));
-
-          // Add details as a properly formatted JSON string
-          params.append("details", JSON.stringify(details));
-
-          console.log("URL params:", params.toString());
-
-          const token = TokenManager.getAccessToken();
-          const response = await fetch(`${API_URL}/listings/${id}`, {
-            method: "PUT",
-            body: params,
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            credentials: "include",
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Success with x-www-form-urlencoded approach", data);
-            return data;
-          } else {
-            console.error(
-              "Failed with x-www-form-urlencoded approach",
-              response.status,
-            );
-            // Continue to next attempt
-          }
-        } catch (error) {
-          console.error("Error with x-www-form-urlencoded approach:", error);
-          // Continue to next attempt
-        }
-      }
-
-      // ATTEMPT 2: Try using direct API calls to the backend
       try {
-        console.log("ATTEMPT 2: Using direct API call");
-
-        // Create a simple object with all the data
-        const requestData = {
+        console.log('🔍 [updateListing] Starting update with:', {
           title,
           description,
           price,
@@ -820,103 +766,107 @@ export const listingsAPI: ListingsAPI = {
           status,
           existingImages,
           details,
+          newImagesCount: newImages?.length
+        });
+
+        console.log('🔍 [DEBUG] Raw input:');
+        console.log('- title:', title);
+        console.log('- description:', description);
+        console.log('- price:', price);
+        console.log('- category:', category);
+        console.log('- location:', location);
+        console.log('- status:', status);
+        console.log('- existingImages:', existingImages);
+        console.log('- details:', details);
+        console.log('- newImages:', newImages);
+
+        // Create a data object first
+        const formFields = {
+          title,
+          description,
+          price: String(price),
+          mainCategory: category,
+          location,
+          status,
+          existingImages: existingImages || [],
+          details: details || {}
         };
 
-        // Log the exact payload we're sending
-        console.log("Request data:", JSON.stringify(requestData));
+        console.log('🔍 [DEBUG] Structured form fields:', formFields);
 
-        // Make a direct API call to the backend
+        // Create a new FormData instance
+        const formData = new FormData();
+
+        // Add each field to FormData with type checking
+        Object.entries(formFields).forEach(([key, value]) => {
+          if (value === undefined || value === null) {
+            console.log(`🔍 [DEBUG] Skipping undefined/null field: ${key}`);
+            return;
+          }
+
+          if (Array.isArray(value)) {
+            console.log(`🔍 [DEBUG] Processing array field: ${key}`, value);
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === 'object') {
+            console.log(`🔍 [DEBUG] Processing object field: ${key}`, value);
+            formData.append(key, JSON.stringify(value));
+          } else {
+            console.log(`🔍 [DEBUG] Processing primitive field: ${key}`, value);
+            formData.append(key, String(value));
+          }
+        });
+
+        // Log final FormData contents
+        console.log('🔍 [DEBUG] Final FormData contents:');
+        for (const [key, value] of formData.entries()) {
+          console.log(`- ${key}:`, value);
+        }
+
+        // Add new images if any
+        if (newImages && newImages.length > 0) {
+          console.log('🔍 [updateListing] Adding new images:', newImages.length);
+          newImages.forEach((image, index) => {
+            formData.append("images", image);
+            console.log(`🔍 [updateListing] Added image ${index + 1}:`, image.name);
+          });
+        }
+
+        console.log("Sending FormData request", {
+          title,
+          description,
+          price,
+          category,
+          location,
+          status,
+          existingImages,
+          details,
+          newImagesCount: newImages?.length || 0
+        });
+
         const token = TokenManager.getAccessToken();
         const response = await fetch(`${API_URL}/listings/${id}`, {
           method: "PUT",
-          body: JSON.stringify(requestData),
+          body: formData,
           headers: {
-            "Content-Type": "application/json",
+            // Don't set Content-Type for FormData - browser will set it with boundary
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           credentials: "include",
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Success with direct API call", data);
-          return data;
-        } else {
+        if (!response.ok) {
           const errorText = await response.text();
-          console.error(
-            "Failed with direct API call",
-            response.status,
-            errorText,
-          );
+          console.error("Failed to update listing:", response.status, errorText);
           throw new Error(errorText || `Failed with status ${response.status}`);
         }
-      } catch (error) {
-        console.error("Error with direct API call:", error);
 
-        // ATTEMPT 3: Last resort - try with FormData for all cases
-        if (hasNewImages) {
-          try {
-            console.log("ATTEMPT 3: Using FormData");
-
-            // Create a new FormData object
-            const newFormData = new FormData();
-
-            // Add all basic fields
-            newFormData.append("title", title);
-            newFormData.append("description", description);
-            newFormData.append("price", String(price));
-            newFormData.append("category", category);
-            newFormData.append("location", location);
-            newFormData.append("status", status);
-
-            // Add existingImages as a properly formatted JSON string
-            newFormData.append(
-              "existingImages",
-              JSON.stringify(existingImages),
-            );
-
-            // Add details as a properly formatted JSON string
-            newFormData.append("details", JSON.stringify(details));
-
-            // Add the new image files
-            newImages.forEach((image) => {
-              newFormData.append("images", image);
-            });
-
-            console.log("Sending FormData with images");
-            const token = TokenManager.getAccessToken();
-            const response = await fetch(`${API_URL}/listings/${id}`, {
-              method: "PUT",
-              body: newFormData,
-              headers: {
-                // Don't set Content-Type for FormData - browser will set it with boundary
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              },
-              credentials: "include",
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              console.log("Success with FormData approach", data);
-              return data;
-            } else {
-              const errorText = await response.text();
-              console.error(
-                "Failed with FormData approach",
-                response.status,
-                errorText,
-              );
-              throw new Error(
-                errorText || `Failed with status ${response.status}`,
-              );
-            }
-          } catch (finalError) {
-            console.error("Error with FormData approach:", finalError);
-            throw finalError;
-          }
-        } else {
-          throw error;
-        }
+        const data = await response.json();
+        console.log("Successfully updated listing:", data);
+        return data;
+      } catch (error: any) {
+        console.error("Error updating listing:", error);
+        const errorMessage = error.message || "Failed to update listing";
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error("Error updating listing:", error);

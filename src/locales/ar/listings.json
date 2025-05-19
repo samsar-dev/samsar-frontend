@@ -39,6 +39,12 @@
   "edit_listing": "تعديل الإعلان",
   "delete_listing": "حذف الإعلان",
   "confirm_delete": "هل أنت متأكد من رغبتك في حذف هذا الإعلان؟",
+  "errors": {
+    "minImages": "يُطلب على الأقل {{count}} صور",
+    "noImages": "يرجى تحميل صورة واحدة على الأقل",
+    "duplicateFiles": "لم تتم إضافة بعض الملفات لأنها موجودة مسبقًا",
+    "maxImagesExceeded": "يمكنك تحميل حد أقصى {{count}} من الصور"
+  },
   "create_listing": "إنشاء إعلان",
   "manage_listings": "إدارة الإعلانات",
   "basicInformation": "المعلومات الأساسية",

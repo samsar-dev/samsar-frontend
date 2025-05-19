@@ -1,6 +1,4 @@
 import { listingsAPI } from "@/api/listings.api";
-import { NotificationsAPI } from "@/api/notifications.api";
-import { NotificationType } from "@/types/notifications";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
 import type { FormFieldProps } from "@/components/form/FormField";
@@ -14,12 +12,11 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";
 import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,6 +32,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "@/contexts/SocketContext";
 interface EditFormData {
+  id?: string;               // Added ID field to store the listing ID
   title: string;
   description: string;
   price: number;
@@ -43,8 +41,9 @@ interface EditFormData {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
   };
-  images: (string | File)[];
-  existingImages: string[];
+  images: (string | File)[];  // Existing image URLs and new files
+  existingImages: string[];    // Original image URLs from the server
+  deletedImages?: string[];    // Track deleted image URLs
 }
 
 // Define the features structure to match ListingDetails.tsx
@@ -303,10 +302,82 @@ const EditListing = () => {
     }
   }, [id, isAuthenticated, isAuthLoading, t, navigate]);
 
+  const validateImages = () => {
+    console.log('=== VALIDATE IMAGES CALLED ===');
+    console.log('Current formData:', JSON.parse(JSON.stringify(formData)));
+    
+    if (!formData) {
+      console.error('Form data is not available');
+      toast.error(t("errors.general.somethingWentWrong"));
+      return false;
+    }
+    
+    try {
+      // Count new images that are File objects
+      const newImages = formData.images.filter(img => img instanceof File);
+      
+      // Count existing images that are not marked for deletion
+      const validExistingImages = (formData.existingImages || []).filter((url: string) => 
+        !(formData.deletedImages || []).includes(url)
+      );
+      
+      const totalImages = newImages.length + validExistingImages.length;
+      
+      console.log('Image validation:', {
+        newImages: newImages.length,
+        existingImages: formData.existingImages?.length || 0,
+        deletedImages: formData.deletedImages?.length || 0,
+        validExistingImages: validExistingImages.length,
+        totalImages
+      });
+      
+      if (totalImages === 0) {
+        console.log('No images found - showing error');
+        toast.error(t('errors.noImages', { ns: 'listings' }));
+        return false;
+      }
+      
+      if (totalImages < 2) {
+        console.log('Less than 2 images - showing error');
+        toast.error(t('errors.minImages', { 
+          ns: 'listings',
+          count: 2,
+          defaultValue: 'At least 2 images are required' 
+        }));
+        return false;
+      }
+      
+      console.log('Image validation passed');
+      return true;
+    } catch (error) {
+      console.error('Error validating images:', error);
+      toast.error(t("errors.general.somethingWentWrong"));
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== FORM SUBMITTED ===');
 
-    if (!id || !listing) return;
+    if (!id || !listing || !formData) {
+      console.error('Missing required data:', { id, listing, formData: !!formData });
+      toast.error(t("errors.general.somethingWentWrong"));
+      return;
+    }
+
+    // Validate images before proceeding
+    console.log('Validating images before submission...');
+    const isValid = validateImages();
+    
+    if (!isValid) {
+      console.log('Image validation failed - preventing submission');
+      // Error toast is shown in validateImages
+      return;
+    }
+    
+    // If we get here, validation passed
+    console.log('Form validation passed, proceeding with submission...');
 
     try {
       setSaving(true);
@@ -332,6 +403,14 @@ const EditListing = () => {
         "existingImages",
         JSON.stringify(formData.existingImages),
       );
+      
+      // Add deleted images if any
+      if (formData.deletedImages && formData.deletedImages.length > 0) {
+        formDataObj.append(
+          "deletedImages",
+          JSON.stringify(formData.deletedImages),
+        );
+      }
 
       // Add new images
       const newImages = formData.images.filter(
@@ -435,21 +514,6 @@ const EditListing = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await listingsAPI.deleteListing(id);
-      if (response.success) {
-        toast.success(t("listings.deleteSuccess"));
-        navigate("/profile/listings");
-      } else {
-        toast.error(t("listings.deleteFailed"));
-      }
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      toast.error(t("listings.deleteFailed"));
-    }
-  };
-
   const handleInputChange = (
     field: string,
     value: string | number | boolean | string[],
@@ -502,45 +566,79 @@ const EditListing = () => {
     });
   };
 
-  const handleImageChange = (images: File[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: [...(prev.existingImages || []), ...images].filter(Boolean),
-    }));
-  };
-
-  const handleImageDelete = (index: number) => {
-    setFormData((prev) => {
-      const newImages = [...prev.images];
-      const deletedImage = newImages[index];
-      newImages.splice(index, 1);
-
-      // If the deleted image was an existing image (string URL), also remove it from existingImages
-      if (typeof deletedImage === "string") {
-        const newExistingImages = prev.existingImages.filter(
-          (img) => img !== deletedImage,
-        );
-        return {
-          ...prev,
-          images: newImages,
-          existingImages: newExistingImages,
-        };
-      }
-
+  // Memoize the image change handler to prevent unnecessary re-renders
+  const handleImageChange = useCallback((newImages: File[]) => {
+    setFormData(prev => {
+      // Keep only the File objects from previous images (filter out any strings which are existing URLs)
+      const existingFileImages = prev.images.filter(img => img instanceof File);
+      
+      // Create a stable array to prevent unnecessary re-renders
       return {
         ...prev,
-        images: newImages,
+        images: [...existingFileImages, ...newImages]
       };
     });
-  };
+  }, []);
 
-  if (isAuthLoading || loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  // Memoize the delete handler to prevent unnecessary re-renders
+  const handleDeleteExisting = useCallback((url: string) => {
+    setFormData(prev => {
+      // Check if it's an existing image (starts with http)
+      if (url.startsWith('http')) {
+        // Create a stable array to prevent unnecessary re-renders
+        const filteredExistingImages = prev.existingImages.filter(img => img !== url);
+        const updatedDeletedImages = [...(prev.deletedImages || []), url];
+        
+        return {
+          ...prev,
+          existingImages: filteredExistingImages,
+          deletedImages: updatedDeletedImages
+        };
+      }
+      
+      // If it's a new image (File object), remove it from the images array
+      const newImages = prev.images.filter(img => {
+        if (typeof img === 'string') {
+          return img !== url;
+        }
+        return true; // Keep all File objects
+      });
+      
+      return {
+        ...prev,
+        images: newImages
+      };
+    });
+  }, []);
+  
+  // This function handles reordering of existing images
+  const handleImageReorder = useCallback((fromIndex: number, toIndex: number) => {
+    // The ImageManager component now handles the reordering internally and just signals us
+    // We need to update our state based on the new order
+    
+    setFormData(prev => {
+      // Create a copy of the existing images array
+      const existingImages = [...prev.existingImages];
+      
+      // Ensure indices are valid
+      if (fromIndex < 0 || fromIndex >= existingImages.length || 
+          toIndex < 0 || toIndex >= existingImages.length) {
+        return prev; // Return unchanged state if indices are invalid
+      }
+      
+      // Remove the image from its original position
+      const [movedImage] = existingImages.splice(fromIndex, 1);
+      
+      // Insert it at the new position
+      existingImages.splice(toIndex, 0, movedImage);
+      
+      // Return the updated state with a new reference to prevent React from batching updates
+      return { 
+        ...prev, 
+        existingImages: [...existingImages] 
+      };
+    });
+  }, []);
 
   if (!listing) {
     return (
@@ -588,7 +686,6 @@ const EditListing = () => {
             showActions={true}
             showPrice={true}
             showLocation={true}
-            onDelete={handleDelete}
           />
         </div>
 
@@ -598,21 +695,13 @@ const EditListing = () => {
               {t("listings.images")}
             </h2>
             <ImageManager
-              images={formData.images.filter(
-                (img): img is File => img instanceof File,
-              )}
-              onChange={handleImageChange}
-              maxImages={10}
+              images={formData.images.filter((img): img is File => img instanceof File)}
               existingImages={formData.existingImages}
-              onDeleteExisting={(url) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  images: prev.images.filter((img) => img !== url),
-                  existingImages: prev.existingImages.filter(
-                    (img) => img !== url,
-                  ),
-                }));
-              }}
+              onChange={handleImageChange}
+              onDeleteExisting={handleDeleteExisting}
+              onReorderExisting={handleImageReorder}
+              maxImages={10}
+              key={`image-manager-${formData.existingImages.length}`} // Add a key to force proper re-rendering when images change
             />
           </div>
 

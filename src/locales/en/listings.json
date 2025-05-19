@@ -39,6 +39,12 @@
   "edit_listing": "Edit Listing",
   "delete_listing": "Delete Listing",
   "confirm_delete": "Are you sure you want to delete this listing?",
+  "errors": {
+    "minImages": "At least {{count}} images are required",
+    "noImages": "Please upload at least one image",
+    "duplicateFiles": "Some files were not added because they already exist",
+    "maxImagesExceeded": "You can upload a maximum of {{count}} images"
+  },
   "create_listing": "Create Listing",
   "manage_listings": "Manage Listings",
   "basicInformation": "Basic Information",
@@ -571,20 +577,6 @@
   },
 
   "featureCategories": {
-    "safety": "Safety Features",
-    "entertainment": "Entertainment Features",
-    "convenience": "Convenience Features"
-  },
-  "errors": {
-    "fieldRequired": "This field is required",
-    "transmissionRequired": "Please select a transmission type",
-    "mileageRequired": "Please enter a valid mileage",
-    "priceRequired": "Please enter a valid price",
-    "yearRequired": "Please enter a valid year"
-  },
-
-  "validation": {
-    "validPriceRequired": "Please enter a valid price",
     "validYearRequired": "Please enter a valid year",
     "validAreaRequired": "Please enter a valid area",
     "validFloorRequired": "Please enter a valid floor number",
