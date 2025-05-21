@@ -100,7 +100,7 @@ const featuresDetails = {
 };
 
 const ListingDetails = () => {
-  const { t } = useTranslation(['listings', 'common']);
+  const { t } = useTranslation(["listings", "common"]);
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();

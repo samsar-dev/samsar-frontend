@@ -48,7 +48,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showDate = false,
   showBadges = true,
 }) => {
-  const { t } = useTranslation(['listings', 'common']);
+  const { t } = useTranslation(["listings", "common"]);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -71,16 +71,16 @@ const ListingCard: React.FC<ListingCardProps> = ({
     // Log the raw listing action for debugging
     console.log(`[ListingCard Debug] Listing ${listing.id} action:`, {
       raw: listing.listingAction,
-      type: typeof listing.listingAction
+      type: typeof listing.listingAction,
     });
-    
+
     // Compare with the enum values directly
     if (listing.listingAction === ListingAction.RENT) {
       return ListingAction.RENT;
     } else if (listing.listingAction === ListingAction.SALE) {
       return ListingAction.SALE;
     }
-    
+
     // Default to SALE if no match
     return ListingAction.SALE;
   };
@@ -207,32 +207,44 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
               {(() => {
-                const transmissionValue = 
-                  vehicleDetails.transmissionType || 
+                const transmissionValue =
+                  vehicleDetails.transmissionType ||
                   vehicleDetails.transmission;
-                
+
                 if (!transmissionValue) return t("notProvided");
-                
+
                 // Convert to camelCase for the translation key
                 let translationKey = transmissionValue.toLowerCase();
-                
+
                 // Handle special cases
-                if (translationKey === 'cvt' || translationKey === 'continuously_variable') {
-                  translationKey = 'continuouslyVariable';
-                } else if (translationKey === 'semi_automatic' || translationKey === 'semi-automatic') {
-                  translationKey = 'semiAutomatic';
-                } else if (translationKey === 'dual_clutch' || translationKey === 'dualclutch') {
-                  translationKey = 'dualClutch';
-                } else if (translationKey === 'manual' || translationKey === 'automatic') {
+                if (
+                  translationKey === "cvt" ||
+                  translationKey === "continuously_variable"
+                ) {
+                  translationKey = "continuouslyVariable";
+                } else if (
+                  translationKey === "semi_automatic" ||
+                  translationKey === "semi-automatic"
+                ) {
+                  translationKey = "semiAutomatic";
+                } else if (
+                  translationKey === "dual_clutch" ||
+                  translationKey === "dualclutch"
+                ) {
+                  translationKey = "dualClutch";
+                } else if (
+                  translationKey === "manual" ||
+                  translationKey === "automatic"
+                ) {
                   // These are already in the correct format
                 } else {
                   // Default to the original value if no match
                   return transmissionValue;
                 }
-                
+
                 // Get the translation from the listings namespace
                 return t(`fields.transmissionTypes.${translationKey}`, {
-                  defaultValue: transmissionValue
+                  defaultValue: transmissionValue,
                 });
               })()}
             </p>
@@ -307,9 +319,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {t(`categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`, {
-                  defaultValue: category.subCategory
-                })}
+                {t(
+                  `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
+                  {
+                    defaultValue: category.subCategory,
+                  },
+                )}
               </span>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -405,32 +420,44 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     </div>
                     <div className="font-medium text-gray-800 dark:text-gray-200">
                       {(() => {
-                        const transmissionValue = 
-                          vehicleDetails?.transmissionType || 
+                        const transmissionValue =
+                          vehicleDetails?.transmissionType ||
                           vehicleDetails?.transmission;
-                        
+
                         if (!transmissionValue) return t("notProvided");
-                        
+
                         // Convert to camelCase for the translation key
                         let translationKey = transmissionValue.toLowerCase();
-                        
+
                         // Handle special cases
-                        if (translationKey === 'cvt' || translationKey === 'continuously_variable') {
-                          translationKey = 'continuouslyVariable';
-                        } else if (translationKey === 'semi_automatic' || translationKey === 'semi-automatic') {
-                          translationKey = 'semiAutomatic';
-                        } else if (translationKey === 'dual_clutch' || translationKey === 'dualclutch') {
-                          translationKey = 'dualClutch';
-                        } else if (translationKey === 'manual' || translationKey === 'automatic') {
+                        if (
+                          translationKey === "cvt" ||
+                          translationKey === "continuously_variable"
+                        ) {
+                          translationKey = "continuouslyVariable";
+                        } else if (
+                          translationKey === "semi_automatic" ||
+                          translationKey === "semi-automatic"
+                        ) {
+                          translationKey = "semiAutomatic";
+                        } else if (
+                          translationKey === "dual_clutch" ||
+                          translationKey === "dualclutch"
+                        ) {
+                          translationKey = "dualClutch";
+                        } else if (
+                          translationKey === "manual" ||
+                          translationKey === "automatic"
+                        ) {
                           // These are already in the correct format
                         } else {
                           // Default to the original value if no match
                           return transmissionValue;
                         }
-                        
+
                         // Get the translation from the listings namespace
                         return t(`fields.transmissionTypes.${translationKey}`, {
-                          defaultValue: transmissionValue
+                          defaultValue: transmissionValue,
                         });
                       })()}
                     </div>

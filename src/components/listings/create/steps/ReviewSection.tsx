@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  Suspense,
-  lazy,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, Suspense, lazy, useMemo, useCallback } from "react";
 import ImageFallback from "@/components/common/ImageFallback";
 import {
   Condition,
@@ -661,10 +655,9 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {formData.images.map((image, index) => {
               // Handle both File objects and URLs
-              const src = typeof image === 'string' 
-                ? image 
-                : URL.createObjectURL(image);
-                
+              const src =
+                typeof image === "string" ? image : URL.createObjectURL(image);
+
               return (
                 <div
                   key={index}

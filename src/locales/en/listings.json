@@ -13,9 +13,9 @@
   "descriptionPlaceholder": "Enter description",
   "notFound": "Listing not found",
   "contactLister": "Contact Lister",
- 
+
   "propertyDetails": "Property Details",
- 
+
   "make": "Make",
   "model": "Model",
   "year": "Year",
@@ -177,7 +177,7 @@
     "brakeSystem": "Brake System",
     "entertainmentFeatures": "Entertainment Features",
     "safetyFeatures": "Safety Features",
- 
+
     "buildingAmenities": "Building Amenities",
     "petPolicy": "Pet Policy",
     "view": "View",
@@ -250,7 +250,7 @@
     "parking": "Parking",
     "elevator": "Elevator",
     "price": "Price",
- 
+
     "balcony": "Balcony",
     "storage": "Storage",
     "windowType": "Window Type",
@@ -426,7 +426,7 @@
       "HYBRID": "Hybrid",
       "hybrid": "Hybrid"
     },
-    
+
     "transmissionTypes": {
       "automatic": "Automatic",
       "manual": "Manual",
@@ -455,7 +455,7 @@
     },
     "make": "Make",
     "model": "Model",
- 
+
     "no": "No",
     "roofType": "Roof Type",
     "customsCleared": "Customs Cleared",

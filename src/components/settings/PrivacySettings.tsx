@@ -46,7 +46,7 @@ const PrivacySettings: React.FC<Props> = ({ settings, onUpdate, isRTL }) => {
         </select>
       </div>
 
-{/* Show Phone */}
+      {/* Show Phone */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <span>{t("show_phone")}</span>

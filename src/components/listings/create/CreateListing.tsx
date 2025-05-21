@@ -302,7 +302,10 @@ const CreateListing: React.FC = () => {
         formData.append("price", data.price?.toString() || "");
         formData.append("location", data.location || "");
         // Ensure listingAction is properly set and uppercase
-        formData.append("listingAction", (data.listingAction || "SALE").toUpperCase());
+        formData.append(
+          "listingAction",
+          (data.listingAction || "SALE").toUpperCase(),
+        );
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
 

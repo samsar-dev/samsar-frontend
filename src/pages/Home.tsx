@@ -69,18 +69,18 @@ const Home: React.FC = () => {
   useEffect(() => {
     // Listen for cache-cleared events from the API
     const handleCacheCleared = () => {
-      console.log('Cache cleared event received, forcing refresh');
+      console.log("Cache cleared event received, forcing refresh");
       // Clear the local cache
       listingsCache.current = {};
       // Force a refresh of the listings
-      setForceRefresh(prev => !prev);
+      setForceRefresh((prev) => !prev);
     };
 
-    window.addEventListener('listings-cache-cleared', handleCacheCleared);
-    
+    window.addEventListener("listings-cache-cleared", handleCacheCleared);
+
     return () => {
       abortControllerRef.current.abort();
-      window.removeEventListener('listings-cache-cleared', handleCacheCleared);
+      window.removeEventListener("listings-cache-cleared", handleCacheCleared);
     };
   }, []);
 
@@ -132,7 +132,11 @@ const Home: React.FC = () => {
 
   const fetchListings = useCallback(async () => {
     // If we have cached data for this category and it's not initial load or force refresh, use it
-    if (!isInitialLoad && !forceRefresh && listingsCache.current[selectedCategory]) {
+    if (
+      !isInitialLoad &&
+      !forceRefresh &&
+      listingsCache.current[selectedCategory]
+    ) {
       let sortedListings = [...(listingsCache.current[selectedCategory] || [])];
 
       // Client-side sorting for additional options

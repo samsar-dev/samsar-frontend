@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LanguageCode, ThemeType } from "@/types/enums";
-import type {
-PreferenceSettings as PreferenceSettingsType,
-} from "@/types/settings";
+import type { PreferenceSettings as PreferenceSettingsType } from "@/types/settings";
 
 const SUPPORTED_LANGUAGES = [
   { code: LanguageCode.EN, label: "English" },
@@ -25,7 +23,6 @@ const defaultSettings: PreferenceSettingsType = {
   language: LanguageCode.EN,
   theme: ThemeType.SYSTEM,
   timezone: "UTC",
-
 };
 
 function PreferenceSettings({
@@ -105,8 +102,6 @@ function PreferenceSettings({
           ))}
         </select>
       </div>
-
-
     </div>
   );
 }

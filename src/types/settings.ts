@@ -107,7 +107,7 @@ export interface LocationSettings {
   preferredUnits?: "km" | "mi";
 }
 
-export interface UserSettings extends Omit<Settings, 'privacy'> {
+export interface UserSettings extends Omit<Settings, "privacy"> {
   privacy: {
     showPhone: boolean;
     showOnlineStatus: boolean;

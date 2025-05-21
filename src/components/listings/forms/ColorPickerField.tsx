@@ -32,15 +32,19 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
   // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
-      if (isOpen && pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      if (
+        isOpen &&
+        pickerRef.current &&
+        !pickerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
     // Using 'click' event which works for both mouse and touch
-    document.addEventListener('click', handleClickOutside, true);
+    document.addEventListener("click", handleClickOutside, true);
     return () => {
-      document.removeEventListener('click', handleClickOutside, true);
+      document.removeEventListener("click", handleClickOutside, true);
     };
   }, [isOpen]);
 
@@ -139,8 +143,8 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
                     setIsOpen(false);
                   }}
                   className={`w-6 h-6 rounded-sm border ${
-                    currentColor === color 
-                      ? "border-blue-500 ring-1 ring-blue-200 ring-offset-1" 
+                    currentColor === color
+                      ? "border-blue-500 ring-1 ring-blue-200 ring-offset-1"
                       : "border-gray-200 hover:border-gray-400"
                   } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all`}
                   style={{ backgroundColor: color }}

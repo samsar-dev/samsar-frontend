@@ -10,9 +10,7 @@ interface Props {
 const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
   const { t } = useTranslation();
 
-  const handleNotificationChange = (
-    key: keyof NotificationPreferences,
-  ) => {
+  const handleNotificationChange = (key: keyof NotificationPreferences) => {
     onUpdate({
       ...notifications,
       [key]: !notifications[key],

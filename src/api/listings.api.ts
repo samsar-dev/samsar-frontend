@@ -536,7 +536,7 @@ export const listingsAPI: ListingsAPI = {
       const data = response.data;
       console.log("Raw API response:", data); // Debug the full response
       console.log("API response data structure:", typeof data.data, data.data); // Debug the data structure
-      
+
       // Debug listing actions
       if (data.data && data.data.items && Array.isArray(data.data.items)) {
         console.log("--- LISTING ACTIONS DEBUG ---");
@@ -630,25 +630,25 @@ export const listingsAPI: ListingsAPI = {
 
           // Get the listing action from the response
           const rawAction = listing.listingAction || listing.action;
-          
+
           // Log the listing action for debugging
           console.log(`[API Debug] Listing ${listing.id} action:`, {
             raw: rawAction,
-            type: typeof rawAction
+            type: typeof rawAction,
           });
-          
+
           // Convert to proper enum value
           let listingAction = rawAction?.toUpperCase();
-          if (listingAction === 'RENT') {
+          if (listingAction === "RENT") {
             listingAction = ListingAction.RENT;
           } else {
             listingAction = ListingAction.SALE;
           }
-          
+
           return {
             ...listing,
             details: essentialDetails,
-            listingAction
+            listingAction,
           };
         });
       }
@@ -804,7 +804,7 @@ export const listingsAPI: ListingsAPI = {
       console.log("Has new images:", hasNewImages, "Count:", newImages.length);
 
       try {
-        console.log('🔍 [updateListing] Starting update with:', {
+        console.log("🔍 [updateListing] Starting update with:", {
           title,
           description,
           price,
@@ -813,19 +813,19 @@ export const listingsAPI: ListingsAPI = {
           status,
           existingImages,
           details,
-          newImagesCount: newImages?.length
+          newImagesCount: newImages?.length,
         });
 
-        console.log('🔍 [DEBUG] Raw input:');
-        console.log('- title:', title);
-        console.log('- description:', description);
-        console.log('- price:', price);
-        console.log('- category:', category);
-        console.log('- location:', location);
-        console.log('- status:', status);
-        console.log('- existingImages:', existingImages);
-        console.log('- details:', details);
-        console.log('- newImages:', newImages);
+        console.log("🔍 [DEBUG] Raw input:");
+        console.log("- title:", title);
+        console.log("- description:", description);
+        console.log("- price:", price);
+        console.log("- category:", category);
+        console.log("- location:", location);
+        console.log("- status:", status);
+        console.log("- existingImages:", existingImages);
+        console.log("- details:", details);
+        console.log("- newImages:", newImages);
 
         // Create a data object first, ensuring we preserve all details
         const formFields: {
@@ -845,10 +845,10 @@ export const listingsAPI: ListingsAPI = {
           price: String(price),
           location,
           status,
-          publicAccess: 'true', // Ensure listing is public
-          existingImages: existingImages || []
+          publicAccess: "true", // Ensure listing is public
+          existingImages: existingImages || [],
         };
-        
+
         // Handle category properly
         if (category) {
           try {
@@ -864,21 +864,21 @@ export const listingsAPI: ListingsAPI = {
         // Ensure we're properly handling the details object
         // We need to parse it first to make sure we have the complete object
         let detailsObj = {};
-        if (typeof details === 'string') {
+        if (typeof details === "string") {
           try {
             detailsObj = JSON.parse(details);
           } catch (e) {
-            console.error('Error parsing details string:', e);
+            console.error("Error parsing details string:", e);
           }
-        } else if (details && typeof details === 'object') {
+        } else if (details && typeof details === "object") {
           detailsObj = details;
         }
 
         // Make sure we preserve all vehicle details
-        console.log('🔍 [DEBUG] Detailed vehicle information:', detailsObj);
+        console.log("🔍 [DEBUG] Detailed vehicle information:", detailsObj);
         formFields.details = detailsObj;
 
-        console.log('🔍 [DEBUG] Structured form fields:', formFields);
+        console.log("🔍 [DEBUG] Structured form fields:", formFields);
 
         // Create a new FormData instance
         const formData = new FormData();
@@ -893,27 +893,33 @@ export const listingsAPI: ListingsAPI = {
           if (Array.isArray(value)) {
             console.log(`🔍 [DEBUG] Processing array field: ${key}`, value);
             formData.append(key, JSON.stringify(value));
-          } else if (typeof value === 'object') {
+          } else if (typeof value === "object") {
             console.log(`🔍 [DEBUG] Processing object field: ${key}`, value);
             formData.append(key, JSON.stringify(value));
           } else {
             console.log(`🔍 [DEBUG] Processing primitive field: ${key}`, value);
             formData.append(key, String(value));
           }
-        }); 
+        });
 
         // Log final FormData contents
-        console.log('🔍 [DEBUG] Final FormData contents:');
+        console.log("🔍 [DEBUG] Final FormData contents:");
         for (const [key, value] of formData.entries()) {
           console.log(`- ${key}:`, value);
         }
 
         // Add new images if any
         if (newImages && newImages.length > 0) {
-          console.log('🔍 [updateListing] Adding new images:', newImages.length);
+          console.log(
+            "🔍 [updateListing] Adding new images:",
+            newImages.length,
+          );
           newImages.forEach((image, index) => {
             formData.append("images", image);
-            console.log(`🔍 [updateListing] Added image ${index + 1}:`, image.name);
+            console.log(
+              `🔍 [updateListing] Added image ${index + 1}:`,
+              image.name,
+            );
           });
         }
 
@@ -926,7 +932,7 @@ export const listingsAPI: ListingsAPI = {
           status,
           existingImages,
           details,
-          newImagesCount: newImages?.length || 0
+          newImagesCount: newImages?.length || 0,
         });
 
         const token = TokenManager.getAccessToken();
@@ -942,7 +948,11 @@ export const listingsAPI: ListingsAPI = {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Failed to update listing:", response.status, errorText);
+          console.error(
+            "Failed to update listing:",
+            response.status,
+            errorText,
+          );
           throw new Error(errorText || `Failed with status ${response.status}`);
         }
 

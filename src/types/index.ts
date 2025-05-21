@@ -63,7 +63,7 @@ export enum TransmissionType {
   SEMI_AUTOMATIC = "semiAutomatic",
   CONTINUOUSLY_VARIABLE = "cvt",
   DUAL_CLUTCH = "dualClutch",
-  OTHER = "other"
+  OTHER = "other",
 }
 
 export enum Condition {

@@ -21,7 +21,7 @@ interface DraggableImageProps {
 }
 
 // In DraggableImage.tsx
-const DraggableImage: React.FC<DraggableImageProps> = ({ 
+const DraggableImage: React.FC<DraggableImageProps> = ({
   url,
   index,
   moveImage,
@@ -33,13 +33,13 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   dimensions,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  
+
   // Create a stable identifier that persists across re-renders
   const stableId = useMemo(() => `${url}-${index}`, [url, index]);
-  
+
   const [{ isDragging }, drag] = useDrag({
-    type: 'image',
-    item: { type: 'image', index, id: stableId },
+    type: "image",
+    item: { type: "image", index, id: stableId },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -47,7 +47,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   });
 
   const [, drop] = useDrop({
-    accept: 'image',
+    accept: "image",
     hover(item: { type: string; index: number; id: string }, monitor) {
       if (!ref.current || item.id === stableId) {
         return;
@@ -63,7 +63,8 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
       // Determine rectangle on screen
       const hoverBoundingRect = ref.current.getBoundingClientRect();
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
 
       if (!clientOffset) {
@@ -87,7 +88,10 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
   // Memoize handlers
   const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
-  const handleEdit = useCallback(() => onEdit(url, index), [onEdit, url, index]);
+  const handleEdit = useCallback(
+    () => onEdit(url, index),
+    [onEdit, url, index],
+  );
 
   // Set up the ref for drag and drop
   const setDragRef = (node: HTMLDivElement | null) => {
@@ -96,14 +100,14 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       drag(drop(node));
     }
   };
-  
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`relative group ${isDragging ? 'opacity-40' : 'opacity-100'}`}
+      className={`relative group ${isDragging ? "opacity-40" : "opacity-100"}`}
       ref={setDragRef}
     >
       <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">

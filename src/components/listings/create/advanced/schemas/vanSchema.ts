@@ -4,7 +4,6 @@ import { Condition, FuelType, TransmissionType } from "@/types/enums";
 export const vanSchema: ListingFieldSchema[] = [
   // Essential Section
 
-  
   {
     name: "color",
     label: "fields.exteriorColor",
