@@ -61,9 +61,9 @@ export enum TransmissionType {
   AUTOMATIC = "automatic",
   MANUAL = "manual",
   SEMI_AUTOMATIC = "semiAutomatic",
-  CONTINUOUSLY_VARIABLE = "continuouslyVariable",
+  CONTINUOUSLY_VARIABLE = "cvt",
   DUAL_CLUTCH = "dualClutch",
-  OTHER = "other",
+  OTHER = "other"
 }
 
 export enum Condition {
@@ -77,7 +77,7 @@ export enum Condition {
 }
 
 export enum ListingAction {
-  SELL = "sell",
+  SALE = "sale",
   RENT = "rent",
 }
 

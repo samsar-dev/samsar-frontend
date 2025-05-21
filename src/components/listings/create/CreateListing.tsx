@@ -52,6 +52,7 @@ const initialFormState: FormState = {
   },
   location: "",
   images: [],
+  listingAction: ListingAction.SALE, // Default to SALE
   details: {
     vehicles: {
       vehicleType: VehicleType.CAR,
@@ -155,7 +156,7 @@ const initialFormState: FormState = {
       storageType: [],
     },
   },
-  listingAction: ListingAction.SELL,
+  // Removed duplicate listingAction property
 };
 
 const CreateListing: React.FC = () => {
@@ -300,10 +301,8 @@ const CreateListing: React.FC = () => {
         formData.append("description", data.description || "");
         formData.append("price", data.price?.toString() || "");
         formData.append("location", data.location || "");
-        formData.append(
-          "listingAction",
-          (data.listingAction || "sell").toUpperCase(),
-        );
+        // Ensure listingAction is properly set and uppercase
+        formData.append("listingAction", (data.listingAction || "SALE").toUpperCase());
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
 

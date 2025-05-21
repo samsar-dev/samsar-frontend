@@ -11,6 +11,7 @@
       "VAN": "Vans",
       "TRACTOR": "Tractors",
       "CONSTRUCTION": "Construction Equipment",
+      "HOUSE": "Houses",
       "OTHER": "Other Vehicles"
     },
     "realEstate": {

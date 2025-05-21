@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
-import ResponsiveImage from "@/components/media/ResponsiveImage";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import ImageFallback from "@/components/common/ImageFallback";
@@ -49,7 +48,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showDate = false,
   showBadges = true,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['listings', 'common']);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -61,11 +60,32 @@ const ListingCard: React.FC<ListingCardProps> = ({
     category,
     location,
     createdAt,
-    listingAction,
+    // Note: listingAction is missing from the API response
     vehicleDetails: directVehicleDetails,
     realEstateDetails: directRealEstateDetails,
     details,
   } = listing;
+
+  // Get the listing action from the API response
+  const getListingAction = () => {
+    // Log the raw listing action for debugging
+    console.log(`[ListingCard Debug] Listing ${listing.id} action:`, {
+      raw: listing.listingAction,
+      type: typeof listing.listingAction
+    });
+    
+    // Compare with the enum values directly
+    if (listing.listingAction === ListingAction.RENT) {
+      return ListingAction.RENT;
+    } else if (listing.listingAction === ListingAction.SALE) {
+      return ListingAction.SALE;
+    }
+    
+    // Default to SALE if no match
+    return ListingAction.SALE;
+  };
+
+  const listingAction = getListingAction();
 
   // Instead of excessive debug logging, use optional chaining and proper type safety
   const vehicleDetails =
@@ -136,10 +156,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const mainImage =
     listing?.image ||
     (images?.[0] && typeof images[0] === "string" ? images[0] : "");
-  const isHighPriorityImage =
-    (listing?.id &&
-      (listing?.image || (images?.[0] && typeof images[0] === "string"))) ||
-    false;
 
   // Debugging logs
   if (typeof window !== "undefined") {
@@ -190,15 +206,41 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {vehicleDetails.transmission && (
             <p className="flex items-center gap-2">
               {renderIcon("FaCogs", "text-blue-500 mr-1")}{" "}
-              {t(
-                `listings.fields.transmissionTypes.${vehicleDetails.transmission}`,
-              )}
+              {(() => {
+                const transmissionValue = 
+                  vehicleDetails.transmissionType || 
+                  vehicleDetails.transmission;
+                
+                if (!transmissionValue) return t("notProvided");
+                
+                // Convert to camelCase for the translation key
+                let translationKey = transmissionValue.toLowerCase();
+                
+                // Handle special cases
+                if (translationKey === 'cvt' || translationKey === 'continuously_variable') {
+                  translationKey = 'continuouslyVariable';
+                } else if (translationKey === 'semi_automatic' || translationKey === 'semi-automatic') {
+                  translationKey = 'semiAutomatic';
+                } else if (translationKey === 'dual_clutch' || translationKey === 'dualclutch') {
+                  translationKey = 'dualClutch';
+                } else if (translationKey === 'manual' || translationKey === 'automatic') {
+                  // These are already in the correct format
+                } else {
+                  // Default to the original value if no match
+                  return transmissionValue;
+                }
+                
+                // Get the translation from the listings namespace
+                return t(`fields.transmissionTypes.${translationKey}`, {
+                  defaultValue: transmissionValue
+                });
+              })()}
             </p>
           )}
           {vehicleDetails.fuelType && (
             <p className="flex items-center gap-2">
               {renderIcon("FaGasPump", "text-blue-500 mr-1")}{" "}
-              {t(`listings.fields.fuelTypes.${vehicleDetails.fuelType}`)}
+              {t(`fields.fuelTypes.${vehicleDetails.fuelType}`)}
             </p>
           )}
         </div>
@@ -224,13 +266,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {typeof realEstateDetails.bedrooms === "number" && (
             <p className="flex items-center gap-2">
               {renderIcon("FaBed", "text-green-600 mr-1")}{" "}
-              {realEstateDetails.bedrooms} {t("common.beds")}
+              {realEstateDetails.bedrooms} {t("beds")}
             </p>
           )}
           {typeof realEstateDetails.bathrooms === "number" && (
             <p className="flex items-center gap-2">
               {renderIcon("FaBath", "text-green-600 mr-1")}{" "}
-              {realEstateDetails.bathrooms} {t("common.baths")}
+              {realEstateDetails.bathrooms} {t("baths")}
             </p>
           )}
         </div>
@@ -265,19 +307,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {t(`common.vehicleTypes.${category.subCategory}`) ||
-                  category.subCategory}
+                {t(`categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`, {
+                  defaultValue: category.subCategory
+                })}
               </span>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  listingAction === ListingAction.SELL
+                  listingAction === ListingAction.SALE
                     ? "bg-blue-600 text-white"
                     : "bg-green-600 text-white"
                 }`}
               >
-                {listingAction === ListingAction.SELL
-                  ? t("common.forSale")
-                  : t("common.forRent")}
+                {listingAction === ListingAction.SALE
+                  ? t("forSale")
+                  : t("forRent")}
               </span>
             </div>
           )}
@@ -325,58 +368,71 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     <div className="font-medium text-gray-800 dark:text-gray-200">
                       {vehicleDetails?.mileage
                         ? `${vehicleDetails.mileage} km`
-                        : t("common.notProvided")}
+                        : t("notProvided")}
                     </div>
                   </div>
                   {/* Year box - always show, with N/A fallback */}
                   <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                     <div className="font-semibold text-gray-500 dark:text-gray-400">
-                      {t("listings.year")}
+                      {t("year")}
                     </div>
                     <div className="font-medium text-gray-800 dark:text-gray-200">
                       {vehicleDetails?.year
                         ? vehicleDetails.year
-                        : t("common.notProvided")}
+                        : t("notProvided")}
                     </div>
                   </div>
                   {/* Fuel type box - always show, with N/A fallback */}
                   <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                     <div className="font-semibold text-gray-500 dark:text-gray-400">
-                      {t("listings.fields.fuelType")}
+                      {t("fields.fuelType")}
                     </div>
                     <div className="font-medium text-gray-800 dark:text-gray-200">
                       {vehicleDetails?.fuelType
                         ? t(
-                            `listings.fields.fuelTypes.${(() => {
+                            `fields.fuelTypes.${(() => {
                               if (!vehicleDetails.fuelType) return "";
                               return vehicleDetails.fuelType;
                             })()}`,
                           )
-                        : t("common.notProvided")}
+                        : t("notProvided")}
                     </div>
                   </div>
                   {/* Transmission box - always show, with N/A fallback */}
                   <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                     <div className="font-semibold text-gray-500 dark:text-gray-400">
-                      {t("listings.fields.transmission")}
+                      {t("fields.transmission")}
                     </div>
                     <div className="font-medium text-gray-800 dark:text-gray-200">
-                      {vehicleDetails?.transmissionType ||
-                      vehicleDetails?.transmission
-                        ? t(
-                            `listings.fields.transmissionTypes.${(() => {
-                              const transmissionValue =
-                                vehicleDetails.transmissionType ||
-                                vehicleDetails.transmission;
-                              if (!transmissionValue) return "";
-                              if (transmissionValue === "semiAutomatic")
-                                return "SEMI_AUTOMATIC";
-                              if (transmissionValue === "dualClutch")
-                                return "DUAL_CLUTCH";
-                              return transmissionValue.toUpperCase();
-                            })()}`,
-                          )
-                        : t("common.notProvided")}
+                      {(() => {
+                        const transmissionValue = 
+                          vehicleDetails?.transmissionType || 
+                          vehicleDetails?.transmission;
+                        
+                        if (!transmissionValue) return t("notProvided");
+                        
+                        // Convert to camelCase for the translation key
+                        let translationKey = transmissionValue.toLowerCase();
+                        
+                        // Handle special cases
+                        if (translationKey === 'cvt' || translationKey === 'continuously_variable') {
+                          translationKey = 'continuouslyVariable';
+                        } else if (translationKey === 'semi_automatic' || translationKey === 'semi-automatic') {
+                          translationKey = 'semiAutomatic';
+                        } else if (translationKey === 'dual_clutch' || translationKey === 'dualclutch') {
+                          translationKey = 'dualClutch';
+                        } else if (translationKey === 'manual' || translationKey === 'automatic') {
+                          // These are already in the correct format
+                        } else {
+                          // Default to the original value if no match
+                          return transmissionValue;
+                        }
+                        
+                        // Get the translation from the listings namespace
+                        return t(`fields.transmissionTypes.${translationKey}`, {
+                          defaultValue: transmissionValue
+                        });
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -394,12 +450,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 {/* Size box */}
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                   <div className="font-semibold text-gray-500 dark:text-gray-400">
-                    {t("listings.fields.size")}
+                    {t("fields.size")}
                   </div>
                   <div className="font-medium text-gray-800 dark:text-gray-200">
                     {realEstateDetails.size
                       ? `${realEstateDetails.size} m²`
-                      : t("common.notProvided")}
+                      : t("notProvided")}
                   </div>
                 </div>
                 {/* Bedrooms and Bathrooms: Only show for land if value is present, else always show for other types */}
@@ -409,20 +465,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     {realEstateDetails.bedrooms && (
                       <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                         <div className="font-semibold text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.bedrooms")}
+                          {t("fields.bedrooms")}
                         </div>
                         <div className="font-medium text-gray-800 dark:text-gray-200">
-                          {`${realEstateDetails.bedrooms} ${t("common.beds")}`}
+                          {`${realEstateDetails.bedrooms} ${t("beds")}`}
                         </div>
                       </div>
                     )}
                     {realEstateDetails.bathrooms && (
                       <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                         <div className="font-semibold text-gray-500 dark:text-gray-400">
-                          {t("listings.fields.bathrooms")}
+                          {t("fields.bathrooms")}
                         </div>
                         <div className="font-medium text-gray-800 dark:text-gray-200">
-                          {`${realEstateDetails.bathrooms} ${t("common.baths")}`}
+                          {`${realEstateDetails.bathrooms} ${t("baths")}`}
                         </div>
                       </div>
                     )}
@@ -431,22 +487,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   <>
                     <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                       <div className="font-semibold text-gray-500 dark:text-gray-400">
-                        {t("listings.fields.bedrooms")}
+                        {t("fields.bedrooms")}
                       </div>
                       <div className="font-medium text-gray-800 dark:text-gray-200">
                         {realEstateDetails.bedrooms
-                          ? `${realEstateDetails.bedrooms} ${t("common.beds")}`
-                          : t("common.notProvided")}
+                          ? `${realEstateDetails.bedrooms} ${t("beds")}`
+                          : t("notProvided")}
                       </div>
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
                       <div className="font-semibold text-gray-500 dark:text-gray-400">
-                        {t("listings.fields.bathrooms")}
+                        {t("fields.bathrooms")}
                       </div>
                       <div className="font-medium text-gray-800 dark:text-gray-200">
                         {realEstateDetails.bathrooms
-                          ? `${realEstateDetails.bathrooms} ${t("common.baths")}`
-                          : t("common.notProvided")}
+                          ? `${realEstateDetails.bathrooms} ${t("baths")}`
+                          : t("notProvided")}
                       </div>
                     </div>
                   </>
@@ -481,7 +537,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
             >
               <FaEdit className="w-4 h-4" />
-              {t("common.edit")}
+              {t("edit")}
             </button>
           )}
           {deletable && (
@@ -489,14 +545,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (window.confirm(t("listings.deleteConfirmation"))) {
+                if (window.confirm(t("deleteConfirmation"))) {
                   onDelete?.(id as string);
                 }
               }}
               className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
             >
               <FaTrash className="w-4 h-4" />
-              {t("common.delete")}
+              {t("delete")}
             </button>
           )}
         </div>

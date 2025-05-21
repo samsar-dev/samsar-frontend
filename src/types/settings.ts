@@ -1,5 +1,5 @@
 import type { ThemeMode } from "./common";
-import { LanguageCode, ThemeType } from "./enums";
+import { ThemeType } from "./enums";
 
 export interface Theme {
   mode: ThemeMode;
@@ -10,18 +10,27 @@ export interface Theme {
 export interface NotificationPreferences {
   email: boolean;
   push: boolean;
-  desktop: boolean;
   listing: boolean;
   message: boolean;
-  system: boolean;
-  enabledTypes?: Array<"message" | "listing" | "system">;
+  enabledTypes?: Array<"message" | "listing">;
 }
 
 export interface PreferenceSettings {
   language: import("./enums").LanguageCode;
   theme: import("./enums").ThemeType;
   timezone: string;
-  notifications: NotificationPreferences;
+}
+
+export interface ConnectedAccount {
+  connected: boolean;
+  visible: boolean;
+  email?: string;
+  name?: string;
+  avatar?: string;
+}
+
+export interface ConnectedAccounts {
+  [key: string]: ConnectedAccount;
 }
 
 export interface SecuritySettings {
@@ -30,7 +39,8 @@ export interface SecuritySettings {
   securityQuestions: boolean;
   twoFactorMethod?: string;
   autoLogoutTime?: number;
-  connectedAccounts: string[];
+  autoLogoutMinutes?: number;
+  connectedAccounts?: ConnectedAccounts;
   loginActivity: Array<{
     date: string;
     device: string;
@@ -42,8 +52,8 @@ export interface Settings {
   preferences: PreferenceSettings;
   security: SecuritySettings;
   notifications: NotificationPreferences;
+  connectedAccounts?: ConnectedAccounts;
   privacy: {
-    showEmail: boolean;
     showPhone: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
@@ -55,6 +65,7 @@ export interface SettingsUpdate {
   preferences?: Partial<PreferenceSettings>;
   security?: Partial<SecuritySettings>;
   notifications?: Partial<NotificationPreferences>;
+  connectedAccounts?: ConnectedAccounts;
   privacy?: Partial<{
     showEmail: boolean;
     showOnlineStatus: boolean;
@@ -96,11 +107,12 @@ export interface LocationSettings {
   preferredUnits?: "km" | "mi";
 }
 
-export interface UserSettings extends Settings {
+export interface UserSettings extends Omit<Settings, 'privacy'> {
   privacy: {
-    showEmail: boolean;
+    showPhone: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
+    profileVisibility?: "public" | "private";
   };
   notifications: NotificationPreferences;
 }
@@ -109,7 +121,6 @@ export interface AppSettings {
   security: SecuritySettings;
   notifications: NotificationPreferences;
   privacy: {
-    showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
   };

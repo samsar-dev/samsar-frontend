@@ -394,9 +394,20 @@ const EditListing = () => {
       formDataObj.append("title", formData.title);
       formDataObj.append("description", formData.description);
       formDataObj.append("price", String(formData.price));
-      formDataObj.append("category", String(listing.category));
+      // Ensure category is correctly formatted with main and sub categories
+      if (listing.category && typeof listing.category === 'object') {
+        // If it's already an object, stringify it
+        formDataObj.append("category", JSON.stringify(listing.category));
+      } else {
+        // Otherwise use the string version
+        formDataObj.append("category", String(listing.category));
+      }
       formDataObj.append("location", formData.location.city);
-      formDataObj.append("status", String(listing.status));
+      // Always set status to ACTIVE when updating to ensure it appears on the Home page
+      formDataObj.append("status", "ACTIVE");
+      
+      // Mark listing as public so it appears on the home page
+      formDataObj.append("publicAccess", "true");
 
       // Add existing images as JSON string
       formDataObj.append(
@@ -444,62 +455,59 @@ const EditListing = () => {
 
       const response = await listingsAPI.updateListing(id, formDataObj);
       if (response.success) {
-        toast.success(t("listings.updateSuccess"));
-
-        // Create price drop notification if price was reduced
-        if (isPriceReduced) {
-          try {
-            const priceReduction = originalPrice - newPrice;
-            const percentReduction = Math.round(
-              (priceReduction / originalPrice) * 100,
-            );
-
-            // // Create notification in the database
-            // await NotificationsAPI.createNotification({
-            //   type: NotificationType.PRICE_UPDATE,
-            //   content: `The price for "${formData.title}" has been reduced by ${percentReduction}% (from $${originalPrice} to $${newPrice})`,
-            //   relatedListingId: id,
-            // });
-
-            // Emit socket event for real-time notification
-            if (!socket) {
-              console.error(
-                "Socket not available for price change notification",
+        try {
+          // Create price drop notification if price was reduced
+          if (isPriceReduced) {
+            try {
+              const priceReduction = originalPrice - newPrice;
+              const percentReduction = Math.round(
+                (priceReduction / originalPrice) * 100,
               );
-              return;
+
+              // Emit socket event for real-time notification
+              if (socket) {
+                console.log("Emitting price change socket event", priceReduction);
+                socket.emit(PRICE_CHANGE, {
+                  listingId: id,
+                  title: formData.title,
+                  oldPrice: originalPrice,
+                  newPrice: newPrice,
+                  percentReduction: percentReduction,
+                  userId: user?.id,
+                });
+                console.log("Price drop notification created");
+              } else {
+                console.error("Socket not available for price change notification");
+              }
+            } catch (notificationError) {
+              console.error(
+                "Failed to create price drop notification:",
+                notificationError,
+              );
+              // Don't block the main flow if notification creation fails
             }
-
-            console.log("Emitting price change socket event", priceReduction);
-            socket.emit(PRICE_CHANGE, {
-              listingId: id,
-              title: formData.title,
-              oldPrice: originalPrice,
-              newPrice: newPrice,
-              percentReduction: percentReduction,
-              userId: user?.id,
-            });
-            console.log("Price drop notification created");
-          } catch (notificationError) {
-            console.error(
-              "Failed to create price drop notification:",
-              notificationError,
-            );
-            // Don't block the main flow if notification creation fails
           }
-        }
 
-        navigate("/listingsuccess", {
-          state: {
-            listingId: id,
-            isUpdate: true,
-            title: formData.title,
-            isPriceReduced: isPriceReduced,
-          },
-        });
+          // Only show success and navigate after all operations complete
+          toast.success(t("listings.updateSuccess"));
+          
+          navigate("/listingsuccess", {
+            state: {
+              listingId: id,
+              isUpdate: true,
+              title: formData.title,
+              isPriceReduced: isPriceReduced,
+            },
+          });
+        } catch (error) {
+          console.error("Error during post-update operations:", error);
+          throw error; // Re-throw to be caught by the outer catch block
+        }
       } else {
         const errorMessage = response.error || t("listings.updateFailed");
         console.error("Update failed:", errorMessage);
         toast.error(errorMessage);
+        return; // Exit early on failure
       }
     } catch (error: any) {
       console.error("Error updating listing:", error);
@@ -509,6 +517,7 @@ const EditListing = () => {
         error.message ||
         t("listings.updateFailed");
       toast.error(errorMessage);
+      throw error; // Re-throw to ensure we don't proceed with success flow
     } finally {
       setSaving(false);
     }

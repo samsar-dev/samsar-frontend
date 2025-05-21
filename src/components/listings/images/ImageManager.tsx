@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -69,19 +69,14 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   );
-  // Counter for generating unique IDs
-  const idCounter = useRef(0);
+
   
   const [editingImage, setEditingImage] = useState<{
     url: string;
     index: number;
   } | null>(null);
   
-  // Function to generate a unique ID
-  const generateUniqueId = useCallback((prefix = '') => {
-    idCounter.current += 1;
-    return `${prefix}${idCounter.current}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }, []);
+
   const [imageSizes, setImageSizes] = useState<{ [key: string]: number }>({});
   const [supportsWebP, setSupportsWebP] = useState<boolean | null>(null);
 
@@ -103,134 +98,112 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   // Track used IDs to prevent duplicates
   const usedIdsRef = useRef<Set<string>>(new Set());
   
-  // Create unified images from both new and existing images
-  useEffect(() => {
-    // Clear the used IDs set at the start of each render cycle
+  // Store signatures in a ref to compare on next render
+  const prevSignaturesRef = useRef({ newImages: '', existingImages: '' });
+  const isMountedRef = useRef(true);
+
+  // Memoize the image processing logic
+  const processedImages = useMemo(() => {
     usedIdsRef.current.clear();
-    // Clean up previous object URLs
-    objectUrlsRef.current.forEach((url) => {
-      try {
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Error revoking URL:", error);
-      }
-    });
-    objectUrlsRef.current = [];
     
     // Process new images (File objects)
     const newImageObjects = images.map((file: File) => {
       try {
-        // Generate a stable ID for this file to prevent regeneration
         const fileKey = `file-${file.name}-${file.size}-${file.lastModified}`;
         let id = imageIdCacheRef.current.get(fileKey);
         
-        // If we don't have an ID or it's already used (duplicate), generate a new one
         if (!id || usedIdsRef.current.has(id)) {
-          // Ensure uniqueness by adding timestamp and random string
           id = fileKey + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
           imageIdCacheRef.current.set(fileKey, id);
         }
         
-        // Mark this ID as used for this render cycle
         usedIdsRef.current.add(id);
         
-        // Find existing object URL if available to prevent duplicate URL creation
-        let url = '';
-        const existingImage = unifiedImages.find(img => 
-          img.type === 'file' && 
-          img.data instanceof File && 
-          img.data.name === file.name && 
-          img.data.size === file.size && 
-          img.data.lastModified === file.lastModified
-        );
+        // Create new URL for each file
+        const url = URL.createObjectURL(file);
+        objectUrlsRef.current.push(url);
         
-        if (existingImage && existingImage.src.startsWith('blob:')) {
-          // Reuse existing URL
-          url = existingImage.src;
-        } else {
-          // Create new URL
-          url = URL.createObjectURL(file);
-          objectUrlsRef.current.push(url);
-        }
-        
-        // Calculate file size for display
         const fileSize = file ? (file.size / 1024).toFixed(1) + ' KB' : '';
-        
-        // Calculate dimensions (approximate)
         const dimensions = file && imageSizes[file.name]
           ? `${Math.round(Math.sqrt((imageSizes[file.name] * 1024) / 0.92))}px`
           : "";
         
         return {
           id,
-          key: id, // Add a stable React key
+          key: id,
           type: 'file' as const,
           src: url,
           data: file,
           isExisting: false,
-          metadata: {
-            fileSize,
-            dimensions
-          }
+          metadata: { fileSize, dimensions }
         };
       } catch (error) {
         console.error("Error creating URL for file:", error);
         return null;
       }
     }).filter(Boolean) as UnifiedImage[];
-    
+
     // Process existing images (URLs)
     const existingImageObjects = existingImages.map((url: string) => {
-      // Generate a stable ID for this URL to prevent regeneration
       const urlKey = `url-${url}`;
       let id = imageIdCacheRef.current.get(urlKey);
       
-      // If we don't have an ID or it's already used (duplicate), generate a new one
       if (!id || usedIdsRef.current.has(id)) {
-        // Ensure uniqueness by adding timestamp and random string
-        id = 'existing-' + url.split('/').pop() + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        id = 'existing-' + (url.split('/').pop() || '') + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         imageIdCacheRef.current.set(urlKey, id);
       }
       
-      // Mark this ID as used for this render cycle
       usedIdsRef.current.add(id);
       
       return {
         id,
-        key: id, // Add a stable React key
+        key: id,
         type: 'url' as const,
         src: url,
         data: url,
         isExisting: true
       };
     });
-    
-    // Create a map to track images by their stable IDs
+
+    // Combine and deduplicate images
     const imageMap = new Map<string, UnifiedImage>();
-    
-    // Process new images first
-    newImageObjects.forEach(img => {
-      imageMap.set(img.id, img);
-    });
-    
-    // Then process existing images, preserving their order
-    existingImageObjects.forEach(img => {
+    [...newImageObjects, ...existingImageObjects].forEach(img => {
       if (!imageMap.has(img.id)) {
         imageMap.set(img.id, img);
       }
     });
+
+    return {
+      allImages: Array.from(imageMap.values()),
+      previewUrls: newImageObjects.map(img => img.src)
+    };
+  }, [images, existingImages, imageSizes]);
+
+  // Update state only when processed images change
+  useEffect(() => {
+    if (!isMountedRef.current) return;
     
-    // Convert map back to array while preserving order
-    const allImages = Array.from(imageMap.values());
+    const newImagesSignature = images.map(file => `${file.name}-${file.size}-${file.lastModified}`).join('|');
+    const existingImagesSignature = existingImages.join('|');
     
-    // Set the unified images state
-    setUnifiedImages(allImages);
-    const urls = newImageObjects.map(img => img.src);
-    setPreviewUrls(urls);
+    // Skip if nothing has changed
+    if (prevSignaturesRef.current.newImages === newImagesSignature && 
+        prevSignaturesRef.current.existingImages === existingImagesSignature) {
+      return;
+    }
     
-    // Cleanup function to revoke object URLs
+    // Update signatures for next comparison
+    prevSignaturesRef.current = {
+      newImages: newImagesSignature,
+      existingImages: existingImagesSignature
+    };
+
+    setUnifiedImages(processedImages.allImages);
+    setPreviewUrls(processedImages.previewUrls);
+    
     return () => {
-      objectUrlsRef.current.forEach((url) => {
+      isMountedRef.current = false;
+      objectUrlsRef.current.forEach(url => {
         try {
           URL.revokeObjectURL(url);
         } catch (error) {
@@ -239,7 +212,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       });
       objectUrlsRef.current = [];
     };
-  }, [images, existingImages, imageSizes]);
+  }, [processedImages, images, existingImages]);
 
   const validateImage = async (file: File): Promise<boolean> => {
     // Check file size
@@ -441,30 +414,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   };
 
   const handleImageUpload = async (files: File[]) => {
-    // Filter out duplicate files by name and size
-    const uniqueNewFiles = files.filter(
-      (file, index, self) =>
-        index ===
-        self.findIndex(
-          (f) =>
-            f.name === file.name &&
-            f.size === file.size &&
-            f.lastModified === file.lastModified
-        )
-    );
-
-    // Filter out files that already exist in the current images
-    const existingFileNames = new Set(images.map((img) => img.name));
-    const newFiles = uniqueNewFiles.filter(
-      (file) => !existingFileNames.has(file.name)
-    );
-
-    if (newFiles.length === 0) {
-      toast.info(t("errors.duplicateFiles"));
-      return;
-    }
-
-    if (images.length + existingImages.length + newFiles.length > maxImages) {
+    if (images.length + existingImages.length + files.length > maxImages) {
       toast.error(t("errors.maxImagesExceeded", { count: maxImages }));
       return;
     }
@@ -473,73 +423,53 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     setUploadProgress(0);
 
     try {
-      const validFiles = [];
+      const validFiles: File[] = [];
       let processedCount = 0;
-      const newSizes = { ...imageSizes };
 
-      // Process only the new, unique files
-      for (const file of newFiles) {
+      for (const file of files) {
         try {
-          // Store original size for display
-          newSizes[file.name] = file.size;
-
           const isValid = await validateImage(file);
           if (!isValid) continue;
 
-          // Analyze image to determine optimal compression strategy
-          const dimensions = await getImageDimensions(file);
-          const aspectRatio = dimensions.width / dimensions.height;
-
-          // Determine if image needs cropping based on aspect ratio
-          const needsCropping =
-            aspectRatio > 2.5 || // Too wide
-            aspectRatio < 0.4 || // Too tall
-            dimensions.width < 200 || // Too narrow
-            dimensions.height < 200; // Too short
-
-          if (needsCropping) {
-            toast.info(
-              t("info.imageCropRecommended", {
-                hint: "This image has unusual proportions. Consider cropping for better display.",
-              }),
-            );
-          }
-
-
           const compressed = await compressImage(file);
-          // Generate a unique ID for the file
-          const fileWithId = Object.assign(compressed, { 
-            uid: generateUniqueId('file-')
+          const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.name}`;
+          
+          // Create a new File instance with a unique name
+          const uniqueFile = new File([compressed], uniqueFileName, {
+            type: compressed.type,
+            lastModified: Date.now()
           });
-          validFiles.push(fileWithId);
 
-          // Update size for compressed file
-          newSizes[compressed.name] = compressed.size;
-        } catch (compressionError) {
-          console.error(
-            "Compression failed, using original file:",
-            compressionError,
-          );
-          validFiles.push(file); // Use original if compression fails
+          validFiles.push(uniqueFile);
+        } catch (error) {
+          console.error("Error processing file:", error);
+          continue;
         }
 
         processedCount++;
-        setUploadProgress((processedCount / newFiles.length) * 100);
+        setUploadProgress((processedCount / files.length) * 100);
       }
 
-      // Update file sizes state
-      setImageSizes(newSizes);
-
       if (validFiles.length > 0) {
-        // Create a copy of the images array to avoid reference issues
+        // Update parent component with new images
         const newImages = [...images, ...validFiles];
-        
-        // Ensure unique images based on name and lastModified
-        const uniqueNewImages = Array.from(
-          new Map(newImages.map((file) => [file.name + file.lastModified, file])).values()
-        );
-        
-        onChange(uniqueNewImages);
+        onChange(newImages);
+
+        // Create unified image objects
+        const newUnifiedImages = validFiles.map(file => ({
+          id: file.name,
+          key: file.name,
+          type: 'file' as const,
+          src: URL.createObjectURL(file),
+          data: file,
+          isExisting: false,
+          metadata: {
+            fileSize: `${(file.size / 1024).toFixed(1)} KB`,
+          }
+        }));
+
+        // Update unified images state
+        setUnifiedImages(prev => [...prev, ...newUnifiedImages]);
         toast.success(t("images.upload_success"));
       }
     } catch (error) {
@@ -551,39 +481,9 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     }
   };
 
-  // Function to ensure image IDs are unique
-  const ensureUniqueIds = useCallback((images: UnifiedImage[]) => {
-    // Clear the used IDs set
-    const usedIds = new Set<string>();
-    
-    // Check for and fix duplicate IDs
-    return images.map(img => {
-      let id = img.id;
-      
-      // If this ID is already used, generate a new one
-      if (usedIds.has(id)) {
-        const prefix = img.type === 'file' ? 'file' : 'existing';
-        id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Update the image with the new ID
-        return { ...img, id };
-      }
-      
-      // Mark this ID as used
-      usedIds.add(id);
-      return img;
-    });
-  }, []);
+
   
-  // Debounced state update to prevent rapid changes that can cause duplication
-  const debouncedSetUnifiedImages = useCallback(
-    (newImages: UnifiedImage[]) => {
-      // Use a stable reference to the new array
-      const uniqueImages = ensureUniqueIds([...newImages]);
-      setUnifiedImages(uniqueImages);
-    },
-    []
-  );
+
   
   // Simple array move helper that maintains references
   const arrayMove = useCallback(<T,>(array: T[], from: number, to: number): T[] => {

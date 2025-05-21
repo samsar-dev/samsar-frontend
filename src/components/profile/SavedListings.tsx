@@ -157,13 +157,13 @@ const SavedListings = () => {
                         <span
                           className={`px-3 py-1 text-sm font-medium rounded-sm border opacity-0 group-hover:opacity-100 transition-all duration-150 ${
                             item.listingAction?.toLocaleLowerCase() ===
-                            ListingAction.SELL.toLocaleLowerCase()
+                            ListingAction.SALE.toLocaleLowerCase()
                               ? "bg-blue-600/90 text-white border-blue-700"
                               : "bg-green-600/90 text-white border-emerald-700"
                           }`}
                         >
                           {item.listingAction?.toLocaleLowerCase() ===
-                          ListingAction.SELL.toLocaleLowerCase()
+                          ListingAction.SALE.toLocaleLowerCase()
                             ? t("Sell")
                             : t("Rent")}
                         </span>

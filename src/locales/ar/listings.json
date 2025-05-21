@@ -100,6 +100,9 @@
     "review": "مراجعة"
   },
   "fields": {
+    "conditions": {
+      "likeNew": "كالجديدة"
+    },
     "mileage": "عدد الأميال",
     "fuelType": "نوع الوقود",
     "exteriorColor": "لون الهيكل الخارجي",
@@ -205,6 +208,13 @@
     "utilities": "المرافق",
     "floor": "الطابق",
     "totalFloors": "إجمالي الطوابق"
+  },
+  "transmissionTypes": {
+    "automatic": "أوتوماتيك",
+    "manual": "يدوي",
+    "semiAutomatic": "شبه أوتوماتيك",
+    "continuouslyVariable": "سي في تي",
+    "dualClutch": "دوبال كلتش"
   },
   "engineTypeOptions": {
     "singleCylinder": "أسطوانة واحدة",

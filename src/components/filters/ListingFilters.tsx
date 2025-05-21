@@ -20,8 +20,8 @@ import {
 
 interface ListingFiltersProps {
   selectedCategory: string;
-  selectedAction: "SELL" | "RENT" | null;
-  setSelectedAction: (value: "SELL" | "RENT" | null) => void;
+  selectedAction: "SALE" | "RENT" | null;
+  setSelectedAction: (value: "SALE" | "RENT" | null) => void;
   selectedSubcategory: string | null;
   setSelectedSubcategory: (value: string | null) => void;
   allSubcategories: string[];
@@ -35,6 +35,7 @@ interface ListingFiltersProps {
   setSelectedLocation: (value: string | null) => void;
   selectedBuiltYear: string | null;
   setSelectedBuiltYear: (value: string | null) => void;
+  loading?: boolean;
 }
 
 // Mapping of subcategories to icons
@@ -148,7 +149,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     return Object.values(VehicleType).includes(subcategory as VehicleType);
   };
 
-  const handleActionChange = async (action: "SELL" | "RENT" | null) => {
+  const handleActionChange = async (action: "SALE" | "RENT" | null) => {
     setLocalLoading(true);
     try {
       setSelectedAction(action);
@@ -304,16 +305,16 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           <div className="flex gap-2">
             <button
               onClick={() =>
-                handleActionChange(selectedAction === "SELL" ? null : "SELL")
+                handleActionChange(selectedAction === "SALE" ? null : "SALE")
               }
               disabled={localLoading}
               className={`flex-1 px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                selectedAction === "SELL"
+                selectedAction === "SALE"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
               } ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {t("actions.SELL")}
+              {t("actions.SALE")}
             </button>
             <button
               onClick={() =>
@@ -538,7 +539,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                             {selected && (
                               <span
                                 className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
-                                  selectedAction === "SELL"
+                                  selectedAction === "SALE"
                                     ? "text-blue-600"
                                     : "text-green-600"
                                 }`}

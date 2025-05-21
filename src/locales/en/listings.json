@@ -11,6 +11,11 @@
   "selectLocation": "Select Location",
   "description": "Description",
   "descriptionPlaceholder": "Enter description",
+  "notFound": "Listing not found",
+  "contactLister": "Contact Lister",
+ 
+  "propertyDetails": "Property Details",
+ 
   "make": "Make",
   "model": "Model",
   "year": "Year",
@@ -18,6 +23,21 @@
   "selectModel": "Select model",
   "selectYear": "Select year",
   "vehicleType": "Vehicle Type",
+  "vehicleTypes": {
+    "car": "Car",
+    "truck": "Truck",
+    "bus": "Bus",
+    "suv": "SUV",
+    "motorcycle": "Motorcycle",
+    "atv": "ATV",
+    "rv": "RV",
+    "boat": "Boat",
+    "trailer": "Trailer",
+    "heavy_equipment": "Heavy Equipment",
+    "construction_equipment": "Construction Equipment",
+    "agricultural_equipment": "Agricultural Equipment",
+    "industrial_equipment": "Industrial Equipment"
+  },
   "propertyType": "Property Type",
   "customMake": "Custom Make",
   "enterMake": "Enter make name",
@@ -31,8 +51,8 @@
     "forRent": "For Rent"
   },
   "posted_on": "Posted on",
-  "contact_seller": "Contact Seller",
-  "message_seller": "Message Seller",
+  "contact_lister": "Contact Lister",
+  "message_lister": "Message Lister",
   "save_listing": "Save Listing",
   "report_listing": "Report Listing",
   "share_listing": "Share Listing",
@@ -58,6 +78,23 @@
   "sections": {
     "essential": "Essential Details",
     "advanced": "Advanced Details"
+  },
+  "common": {
+    "notProvided": "Not provided",
+    "no": "No",
+    "yes": "Yes",
+    "beds": "beds",
+    "baths": "baths",
+    "edit": "Edit",
+    "delete": "Delete",
+    "forSale": "For Sale",
+    "forRent": "For Rent",
+    "sort": {
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "price_high": "Price: High to Low",
+      "price_low": "Price: Low to High"
+    }
   },
   "sort": {
     "newest": "Newest First",
@@ -101,6 +138,11 @@
   },
   "fields": {
     "mileage": "Mileage",
+    "year": "Year",
+    "transmission": "Transmission",
+    "size": "Size (sq ft)",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
     "fuelType": "Fuel Type",
     "exteriorColor": "Exterior Color",
     "interiorColor": "Interior Color",
@@ -135,7 +177,7 @@
     "brakeSystem": "Brake System",
     "entertainmentFeatures": "Entertainment Features",
     "safetyFeatures": "Safety Features",
-    "comfortFeatures": "Comfort Features",
+ 
     "buildingAmenities": "Building Amenities",
     "petPolicy": "Pet Policy",
     "view": "View",
@@ -208,9 +250,7 @@
     "parking": "Parking",
     "elevator": "Elevator",
     "price": "Price",
-    "size": "Size (sq ft)",
-    "bedrooms": "Bedrooms",
-    "bathrooms": "Bathrooms",
+ 
     "balcony": "Balcony",
     "storage": "Storage",
     "windowType": "Window Type",
@@ -378,14 +418,21 @@
 
     "fuelTypes": {
       "GASOLINE": "Gasoline",
+      "gasoline": "Gasoline",
       "DIESEL": "Diesel",
+      "diesel": "Diesel",
       "ELECTRIC": "Electric",
-      "HYBRID": "Hybrid"
+      "electric": "Electric",
+      "HYBRID": "Hybrid",
+      "hybrid": "Hybrid"
     },
+    
     "transmissionTypes": {
-      "AUTOMATIC": "Automatic",
-      "MANUAL": "Manual",
-      "SEMI_AUTOMATIC": "Semi-automatic"
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "semiAutomatic": "Semi-automatic",
+      "continuouslyVariable": "CVT",
+      "dualClutch": "Dual Clutch"
     },
     "conditionTypes": {
       "NEW": "New",
@@ -398,9 +445,17 @@
       "SALVAGE": "Salvage"
     },
     "condition": "Condition",
+    "conditions": {
+      "new": "New",
+      "likeNew": "Like New",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor"
+    },
     "make": "Make",
     "model": "Model",
-    "year": "Year",
+ 
     "no": "No",
     "roofType": "Roof Type",
     "customsCleared": "Customs Cleared",

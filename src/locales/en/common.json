@@ -19,6 +19,9 @@
   "no": "No",
   "notSpecified": "Not Specified",
   "notProvided": "Not Provided",
+  "beds": "beds",
+  "baths": "baths",
+  "deleteConfirmation": "Are you sure you want to delete this listing? This action cannot be undone.",
   "title": "Title",
   "titlePlaceholder": "Enter a title for your listing",
   "loading": "Loading...",
@@ -51,7 +54,7 @@
     "location": "Location",
     "selectLocation": "Select location",
     "description": "Description",
-    "descriptionPlaceholder": "Tell us more about your listing... (e.g. features, condition, reason for selling)"
+    "descriptionPlaceholder": "Tell us more about your listing... (e.g. features, condition, reason for listing)"
   },
   "vehicleTypes": {
     "CAR": "Car",
@@ -104,8 +107,12 @@
         "gasoline": "Gasoline"
       },
       "transmissionTypes": {
-        "AUTOMATIC": "Automatic",
-        "automatic": "Automatic"
+        "automatic": "Automatic",
+        "manual": "Manual",
+        "semiAutomatic": "Semi-Automatic",
+        "continuouslyVariable": "CVT",
+        "dualClutch": "Dual Clutch",
+        "other": "Other"
       },
       "conditions": {
         "new": "New",
@@ -181,9 +188,18 @@
       "VAN": "Van",
       "BUS": "Bus",
       "TRACTOR": "Tractor",
-      "RV": "RV"
+      "RV": "RV",
+      "SUV": "SUV",
+      "ATV": "ATV",
+      "BOAT": "Boat",
+      "TRAILER": "Trailer",
+      "HEAVY_EQUIPMENT": "Heavy Equipment",
+      "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
+      "AGRICULTURAL_EQUIPMENT": "Agricultural Equipment",
+      "INDUSTRIAL_EQUIPMENT": "Industrial Equipment"
     }
   },
+
   "subcategories": {
     "property": {
       "HOUSE": "House",

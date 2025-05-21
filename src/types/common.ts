@@ -103,10 +103,10 @@ export interface NotificationSettings {
 
 export interface PrivacySettings {
   profileVisibility: "public" | "private";
-  showEmail: boolean;
   showPhone: boolean;
   showOnlineStatus: boolean;
   allowMessagesFrom: "everyone" | "following" | "none";
+  allowMessaging: boolean;
 }
 
 export interface PreferenceSettings {

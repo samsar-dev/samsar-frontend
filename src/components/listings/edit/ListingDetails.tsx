@@ -100,7 +100,7 @@ const featuresDetails = {
 };
 
 const ListingDetails = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['listings', 'common']);
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -627,7 +627,7 @@ const ListingDetails = () => {
   if (!listing) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-gray-500 mb-4">{t("listings.notFound")}</div>
+        <div className="text-gray-500 mb-4">{t("notFound")}</div>
         <button
           onClick={() => navigate(-1)}
           className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
@@ -709,7 +709,7 @@ const ListingDetails = () => {
                   onClick={handleContactSeller}
                   className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow"
                   style={{ minWidth: 0 }}
-                  title={t("listings.contactSeller") as string}
+                  title={t("contactSeller") as string}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -725,7 +725,7 @@ const ListingDetails = () => {
                       d="M16 12H8m0 0l4-4m-4 4l4 4"
                     />
                   </svg>
-                  <span>{t("listings.contactSeller")}</span>
+                  <span>{t("contactSeller")}</span>
                 </button>
               )}
             </div>
@@ -764,12 +764,12 @@ const ListingDetails = () => {
           {/* Basic Information */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-              {t("listings.basicInformation")}
+              {t("basicInformation")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("listings.title")}
+                  {t("title")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white">
                   {listing.title}
@@ -777,7 +777,7 @@ const ListingDetails = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("listings.price")}
+                  {t("price")}
                 </p>
                 <p className="font-medium text-blue-600 dark:text-blue-400">
                   {formatCurrency(listing.price)}
@@ -786,7 +786,7 @@ const ListingDetails = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("listings.location")}
+                  {t("location")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white">
                   {listing.location}
@@ -794,7 +794,7 @@ const ListingDetails = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("listings.listingAction")}
+                  {t("listingAction")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white capitalize">
                   {listing.listingAction || t("common.notProvided")}
@@ -807,7 +807,7 @@ const ListingDetails = () => {
           {isVehicle && listing?.details?.vehicles && (
             <div className=" ">
               {/* <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        {t("listings.vehicleDetails")}
+                        {t("vehicleDetails")}
                      </h2> */}
 
               <div className="space-y-6">
@@ -821,13 +821,13 @@ const ListingDetails = () => {
                   listing?.details?.vehicles?.transmission) && (
                   <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("listings.essentialDetails")}
+                      {t("essentialDetails")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {listing?.details?.vehicles?.make && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.make")}
+                            {t("fields.make")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.make}
@@ -837,7 +837,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.model && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.model")}
+                            {t("fields.model")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.model}
@@ -847,7 +847,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.year && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.year")}
+                            {t("fields.year")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.year}
@@ -857,22 +857,22 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.mileage && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.mileage")}
+                            {t("fields.mileage")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.mileage}{" "}
-                            {t("listings.fields.mileage")}
+                            {t("fields.mileage")}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.fuelType && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.fuelType")}
+                            {t("fields.fuelType")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `listings.fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
+                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
                             )}
                           </p>
                         </div>
@@ -881,11 +881,11 @@ const ListingDetails = () => {
                         listing?.details?.vehicles?.transmission) && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.transmission")}
+                            {t("fields.transmission")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `listings.fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
+                              `fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
                             )}
                           </p>
                         </div>
@@ -900,13 +900,13 @@ const ListingDetails = () => {
                   listing?.details?.vehicles?.condition) && (
                   <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("listings.appearance")}
+                      {t("appearance")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {listing?.details?.vehicles?.color && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.exteriorColor")}
+                            {t("exteriorColor")}
                           </p>
                           <div className="flex items-center space-x-2">
                             <div
@@ -925,7 +925,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.interiorColor && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.interiorColor")}
+                            {t("interiorColor")}
                           </p>
                           <div className="flex items-center space-x-2">
                             <div
@@ -944,11 +944,11 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.condition && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.condition")}
+                            {t("fields.condition")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `listings.fields.conditions.${listing?.details?.vehicles?.condition}`,
+                              `fields.conditions.${listing?.details?.vehicles?.condition}`,
                             )}
                           </p>
                         </div>
@@ -1139,8 +1139,8 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing.details.vehicles.customsCleared
-                              ? t("listings.fields.yes")
-                              : t("listings.fields.no")}
+                              ? t("fields.yes")
+                              : t("fields.no")}
                           </p>
                         </div>
                       )}
@@ -1359,24 +1359,24 @@ const ListingDetails = () => {
           {isRealEstate && listing?.details?.realEstate && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
               <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                {t("listings.propertyDetails")}
+                {t("propertyDetails")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t("listings.propertyType")}
+                    {t("propertyType")}
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `listings.propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
+                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
                     )}
                   </p>
                 </div>
                 {listing?.details?.realEstate?.size && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("listings.size")}
+                      {t("size")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing?.details?.realEstate?.size} m²
@@ -1386,7 +1386,7 @@ const ListingDetails = () => {
                 {listing?.details?.realEstate?.bedrooms && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("listings.bedrooms")}
+                      {t("bedrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing?.details?.realEstate?.bedrooms}
@@ -1396,7 +1396,7 @@ const ListingDetails = () => {
                 {listing?.details?.realEstate?.bathrooms && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("listings.bathrooms")}
+                      {t("bathrooms")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing?.details?.realEstate?.bathrooms}
@@ -1406,7 +1406,7 @@ const ListingDetails = () => {
                 {listing?.details?.realEstate?.yearBuilt && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("listings.yearBuilt")}
+                      {t("yearBuilt")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing?.details?.realEstate?.yearBuilt}
@@ -1416,11 +1416,11 @@ const ListingDetails = () => {
                 {listing?.details?.realEstate?.condition && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("listings.condition")}
+                      {t("condition")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {t(
-                        `listings.conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
+                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
                       )}
                     </p>
                   </div>
@@ -1431,7 +1431,7 @@ const ListingDetails = () => {
                 listing?.details?.realEstate?.features?.length > 0 && (
                   <div className="mt-6 space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("listings.features")}
+                      {t("features")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {listing.details.realEstate.features.map(
@@ -1454,7 +1454,7 @@ const ListingDetails = () => {
           {listing.description && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
               <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-white">
-                {t("listings.description")}
+                {t("description")}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {listing.description}

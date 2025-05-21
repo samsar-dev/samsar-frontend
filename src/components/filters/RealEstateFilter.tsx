@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export interface RealEstateFilterState {
   propertyType: PropertyType | null;
-  listingAction: "SELL" | "RENT" | null;
+  listingAction: "SALE" | "RENT" | null;
   minPrice: string;
   maxPrice: string;
   minSize: string;
@@ -115,7 +115,7 @@ export const RealEstateFilter: React.FC<RealEstateFilterProps> = ({
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="">For Sale/Rent</option>
-                  <option value="sell">For Sale</option>
+                  <option value="sale">For Sale</option>
                   <option value="rent">For Rent</option>
                 </select>
 

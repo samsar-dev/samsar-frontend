@@ -14,7 +14,7 @@
     "AUTOMATIC": "Automatic",
     "MANUAL": "Manual",
     "SEMI_AUTOMATIC": "Semi-Automatic",
-    "CVT": "CVT",
+    "CONTINUOUSLY_VARIABLE" : "cvt",
     "DUAL_CLUTCH": "Dual Clutch",
     "OTHER": "Other"
   },

@@ -104,8 +104,12 @@
         "gasoline": "بنزين"
       },
       "transmissionTypes": {
-        "AUTOMATIC": "أوتوماتيك",
-        "automatic": "أوتوماتيك"
+        "automatic": "أوتوماتيك",
+        "manual": "يدوي",
+        "semiAutomatic": "نصف أوتوماتيك",
+        "continuouslyVariable": "سي في تي",
+        "dualClutch": "دوبال كلتش",
+        "other": "أخرى"
       },
       "conditions": {
         "new": "جديد",

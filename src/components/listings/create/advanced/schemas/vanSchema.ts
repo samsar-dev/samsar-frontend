@@ -4,6 +4,25 @@ import { Condition, FuelType, TransmissionType } from "@/types/enums";
 export const vanSchema: ListingFieldSchema[] = [
   // Essential Section
 
+  
+  {
+    name: "color",
+    label: "fields.exteriorColor",
+    type: "colorpicker",
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Exterior color is required" : null,
+  },
+  {
+    name: "interiorColor",
+    label: "fields.interiorColor",
+    type: "colorpicker",
+    section: "essential",
+    required: true,
+    validate: (value: string | number | boolean) =>
+      !value ? "Interior color is required" : null,
+  },
   {
     name: "condition",
     label: "fields.condition",

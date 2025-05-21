@@ -17,8 +17,6 @@
     "receiveUpdatesViaEmail": "تلقي التحديثات عبر البريد الإلكتروني",
     "pushNotifications": "إشعارات الدفع",
     "receiveUpdatesViaPush": "تلقي التحديثات عبر إشعارات الدفع",
-    "desktopNotifications": "إشعارات سطح المكتب",
-    "receiveUpdatesViaDesktop": "تلقي إشعارات سطح المكتب",
     "messageNotifications": "إشعارات الرسائل",
     "listingNotifications": "إشعارات الإعلانات",
     "systemNotifications": "إشعارات النظام",

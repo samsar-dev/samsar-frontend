@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { LanguageCode, ThemeType } from "@/types/enums";
 import type {
-  NotificationPreferences,
-  PreferenceSettings as PreferenceSettingsType,
+PreferenceSettings as PreferenceSettingsType,
 } from "@/types/settings";
 
 const SUPPORTED_LANGUAGES = [
@@ -26,12 +25,7 @@ const defaultSettings: PreferenceSettingsType = {
   language: LanguageCode.EN,
   theme: ThemeType.SYSTEM,
   timezone: "UTC",
-  notifications: {
-    email: false,
-    push: false,
-    desktop: false,
-    enabledTypes: [] as Array<"message" | "listing" | "system">,
-  },
+
 };
 
 function PreferenceSettings({
@@ -59,14 +53,6 @@ function PreferenceSettings({
     }
 
     onUpdate(newSettings);
-  };
-
-  const handleNotificationChange = (key: keyof NotificationPreferences) => {
-    const notifications = {
-      ...currentSettings.notifications,
-      [key]: !currentSettings.notifications[key],
-    };
-    handleChange("notifications", notifications);
   };
 
   const timezones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"];
@@ -120,70 +106,7 @@ function PreferenceSettings({
         </select>
       </div>
 
-      <div>
-        <h3 className="text-lg font-medium">{t("notifications.title")}</h3>
-        <div className="mt-4 space-y-4">
-          <div className="flex items-start">
-            <div className="flex h-5 items-center">
-              <input
-                id="email"
-                type="checkbox"
-                checked={currentSettings.notifications.email}
-                onChange={() => handleNotificationChange("email")}
-                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-            </div>
-            <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
-              <label htmlFor="email" className="font-medium text-gray-700">
-                {t("notifications.email")}
-              </label>
-              <p className="text-gray-500">
-                {t("notifications.receiveUpdatesViaEmail")}
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start">
-            <div className="flex h-5 items-center">
-              <input
-                id="push"
-                type="checkbox"
-                checked={currentSettings.notifications.push}
-                onChange={() => handleNotificationChange("push")}
-                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-            </div>
-            <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
-              <label htmlFor="push" className="font-medium text-gray-700">
-                {t("notifications.push")}
-              </label>
-              <p className="text-gray-500">
-                {t("notifications.receiveUpdatesViaPush")}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start">
-            <div className="flex h-5 items-center">
-              <input
-                id="desktop"
-                type="checkbox"
-                checked={currentSettings.notifications.desktop}
-                onChange={() => handleNotificationChange("desktop")}
-                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-            </div>
-            <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
-              <label htmlFor="desktop" className="font-medium text-gray-700">
-                {t("notifications.desktopNotifications")}
-              </label>
-              <p className="text-gray-500">
-                {t("notifications.receiveUpdatesViaDesktop")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

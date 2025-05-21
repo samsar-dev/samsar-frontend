@@ -61,13 +61,26 @@ const Home: React.FC = () => {
   });
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [forceRefresh, setForceRefresh] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
   // Removed unused filter visibility state
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
   useEffect(() => {
+    // Listen for cache-cleared events from the API
+    const handleCacheCleared = () => {
+      console.log('Cache cleared event received, forcing refresh');
+      // Clear the local cache
+      listingsCache.current = {};
+      // Force a refresh of the listings
+      setForceRefresh(prev => !prev);
+    };
+
+    window.addEventListener('listings-cache-cleared', handleCacheCleared);
+    
     return () => {
       abortControllerRef.current.abort();
+      window.removeEventListener('listings-cache-cleared', handleCacheCleared);
     };
   }, []);
 
@@ -96,7 +109,7 @@ const Home: React.FC = () => {
   }, [listings.all]);
 
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<"SELL" | "RENT" | null>(
+  const [selectedAction, setSelectedAction] = useState<"SALE" | "RENT" | null>(
     null,
   );
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
@@ -118,8 +131,8 @@ const Home: React.FC = () => {
   }>({});
 
   const fetchListings = useCallback(async () => {
-    // If we have cached data for this category and it's not initial load, use it
-    if (!isInitialLoad && listingsCache.current[selectedCategory]) {
+    // If we have cached data for this category and it's not initial load or force refresh, use it
+    if (!isInitialLoad && !forceRefresh && listingsCache.current[selectedCategory]) {
       let sortedListings = [...(listingsCache.current[selectedCategory] || [])];
 
       // Client-side sorting for additional options
@@ -294,16 +307,20 @@ const Home: React.FC = () => {
     t,
   ]);
 
-  // Single effect for fetching listings - only on category change or initial load
+  // Effect for fetching listings - on category change, initial load, or force refresh
   useEffect(() => {
     fetchListings();
     if (isInitialLoad) {
       setIsInitialLoad(false);
     }
+    // Reset force refresh after it's been used
+    if (forceRefresh) {
+      setForceRefresh(false);
+    }
     return () => {
       // No need to abort here, it's handled in the fetchListings function
     };
-  }, [selectedCategory, fetchListings, isInitialLoad]);
+  }, [selectedCategory, fetchListings, isInitialLoad, forceRefresh]);
 
   // Memoized filtered listings
   const filteredListings = useMemo(() => {
@@ -492,7 +509,7 @@ const Home: React.FC = () => {
             setSelectedLocation={setSelectedLocation}
             selectedBuiltYear={selectedBuiltYear}
             setSelectedBuiltYear={setSelectedBuiltYear}
-            isLoading={listings.loading}
+            loading={listings.loading}
           />
         )}
 

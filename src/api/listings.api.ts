@@ -72,7 +72,7 @@ export interface SingleListingResponse {
   };
   location: string;
   condition: Condition;
-  listingAction: "SELL" | "RENT";
+  listingAction: "SALE" | "RENT";
   status: "ACTIVE" | "SOLD" | "RENTED" | "EXPIRED";
   images: { url: string }[];
   details: {
@@ -282,6 +282,17 @@ interface UserListingsResponse {
 // Improve cache implementation
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const cache = new Map<string, { data: any; timestamp: number }>();
+
+// Function to clear all caches
+export const clearAllCaches = () => {
+  // Clear all API caches
+  cache.clear();
+
+  // Dispatch an event to notify components that cache has been cleared
+  const event = new CustomEvent("listings-cache-cleared");
+  window.dispatchEvent(event);
+  console.log("All listing caches cleared");
+};
 
 // Define custom ListingParams interface directly here to avoid import conflicts
 interface ListingParams {
@@ -525,6 +536,21 @@ export const listingsAPI: ListingsAPI = {
       const data = response.data;
       console.log("Raw API response:", data); // Debug the full response
       console.log("API response data structure:", typeof data.data, data.data); // Debug the data structure
+      
+      // Debug listing actions
+      if (data.data && data.data.items && Array.isArray(data.data.items)) {
+        console.log("--- LISTING ACTIONS DEBUG ---");
+        data.data.items.forEach((item: any, index: number) => {
+          console.log(`Listing ${index + 1}: ${item.title}`);
+          console.log(`  ID: ${item.id}`);
+          console.log(`  Raw listingAction: ${item.listingAction}`);
+          console.log(`  Type: ${typeof item.listingAction}`);
+          console.log(`  Action field: ${item.action}`);
+          console.log(`  Type field: ${item.type}`);
+          console.log(`  Full item:`, JSON.stringify(item, null, 2));
+        });
+        console.log("--- END LISTING ACTIONS DEBUG ---");
+      }
 
       // Handle different response formats
       let responseData;
@@ -602,9 +628,27 @@ export const listingsAPI: ListingsAPI = {
             };
           }
 
+          // Get the listing action from the response
+          const rawAction = listing.listingAction || listing.action;
+          
+          // Log the listing action for debugging
+          console.log(`[API Debug] Listing ${listing.id} action:`, {
+            raw: rawAction,
+            type: typeof rawAction
+          });
+          
+          // Convert to proper enum value
+          let listingAction = rawAction?.toUpperCase();
+          if (listingAction === 'RENT') {
+            listingAction = ListingAction.RENT;
+          } else {
+            listingAction = ListingAction.SALE;
+          }
+          
           return {
             ...listing,
             details: essentialDetails,
+            listingAction
           };
         });
       }
@@ -704,6 +748,9 @@ export const listingsAPI: ListingsAPI = {
     formData: FormData,
   ): Promise<APIResponse<Listing>> {
     try {
+      // Clear all caches before updating
+      clearAllCaches();
+
       console.log("==== UPDATE LISTING DEBUG ====");
       console.log("Form data keys:", [...formData.keys()]);
 
@@ -780,17 +827,56 @@ export const listingsAPI: ListingsAPI = {
         console.log('- details:', details);
         console.log('- newImages:', newImages);
 
-        // Create a data object first
-        const formFields = {
+        // Create a data object first, ensuring we preserve all details
+        const formFields: {
+          title: string;
+          description: string;
+          price: string;
+          mainCategory?: string;
+          category?: any;
+          location: string;
+          status: string;
+          publicAccess: string;
+          existingImages: string[];
+          details?: any;
+        } = {
           title,
           description,
           price: String(price),
-          mainCategory: category,
           location,
           status,
-          existingImages: existingImages || [],
-          details: details || {}
+          publicAccess: 'true', // Ensure listing is public
+          existingImages: existingImages || []
         };
+        
+        // Handle category properly
+        if (category) {
+          try {
+            // Try to parse it as JSON first (it might be a stringified object)
+            const categoryObj = JSON.parse(category);
+            formFields.category = categoryObj;
+          } catch (e) {
+            // If it's not valid JSON, use it as a string
+            formFields.mainCategory = category;
+          }
+        }
+
+        // Ensure we're properly handling the details object
+        // We need to parse it first to make sure we have the complete object
+        let detailsObj = {};
+        if (typeof details === 'string') {
+          try {
+            detailsObj = JSON.parse(details);
+          } catch (e) {
+            console.error('Error parsing details string:', e);
+          }
+        } else if (details && typeof details === 'object') {
+          detailsObj = details;
+        }
+
+        // Make sure we preserve all vehicle details
+        console.log('🔍 [DEBUG] Detailed vehicle information:', detailsObj);
+        formFields.details = detailsObj;
 
         console.log('🔍 [DEBUG] Structured form fields:', formFields);
 
@@ -814,7 +900,7 @@ export const listingsAPI: ListingsAPI = {
             console.log(`🔍 [DEBUG] Processing primitive field: ${key}`, value);
             formData.append(key, String(value));
           }
-        });
+        }); 
 
         // Log final FormData contents
         console.log('🔍 [DEBUG] Final FormData contents:');
@@ -1353,8 +1439,8 @@ export const listingsAPI: ListingsAPI = {
         userId: responseData.userId,
         details: details,
         listingAction:
-          responseData.listingAction === "SELL"
-            ? ListingAction.SELL
+          responseData.listingAction === "SALE"
+            ? ListingAction.SALE
             : ListingAction.RENT,
         seller: {
           id: responseData.userId,

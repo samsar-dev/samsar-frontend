@@ -20,10 +20,10 @@
     "active_listings": "Active Listings",
     "happy_customers": "Happy Customers",
     "cities_covered": "Cities Covered",
-    "trusted_sellers": "Trusted Sellers"
+    "trusted_listers": "Trusted Listers"
   },
   "cta": {
-    "sell_vehicle": "Sell Your Vehicle",
+    "sale_vehicle": "Sell Your Vehicle",
     "list_property": "List Your Property",
     "start_now": "Start Now",
     "learn_more": "Learn More"

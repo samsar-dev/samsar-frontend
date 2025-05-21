@@ -142,7 +142,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         </div>
       </div>
       {isExisting && (
-        <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+        <div className="absolute top-2 left-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-[10px] font-medium px-2 py-0.5 rounded-full border border-yellow-300 dark:border-yellow-700 shadow-sm">
           Existing
         </div>
       )}

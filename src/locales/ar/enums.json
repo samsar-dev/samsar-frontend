@@ -3,7 +3,7 @@
     "AUTOMATIC": "أوتوماتيك",
     "MANUAL": "يدوي",
     "SEMI_AUTOMATIC": "شبه أوتوماتيك",
-    "CVT": "ناقل حركة متغير باستمرار",
+    "CONTINUOUSLY_VARIABLE": "ناقل حركة متغير باستمرار",
     "DUAL_CLUTCH": "قابض مزدوج",
     "OTHER": "أخرى"
   },

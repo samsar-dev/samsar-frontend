@@ -22,19 +22,27 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
   const [currentColor, setCurrentColor] = useState(value || "#ffffff");
   const pickerRef = useRef<HTMLDivElement>(null);
 
+  // Toggle color picker visibility
+  const toggleColorPicker = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
+  // Close when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node)
-      ) {
+    const handleClickOutside = (event: Event) => {
+      if (isOpen && pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    // Using 'click' event which works for both mouse and touch
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  }, [isOpen]);
 
   const handleColorChange = (color: string) => {
     setCurrentColor(color);
@@ -60,8 +68,8 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
   ];
 
   return (
-    <div className="relative" ref={pickerRef}>
-      <div className="flex items-center gap-2 mb-1">
+    <div className="relative w-full inline-block text-left" ref={pickerRef}>
+      <div className="flex items-center gap-2 mb-2">
         <label className="block text-sm font-medium text-gray-700">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
@@ -87,23 +95,26 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 w-full relative">
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-12 h-12 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onClick={toggleColorPicker}
+          onTouchStart={(e) => e.stopPropagation()}
+          className="w-10 h-10 md:w-12 md:h-12 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
           style={{ backgroundColor: currentColor }}
           aria-label={`Selected ${label.toLowerCase()}`}
         />
 
-        <input
-          type="text"
-          value={currentColor.toUpperCase()}
-          onChange={(e) => handleColorChange(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="#FFFFFF"
-          pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-        />
+        <div className="flex-1 min-w-0">
+          <input
+            type="text"
+            value={currentColor.toUpperCase()}
+            onChange={(e) => handleColorChange(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="#FFFFFF"
+            pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+          />
+        </div>
 
         <input
           type="color"
@@ -115,20 +126,28 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="grid grid-cols-5 gap-2 mb-4">
-            {presetColors.map((color) => (
-              <button
-                key={color}
-                type="button"
-                onClick={() => handleColorChange(color)}
-                className={`w-8 h-8 rounded-full border-2 ${
-                  currentColor === color ? "border-blue-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                style={{ backgroundColor: color }}
-                aria-label={`Choose color ${color}`}
-              />
-            ))}
+        <div className="absolute z-10 mt-1 w-full">
+          <div className="bg-white rounded-md shadow-lg border border-gray-200 p-3">
+            <div className="grid grid-cols-8 gap-2">
+              {presetColors.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleColorChange(color);
+                    setIsOpen(false);
+                  }}
+                  className={`w-6 h-6 rounded-sm border ${
+                    currentColor === color 
+                      ? "border-blue-500 ring-1 ring-blue-200 ring-offset-1" 
+                      : "border-gray-200 hover:border-gray-400"
+                  } focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all`}
+                  style={{ backgroundColor: color }}
+                  aria-label={`Choose color ${color}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}

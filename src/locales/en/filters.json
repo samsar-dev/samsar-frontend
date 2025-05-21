@@ -77,7 +77,7 @@
     "OTHER": "Other"
   },
   "actions": {
-    "SELL": "For Sale",
+    "SALE": "For Sale",
     "RENT": "For Rent"
   },
   "loading": "Loading...",

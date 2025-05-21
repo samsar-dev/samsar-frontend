@@ -226,7 +226,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
           details: {
             vehicles: {},
           },
-          listingAction: ListingAction.SELL,
+          listingAction: ListingAction.SALE,
           status: ListingStatus.ACTIVE,
         };
       }

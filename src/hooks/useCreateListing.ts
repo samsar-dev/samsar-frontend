@@ -65,7 +65,7 @@ const initialFormState: FormState = {
       customModel: "",
     },
   },
-  listingAction: ListingAction.SELL,
+  listingAction: ListingAction.SALE,
 };
 
 export const useCreateListing = (): UseCreateListingReturn => {
@@ -250,7 +250,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         formData.append("location", data.location || "");
         formData.append(
           "listingAction",
-          (data.listingAction || "sell").toUpperCase(),
+          (data.listingAction || "sale").toUpperCase(),
         );
 
         // Add category information

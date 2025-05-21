@@ -25,6 +25,6 @@ export interface ListingParams {
   minPrice?: number;
   maxPrice?: number;
   location?: string;
-  listingAction?: "SELL" | "RENT";
+  listingAction?: "SALE" | "RENT";
   forceRefresh?: boolean;
 }

@@ -2,19 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
-import SecuritySettings from "@/components/settings/SecuritySettings";
+import NotificationSettings from "@/components/settings/NotificationSettings";
 import DeleteAccount from "@/components/settings/DeleteAccount";
 
 import type {
   PreferenceSettings as PreferenceSettingsType,
   SecuritySettings as SecuritySettingsType,
-  NotificationPreferences,
 } from "@/types/settings";
-import { te } from "date-fns/locale";
 import { SettingsAPI } from "@/api";
 
 interface ToggleProps {
-  checked: boolean;
+  checked?: boolean;
   onChange: (checked: boolean) => void;
   label: string;
   disabled?: boolean;
@@ -39,10 +37,10 @@ const Toggle: React.FC<ToggleProps> = ({
 );
 
 interface SettingsState {
-  notifications: {
-    enabledTypes: string[];
-    emailNotifications: boolean;
-    pushNotifications: boolean;
+  notifications?: {
+    email: boolean;
+    push: boolean;
+    desktop: boolean;
   };
   privacy: {
     profileVisibility: "public" | "private";
@@ -74,8 +72,8 @@ function Settings() {
       try {
         const response = await SettingsAPI.updatePrivacySettings(settings);
         console.log("response", response);
-        if (!response.ok) {
-          throw new Error("Failed to update settings");
+        if (response.error) {
+          throw new Error(response.error);
         }
       } catch (error) {
         console.error(error);
@@ -89,21 +87,17 @@ function Settings() {
     updateSettings({ preferences });
   };
 
-  const handleSecurityUpdate = (security: SecuritySettingsType) => {
-    updateSettings({ security });
-  };
-
-  const handleNotificationToggle = (
-    key: "email" | "push" | "desktop" | "message" | "listing" | "system",
-    checked: boolean,
-  ) => {
+  const handleSecurityUpdate = (security: Partial<SecuritySettingsType>) => {
+    if (!settings) return;
     updateSettings({
-      notifications: {
-        ...settings?.notifications,
-        [key]: checked,
-      },
+      security: {
+        ...settings.security,
+        ...security
+      }
     });
   };
+
+
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
     updateSettings({ privacy: { ...settings?.privacy, ...updates } });
@@ -135,90 +129,155 @@ function Settings() {
             <h2 className="text-xl font-semibold mb-6">
               {t("notifications.title")}
             </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.messageNotifications")}</span>
-                <Toggle
-                  checked={settings?.notifications?.message ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("message", checked)
-                  }
-                  label={t("notifications.messageNotifications")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.listingNotifications")}</span>
-                <Toggle
-                  checked={settings?.notifications?.listing ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("listing", checked)
-                  }
-                  label={t("notifications.listingNotifications")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.systemNotifications")}</span>
-                <Toggle
-                  checked={settings?.notifications?.system ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("system", checked)
-                  }
-                  label={t("notifications.systemNotifications")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.email")}</span>
-                <Toggle
-                  checked={settings?.notifications?.email ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("email", checked)
-                  }
-                  label={t("notifications.email")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.push")}</span>
-                <Toggle
-                  checked={settings?.notifications?.push ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("push", checked)
-                  }
-                  label={t("notifications.push")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("notifications.desktopNotifications")}</span>
-                <Toggle
-                  checked={settings?.notifications?.desktop ?? false}
-                  onChange={(checked: boolean) =>
-                    handleNotificationToggle("desktop", checked)
-                  }
-                  label={t("notifications.desktopNotifications")}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("security.title")}
-            </h2>
-            <SecuritySettings
-              settings={settings?.security || {}}
-              onUpdate={handleSecurityUpdate}
-              isRTL={isRTL}
+            <NotificationSettings
+              notifications={settings?.notifications || { email: false, push: false, desktop: false }}
+              onUpdate={(notifications) => updateSettings({ notifications })}
             />
           </div>
         </div>
 
+        
+        {/* Security Settings */}
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">{t("privacy.title")}</h2>
+            <h2 className="text-xl font-semibold mb-6">🔐 {t("security.title")}</h2>
+            <div className="space-y-6">
+              {/* Two-Factor Authentication */}
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">{t("security.twoFactorAuth")}</h3>
+                <div className="flex items-center justify-between pl-4">
+                  <span className="text-gray-600">{t("security.twoFactorDescription")}</span>
+                  <Toggle
+                    checked={settings?.security?.twoFactorEnabled ?? false}
+                    onChange={(checked: boolean) =>
+                      handleSecurityUpdate({ twoFactorEnabled: checked })
+                    }
+                    label={t("security.enableTwoFactorAuth")}
+                  />
+                </div>
+              </div>
+              
+              {/* Login Notifications */}
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">{t("security.loginNotifications")}</h3>
+                <div className="flex items-center justify-between pl-4">
+                  <span className="text-gray-600">{t("security.loginNotificationsDescription")}</span>
+                  <Toggle
+                    checked={settings?.security?.loginNotifications ?? false}
+                    onChange={(checked: boolean) =>
+                      handleSecurityUpdate({ loginNotifications: checked })
+                    }
+                    label={t("security.enableLoginNotifications")}
+                  />
+                </div>
+              </div>
+              
+              {/* Auto Logout */}
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">{t("security.autoLogout")}</h3>
+                <div className="flex items-center justify-between pl-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">{t("security.autoLogoutTime")}:</span>
+                    <input 
+                      type="number" 
+                      min="1"
+                      max="10080"
+                      value={settings?.security?.autoLogoutMinutes ?? 1440}
+                      onChange={(e) => handleSecurityUpdate({ autoLogoutMinutes: parseInt(e.target.value) })}
+                      className="w-20 rounded-md border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                    />
+                    <span className="text-gray-600">min</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Connected Accounts */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-6">🔗 {t("connectedAccounts.title")}</h2>
+            <div className="space-y-6">
+              {['google', 'facebook', 'twitter'].map((provider) => {
+                const isConnected = settings?.connectedAccounts?.[provider]?.connected || false;
+                const isVisible = settings?.connectedAccounts?.[provider]?.visible || false;
+                const connectedAccounts = settings?.connectedAccounts || {};
+                
+                return (
+                  <div key={provider} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="font-medium capitalize">{provider}</span>
+                        <span className={`text-sm px-2 py-0.5 rounded-full ${isConnected ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {isConnected ? t('connectedAccounts.connected') : t('connectedAccounts.notConnected')}
+                        </span>
+                      </div>
+                      
+                      {isConnected ? (
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">{t('connectedAccounts.visibleOnProfile')}</span>
+                            <Toggle
+                              checked={isVisible}
+                              onChange={() => {
+                                const updatedAccounts = {
+                                  ...connectedAccounts,
+                                  [provider]: {
+                                    ...connectedAccounts[provider],
+                                    visible: !isVisible
+                                  }
+                                };
+                                updateSettings({ connectedAccounts: updatedAccounts });
+                              }}
+                              label=""
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const updatedAccounts = { ...connectedAccounts };
+                              delete updatedAccounts[provider];
+                              updateSettings({ connectedAccounts: updatedAccounts });
+                            }}
+                            className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md border border-red-200 transition-colors"
+                          >
+                            {t('connectedAccounts.disconnect')}
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => {
+                            // Simulate connection
+                            const updatedAccounts = {
+                              ...connectedAccounts,
+                              [provider]: {
+                                connected: true,
+                                visible: true
+                              }
+                            };
+                            updateSettings({ connectedAccounts: updatedAccounts });
+                          }}
+                          className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-dark transition-colors"
+                        >
+                          {t('connectedAccounts.connectAccount')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Privacy Settings */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-6">🔏 {t("privacy.title")}</h2>
             <div className="space-y-4">
+              {/* Profile Visibility */}
               <div className="flex items-center justify-between">
-                <span>{t("privacy.profileVisibility")}</span>
+                <span>{t("privacy.profileVisibility")}:</span>
                 <select
                   value={settings?.privacy?.profileVisibility ?? "public"}
                   onChange={(e) =>
@@ -226,14 +285,16 @@ function Settings() {
                       profileVisibility: e.target.value as "public" | "private",
                     })
                   }
-                  className="form-select"
+                  className="form-select rounded-md border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 >
                   <option value="public">{t("privacy.public")}</option>
                   <option value="private">{t("privacy.private")}</option>
                 </select>
               </div>
+              
+              {/* Show Online Status */}
               <div className="flex items-center justify-between">
-                <span>{t("privacy.showOnlineStatus")}</span>
+                <span>{t("privacy.showOnlineStatus")}:</span>
                 <Toggle
                   checked={settings?.privacy?.showOnlineStatus ?? false}
                   onChange={(checked: boolean) =>
@@ -242,28 +303,22 @@ function Settings() {
                   label={t("privacy.showOnlineStatus")}
                 />
               </div>
+              
+              {/* Show Phone Number */}
               <div className="flex items-center justify-between">
-                <span>{t("privacy.showEmail")}</span>
-                <Toggle
-                  checked={settings?.privacy?.showEmail ?? false}
-                  onChange={(checked: boolean) =>
-                    handlePrivacyUpdate({ showEmail: checked })
-                  }
-                  label={t("privacy.showEmail")}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t("Show Phone Numer")}</span>
+                <span>{t("privacy.showPhoneNumber")}:</span>
                 <Toggle
                   checked={settings?.privacy?.showPhone ?? false}
                   onChange={(checked: boolean) =>
                     handlePrivacyUpdate({ showPhone: checked })
                   }
-                  label={t("Show Phone Numer")}
+                  label={t("privacy.showPhoneNumber")}
                 />
               </div>
+              
+              {/* Allow Direct Messaging */}
               <div className="flex items-center justify-between">
-                <span>{t("privacy.allowMessaging")}</span>
+                <span>{t("privacy.allowMessaging")}:</span>
                 <Toggle
                   checked={settings?.privacy?.allowMessaging ?? false}
                   onChange={(checked: boolean) =>

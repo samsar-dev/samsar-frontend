@@ -1,6 +1,5 @@
 import React, {
   useState,
-  useEffect,
   Suspense,
   lazy,
   useMemo,
@@ -100,7 +99,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       return fuelType.charAt(0).toUpperCase() + fuelType.slice(1);
     };
 
-    const [listingAction, setListingAction] = useState<"SELL" | "RENT">("SELL");
+    const [listingAction, setListingAction] = useState<"SALE" | "RENT">("SALE");
     const [errors, setErrors] = useState<string[]>([]);
 
     const validateForm = () => {
@@ -639,58 +638,46 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     };
 
     const renderImages = () => {
-      // Create object URLs for File objects
-      const imageUrls = formData.images.map((image: File | string) => {
-        if (
-          typeof image === "object" &&
-          "type" in image &&
-          image instanceof Blob
-        ) {
-          return URL.createObjectURL(image);
-        }
-        return image;
-      });
-
-      // Cleanup function to revoke object URLs when component unmounts
-      useEffect(() => {
-        return () => {
-          imageUrls.forEach((url) => {
-            if (typeof url === "string" && url.startsWith("blob:")) {
-              URL.revokeObjectURL(url);
-            }
-          });
-        };
-      }, [imageUrls]);
+      if (!formData.images || formData.images.length === 0) {
+        return null;
+      }
 
       return (
-        <div>
-          <div className="flex justify-between items-start mb-4">
+        <div className="mt-6">
+          <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">
               {t("listings.images.uploadedImages")} ({formData.images.length})
             </h3>
             <button
               type="button"
               onClick={() => onEdit("images")}
-              className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
+              className="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 text-sm font-medium"
               aria-label={t("listings.images.edit")}
             >
-              <FaEdit className="w-5 h-5" />
-              <span className="text-sm">{t("common.edit")}</span>
+              <FaEdit className="w-4 h-4" />
+              <span>{t("common.edit")}</span>
             </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {imageUrls.map((url, index) => (
-              <div
-                key={index}
-                className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
-              >
-                <ImageFallback
-                  src={url}
-                  alt={`${t("listings.images.image")} ${index + 1}`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))}
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+            {formData.images.map((image, index) => {
+              // Handle both File objects and URLs
+              const src = typeof image === 'string' 
+                ? image 
+                : URL.createObjectURL(image);
+                
+              return (
+                <div
+                  key={index}
+                  className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
+                >
+                  <ImageFallback
+                    src={src}
+                    alt={`${t("listings.images.image")} ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -810,22 +797,22 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="button"
-              onClick={() => setListingAction("SELL")}
+              onClick={() => setListingAction("SALE")}
               className={`flex-1 p-4 rounded-lg border-2 transition-colors flex flex-col items-center ${
-                listingAction === "SELL"
+                listingAction === "SALE"
                   ? "bg-blue-100 border-blue-500 dark:bg-blue-900/50 dark:border-blue-500"
                   : "bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
               }`}
-              aria-pressed={listingAction === "SELL"}
+              aria-pressed={listingAction === "SALE"}
             >
               <FaCheck
                 className={`w-8 h-8 mb-2 ${
-                  listingAction === "SELL" ? "text-blue-500" : "text-gray-400"
+                  listingAction === "SALE" ? "text-blue-500" : "text-gray-400"
                 }`}
               />
-              <span className="text-lg font-medium">{t("listings.sell")}</span>
+              <span className="text-lg font-medium">{t("listings.sale")}</span>
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-                {t("listings.sellDescription")}
+                {t("listings.saleDescription")}
               </p>
             </button>
 
