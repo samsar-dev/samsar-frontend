@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import NotificationSettings from "@/components/settings/NotificationSettings";
+import SecuritySettings from "@/components/settings/SecuritySettings";
+import PrivacySettings from "@/components/settings/PrivacySettings";
 import DeleteAccount from "@/components/settings/DeleteAccount";
+import { Tab } from "@headlessui/react";
 
 import type {
   PreferenceSettings as PreferenceSettingsType,
@@ -37,11 +40,6 @@ const Toggle: React.FC<ToggleProps> = ({
 );
 
 interface SettingsState {
-  notifications?: {
-    email: boolean;
-    push: boolean;
-    desktop: boolean;
-  };
   privacy: {
     profileVisibility: "public" | "private";
     showOnlineStatus: boolean;
@@ -54,7 +52,6 @@ interface SettingsState {
 function Settings() {
   const { t, i18n } = useTranslation("settings");
   const { settings, updateSettings } = useSettings();
-  // debounce state
   const [debouncedToggles, setDebouncedToggles] = useState(settings);
   const isRTL = i18n.language === "ar";
 
@@ -67,11 +64,9 @@ function Settings() {
   }, [settings]);
 
   useEffect(() => {
-    console.log("settings", settings);
     const sendUpdateSettingsToServer = async () => {
       try {
         const response = await SettingsAPI.updatePrivacySettings(settings);
-        console.log("response", response);
         if (response.error) {
           throw new Error(response.error);
         }
@@ -101,6 +96,16 @@ function Settings() {
     updateSettings({ privacy: { ...settings?.privacy, ...updates } });
   };
 
+  // Define the tabs for the settings page
+  const tabs = [
+    { name: t("preferences"), icon: "⚙️" },
+    { name: t("notifications.title"), icon: "🔔" },
+    { name: t("security.title"), icon: "🔐" },
+    { name: t("privacy.title"), icon: "🔒" },
+    { name: t("connectedAccounts.title"), icon: "🔗" },
+    { name: t("account.title"), icon: "👤" },
+  ];
+
   return (
     <div
       className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isRTL ? "rtl" : "ltr"}`}
@@ -111,277 +116,214 @@ function Settings() {
           <p className="mt-2 text-gray-600">{t("settingsDescription")}</p>
         </div>
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">{t("preferences")}</h2>
-            <PreferenceSettings
-              settings={settings?.preferences || {}}
-              onUpdate={handlePreferenceUpdate}
-              isRTL={isRTL}
-            />
-          </div>
-        </div>
-
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("notifications.title")}
-            </h2>
-            <NotificationSettings
-              notifications={
-                settings?.notifications || {
-                  email: false,
-                  push: false,
-                  desktop: false,
-                }
-              }
-              onUpdate={(notifications) => updateSettings({ notifications })}
-            />
-          </div>
-        </div>
-
-        {/* Security Settings */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              🔐 {t("security.title")}
-            </h2>
-            <div className="space-y-6">
-              {/* Two-Factor Authentication */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">
-                  {t("security.twoFactorAuth")}
-                </h3>
-                <div className="flex items-center justify-between pl-4">
-                  <span className="text-gray-600">
-                    {t("security.twoFactorDescription")}
-                  </span>
-                  <Toggle
-                    checked={settings?.security?.twoFactorEnabled ?? false}
-                    onChange={(checked: boolean) =>
-                      handleSecurityUpdate({ twoFactorEnabled: checked })
-                    }
-                    label={t("security.enableTwoFactorAuth")}
-                  />
-                </div>
-              </div>
-
-              {/* Login Notifications */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">
-                  {t("security.loginNotifications")}
-                </h3>
-                <div className="flex items-center justify-between pl-4">
-                  <span className="text-gray-600">
-                    {t("security.loginNotificationsDescription")}
-                  </span>
-                  <Toggle
-                    checked={settings?.security?.loginNotifications ?? false}
-                    onChange={(checked: boolean) =>
-                      handleSecurityUpdate({ loginNotifications: checked })
-                    }
-                    label={t("security.enableLoginNotifications")}
-                  />
-                </div>
-              </div>
-
-              {/* Auto Logout */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">
-                  {t("security.autoLogout")}
-                </h3>
-                <div className="flex items-center justify-between pl-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-600">
-                      {t("security.autoLogoutTime")}:
-                    </span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10080"
-                      value={settings?.security?.autoLogoutMinutes ?? 1440}
-                      onChange={(e) =>
-                        handleSecurityUpdate({
-                          autoLogoutMinutes: parseInt(e.target.value),
-                        })
-                      }
-                      className="w-20 rounded-md border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                    />
-                    <span className="text-gray-600">min</span>
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <Tab.Group>
+            <Tab.List className="flex border-b border-gray-200 bg-gray-50">
+              {tabs.map((tab) => (
+                <Tab
+                  key={tab.name}
+                  className={({ selected }) =>
+                    `flex-1 py-4 px-1 text-center focus:outline-none ${
+                      selected
+                        ? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+                        : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`
+                  }
+                >
+                  <div className="flex flex-col items-center justify-center space-y-1">
+                    <span className="text-xl">{tab.icon}</span>
+                    <span>{tab.name}</span>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                </Tab>
+              ))}
+            </Tab.List>
+            
+            <Tab.Panels>
+              {/* Preferences Panel */}
+              <Tab.Panel className="p-6">
+                <PreferenceSettings
+                  settings={settings?.preferences || {}}
+                  onUpdate={handlePreferenceUpdate}
+                  isRTL={isRTL}
+                />
+              </Tab.Panel>
 
-        {/* Connected Accounts */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              🔗 {t("connectedAccounts.title")}
-            </h2>
-            <div className="space-y-6">
-              {["google", "facebook", "twitter"].map((provider) => {
-                const isConnected =
-                  settings?.connectedAccounts?.[provider]?.connected || false;
-                const isVisible =
-                  settings?.connectedAccounts?.[provider]?.visible || false;
-                const connectedAccounts = settings?.connectedAccounts || {};
+              {/* Notifications Panel */}
+              <Tab.Panel className="p-6">
+                <NotificationSettings
+                  notifications={
+                    settings?.notifications || {
+                      generalUpdates: false,
+                      newInboxMessages: false,
+                      orderUpdates: false,
+                      listingUpdates: false,
+                      pushNotifications: false,
+                      newsletter: false,
+                    }
+                  }
+                  onUpdate={(notifications) => updateSettings({ notifications })}
+                />
+              </Tab.Panel>
 
-                return (
-                  <div
-                    key={provider}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="font-medium capitalize">
-                          {provider}
-                        </span>
-                        <span
-                          className={`text-sm px-2 py-0.5 rounded-full ${isConnected ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
+              {/* Security Panel */}
+              <Tab.Panel className="p-6">
+                <SecuritySettings
+                  settings={settings?.security || {}}
+                  onUpdate={handleSecurityUpdate}
+                  isRTL={isRTL}
+                />
+              </Tab.Panel>
+
+              {/* Privacy Panel */}
+              <Tab.Panel className="p-6">
+                <div className="space-y-6">
+                  {/* Profile Visibility */}
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">
+                      {t("privacy.profileVisibility")}
+                    </h3>
+                    <div className="pl-4">
+                      <div className="flex items-center space-x-4">
+                        <select
+                          value={settings?.privacy?.profileVisibility ?? "public"}
+                          onChange={(e) =>
+                            handlePrivacyUpdate({
+                              profileVisibility: e.target.value as
+                                | "public"
+                                | "private",
+                            })
+                          }
+                          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
-                          {isConnected
-                            ? t("connectedAccounts.connected")
-                            : t("connectedAccounts.notConnected")}
-                        </span>
+                          <option value="public">{t("privacy.public")}</option>
+                          <option value="private">{t("privacy.private")}</option>
+                        </select>
                       </div>
-
-                      {isConnected ? (
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">
-                              {t("connectedAccounts.visibleOnProfile")}
-                            </span>
-                            <Toggle
-                              checked={isVisible}
-                              onChange={() => {
-                                const updatedAccounts = {
-                                  ...connectedAccounts,
-                                  [provider]: {
-                                    ...connectedAccounts[provider],
-                                    visible: !isVisible,
-                                  },
-                                };
-                                updateSettings({
-                                  connectedAccounts: updatedAccounts,
-                                });
-                              }}
-                              label=""
-                            />
-                          </div>
-                          <button
-                            onClick={() => {
-                              const updatedAccounts = { ...connectedAccounts };
-                              delete updatedAccounts[provider];
-                              updateSettings({
-                                connectedAccounts: updatedAccounts,
-                              });
-                            }}
-                            className="px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md border border-red-200 transition-colors"
-                          >
-                            {t("connectedAccounts.disconnect")}
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            // Simulate connection
-                            const updatedAccounts = {
-                              ...connectedAccounts,
-                              [provider]: {
-                                connected: true,
-                                visible: true,
-                              },
-                            };
-                            updateSettings({
-                              connectedAccounts: updatedAccounts,
-                            });
-                          }}
-                          className="px-4 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary-dark transition-colors"
-                        >
-                          {t("connectedAccounts.connectAccount")}
-                        </button>
-                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
-        {/* Privacy Settings */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              🔏 {t("privacy.title")}
-            </h2>
-            <div className="space-y-4">
-              {/* Profile Visibility */}
-              <div className="flex items-center justify-between">
-                <span>{t("privacy.profileVisibility")}:</span>
-                <select
-                  value={settings?.privacy?.profileVisibility ?? "public"}
-                  onChange={(e) =>
-                    handlePrivacyUpdate({
-                      profileVisibility: e.target.value as "public" | "private",
-                    })
-                  }
-                  className="form-select rounded-md border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                >
-                  <option value="public">{t("privacy.public")}</option>
-                  <option value="private">{t("privacy.private")}</option>
-                </select>
-              </div>
+                  {/* Show Online Status */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pl-4">
+                      <span className="text-gray-600">
+                        {t("privacy.showOnlineStatus")}
+                      </span>
+                      <Toggle
+                        checked={settings?.privacy?.showOnlineStatus ?? true}
+                        onChange={(checked: boolean) =>
+                          handlePrivacyUpdate({ showOnlineStatus: checked })
+                        }
+                        label=""
+                      />
+                    </div>
+                  </div>
 
-              {/* Show Online Status */}
-              <div className="flex items-center justify-between">
-                <span>{t("privacy.showOnlineStatus")}:</span>
-                <Toggle
-                  checked={settings?.privacy?.showOnlineStatus ?? false}
-                  onChange={(checked: boolean) =>
-                    handlePrivacyUpdate({ showOnlineStatus: checked })
-                  }
-                  label={t("privacy.showOnlineStatus")}
-                />
-              </div>
+                  {/* Show Phone Number */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pl-4">
+                      <span className="text-gray-600">
+                        {t("privacy.showPhoneNumber")}
+                      </span>
+                      <Toggle
+                        checked={settings?.privacy?.showPhone ?? false}
+                        onChange={(checked: boolean) =>
+                          handlePrivacyUpdate({ showPhone: checked })
+                        }
+                        label=""
+                      />
+                    </div>
+                  </div>
 
-              {/* Show Phone Number */}
-              <div className="flex items-center justify-between">
-                <span>{t("privacy.showPhoneNumber")}:</span>
-                <Toggle
-                  checked={settings?.privacy?.showPhone ?? false}
-                  onChange={(checked: boolean) =>
-                    handlePrivacyUpdate({ showPhone: checked })
-                  }
-                  label={t("privacy.showPhoneNumber")}
-                />
-              </div>
+                  {/* Show Email */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pl-4">
+                      <span className="text-gray-600">
+                        {t("privacy.showEmail")}
+                      </span>
+                      <Toggle
+                        checked={settings?.privacy?.showEmail ?? false}
+                        onChange={(checked: boolean) =>
+                          handlePrivacyUpdate({ showEmail: checked })
+                        }
+                        label=""
+                      />
+                    </div>
+                  </div>
 
-              {/* Allow Direct Messaging */}
-              <div className="flex items-center justify-between">
-                <span>{t("privacy.allowMessaging")}:</span>
-                <Toggle
-                  checked={settings?.privacy?.allowMessaging ?? false}
-                  onChange={(checked: boolean) =>
-                    handlePrivacyUpdate({ allowMessaging: checked })
-                  }
-                  label={t("privacy.allowMessaging")}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+                  {/* Allow Direct Messaging */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pl-4">
+                      <span className="text-gray-600">
+                        {t("privacy.allowDirectMessaging")}
+                      </span>
+                      <Toggle
+                        checked={settings?.privacy?.allowMessaging ?? true}
+                        onChange={(checked: boolean) =>
+                          handlePrivacyUpdate({ allowMessaging: checked })
+                        }
+                        label=""
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Tab.Panel>
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              {t("account.deleteAccount")}
-            </h2>
-            <DeleteAccount />
-          </div>
+              {/* Connected Accounts Panel */}
+              <Tab.Panel className="p-6">
+                <div className="space-y-4">
+                  {/* Google */}
+                  <div className="flex items-center justify-between border-b pb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white">
+                        G
+                      </div>
+                      <span className="font-medium">
+                        {t("connectedAccounts.google")}
+                      </span>
+                    </div>
+                    <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      {t("connectedAccounts.connect")}
+                    </button>
+                  </div>
+
+                  {/* Facebook */}
+                  <div className="flex items-center justify-between border-b pb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                        f
+                      </div>
+                      <span className="font-medium">
+                        {t("connectedAccounts.facebook")}
+                      </span>
+                    </div>
+                    <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      {t("connectedAccounts.connect")}
+                    </button>
+                  </div>
+
+                  {/* Twitter */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white">
+                        t
+                      </div>
+                      <span className="font-medium">
+                        {t("connectedAccounts.twitter")}
+                      </span>
+                    </div>
+                    <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      {t("connectedAccounts.connect")}
+                    </button>
+                  </div>
+                </div>
+              </Tab.Panel>
+
+              {/* Account Panel */}
+              <Tab.Panel className="p-6">
+                <DeleteAccount />
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
         </div>
       </div>
     </div>

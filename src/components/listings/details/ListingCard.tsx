@@ -219,9 +219,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 // Handle special cases
                 if (
                   translationKey === "cvt" ||
-                  translationKey === "continuously_variable"
+                  translationKey === "continuously_variable" ||
+                  translationKey === "continuouslyvariable"
                 ) {
-                  translationKey = "continuouslyVariable";
+                  return "CVT";
                 } else if (
                   translationKey === "semi_automatic" ||
                   translationKey === "semi-automatic"
@@ -325,7 +326,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     defaultValue: category.subCategory,
                   },
                 )}
-              </span>
+              </span> 
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                   listingAction === ListingAction.SALE
@@ -432,9 +433,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
                         // Handle special cases
                         if (
                           translationKey === "cvt" ||
-                          translationKey === "continuously_variable"
+                          translationKey === "continuously_variable" ||
+                          translationKey === "continuouslyvariable"
                         ) {
-                          translationKey = "continuouslyVariable";
+                          return "CVT";
                         } else if (
                           translationKey === "semi_automatic" ||
                           translationKey === "semi-automatic"

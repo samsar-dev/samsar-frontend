@@ -8,10 +8,22 @@ export interface Theme {
 }
 
 export interface NotificationPreferences {
-  email: boolean;
-  push: boolean;
-  listing: boolean;
-  message: boolean;
+  // Email Notifications
+  generalUpdates: boolean;
+  newInboxMessages: boolean;
+  orderUpdates: boolean;
+  listingUpdates: boolean;
+  
+  // Push Notifications
+  pushNotifications: boolean;
+  
+  // Newsletter
+  newsletter: boolean;
+  
+  // Legacy fields (keep for backward compatibility)
+  email?: boolean;
+  push?: boolean;
+  message?: boolean;
   enabledTypes?: Array<"message" | "listing">;
 }
 

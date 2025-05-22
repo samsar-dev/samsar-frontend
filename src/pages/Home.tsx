@@ -246,6 +246,7 @@ const Home: React.FC = () => {
         ...(selectedMake && { make: selectedMake }),
         ...(selectedModel && { model: selectedModel }),
         ...(selectedYear && { year: Number(selectedYear) }), // Convert string year to number
+        ...(selectedLocation && { location: selectedLocation }), // Add location parameter
         sortBy,
         sortOrder:
           sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
@@ -306,6 +307,7 @@ const Home: React.FC = () => {
     selectedMake,
     selectedModel,
     selectedYear,
+    selectedLocation,
     sortBy,
     isInitialLoad,
     t,
@@ -350,6 +352,9 @@ const Home: React.FC = () => {
       const matchesPrice = selectedPrice
         ? listing.price?.toString() === selectedPrice
         : true;
+      const matchesLocation = selectedLocation
+        ? listing.location?.toUpperCase() === selectedLocation.toUpperCase()
+        : true;
 
       return (
         matchesCategory &&
@@ -358,7 +363,8 @@ const Home: React.FC = () => {
         matchesMake &&
         matchesModel &&
         matchesYear &&
-        matchesPrice
+        matchesPrice &&
+        matchesLocation
       );
     });
     setIsFiltering(false);
@@ -372,6 +378,7 @@ const Home: React.FC = () => {
     selectedModel,
     selectedYear,
     selectedPrice,
+    selectedLocation,
   ]);
 
   // Handle category change

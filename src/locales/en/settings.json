@@ -14,19 +14,16 @@
   "notifications": {
     "title": "🔔 Notifications",
     "description": "Manage your notification preferences",
-    "email": "Email Notifications",
-    "emailDescription": "Receive updates via email",
-    "push": "Push Notifications",
-    "pushDescription": "Receive updates via push notifications",
-    "desktop": "Desktop Notifications",
-    "desktopDescription": "Receive desktop notifications",
-    "message": "Message Notifications",
-    "newMessage": "New Message Notifications",
-    "listing": "Listing Notifications",
-    "listingUpdates": "Listing Updates",
-    "priceDrops": "Price Drop Alerts",
-    "newListings": "New Listings Alerts",
-    "marketingEmails": "Marketing Emails"
+    "emailSection": "📧 Email Notifications",
+    "generalUpdates": "Receive general updates and announcements",
+    "newInboxMessages": "Get notified about new messages in your inbox",
+    "orderUpdates": "Order and message updates",
+    "listingUpdates": "Listing updates (approvals, rejections, etc.)",
+    "pushSection": "📱 Push Notifications",
+    "pushNotifications": "Instant alerts on your device",
+    "newsletter": "📰 Newsletter",
+    "newsletterDescription": "Subscribe to tips, updates, and promotions",
+    "newsletterDisclaimer": "You can unsubscribe at any time"
   },
   "account": {
     "title": "Account",
@@ -42,12 +39,14 @@
     "facebook": "Facebook",
     "twitter": "Twitter",
     "connectAccount": "Connect Account",
+    "connect": "Connect",
     "disconnect": "Disconnect",
     "visibleOnProfile": "Visible on profile",
     "connected": "Connected",
     "notConnected": "Not Connected"
   },
   "privacy": {
+    "private": "Private",
     "title": "Privacy",
     "profileVisibility": "Profile Visibility",
     "public": "Public",
@@ -55,6 +54,7 @@
 
     "showPhoneNumber": "Show phone number",
     "allowMessaging": "Allow direct messaging",
+    "allowDirectMessaging": "Allow direct messaging",
     "deleteAccount": "Delete Account",
     "visibility": "Profile Visibility",
     "showEmail": "Show email to other users",
