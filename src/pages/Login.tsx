@@ -224,6 +224,18 @@ const Login = () => {
           </div>
 
           <div className="flex items-center justify-center">
+            <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link
+                to="/password-reset"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                {t("forgotPassword")}
+              </Link>
+            </div>
+          </div>
+          </div>
+          <div className="flex items-center justify-center">
             <div className="text-sm">
               <Link
                 to="/register"

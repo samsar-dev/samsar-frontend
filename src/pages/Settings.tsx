@@ -108,25 +108,25 @@ function Settings() {
 
   return (
     <div
-      className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isRTL ? "rtl" : "ltr"}`}
+      className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isRTL ? "rtl" : "ltr"} bg-gray-50 dark:bg-gray-900`}
     >
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold">{t("title")}</h1>
-          <p className="mt-2 text-gray-600">{t("settingsDescription")}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("title")}</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">{t("settingsDescription")}</p>
         </div>
 
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="bg-white shadow rounded-lg overflow-hidden dark:bg-gray-800">
           <Tab.Group>
-            <Tab.List className="flex border-b border-gray-200 bg-gray-50">
+            <Tab.List className="flex border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
               {tabs.map((tab) => (
                 <Tab
                   key={tab.name}
                   className={({ selected }) =>
                     `flex-1 py-4 px-1 text-center focus:outline-none ${
                       selected
-                        ? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-                        : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        ? "border-b-2 border-indigo-500 font-medium text-indigo-600 dark:text-white"
+                        : "text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600"
                     }`
                   }
                 >
@@ -193,7 +193,7 @@ function Settings() {
                                 | "private",
                             })
                           }
-                          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
                           <option value="public">{t("privacy.public")}</option>
                           <option value="private">{t("privacy.private")}</option>

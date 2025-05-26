@@ -55,15 +55,21 @@ function PreferenceSettings({
   const timezones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"];
 
   return (
-    <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`}>
-      <div>
+    <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"} dark:bg-gray-800 dark:text-white`}>
+      <div className="dark">
+        <style jsx global>{`
+          .dark select option {
+            background-color: #1f2937 !important;
+            color: white !important;
+          }
+        `}</style>
         <h3 className="text-lg font-medium">{t("language")}</h3>
         <select
           value={currentSettings.language}
           onChange={(e) =>
             handleChange("language", e.target.value as LanguageCode)
           }
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           {SUPPORTED_LANGUAGES.map((lang) => (
             <option key={lang.code} value={lang.code}>
@@ -78,7 +84,7 @@ function PreferenceSettings({
         <select
           value={currentSettings.theme}
           onChange={(e) => handleChange("theme", e.target.value as ThemeType)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           {SUPPORTED_THEMES.map((theme) => (
             <option key={theme.value} value={theme.value}>
@@ -93,7 +99,7 @@ function PreferenceSettings({
         <select
           value={currentSettings.timezone}
           onChange={(e) => handleChange("timezone", e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           {timezones.map((timezone) => (
             <option key={timezone} value={timezone}>

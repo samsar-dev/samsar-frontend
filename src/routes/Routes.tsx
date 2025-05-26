@@ -55,6 +55,8 @@ const importPrivateRoute = () => import("@/components/auth/AuthRoute");
 const Home = lazy(importHome);
 const Login = lazy(importLogin);
 const VerifyCode = lazy(importVerifyCode);
+const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
+const PasswordResetVerification = lazy(() => import("@/pages/PasswordResetVerification"));
 const Register = lazy(importRegister);
 const VerifyEmail = lazy(importVerifyEmail);
 const Profile = lazy(importProfile);
@@ -131,6 +133,8 @@ const Routes = (): JSX.Element => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/password-reset" element={<PasswordReset />} />
+          <Route path="/password-reset-verification" element={<PasswordResetVerification />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/search" element={<Search />} />
