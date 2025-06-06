@@ -42,7 +42,7 @@ function PreferenceSettings({
     // If language is changed, update i18n and save to localStorage
     if (key === "language") {
       // Convert to lowercase for storage and i18n
-      const langCode = value === LanguageCode.AR ? "AR" : "en";
+      const langCode = value === LanguageCode.AR ? "ar" : "en";
       localStorage.setItem("language", langCode);
       import("i18next").then((i18n) => {
         i18n.changeLanguage(langCode);
@@ -57,12 +57,12 @@ function PreferenceSettings({
   return (
     <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"} dark:bg-gray-800 dark:text-white`}>
       <div className="dark">
-        <style jsx global>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .dark select option {
             background-color: #1f2937 !important;
             color: white !important;
           }
-        `}</style>
+        ` }} />
         <h3 className="text-lg font-medium">{t("language")}</h3>
         <select
           value={currentSettings.language}

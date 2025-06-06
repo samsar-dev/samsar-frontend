@@ -1,100 +1,20 @@
 /**
  * Auth Debugging Utility
- *
- * This file provides debugging tools to help troubleshoot authentication issues.
- * It can be imported and used in development to trace token handling.
+ * 
+ * Debug logging is currently disabled.
+ * To enable debugging, uncomment the code in this file.
  */
 
+// Import statements are kept but not used when debugging is disabled
 import TokenManager from "./tokenManager";
 import { getAuthToken, getRefreshToken } from "./cookie";
 import { getItem } from "./storage";
 
 /**
- * Logs the current authentication state to the console
+ * No-op function - Debug logging is disabled
  */
 export function logAuthState(): void {
-  console.group("🔐 Auth State Debug");
-
-  // Check cookies
-  const cookieAccessToken = getAuthToken();
-  const cookieRefreshToken = getRefreshToken();
-
-  console.log(
-    "Cookie Access Token:",
-    cookieAccessToken
-      ? `${cookieAccessToken.substring(0, 10)}...${cookieAccessToken.substring(cookieAccessToken.length - 5)}`
-      : "None",
-  );
-  console.log(
-    "Cookie Refresh Token:",
-    cookieRefreshToken
-      ? `${cookieRefreshToken.substring(0, 10)}...${cookieRefreshToken.substring(cookieRefreshToken.length - 5)}`
-      : "None",
-  );
-
-  // Check localStorage
-  const storedTokens = getItem("authTokens");
-  let localStorageTokens = null;
-
-  if (storedTokens) {
-    try {
-      localStorageTokens = JSON.parse(storedTokens);
-      console.log(
-        "LocalStorage Access Token:",
-        localStorageTokens.accessToken
-          ? `${localStorageTokens.accessToken.substring(0, 10)}...${localStorageTokens.accessToken.substring(localStorageTokens.accessToken.length - 5)}`
-          : "None",
-      );
-      console.log(
-        "LocalStorage Refresh Token:",
-        localStorageTokens.refreshToken
-          ? `${localStorageTokens.refreshToken.substring(0, 10)}...${localStorageTokens.refreshToken.substring(localStorageTokens.refreshToken.length - 5)}`
-          : "None",
-      );
-    } catch (e) {
-      console.error("Error parsing localStorage tokens:", e);
-      console.log("LocalStorage Tokens: Invalid format");
-    }
-  } else {
-    console.log("LocalStorage Tokens: None");
-  }
-
-  // Check TokenManager state
-  console.log(
-    "TokenManager.isAuthenticated():",
-    TokenManager.isAuthenticated(),
-  );
-  console.log("TokenManager.jwtPayload:", TokenManager.getJwtPayload());
-
-  // Check token validity
-  const accessToken = TokenManager.getAccessToken();
-  if (accessToken) {
-    try {
-      const isValid = TokenManager.validateTokenFormat(accessToken);
-      console.log("Token valid format:", isValid);
-
-      // Parse and check expiration
-      const parts = accessToken.split(".");
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        const expiresAt = new Date(payload.exp * 1000);
-        const timeLeft = expiresAt.getTime() - Date.now();
-
-        console.log("Token expires at:", expiresAt.toLocaleString());
-        console.log(
-          "Time until expiry:",
-          Math.floor(timeLeft / 1000 / 60),
-          "minutes,",
-          Math.floor((timeLeft / 1000) % 60),
-          "seconds",
-        );
-      }
-    } catch (e) {
-      console.error("Error checking token validity:", e);
-    }
-  }
-
-  console.groupEnd();
+  // Debug logging is disabled
 }
 
 /**

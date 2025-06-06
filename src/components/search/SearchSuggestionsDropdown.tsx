@@ -7,14 +7,44 @@ import { ListingCategory } from "@/types/enums";
 interface SearchSuggestionsDropdownProps {
   suggestions: Listing[];
   onClose: () => void;
+  isLoading?: boolean;
+  searchQuery?: string;
+  onSuggestionClick?: (id: string) => void;
 }
 
 const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   suggestions,
   onClose,
+  isLoading = false,
+  searchQuery = '',
+  onSuggestionClick,
 }) => {
   const { t } = useTranslation();
+  const query = searchQuery.trim();
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="p-3 text-center text-gray-500">
+          {t('search.searching') || 'Searching...'}
+        </div>
+      </div>
+    );
+  }
+
+  // Show no results message if we have a query but no suggestions
+  if (!suggestions.length && query) {
+    return (
+      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="p-3 text-center text-gray-500">
+          {t('search.noResults') || `No results found for "${query}"`}
+        </div>
+      </div>
+    );
+  }
+
+  // Don't show anything if no suggestions and no query
   if (!suggestions.length) return null;
 
   return (
@@ -41,9 +71,15 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
         return (
           <Link
             key={listing.id}
-            to={`/listing/${listing.id}`}
+            to={`/listings/${listing.id}`}
             className="flex items-center px-4 py-2 hover:bg-gray-100 transition-colors cursor-pointer"
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+              if (onSuggestionClick && listing.id) {
+                onSuggestionClick(String(listing.id));
+              }
+            }}
           >
             {listing.images && listing.images.length > 0 && (
               <img

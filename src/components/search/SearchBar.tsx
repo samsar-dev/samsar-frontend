@@ -5,6 +5,9 @@ import { listingsAPI } from "@/api/listings.api";
 import { SearchSuggestionsDropdown } from "./SearchSuggestionsDropdown";
 import { useNavigate } from "react-router-dom";
 import { ListingCategory } from "@/types/enums";
+import Fuse from "fuse.js";
+import { Listing } from "@/types/listings";
+import { createFuse, searchListings } from "@/utils/searchUtils";
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
@@ -14,12 +17,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   subcategory,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<Listing[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const fuseRef = useRef<Fuse<Listing> | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  let debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Close suggestions on outside click
@@ -37,30 +42,57 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Load all listings on mount for client-side search
+  useEffect(() => {
+    const loadListings = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/listings?limit=100');
+        const data = await response.json();
+        if (data.listings) {
+          fuseRef.current = createFuse(data.listings);
+        }
+      } catch (error) {
+        console.error('Failed to load listings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadListings();
+  }, []);
+
+  // Handle search when searchTerm changes
   useEffect(() => {
     if (!searchTerm) {
       setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
+
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    
     debounceTimeout.current = setTimeout(async () => {
       try {
-        // Create search params object with optional category and subcategory
+        setIsLoading(true);
+        
+        // First try client-side fuzzy search
+        if (fuseRef.current) {
+          const results = searchListings(fuseRef.current, searchTerm);
+          setSuggestions(results.slice(0, 4));
+          setShowSuggestions(true);
+          return;
+        }
+
+        // Fallback to server-side search if client-side fails
         const searchParams: any = { limit: 4 };
 
-        // Add category if provided
         if (category && category !== "all") {
           searchParams.category = {
-            mainCategory:
-              category === "vehicles"
-                ? ListingCategory.VEHICLES
-                : ListingCategory.REAL_ESTATE,
+            mainCategory: category === "vehicles" 
+              ? ListingCategory.VEHICLES 
+              : ListingCategory.REAL_ESTATE,
+            ...(subcategory ? { subCategory: subcategory } : {})
           };
-
-          // Add subcategory if provided
-          if (subcategory) {
-            searchParams.category.subCategory = subcategory;
-          }
         }
 
         const response = await listingsAPI.search(searchTerm, searchParams);
@@ -74,12 +106,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         console.error("Search error:", error);
         setSuggestions([]);
         setShowSuggestions(false);
+      } finally {
+        setIsLoading(false);
       }
     }, 300);
+
     return () => {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, [searchTerm]);
+  }, [searchTerm, category, subcategory]);
 
   const handleClear = () => {
     setSearchTerm("");
@@ -191,19 +226,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <SearchSuggestionsDropdown
               suggestions={suggestions}
               onClose={() => setShowSuggestions(false)}
+              isLoading={isLoading}
+              searchQuery={searchTerm}
+              onSuggestionClick={handleSuggestionClick}
             />
-            {/* Overlay clickable area to handle suggestion clicks */}
-            <div
-              className="absolute inset-0"
-              style={{ pointerEvents: "none" }}
+            {/* Click outside to close */}
+            <div 
+              className="fixed inset-0 bg-black opacity-0 z-40"
+              onClick={() => setShowSuggestions(false)}
             />
-            {suggestions.map((s) => (
-              <div
-                key={s.id}
-                style={{ display: "none" }}
-                onClick={() => handleSuggestionClick(s.id)}
-              />
-            ))}
           </div>
         )}
       </div>

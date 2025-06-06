@@ -7,32 +7,12 @@ import { Listing } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 
-// Debug info interface for type safety
-interface DebugInfo {
-  query: string;
-  params: any;
-  response: {
-    success: boolean;
-    hasData: boolean;
-    dataType: string;
-    isArray: boolean | null;
-    dataKeys: string[];
-    error?: string;
-  };
-  clientSideFiltering?: {
-    applied: boolean;
-    totalFetched: number;
-    matchesFound: number;
-  };
-}
-
 const Search: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   // Get query from search params
   const query = searchParams.get("q") || "";
@@ -41,7 +21,6 @@ const Search: React.FC = () => {
     console.log("fetchListings called with query:", query);
     setLoading(true);
     setError(null);
-    setDebugInfo(null);
 
     const category = searchParams.get("category");
     const subcategory = searchParams.get("subcategory");
@@ -85,19 +64,6 @@ const Search: React.FC = () => {
       const response = await listingsAPI.search(query, params);
       console.log("Search component - Response received:", response);
 
-      // Save debug info
-      setDebugInfo({
-        query,
-        params,
-        response: {
-          success: response.success,
-          hasData: !!response.data,
-          dataType: response.data ? typeof response.data : "null",
-          isArray: response.data && Array.isArray(response.data),
-          dataKeys: response.data ? Object.keys(response.data) : [],
-          error: response.error,
-        },
-      });
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
@@ -168,14 +134,6 @@ const Search: React.FC = () => {
               );
               setListings(matchedListings);
               setError(null);
-              setDebugInfo((prev) => ({
-                ...(prev as DebugInfo),
-                clientSideFiltering: {
-                  applied: true,
-                  totalFetched: allListings.length,
-                  matchesFound: matchedListings.length,
-                },
-              }));
               setLoading(false);
               return;
             }
@@ -209,9 +167,6 @@ const Search: React.FC = () => {
     return () => clearTimeout(timer);
   }, [query, fetchListings]);
 
-  // Only show debug info in development
-  const showDebug = process.env.NODE_ENV === "development";
-
   return (
     <div className="container mx-auto px-4 py-8">
       {searchParams.get("q") && (
@@ -225,12 +180,7 @@ const Search: React.FC = () => {
       ) : error ? (
         <div className="text-center py-8">
           <p className="text-red-600 dark:text-red-400">{error}</p>
-          {showDebug && debugInfo && (
-            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
-              <h3 className="font-bold mb-2">Debug Information:</h3>
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
-          )}
+
         </div>
       ) : !query ? (
         <div className="text-center py-8">
@@ -243,12 +193,7 @@ const Search: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">
             {t("search.no_results")}
           </p>
-          {showDebug && debugInfo && (
-            <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
-              <h3 className="font-bold mb-2">Debug Information:</h3>
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
-          )}
+
         </div>
       ) : (
         <>
@@ -264,12 +209,7 @@ const Search: React.FC = () => {
             ))}
           </div>
 
-          {showDebug && debugInfo && (
-            <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded text-left overflow-auto text-xs">
-              <h3 className="font-bold mb-2">Debug Information:</h3>
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
-          )}
+
         </>
       )}
     </div>

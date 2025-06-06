@@ -400,6 +400,7 @@ interface ListingsAPI {
     category: ListingCategory,
   ): Promise<APIResponse<Listing>>;
   getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>>;
+  fuzzyMatch(text: string, search: string): boolean;
 }
 
 export const listingsAPI: ListingsAPI = {
@@ -1608,6 +1609,70 @@ export const listingsAPI: ListingsAPI = {
     }
   },
 
+  // Helper function for fuzzy string matching
+  fuzzyMatch: function(text: string, search: string): boolean {
+    if (!text || !search) return false;
+    
+    const textLower = text.toLowerCase();
+    const searchLower = search.toLowerCase();
+    
+    // Direct match (includes partial matches)
+    if (textLower.includes(searchLower)) return true;
+    
+    // Simple fuzzy matching for typos (e.g., 'hundai' matches 'hyundai')
+    if (searchLower.length >= 4) { // Only apply fuzzy for longer search terms
+      // Check for common typos or transposed letters
+      const commonTypos: Record<string, string[]> = {
+        'hyundai': ['hundai', 'hundyai', 'hyundia', 'hundi'],
+        'toyota': ['toyata', 'toyoto', 'toyoda'],
+        'mercedes': ['mercedez', 'merceds', 'mercedec'],
+        'bmw': ['bmv', 'bwm']
+      };
+      
+      // Check if search term is a common typo for any known brand
+      for (const [brand, typos] of Object.entries(commonTypos)) {
+        if (typos.includes(searchLower) && textLower.includes(brand)) {
+          return true;
+        }
+      }
+      
+      // Check for character transpositions (e.g., 'hyundia' -> 'hyundai')
+      if (searchLower.length >= 5) {
+        for (let i = 0; i < searchLower.length - 1; i++) {
+          const transposed = 
+            searchLower.substring(0, i) + 
+            searchLower[i + 1] + searchLower[i] + 
+            searchLower.substring(i + 2);
+          if (textLower.includes(transposed)) return true;
+        }
+      }
+      
+      // Check for missing/extra characters (e.g., 'hyndai' -> 'hyundai')
+      if (Math.abs(searchLower.length - textLower.length) <= 1) {
+        let diff = 0;
+        let i = 0, j = 0;
+        
+        while (i < searchLower.length && j < textLower.length) {
+          if (searchLower[i] !== textLower[j]) {
+            diff++;
+            if (diff > 1) break;
+            if (searchLower.length > textLower.length) i++;
+            else if (searchLower.length < textLower.length) j++;
+            else { i++; j++; }
+          } else {
+            i++;
+            j++;
+          }
+        }
+        
+        diff += (searchLower.length - i) + (textLower.length - j);
+        if (diff <= 1) return true;
+      }
+    }
+    
+    return false;
+  },
+
   // Search listings
   async search(
     query: string,
@@ -1729,20 +1794,19 @@ export const listingsAPI: ListingsAPI = {
                   }
                 }
 
-                // Search in title, description, and vehicle make/model if available
-                const searchIn = [
-                  listing.title?.toLowerCase(),
-                  listing.description?.toLowerCase(),
-                  listing.details?.vehicles?.make?.toLowerCase(),
-                  listing.details?.vehicles?.model?.toLowerCase(),
-                ].filter(Boolean); // Remove undefined values
-
                 // If query is empty (just filtering by category), return true
                 if (!normalizedQuery) return true;
 
-                // Otherwise check if any of the searchable fields include the query
-                return searchIn.some(
-                  (text) => text && text.includes(normalizedQuery),
+                // Check each field with fuzzy matching
+                const fieldsToSearch = [
+                  listing.title,
+                  listing.description,
+                  listing.details?.vehicles?.make,
+                  listing.details?.vehicles?.model,
+                ];
+
+                return fieldsToSearch.some(
+                  (field) => field && this.fuzzyMatch(field, normalizedQuery)
                 );
               });
 

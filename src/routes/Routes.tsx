@@ -75,6 +75,10 @@ const Vehicles = lazy(importVehicles);
 const RealEstate = lazy(importRealEstate);
 const ListingSuccess = lazy(importListingSuccess);
 const PrivateRoute = lazy(importPrivateRoute);
+const About = lazy(() => import("@/pages/About"));
+const ContactUs = lazy(() => import("@/pages/ContactUs"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 // Create a skeleton component for listings
 const ListingSkeleton = () => (
@@ -146,6 +150,12 @@ const Routes = (): JSX.Element => {
           <Route path="/listingsuccess" element={<ListingSuccess />} />
           <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/users/:userId" element={<UserProfile />} />
+          
+          {/* New static pages */}
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
 
           {/* Protected routes */}
           <Route

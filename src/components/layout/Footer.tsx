@@ -33,14 +33,6 @@ const Footer: React.FC = () => {
                   {t("footer.contact_us", "Contact Us")}
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/careers"
-                  className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
-                >
-                  {t("footer.careers.title", "Careers")}
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -52,7 +44,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/privacy"
+                  to="/privacy-policy"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
                   {t("settings.privacy", "Privacy Policy")}

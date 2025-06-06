@@ -5,7 +5,6 @@
   "contact_us": "Contact Us",
   "help_center": "Help Center",
   "terms_of_service": "Terms of Service",
-  "privacy_policy": "Privacy Policy",
   "copyright": "© 2025 Best Website. All rights reserved.",
   "follow_us": "Follow Us",
   "newsletter": {
@@ -17,7 +16,6 @@
   },
   "links": {
     "about": "About Us",
-    "careers": "Careers",
     "blog": "Blog",
     "press": "Press",
     "partners": "Partners",
@@ -28,12 +26,139 @@
     "contact": "Contact",
     "feedback": "Feedback"
   },
-  "careers": {
-    "title": "Careers"
-  },
   "terms": {
     "title": "Terms of Service"
   },
   "all_rights_reserved": "All rights reserved",
-  "categories": "Categories"
+  "categories": "Categories",
+  "about_page": {
+    "title": "About Our Marketplace",
+    "subtitle": "Connecting buyers and sellers in the vehicle and real estate markets with a seamless, transparent, and secure platform.",
+    "features": {
+      "mission": {
+        "title": "Our Mission",
+        "description": "To connect buyers and sellers in the vehicle and real estate markets with a seamless, transparent, and secure platform."
+      },
+      "trust": {
+        "title": "Trust & Safety",
+        "description": "We prioritize your security with verified listings and secure transactions."
+      },
+      "selection": {
+        "title": "Wide Selection",
+        "description": "From luxury vehicles to prime real estate, find exactly what you're looking for."
+      },
+      "support": {
+        "title": "Expert Support",
+        "description": "Our team is here to help you every step of the way."
+      }
+    },
+    "story": {
+      "title": "Our Story",
+      "content": "Founded in 2023, our marketplace was born from a simple idea: to create a better way to buy and sell vehicles and real estate. Today, we serve thousands of satisfied customers with a platform that combines cutting-edge technology with exceptional service."
+    }
+  },
+  "privacy_policy": {
+    "title": "Privacy Policy",
+    "last_updated": "Last Updated: June 5, 2025",
+    "welcome": "Welcome to our Privacy Policy. Your privacy is critically important to us. This Privacy Policy applies to our website and all related services, sales, marketing, and events (we refer to them collectively in this Privacy Policy as the 'Services').",
+    "sections": {
+      "information_we_collect": {
+        "title": "Information We Collect",
+        "description": "We collect information that you provide directly to us, including:",
+        "items": [
+          "Account information (name, email, phone number)",
+          "Property or vehicle listing details",
+          "Payment and transaction information",
+          "Communications and customer support data"
+        ],
+        "additional_info": "We also automatically collect certain information when you use our services, such as IP address, browser type, and usage data."
+      },
+      "how_we_use": {
+        "title": "How We Use Your Information",
+        "description": "We use the information we collect to:",
+        "items": [
+          "Provide, maintain, and improve our services",
+          "Process transactions and send related information",
+          "Respond to your comments, questions, and requests",
+          "Send you technical notices and support messages",
+          "Monitor and analyze trends, usage, and activities",
+          "Detect, investigate, and prevent fraudulent transactions"
+        ]
+      },
+      "information_sharing": {
+        "title": "Information Sharing",
+        "description": "We may share your information in the following ways:",
+        "items": [
+          "With vendors and service providers who need access to such information to carry out work on our behalf",
+          "In response to a request for information if we believe disclosure is required by law",
+          "In connection with, or during negotiations of, any merger, sale of company assets, financing, or acquisition",
+          "With your consent or at your direction"
+        ],
+        "additional_info": "We do not sell or rent your personal information to third parties for their marketing purposes without your explicit consent."
+      },
+      "your_choices": {
+        "title": "Your Choices",
+        "description": "You have the following choices regarding your information:",
+        "items": [
+          {"label": "Account Information:", "text": "You may update or correct your account information at any time by logging into your account."},
+          {"label": "Cookies:", "text": "Most web browsers are set to accept cookies by default. You can usually choose to set your browser to remove or reject browser cookies."},
+          {"label": "Promotional Communications:", "text": "You may opt out of receiving promotional emails from us by following the instructions in those emails."},
+          {"label": "Mobile Push Notifications:", "text": "You can opt out of receiving push notifications through your device settings."}
+        ]
+      },
+      "changes_to_policy": {
+        "title": "Changes to This Policy",
+        "description": "We may update this Privacy Policy from time to time. The updated version will be indicated by an updated 'Last Updated' date and the updated version will be effective as soon as it is accessible. We encourage you to review this Privacy Policy frequently to be informed of how we are protecting your information."
+      },
+      "contact_us": {
+        "title": "Contact Us",
+        "description": "If you have any questions about this Privacy Policy, please contact us at:",
+        "email": "privacy@marketplace.com",
+        "phone": "+1 (555) 123-4567",
+        "address": [
+          "123 Marketplace Street",
+          "New York, NY 10001",
+          "United States"
+        ]
+      }
+    }
+  },
+  "contact_page": {
+    "title": "Contact Us",
+    "subtitle": "Have questions? We're here to help. Reach out to our team and we'll get back to you as soon as possible.",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "subject": "Subject",
+      "message": "Your Message",
+      "sendButton": "Send Message"
+    },
+    "contactInfo": {
+      "title": "Contact Information",
+      "office": {
+        "label": "Our Office",
+        "address1": "123 Marketplace Street",
+        "address2": "New York, NY 10001",
+        "address3": "United States"
+      },
+      "phone": {
+        "label": "Phone",
+        "number": "+1 (555) 123-4567"
+      },
+      "email": {
+        "label": "Email",
+        "address": "support@marketplace.com"
+      }
+    },
+    "businessHours": {
+      "title": "Business Hours",
+      "weekdays": "Monday - Friday:",
+      "weekdaysTime": "9:00 AM - 6:00 PM",
+      "saturday": "Saturday:",
+      "saturdayTime": "10:00 AM - 4:00 PM",
+      "sunday": "Sunday:",
+      "sundayTime": "Closed"
+    }
+  }
 }
