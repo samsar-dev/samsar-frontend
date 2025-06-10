@@ -1,7 +1,7 @@
 import { useCreateListing } from "@/hooks/useCreateListing";
-import React, { useCallback, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import isEqual from "lodash/isEqual";
+import { useListingPermission } from "@/hooks/useListingPermission";
+import { useAuth } from "@/hooks/useAuth";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import {
   Condition,
   FuelType,
@@ -12,7 +12,9 @@ import {
   VehicleType,
 } from "@/types/enums";
 import { AnimatePresence, motion } from "framer-motion";
-import { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useCallback, useMemo, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import isEqual from "lodash/isEqual";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
@@ -159,8 +161,45 @@ const initialFormState: FormState = {
   // Removed duplicate listingAction property
 };
 
-const CreateListing: React.FC = () => {
+const CreateListing = () => {
+  const { user } = useAuth();
+  const { canCreate, maxListings, currentListings, isLoading } = useListingPermission();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  
+  // Check if user can create listings
+  useEffect(() => {
+    if (!isLoading && !canCreate && user?.role === 'USER') {
+      toast.error('You need to upgrade your account to create more listings');
+      setShowUpgradePrompt(true);
+    } else {
+      setShowUpgradePrompt(false);
+    }
+  }, [canCreate, isLoading, user?.role]);
+  
+  // Show upgrade prompt for free users who have reached their limit
+  if (showUpgradePrompt) {
+    return (
+      <UpgradePrompt 
+        maxListings={maxListings} 
+        currentListings={currentListings}
+        onUpgrade={() => {
+          // Redirect to subscription page or show upgrade modal
+          window.location.href = '/subscription';
+        }}
+      />
+    );
+  }
+
   const { t } = useTranslation();
+  
+  // Show loading state while checking permissions
+  if (isLoading || user === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
   const navigate = useNavigate();
   const { handleSubmit: submitListing } = useCreateListing();
   const [step, setStep] = useState(1);
