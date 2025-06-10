@@ -163,43 +163,18 @@ const initialFormState: FormState = {
 
 const CreateListing = () => {
   const { user } = useAuth();
-  const { canCreate, maxListings, currentListings, isLoading } = useListingPermission();
+  const { 
+    canCreate, 
+    maxListings, 
+    currentListings, 
+    isLoading, 
+    userRole,
+    error: permissionError 
+  } = useListingPermission();
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  
-  // Check if user can create listings
-  useEffect(() => {
-    if (!isLoading && !canCreate && user?.role === 'USER') {
-      toast.error('You need to upgrade your account to create more listings');
-      setShowUpgradePrompt(true);
-    } else {
-      setShowUpgradePrompt(false);
-    }
-  }, [canCreate, isLoading, user?.role]);
-  
-  // Show upgrade prompt for free users who have reached their limit
-  if (showUpgradePrompt) {
-    return (
-      <UpgradePrompt 
-        maxListings={maxListings} 
-        currentListings={currentListings}
-        onUpgrade={() => {
-          // Redirect to subscription page or show upgrade modal
-          window.location.href = '/subscription';
-        }}
-      />
-    );
-  }
 
+  // Initialize hooks and state (must run on every render to keep hooks order consistent)
   const { t } = useTranslation();
-  
-  // Show loading state while checking permissions
-  if (isLoading || user === undefined) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
   const navigate = useNavigate();
   const { handleSubmit: submitListing } = useCreateListing();
   const [step, setStep] = useState(1);
@@ -207,6 +182,25 @@ const CreateListing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Check if user can create listings
+  useEffect(() => {
+    if (isLoading) return;
+    
+    // Only show upgrade prompt for non-admin users who can't create more listings
+    if (!canCreate && userRole === 'USER') {
+      toast.error(permissionError || 'You need to upgrade your account to create more listings');
+      setShowUpgradePrompt(true);
+    } else {
+      setShowUpgradePrompt(false);
+    }
+  }, [canCreate, isLoading, userRole, permissionError]);
+  
+  // Show upgrade prompt for free users who have reached their limit
+  // (early return removed – we now render conditionally in the main JSX)
+  
+  // Show loading state while checking permissions
+  // (early return removed – we now render conditionally in the main JSX)
+  
   // Track form changes to ensure hasUnsavedChanges works correctly
   const hasUnsavedChanges = !isEqual(formData, initialFormState);
 
@@ -556,8 +550,27 @@ const CreateListing = () => {
     [t],
   );
 
-  if (error) {
-    return (
+  // Pre-compute main content based on state to avoid conditional early returns that break hook order
+  let bodyContent: React.ReactNode = null;
+
+  if (isLoading || user === undefined) {
+    bodyContent = (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  } else if (showUpgradePrompt) {
+    bodyContent = (
+      <UpgradePrompt
+        maxListings={maxListings}
+        currentListings={currentListings}
+        onUpgrade={() => {
+          window.location.href = "/subscription";
+        }}
+      />
+    );
+  } else if (error) {
+    bodyContent = (
       <div
         className="max-w-4xl mx-auto p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800"
         role="alert"
@@ -573,6 +586,13 @@ const CreateListing = () => {
           {t("common.try_again")}
         </button>
       </div>
+    );
+  } else {
+    // Normal multi-step form content
+    bodyContent = (
+      <>
+        {renderStep()}
+      </>
     );
   }
 
@@ -650,7 +670,7 @@ const CreateListing = () => {
         <div className={isSubmitting ? "opacity-60 pointer-events-none" : ""}>
           <AnimatePresence mode="wait">
             <motion.div key={step} {...pageTransition}>
-              <div className="pb-10">{renderStep()}</div>
+              <div className="pb-10">{bodyContent}</div>
             </motion.div>
           </AnimatePresence>
         </div>

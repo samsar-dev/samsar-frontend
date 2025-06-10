@@ -32,30 +32,42 @@ const VerifyEmail = () => {
 
       try {
         const response = await fetch(
-          `${ACTIVE_API_URL}/auth/verify-email?token=${token}`,
+          `${ACTIVE_API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`,
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
+            credentials: 'include',
           },
         );
 
         const data = await response.json();
-
-        if (response.ok && data.success) {
+        
+        if (response.status === 200 && data.success) {
           setSuccess(true);
+          setError("");
           toast.success(t("auth.verification.success"));
           // Redirect to login after 3 seconds
           setTimeout(() => {
             navigate("/login");
           }, 3000);
         } else {
-          setError(data.error?.message || t("auth.verification.failed"));
+          // Handle specific error messages
+          const errorMessage = data.error?.message || t("auth.verification.failed");
+          setError(errorMessage);
+          toast.error(errorMessage);
+          
+          // If the token is invalid or expired, show the resend form
+          if (data.error?.code === 'INVALID_TOKEN' || data.error?.code === 'TOKEN_EXPIRED') {
+            setEmail('');
+          }
         }
       } catch (err) {
         console.error("Error verifying email:", err);
-        setError(t("auth.verification.server_error"));
+        const errorMsg = t("auth.verification.server_error");
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setVerifying(false);
       }
