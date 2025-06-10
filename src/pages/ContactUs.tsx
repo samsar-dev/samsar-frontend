@@ -1,8 +1,10 @@
-import { Container, Typography, Box, TextField, Button, Paper, Divider } from '@mui/material';
+import { useState } from 'react';
+import { Container, Typography, Box, TextField, Button, Paper, Divider, Alert, Snackbar, CircularProgress, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { Send, LocationOn, Phone, Email } from '@mui/icons-material';
+import { Send, LocationOn, Phone, Email, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { apiClient } from '../api/apiClient';
 
 const FormRow = ({ children }: { children: React.ReactNode }) => (
   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
@@ -23,8 +25,120 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   height: '100%',
 }));
 
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 const ContactUs = () => {
   const { t } = useTranslation('footer');
+  const [formData, setFormData] = useState<FormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    open: boolean;
+    success: boolean;
+    message: string;
+  }>({ open: false, success: false, message: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user types
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    
+    if (!formData.firstName.trim()) errors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.subject.trim()) errors.subject = 'Subject is required';
+    if (!formData.message.trim()) errors.message = 'Message is required';
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submission started', { formData });
+    
+    if (!validateForm()) {
+      console.log('Form validation failed', { formErrors });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Sending request to server...');
+      const response = await apiClient.post('/contact', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Server response:', response.data);
+      
+      if (response.data.success) {
+        setSubmitStatus({
+          open: true,
+          success: true,
+          message: 'Your message has been sent successfully! We will get back to you soon.'
+        });
+        // Reset form on success
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        throw new Error(response.data.error || 'Failed to send message');
+      }
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to send message. Please try again.';
+      setSubmitStatus({
+        open: true,
+        success: false,
+        message: errorMessage
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSubmitStatus(prev => ({ ...prev, open: false }));
+  };
+
   return (
     <Box sx={{ py: 8, bgcolor: 'background.default' }}>
         <Container maxWidth="lg">
@@ -44,7 +158,7 @@ const ContactUs = () => {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             <Box sx={{ flex: '1 1 100%', '@media (min-width: 900px)': { flex: '1 1 calc(60% - 32px)' } }}>
               <StyledPaper>
-                <form>
+                <form onSubmit={handleSubmit} noValidate>
                   <FormRow>
                     <FormField>
                       <TextField
@@ -54,6 +168,11 @@ const ContactUs = () => {
                         name="firstName"
                         label={t('contact_page.form.firstName')}
                         variant="outlined"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        error={!!formErrors.firstName}
+                        helperText={formErrors.firstName}
+                        disabled={isSubmitting}
                       />
                     </FormField>
                     <FormField>
@@ -64,6 +183,11 @@ const ContactUs = () => {
                         name="lastName"
                         label={t('contact_page.form.lastName')}
                         variant="outlined"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        error={!!formErrors.lastName}
+                        helperText={formErrors.lastName}
+                        disabled={isSubmitting}
                       />
                     </FormField>
                   </FormRow>
@@ -77,6 +201,11 @@ const ContactUs = () => {
                       label={t('contact_page.form.email')}
                       type="email"
                       variant="outlined"
+                      value={formData.email}
+                      onChange={handleChange}
+                      error={!!formErrors.email}
+                      helperText={formErrors.email}
+                      disabled={isSubmitting}
                     />
                   </Box>
                   
@@ -88,6 +217,11 @@ const ContactUs = () => {
                       name="subject"
                       label={t('contact_page.form.subject')}
                       variant="outlined"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      error={!!formErrors.subject}
+                      helperText={formErrors.subject}
+                      disabled={isSubmitting}
                     />
                   </Box>
                   
@@ -101,6 +235,11 @@ const ContactUs = () => {
                       multiline
                       rows={6}
                       variant="outlined"
+                      value={formData.message}
+                      onChange={handleChange}
+                      error={!!formErrors.message}
+                      helperText={formErrors.message}
+                      disabled={isSubmitting}
                     />
                   </Box>
                   
@@ -112,8 +251,43 @@ const ContactUs = () => {
                     startIcon={<Send />}
                     fullWidth
                   >
-                    {t('contact_page.form.sendButton')}
+                    {isSubmitting ? (
+                      <>
+                        <CircularProgress size={24} color="inherit" style={{ marginRight: 8 }} />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send sx={{ mr: 1 }} />
+                        {t('contact_page.form.sendButton')}
+                      </>
+                    )}
                   </Button>
+                  
+                  <Snackbar
+                    open={submitStatus.open}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  >
+                    <Alert
+                      onClose={handleCloseSnackbar}
+                      severity={submitStatus.success ? 'success' : 'error'}
+                      sx={{ width: '100%' }}
+                      action={
+                        <IconButton
+                          aria-label="close"
+                          color="inherit"
+                          size="small"
+                          onClick={handleCloseSnackbar}
+                        >
+                          <Close fontSize="inherit" />
+                        </IconButton>
+                      }
+                    >
+                      {submitStatus.message}
+                    </Alert>
+                  </Snackbar>
                 </form>
               </StyledPaper>
             </Box>

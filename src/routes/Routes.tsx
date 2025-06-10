@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Layout } from "@/components/layout";
 
 // Loading fallback
@@ -50,6 +51,7 @@ const importVehicles = () => import("@/pages/Vehicles");
 const importRealEstate = () => import("@/pages/RealEstate");
 const importListingSuccess = () => import("@/pages/ListingSuccess");
 const importPrivateRoute = () => import("@/components/auth/AuthRoute");
+const importContactSubmissions = () => import("@/pages/admin/ContactSubmissions");
 
 // Lazy load pages
 const Home = lazy(importHome);
@@ -79,6 +81,7 @@ const About = lazy(() => import("@/pages/About"));
 const ContactUs = lazy(() => import("@/pages/ContactUs"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const ContactSubmissions = lazy(importContactSubmissions);
 
 // Create a skeleton component for listings
 const ListingSkeleton = () => (
@@ -88,6 +91,21 @@ const ListingSkeleton = () => (
     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
   </div>
 );
+
+const AdminRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (user.role !== 'ADMIN') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
 
 const Routes = (): JSX.Element => {
   const location = useLocation();
@@ -155,7 +173,17 @@ const Routes = (): JSX.Element => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          
+          {/* Admin Routes */}
+          <Route
+            path="/admin/contact-submissions"
+            element={
+              <AdminRoute>
+                <ContactSubmissions />
+              </AdminRoute>
+            }
+          />
 
           {/* Protected routes */}
           <Route
