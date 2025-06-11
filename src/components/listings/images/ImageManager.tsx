@@ -104,7 +104,6 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   // Store signatures in a ref to compare on next render
   const prevSignaturesRef = useRef({ newImages: "", existingImages: "" });
-  const isMountedRef = useRef(true);
 
   // Memoize the image processing logic
   const processedImages = useMemo(() => {
@@ -199,22 +198,18 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   // Update state only when processed images change
   useEffect(() => {
-    if (!isMountedRef.current) return;
-
     const newImagesSignature = images
       .map((file) => `${file.name}-${file.size}-${file.lastModified}`)
       .join("|");
     const existingImagesSignature = existingImages.join("|");
 
-    // Skip if nothing has changed
     if (
       prevSignaturesRef.current.newImages === newImagesSignature &&
       prevSignaturesRef.current.existingImages === existingImagesSignature
     ) {
-      return;
+      return; // no change
     }
 
-    // Update signatures for next comparison
     prevSignaturesRef.current = {
       newImages: newImagesSignature,
       existingImages: existingImagesSignature,
@@ -222,9 +217,11 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
     setUnifiedImages(processedImages.allImages);
     setPreviewUrls(processedImages.previewUrls);
+  }, [processedImages, images, existingImages]);
 
+  // Clean up object URLs ONLY when component unmounts to avoid revoking still-in-use blobs
+  useEffect(() => {
     return () => {
-      isMountedRef.current = false;
       objectUrlsRef.current.forEach((url) => {
         try {
           URL.revokeObjectURL(url);
@@ -234,7 +231,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       });
       objectUrlsRef.current = [];
     };
-  }, [processedImages, images, existingImages]);
+  }, []);
 
   const validateImage = async (file: File): Promise<boolean> => {
     // Check file size

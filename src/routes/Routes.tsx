@@ -52,6 +52,7 @@ const importRealEstate = () => import("@/pages/RealEstate");
 const importListingSuccess = () => import("@/pages/ListingSuccess");
 const importPrivateRoute = () => import("@/components/auth/AuthRoute");
 const importContactSubmissions = () => import("@/pages/admin/ContactSubmissions");
+const importUsersList = () => import("@/pages/admin/UsersList");
 
 // Lazy load pages
 const Home = lazy(importHome);
@@ -82,6 +83,7 @@ const ContactUs = lazy(() => import("@/pages/ContactUs"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const ContactSubmissions = lazy(importContactSubmissions);
+const UsersList = lazy(importUsersList);
 
 // Create a skeleton component for listings
 const ListingSkeleton = () => (
@@ -181,6 +183,14 @@ const Routes = (): JSX.Element => {
             element={
               <AdminRoute>
                 <ContactSubmissions />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <UsersList />
               </AdminRoute>
             }
           />
