@@ -17,7 +17,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import isEqual from "lodash/isEqual";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
+import { FaCarSide, FaCheckCircle, FaCog, FaMobileAlt, FaCrown } from "react-icons/fa";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
@@ -174,7 +174,7 @@ const CreateListing = () => {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   // Initialize hooks and state (must run on every render to keep hooks order consistent)
-  const { t } = useTranslation();
+  const { t } = useTranslation(["listings"]);
   const navigate = useNavigate();
   const { handleSubmit: submitListing } = useCreateListing();
   const [step, setStep] = useState(1);
@@ -187,7 +187,7 @@ const CreateListing = () => {
     if (isLoading) return;
     
     // Only show upgrade prompt for non-admin users who can't create more listings
-    if (!canCreate && userRole === 'USER') {
+    if (!canCreate && userRole === 'FREE_USER') {
       toast.error(permissionError || 'You need to upgrade your account to create more listings');
       setShowUpgradePrompt(true);
     } else {
@@ -557,6 +557,22 @@ const CreateListing = () => {
     bodyContent = (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  } else if (userRole === 'FREE_USER') {
+    bodyContent = (
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <FaMobileAlt className="text-5xl text-blue-500 mb-4" />
+        <h2 className="text-xl font-bold mb-2">{t('create.freeUserTitle')}</h2>
+        <p className="mb-4 text-gray-600">{t('create.freeUserDescription')}</p>
+        <div className="flex gap-4">
+          <a href="https://your-app-download-link" className="btn btn-primary flex items-center gap-2">
+            <FaMobileAlt /> {t('create.downloadApp')}
+          </a>
+          <a href="/subscription" className="btn btn-warning flex items-center gap-2">
+            <FaCrown /> {t('create.subscribePremium')}
+          </a>
+        </div>
       </div>
     );
   } else if (showUpgradePrompt) {

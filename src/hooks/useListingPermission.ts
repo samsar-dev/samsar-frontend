@@ -8,7 +8,7 @@ interface ListingPermission {
   canCreate: boolean;
   maxListings: number;
   currentListings: number;
-  userRole: 'USER' | 'ADMIN';
+  userRole: 'FREE_USER' | 'PREMIUM_USER' | 'BUSINESS_USER' | 'ADMIN' | 'MODERATOR';
   isLoading: boolean;
   error: string | null;
 }
@@ -18,7 +18,7 @@ export const useListingPermission = (): ListingPermission => {
     canCreate: false,
     maxListings: 1,
     currentListings: 0,
-    userRole: 'USER',
+    userRole: 'FREE_USER',
     isLoading: true,
     error: null,
   });
@@ -33,17 +33,17 @@ export const useListingPermission = (): ListingPermission => {
         const response = await apiClient.get('/user/listing-permission');
         console.log('Listing permission response:', response.data);
         
-        // Map backend role to frontend role
-        const backendRole = response.data.userRole || 'USER';
-        const frontendRole = backendRole === 'ADMIN' || backendRole === 'MODERATOR' 
-          ? 'ADMIN' 
-          : 'USER';
-        
         setPermission({
           canCreate: response.data.canCreate,
           maxListings: response.data.maxListings || 1,
           currentListings: response.data.currentListings || 0,
-          userRole: frontendRole,
+          userRole: (
+            response.data.userRole === 'FREE_USER' ||
+            response.data.userRole === 'PREMIUM_USER' ||
+            response.data.userRole === 'BUSINESS_USER' ||
+            response.data.userRole === 'ADMIN' ||
+            response.data.userRole === 'MODERATOR'
+          ) ? response.data.userRole : 'FREE_USER',
           isLoading: false,
           error: null,
         });
@@ -55,7 +55,7 @@ export const useListingPermission = (): ListingPermission => {
             canCreate: false,
             maxListings: error.response.data.maxListings || 1,
             currentListings: error.response.data.currentListings || 0,
-            userRole: user?.role || 'USER',
+            userRole: (typeof user?.role === 'string' && ['FREE_USER', 'PREMIUM_USER', 'BUSINESS_USER', 'ADMIN', 'MODERATOR'].includes(user.role)) ? user.role as any : 'FREE_USER',
             isLoading: false,
             error: 'You have reached your listing limit',
           });
@@ -66,7 +66,7 @@ export const useListingPermission = (): ListingPermission => {
           enqueueSnackbar('Failed to check listing permissions', { variant: 'error' });
           setPermission(prev => ({
             ...prev,
-            userRole: user?.role || 'USER',
+            userRole: (typeof prev.userRole === 'string' && ['FREE_USER', 'PREMIUM_USER', 'BUSINESS_USER', 'ADMIN', 'MODERATOR'].includes(prev.userRole)) ? prev.userRole as any : 'FREE_USER',
             isLoading: false,
             error: 'Failed to check permissions',
           }));
@@ -81,7 +81,7 @@ export const useListingPermission = (): ListingPermission => {
       setPermission(prev => ({
         ...prev,
         isLoading: false,
-        userRole: 'USER',
+        userRole: 'FREE_USER',
         canCreate: false
       }));
     }

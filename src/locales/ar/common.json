@@ -62,7 +62,15 @@
     "VAN": "فان",
     "TRACTOR": "جرار",
     "CONSTRUCTION": "معدات بناء",
-    "OTHER": "أخرى"
+    "OTHER": "أخرى",
+    "SUV": "دفع رباعي",
+    "ATV": "دراجة نارية رباعية",
+    "BOAT": "قارب",
+    "TRAILER": "مقطورة",
+    "HEAVY_EQUIPMENT": "معدات ثقيلة",
+    "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
+    "AGRICULTURAL_EQUIPMENT": "معدات زراعية",
+    "INDUSTRIAL_EQUIPMENT": "معدات صناعية"
   },
   "propertyTypes": {
     "HOUSE": "منزل",
@@ -185,7 +193,15 @@
       "VAN": "فان",
       "BUS": "حافلة",
       "TRACTOR": "جرار",
-      "RV": "سيارة سكنية"
+      "RV": "سيارة سكنية",
+      "SUV": "دفع رباعي",
+      "ATV": "دراجة نارية رباعية",
+      "BOAT": "قارب",
+      "TRAILER": "مقطورة",
+      "HEAVY_EQUIPMENT": "معدات ثقيلة",
+      "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
+      "AGRICULTURAL_EQUIPMENT": "معدات زراعية",
+      "INDUSTRIAL_EQUIPMENT": "معدات صناعية"
     }
   },
   "subcategories": {
@@ -195,6 +211,23 @@
       "CONDO": "شقة فندقية",
       "LAND": "أرض",
       "COMMERCIAL": "تجاري"
+    },
+    "vehicle": {
+      "CAR": "سيارة",
+      "TRUCK": "شاحنة",
+      "MOTORCYCLE": "دراجة نارية",
+      "VAN": "فان",
+      "BUS": "حافلة",
+      "TRACTOR": "جرار",
+      "RV": "سيارة سكنية",
+      "SUV": "دفع رباعي",
+      "ATV": "دراجة نارية رباعية",
+      "BOAT": "قارب",
+      "TRAILER": "مقطورة",
+      "HEAVY_EQUIPMENT": "معدات ثقيلة",
+      "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
+      "AGRICULTURAL_EQUIPMENT": "معدات زراعية",
+      "INDUSTRIAL_EQUIPMENT": "معدات صناعية"
     },
     "OTHER": "أخرى"
   },

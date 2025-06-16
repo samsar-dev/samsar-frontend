@@ -637,5 +637,15 @@
     "validFloorRequired": "Please enter a valid floor number",
     "categoryRequired": "Please select a category",
     "subcategoryRequired": "Please select a subcategory"
+  },
+
+  "create": {
+    "title": "Create a Listing",
+    "subtitle": "Fill out the details below to create your new listing.",
+    "freeUserTitle": "Please download the app or subscribe for premium",
+    "freeUserDescription": "Free users cannot create listings. To unlock this feature, download our app to choose from Google Play or App Store, or upgrade to a premium plan.",
+    "downloadApp": "Download App",
+    "subscribePremium": "Subscribe Premium"
   }
+
 }
