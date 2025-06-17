@@ -34,6 +34,8 @@ interface ListingParams {
   location?: string;
   preview?: boolean;
   forceRefresh?: boolean;
+  radius?: number;
+  listingAction?: "SALE" | "RENT";
 }
 
 interface ListingsState {
@@ -44,7 +46,12 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation("common");
+  const { t, i18n } = useTranslation(["common", "filters"]);
+  
+  // Get city and area translations for filtering
+  const cities = t('cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
+  const areas = t('areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
+  
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);
@@ -119,6 +126,7 @@ const Home: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedRadius, setSelectedRadius] = useState<number | null>(null);
   const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(
     null,
   );
@@ -236,26 +244,61 @@ const Home: React.FC = () => {
         abortControllerRef.current = new AbortController();
       }
 
-      const params: ListingParams = {
-        category: {
-          mainCategory: selectedCategory,
-          ...(selectedSubcategory && {
-            subCategory: selectedSubcategory as VehicleType | PropertyType,
-          }),
-        },
-        ...(selectedMake && { make: selectedMake }),
-        ...(selectedModel && { model: selectedModel }),
-        ...(selectedYear && { year: Number(selectedYear) }), // Convert string year to number
-        ...(selectedLocation && { location: selectedLocation }), // Add location parameter
-        sortBy,
-        sortOrder:
-          sortBy === "priceAsc" || sortBy === "locationAsc" ? "asc" : "desc",
-        limit: 10,
-        preview: true,
+      const buildQueryParams = (): ListingParams => {
+        const params: ListingParams = {
+          limit: 20,
+          preview: true,
+        };
+
+        if (selectedCategory) {
+          params.category = {
+            mainCategory: selectedCategory,
+          };
+
+          if (selectedSubcategory) {
+            params.category.subCategory = selectedSubcategory as any;
+          }
+        }
+
+        if (selectedAction) {
+          params.listingAction = selectedAction as any;
+        }
+
+        if (selectedMake) {
+          if (!params.vehicleDetails) params.vehicleDetails = {};
+          params.vehicleDetails.make = selectedMake;
+        }
+
+        if (selectedModel) {
+          if (!params.vehicleDetails) params.vehicleDetails = {};
+          params.vehicleDetails.model = selectedModel;
+        }
+
+        if (selectedYear) {
+          params.year = parseInt(selectedYear);
+        }
+
+        if (selectedLocation) {
+          params.location = selectedLocation;
+        }
+
+        // Add sorting
+        if (sortBy === "newestFirst") {
+          params.sortBy = "createdAt";
+          params.sortOrder = "desc";
+        } else if (sortBy === "priceLowToHigh") {
+          params.sortBy = "price";
+          params.sortOrder = "asc";
+        } else if (sortBy === "priceHighToLow") {
+          params.sortBy = "price";
+          params.sortOrder = "desc";
+        }
+
+        return params;
       };
 
       const response = await listingsAPI.getAll(
-        params,
+        buildQueryParams(),
         abortControllerRef.current.signal,
       );
 
@@ -326,35 +369,74 @@ const Home: React.FC = () => {
     return () => {
       // No need to abort here, it's handled in the fetchListings function
     };
-  }, [selectedCategory, fetchListings, isInitialLoad, forceRefresh]);
-
+  }, [fetchListings, isInitialLoad, forceRefresh]);
+  
   // Memoized filtered listings
   const filteredListings = useMemo(() => {
-    setIsFiltering(true);
-    const filtered = listings?.all?.filter((listing) => {
+    if (!listings.all.length) return [];
+    
+    return listings.all.filter((listing) => {
+      // Category filter
       const matchesCategory =
+        !selectedCategory ||
         listing.category.mainCategory === selectedCategory;
-      const matchesAction = selectedAction
-        ? listing.listingAction?.toString() === selectedAction
-        : true;
-      const matchesSubcategory = selectedSubcategory
-        ? listing.category.subCategory === selectedSubcategory
-        : true;
-      const matchesMake = selectedMake
-        ? listing.details.vehicles?.make === selectedMake
-        : true;
-      const matchesModel = selectedModel
-        ? listing.details.vehicles?.model === selectedModel
-        : true;
-      const matchesYear = selectedYear
-        ? listing.details.vehicles?.year?.toString() === selectedYear
-        : true;
-      const matchesPrice = selectedPrice
-        ? listing.price?.toString() === selectedPrice
-        : true;
-      const matchesLocation = selectedLocation
-        ? listing.location?.toUpperCase() === selectedLocation.toUpperCase()
-        : true;
+
+      // Action filter
+      const matchesAction =
+        !selectedAction || listing.listingAction === selectedAction;
+
+      // Subcategory filter
+      const matchesSubcategory =
+        !selectedSubcategory ||
+        listing.category.subCategory === selectedSubcategory;
+
+      // Make filter
+      const matchesMake =
+        !selectedMake ||
+        (listing.details?.vehicles?.make || "").toLowerCase() ===
+          selectedMake.toLowerCase();
+
+      // Model filter
+      const matchesModel =
+        !selectedModel ||
+        (listing.details?.vehicles?.model || "").toLowerCase() ===
+          selectedModel.toLowerCase();
+
+      // Year filter
+      const matchesYear =
+        !selectedYear ||
+        (parseInt(listing.details?.vehicles?.year?.toString() || '0', 10) >= parseInt(selectedYear, 10));
+
+      // Price filter
+      const matchesPrice = !selectedPrice;
+
+      // Location filter
+      let matchesLocation = true;
+      if (selectedLocation) {
+        // Find the correct case-insensitive city key
+        const cityKey = Object.keys(cities).find(
+          key => key.toLowerCase() === selectedLocation.toLowerCase()
+        );
+        
+        if (cityKey) {
+          if (selectedRadius !== null) {
+            // If radius is selected, include nearby areas
+            const currentCityAreas = areas[cityKey] || [];
+            const allAreasToMatch = [cities[cityKey], ...currentCityAreas];
+            
+            matchesLocation = allAreasToMatch.some(area => 
+              area && listing.location?.toLowerCase().includes(area.toLowerCase())
+            );
+          } else {
+            // Exact match if no radius is selected
+            const cityName = cities[cityKey];
+            matchesLocation = listing.location?.toLowerCase().includes(cityName.toLowerCase()) || false;
+          }
+        } else {
+          // If city key not found, no match
+          matchesLocation = false;
+        }
+      }
 
       return (
         matchesCategory &&
@@ -367,8 +449,6 @@ const Home: React.FC = () => {
         matchesLocation
       );
     });
-    setIsFiltering(false);
-    return filtered;
   }, [
     listings.all,
     selectedCategory,
@@ -379,7 +459,27 @@ const Home: React.FC = () => {
     selectedYear,
     selectedPrice,
     selectedLocation,
+    selectedRadius,
+    cities,
+    areas,
   ]);
+
+  // Handle filtering state with ref to prevent infinite loop
+  const isInitialMount = useRef(true);
+  
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    setIsFiltering(true);
+    const timer = setTimeout(() => {
+      setIsFiltering(false);
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [filteredListings]);
 
   // Handle category change
   const handleCategoryChange = useCallback((category: ListingCategory) => {
@@ -399,6 +499,21 @@ const Home: React.FC = () => {
     );
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
+
+  // Handle location filter change
+  const handleLocationChange = useCallback((location: string | null) => {
+    setSelectedLocation(location);
+    if (!location) {
+      setSelectedRadius(null);
+    }
+  }, []);
+  
+
+
+  // Handle radius filter change
+  const handleRadiusChange = useCallback((radius: number | null) => {
+    setSelectedRadius(radius);
+  }, []);
 
   // Reset filters when category changes
   useEffect(() => {
@@ -478,7 +593,7 @@ const Home: React.FC = () => {
                     <Listbox.Option
                       key={option.value}
                       value={option.value}
-                      className={({ active, selected }) =>
+                      className={({ active }) =>
                         `cursor-pointer select-none px-4 py-2 ${
                           active
                             ? "bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white"
@@ -517,7 +632,9 @@ const Home: React.FC = () => {
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
             selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
+            setSelectedLocation={handleLocationChange}
+            selectedRadius={selectedRadius}
+            setSelectedRadius={handleRadiusChange}
             selectedBuiltYear={selectedBuiltYear}
             setSelectedBuiltYear={setSelectedBuiltYear}
             loading={listings.loading}

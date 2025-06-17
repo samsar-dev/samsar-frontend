@@ -1117,9 +1117,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           )}
           {type === "select" && options ? (
             <Select
-              value={options.find((opt) => opt.value === fieldValue)}
-              onChange={(selected: any) =>
-                handleInputChange(fieldName, selected?.value || "")
+              value={options.find((opt) => opt.value === fieldValue || opt.label === fieldValue)}
+              onChange={fieldName === "location" 
+                ? handleLocationChange 
+                : (selected: any) => handleInputChange(fieldName, selected?.value || "")
               }
               options={options}
               className="react-select-container"
@@ -1258,89 +1259,48 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     );
   };
 
-  // Syrian cities data
-  const syrianCities = [
-    { value: "DAMASCUS", label: commonT("cities.DAMASCUS") },
-    { value: "ALEPPO", label: commonT("cities.ALEPPO") },
-    { value: "HOMS", label: commonT("cities.HOMS") },
-    { value: "LATTAKIA", label: commonT("cities.LATTAKIA") },
-    { value: "HAMA", label: commonT("cities.HAMA") },
-    { value: "DEIR_EZZOR", label: commonT("cities.DEIR_EZZOR") },
-    { value: "HASEKEH", label: commonT("cities.HASEKEH") },
-    { value: "QAMISHLI", label: commonT("cities.QAMISHLI") },
-    { value: "RAQQA", label: commonT("cities.RAQQA") },
-    { value: "TARTOUS", label: commonT("cities.TARTOUS") },
-    { value: "IDLIB", label: commonT("cities.IDLIB") },
-    { value: "DARA", label: commonT("cities.DARA") },
-    { value: "SWEDIA", label: commonT("cities.SWEDIA") },
-    { value: "QUNEITRA", label: commonT("cities.QUNEITRA") },
-  ];
-
-  const handleLocationChange = (selected: any) => {
-    handleInputChange("location", selected?.value || "");
+  // Function to get city and its areas with translations
+  const getCityAreas = (cityKey: string): { value: string; label: string; isArea?: boolean }[] => {
+    // Get translations for cities and areas
+    const cities = t('cities', { returnObjects: true, ns: 'filters' }) as Record<string, string>;
+    const areas = t('areas', { returnObjects: true, ns: 'filters' }) as Record<string, string[]>;
+    
+    const cityName = cities[cityKey.toLowerCase()] || cityKey;
+    const cityAreas = areas[cityKey.toLowerCase()] || [];
+    
+    return [
+      { value: cityKey, label: cityName },
+      ...cityAreas.map(area => ({
+        value: `${cityKey}_${area.toUpperCase().replace(/[^A-Z]/g, '_')}`,
+        label: `${cityName} - ${area}`,
+        isArea: true
+      }))
+    ];
   };
 
-  const renderLocationField = () => {
-    return (
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {formT("location")}
-          <span className="text-red-500 ml-1">*</span>
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MapPin className="h-5 w-5 text-gray-400" />
-          </div>
-          <Select
-            value={syrianCities.find(
-              (city) => city.value === formData.location,
-            )}
-            onChange={handleLocationChange}
-            options={syrianCities}
-            className="react-select-container"
-            classNamePrefix="react-select"
-            placeholder={formT("selectLocation")}
-            isClearable
-            styles={{
-              control: (baseStyles, state) => ({
-                ...baseStyles,
-                backgroundColor: state.isFocused
-                  ? "var(--blue-50)"
-                  : "var(--gray-50)",
-                borderColor: state.isFocused
-                  ? "var(--blue-500)"
-                  : "var(--gray-300)",
-                borderRadius: "0.5rem",
-                boxShadow: state.isFocused
-                  ? "0 0 0 1px var(--blue-500)"
-                  : "none",
-                "&:hover": {
-                  borderColor: state.isFocused
-                    ? "var(--blue-500)"
-                    : "var(--gray-400)",
-                },
-              }),
-              menu: (baseStyles) => ({
-                ...baseStyles,
-                backgroundColor: "var(--white)",
-                borderRadius: "0.5rem",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              }),
-              option: (baseStyles, { isSelected }) => ({
-                ...baseStyles,
-                backgroundColor: isSelected ? "var(--blue-50)" : "var(--white)",
-                "&:hover": {
-                  backgroundColor: "var(--blue-50)",
-                },
-              }),
-            }}
-          />
-        </div>
-        {errors.location && touched.location && (
-          <p className="mt-1 text-sm text-red-500">{errors.location}</p>
-        )}
-      </div>
-    );
+  const syrianCities = [
+    ...getCityAreas("damascus"),
+    ...getCityAreas("aleppo"),
+    ...getCityAreas("homs"),
+    ...getCityAreas("latakia"),
+    ...getCityAreas("hama"),
+    ...getCityAreas("deir_ezzor"),
+    ...getCityAreas("hasaka"),
+    ...getCityAreas("raqqa"),
+    ...getCityAreas("tartous"),
+    ...getCityAreas("idlib"),
+    ...getCityAreas("daraa"),
+    ...getCityAreas("sweida"),
+    ...getCityAreas("quneitra"),
+  ];
+
+  const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
+    if (!selected) {
+      handleInputChange("location", "");
+      return;
+    }
+    // Use the formatted label for display and the value for storage
+    handleInputChange("location", selected.label);
   };
 
   return (
