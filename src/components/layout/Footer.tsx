@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
           {/* Legal */}
           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
-              {t("privacy", "Privacy")}
+              {t("footer.privacy", "Privacy")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
                   to="/privacy-policy"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 >
-                  {t("settings.privacy", "Privacy Policy")}
+                  {t("footer.privacy_policy.title", "Privacy Policy")}
                 </Link>
               </li>
               <li>

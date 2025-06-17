@@ -26,6 +26,19 @@
   "filter_results": "تصفية النتائج",
   "results_count": "تم العثور على {count} نتيجة",
   "no_results": "لم يتم العثور على نتائج",
+  "filters": "المرشحات",
+  "subcategory": "الفئة الفرعية",
+  "all_subcategories": "جميع الفئات الفرعية",
+  "action": "إجراء",
+  "location": "الموقع",
+  "built_year": "سنة البناء",
+  "make": "الماركة",
+  "all_makes": "جميع الماركات",
+  "model": "الموديل",
+  "all_models": "جميع الموديلات",
+  "year": "السنة",
+  "all_years": "جميع السنوات",
+  "reset": "إعادة تعيين",
   "sorting": {
     "newest": "الأحدث أولاً",
     "oldest": "الأقدم أولاً",
@@ -35,5 +48,39 @@
     "location_desc": "الموقع: من ي إلى أ",
     "relevance": "الأكثر صلة",
     "popularity": "الأكثر شعبية"
-  }
+  },
+  "builtYearOptions": {
+    "any": "أي سنة",
+    "2023": "2023 وأحدث",
+    "2010": "2010 وأحدث",
+    "2000": "قبل 2000"
+  },
+  "categories": {
+    "vehicle": {
+      "CAR": "سيارة",
+      "TRUCK": "شاحنة",
+      "MOTORCYCLE": "دراجة نارية",
+      "VAN": "فان",
+      "BUS": "حافلة",
+      "TRACTOR": "جرار",
+      "RV": "سيارة منزلية"
+    }
+  },
+  "subcategories": {
+    "property": {
+      "HOUSE": "منزل",
+      "APARTMENT": "شقة",
+      "CONDO": "شقة فندقية",
+      "LAND": "أرض",
+      "COMMERCIAL": "تجاري"
+    },
+    "OTHER": "أخرى"
+  },
+  "actions": {
+    "SALE": "للبيع",
+    "RENT": "للإيجار"
+  },
+  "loading": "جاري التحميل...",
+  "no_options_available": "لا توجد خيارات متاحة",
+  "select_an_option": "اختر خيارًا"
 }

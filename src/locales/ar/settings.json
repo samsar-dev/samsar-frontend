@@ -39,15 +39,21 @@
     "facebook": "فيسبوك",
     "twitter": "تويتر",
     "connectAccount": "ربط الحساب",
-    "connect": "ربط"
+    "connect": "ربط",
+    "disconnect": "قطع الاتصال",
+    "visibleOnProfile": "مرئي في الملف الشخصي",
+    "connected": "متصل",
+    "notConnected": "غير متصل"
   },
   "privacy": {
+    "private": "خاص",
     "title": "الخصوصية",
     "profileVisibility": "رؤية الملف الشخصي",
     "public": "عام",
     "showOnlineStatus": "إظهار حالة الاتصال",
     "showPhoneNumber": "إظهار رقم الهاتف",
     "allowMessaging": "السماح بالمراسلة المباشرة",
+    "allowDirectMessaging": "السماح بالمراسلة المباشرة",
     "deleteAccount": "حذف الحساب",
     "visibility": "رؤية الملف الشخصي",
     "showEmail": "إظهار البريد الإلكتروني للمستخدمين الآخرين",
