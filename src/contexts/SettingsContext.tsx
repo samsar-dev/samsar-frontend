@@ -1,6 +1,6 @@
 import { LanguageCode, ThemeType } from "@/types/enums";
 import type { Settings, SettingsUpdate } from "@/types/settings";
-import React, { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 export interface SettingsContextType {
   settings: Settings;
@@ -28,12 +28,9 @@ const defaultSettings: Settings = {
     securityQuestions: false,
   },
   notifications: {
-    email: true,
-    push: true,
-    desktop: true,
-    listing: true,
-    message: true,
-    system: true,
+    listingUpdates: true,
+    newInboxMessages: true,
+    loginNotifications: true,
   },
   privacy: {
     showEmail: false,
@@ -89,7 +86,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 export const useSettings = () => {
-  const context = React.useContext(SettingsContext);
+  const context = useContext(SettingsContext);
   if (context === undefined) {
     throw new Error("useSettings must be used within a SettingsProvider");
   }

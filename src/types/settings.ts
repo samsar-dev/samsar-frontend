@@ -9,16 +9,16 @@ export interface Theme {
 
 export interface NotificationPreferences {
   // Email Notifications
-  generalUpdates: boolean;
+  generalUpdates?: boolean;
   newInboxMessages: boolean;
-  orderUpdates: boolean;
+  orderUpdates?: boolean;
   listingUpdates: boolean;
-  
+  loginNotifications: boolean;  
   // Push Notifications
-  pushNotifications: boolean;
+  pushNotifications?: boolean;
   
   // Newsletter
-  newsletter: boolean;
+  newsletter?: boolean;
   
   // Legacy fields (keep for backward compatibility)
   email?: boolean;
