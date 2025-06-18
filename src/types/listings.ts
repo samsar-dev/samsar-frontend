@@ -695,6 +695,13 @@ export interface Category {
   subCategory: string;
 }
 
+export interface LocationMeta {
+  lat: number;
+  lng: number;
+  placeId?: string;
+  bounds?: [number, number, number, number]; // [south, west, north, east]
+}
+
 export interface Listing {
   id?: string;
   title: string;
@@ -707,6 +714,7 @@ export interface Listing {
   location: string;
   latitude: number;
   longitude: number;
+  locationMeta?: LocationMeta;
   images: Array<string | File>;
   image?: string;
   createdAt?: Date | string;
@@ -776,6 +784,9 @@ export interface BaseFormState {
   images?: Array<string | File>;
   features?: string[];
   listingAction?: ListingAction;
+  locationMeta?: LocationMeta;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Complete form state with required fields for final submission

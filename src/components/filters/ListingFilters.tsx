@@ -1,4 +1,19 @@
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo, useState } from "react";
+
+// Utility to calculate distance between two lat/lng points in km
+export function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+}
+
 import { Listbox, Transition } from "@headlessui/react";
 import { useTranslation } from "react-i18next";
 import { MdFilterList, MdCheck } from "react-icons/md";
@@ -18,28 +33,31 @@ import {
   getModelsForMakeAndType,
 } from "@/components/listings/data/vehicleModels";
 
+type ListingAction = 'SALE' | 'RENT';
+
 interface ListingFiltersProps {
   selectedCategory: string;
-  selectedAction: "SALE" | "RENT" | null;
-  setSelectedAction: (value: "SALE" | "RENT" | null) => void;
+  selectedAction: ListingAction | null;
+  setSelectedAction: (action: ListingAction | null) => void;
   selectedSubcategory: string | null;
-  setSelectedSubcategory: (value: string | null) => void;
+  setSelectedSubcategory: (subcategory: string | null) => void;
   allSubcategories: string[];
   selectedMake: string | null;
-  setSelectedMake: (value: string | null) => void;
+  setSelectedMake: (make: string | null) => void;
   selectedModel: string | null;
-  setSelectedModel: (value: string | null) => void;
-  selectedYear: string | null;
-  setSelectedYear: (value: string | null) => void;
+  setSelectedModel: (model: string | null) => void;
+  selectedYear: number | null;
+  setSelectedYear: (year: number | null) => void;
   selectedLocation: string | null;
-  setSelectedLocation: (value: string | null) => void;
+  setSelectedLocation: (location: string | null) => void;
   selectedRadius: number | null;
-  setSelectedRadius: (value: number | null) => void;
+  setSelectedRadius: (radius: number | null) => void;
+  selectedBuiltYear: number | null;
+  setSelectedBuiltYear: (year: number | null) => void;
   selectedAreas?: string[];
   setSelectedAreas?: (areas: string[]) => void;
-  selectedBuiltYear: string | null;
-  setSelectedBuiltYear: (value: string | null) => void;
   loading?: boolean;
+  onLocationChange?: (coords: { lat: number; lng: number }) => void;
 }
 
 // Mapping of subcategories to icons
@@ -81,14 +99,17 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   selectedBuiltYear,
   setSelectedBuiltYear,
   loading = false,
+  onLocationChange,
 }) => {
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
   const { t } = useTranslation(["filters", "common"]);
-  // Use the loading prop for all loading states
-  const localLoading = loading;
+  // State for location handling
+  const [localLoading, setLocalLoading] = useState(loading);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Get city and area translations
   const cities = t('cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
@@ -149,10 +170,108 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     );
   }, [selectedSubcategory, selectedMake]);
 
+  // Get coordinates for the selected location (exported for parent component)
+  const getLocationCoordinates = (): { lat: number; lng: number } | null => {
+    if (selectedLocation === 'current-location') {
+      return userLocation;
+    }
+    // TODO: Add logic to get coordinates for other locations if needed
+    return null;
+  };
+
+  // Export location coordinates to parent when they change
+  React.useEffect(() => {
+    if (onLocationChange && userLocation) {
+      onLocationChange(userLocation);
+    }
+  }, [userLocation, onLocationChange]);
+
+  // Get unique locations from listings
+  const availableLocations = useMemo(() => {
+    if (!selectedSubcategory || !selectedMake) return [];
+    return getModelsForMakeAndType(
+      selectedMake,
+      selectedSubcategory as VehicleType,
+    );
+  }, [selectedSubcategory, selectedMake, getModelsForMakeAndType]);
+
   // Handle make change
   const handleMakeChange = (value: string | null) => {
     setSelectedMake(value);
     setSelectedModel(null);
+  };
+
+  // Reverse geocode coordinates to get location name
+  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
+      const data = await response.json();
+      
+      // Try to get the most specific location name available
+      const locationName = data.address?.city || 
+                         data.address?.town || 
+                         data.address?.village || 
+                         data.address?.county ||
+                         data.display_name?.split(',')[0] ||
+                         t('yourLocation');
+      
+      return locationName;
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+      return t('yourLocation');
+    }
+  };
+
+  // Handle getting user's current location
+  const handleGetCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocalLoading(true);
+    setLocationError(null);
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      setUserLocation({ lat: latitude, lng: longitude });
+      
+      // Get location name using reverse geocoding
+      const locationName = await reverseGeocode(latitude, longitude);
+      
+      // Set the location name in the input field
+      setSelectedLocation(locationName);
+      
+      // Pass coordinates to parent if needed
+      if (onLocationChange) {
+        onLocationChange({ lat: latitude, lng: longitude });
+      }
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      setLocationError('Unable to retrieve your location');
+    } finally {
+      setLocalLoading(false);
+    }
+  };
+
+  // Handle radius filter change
+  const handleRadiusChange = (radius: number | null) => {
+    // If radius is being cleared, also clear the location
+    if (radius === null) {
+      setSelectedLocation(null);
+      setUserLocation(null);
+    }
+    setSelectedRadius(radius);
   };
 
   // Handle subcategory change
@@ -217,7 +336,6 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         </button>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full">
-        {/* Subcategory Filter */}
         {/* Subcategory Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -373,42 +491,70 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
             {selectedLocation && (
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={selectedRadius !== null}
-                    onChange={(e) => setSelectedRadius(e.target.checked ? 1 : null)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span>{t("includeNearbyAreas")}</span>
-                </label>
-
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="radiusCheckbox"
+                      checked={selectedRadius !== null}
+                      onChange={(e) => handleRadiusChange(e.target.checked ? 10 : null)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="radiusCheckbox" className="text-sm text-gray-700 dark:text-gray-300">
+                      {t("radius")}
+                    </label>
+                  </div>
+                  {selectedRadius !== null && (
+                    <button
+                      type="button"
+                      onClick={handleGetCurrentLocation}
+                      disabled={localLoading}
+                      className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {selectedLocation && selectedLocation !== 'current-location' 
+                      ? `${t('usingLocation')}: ${selectedLocation}` 
+                      : t('useMyLocation')}
+                    </button>
+                  )}
+                  {locationError && (
+                    <p className="text-sm text-red-600 dark:text-red-400">{locationError}</p>
+                  )}
+                </div>
                 {selectedRadius !== null && (
                   <div className="pl-5">
                     <p className="text-xs text-gray-500 mb-2">
-                      {t("nearbyAreas")}:
+                      {t('nearbyAreas')}:
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {getCityAreas(selectedLocation).map((area) => {
-                        const isSelected = (selectedAreas ?? []).includes(area);
-                        return (
-                          <button
-                            type="button"
-                            key={area}
-                            onClick={() => {
-                              if (!setSelectedAreas) return;
-                              const base = selectedAreas ?? [];
-                              const newAreas = isSelected
-                                ? base.filter(a => a !== area)
-                                : [...base, area];
-                              setSelectedAreas(newAreas);
-                            }}
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors ${isSelected ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
-                          >
-                            {area}
-                          </button>
-                        );
-                      })}
+                      {[
+                        'Al-Rastan',
+                        'Talbiseh',
+                        'Al-Qusayr',
+                        'Al-Mukharram'
+                      ].map((area) => (
+                        <button
+                          key={area}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLocation(area);
+                            // Clear user location when selecting a predefined area
+                            setUserLocation(null);
+                            // You might want to add coordinates for these areas
+                            // and update the map/radius filter accordingly
+                          }}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            selectedLocation === area 
+                              ? 'bg-blue-600 text-white dark:bg-blue-700' 
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800'
+                          } transition-colors`}
+                        >
+                          {area}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
