@@ -1,13 +1,13 @@
 import type { Settings } from "@/types";
-import apiClient, { RequestConfig } from "./apiClient";
+import type { AuthUser } from "@/types/auth.types";
 import type {
   APIResponse,
   AppSettingsData,
   NotificationSettings,
   PrivacySettings,
 } from "@/types/common";
-import axios from "axios";
-import { ACTIVE_API_URL } from "@/config";
+import type { RequestConfig } from "./apiClient";
+import apiClient from "./apiClient";
 
 const DEFAULT_SETTINGS: AppSettingsData = {
   notifications: {
@@ -37,10 +37,9 @@ const DEFAULT_SETTINGS: AppSettingsData = {
 };
 
 export class SettingsAPI {
-  // private static readonly BASE_PATH = ACTIVE_API_URL + "/users/settings";
   private static readonly BASE_PATH = "/users/settings";
 
-  static async getSettings(): Promise<APIResponse<AppSettingsData>> {
+  static async getSettings(): Promise<APIResponse<AuthUser>> {
     const response = await apiClient.get(`${this.BASE_PATH}`);
     return response.data;
   }
