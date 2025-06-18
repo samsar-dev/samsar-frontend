@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
@@ -6,7 +6,6 @@ import NotificationSettings from "@/components/settings/NotificationSettings";
 import DeleteAccount from "@/components/settings/DeleteAccount";
 import { Tab } from "@headlessui/react";
 // import SecuritySettings from "@/components/settings/SecuritySettings";
-// import PrivacySettings from "@/components/settings/PrivacySettings";
 
 import type {
   PreferenceSettings as PreferenceSettingsType,
@@ -155,16 +154,7 @@ function Settings() {
               {/* Notifications Panel */}
               <Tab.Panel className="p-6">
                 <NotificationSettings
-                  notifications={
-                    settings?.notifications || {
-                      generalUpdates: false,
-                      newInboxMessages: false,
-                      orderUpdates: false,
-                      listingUpdates: false,
-                      pushNotifications: false,
-                      newsletter: false,
-                    }
-                  }
+                  notifications={settings.notifications}
                   onUpdate={(notifications) =>
                     updateSettings({ notifications })
                   }

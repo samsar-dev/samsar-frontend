@@ -58,7 +58,11 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                   <input
                     id={id}
                     type="checkbox"
-                    checked={notifications[id as keyof NotificationPreferences]}
+                    checked={
+                      notifications[
+                        id as keyof NotificationPreferences
+                      ] as boolean
+                    }
                     onChange={() =>
                       handleNotificationChange(
                         id as keyof NotificationPreferences
@@ -90,10 +94,13 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                 <input
                   id="loginNotifications"
                   type="checkbox"
-                  // checked={mergedSettings.loginNotifications}
-                  // onChange={(e) =>
-                  //   handleSecurityChange("loginNotifications", e.target.checked)
-                  // }
+                  checked={notifications.loginNotifications}
+                  onChange={(e) =>
+                    onUpdate({
+                      ...notifications,
+                      loginNotifications: e.target.checked,
+                    })
+                  }
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
               </div>
