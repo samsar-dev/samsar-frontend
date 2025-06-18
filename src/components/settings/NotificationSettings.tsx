@@ -30,20 +30,28 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
 
       <div className="space-y-6">
         {/* Email Notifications Section */}
-        <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div className="space-y-4 bg-white dark:bg-gray-800">
+          {/* <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm"> */}
           <div className="flex items-center space-x-2">
-            <span className="text-gray-600 dark:text-gray-300">📩</span>
-            <h3 className="text-base font-medium text-gray-900 dark:text-white">
+            {/* <span className="text-gray-600 dark:text-gray-300">📩</span> */}
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               {t("notifications.emailSection")}
+              {/* {t("Email Notifications")} */}
             </h3>
           </div>
 
-          <div className="space-y-3 pl-6">
+          <div className="space-y-3">
             {[
-              { id: "generalUpdates", label: t("notifications.generalUpdates") },
-              { id: "newInboxMessages", label: t("notifications.newInboxMessages") },
-              { id: "orderUpdates", label: t("notifications.orderUpdates") },
-              { id: "listingUpdates", label: t("notifications.listingUpdates") },
+              // { id: "generalUpdates", label: t("notifications.generalUpdates") },
+              {
+                id: "newInboxMessages",
+                label: t("notifications.newInboxMessages"),
+              },
+              // { id: "orderUpdates", label: t("notifications.orderUpdates") },
+              {
+                id: "listingUpdates",
+                label: t("notifications.listingUpdates"),
+              },
             ].map(({ id, label }) => (
               <div key={id} className="flex items-start">
                 <div className="flex h-5 items-center">
@@ -51,12 +59,19 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                     id={id}
                     type="checkbox"
                     checked={notifications[id as keyof NotificationPreferences]}
-                    onChange={() => handleNotificationChange(id as keyof NotificationPreferences)}
+                    onChange={() =>
+                      handleNotificationChange(
+                        id as keyof NotificationPreferences
+                      )
+                    }
                     className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <label htmlFor={id} className="font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor={id}
+                    className="font-medium text-gray-700 dark:text-gray-300"
+                  >
                     {label}
                   </label>
                 </div>
@@ -65,8 +80,41 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
           </div>
         </div>
 
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            {t("security.loginNotifications")}
+          </h3>
+          <div className="mt-4">
+            <div className="flex items-start">
+              <div className="flex h-5 items-center">
+                <input
+                  id="loginNotifications"
+                  type="checkbox"
+                  // checked={mergedSettings.loginNotifications}
+                  // onChange={(e) =>
+                  //   handleSecurityChange("loginNotifications", e.target.checked)
+                  // }
+                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+              </div>
+              {/* <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}> */}
+              <div className={`ml-3 text-sm`}>
+                <label
+                  htmlFor="loginNotifications"
+                  className="font-medium text-gray-700"
+                >
+                  {t("security.enableLoginNotifications")}
+                </label>
+                <p className="text-gray-500">
+                  {t("security.loginNotificationsDescription")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Push Notifications Section */}
-        <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        {/* <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
           <div className="flex items-center space-x-2">
             <span className="text-gray-600 dark:text-gray-300">📱</span>
             <h3 className="text-base font-medium text-gray-900 dark:text-white">
@@ -86,16 +134,19 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                 />
               </div>
               <div className="ml-3 text-sm">
-                <label htmlFor="pushNotifications" className="font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="pushNotifications"
+                  className="font-medium text-gray-700 dark:text-gray-300"
+                >
                   {t("notifications.pushNotifications")}
                 </label>
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Newsletter Section */}
-        <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        {/* <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
           <div className="flex items-center space-x-2">
             <span className="text-gray-600 dark:text-gray-300">📰</span>
             <h3 className="text-base font-medium text-gray-900 dark:text-white">
@@ -115,7 +166,10 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                 />
               </div>
               <div className="ml-3 text-sm">
-                <label htmlFor="newsletter" className="font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="newsletter"
+                  className="font-medium text-gray-700 dark:text-gray-300"
+                >
                   {t("notifications.newsletterDescription")}
                 </label>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -124,7 +178,7 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

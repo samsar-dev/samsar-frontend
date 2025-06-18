@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "@/contexts/SettingsContext";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import NotificationSettings from "@/components/settings/NotificationSettings";
-import SecuritySettings from "@/components/settings/SecuritySettings";
-import PrivacySettings from "@/components/settings/PrivacySettings";
 import DeleteAccount from "@/components/settings/DeleteAccount";
 import { Tab } from "@headlessui/react";
+// import SecuritySettings from "@/components/settings/SecuritySettings";
+// import PrivacySettings from "@/components/settings/PrivacySettings";
 
 import type {
   PreferenceSettings as PreferenceSettingsType,
@@ -100,7 +100,7 @@ function Settings() {
   const tabs = [
     { name: t("preferences"), icon: "⚙️" },
     { name: t("notifications.title"), icon: "🔔" },
-    { name: t("security.title"), icon: "🔐" },
+    // { name: t("security.title"), icon: "🔐" },
     { name: t("privacy.title"), icon: "🔒" },
     { name: t("connectedAccounts.title"), icon: "🔗" },
     { name: t("account.title"), icon: "👤" },
@@ -112,8 +112,12 @@ function Settings() {
     >
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("title")}</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">{t("settingsDescription")}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {t("title")}
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            {t("settingsDescription")}
+          </p>
         </div>
 
         <div className="bg-white shadow rounded-lg overflow-hidden dark:bg-gray-800">
@@ -137,7 +141,7 @@ function Settings() {
                 </Tab>
               ))}
             </Tab.List>
-            
+
             <Tab.Panels>
               {/* Preferences Panel */}
               <Tab.Panel className="p-6">
@@ -161,18 +165,20 @@ function Settings() {
                       newsletter: false,
                     }
                   }
-                  onUpdate={(notifications) => updateSettings({ notifications })}
+                  onUpdate={(notifications) =>
+                    updateSettings({ notifications })
+                  }
                 />
               </Tab.Panel>
 
               {/* Security Panel */}
-              <Tab.Panel className="p-6">
+              {/* <Tab.Panel className="p-6">
                 <SecuritySettings
                   settings={settings?.security || {}}
                   onUpdate={handleSecurityUpdate}
                   isRTL={isRTL}
                 />
-              </Tab.Panel>
+              </Tab.Panel> */}
 
               {/* Privacy Panel */}
               <Tab.Panel className="p-6">
@@ -185,7 +191,9 @@ function Settings() {
                     <div className="pl-4">
                       <div className="flex items-center space-x-4">
                         <select
-                          value={settings?.privacy?.profileVisibility ?? "public"}
+                          value={
+                            settings?.privacy?.profileVisibility ?? "public"
+                          }
                           onChange={(e) =>
                             handlePrivacyUpdate({
                               profileVisibility: e.target.value as
@@ -196,7 +204,9 @@ function Settings() {
                           className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
                           <option value="public">{t("privacy.public")}</option>
-                          <option value="private">{t("privacy.private")}</option>
+                          <option value="private">
+                            {t("privacy.private")}
+                          </option>
                         </select>
                       </div>
                     </div>
