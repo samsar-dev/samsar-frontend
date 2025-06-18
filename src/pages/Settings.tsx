@@ -1,17 +1,17 @@
+import DeleteAccount from "@/components/settings/DeleteAccount";
+import NotificationSettings from "@/components/settings/NotificationSettings";
+import PreferenceSettings from "@/components/settings/PreferenceSettings";
+import { useSettings } from "@/contexts/SettingsContext";
+import { Tab } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/contexts/SettingsContext";
-import PreferenceSettings from "@/components/settings/PreferenceSettings";
-import NotificationSettings from "@/components/settings/NotificationSettings";
-import DeleteAccount from "@/components/settings/DeleteAccount";
-import { Tab } from "@headlessui/react";
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
+import { SettingsAPI } from "@/api";
 import type {
   PreferenceSettings as PreferenceSettingsType,
   SecuritySettings as SecuritySettingsType,
 } from "@/types/settings";
-import { SettingsAPI } from "@/api";
 
 interface ToggleProps {
   checked?: boolean;
@@ -53,6 +53,35 @@ function Settings() {
   const { settings, updateSettings } = useSettings();
   const [debouncedToggles, setDebouncedToggles] = useState(settings);
   const isRTL = i18n.language === "ar";
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      const response = await SettingsAPI.getSettings();
+      // console.log("userSettings", userSettings);
+      if (response.status === 200) {
+        const userSettings = response.data;
+        if (userSettings)
+          updateSettings({
+            ...settings,
+            notifications: {
+              listingUpdates: userSettings.listingNotifications,
+              newInboxMessages: userSettings.messageNotifications,
+              loginNotifications: userSettings.loginNotifications,
+            },
+            privacy: {
+              showEmail: userSettings.showEmail,
+              showPhone: userSettings.showPhoneNumber,
+              showOnlineStatus: userSettings.showOnlineStatus,
+              allowMessaging: userSettings.allowMessaging,
+              profileVisibility: userSettings.privateProfile
+                ? "private"
+                : "public",
+            },
+          });
+      }
+    };
+    fetchUserSettings();
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
