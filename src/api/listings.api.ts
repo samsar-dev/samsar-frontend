@@ -71,6 +71,8 @@ export interface SingleListingResponse {
     subCategory: VehicleType | PropertyType;
   };
   location: string;
+  latitude: number;
+  longitude: number;
   condition: Condition;
   listingAction: "SALE" | "RENT";
   status: "ACTIVE" | "SOLD" | "RENTED" | "EXPIRED";
@@ -1442,6 +1444,8 @@ export const listingsAPI: ListingsAPI = {
         price: responseData.price,
         category: responseData.category,
         location: responseData.location,
+        latitude: responseData.latitude,
+        longitude: responseData.longitude,
         images: responseData.images.map((img) =>
           typeof img === "string" ? img : img.url,
         ),

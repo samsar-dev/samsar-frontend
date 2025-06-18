@@ -27,9 +27,11 @@ interface UserRow {
   email: string;
   phone?: string | null;
   subscriptionStatus?: string | null;
-  listings: number;
+  listingsCount: number;
   role: string;
   createdAt: string;
+  lastActiveAt?: string | null;
+  isOnline: boolean;
 }
 
 const UsersList: FC = () => {
@@ -109,6 +111,7 @@ const UsersList: FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Email</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Subscription</TableCell>
               <TableCell align="right">Listings</TableCell>
@@ -122,9 +125,26 @@ const UsersList: FC = () => {
               .map((u) => (
                 <TableRow key={u.id} hover>
                   <TableCell>{u.email}</TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <Box
+                        width={10}
+                        height={10}
+                        borderRadius="50%"
+                        bgcolor={u.isOnline ? 'success.main' : 'grey.500'}
+                        mr={1}
+                      />
+                      {u.isOnline ? 'Online' : 'Offline'}
+                      {!u.isOnline && u.lastActiveAt && (
+                        <Typography variant="caption" color="text.secondary" ml={1}>
+                          (Last seen: {new Date(u.lastActiveAt).toLocaleString()})
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
                   <TableCell>{u.phone || "-"}</TableCell>
                   <TableCell>{u.subscriptionStatus || "INACTIVE"}</TableCell>
-                  <TableCell align="right">{u.listings}</TableCell>
+                  <TableCell align="right">{u.listingsCount}</TableCell>
                   <TableCell>
                     {new Date(u.createdAt).toLocaleDateString()}
                   </TableCell>

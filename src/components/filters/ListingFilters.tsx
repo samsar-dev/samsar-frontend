@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useMemo } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { useTranslation } from "react-i18next";
 import { MdFilterList, MdCheck } from "react-icons/md";
@@ -33,6 +33,10 @@ interface ListingFiltersProps {
   setSelectedYear: (value: string | null) => void;
   selectedLocation: string | null;
   setSelectedLocation: (value: string | null) => void;
+  selectedRadius: number | null;
+  setSelectedRadius: (value: number | null) => void;
+  selectedAreas?: string[];
+  setSelectedAreas?: (areas: string[]) => void;
   selectedBuiltYear: string | null;
   setSelectedBuiltYear: (value: string | null) => void;
   loading?: boolean;
@@ -70,15 +74,38 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   setSelectedYear,
   selectedLocation,
   setSelectedLocation,
+  selectedRadius,
+  setSelectedRadius,
+  selectedAreas,
+  setSelectedAreas,
   selectedBuiltYear,
   setSelectedBuiltYear,
+  loading = false,
 }) => {
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
   const { t } = useTranslation(["filters", "common"]);
-  const [localLoading, setLocalLoading] = useState(false);
+  // Use the loading prop for all loading states
+  const localLoading = loading;
+
+  // Get city and area translations
+  const cities = t('cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
+  const areas = t('areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
+  
+  // Get city options from translations
+  const cityOptions = Object.entries(cities).map(([id, name]) => ({
+    id,
+    name: String(name) // Ensure name is a string
+  }));
+  
+  // Get areas for the selected city
+  const getCityAreas = (cityId: string | null): string[] => {
+    if (!cityId) return [];
+    const cityAreas = areas[cityId];
+    return Array.isArray(cityAreas) ? cityAreas : [];
+  };
 
   // Common translations
   const common = {
@@ -122,40 +149,25 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     );
   }, [selectedSubcategory, selectedMake]);
 
-  // Reset model when make changes
-  const handleMakeChange = async (make: string | null) => {
-    setLocalLoading(true);
-    try {
-      setSelectedMake(make);
-      setSelectedModel(null);
-    } finally {
-      setLocalLoading(false);
-    }
+  // Handle make change
+  const handleMakeChange = (value: string | null) => {
+    setSelectedMake(value);
+    setSelectedModel(null);
   };
 
-  // Reset make and model when subcategory changes
-  const handleSubcategoryChange = async (subcategory: string | null) => {
-    setLocalLoading(true);
-    try {
-      setSelectedSubcategory(subcategory);
-      setSelectedMake(null);
-      setSelectedModel(null);
-    } finally {
-      setLocalLoading(false);
-    }
+  // Handle subcategory change
+  const handleSubcategoryChange = (value: string | null) => {
+    setSelectedSubcategory(value);
+    setSelectedMake(null);
+    setSelectedModel(null);
   };
 
   const isVehicleCategory = (subcategory: string | null): boolean => {
     return Object.values(VehicleType).includes(subcategory as VehicleType);
   };
 
-  const handleActionChange = async (action: "SALE" | "RENT" | null) => {
-    setLocalLoading(true);
-    try {
-      setSelectedAction(action);
-    } finally {
-      setLocalLoading(false);
-    }
+  const handleActionChange = (action: "SALE" | "RENT" | null) => {
+    setSelectedAction(action);
   };
 
   const SubcategoryLabels: { [key: string]: string } = {
@@ -179,6 +191,18 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     OTHER: common.subcategories.OTHER,
   };
 
+  // Reset all filters
+  const resetFilters = () => {
+    setSelectedAction(null);
+    setSelectedSubcategory(null);
+    setSelectedMake(null);
+    setSelectedModel(null);
+    setSelectedYear(null);
+    setSelectedLocation(null);
+    setSelectedRadius(null);
+    setSelectedBuiltYear(null);
+  }
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 mb-4 relative z-20 w-full max-w-full">
       <div className="flex flex-row justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -187,15 +211,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
         </span>
         <button
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-          onClick={() => {
-            setSelectedSubcategory(null);
-            setSelectedMake(null);
-            setSelectedModel(null);
-            setSelectedYear(null);
-            setSelectedLocation(null);
-            setSelectedBuiltYear(null);
-            setSelectedAction(null);
-          }}
+          onClick={resetFilters}
         >
           {common.reset || "Reset"}
         </button>
@@ -332,36 +348,74 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           </div>
         </div>
 
-        {/* Location Filter - Available for both vehicle and real estate */}
+        {/* Syrian cities with their nearby areas */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t("location")}
           </label>
-          <select
-            name="location"
-            value={selectedLocation || ""}
-            onChange={(e) => setSelectedLocation(e.target.value || null)}
-            className={`w-full appearance-none px-4 py-2 text-sm rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 z-[60] ${localLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={localLoading}
-          >
-            <option value="">{t("allCities", { ns: "common" })}</option>
-            <option value="DAMASCUS">{t("cities.DAMASCUS")}</option>
-            <option value="ALEPPO">{t("cities.ALEPPO")}</option>
-            <option value="HOMS">{t("cities.HOMS")}</option>
-            <option value="LATTAKIA">{t("cities.LATTAKIA")}</option>
-            <option value="HAMA">{t("cities.HAMA")}</option>
-            <option value="DEIR_EZZOR">{t("cities.DEIR_EZZOR")}</option>
-            <option value="HASEKEH">{t("cities.HASEKEH")}</option>
-            <option value="QAMISHLI">{t("cities.QAMISHLI")}</option>
-            <option value="RAQQA">{t("cities.RAQQA")}</option>
-            <option value="TARTOUS">{t("cities.TARTOUS")}</option>
-            <option value="IDLIB">{t("cities.IDLIB")}</option>
-            <option value="DARA">{t("cities.DARA")}</option>
-            <option value="SWEDIA">{t("cities.SWEDIA")}</option>
-            <option value="QUNEITRA">{t("cities.QUNEITRA")}</option>
-          </select>
-        </div>
+          <div className="space-y-3">
+            <select
+              name="location"
+              value={selectedLocation || ""}
+              onChange={(e) => setSelectedLocation(e.target.value || null)}
+              className={`w-full appearance-none px-4 py-2 text-sm rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 z-[60] ${
+                localLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={localLoading}
+            >
+              <option value="">{t("selectCity")}</option>
+              {cityOptions.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
 
+            {selectedLocation && (
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={selectedRadius !== null}
+                    onChange={(e) => setSelectedRadius(e.target.checked ? 1 : null)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>{t("includeNearbyAreas")}</span>
+                </label>
+
+                {selectedRadius !== null && (
+                  <div className="pl-5">
+                    <p className="text-xs text-gray-500 mb-2">
+                      {t("nearbyAreas")}:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {getCityAreas(selectedLocation).map((area) => {
+                        const isSelected = (selectedAreas ?? []).includes(area);
+                        return (
+                          <button
+                            type="button"
+                            key={area}
+                            onClick={() => {
+                              if (!setSelectedAreas) return;
+                              const base = selectedAreas ?? [];
+                              const newAreas = isSelected
+                                ? base.filter(a => a !== area)
+                                : [...base, area];
+                              setSelectedAreas(newAreas);
+                            }}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors ${isSelected ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-700'}`}
+                          >
+                            {area}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
         {/* Built Year Filter - Only for Real Estate */}
         {selectedCategory === ListingCategory.REAL_ESTATE && (
           <div className="space-y-2 z-[60]">

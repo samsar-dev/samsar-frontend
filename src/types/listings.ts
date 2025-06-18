@@ -705,6 +705,8 @@ export interface Listing {
     subCategory: VehicleType | PropertyType;
   };
   location: string;
+  latitude: number;
+  longitude: number;
   images: Array<string | File>;
   image?: string;
   createdAt?: Date | string;
@@ -725,6 +727,8 @@ export interface ListingUpdateInput {
   description: string;
   price: number;
   location: string;
+  latitude: number;
+  longitude: number;
   category: Category;
   details?: {
     vehicles?: Record<string, string | number | boolean | string[]>;
@@ -798,6 +802,10 @@ export interface ListingParams {
   sortOrder?: "asc" | "desc";
   preview?: boolean;
   forceRefresh?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
 }
 
 // Extended listing interface to include savedBy

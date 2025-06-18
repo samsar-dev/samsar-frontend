@@ -59,9 +59,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onSubmit,
   onImageDelete,
 }) => {
-  const { t } = useTranslation(["common", "listings", "form", "errors"]);
+  const { t, i18n } = useTranslation(["common", "listings", "form", "errors"]);
   const commonT = (key: string) => t(key, { ns: "common" });
   const formT = (key: string) => t(key, { ns: "form" });
+  const listingsT = (key: string) => t(key, { ns: "listings" });
   const [formData, setFormData] = useState<ExtendedFormState>({
     title: "",
     description: "",
@@ -902,6 +903,25 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Add a new function to render real estate specific fields
 
+  // Check if text is already in Arabic or contains Arabic characters
+  const isArabic = (text: string) => {
+    // Check for Arabic Unicode range
+    const arabicRegex = /[\u0600-\u06FF]/;
+    return arabicRegex.test(text);
+  };
+
+  // Helper function to get nested property from an object
+  const getNestedValue = (obj: any, path: string) => {
+    try {
+      return path.split('.').reduce((acc, part) => {
+        return acc && acc[part] !== undefined ? acc[part] : undefined;
+      }, obj);
+    } catch (error) {
+      console.error('Error getting nested value:', { path, error });
+      return undefined;
+    }
+  };
+
   // Helper function for safe translation with debugging
   const safeTranslate = (
     text: string,
@@ -910,20 +930,74 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     if (!text) return "";
     if (/^\d+$/.test(text)) return text; // raw number string like year
 
-    try {
-      // If the text is a translation key (contains a dot), use it as is
-      if (text.includes(".")) {
-        const translated = commonT(text);
-        return translated || text; // Return the key if translation not found
-      }
+    console.log(`🔍 Translating "${text}" with namespace "${ns}"`);
 
-      // Otherwise, use the appropriate translator based on namespace
-      const translated = ns === "common" ? commonT(text) : formT(text);
-      return translated || text;
-    } catch (error) {
-      console.error("Translation error:", { text, ns, error });
+    // If the text is already in Arabic, return it as is
+    if (isArabic(text)) {
+      console.log('  - Text is already in Arabic, returning as is');
       return text;
     }
+
+    // If the text looks like a translation key (contains dots)
+    if (text.includes('.')) {
+      try {
+        // First try to get the nested value from the current namespace
+        const resources = i18n.getResourceBundle(i18n.language, ns);
+        if (resources) {
+          const nestedValue = getNestedValue(resources, text);
+          if (nestedValue) {
+            console.log('  - Found nested value:', nestedValue);
+            return nestedValue;
+          }
+        }
+
+        // Try with common namespace if different from current namespace
+        if (ns !== 'common') {
+          const commonResources = i18n.getResourceBundle(i18n.language, 'common');
+          if (commonResources) {
+            const commonNestedValue = getNestedValue(commonResources, text);
+            if (commonNestedValue) {
+              console.log('  - Found in common namespace:', commonNestedValue);
+              return commonNestedValue;
+            }
+          }
+        }
+
+        // Try with direct translation
+        const directTranslation = t(text, { ns });
+        if (directTranslation && directTranslation !== text) {
+          console.log('  - Direct translation found:', directTranslation);
+          return directTranslation;
+        }
+
+        // Try with common namespace
+        if (ns !== 'common') {
+          const commonTranslation = t(text, { ns: 'common' });
+          if (commonTranslation && commonTranslation !== text) {
+            console.log('  - Common namespace translation:', commonTranslation);
+            return commonTranslation;
+          }
+        }
+
+      } catch (error) {
+        console.error('Error in translation lookup:', error);
+      }
+    }
+
+
+    // If we get here, try one last time with the original text
+    try {
+      const finalAttempt = t(text, { ns });
+      if (finalAttempt && finalAttempt !== text) {
+        return finalAttempt;
+      }
+    } catch (error) {
+      console.error('Error in final translation attempt:', error);
+    }
+
+    // If all else fails, return the last part of the key or the key itself
+    console.log('  - No translation found, returning key');
+    return text.includes('.') ? text.split('.').pop() || text : text;
   };
 
   const renderRealEstateFields = () => {
@@ -1043,9 +1117,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           )}
           {type === "select" && options ? (
             <Select
-              value={options.find((opt) => opt.value === fieldValue)}
-              onChange={(selected: any) =>
-                handleInputChange(fieldName, selected?.value || "")
+              value={options.find((opt) => opt.value === fieldValue || opt.label === fieldValue)}
+              onChange={fieldName === "location" 
+                ? handleLocationChange 
+                : (selected: any) => handleInputChange(fieldName, selected?.value || "")
               }
               options={options}
               className="react-select-container"
@@ -1184,89 +1259,48 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     );
   };
 
-  // Syrian cities data
-  const syrianCities = [
-    { value: "DAMASCUS", label: commonT("cities.DAMASCUS") },
-    { value: "ALEPPO", label: commonT("cities.ALEPPO") },
-    { value: "HOMS", label: commonT("cities.HOMS") },
-    { value: "LATTAKIA", label: commonT("cities.LATTAKIA") },
-    { value: "HAMA", label: commonT("cities.HAMA") },
-    { value: "DEIR_EZZOR", label: commonT("cities.DEIR_EZZOR") },
-    { value: "HASEKEH", label: commonT("cities.HASEKEH") },
-    { value: "QAMISHLI", label: commonT("cities.QAMISHLI") },
-    { value: "RAQQA", label: commonT("cities.RAQQA") },
-    { value: "TARTOUS", label: commonT("cities.TARTOUS") },
-    { value: "IDLIB", label: commonT("cities.IDLIB") },
-    { value: "DARA", label: commonT("cities.DARA") },
-    { value: "SWEDIA", label: commonT("cities.SWEDIA") },
-    { value: "QUNEITRA", label: commonT("cities.QUNEITRA") },
-  ];
-
-  const handleLocationChange = (selected: any) => {
-    handleInputChange("location", selected?.value || "");
+  // Function to get city and its areas with translations
+  const getCityAreas = (cityKey: string): { value: string; label: string; isArea?: boolean }[] => {
+    // Get translations for cities and areas
+    const cities = t('cities', { returnObjects: true, ns: 'filters' }) as Record<string, string>;
+    const areas = t('areas', { returnObjects: true, ns: 'filters' }) as Record<string, string[]>;
+    
+    const cityName = cities[cityKey.toLowerCase()] || cityKey;
+    const cityAreas = areas[cityKey.toLowerCase()] || [];
+    
+    return [
+      { value: cityKey, label: cityName },
+      ...cityAreas.map(area => ({
+        value: `${cityKey}_${area.toUpperCase().replace(/[^A-Z]/g, '_')}`,
+        label: `${cityName} - ${area}`,
+        isArea: true
+      }))
+    ];
   };
 
-  const renderLocationField = () => {
-    return (
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {formT("location")}
-          <span className="text-red-500 ml-1">*</span>
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MapPin className="h-5 w-5 text-gray-400" />
-          </div>
-          <Select
-            value={syrianCities.find(
-              (city) => city.value === formData.location,
-            )}
-            onChange={handleLocationChange}
-            options={syrianCities}
-            className="react-select-container"
-            classNamePrefix="react-select"
-            placeholder={formT("selectLocation")}
-            isClearable
-            styles={{
-              control: (baseStyles, state) => ({
-                ...baseStyles,
-                backgroundColor: state.isFocused
-                  ? "var(--blue-50)"
-                  : "var(--gray-50)",
-                borderColor: state.isFocused
-                  ? "var(--blue-500)"
-                  : "var(--gray-300)",
-                borderRadius: "0.5rem",
-                boxShadow: state.isFocused
-                  ? "0 0 0 1px var(--blue-500)"
-                  : "none",
-                "&:hover": {
-                  borderColor: state.isFocused
-                    ? "var(--blue-500)"
-                    : "var(--gray-400)",
-                },
-              }),
-              menu: (baseStyles) => ({
-                ...baseStyles,
-                backgroundColor: "var(--white)",
-                borderRadius: "0.5rem",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              }),
-              option: (baseStyles, { isSelected }) => ({
-                ...baseStyles,
-                backgroundColor: isSelected ? "var(--blue-50)" : "var(--white)",
-                "&:hover": {
-                  backgroundColor: "var(--blue-50)",
-                },
-              }),
-            }}
-          />
-        </div>
-        {errors.location && touched.location && (
-          <p className="mt-1 text-sm text-red-500">{errors.location}</p>
-        )}
-      </div>
-    );
+  const syrianCities = [
+    ...getCityAreas("damascus"),
+    ...getCityAreas("aleppo"),
+    ...getCityAreas("homs"),
+    ...getCityAreas("latakia"),
+    ...getCityAreas("hama"),
+    ...getCityAreas("deir_ezzor"),
+    ...getCityAreas("hasaka"),
+    ...getCityAreas("raqqa"),
+    ...getCityAreas("tartous"),
+    ...getCityAreas("idlib"),
+    ...getCityAreas("daraa"),
+    ...getCityAreas("sweida"),
+    ...getCityAreas("quneitra"),
+  ];
+
+  const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
+    if (!selected) {
+      handleInputChange("location", "");
+      return;
+    }
+    // Use the formatted label for display and the value for storage
+    handleInputChange("location", selected.label);
   };
 
   return (
@@ -1372,7 +1406,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {renderFormField(
-              commonT("price"),
+              commonT("propertyDetails.price"),
               "price",
               "number",
               undefined,
@@ -1381,7 +1415,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               0,
             )}
             {renderFormField(
-              commonT("location"),
+              commonT("propertyDetails.location"),
               "location",
               "select",
               syrianCities,
@@ -1397,7 +1431,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           </div>
 
           {renderFormField(
-            commonT("description"),
+            commonT("propertyDetails.description"),
             "description",
             "textarea",
             undefined,
@@ -1408,15 +1442,15 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
         {/* Image Manager Component */}
         <div className="mt-6">
-          <CollapsibleTip title="Photo Tips">
+          <CollapsibleTip title={listingsT('images.photo_tips.title')}>
             <p className="mb-2">
-              Listings with at least 6 photos get 3x more views!
+              {listingsT('images.photo_tips.tip1')}
             </p>
             {(formData.images?.length || 0) +
               (formData.existingImages?.length || 0) <
               6 && (
               <p className="text-amber-600">
-                Add at least 2 photos (recommended: 6+)
+                {listingsT('images.photo_tips.tip2')}
               </p>
             )}
           </CollapsibleTip>

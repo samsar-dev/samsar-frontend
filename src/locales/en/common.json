@@ -65,7 +65,15 @@
     "VAN": "Van",
     "TRACTOR": "Tractor",
     "CONSTRUCTION": "Construction",
-    "OTHER": "Other"
+    "OTHER": "Other",
+    "SUV": "SUV",
+    "ATV": "ATV",
+    "BOAT": "Boat",
+    "TRAILER": "Trailer",
+    "HEAVY_EQUIPMENT": "Heavy Equipment",
+    "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
+    "AGRICULTURAL_EQUIPMENT": "Agricultural Equipment",
+    "INDUSTRIAL_EQUIPMENT": "Industrial Equipment"
   },
   "propertyTypes": {
     "HOUSE": "House",
@@ -116,7 +124,9 @@
       },
       "conditions": {
         "new": "New",
-        "used": "Used"
+        "used": "Used",
+        "refurbished": "Refurbished",
+        "for_parts": "For Parts"
       }
     },
     "year": "Year",
@@ -207,6 +217,23 @@
       "CONDO": "Condo",
       "LAND": "Land",
       "COMMERCIAL": "Commercial"
+    },
+    "vehicle": {
+      "CAR": "Car",
+      "TRUCK": "Truck",
+      "MOTORCYCLE": "Motorcycle",
+      "VAN": "Van",
+      "BUS": "Bus",
+      "TRACTOR": "Tractor",
+      "RV": "RV",
+      "SUV": "SUV",
+      "ATV": "ATV",
+      "BOAT": "Boat",
+      "TRAILER": "Trailer",
+      "HEAVY_EQUIPMENT": "Heavy Equipment",
+      "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
+      "AGRICULTURAL_EQUIPMENT": "Agricultural Equipment",
+      "INDUSTRIAL_EQUIPMENT": "Industrial Equipment"
     },
     "OTHER": "Other"
   },
