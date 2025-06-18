@@ -29,6 +29,7 @@ const defaultSettings: Settings = {
     showPhone: false,
     showOnlineStatus: true,
     allowMessaging: true,
+    profileVisibility: "public",
   },
 };
 

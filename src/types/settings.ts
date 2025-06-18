@@ -70,7 +70,7 @@ export interface Settings {
     showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
-    profileVisibility?: "public" | "private";
+    profileVisibility: "public" | "private";
   };
 }
 
@@ -84,7 +84,7 @@ export interface SettingsUpdate {
     showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
-    profileVisibility?: "public" | "private";
+    profileVisibility: "public" | "private";
   }>;
 }
 

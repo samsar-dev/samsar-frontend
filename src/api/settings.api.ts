@@ -24,10 +24,10 @@ const DEFAULT_SETTINGS: AppSettingsData = {
   },
   privacy: {
     profileVisibility: "public",
-    showEmail: false,
     showPhone: false,
     showOnlineStatus: true,
     allowMessagesFrom: "everyone",
+    allowMessaging: true,
   },
   preferences: {
     language: "en",
