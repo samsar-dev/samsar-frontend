@@ -13,14 +13,6 @@ const defaultSettings: Settings = {
     language: LanguageCode.EN,
     theme: ThemeType.LIGHT,
     timezone: "UTC",
-    notifications: {
-      email: true,
-      push: true,
-      desktop: true,
-      listing: true,
-      message: true,
-      system: true,
-    },
   },
   security: {
     twoFactorEnabled: false,
@@ -41,7 +33,7 @@ const defaultSettings: Settings = {
 };
 
 export const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
