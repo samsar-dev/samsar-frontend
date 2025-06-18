@@ -225,7 +225,7 @@ function Settings() {
                         {t("privacy.showPhoneNumber")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showPhone ?? false}
+                        checked={settings?.privacy?.showPhone ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showPhone: checked })
                         }
@@ -241,7 +241,7 @@ function Settings() {
                         {t("privacy.showEmail")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showEmail ?? false}
+                        checked={settings?.privacy?.showEmail ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showEmail: checked })
                         }
