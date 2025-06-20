@@ -24,6 +24,14 @@ interface UserProfileData {
   status?: "ONLINE" | "OFFLINE";
   createdAt?: string;
   listings?: Array<any>;
+  allowMessaging?: boolean;
+  listingNotifications?: boolean;
+  messageNotifications?: boolean;
+  loginNotifications?: boolean;
+  showEmail?: boolean;
+  showOnlineStatus?: boolean;
+  showPhoneNumber?: boolean;
+  privateProfile?: "public" | "private";
 }
 
 const categoeryFillterOptions = ["ALL", "VEHICLES", "REAL_ESTATE"];
@@ -53,7 +61,7 @@ export const UserProfile = () => {
         if (!userData) {
           throw new Error("User not found");
         }
-        console.log(userData);
+        console.log("user data", userData);
         setProfile(userData);
       } catch (err) {
         setError(t("profile.load_error"));
@@ -135,9 +143,11 @@ export const UserProfile = () => {
                   </span>
                 </div>
               )}
-              <div className="mt-3 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 w-fit mx-auto">
-                {profile.status === "ONLINE" ? t("online") : t("offline")}
-              </div>
+              {profile.showOnlineStatus && (
+                <div className="mt-3 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-gray-800/80 text-blue-800 dark:text-blue-300 w-fit mx-auto">
+                  {profile.status === "ONLINE" ? t("online") : t("offline")}
+                </div>
+              )}
             </motion.div>
 
             {/* Profile Info */}
@@ -163,13 +173,13 @@ export const UserProfile = () => {
               transition={{ delay: 0.3, duration: 0.3 }}
               className="flex flex-col items-start gap-2 text-white text-sm"
             >
-              {profile.email && (
+              {profile.email && profile.showEmail && (
                 <div className="flex items-center gap-2 text-white/90">
                   <FaEnvelope className="w-4 h-4" />
                   <span>{profile.email}</span>
                 </div>
               )}
-              {profile.phone && (
+              {profile.phone && profile?.showPhoneNumber && (
                 <div className="flex items-center gap-2 text-white/90">
                   <FaPhone className="w-4 h-4" />
                   <span>{profile.phone}</span>
@@ -196,9 +206,9 @@ export const UserProfile = () => {
               className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
             >
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-1.5 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700"
+                whileHover={{ scale: profile.allowMessaging ? 1.05 : 1 }}
+                whileTap={{ scale: profile.allowMessaging ? 0.95 : 1 }}
+                className={`group px-4 py-1.5 ${profile.allowMessaging ? "bg-white" : "bg-gray-300"} border border-gray-300 rounded-md text-sm font-medium text-gray-700`}
               >
                 Message
               </motion.button>
