@@ -155,9 +155,11 @@ function ChatSection({
           <h2 className="text-2xl font-semibold">
             {participant?.name || participant?.username}
           </h2>
-          <Badge variant="outline" className="ml-2 bg-white">
-            <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
-          </Badge>
+          {participant?.showOnlineStatus && (
+            <Badge variant="outline" className="ml-2 bg-white">
+              <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
+            </Badge>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <div className="h-6 w-px bg-gray-200"></div>
