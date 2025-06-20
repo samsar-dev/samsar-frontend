@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery"),
+  () => import("@/components/listings/images/ImageGallery")
 );
 
 interface ListingImage {
@@ -26,6 +26,7 @@ interface ExtendedListing extends Listing {
     id: string;
     username: string;
     profilePicture: string | null;
+    allowMessaging: boolean;
   };
 }
 
@@ -134,18 +135,18 @@ const ListingDetails = () => {
         // Log the full response data for debugging advanced details
         console.log(
           "Response data details:",
-          JSON.stringify(response.data?.details, null, 2),
+          JSON.stringify(response.data?.details, null, 2)
         );
         console.log(
           "FULL Response Data:",
-          JSON.stringify(response.data, null, 2),
+          JSON.stringify(response.data, null, 2)
         );
 
         // Log specific vehicle details for debugging
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details (raw):",
-            JSON.stringify(response.data.details.vehicles, null, 2),
+            JSON.stringify(response.data.details.vehicles, null, 2)
           );
 
           // Log each individual field for debugging
@@ -211,13 +212,13 @@ const ListingDetails = () => {
         // Log all the details to debug what's available
         console.log(
           "Details before transformation:",
-          JSON.stringify(details, null, 2),
+          JSON.stringify(details, null, 2)
         );
         console.log(
           "Vehicle details before:",
           details.vehicles
             ? JSON.stringify(details.vehicles, null, 2)
-            : "No vehicle details",
+            : "No vehicle details"
         );
 
         // Transform vehicle details if present
@@ -227,7 +228,7 @@ const ListingDetails = () => {
 
         // Transform the features array into a boolean object
         const transformFeatures = (
-          features: Record<string, boolean> | undefined,
+          features: Record<string, boolean> | undefined
         ) => {
           if (!features) return {};
 
@@ -295,7 +296,7 @@ const ListingDetails = () => {
             laneDepartureWarning: Boolean(features.laneDepartureWarning),
             laneKeepAssist: Boolean(features.laneKeepAssist),
             automaticEmergencyBraking: Boolean(
-              features.automaticEmergencyBraking,
+              features.automaticEmergencyBraking
             ),
           };
 
@@ -352,25 +353,25 @@ const ListingDetails = () => {
 
                   cruiseControl: Boolean(details.vehicles.cruiseControl),
                   laneDepartureWarning: Boolean(
-                    details.vehicles.laneDepartureWarning,
+                    details.vehicles.laneDepartureWarning
                   ),
                   laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
                   automaticEmergencyBraking: Boolean(
-                    details.vehicles.automaticEmergencyBraking,
+                    details.vehicles.automaticEmergencyBraking
                   ),
 
                   blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
                   laneAssist: Boolean(details.vehicles.laneAssist),
                   adaptiveCruiseControl: Boolean(
-                    details.vehicles.adaptiveCruiseControl,
+                    details.vehicles.adaptiveCruiseControl
                   ),
                   tractionControl: Boolean(details.vehicles.tractionControl),
                   abs: Boolean(details.vehicles.abs),
                   emergencyBrakeAssist: Boolean(
-                    details.vehicles.emergencyBrakeAssist,
+                    details.vehicles.emergencyBrakeAssist
                   ),
                   tirePressureMonitoring: Boolean(
-                    details.vehicles.tirePressureMonitoring,
+                    details.vehicles.tirePressureMonitoring
                   ),
 
                   rearCamera: Boolean(details.vehicles.rearCamera),
@@ -395,17 +396,17 @@ const ListingDetails = () => {
                   cdPlayer: Boolean(details.vehicles.cdPlayer),
                   dvdPlayer: Boolean(details.vehicles.dvdPlayer),
                   rearSeatEntertainment: Boolean(
-                    details.vehicles.rearSeatEntertainment,
+                    details.vehicles.rearSeatEntertainment
                   ),
 
                   ledHeadlights: Boolean(details.vehicles.ledHeadlights),
                   adaptiveHeadlights: Boolean(
-                    details.vehicles.adaptiveHeadlights,
+                    details.vehicles.adaptiveHeadlights
                   ),
                   ambientLighting: Boolean(details.vehicles.ambientLighting),
                   fogLights: Boolean(details.vehicles.fogLights),
                   automaticHighBeams: Boolean(
-                    details.vehicles.automaticHighBeams,
+                    details.vehicles.automaticHighBeams
                   ),
 
                   keylessEntry: Boolean(details.vehicles.keylessEntry),
@@ -414,10 +415,10 @@ const ListingDetails = () => {
                   remoteStart: Boolean(details.vehicles.remoteStart),
                   powerTailgate: Boolean(details.vehicles.powerTailgate),
                   autoDimmingMirrors: Boolean(
-                    details.vehicles.autoDimmingMirrors,
+                    details.vehicles.autoDimmingMirrors
                   ),
                   rainSensingWipers: Boolean(
-                    details.vehicles.rainSensingWipers,
+                    details.vehicles.rainSensingWipers
                   ),
 
                   engineSize: details.vehicles.engineSize || "",
@@ -468,7 +469,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.safetyFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -476,7 +477,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.cameraFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -484,7 +485,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.climateFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -492,7 +493,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.enternmentFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -500,7 +501,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.lightingFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -508,7 +509,7 @@ const ListingDetails = () => {
             isVehicleListing && vehicleDetails
               ? featuresDetails.convenienceFeatures.filter((feature) => {
                   return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value,
+                    ([key, value]) => key === feature && value
                   );
                 })
               : [],
@@ -531,6 +532,7 @@ const ListingDetails = () => {
             id: listing.userId || "",
             username: listing.seller?.username || "Unknown Seller",
             profilePicture: listing.seller?.profilePicture || null,
+            allowMessaging: listing.seller?.allowMessaging || true,
           },
         });
       } catch (error) {
@@ -707,7 +709,7 @@ const ListingDetails = () => {
               {!isOwner && !showContactForm && (
                 <button
                   onClick={handleContactSeller}
-                  className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow"
+                  className={` flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow ${listing?.seller.allowMessaging === false && "pointer-events-none opacity-50"}}`}
                   style={{ minWidth: 0 }}
                   title={t("contactSeller") as string}
                 >
@@ -872,7 +874,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
+                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`
                             )}
                           </p>
                         </div>
@@ -885,7 +887,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
+                              `fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`
                             )}
                           </p>
                         </div>
@@ -948,7 +950,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `fields.conditions.${listing?.details?.vehicles?.condition}`,
+                              `fields.conditions.${listing?.details?.vehicles?.condition}`
                             )}
                           </p>
                         </div>
@@ -1096,7 +1098,7 @@ const ListingDetails = () => {
                             {new Date(
                               (
                                 listing?.details?.vehicles as any
-                              ).registrationExpiry,
+                              ).registrationExpiry
                             ).toLocaleDateString()}
                           </p>
                         </div>
@@ -1369,7 +1371,7 @@ const ListingDetails = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
+                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`
                     )}
                   </p>
                 </div>
@@ -1420,7 +1422,7 @@ const ListingDetails = () => {
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {t(
-                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
+                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`
                       )}
                     </p>
                   </div>
@@ -1442,7 +1444,7 @@ const ListingDetails = () => {
                           >
                             {feature}
                           </span>
-                        ),
+                        )
                       )}
                     </div>
                   </div>

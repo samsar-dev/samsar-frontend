@@ -48,12 +48,15 @@ export interface AuthUser {
   location?: string;
   preferences?: any;
 
+  // Settings-related fields
   allowMessaging?: boolean;
   listingNotifications?: boolean;
   messageNotifications?: boolean;
+  loginNotifications?: boolean;
   showEmail?: boolean;
   showOnlineStatus?: boolean;
   showPhoneNumber?: boolean;
+  privateProfile?: "public" | "private";
 }
 
 export interface AuthTokens {

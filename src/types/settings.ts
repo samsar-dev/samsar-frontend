@@ -1,5 +1,5 @@
 import type { ThemeMode } from "./common";
-import { ThemeType } from "./enums";
+import type { LanguageCode, ThemeType } from "./enums";
 
 export interface Theme {
   mode: ThemeMode;
@@ -9,17 +9,17 @@ export interface Theme {
 
 export interface NotificationPreferences {
   // Email Notifications
-  generalUpdates: boolean;
+  generalUpdates?: boolean;
   newInboxMessages: boolean;
-  orderUpdates: boolean;
+  orderUpdates?: boolean;
   listingUpdates: boolean;
-  
+  loginNotifications: boolean;
   // Push Notifications
-  pushNotifications: boolean;
-  
+  pushNotifications?: boolean;
+
   // Newsletter
-  newsletter: boolean;
-  
+  newsletter?: boolean;
+
   // Legacy fields (keep for backward compatibility)
   email?: boolean;
   push?: boolean;
@@ -28,8 +28,8 @@ export interface NotificationPreferences {
 }
 
 export interface PreferenceSettings {
-  language: import("./enums").LanguageCode;
-  theme: import("./enums").ThemeType;
+  language: LanguageCode;
+  theme: ThemeType;
   timezone: string;
 }
 
@@ -46,14 +46,14 @@ export interface ConnectedAccounts {
 }
 
 export interface SecuritySettings {
-  twoFactorEnabled: boolean;
+  twoFactorEnabled?: boolean;
   loginNotifications: boolean;
   securityQuestions: boolean;
   twoFactorMethod?: string;
   autoLogoutTime?: number;
   autoLogoutMinutes?: number;
   connectedAccounts?: ConnectedAccounts;
-  loginActivity: Array<{
+  loginActivity?: Array<{
     date: string;
     device: string;
     location: string;
@@ -67,9 +67,10 @@ export interface Settings {
   connectedAccounts?: ConnectedAccounts;
   privacy: {
     showPhone: boolean;
+    showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
-    profileVisibility?: "public" | "private";
+    profileVisibility: "public" | "private";
   };
 }
 
@@ -79,9 +80,11 @@ export interface SettingsUpdate {
   notifications?: Partial<NotificationPreferences>;
   connectedAccounts?: ConnectedAccounts;
   privacy?: Partial<{
+    showPhone: boolean;
     showEmail: boolean;
     showOnlineStatus: boolean;
     allowMessaging: boolean;
+    profileVisibility: "public" | "private";
   }>;
 }
 

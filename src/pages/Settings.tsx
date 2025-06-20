@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useSettings } from "@/contexts/SettingsContext";
-import PreferenceSettings from "@/components/settings/PreferenceSettings";
-import NotificationSettings from "@/components/settings/NotificationSettings";
-import SecuritySettings from "@/components/settings/SecuritySettings";
-import PrivacySettings from "@/components/settings/PrivacySettings";
 import DeleteAccount from "@/components/settings/DeleteAccount";
+import NotificationSettings from "@/components/settings/NotificationSettings";
+import PreferenceSettings from "@/components/settings/PreferenceSettings";
+import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+// import SecuritySettings from "@/components/settings/SecuritySettings";
 
+import { SettingsAPI } from "@/api";
 import type {
   PreferenceSettings as PreferenceSettingsType,
   SecuritySettings as SecuritySettingsType,
 } from "@/types/settings";
-import { SettingsAPI } from "@/api";
 
 interface ToggleProps {
   checked?: boolean;
@@ -54,6 +53,35 @@ function Settings() {
   const { settings, updateSettings } = useSettings();
   const [debouncedToggles, setDebouncedToggles] = useState(settings);
   const isRTL = i18n.language === "ar";
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      const response = await SettingsAPI.getSettings();
+      // console.log("userSettings", userSettings);
+      if (response.status === 200) {
+        const userSettings = response.data;
+        if (userSettings)
+          updateSettings({
+            ...settings,
+            notifications: {
+              listingUpdates: userSettings.listingNotifications,
+              newInboxMessages: userSettings.messageNotifications,
+              loginNotifications: userSettings.loginNotifications,
+            },
+            privacy: {
+              showEmail: userSettings.showEmail,
+              showPhone: userSettings.showPhoneNumber,
+              showOnlineStatus: userSettings.showOnlineStatus,
+              allowMessaging: userSettings.allowMessaging,
+              profileVisibility: userSettings.privateProfile
+                ? "private"
+                : "public",
+            },
+          });
+      }
+    };
+    fetchUserSettings();
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -100,7 +128,7 @@ function Settings() {
   const tabs = [
     { name: t("preferences"), icon: "⚙️" },
     { name: t("notifications.title"), icon: "🔔" },
-    { name: t("security.title"), icon: "🔐" },
+    // { name: t("security.title"), icon: "🔐" },
     { name: t("privacy.title"), icon: "🔒" },
     { name: t("connectedAccounts.title"), icon: "🔗" },
     { name: t("account.title"), icon: "👤" },
@@ -112,8 +140,12 @@ function Settings() {
     >
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t("title")}</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">{t("settingsDescription")}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {t("title")}
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            {t("settingsDescription")}
+          </p>
         </div>
 
         <div className="bg-white shadow rounded-lg overflow-hidden dark:bg-gray-800">
@@ -137,7 +169,7 @@ function Settings() {
                 </Tab>
               ))}
             </Tab.List>
-            
+
             <Tab.Panels>
               {/* Preferences Panel */}
               <Tab.Panel className="p-6">
@@ -151,28 +183,21 @@ function Settings() {
               {/* Notifications Panel */}
               <Tab.Panel className="p-6">
                 <NotificationSettings
-                  notifications={
-                    settings?.notifications || {
-                      generalUpdates: false,
-                      newInboxMessages: false,
-                      orderUpdates: false,
-                      listingUpdates: false,
-                      pushNotifications: false,
-                      newsletter: false,
-                    }
+                  notifications={settings.notifications}
+                  onUpdate={(notifications) =>
+                    updateSettings({ notifications })
                   }
-                  onUpdate={(notifications) => updateSettings({ notifications })}
                 />
               </Tab.Panel>
 
               {/* Security Panel */}
-              <Tab.Panel className="p-6">
+              {/* <Tab.Panel className="p-6">
                 <SecuritySettings
                   settings={settings?.security || {}}
                   onUpdate={handleSecurityUpdate}
                   isRTL={isRTL}
                 />
-              </Tab.Panel>
+              </Tab.Panel> */}
 
               {/* Privacy Panel */}
               <Tab.Panel className="p-6">
@@ -185,7 +210,9 @@ function Settings() {
                     <div className="pl-4">
                       <div className="flex items-center space-x-4">
                         <select
-                          value={settings?.privacy?.profileVisibility ?? "public"}
+                          value={
+                            settings?.privacy?.profileVisibility ?? "public"
+                          }
                           onChange={(e) =>
                             handlePrivacyUpdate({
                               profileVisibility: e.target.value as
@@ -196,7 +223,9 @@ function Settings() {
                           className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
                           <option value="public">{t("privacy.public")}</option>
-                          <option value="private">{t("privacy.private")}</option>
+                          <option value="private">
+                            {t("privacy.private")}
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -225,7 +254,7 @@ function Settings() {
                         {t("privacy.showPhoneNumber")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showPhone ?? false}
+                        checked={settings?.privacy?.showPhone ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showPhone: checked })
                         }
@@ -241,7 +270,7 @@ function Settings() {
                         {t("privacy.showEmail")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showEmail ?? false}
+                        checked={settings?.privacy?.showEmail ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showEmail: checked })
                         }

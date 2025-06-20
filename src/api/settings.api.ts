@@ -1,13 +1,13 @@
 import type { Settings } from "@/types";
-import apiClient, { RequestConfig } from "./apiClient";
+import type { AuthUser } from "@/types/auth.types";
 import type {
   APIResponse,
   AppSettingsData,
   NotificationSettings,
   PrivacySettings,
 } from "@/types/common";
-import axios from "axios";
-import { ACTIVE_API_URL } from "@/config";
+import type { RequestConfig } from "./apiClient";
+import apiClient from "./apiClient";
 
 const DEFAULT_SETTINGS: AppSettingsData = {
   notifications: {
@@ -24,10 +24,10 @@ const DEFAULT_SETTINGS: AppSettingsData = {
   },
   privacy: {
     profileVisibility: "public",
-    showEmail: false,
     showPhone: false,
     showOnlineStatus: true,
     allowMessagesFrom: "everyone",
+    allowMessaging: true,
   },
   preferences: {
     language: "en",
@@ -37,33 +37,32 @@ const DEFAULT_SETTINGS: AppSettingsData = {
 };
 
 export class SettingsAPI {
-  // private static readonly BASE_PATH = ACTIVE_API_URL + "/users/settings";
   private static readonly BASE_PATH = "/users/settings";
 
-  static async getSettings(): Promise<APIResponse<AppSettingsData>> {
+  static async getSettings(): Promise<APIResponse<AuthUser>> {
     const response = await apiClient.get(`${this.BASE_PATH}`);
     return response.data;
   }
 
   static async updateNotificationSettings(
-    settings: NotificationSettings,
+    settings: NotificationSettings
   ): Promise<APIResponse<NotificationSettings>> {
     const response = await apiClient.patch(
       `${this.BASE_PATH}/notifications`,
-      settings,
+      settings
     );
     return response.data;
   }
 
   static async updatePrivacySettings(
-    settings: Settings,
+    settings: Settings
   ): Promise<APIResponse<PrivacySettings>> {
     const response = await apiClient.post(
       `${this.BASE_PATH}`,
       { notifications: settings.notifications, privacy: settings.privacy },
       {
         requiresAuth: true, // Add this to ensure auth token is sent
-      } as RequestConfig,
+      } as RequestConfig
     );
     // const response = await axios.post(
     //   `${this.BASE_PATH}`,
@@ -72,6 +71,7 @@ export class SettingsAPI {
     //     withCredentials: true,
     //   }
     // );
+    console.log("response", response.data);
     return response.data;
   }
 
