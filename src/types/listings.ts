@@ -719,6 +719,7 @@ export interface Listing {
     id: string;
     username: string;
     profilePicture: string | null;
+    allowMessaging: boolean;
   };
 }
 
