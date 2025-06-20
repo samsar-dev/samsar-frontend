@@ -77,9 +77,11 @@ export default function UserDetails({
               )}
             </Avatar>
             <div className="font-medium">{participant.name}</div>
-            <div className="text-xs text-gray-500 mb-4">
-              {participant.email}
-            </div>
+            {participant.showEmail && (
+              <div className="text-xs text-gray-500 mb-4">
+                {participant.email}
+              </div>
+            )}
           </Link>
         </div>
 
@@ -87,7 +89,8 @@ export default function UserDetails({
         <Accordion
           type="single"
           collapsible
-          defaultValue="email"
+          defaultValue={participant.showEmail ? "email" : ""}
+          disabled={participant.showEmail ? false : true}
           className="w-full mb-4"
         >
           <AccordionItem
@@ -95,7 +98,11 @@ export default function UserDetails({
             className="border-b border-gray-100 -mt-4"
           >
             <AccordionTrigger className="p-4 flex items-center justify-between">
-              <div className="text-sm text-gray-500">Email</div>
+              <div
+                className={`text-sm ${participant.showEmail ? "text-gray-500" : "text-gray-500/50"}`}
+              >
+                Email
+              </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
               {participant.email || "No email provided."}
@@ -107,7 +114,8 @@ export default function UserDetails({
         <Accordion
           type="single"
           collapsible
-          defaultValue="phone"
+          defaultValue={participant.showPhoneNumber ? "phone" : ""}
+          disabled={!participant.showPhoneNumber}
           className="w-full mb-4"
         >
           <AccordionItem
@@ -115,14 +123,17 @@ export default function UserDetails({
             className="border-b border-gray-100 -mt-4"
           >
             <AccordionTrigger className="p-4 flex items-center justify-between">
-              <div className="text-sm text-gray-500">Phone</div>
+              <div
+                className={`text-sm ${participant.showPhoneNumber ? "text-gray-500" : "text-gray-500/50"}`}
+              >
+                Phone
+              </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4 text-sm">
               {participant.phone || "No phone provided."}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
         {/* Bio Accordion */}
         <Accordion
           type="single"
