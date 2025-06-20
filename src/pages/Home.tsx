@@ -46,11 +46,11 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation(["common", "filters"]);
+  const { t, i18n } = useTranslation(["common", "filters", "home", "locations"]);
   
   // Get city and area translations for filtering
-  const cities = t('cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
-  const areas = t('areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
+  const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
+  const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
   
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
@@ -533,29 +533,27 @@ const Home: React.FC = () => {
   console.log("Current Language:", i18n.language);
   console.log("Namespaces:", i18n.options.ns);
 
-  // Define sort options with translation
-  // Log the translations loaded for sortOptions
-
+  // Define sort options with translations from the filters namespace
   const sortOptions = [
     {
       value: "newestFirst",
-      label: "Newest First",
+      label: t('sorting.newest', { ns: 'filters' }),
     },
     {
       value: "priceAsc",
-      label: "Price: Low to High",
+      label: t('sorting.price_asc', { ns: 'filters' }),
     },
     {
       value: "priceDesc",
-      label: "Price: High to Low",
+      label: t('sorting.price_desc', { ns: 'filters' }),
     },
     {
       value: "locationAsc",
-      label: "Location: A to Z",
+      label: t('sorting.location_asc', { ns: 'filters' }),
     },
     {
       value: "locationDesc",
-      label: "Location: Z to A",
+      label: t('sorting.location_desc', { ns: 'filters' }),
     },
   ];
 
@@ -574,7 +572,7 @@ const Home: React.FC = () => {
             className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-auto"
           >
             <MdFilterList className="w-5 h-5" />
-            <span className="text-sm">Filters</span>
+            <span className="text-sm">{t('Filters')}</span>
           </button>
 
           {/* Sort By - Always Visible */}
@@ -748,8 +746,8 @@ const Home: React.FC = () => {
           </h1>
           <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
             {selectedCategory === ListingCategory.VEHICLES
-              ? "Find your dream vehicle"
-              : "Discover amazing properties"}
+              ? t('find_dream_vehicle', { ns: 'home' })
+              : t('discover_property', { ns: 'home' })}
           </p>
 
           {/* Category Buttons */}
@@ -763,7 +761,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaCar className="text-lg" />
-              Vehicles
+              {t('vehicles', { ns: 'home' })}
             </button>
 
             <button
@@ -775,7 +773,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaHome className="text-lg" />
-              Real Estate
+              {t('real_estate', { ns: 'home' })}
             </button>
           </div>
         </div>

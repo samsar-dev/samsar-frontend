@@ -267,10 +267,10 @@ export interface VehicleFeatures {
 // Common fields for all vehicle types
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
+  vin?: string;
   customMake?: string;
   customModel?: string;
   make: string;
-  // vin: string;
   insuranceType?: string;
   model: string;
   year: string;
@@ -288,16 +288,17 @@ export interface BaseVehicleDetails {
   registrationStatus?: string;
   upholsteryMaterial?: string;
   tireCondition?: string;
+  bodyType?: string;
+  bodyStyle?: string; // Alias for bodyType for backward compatibility
   warrantyPeriod?: string;
   customsCleared?: boolean;
-  bodyType?: string;
   roofType?: string;
   horsepower?: number;
   torque?: number;
   brakeType?: string;
+  engineType?: string;
   engineNumber?: string;
   engineSize?: string;
-
   attachments?: string[];
   fuelTankCapacity?: string;
   tires?: string;
@@ -310,6 +311,11 @@ export interface BaseVehicleDetails {
   wheelType?: string;
   engine?: string;
   registrationExpiry?: string;
+  brakeSystem?: string[];
+  seatType?: string;
+  ownershipHistory?: string;
+  accidentHistory?: boolean;
+  ownerManual?: boolean;
 
   // Safety Features
   accidentFree?: boolean;
@@ -453,7 +459,8 @@ export interface BaseVehicleDetails {
 
 export interface CarDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.CAR;
-  bodyStyle?: string;
+  bodyType?: string;
+  bodyStyle?: string; // Alias for bodyType for backward compatibility;
   driveType?: string;
   engineType?: string;
   transmissionType?: string;
@@ -498,14 +505,14 @@ export interface MotorcycleDetails extends BaseVehicleDetails {
   safetyFeatures?: string[];
   comfortFeatures?: string[];
   performanceFeatures?: string[];
-  serviceHistory?: string;
+  serviceHistory?: string | boolean;
   modifications?: string[];
   accessories?: string[];
   ridingStyle?: string;
   numberOfOwners?: number;
   engine?: string;
   engineSize?: string;
-  enginePowerOutput?: string;
+  enginePowerOutput?: string | number; // Can be either string or number
   brakeSystem?: string[];
   suspensionType?: string;
   frameType?: string;
@@ -515,6 +522,12 @@ export interface MotorcycleDetails extends BaseVehicleDetails {
   coolingSystem?: string;
   instrumentCluster?: string[];
   lightingSystem?: string[];
+  lighting?: string[]; // For lighting features (LED, halogen, etc.)
+  fuelSystem?: string; // carburetor, fuelInjection, directInjection
+  customParts?: string[]; // Custom parts installed on the motorcycle
+  customFeatures?: string[]; // Any custom features not covered by other fields
+  powerOutput?: string | number; // Alias for enginePowerOutput for consistency
+  torque?: number; // Already in BaseVehicleDetails but explicitly defined here for clarity
 }
 
 export interface TruckDetails extends BaseVehicleDetails {

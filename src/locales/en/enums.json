@@ -54,21 +54,5 @@
   "listingType": {
     "FOR_SALE": "For Sale",
     "FOR_RENT": "For Rent"
-  },
-  "cities": {
-    "DAMASCUS": "Damascus",
-    "ALEPPO": "Aleppo",
-    "HOMS": "Homs",
-    "LATTAKIA": "Latakia",
-    "HAMA": "Hama",
-    "DEIR_EZZOR": "Deir Ezzor",
-    "HASEKEH": "Hasekeh",
-    "QAMISHLI": "Qamishli",
-    "RAQQA": "Raqqa",
-    "TARTOUS": "Tartous",
-    "IDLIB": "Idlib",
-    "DARA": "Dara",
-    "SWEDIA": "Swedia",
-    "QUNEITRA": "Quneitra"
   }
 }

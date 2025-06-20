@@ -222,6 +222,8 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
             subCategory: VehicleTypeValue.CAR,
           },
           location: "",
+          latitude: 0,
+          longitude: 0,
           images: [],
           details: {
             vehicles: {},
@@ -230,7 +232,6 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
           status: ListingStatus.ACTIVE,
         };
       }
-
       return formData as ExtendedFormState;
     });
 
@@ -494,10 +495,6 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
     const handleSubmit = async (e: React.FormEvent) => {
       console.log("[AdvancedDetailsForm] handleSubmit event:", e);
-      console.log(
-        "[AdvancedDetailsForm] Current advanced details state:",
-        form,
-      );
       e.preventDefault();
       setIsSubmitting(true);
 
@@ -520,7 +517,39 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
           return;
         }
 
-        await onSubmit(form, true);
+
+        // Format date fields before submission
+        const formattedForm = { ...form };
+        const detailsKey = isVehicle ? "vehicles" : "realEstate";
+        const details = formattedForm.details[detailsKey];
+        
+        if (details) {
+          const dateFields = currentSchema
+            .filter(field => field.type === "date" && details[field.name as keyof typeof details])
+            .map(field => field.name);
+
+          if (dateFields.length > 0) {
+            formattedForm.details = {
+              ...formattedForm.details,
+              [detailsKey]: {
+                ...details,
+                ...Object.fromEntries(
+                  dateFields.map(field => {
+                    const value = details[field as keyof typeof details];
+                    return [
+                      field,
+                      value ? new Date(value as string).toISOString().split('T')[0] : ''
+                    ];
+                  })
+                )
+              }
+            };
+          }
+        }
+
+
+        console.log("[AdvancedDetailsForm] Submitting form data:", formattedForm);
+        await onSubmit(formattedForm, true);
         toast.success(t("success.detailsSaved"));
       } catch (error) {
         console.error("Error submitting advanced details:", error);

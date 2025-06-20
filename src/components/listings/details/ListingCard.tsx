@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
 import { Link } from "react-router-dom";
@@ -7,6 +8,7 @@ import ImageFallback from "@/components/common/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
 import { timeAgo } from "@/utils/dateUtils";
 import { formatCurrency } from "@/utils/formatUtils";
+import { normalizeLocation } from '@/utils/locationUtils';
 import type {
   Listing,
   VehicleDetails,
@@ -23,6 +25,8 @@ export interface ListingCardProps {
   listing: Listing & {
     vehicleDetails?: VehicleDetails;
     realEstateDetails?: RealEstateDetails;
+    latitude?: number;
+    longitude?: number;
   };
   onDelete?: (id: string) => void;
   editable?: boolean;
@@ -48,7 +52,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showDate = false,
   showBadges = true,
 }) => {
-  const { t } = useTranslation(["listings", "common"]);
+  const { t } = useTranslation(["listings", "common", "locations"]);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -218,29 +222,28 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
                 // Handle special cases
                 if (
-                  translationKey === "cvt" ||
-                  translationKey === "continuously_variable" ||
-                  translationKey === "continuouslyvariable"
+                  transmissionValue === "cvt" ||
+                  transmissionValue === "continuously_variable" ||
+                  transmissionValue === "continuouslyvariable"
                 ) {
                   return "CVT";
                 } else if (
-                  translationKey === "semi_automatic" ||
-                  translationKey === "semi-automatic"
+                  transmissionValue === "semi_automatic" ||
+                  transmissionValue === "semi-automatic"
                 ) {
                   translationKey = "semiAutomatic";
                 } else if (
-                  translationKey === "dual_clutch" ||
-                  translationKey === "dualclutch"
+                  transmissionValue === "dual_clutch" ||
+                  transmissionValue === "dualclutch"
                 ) {
                   translationKey = "dualClutch";
                 } else if (
-                  translationKey === "manual" ||
-                  translationKey === "automatic"
+                  transmissionValue === "manual" ||
+                  transmissionValue === "automatic"
                 ) {
                   // These are already in the correct format
                 } else {
-                  // Default to the original value if no match
-                  return transmissionValue;
+                  translationKey = transmissionValue;
                 }
 
                 // Get the translation from the listings namespace
@@ -311,12 +314,16 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <PreloadImages imageUrls={[mainImage]} />
       )}
       <Link to={`/listings/${id}`} className="block h-full">
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
-          <ImageFallback
-            src={mainImage}
-            alt={title}
-            className="w-full h-[200px] object-cover rounded-lg"
-          />
+        <div className="relative">
+          <div className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <ImageFallback
+              src={mainImage}
+              alt={title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
+          {/* Map has been moved to ListingDetails component */}
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -335,8 +342,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 }`}
               >
                 {listingAction === ListingAction.SALE
-                  ? t("forSale")
-                  : t("forRent")}
+                  ? t("common.forSale")
+                  : t("common.forRent")}
               </span>
             </div>
           )}
@@ -432,29 +439,28 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
                         // Handle special cases
                         if (
-                          translationKey === "cvt" ||
-                          translationKey === "continuously_variable" ||
-                          translationKey === "continuouslyvariable"
+                          transmissionValue === "cvt" ||
+                          transmissionValue === "continuously_variable" ||
+                          transmissionValue === "continuouslyvariable"
                         ) {
                           return "CVT";
                         } else if (
-                          translationKey === "semi_automatic" ||
-                          translationKey === "semi-automatic"
+                          transmissionValue === "semi_automatic" ||
+                          transmissionValue === "semi-automatic"
                         ) {
                           translationKey = "semiAutomatic";
                         } else if (
-                          translationKey === "dual_clutch" ||
-                          translationKey === "dualclutch"
+                          transmissionValue === "dual_clutch" ||
+                          transmissionValue === "dualclutch"
                         ) {
                           translationKey = "dualClutch";
                         } else if (
-                          translationKey === "manual" ||
-                          translationKey === "automatic"
+                          transmissionValue === "manual" ||
+                          transmissionValue === "automatic"
                         ) {
                           // These are already in the correct format
                         } else {
-                          // Default to the original value if no match
-                          return transmissionValue;
+                          translationKey = transmissionValue;
                         }
 
                         // Get the translation from the listings namespace
@@ -544,8 +550,31 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {showLocation && location && (
             <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <MdLocationOn className="text-blue-600 w-5 h-5" />
-              {t(`cities.${location}`, { defaultValue: location })}
-            </p>
+              {(() => {
+                const normalizedLocation = location ? normalizeLocation(location) : '';
+                const locationText = normalizedLocation
+                  ? t(`cities.${normalizedLocation}`, {
+                      ns: 'locations',
+                      defaultValue: location || '',
+                    })
+                  : '';
+                
+                // Debug information
+                const allCities = t('cities', { returnObjects: true, ns: 'locations' }) || {};
+                const cityKeys = Object.keys(allCities);
+                const currentLang = i18n.language;
+
+                console.group('Location Translation Debug');
+                console.log('Current language:', currentLang);
+                console.log('Raw location:', location);
+                console.log('Normalized location:', normalizedLocation);
+                console.log('Available city keys:', cityKeys);
+                console.log('Translation result:', locationText);
+                console.log('Using default value?', !normalizedLocation || !cityKeys.includes(normalizedLocation));
+                console.groupEnd();
+
+                return locationText;
+              })()}</p>
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">

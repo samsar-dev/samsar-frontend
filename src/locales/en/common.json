@@ -159,22 +159,6 @@
     "locationAsc": "Location: A to Z",
     "locationDesc": "Location: Z to A"
   },
-  "cities": {
-    "HOMS": "Homs",
-    "DAMASCUS": "Damascus",
-    "ALEPPO": "Aleppo",
-    "LATTAKIA": "Lattakia",
-    "HAMA": "Hama",
-    "DEIR_EZZOR": "Deir Ezzor",
-    "HASEKEH": "Hasekeh",
-    "QAMISHLI": "Qamishli",
-    "RAQQA": "Raqqa",
-    "TARTOUS": "Tartous",
-    "IDLIB": "Idlib",
-    "DARA": "Dara",
-    "SWEDIA": "Sweden",
-    "QUNEITRA": "Quneitra"
-  },
   "ui": {
     "tryAgain": "Try Again",
     "viewMore": "View More",

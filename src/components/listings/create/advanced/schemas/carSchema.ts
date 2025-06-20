@@ -122,26 +122,25 @@ export const carSchema: ListingFieldSchema[] = [
   // },
   {
     name: "bodyStyle",
-    label: "fields.bodyStyle",
+    label: "fields.bodyType",
     type: "select",
     options: [
-      "sedan",
-      "suv",
-      "coupe",
-      "convertible",
-      "wagon",
-      "hatchback",
-      "pickup",
-      "van",
-      "minivan",
-      "crossover",
-      "sportsCar",
-      "luxury",
+      { value: "sedan", label: "Sedan" },
+      { value: "suv", label: "SUV" },
+      { value: "coupe", label: "Coupe" },
+      { value: "convertible", label: "Convertible" },
+      { value: "wagon", label: "Wagon" },
+      { value: "hatchback", label: "Hatchback" },
+      { value: "pickup", label: "Pickup" },
+      { value: "van", label: "Van" },
+      { value: "minivan", label: "Minivan" },
+      { value: "crossover", label: "Crossover" },
+      { value: "sportsCar", label: "Sports Car" },
+      { value: "luxury", label: "Luxury" }
     ],
     section: "advanced",
     required: false,
-    tooltip:
-      "The physical design and shape of the vehicle's body, such as Sedan, SUV, or Coupe.",
+    tooltip: "The overall design and shape of the vehicle's body.",
   },
   {
     name: "driveType",
@@ -257,25 +256,7 @@ export const carSchema: ListingFieldSchema[] = [
   },
 
   // === Exterior & Interior ===
-  {
-    name: "bodyType",
-    label: "fields.bodyType",
-    type: "select",
-    options: [
-      "sedan",
-      "hatchback",
-      "suv",
-      "coupe",
-      "convertible",
-      "wagon",
-      "minivan",
-      "pickup",
-      "other",
-    ].map((val) => ({ value: val, label: val })),
-    section: "advanced",
-    required: false,
-    tooltip: "The overall design and shape of the vehicle's body.",
-  },
+  // Removed duplicate bodyType field - using bodyStyle instead
   {
     name: "roofType",
     label: "fields.roofType",

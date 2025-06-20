@@ -13,7 +13,12 @@
     "speedLimitingSystem": "نظام تحديد السرعة",
     "fatigueWarningSystem": "نظام تحذير الإرهاق",
     "emergencyCallSystem": "نظام مكالمات الطوارئ",
-    "trafficSignRecognition": "التعرف على إشارات المرور"
+    "trafficSignRecognition": "التعرف على إشارات المرور",
+    "kneeAirbags": "وسائد هوائية للركبة",
+    "cruiseControl": "مثبت السرعة",
+    "laneDepartureWarning": "تحذير مغادرة المسار",
+    "laneKeepAssist": "مساعد الحفاظ على المسار",
+    "automaticEmergencyBraking": "فرملة طوارئ أوتوماتيكية"
   },
   "airbags": {
     "driverAirbag": "وسادة هوائية للسائق",

@@ -105,15 +105,15 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
-  const { t } = useTranslation(["filters", "common"]);
+  const { t } = useTranslation(["filters", "common", "locations"]);
   // State for location handling
   const [localLoading, setLocalLoading] = useState(loading);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
 
   // Get city and area translations
-  const cities = t('cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
-  const areas = t('areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
+  const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
+  const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
   
   // Get city options from translations
   const cityOptions = Object.entries(cities).map(([id, name]) => ({

@@ -34,6 +34,7 @@ const i18nConfig: InitOptions = {
     "categories",
     "enums",
     "settings",
+    "locations",
   ],
   defaultNS: "common",
   fallbackNS: "common",

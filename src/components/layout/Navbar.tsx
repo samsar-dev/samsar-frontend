@@ -113,10 +113,10 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link
               to="/"
-              className="flex items-center space-x-2 group"
+              className="flex flex-col items-start group"
             >
-              <span className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Samsar
+              <span className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight">
+                SAMSAR
               </span>
               <span className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-indigo-500 transition-colors">
                 MARKETPLACE

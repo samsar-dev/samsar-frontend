@@ -1,8 +1,12 @@
 {
   "find_perfect": "Find Your Perfect",
   "vehicle": "Vehicle",
-  "discover_vehicle": "Discover Vehicle",
+  "vehicles": "Vehicles",
+  "discover_vehicle": "Discover Your Dream Vehicle",
+  "find_dream_vehicle": "Find Your Dream Vehicle",
   "property": "Property",
+  "properties": "Properties",
+  "real_estate": "Real Estate",
   "discover_property": "Discover Property",
   "trending_now": "Trending Now",
   "featured_listings": "Featured Listings",

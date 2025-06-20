@@ -1,6 +1,7 @@
 import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { normalizeLocation } from "@/utils/locationUtils";
 import {
   ListingCategory,
   VehicleType,
@@ -49,6 +50,7 @@ interface ExtendedFormState extends Omit<BaseFormState, "details"> {
   locationMeta?: LocationMeta;
   latitude?: number;
   longitude?: number;
+  locationDisplay?: string; // For displaying the translated location text
 }
 
 interface BasicDetailsFormProps {
@@ -62,29 +64,75 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onSubmit,
   onImageDelete,
 }) => {
-  const { t, i18n } = useTranslation(["common", "listings", "form", "errors"]);
+  const { t, i18n } = useTranslation(["common", "listings", "form", "errors", "locations"]);
   const commonT = (key: string) => t(key, { ns: "common" });
   const formT = (key: string) => t(key, { ns: "form" });
   const listingsT = (key: string) => t(key, { ns: "listings" });
-  const [formData, setFormData] = useState<ExtendedFormState>({
-    title: "",
-    description: "",
-    price: 0,
-    category: {
-      mainCategory: ListingCategory.VEHICLES,
-      subCategory: VehicleType.CAR,
-    },
-    location: "",
-    details: {
-      vehicles: {
-        vehicleType: VehicleType.CAR,
-        make: "",
-        model: "",
-        year: "",
+  const locationsT = (key: string) => t(key, { ns: "locations" });
+  const [formData, setFormData] = useState<ExtendedFormState>(() => {
+    const baseData = {
+      title: "",
+      description: "",
+      price: 0,
+      category: {
+        mainCategory: ListingCategory.VEHICLES,
+        subCategory: VehicleType.CAR, // Default to CAR
       },
-    },
-    images: [],
-    ...initialData,
+      condition: undefined,
+      location: "",
+      locationDisplay: "", // Initialize locationDisplay
+      images: [],
+      details: {
+        vehicles: {
+          vehicleType: VehicleType.CAR, // Default to CAR
+          make: "",
+          model: "",
+          year: "",
+          customMake: "",
+          customModel: "",
+          condition: undefined,
+          features: [],
+        },
+        realEstate: {
+          id: "",
+          listingId: "",
+          propertyType: PropertyType.APARTMENT,
+          condition: undefined,
+          features: [],
+          accessibilityFeatures: [],
+          buildingAmenities: [],
+          exposureDirection: [],
+          fireSafety: [],
+          flooringTypes: [],
+          securityFeatures: [],
+          storageType: [],
+          soilTypes: [],
+          topography: [],
+          utilities: [],
+          bedrooms: 0,
+          bathrooms: 0,
+          size: 0,
+          yearBuilt: new Date().getFullYear(),
+        },
+      },
+    };
+
+    // Merge with initialData
+    const merged = {
+      ...baseData,
+      ...initialData,
+      details: {
+        ...baseData.details,
+        ...(initialData?.details || {})
+      }
+    };
+
+    // Set locationDisplay if not provided but location is
+    if (initialData?.location && !initialData.locationDisplay) {
+      merged.locationDisplay = initialData.location;
+    }
+
+    return merged;
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -1278,38 +1326,56 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Function to get city and its areas with translations
   const getCityAreas = (cityKey: string): { value: string; label: string; isArea?: boolean }[] => {
-    // Get translations for cities and areas
-    const cities = t('cities', { returnObjects: true, ns: 'filters' }) as Record<string, string>;
-    const areas = t('areas', { returnObjects: true, ns: 'filters' }) as Record<string, string[]>;
-    
-    const cityName = cities[cityKey.toLowerCase()] || cityKey;
-    const cityAreas = areas[cityKey.toLowerCase()] || [];
-    
-    return [
-      { value: cityKey, label: cityName },
-      ...cityAreas.map(area => ({
-        value: `${cityKey}_${area.toUpperCase().replace(/[^A-Z]/g, '_')}`,
-        label: `${cityName} - ${area}`,
-        isArea: true
-      }))
-    ];
+    try {
+      // Get all cities and areas from translations
+      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
+      const allAreas = t('areas', { returnObjects: true, ns: 'locations' }) as Record<string, string[]>;
+      
+      // Normalize the city key for consistent matching
+      const normalizedKey = normalizeLocation(cityKey);
+      
+      // Find the city by normalized key
+      const cityEntry = Object.entries(allCities || {}).find(
+        ([key]) => normalizeLocation(key) === normalizedKey
+      );
+      
+      if (!cityEntry) {
+        console.warn(`City not found for key: ${cityKey} (normalized: ${normalizedKey})`);
+        return [];
+      }
+      
+      const [cityId, cityName] = cityEntry;
+      const cityAreas = allAreas[cityId] || [];
+      
+      // Return city and its areas as options
+      const result = [
+        { value: cityId, label: cityName },
+        ...cityAreas.map(area => ({
+          value: `${cityId}_${area.replace(/\s+/g, '_').toUpperCase()}`,
+          label: `${cityName} - ${area}`,
+          isArea: true
+        }))
+      ];
+      
+      return result;
+    } catch (error) {
+      console.error('Error in getCityAreas:', error);
+      return [];
+    }
   };
 
-  const syrianCities = [
-    ...getCityAreas("damascus"),
-    ...getCityAreas("aleppo"),
-    ...getCityAreas("homs"),
-    ...getCityAreas("latakia"),
-    ...getCityAreas("hama"),
-    ...getCityAreas("deir_ezzor"),
-    ...getCityAreas("hasaka"),
-    ...getCityAreas("raqqa"),
-    ...getCityAreas("tartous"),
-    ...getCityAreas("idlib"),
-    ...getCityAreas("daraa"),
-    ...getCityAreas("sweida"),
-    ...getCityAreas("quneitra"),
-  ];
+  // Get all available cities from translations
+  const syrianCities = React.useMemo(() => {
+    try {
+      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
+      return Object.entries(allCities || {}).flatMap(([cityId]) => 
+        getCityAreas(cityId)
+      );
+    } catch (error) {
+      console.error('Error loading Syrian cities:', error);
+      return [];
+    }
+  }, [t]);
 
   // Calculate distance between two coordinates in kilometers
   const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -1490,20 +1556,32 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
+    // Normalize the location value before processing
     if (!selected) {
       handleInputChange("location", "");
+      setFormData(prev => ({
+        ...prev,
+        locationDisplay: ""
+      }));
       return;
     }
-    // Use the value for storage and display
-    handleInputChange("location", selected.value);
+    
+    // Store both the value (for internal use) and display label (for showing to user)
+    // Normalize the location value before storing
+    handleInputChange("location", normalizeLocation(selected.value));
+    setFormData(prev => ({
+      ...prev,
+      locationDisplay: selected.label
+    }));
 
     // Fetch coordinates for the selected location via Nominatim
     (async () => {
       try {
+        // Use the display label for geocoding as it's more likely to return good results
+        const searchQuery = selected.isArea ? selected.label : selected.value;
+        
         const resp = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
-            selected.value
-          )}`
+          `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(searchQuery)}`
         );
         const results = await resp.json();
         if (results && results.length > 0) {
@@ -1665,7 +1743,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     classNamePrefix="select"
                     name="location"
                     id="location"
-                    value={formData.location ? { value: formData.location, label: formData.location } : null}
+                    value={formData.location ? { 
+                      value: formData.location, 
+                      label: formData.locationDisplay || formData.location 
+                    } : null}
                     onChange={handleLocationChange}
                     options={syrianCities}
                     placeholder={commonT("propertyDetails.selectLocation")}

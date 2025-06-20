@@ -100,6 +100,8 @@ export interface VehicleDetails {
   color?: string;
   condition?: Condition;
   features?: string[];
+  bodyType?: string;
+  bodyStyle?: string; // Alias for bodyType for backward compatibility
 }
 
 export interface RealEstateDetails {
