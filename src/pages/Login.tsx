@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +12,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState<number | null>(null);
-  const { login, error: authError, clearError, retryAfter } = useAuth();
+  const { login, user, error: authError, clearError, retryAfter } = useAuth();
+  const { settings, updateSettings } = useSettings();
   const navigate = useNavigate();
   const { t } = useTranslation("auth");
 
@@ -66,7 +68,23 @@ const Login = () => {
       const success = await login(email, password);
 
       // The navigation now only happens if login is successful
-      if (success) {
+      if (success && user) {
+        updateSettings({
+          ...settings,
+          notifications: {
+            listingUpdates: user.listingNotifications,
+            newInboxMessages: user.messageNotifications,
+            loginNotifications: user.loginNotifications,
+          },
+          privacy: {
+            showEmail: user.showEmail,
+            showPhone: user.showPhoneNumber,
+            showOnlineStatus: user.showOnlineStatus,
+            allowMessaging: user.allowMessaging,
+            profileVisibility: user.privateProfile ? "private" : "public",
+          },
+        });
+
         toast.success(t("successfullyLoggedIn"));
         navigate("/");
       } else {
@@ -225,15 +243,15 @@ const Login = () => {
 
           <div className="flex items-center justify-center">
             <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/password-reset"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                {t("forgotPassword")}
-              </Link>
+              <div className="text-sm">
+                <Link
+                  to="/password-reset"
+                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  {t("forgotPassword")}
+                </Link>
+              </div>
             </div>
-          </div>
           </div>
           <div className="flex items-center justify-center">
             <div className="text-sm">
