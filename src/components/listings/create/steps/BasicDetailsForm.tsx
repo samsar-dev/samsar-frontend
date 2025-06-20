@@ -23,6 +23,7 @@ import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
 import { MapPin, Locate } from "lucide-react";
 import Select from "react-select";
 import ImageManager from "../../images/ImageManager";
+import LocationSearch, { type SelectedLocation } from "@/components/location/LocationSearch";
 
 // Import vehicle model data from vehicleModels file
 import {

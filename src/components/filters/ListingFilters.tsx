@@ -1,37 +1,37 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { MdFilterList, MdCheck, MdMyLocation, MdLocationOn } from "react-icons/md";
+import { Listbox, Transition, Switch } from "@headlessui/react";
+import { FaCar, FaMotorcycle, FaTruck, FaHome, FaShuttleVan, FaBus, FaTractor } from "react-icons/fa";
+import { ListingCategory, VehicleType } from "@/types/enums";
+import { getMakesForType, getModelsForMakeAndType } from "@/components/listings/data/vehicleModels";
+import LocationSearch from "@/components/location/LocationSearch";
 
 // Utility to calculate distance between two lat/lng points in km
 export function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Radius of the earth in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in km
+  try {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  } catch (error) {
+    console.error('Error calculating distance:', error);
+    return Infinity;
+  }
 }
 
-import { Listbox, Transition } from "@headlessui/react";
-import { useTranslation } from "react-i18next";
-import { MdFilterList, MdCheck } from "react-icons/md";
-import {
-  FaCar,
-  FaMotorcycle,
-  FaTruck,
-  FaHome,
-  FaShuttleVan,
-  FaBus,
-  FaTractor,
-} from "react-icons/fa";
-import { ListingCategory } from "@/types/enums";
-import { VehicleType } from "@/types/enums";
-import {
-  getMakesForType,
-  getModelsForMakeAndType,
-} from "@/components/listings/data/vehicleModels";
+interface LocationData {
+  address: string;
+  coordinates: [number, number];
+  boundingBox?: [number, number, number, number];
+  rawResult?: any;
+}
 
 type ListingAction = 'SALE' | 'RENT';
 
@@ -57,7 +57,12 @@ interface ListingFiltersProps {
   selectedAreas?: string[];
   setSelectedAreas?: (areas: string[]) => void;
   loading?: boolean;
-  onLocationChange?: (coords: { lat: number; lng: number }) => void;
+  onLocationChange?: (location: { 
+    address: string; 
+    coordinates: [number, number];
+    boundingBox?: [number, number, number, number];
+  } | null) => void;
+  onRadiusChange?: (radius: number | null) => void;
 }
 
 // Mapping of subcategories to icons
@@ -94,39 +99,83 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   setSelectedLocation,
   selectedRadius,
   setSelectedRadius,
-  selectedAreas,
-  setSelectedAreas,
   selectedBuiltYear,
   setSelectedBuiltYear,
-  loading = false,
+  // selectedAreas and setSelectedAreas are kept in props for future use
+  selectedAreas: _selectedAreas,
+  setSelectedAreas: _setSelectedAreas,
+  loading: _loading = false,
   onLocationChange,
+  onRadiusChange,
 }) => {
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
   const { t } = useTranslation(["filters", "common", "locations"]);
-  // State for location handling
-  const [localLoading, setLocalLoading] = useState(loading);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  // State for location and radius filtering
+  const [showRadiusSlider, setShowRadiusSlider] = useState(false);
+  const [tempRadius, setTempRadius] = useState(10); // Temporary radius value for the slider
+  const [localLoading, setLocalLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  
+  // Get city and area translations - keeping for potential future use
+  // const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
+  // const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
 
-  // Get city and area translations
-  const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
-  const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
-  
-  // Get city options from translations
-  const cityOptions = Object.entries(cities).map(([id, name]) => ({
-    id,
-    name: String(name) // Ensure name is a string
-  }));
-  
-  // Get areas for the selected city
-  const getCityAreas = (cityId: string | null): string[] => {
-    if (!cityId) return [];
-    const cityAreas = areas[cityId];
-    return Array.isArray(cityAreas) ? cityAreas : [];
-  };
+  // City and area handling - keeping for potential future use
+  // const getCityAreas = (cityId: string | null): string[] => {
+  //   if (!cityId) return [];
+  //   const cityAreas = areas[cityId];
+  //   return Array.isArray(cityAreas) ? cityAreas : [];
+  // };
+
+  // Handle radius change
+  const handleRadiusChange = useCallback((radius: number | null) => {
+    // Only update if the radius has actually changed
+    if (radius === selectedRadius) return;
+    
+    setSelectedRadius(radius);
+    
+    // If radius is being cleared, also clear the location
+    if (radius === null) {
+      setSelectedLocation(null);
+    } else if (selectedLocation) {
+      // Only update the radius if we have a location
+      setTempRadius(radius);
+    }
+    
+    // Notify parent component about the radius change if callback is provided
+    onRadiusChange?.(radius);
+  }, [onRadiusChange, selectedRadius, selectedLocation, setSelectedRadius, setSelectedLocation]);
+
+  // Handle location selection from the search component
+  const handleLocationSelect = useCallback((location: LocationData) => {
+    setSelectedLocation(location.address);
+    
+    // Update location data in parent if callback provided
+    onLocationChange?.({
+      address: location.address,
+      coordinates: location.coordinates,
+      boundingBox: location.boundingBox
+    });
+    
+    // If radius filter is enabled, apply the current radius
+    if (showRadiusSlider) {
+      handleRadiusChange(tempRadius);
+    }
+  }, [onLocationChange, handleRadiusChange, showRadiusSlider, tempRadius]);
+
+  // Toggle radius slider
+  const toggleRadiusSlider = useCallback((enabled: boolean) => {
+    setShowRadiusSlider(enabled);
+    if (!enabled) {
+      handleRadiusChange(null);
+    } else if (selectedLocation) {
+      // Only apply radius if we have a location
+      handleRadiusChange(tempRadius);
+    }
+  }, [handleRadiusChange, selectedLocation, tempRadius]);
 
   // Common translations
   const common = {
@@ -170,31 +219,6 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     );
   }, [selectedSubcategory, selectedMake]);
 
-  // Get coordinates for the selected location (exported for parent component)
-  const getLocationCoordinates = (): { lat: number; lng: number } | null => {
-    if (selectedLocation === 'current-location') {
-      return userLocation;
-    }
-    // TODO: Add logic to get coordinates for other locations if needed
-    return null;
-  };
-
-  // Export location coordinates to parent when they change
-  React.useEffect(() => {
-    if (onLocationChange && userLocation) {
-      onLocationChange(userLocation);
-    }
-  }, [userLocation, onLocationChange]);
-
-  // Get unique locations from listings
-  const availableLocations = useMemo(() => {
-    if (!selectedSubcategory || !selectedMake) return [];
-    return getModelsForMakeAndType(
-      selectedMake,
-      selectedSubcategory as VehicleType,
-    );
-  }, [selectedSubcategory, selectedMake, getModelsForMakeAndType]);
-
   // Handle make change
   const handleMakeChange = (value: string | null) => {
     setSelectedMake(value);
@@ -225,10 +249,10 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   };
 
   // Handle getting user's current location
-  const handleGetCurrentLocation = async () => {
+  const handleGetCurrentLocation = useCallback(async () => {
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser');
-      return;
+      return undefined;
     }
 
     setLocalLoading(true);
@@ -244,35 +268,34 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
       });
 
       const { latitude, longitude } = position.coords;
-      setUserLocation({ lat: latitude, lng: longitude });
       
       // Get location name using reverse geocoding
       const locationName = await reverseGeocode(latitude, longitude);
       
-      // Set the location name in the input field
-      setSelectedLocation(locationName);
+      // Create location data object
+      const locationData: LocationData = {
+        address: locationName,
+        coordinates: [latitude, longitude],
+        rawResult: { lat: latitude.toString(), lon: longitude.toString() }
+      };
       
-      // Pass coordinates to parent if needed
-      if (onLocationChange) {
-        onLocationChange({ lat: latitude, lng: longitude });
+      // Update location state
+      handleLocationSelect(locationData);
+      
+      // If radius filter is enabled, apply the current radius
+      if (showRadiusSlider) {
+        handleRadiusChange(tempRadius);
       }
+      
+      return locationData;
     } catch (error) {
       console.error('Geolocation error:', error);
       setLocationError('Unable to retrieve your location');
+      throw error;
     } finally {
       setLocalLoading(false);
     }
-  };
-
-  // Handle radius filter change
-  const handleRadiusChange = (radius: number | null) => {
-    // If radius is being cleared, also clear the location
-    if (radius === null) {
-      setSelectedLocation(null);
-      setUserLocation(null);
-    }
-    setSelectedRadius(radius);
-  };
+  }, [handleLocationSelect, handleRadiusChange, showRadiusSlider, tempRadius]);
 
   // Handle subcategory change
   const handleSubcategoryChange = (value: string | null) => {
@@ -466,99 +489,92 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
           </div>
         </div>
 
-        {/* Syrian cities with their nearby areas */}
+        {/* Location Search with Radius Filter */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t("location")}
           </label>
           <div className="space-y-3">
-            <select
-              name="location"
-              value={selectedLocation || ""}
-              onChange={(e) => setSelectedLocation(e.target.value || null)}
-              className={`w-full appearance-none px-4 py-2 text-sm rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 z-[60] ${
-                localLoading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              disabled={localLoading}
-            >
-              <option value="">{t("selectCity")}</option>
-              {cityOptions.map((city) => (
-                <option key={city.id} value={city.id}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-
-            {selectedLocation && (
-              <div className="space-y-2">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="radiusCheckbox"
-                      checked={selectedRadius !== null}
-                      onChange={(e) => handleRadiusChange(e.target.checked ? 10 : null)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="radiusCheckbox" className="text-sm text-gray-700 dark:text-gray-300">
-                      {t("radius")}
-                    </label>
-                  </div>
-                  {selectedRadius !== null && (
-                    <button
-                      type="button"
-                      onClick={handleGetCurrentLocation}
-                      disabled={localLoading}
-                      className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {selectedLocation && selectedLocation !== 'current-location' 
-                      ? `${t('usingLocation')}: ${selectedLocation}` 
-                      : t('useMyLocation')}
-                    </button>
-                  )}
-                  {locationError && (
-                    <p className="text-sm text-red-600 dark:text-red-400">{locationError}</p>
-                  )}
+            <div className={localLoading ? 'opacity-50' : ''}>
+              <LocationSearch
+                onSelectLocation={handleLocationSelect}
+                className="w-full"
+                placeholder={t('searchLocation') || 'Search for a location...'}
+              />
+            </div>
+            
+            {/* Location and Radius Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={showRadiusSlider}
+                  onChange={toggleRadiusSlider}
+                  className={`${
+                    showRadiusSlider ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                >
+                  <span className="sr-only">Enable radius filter</span>
+                  <span
+                    className={`${
+                      showRadiusSlider ? 'translate-x-6' : 'translate-x-1'
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                  />
+                </Switch>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('radiusFilter')}
+                </label>
+              </div>
+              {selectedLocation && (
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <MdLocationOn className="w-4 h-4 mr-1 text-blue-500" />
+                  <span className="truncate">{selectedLocation}</span>
                 </div>
-                {selectedRadius !== null && (
-                  <div className="pl-5">
-                    <p className="text-xs text-gray-500 mb-2">
-                      {t('nearbyAreas')}:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        'Al-Rastan',
-                        'Talbiseh',
-                        'Al-Qusayr',
-                        'Al-Mukharram'
-                      ].map((area) => (
-                        <button
-                          key={area}
-                          type="button"
-                          onClick={() => {
-                            setSelectedLocation(area);
-                            // Clear user location when selecting a predefined area
-                            setUserLocation(null);
-                            // You might want to add coordinates for these areas
-                            // and update the map/radius filter accordingly
-                          }}
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            selectedLocation === area 
-                              ? 'bg-blue-600 text-white dark:bg-blue-700' 
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800'
-                          } transition-colors`}
-                        >
-                          {area}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              )}
+            </div>
+            {showRadiusSlider && (
+              <div className="pl-1 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">{t('radius')}:</span>
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    {tempRadius} km
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={tempRadius}
+                  onChange={(e) => {
+                    const newRadius = parseInt(e.target.value, 10);
+                    setTempRadius(newRadius);
+                    if (selectedLocation) {
+                      handleRadiusChange(newRadius);
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  disabled={!selectedLocation}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>1km</span>
+                  <span>{selectedLocation ? `${tempRadius}km` : 'Select location first'}</span>
+                  <span>100km+</span>
+                </div>
+                {!selectedLocation && (
+                  <button
+                    type="button"
+                    onClick={handleGetCurrentLocation}
+                    className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    disabled={localLoading}
+                  >
+                    <MdMyLocation className="w-4 h-4 mr-1" />
+                    {t('useMyLocation')}
+                  </button>
                 )}
               </div>
+            )}
+            
+            {locationError && (
+              <p className="text-sm text-red-600 dark:text-red-400">{locationError}</p>
             )}
           </div>
         </div>

@@ -1,49 +1,182 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiMapPin, FiX, FiSearch } from 'react-icons/fi';
+import { FiMapPin, FiX } from 'react-icons/fi';
 import { useDebounce } from 'react-use';
 import { useLocation } from '@/hooks/useLocation';
+import arLocations from '@/locales/ar/locations.json';
+import enLocations from '@/locales/en/locations.json';
+
+interface LocationArea {
+  name: string;
+  city: string;
+  enName: string;
+  enCity: string;
+  arName: string;
+  arCity: string;
+}
 
 interface LocationResult {
-  id: string;
-  place_name: string;
-  center: [number, number];
-  text: string;
-  context?: Array<{
-    id: string;
-    text: string;
-    short_code?: string;
-  }>;
+  place_id: string;
+  display_name: string;
+  name?: string;
+  lat: string;
+  lon: string;
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    state?: string;
+    country?: string;
+    country_code?: string;
+  };
+  namedetails?: {
+    name?: string;
+    'name:ar'?: string;
+    'name:en'?: string;
+    [key: string]: string | undefined;
+  };
+  boundingbox?: [string, string, string, string];
+  class?: string;
+  type?: string;
+  importance?: number;
+}
+
+export interface LocationCoordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface LocationData {
+  address: string;
+  coordinates: [number, number];
+  boundingBox?: [number, number, number, number];
+  rawResult: any;
+}
+
+export interface SelectedLocation {
+  address: string;
+  coordinates: [number, number];
+  boundingBox?: [number, number, number, number];
+  rawResult?: any;
 }
 
 interface LocationSearchProps {
-  onSelectLocation: (location: {
-    address: string;
-    coordinates: [number, number];
-  }) => void;
+  onSelectLocation: (location: SelectedLocation) => void;
+  onInputChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  inputClassName?: string;
   initialValue?: string;
-  showCurrentLocation?: boolean;
 }
 
 const LocationSearch: React.FC<LocationSearchProps> = ({
   onSelectLocation,
+  onInputChange,
   placeholder = 'Search for a location...',
   className = '',
+  inputClassName = '',
   initialValue = '',
-  showCurrentLocation = true,
 }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState(initialValue);
-  const [results, setResults] = useState<LocationResult[]>([]);
+  const [apiResults, setApiResults] = useState<LocationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { updateLocation } = useLocation();
+  const { getCurrentLocation } = useLocation();
 
-  // Handle click outside to close results
+  const { i18n } = useTranslation();
+  
+  // Get all predefined areas from the locations data
+  const allPredefinedAreas = useMemo<LocationArea[]>(() => {
+    const currentLang = i18n.language;
+    const isArabic = currentLang.startsWith('ar');
+    const cities = isArabic ? arLocations.cities : enLocations.cities;
+    const areasData = isArabic ? arLocations.areas : enLocations.areas;
+    
+    const areas: LocationArea[] = [];
+    
+    // Add cities
+    Object.entries(cities).forEach(([key]) => {
+      const enName = enLocations.cities[key as keyof typeof enLocations.cities];
+      const arName = arLocations.cities[key as keyof typeof arLocations.cities];
+      
+      areas.push({
+        name: isArabic ? arName : enName,
+        city: isArabic ? arName : enName,
+        enName,
+        enCity: enName,
+        arName,
+        arCity: arName
+      });
+    });
+    
+    // Add areas with their cities
+    Object.entries(areasData).forEach(([cityKey, areaNames]) => {
+      const cityEn = enLocations.cities[cityKey as keyof typeof enLocations.cities];
+      const cityAr = arLocations.cities[cityKey as keyof typeof arLocations.cities];
+      const areaNamesEn = enLocations.areas[cityKey as keyof typeof enLocations.areas] || [];
+      
+      (areaNames as string[]).forEach((areaName, index) => {
+        areas.push({
+          name: isArabic ? areaName : (areaNamesEn[index] || areaName),
+          city: isArabic ? cityAr : cityEn,
+          enName: areaNamesEn[index] || areaName,
+          enCity: cityEn,
+          arName: areaName,
+          arCity: cityAr
+        });
+      });
+    });
+    
+    return areas;
+  }, [i18n.language]);
+  
+  // Combine API results with predefined areas
+  const results = useMemo(() => {
+    if (!query || query.length < 2) return [];
+    
+    const isArabic = /[\u0600-\u06FF]/.test(query) || i18n.language.startsWith('ar');
+    
+    // Filter predefined areas that match the query
+    const matchedAreas = allPredefinedAreas.filter(area => {
+      const searchInName = isArabic ? area.arName : area.enName;
+      const searchInCity = isArabic ? area.arCity : area.enCity;
+      return searchInName?.toLowerCase().includes(query.toLowerCase()) || 
+             searchInCity?.toLowerCase().includes(query.toLowerCase());
+    }).map(area => ({
+      place_id: `predefined-${area.enName}-${area.enCity}`,
+      display_name: isArabic ? 
+        `${area.arName}, ${area.arCity}` :
+        `${area.enName}, ${area.enCity}`,
+      name: isArabic ? area.arName : area.enName,
+      lat: '0',
+      lon: '0',
+      address: {
+        city: isArabic ? area.arCity : area.enCity,
+        state: isArabic ? 'سوريا' : 'Syria',
+        country: isArabic ? 'سوريا' : 'Syria',
+        country_code: 'sy'
+      },
+      namedetails: {
+        name: area.enName,
+        'name:ar': area.arName,
+        'name:en': area.enName
+      },
+      importance: 1,
+      isPredefined: true
+    }));
+    
+    // Combine with API results and remove duplicates
+    const allResults = [...matchedAreas, ...apiResults];
+    const uniqueResults = Array.from(new Map(allResults.map(item => [item.display_name, item])).values());
+    
+    return uniqueResults;
+  }, [query, apiResults, allPredefinedAreas]);
+
+  // Close results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -60,10 +193,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   // Debounce search
   useDebounce(
     () => {
-      if (query.length > 2) {
+      if (query && query.length > 2) {
         searchLocations(query);
       } else {
-        setResults([]);
+        setApiResults([]);
       }
     },
     300,
@@ -72,156 +205,214 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   const searchLocations = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
-      setResults([]);
+      setApiResults([]);
       return;
     }
 
     setIsLoading(true);
     
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        searchQuery
-      )}&countrycodes=sy&accept-language=ar&limit=5`;
+      // Check if the input contains Arabic characters
+      const hasArabic = /[\u0600-\u06FF]/.test(searchQuery);
+      const lang = hasArabic ? 'ar' : 'en';
       
+      // Create URL with proper encoding
+      const baseUrl = 'https://nominatim.openstreetmap.org/search';
+      const params = new URLSearchParams();
+      
+      // Add parameters one by one to ensure proper encoding
+      params.append('format', 'json');
+      params.append('q', searchQuery);
+      params.append('countrycodes', 'sy');
+      params.append('limit', '10');
+      params.append('addressdetails', '1');
+      params.append('namedetails', '1');
+      params.append('polygon_geojson', '0');
+      params.append('dedupe', '1');
+      params.append('bounded', '1');
+      params.append('viewbox', '35.5,37.3,42.4,32.3');
+      params.append('accept-language', `${lang},${lang === 'ar' ? 'en' : 'ar'}`);
+      params.append('featureType', 'city,town,village,suburb,quarter,neighborhood');
+      params.append('extratags', '1');
+      
+      // Construct URL with proper encoding
+      const url = `${baseUrl}?${params.toString()}`;
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'YourAppName/1.0 (your@email.com)' // Required by Nominatim
+          'User-Agent': 'Tijara/1.0 (contact@tijara.sy)',
+          'Accept-Language': `${lang},${lang === 'ar' ? 'en' : 'ar'};q=0.8,en-US;q=0.7`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8'
         }
       });
-      
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
-      
-      // Transform Nominatim response to match our expected format
-      const formattedResults = data.map((item: any) => ({
-        id: item.place_id,
-        place_name: item.display_name,
-        center: [parseFloat(item.lat), parseFloat(item.lon)],
-        text: item.display_name.split(',')[0],
-        address: {
-          city: item.address?.city || item.address?.town || item.address?.village || '',
-          country: item.address?.country || 'Syria'
-        }
-      }));
-      
-      setResults(formattedResults);
+      setApiResults(data);
     } catch (error) {
       console.error('Error searching locations:', error);
-      setResults([]);
+      setApiResults([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSelectLocation = (result: LocationResult) => {
-    setQuery(result.place_name);
-    onSelectLocation({
-      address: result.place_name,
-      coordinates: result.center,
-    });
+  const handleSelect = (result: LocationResult) => {
+    const displayName = getDisplayName(result);
+    setQuery(displayName);
     setShowResults(false);
-    inputRef.current?.blur();
+
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+
+    const boundingBox = result.boundingbox 
+      ? result.boundingbox.map(coord => parseFloat(coord)) as [number, number, number, number]
+      : undefined;
+
+    onSelectLocation({
+      address: displayName,
+      coordinates: [lat, lng],
+      boundingBox,
+      rawResult: result,
+    });
   };
 
-  const handleCurrentLocation = async () => {
-    try {
-      setIsLoading(true);
-      const position = await updateLocation();
-      
-      // Reverse geocode using Nominatim
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&accept-language=ar`,
-        {
-          headers: {
-            'User-Agent': 'YourAppName/1.0 (your@email.com)'
-          }
-        }
-      );
-      
-      const data = await response.json();
-      if (data) {
-        const displayName = data.display_name || `${data.address?.city || data.address?.town || data.address?.village || 'Location'}`;
-        setQuery(displayName);
-        onSelectLocation({
-          address: displayName,
-          coordinates: [position.coords.latitude, position.coords.longitude],
-        });
+  const getDisplayName = (result: LocationResult): string => {
+    if (!result) return 'Unknown location';
+
+    // Check if the current query is in Arabic
+    const isArabicQuery = /[\u0600-\u06FF]/.test(query);
+    
+    // Try to get the name in the preferred language from namedetails
+    if (result.namedetails) {
+      // If user is typing in Arabic, prefer Arabic name
+      if (isArabicQuery && result.namedetails['name:ar']) {
+        return result.namedetails['name:ar'];
       }
-    } catch (error) {
-      console.error('Error getting current location:', error);
-      // Handle error (e.g., show toast)
-    } finally {
-      setIsLoading(false);
+      // Otherwise try to match the browser language
+      const userLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
+      if (userLang === 'ar' && result.namedetails['name:ar']) {
+        return result.namedetails['name:ar'];
+      } else if (result.namedetails['name:en']) {
+        return result.namedetails['name:en'];
+      } else if (result.namedetails.name) {
+        return result.namedetails.name;
+      }
+    }
+
+    // Fall back to display_name if available
+    if (result.display_name) {
+      return result.display_name;
+    }
+
+    // Fall back to address components if available
+    if (result.address) {
+      const { address } = result;
+      const parts = [];
+
+      // Add the most specific location name first
+      if (address.city) parts.push(address.city);
+      else if (address.town) parts.push(address.town);
+      else if (address.village) parts.push(address.village);
+      else if (address.municipality) parts.push(address.municipality);
+
+      // Add state if available and not already included
+      if (address.state && !parts.includes(address.state)) {
+        parts.push(address.state);
+      }
+
+      if (parts.length > 0) {
+        return parts.join(', ');
+      }
+    }
+
+    // Final fallback
+    return result.name || 'Unknown location';
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    if (onInputChange) {
+      onInputChange(value);
+    }
+    if (value.length > 2) {
+      setShowResults(true);
+    } else {
+      setShowResults(false);
     }
   };
 
-  const clearSearch = () => {
+  const handleClear = () => {
     setQuery('');
-    setResults([]);
+    setApiResults([]);
+    setShowResults(false);
+    if (onInputChange) {
+      onInputChange('');
+    }
     onSelectLocation({
       address: '',
       coordinates: [0, 0],
+      rawResult: null
     });
   };
 
+
+
   return (
-    <div className={`relative ${className}`} ref={searchRef}>
+    <div className={`relative w-full ${className}`} ref={searchRef}>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <FiSearch className="h-5 w-5 text-gray-400" />
+          <FiMapPin className="h-5 w-5 text-gray-400" />
         </div>
         <input
           ref={inputRef}
           type="text"
-          className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-          placeholder={placeholder}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setShowResults(true)}
+          onChange={handleInputChange}
+          onFocus={() => query.length > 2 && setShowResults(true)}
+          placeholder={placeholder}
+          className={`w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white ${inputClassName}`}
         />
         {query && (
           <button
             type="button"
-            onClick={clearSearch}
             className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            onClick={handleClear}
           >
-            <FiX className="h-5 w-5 text-gray-400 hover:text-gray-500" />
+            <FiX className="h-5 w-5 text-gray-400" />
           </button>
         )}
       </div>
 
-      {(showResults && results.length > 0) && (
-        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm max-h-60 overflow-auto">
-          {showCurrentLocation && (
-            <button
-              type="button"
-              onClick={handleCurrentLocation}
-              className="w-full text-left px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 flex items-center"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <span>Loading...</span>
-              ) : (
-                <>
-                  <FiMapPin className="mr-2" />
-                  <span>{t('location.useCurrentLocation')}</span>
-                </>
-              )}
-            </button>
-          )}
+      {/* Search results */}
+      {showResults && results.length > 0 && (
+        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
           {results.map((result) => (
             <div
-              key={result.id}
-              className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100"
-              onClick={() => handleSelectLocation(result)}
+              key={result.place_id}
+              className="cursor-default select-none relative py-2 pl-3 pr-9 hover:bg-indigo-50"
+              onClick={() => handleSelect(result)}
             >
               <div className="flex items-center">
-                <FiMapPin className="flex-shrink-0 h-5 w-5 text-gray-400" />
-                <span className="font-normal block truncate mr-2">
-                  {result.place_name}
+                <span className="font-normal ml-3 block truncate">
+                  {getDisplayName(result)}
                 </span>
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
+          <div className="px-4 py-2 text-sm text-gray-500">
+            {t ? `${t('common.searching')}...` : 'Searching...'}
+          </div>
         </div>
       )}
     </div>

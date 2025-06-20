@@ -337,7 +337,7 @@ const ListingDetails = () => {
                   warranty: details.vehicles.warranty,
                   serviceHistory: Boolean(details.vehicles.serviceHistory),
                   previousOwners: details.vehicles.previousOwners,
-                  registrationStatus: details.vehicles.registrationStatus,
+                  registrationStatus: details.vehicles.registrationStatus || 'unregistered', // Default to 'unregistered' if not provided
                   accidentFree: Boolean(details.vehicles.accidentFree),
                   customsCleared: Boolean(details.vehicles.customsCleared),
                   bodyType: details.vehicles.bodyType || "",
@@ -422,13 +422,45 @@ const ListingDetails = () => {
                     details.vehicles.rainSensingWipers
                   ),
 
+                  // Engine & Performance
+                  engineType: details.vehicles.engineType || "",
                   engineSize: details.vehicles.engineSize || "",
-                  horsepower: details.vehicles.horsepower || 0,
-                  torque: details.vehicles.torque || 0,
+                  powerOutput: details.vehicles.powerOutput !== undefined ? details.vehicles.powerOutput : null,
+                  horsepower: details.vehicles.horsepower !== undefined ? details.vehicles.horsepower : null,
+                  torque: details.vehicles.torque !== undefined ? details.vehicles.torque : null,
+                  fuelSystem: details.vehicles.fuelSystem || "",
+                  coolingSystem: details.vehicles.coolingSystem || "",
+                  
+                  // Chassis & Suspension
+                  frameType: details.vehicles.frameType || "",
+                  frontSuspension: Array.isArray(details.vehicles.frontSuspension) ? details.vehicles.frontSuspension : [],
+                  rearSuspension: Array.isArray(details.vehicles.rearSuspension) ? details.vehicles.rearSuspension : [],
+                  brakeSystem: Array.isArray(details.vehicles.brakeSystem) ? details.vehicles.brakeSystem : [],
                   brakeType: details.vehicles.brakeType || "",
                   driveType: details.vehicles.driveType || "",
                   wheelSize: details.vehicles.wheelSize || "",
                   wheelType: details.vehicles.wheelType || "",
+                  
+                  // Starting & Electronics
+                  startType: Array.isArray(details.vehicles.startType) ? details.vehicles.startType : [],
+                  riderAids: Array.isArray(details.vehicles.riderAids) ? details.vehicles.riderAids : [],
+                  electronics: Array.isArray(details.vehicles.electronics) ? details.vehicles.electronics : [],
+                  lighting: Array.isArray(details.vehicles.lighting) ? details.vehicles.lighting : [],
+                  
+                  // Comfort & Ergonomics
+                  seatType: Array.isArray(details.vehicles.seatType) ? details.vehicles.seatType : [],
+                  seatHeight: details.vehicles.seatHeight || 0,
+                  handlebarType: details.vehicles.handlebarType || "",
+                  comfortFeatures: Array.isArray(details.vehicles.comfortFeatures) ? details.vehicles.comfortFeatures : [],
+                  
+                  // Storage & Accessories
+                  storageOptions: Array.isArray(details.vehicles.storageOptions) ? details.vehicles.storageOptions : [],
+                  protectiveEquipment: Array.isArray(details.vehicles.protectiveEquipment) ? details.vehicles.protectiveEquipment : [],
+                  customParts: Array.isArray(details.vehicles.customParts) ? details.vehicles.customParts : [],
+                  
+                  // Documentation & History
+                  modifications: details.vehicles.modifications || "",
+                  emissions: details.vehicles.emissions || "",
                   importStatus: details.vehicles.importStatus || "",
                 } as any)
               : undefined,
@@ -1031,7 +1063,8 @@ const ListingDetails = () => {
                   (listing?.details?.vehicles as any)?.accidentFree !==
                     undefined ||
                   listing?.details?.vehicles?.warranty ||
-                  listing?.details?.vehicles?.registrationStatus) && (
+                  (listing?.details?.vehicles?.registrationStatus !== undefined && 
+                   listing?.details?.vehicles?.registrationStatus !== '')) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                       {t('sections.vehicleHistory')}
@@ -1086,19 +1119,21 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing.details.vehicles.warranty === 'yes' 
-                              ? <CheckCircle className="w-5 h-5 text-green-500" /> 
+                              ? <CheckCircle className="w-5 h-5 text-green-500" />
                               : <XCircle className="w-5 h-5 text-red-500" />}
                           </p>
                         </div>
                       )}
                       {/* Registration Status */}
-                      {listing?.details?.vehicles?.registrationStatus && (
+                      {listing?.details?.vehicles?.registrationStatus && listing?.details?.vehicles?.registrationStatus !== '' && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             {t('fields.registrationStatus')}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.registrationStatus}
+                            {t(`fields.registrationStatuses.${listing?.details?.vehicles?.registrationStatus}`, {
+                              defaultValue: listing?.details?.vehicles?.registrationStatus
+                            })}
                           </p>
                         </div>
                       )}
@@ -1598,7 +1633,9 @@ const ListingDetails = () => {
                   </div>
                 )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && (listing.details.vehicles.enginePowerOutput || listing.details.vehicles.powerOutput) && (
+                {isMotorcycleDetails(listing.details.vehicles) && 
+                 (listing.details.vehicles.enginePowerOutput !== null && listing.details.vehicles.enginePowerOutput !== undefined || 
+                  listing.details.vehicles.powerOutput !== null && listing.details.vehicles.powerOutput !== undefined) && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.powerOutput')}
@@ -1609,7 +1646,7 @@ const ListingDetails = () => {
                   </div>
                 )}
 
-                {listing.details.vehicles.torque && (
+                {listing.details.vehicles.torque !== null && listing.details.vehicles.torque !== undefined && listing.details.vehicles.torque > 0 && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.torque')}
@@ -1648,7 +1685,9 @@ const ListingDetails = () => {
                       {t('fields.engineSize')}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.engineSize} cc
+                      {typeof listing.details.vehicles.engineSize === 'string' 
+                        ? listing.details.vehicles.engineSize.replace(/\s*cc\s*/i, '') + ' cc'
+                        : listing.details.vehicles.engineSize + ' cc'}
                     </p>
                   </div>
                 )}
@@ -1680,30 +1719,44 @@ const ListingDetails = () => {
                   </div>
                 )}
 
-                {listing.details.vehicles.frontSuspension && (
+                {listing.details.vehicles.frontSuspension && 
+                 Array.isArray(listing.details.vehicles.frontSuspension) && 
+                 listing.details.vehicles.frontSuspension.length > 0 && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.frontSuspension')}
                     </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.suspensionTypes.${listing.details.vehicles.frontSuspension}`)}
-                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {listing.details.vehicles.frontSuspension.map((type: string, idx: number) => (
+                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">
+                          {t(`fields.suspensionTypes.${type}`, { defaultValue: type })}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {listing.details.vehicles.rearSuspension && (
+                {listing.details.vehicles.rearSuspension && 
+                 Array.isArray(listing.details.vehicles.rearSuspension) && 
+                 listing.details.vehicles.rearSuspension.length > 0 && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.rearSuspension')}
                     </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.suspensionTypes.${listing.details.vehicles.rearSuspension}`)}
-                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {listing.details.vehicles.rearSuspension.map((type: string, idx: number) => (
+                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">
+                          {t(`fields.suspensionTypes.${type}`, { defaultValue: type })}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Rider Aids & Electronics */}
-                {listing.details.vehicles.startType && (
+                {listing.details.vehicles.startType && 
+                 Array.isArray(listing.details.vehicles.startType) && 
+                 listing.details.vehicles.startType.length > 0 && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.startType')}
@@ -1717,7 +1770,7 @@ const ListingDetails = () => {
                           ))
                         : (
                             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                              {t(`fields.startTypes.${listing.details.vehicles.startType}`)}
+                              {t('fields.startTypes.' + listing.details.vehicles.startType, { defaultValue: listing.details.vehicles.startType })}
                             </span>
                           )}
                     </div>
@@ -1770,7 +1823,9 @@ const ListingDetails = () => {
                 )}
 
                 {/* Comfort & Ergonomics */}
-                {listing.details.vehicles.seatType && (
+                {listing.details.vehicles.seatType && 
+                 Array.isArray(listing.details.vehicles.seatType) && 
+                 listing.details.vehicles.seatType.length > 0 && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t('fields.seatType')}
@@ -1784,7 +1839,7 @@ const ListingDetails = () => {
                           ))
                         : (
                             <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
-                              {t(`fields.seatTypes.${listing.details.vehicles.seatType}`)}
+                              {t('fields.seatTypes.' + listing.details.vehicles.seatType, { defaultValue: listing.details.vehicles.seatType })}
                             </span>
                           )}
                     </div>

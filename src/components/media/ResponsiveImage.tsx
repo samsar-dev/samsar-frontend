@@ -118,17 +118,20 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       ) : (
         <img
           src={optimizedSrc}
-          srcSet={generateSrcSet()}
-          sizes={sizes}
-          alt={imgAlt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${blur && loading ? "opacity-0" : "opacity-100"} z-10`}
-          loading={priority ? "eager" : "lazy"}
-          decoding={priority ? "sync" : "async"}
-          fetchPriority={priority ? "high" : fetchPriority}
-          width={priority ? "600" : "800"}
-          height="300"
+          alt={alt}
+          className={`${className} transition-opacity duration-300 ${
+            loading ? "opacity-0" : "opacity-100"
+          }`}
           onLoad={handleLoad}
           onError={handleError}
+          sizes={sizes}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          // @ts-ignore - fetchpriority is valid HTML but not yet in React types
+          fetchpriority={fetchPriority}
+          {...(generateSrcSet() && { srcSet: generateSrcSet() })}
+          width={priority ? "600" : "800"}
+          height="300"
           draggable={false}
         />
       )}

@@ -496,7 +496,10 @@ export interface CarDetails extends BaseVehicleDetails {
   climateControl?: string[];
 }
 
-export interface MotorcycleDetails extends BaseVehicleDetails {
+// Fields to omit from BaseVehicleDetails that we'll redefine in MotorcycleDetails
+type OmittedBaseFields = 'seatType' | 'startType' | 'lighting' | 'comfortFeatures' | 'customParts' | 'modifications' | 'emissions';
+
+export interface MotorcycleDetails extends Omit<BaseVehicleDetails, OmittedBaseFields> {
   vehicleType: VehicleType.MOTORCYCLE;
   motorcycleType?: string;
   engineType?: string;
@@ -512,22 +515,34 @@ export interface MotorcycleDetails extends BaseVehicleDetails {
   numberOfOwners?: number;
   engine?: string;
   engineSize?: string;
-  enginePowerOutput?: string | number; // Can be either string or number
-  brakeSystem?: string[];
-  suspensionType?: string;
+  enginePowerOutput?: string | number;
+  powerOutput?: string | number; // Alias for enginePowerOutput
+  fuelSystem?: string;
+  coolingSystem?: string;
   frameType?: string;
+  frontSuspension?: string[];
+  rearSuspension?: string[];
+  brakeSystem?: string[];
+  startType?: string[];
+  riderAids?: string[];
+  electronics?: string[];
+  lighting?: string[];
+  seatType?: string[]; // Override from BaseVehicleDetails
+  seatHeight?: number;
+  handlebarType?: string;
+  storageOptions?: string[];
+  protectiveEquipment?: string[];
+  customParts?: string[];
+  customFeatures?: string[];
+  emissions?: string;
+  torque?: number;
+  // Deprecated fields (kept for backward compatibility)
+  suspensionType?: string;
   wheelSize?: string;
   tireType?: string;
   startingSystem?: string;
-  coolingSystem?: string;
   instrumentCluster?: string[];
   lightingSystem?: string[];
-  lighting?: string[]; // For lighting features (LED, halogen, etc.)
-  fuelSystem?: string; // carburetor, fuelInjection, directInjection
-  customParts?: string[]; // Custom parts installed on the motorcycle
-  customFeatures?: string[]; // Any custom features not covered by other fields
-  powerOutput?: string | number; // Alias for enginePowerOutput for consistency
-  torque?: number; // Already in BaseVehicleDetails but explicitly defined here for clarity
 }
 
 export interface TruckDetails extends BaseVehicleDetails {

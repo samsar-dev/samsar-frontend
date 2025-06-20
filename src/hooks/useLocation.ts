@@ -105,5 +105,6 @@ export const useLocation = (props?: UseLocationProps) => {
     startWatching,
     stopWatching,
     getDistanceFrom,
+    getCurrentLocation,
   };
 };
