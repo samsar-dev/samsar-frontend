@@ -12,6 +12,7 @@ import { FaClock, FaEnvelope, FaPhone } from "react-icons/fa";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import TokenManager from "@/utils/tokenManager";
+import UserPrivateProfile from "@/components/profile/UserPrivateProfile";
 
 interface UserProfileData {
   id: string;
@@ -100,6 +101,10 @@ export const UserProfile = () => {
         <LoadingSpinner size="lg" />
       </div>
     );
+  }
+
+  if (profile?.privateProfile) {
+    return <UserPrivateProfile />;
   }
 
   if (error || !profile) {
