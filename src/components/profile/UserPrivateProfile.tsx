@@ -4,14 +4,14 @@ import PrivateDisplayPic from "./PrivateDisplayPic";
 function UserPrivateProfile() {
   return (
     <div className="w-full h-[93vh]">
-      <div className="max-w-[1248px] min-h-[184px] mx-auto flex bg-[#EEEEEE] p-[24px]">
+      <div className="max-w-[1248px] min-h-[184px] mx-auto flex bg-[#EEEEEE] dark:bg-gray-800 p-[24px]">
         <div className="w-full h-full flex">
           <div className="w-[108px] h-full flex flex-col items-center gap-3">
             <PrivateDisplayPic variant="large" />
-            <div className="w-[66px] h-[28px] bg-[#D9D9D9] rounded-r-full rounded-l-full"></div>
+            <div className="w-[66px] h-[28px] bg-[#D9D9D9] dark:opacity-40 rounded-r-full rounded-l-full"></div>
           </div>
 
-          <div className="w-full flex flex-col gap-y-[16px] pl-3">
+          <div className="w-full flex flex-col gap-y-[16px] pl-3 dark:opacity-40">
             <div className="max-w-[370px] h-[32px] bg-[#A4A4A4] rounded-[2px] "></div>
             <div className="max-w-[550px] h-[20px] bg-[#DCDCDC] rounded-[2px] "></div>
             <div className="max-w-[700px] h-[20px] bg-[#DCDCDC] rounded-[2px] "></div>
