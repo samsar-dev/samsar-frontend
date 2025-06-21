@@ -20,6 +20,7 @@ export interface User {
   showEmail?: boolean;
   showOnlineStatus?: boolean;
   showPhoneNumber?: boolean;
+  privateProfile?: boolean;
 }
 
 export interface UserProfile extends User {
