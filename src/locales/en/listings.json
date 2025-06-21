@@ -77,7 +77,10 @@
   "delete_error": "Error deleting listing",
   "sections": {
     "essential": "Essential Details",
-    "advanced": "Advanced Details"
+    "advanced": "Advanced Details",
+    "vehicleHistory": "Vehicle History",
+    "technicalDetails": "Technical Details",
+    "vehicleFeatures": "Vehicle Features"
   },
   "common": {
     "notProvided": "Not provided",
@@ -137,6 +140,21 @@
     "review": "Review"
   },
   "fields": {
+    "hp": "Horsepower",
+    "nm": "Torque (Nm)",
+    "bodyTypes": {
+      "sedan": "Sedan",
+      "hatchback": "Hatchback",
+      "suv": "SUV",
+      "crossover": "Crossover",
+      "coupe": "Coupe",
+      "convertible": "Convertible",
+      "wagon": "Wagon",
+      "minivan": "Minivan",
+      "pickup": "Pickup",
+      "truck": "Truck",
+      "van": "Van"
+    },
     "mileage": "Mileage",
     "year": "Year",
     "transmission": "Transmission",

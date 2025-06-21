@@ -17,6 +17,8 @@
   "delete": "حذف",
   "yes": "نعم",
   "no": "لا",
+  "months": "أشهر",
+  "notAvailable": "غير متوفر",
   "notSpecified": "غير محدد",
   "notProvided": "غير متوفر",
   "beds": "غرف نوم",
@@ -126,11 +128,14 @@
       },
       "transmissionTypes": {
         "automatic": "أوتوماتيك",
-        "manual": "يدوي",
         "semiAutomatic": "نصف أوتوماتيك",
         "continuouslyVariable": "سي في تي",
         "dualClutch": "دوبال كلتش",
-        "other": "أخرى"
+        "manual": "يدوي",
+        "other": "أخرى",
+        "months": "أشهر",
+        "hp": "حصان",
+        "nm": "نيوتن متر"
       },
       "conditions": {
         "new": "جديد",
@@ -168,22 +173,6 @@
     "priceDesc": "السعر: من الأعلى إلى الأقل",
     "locationAsc": "الموقع: أ إلى ي",
     "locationDesc": "الموقع: ي إلى أ"
-  },
-  "cities": {
-    "HOMS": "حمص",
-    "DAMASCUS": "دمشق",
-    "ALEPPO": "حلب",
-    "LATTAKIA": "اللاذقية",
-    "HAMA": "حماة",
-    "DEIR_EZZOR": "دير الزور",
-    "HASEKEH": "الحسكة",
-    "QAMISHLI": "القامشلي",
-    "RAQQA": "الرقة",
-    "TARTOUS": "طرطوس",
-    "IDLIB": "إدلب",
-    "DARA": "درعا",
-    "SWEDIA": "السويداء",
-    "QUNEITRA": "القنيطرة"
   },
   "ui": {
     "tryAgain": "حاول مرة أخرى",
@@ -255,6 +244,10 @@
     "quick_links": "روابط سريعة",
     "about_marketplace": "حول السوق",
     "contact_us": "اتصل بنا",
+    "privacy": "الخصوصية",
+    "privacy_policy": {
+      "title": "سياسة الخصوصية"
+    },
     "careers": {
       "title": "الوظائف"
     },
@@ -280,6 +273,8 @@
   "footer.contact_us": "اتصل بنا",
   "footer.careers.title": "الوظائف",
   "footer.terms.title": "شروط الخدمة",
+  "footer.privacy": "الخصوصية",
+  "footer.privacy_policy.title": "سياسة الخصوصية",
   "footer.categories": "الفئات",
   "footer.all_rights_reserved": "جميع الحقوق محفوظة",
   "sortOptions.newestFirst": "الأحدث أولاً",

@@ -267,10 +267,10 @@ export interface VehicleFeatures {
 // Common fields for all vehicle types
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
+  vin?: string;
   customMake?: string;
   customModel?: string;
   make: string;
-  // vin: string;
   insuranceType?: string;
   model: string;
   year: string;
@@ -288,16 +288,17 @@ export interface BaseVehicleDetails {
   registrationStatus?: string;
   upholsteryMaterial?: string;
   tireCondition?: string;
+  bodyType?: string;
+  bodyStyle?: string; // Alias for bodyType for backward compatibility
   warrantyPeriod?: string;
   customsCleared?: boolean;
-  bodyType?: string;
   roofType?: string;
   horsepower?: number;
   torque?: number;
   brakeType?: string;
+  engineType?: string;
   engineNumber?: string;
   engineSize?: string;
-
   attachments?: string[];
   fuelTankCapacity?: string;
   tires?: string;
@@ -310,6 +311,11 @@ export interface BaseVehicleDetails {
   wheelType?: string;
   engine?: string;
   registrationExpiry?: string;
+  brakeSystem?: string[];
+  seatType?: string;
+  ownershipHistory?: string;
+  accidentHistory?: boolean;
+  ownerManual?: boolean;
 
   // Safety Features
   accidentFree?: boolean;
@@ -453,7 +459,8 @@ export interface BaseVehicleDetails {
 
 export interface CarDetails extends BaseVehicleDetails {
   vehicleType: VehicleType.CAR;
-  bodyStyle?: string;
+  bodyType?: string;
+  bodyStyle?: string; // Alias for bodyType for backward compatibility;
   driveType?: string;
   engineType?: string;
   transmissionType?: string;
@@ -489,7 +496,10 @@ export interface CarDetails extends BaseVehicleDetails {
   climateControl?: string[];
 }
 
-export interface MotorcycleDetails extends BaseVehicleDetails {
+// Fields to omit from BaseVehicleDetails that we'll redefine in MotorcycleDetails
+type OmittedBaseFields = 'seatType' | 'startType' | 'lighting' | 'comfortFeatures' | 'customParts' | 'modifications' | 'emissions';
+
+export interface MotorcycleDetails extends Omit<BaseVehicleDetails, OmittedBaseFields> {
   vehicleType: VehicleType.MOTORCYCLE;
   motorcycleType?: string;
   engineType?: string;
@@ -498,21 +508,39 @@ export interface MotorcycleDetails extends BaseVehicleDetails {
   safetyFeatures?: string[];
   comfortFeatures?: string[];
   performanceFeatures?: string[];
-  serviceHistory?: string;
+  serviceHistory?: string | boolean;
   modifications?: string[];
   accessories?: string[];
   ridingStyle?: string;
   numberOfOwners?: number;
   engine?: string;
   engineSize?: string;
-  enginePowerOutput?: string;
-  brakeSystem?: string[];
-  suspensionType?: string;
+  enginePowerOutput?: string | number;
+  powerOutput?: string | number; // Alias for enginePowerOutput
+  fuelSystem?: string;
+  coolingSystem?: string;
   frameType?: string;
+  frontSuspension?: string[];
+  rearSuspension?: string[];
+  brakeSystem?: string[];
+  startType?: string[];
+  riderAids?: string[];
+  electronics?: string[];
+  lighting?: string[];
+  seatType?: string[]; // Override from BaseVehicleDetails
+  seatHeight?: number;
+  handlebarType?: string;
+  storageOptions?: string[];
+  protectiveEquipment?: string[];
+  customParts?: string[];
+  customFeatures?: string[];
+  emissions?: string;
+  torque?: number;
+  // Deprecated fields (kept for backward compatibility)
+  suspensionType?: string;
   wheelSize?: string;
   tireType?: string;
   startingSystem?: string;
-  coolingSystem?: string;
   instrumentCluster?: string[];
   lightingSystem?: string[];
 }
@@ -695,6 +723,13 @@ export interface Category {
   subCategory: string;
 }
 
+export interface LocationMeta {
+  lat: number;
+  lng: number;
+  placeId?: string;
+  bounds?: [number, number, number, number]; // [south, west, north, east]
+}
+
 export interface Listing {
   id?: string;
   title: string;
@@ -707,6 +742,7 @@ export interface Listing {
   location: string;
   latitude: number;
   longitude: number;
+  locationMeta?: LocationMeta;
   images: Array<string | File>;
   image?: string;
   createdAt?: Date | string;
@@ -778,6 +814,9 @@ export interface BaseFormState {
   images?: Array<string | File>;
   features?: string[];
   listingAction?: ListingAction;
+  locationMeta?: LocationMeta;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Complete form state with required fields for final submission

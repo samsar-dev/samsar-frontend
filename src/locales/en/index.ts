@@ -12,6 +12,7 @@ import footer from "./footer.json";
 import categories from "./categories.json";
 import enums from "./enums.json";
 import settings from "./settings.json";
+import locations from "./locations.json";
 
 export default {
   common,
@@ -28,4 +29,5 @@ export default {
   categories,
   enums,
   settings,
+  locations,
 };

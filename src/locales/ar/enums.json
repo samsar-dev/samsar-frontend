@@ -54,21 +54,5 @@
   "listingType": {
     "FOR_SALE": "للبيع",
     "FOR_RENT": "للإيجار"
-  },
-  "cities": {
-    "DAMASCUS": "دمشق",
-    "ALEPPO": "حلب",
-    "HOMS": "حمص",
-    "LATTAKIA": "اللاذقية",
-    "HAMA": "حماة",
-    "DEIR_EZZOR": "دير الزور",
-    "HASEKEH": "الحسكة",
-    "QAMISHLI": "القامشلي",
-    "RAQQA": "الرقة",
-    "TARTOUS": "طرطوس",
-    "IDLIB": "إدلب",
-    "DARA": "درعا",
-    "SWEDIA": "السويداء",
-    "QUNEITRA": "القنيطرة"
   }
 }

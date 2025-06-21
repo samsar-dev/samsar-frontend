@@ -1,13 +1,14 @@
 import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { normalizeLocation } from "@/utils/locationUtils";
 import {
   ListingCategory,
   VehicleType,
   PropertyType,
   Condition,
 } from "@/types/enums";
-import type { FormState, RealEstateDetails } from "@/types/listings";
+import type { RealEstateDetails, LocationMeta, BaseFormState } from "@/types/listings";
 import {
   FaCar,
   FaMoneyBillWave,
@@ -19,9 +20,10 @@ import { realEstateBasicFields } from "@/components/listings/create/basic/BasicF
 import { BiBuildingHouse } from "react-icons/bi";
 import FormField, { type FormFieldValue } from "@/components/form/FormField";
 import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
-import { MapPin } from "lucide-react";
+import { MapPin, Locate } from "lucide-react";
 import Select from "react-select";
 import ImageManager from "../../images/ImageManager";
+import LocationSearch, { type SelectedLocation } from "@/components/location/LocationSearch";
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -40,12 +42,16 @@ interface ExtendedVehicleDetails {
   features?: string[];
 }
 
-interface ExtendedFormState extends Omit<FormState, "details"> {
+interface ExtendedFormState extends Omit<BaseFormState, "details"> {
   details: {
     vehicles?: ExtendedVehicleDetails;
     realEstate?: RealEstateDetails;
   };
   existingImages?: string[];
+  locationMeta?: LocationMeta;
+  latitude?: number;
+  longitude?: number;
+  locationDisplay?: string; // For displaying the translated location text
 }
 
 interface BasicDetailsFormProps {
@@ -59,33 +65,87 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onSubmit,
   onImageDelete,
 }) => {
-  const { t, i18n } = useTranslation(["common", "listings", "form", "errors"]);
+  const { t, i18n } = useTranslation(["common", "listings", "form", "errors", "locations"]);
   const commonT = (key: string) => t(key, { ns: "common" });
   const formT = (key: string) => t(key, { ns: "form" });
   const listingsT = (key: string) => t(key, { ns: "listings" });
-  const [formData, setFormData] = useState<ExtendedFormState>({
-    title: "",
-    description: "",
-    price: 0,
-    category: {
-      mainCategory: ListingCategory.VEHICLES,
-      subCategory: VehicleType.CAR,
-    },
-    location: "",
-    details: {
-      vehicles: {
-        vehicleType: VehicleType.CAR,
-        make: "",
-        model: "",
-        year: "",
+  const locationsT = (key: string) => t(key, { ns: "locations" });
+  const [formData, setFormData] = useState<ExtendedFormState>(() => {
+    const baseData = {
+      title: "",
+      description: "",
+      price: 0,
+      category: {
+        mainCategory: ListingCategory.VEHICLES,
+        subCategory: VehicleType.CAR, // Default to CAR
       },
-    },
-    images: [],
-    ...initialData,
+      condition: undefined,
+      location: "",
+      locationDisplay: "", // Initialize locationDisplay
+      images: [],
+      details: {
+        vehicles: {
+          vehicleType: VehicleType.CAR, // Default to CAR
+          make: "",
+          model: "",
+          year: "",
+          customMake: "",
+          customModel: "",
+          condition: undefined,
+          features: [],
+        },
+        realEstate: {
+          id: "",
+          listingId: "",
+          propertyType: PropertyType.APARTMENT,
+          condition: undefined,
+          features: [],
+          accessibilityFeatures: [],
+          buildingAmenities: [],
+          exposureDirection: [],
+          fireSafety: [],
+          flooringTypes: [],
+          securityFeatures: [],
+          storageType: [],
+          soilTypes: [],
+          topography: [],
+          utilities: [],
+          bedrooms: 0,
+          bathrooms: 0,
+          size: 0,
+          yearBuilt: new Date().getFullYear(),
+        },
+      },
+    };
+
+    // Merge with initialData
+    const merged = {
+      ...baseData,
+      ...initialData,
+      details: {
+        ...baseData.details,
+        ...(initialData?.details || {})
+      }
+    };
+
+    // Set locationDisplay if not provided but location is
+    if (initialData?.location && !initialData.locationDisplay) {
+      merged.locationDisplay = initialData.location;
+    }
+
+    return merged;
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationMeta, setLocationMeta] = useState<{
+    lat: number;
+    lng: number;
+    placeId?: string;
+    bounds?: [number, number, number, number];
+  } | null>(null);
 
   // Helper function to convert VehicleType enum to string
   const getVehicleDataType = (vehicleType: VehicleType): VehicleType => {
@@ -615,6 +675,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               }
             : undefined,
       },
+      // Include location metadata and coordinates if available
+      ...(locationMeta ? { 
+        locationMeta,
+        latitude: locationMeta.lat,
+        longitude: locationMeta.lng 
+      } : {}),
       // Image filtering is now handled by ImageManager component
     };
 
@@ -1261,46 +1327,282 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Function to get city and its areas with translations
   const getCityAreas = (cityKey: string): { value: string; label: string; isArea?: boolean }[] => {
-    // Get translations for cities and areas
-    const cities = t('cities', { returnObjects: true, ns: 'filters' }) as Record<string, string>;
-    const areas = t('areas', { returnObjects: true, ns: 'filters' }) as Record<string, string[]>;
-    
-    const cityName = cities[cityKey.toLowerCase()] || cityKey;
-    const cityAreas = areas[cityKey.toLowerCase()] || [];
-    
-    return [
-      { value: cityKey, label: cityName },
-      ...cityAreas.map(area => ({
-        value: `${cityKey}_${area.toUpperCase().replace(/[^A-Z]/g, '_')}`,
-        label: `${cityName} - ${area}`,
-        isArea: true
-      }))
-    ];
+    try {
+      // Get all cities and areas from translations
+      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
+      const allAreas = t('areas', { returnObjects: true, ns: 'locations' }) as Record<string, string[]>;
+      
+      // Normalize the city key for consistent matching
+      const normalizedKey = normalizeLocation(cityKey);
+      
+      // Find the city by normalized key
+      const cityEntry = Object.entries(allCities || {}).find(
+        ([key]) => normalizeLocation(key) === normalizedKey
+      );
+      
+      if (!cityEntry) {
+        console.warn(`City not found for key: ${cityKey} (normalized: ${normalizedKey})`);
+        return [];
+      }
+      
+      const [cityId, cityName] = cityEntry;
+      const cityAreas = allAreas[cityId] || [];
+      
+      // Return city and its areas as options
+      const result = [
+        { value: cityId, label: cityName },
+        ...cityAreas.map(area => ({
+          value: `${cityId}_${area.replace(/\s+/g, '_').toUpperCase()}`,
+          label: `${cityName} - ${area}`,
+          isArea: true
+        }))
+      ];
+      
+      return result;
+    } catch (error) {
+      console.error('Error in getCityAreas:', error);
+      return [];
+    }
   };
 
-  const syrianCities = [
-    ...getCityAreas("damascus"),
-    ...getCityAreas("aleppo"),
-    ...getCityAreas("homs"),
-    ...getCityAreas("latakia"),
-    ...getCityAreas("hama"),
-    ...getCityAreas("deir_ezzor"),
-    ...getCityAreas("hasaka"),
-    ...getCityAreas("raqqa"),
-    ...getCityAreas("tartous"),
-    ...getCityAreas("idlib"),
-    ...getCityAreas("daraa"),
-    ...getCityAreas("sweida"),
-    ...getCityAreas("quneitra"),
-  ];
+  // Get all available cities from translations
+  const syrianCities = React.useMemo(() => {
+    try {
+      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
+      return Object.entries(allCities || {}).flatMap(([cityId]) => 
+        getCityAreas(cityId)
+      );
+    } catch (error) {
+      console.error('Error loading Syrian cities:', error);
+      return [];
+    }
+  }, [t]);
 
-  const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
-    if (!selected) {
-      handleInputChange("location", "");
+  // Calculate distance between two coordinates in kilometers
+  const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Reverse geocoding function to get location details from coordinates
+  const reverseGeocode = async (lat: number, lng: number): Promise<{displayName: string; address: any}> => {
+    try {
+      // First, try with zoom level 18 (most detailed)
+      let response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=18`
+      );
+      let data = await response.json();
+      
+      // If we don't get a good result, try with a broader zoom level
+      if (!data.address || (!data.address.city && !data.address.town && !data.address.village)) {
+        response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=14`
+        );
+        data = await response.json();
+      }
+      
+      const address = data.address || {};
+      
+      // Try to get the most specific location name
+      let displayName = [
+        address.city,
+        address.town,
+        address.village,
+        address.hamlet,
+        address.suburb,
+        address.neighbourhood,
+        address.county,
+        address.state_district,
+        address.state
+      ].find(Boolean);
+      
+      // If we still don't have a good name, try to find a meaningful part of display_name
+      if (!displayName && data.display_name) {
+        const parts: string[] = (data.display_name as string).split(',').map((p: string) => p.trim()).filter((p: string) => p);
+        // Try to find a meaningful part (not just a road name or number)
+        displayName = parts.find((part: string) => 
+          !/^\d+$/.test(part) && // Not just numbers
+          !/^[\d\s]+$/.test(part) && // Not just numbers and spaces
+          part.length > 3 && // Reasonable length for a place name
+          !part.toLowerCase().includes('unclassified') &&
+          !part.toLowerCase().includes('road') &&
+          !part.toLowerCase().includes('street')
+        ) || parts[0] || 'Your Location';
+      }
+      
+      // If we're in Syria, try to enhance the address data
+      const isSyria = address.country_code === 'sy' || 
+                     address.country === 'Syria' || 
+                     address.country === 'سوريا';
+      
+      // If we have coordinates but no city/town, try to find the nearest city
+      if (isSyria && (!address.city && !address.town && !address.village)) {
+        try {
+          // Search for nearby places
+          const searchResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=&accept-language=en&countrycodes=sy&viewbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&bounded=1`
+          );
+          const places = await searchResponse.json();
+          
+          // Find the nearest city/town/village
+          const nearestPlace = places
+            .filter((place: any) => ['city', 'town', 'village', 'hamlet'].includes(place.type))
+            .sort((a: any, b: any) => 
+              getDistance(lat, lng, parseFloat(a.lat), parseFloat(a.lon)) - 
+              getDistance(lat, lng, parseFloat(b.lat), parseFloat(b.lon))
+            )[0];
+            
+          if (nearestPlace) {
+            displayName = nearestPlace.display_name.split(',')[0].trim();
+            address.city = address.city || nearestPlace.type === 'city' ? displayName : address.city;
+            address.town = address.town || nearestPlace.type === 'town' ? displayName : address.town;
+            address.village = address.village || ['village', 'hamlet'].includes(nearestPlace.type) ? displayName : address.village;
+          }
+        } catch (e) {
+          console.warn('Could not find nearby places:', e);
+        }
+      }
+      
+      return {
+        displayName: displayName || data.display_name || 'Your Location',
+        address: {
+          ...address,
+          country_code: isSyria ? 'sy' : (address.country_code || '').toLowerCase(),
+          country: isSyria ? 'Syria' : (address.country || '')
+        }
+      };
+    } catch (error) {
+      console.error('Reverse geocoding failed:', error);
+      // Return a generic location with the coordinates if everything else fails
+      return {
+        displayName: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+        address: {
+          country_code: 'sy',
+          country: 'Syria'
+        }
+      };
+    }
+  };
+
+  // Get user's current location
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
       return;
     }
-    // Use the formatted label for display and the value for storage
-    handleInputChange("location", selected.label);
+
+    setIsLocating(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const { displayName, address } = await reverseGeocode(latitude, longitude);
+          
+          // Format the location string based on available address components
+          let locationString = displayName;
+          
+          // If we're in Syria, try to include the city/region
+          if (address.country_code === 'sy') {
+            const city = address.city || address.town || address.village || address.county || '';
+            if (city) {
+              locationString = city;
+            }
+          }
+          
+          handleInputChange("location", locationString);
+          setLocationMeta({ lat: latitude, lng: longitude });
+        } catch (error) {
+          console.error('Error getting location:', error);
+          setLocationError('Could not determine your location. Please try again.');
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        let errorMessage = 'Could not access your location. ';
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please enable location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'The request to get your location timed out.';
+            break;
+          default:
+            errorMessage += 'Please check your browser settings.';
+        }
+        
+        setLocationError(errorMessage);
+        setIsLocating(false);
+      },
+      { 
+        timeout: 15000, 
+        maximumAge: 0, // Always get fresh position
+        enableHighAccuracy: true 
+      }
+    );
+  };
+
+  const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
+    // Normalize the location value before processing
+    if (!selected) {
+      handleInputChange("location", "");
+      setFormData(prev => ({
+        ...prev,
+        locationDisplay: ""
+      }));
+      return;
+    }
+    
+    // Store both the value (for internal use) and display label (for showing to user)
+    // Normalize the location value before storing
+    handleInputChange("location", normalizeLocation(selected.value));
+    setFormData(prev => ({
+      ...prev,
+      locationDisplay: selected.label
+    }));
+
+    // Fetch coordinates for the selected location via Nominatim
+    (async () => {
+      try {
+        // Use the display label for geocoding as it's more likely to return good results
+        const searchQuery = selected.isArea ? selected.label : selected.value;
+        
+        const resp = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(searchQuery)}`
+        );
+        const results = await resp.json();
+        if (results && results.length > 0) {
+          const r = results[0];
+          const lat = parseFloat(r.lat);
+          const lng = parseFloat(r.lon);
+          const bounds = r.boundingbox
+            ? ([
+                parseFloat(r.boundingbox[0]),
+                parseFloat(r.boundingbox[2]),
+                parseFloat(r.boundingbox[1]),
+                parseFloat(r.boundingbox[3]),
+              ] as [number, number, number, number])
+            : undefined;
+          setLocationMeta({ lat, lng, placeId: r.place_id?.toString(), bounds });
+        }
+      } catch (err) {
+        console.error('Failed to fetch coordinates:', err);
+      }
+    })();
   };
 
   return (
@@ -1414,20 +1716,76 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               commonT("propertyDetails.pricePlaceholder"),
               0,
             )}
-            {renderFormField(
-              commonT("propertyDetails.location"),
-              "location",
-              "select",
-              syrianCities,
-              <MapPin className="w-4 h-4" />,
-              commonT("propertyDetails.selectLocation"),
-              undefined,
-              undefined,
-              undefined,
-              true,
-              undefined,
-              true,
-            )}
+            <div className="w-full">
+              <div className="relative">
+                <div className="flex items-center justify-between w-full mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {commonT("propertyDetails.location")}*
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    disabled={isLocating}
+                    className="flex items-center text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    title="Use my current location"
+                  >
+                    {isLocating ? (
+                      <span className="inline-block h-3 w-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-1"></span>
+                    ) : (
+                      <Locate className="w-3 h-3 mr-1" />
+                    )}
+                    {isLocating ? 'Locating...' : 'Use my location'}
+                  </button>
+                </div>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Select
+                    className="w-full text-sm"
+                    classNamePrefix="select"
+                    name="location"
+                    id="location"
+                    value={formData.location ? { 
+                      value: formData.location, 
+                      label: formData.locationDisplay || formData.location 
+                    } : null}
+                    onChange={handleLocationChange}
+                    options={syrianCities}
+                    placeholder={commonT("propertyDetails.selectLocation")}
+                    isClearable
+                    isSearchable
+                    noOptionsMessage={() => commonT("noOptions")}
+                    classNames={{
+                      control: (state) =>
+                        `block w-full px-3 py-2 pl-10 text-sm bg-white dark:bg-gray-800 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          state.isFocused
+                            ? 'border-blue-500 ring-1 ring-blue-500'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400'
+                        }`,
+                      option: (state) =>
+                        `px-3 py-2 text-sm ${
+                          state.isFocused ? 'bg-blue-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'
+                        }`,
+                      menu: () => 'z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-300 dark:border-gray-600',
+                    }}
+                    styles={{
+                      singleValue: (base) => ({
+                        ...base,
+                        color: 'inherit',
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: 'inherit',
+                      }),
+                    }}
+                  />
+                </div>
+                {locationError && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {locationError}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           {renderFormField(

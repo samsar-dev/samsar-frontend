@@ -8,17 +8,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export type FormFieldValue = string | number | boolean | string[];
 
-type OptionType = {
-  value: string;
-  label: string;
-};
-
-type HandleMultiSelectChangeProps = {
-  required?: boolean;
-  label: string;
-  customValidation?: (value: string[]) => string | undefined;
-  onChange: (value: string[] | null, error?: string) => void;
-};
+// Removed unused type definitions
 
 export interface FormFieldProps {
   name: string;
@@ -31,7 +21,8 @@ export interface FormFieldProps {
     | "checkbox"
     | "color"
     | "boolean"
-    | "multiselect";
+    | "multiselect"
+    | "date";
   value: FormFieldValue;
   onChange: (value: FormFieldValue, error?: string) => void;
   error?: string;
@@ -80,23 +71,24 @@ export const FormField = forwardRef<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
           >
         | SingleValue<{ value: string; label: string }>,
-      actionMeta?: ActionMeta<{ value: string; label: string }>,
+      _actionMeta?: ActionMeta<{ value: string; label: string }>,
     ) => {
-      let newValue;
+      let newValue: string | boolean | string[];
 
       // Handle react-select change
       if (e && typeof e === "object" && "value" in e) {
         newValue = e.value;
       } else if (e && "target" in e) {
         // Handle standard form input change
-        newValue =
-          type === "checkbox"
-            ? (e as React.ChangeEvent<HTMLInputElement>).target.checked
-            : (
-                e as React.ChangeEvent<
-                  HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-                >
-              ).target.value;
+        const target = e.target as HTMLInputElement;
+        if (type === "checkbox") {
+          newValue = target.checked;
+        } else if (type === "date") {
+          // Format date to YYYY-MM-DD
+          newValue = target.value ? new Date(target.value).toISOString().split('T')[0] : '';
+        } else {
+          newValue = target.value;
+        }
       } else {
         // Handle null case from react-select
         newValue = "";
@@ -128,7 +120,7 @@ export const FormField = forwardRef<
 
     const handleMultiSelectChange = (
       newValue: MultiValue<unknown>,
-      actionMeta?: ActionMeta<unknown>,
+      _actionMeta?: ActionMeta<unknown>,
     ) => {
       let newValueArr: string[] | null = null;
 
@@ -155,10 +147,7 @@ export const FormField = forwardRef<
 
       onChange(newValueArr || [], validationError || undefined);
 
-      // Use actionMeta to avoid unused variable warning
-      if (process.env.NODE_ENV === "development" && actionMeta) {
-        // No-op, just using actionMeta to avoid warning
-      }
+      // Using _actionMeta to avoid unused variable warning
     };
 
     const inputClasses = clsx(
@@ -312,6 +301,35 @@ export const FormField = forwardRef<
               aria-invalid={!!error}
               aria-describedby={error ? `${name}-error` : undefined}
             />
+          );
+
+        case "date":
+          return (
+            <div className="relative rounded-md shadow-sm">
+              <input
+                ref={ref as React.Ref<HTMLInputElement>}
+                type="date"
+                id={name}
+                name={name}
+                value={value as string}
+                onChange={(e) => {
+                  // Format the date to YYYY-MM-DD for proper display
+                  const dateValue = e.target.value;
+                  handleChange({
+                    ...e,
+                    target: {
+                      ...e.target,
+                      value: dateValue,
+                    },
+                  });
+                }}
+                className={inputClasses}
+                required={required}
+                disabled={disabled}
+                aria-invalid={!!error}
+                aria-describedby={error ? `${name}-error` : undefined}
+              />
+            </div>
           );
 
         default:

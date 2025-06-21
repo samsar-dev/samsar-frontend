@@ -86,34 +86,5 @@
   "selectCity": "Select a city",
   "includeNearbyAreas": "Include nearby areas",
   "nearbyAreas": "Nearby areas included",
-  "cities": {
-    "damascus": "Damascus",
-    "aleppo": "Aleppo",
-    "homs": "Homs",
-    "hama": "Hama",
-    "latakia": "Latakia",
-    "tartous": "Tartous",
-    "raqqa": "Raqqa",
-    "deir_ezzor": "Deir ez-Zor",
-    "hasaka": "Al-Hasakah",
-    "idlib": "Idlib",
-    "daraa": "Daraa",
-    "sweida": "As-Suwayda",
-    "quneitra": "Quneitra"
-  },
-  "areas": {
-    "damascus": ["Douma", "Darayya", "Al-Tall", "Al-Zabadani", "Qatana"],
-    "aleppo": ["Manbij", "Afrin", "Al-Safira", "Al-Bab", "A'zaz"],
-    "homs": ["Al-Rastan", "Talbiseh", "Al-Qusayr", "Al-Mukharram", "Al-Mukharram"],
-    "hama": ["Mhardeh", "Kafr Zita", "Al-Lataminah", "Al-Salamiyah", "Kafr Nabudah"],
-    "latakia": ["Jableh", "Al-Haffah", "Al-Qardaha", "Kassab", "Al-Shamaliyeh"],
-    "tartous": ["Baniyas", "Al-Sheikh Badr", "Dreikish", "Hammam Waseel", "Al-Dreikish"],
-    "raqqa": ["Al-Thawrah", "Al-Mansoura", "Al-Mansoura", "Ma'adan", "Al-Karama"],
-    "deir_ezzor": ["Al-Bukamal", "Al-Mayadin", "MuHassan", "Al-Quriyah", "Al-Tabni"],
-    "hasaka": ["Al-Qamishli", "Ras al-Ayn", "Amuda", "Al-Malikiyah", "Al-Shaddadi"],
-    "idlib": ["Ariha", "Ma'arrat al-Nu'man", "Jisr al-Shughur", "Dana", "Saraqib"],
-    "daraa": ["Izra'", "Nawa", "Tafas", "Al-Sheikh Miskeen", "Inkhil"],
-    "sweida": ["Shahba", "Salkhad", "Al-Qurayya", "Al-Masmiyah", "Al-Ghariyah"],
-    "quneitra": ["Al-Ba'ath", "Al-Rafid", "Ein Qiniya", "Khisfin", "Al-Rafid"]
-  }
+"locationPlaceholder": "Select location"
 }

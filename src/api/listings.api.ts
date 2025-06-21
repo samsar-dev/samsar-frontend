@@ -406,6 +406,7 @@ interface ListingsAPI {
   ): Promise<APIResponse<Listing>>;
   getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>>;
   fuzzyMatch(text: string, search: string): boolean;
+  getSavedListings(userId?: string, signal?: AbortSignal): Promise<APIResponse<any>>;
 }
 
 export const listingsAPI: ListingsAPI = {
@@ -425,7 +426,7 @@ export const listingsAPI: ListingsAPI = {
         };
       }
 
-      const response = await apiClient.get("/listings/save", {
+      const response = await apiClient.get(`/listings/save${userId ? `?userId=${userId}` : ''}`, {
         signal,
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -653,6 +654,8 @@ export const listingsAPI: ListingsAPI = {
 
           return {
             ...listing,
+            latitude: listing.latitude,
+            longitude: listing.longitude,
             details: essentialDetails,
             listingAction,
           };
@@ -1426,17 +1429,7 @@ export const listingsAPI: ListingsAPI = {
               engine: responseData.details.vehicles.engine || "",
             }
           : undefined,
-        realEstate: responseData.details.realEstate
-          ? {
-              propertyType: responseData.category.subCategory as PropertyType,
-              size: responseData.details.realEstate.size,
-              yearBuilt: responseData.details.realEstate.yearBuilt,
-              bedrooms: responseData.details.realEstate.bedrooms,
-              bathrooms: responseData.details.realEstate.bathrooms,
-              condition: responseData.details.realEstate.condition,
-              features: responseData.details.realEstate.features || [],
-            }
-          : undefined,
+        realEstate: responseData.details.realEstate ? (responseData.details.realEstate as any) : undefined,
       };
 
       // Transform the response data to match the Listing type
