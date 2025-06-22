@@ -3,6 +3,7 @@ import type { Socket } from "socket.io-client";
 import socketIO from "socket.io-client";
 import { useAuth } from "@/hooks/useAuth";
 import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
+import { getAuthToken } from "@/utils/cookie";
 
 interface SocketContextType {
   socket: typeof Socket | null;
@@ -27,7 +28,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   // Initialize socket connection when user is authenticated
   useEffect(() => {
     let newSocket: any = null;
-    let reconnectTimer: NodeJS.Timeout | null = null;
+    const reconnectTimer: NodeJS.Timeout | null = null;
 
     const initializeSocket = () => {
       if (!isAuthenticated || !user) {
@@ -40,9 +41,27 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
       try {
         console.log("Initializing socket connection to:", SOCKET_URL);
 
+        const token = getAuthToken();
+        console.log("Token from localStorage:", token);
+
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+
         // Create new socket connection
         newSocket = socketIO(SOCKET_URL, {
           auth: {
+            token: "Bearer " + token,
+          },
+          transportOptions: {
+            polling: {
+              extraHeaders: {
+                authorization: "Bearer " + localStorage.getItem("token"),
+              },
+            },
+          },
+          query: {
             token: "Bearer " + localStorage.getItem("token"),
           },
           transports: ["websocket", "polling"],
