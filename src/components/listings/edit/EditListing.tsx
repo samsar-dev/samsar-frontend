@@ -19,6 +19,7 @@ import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import {
   FaArrowLeft,
   FaCar,
@@ -46,63 +47,11 @@ interface EditFormData {
   deletedImages?: string[]; // Track deleted image URLs
 }
 
-// Define the features structure to match ListingDetails.tsx
-const featuresDetails = {
-  safetyFeatures: [
-    "blindSpotMonitor",
-    "laneAssist",
-    "adaptiveCruiseControl",
-    "tractionControl",
-    "abs",
-    "emergencyBrakeAssist",
-    "tirePressureMonitoring",
-    "parkingSensors",
-    "frontAirbags",
-    "sideAirbags",
-    "curtainAirbags",
-    "kneeAirbags",
-    "cruiseControl",
-    "laneDepartureWarning",
-    "laneKeepAssist",
-    "automaticEmergencyBraking",
-  ],
-  cameraFeatures: ["rearCamera", "camera360", "dashCam", "nightVision"],
-  climateFeatures: [
-    "climateControl",
-    "heatedSeats",
-    "ventilatedSeats",
-    "dualZoneClimate",
-    "rearAC",
-    "airQualitySensor",
-  ],
-  enternmentFeatures: [
-    "bluetooth",
-    "appleCarPlay",
-    "androidAuto",
-    "premiumSound",
-    "wirelessCharging",
-    "usbPorts",
-    "cdPlayer",
-    "dvdPlayer",
-    "rearSeatEntertainment",
-  ],
-  lightingFeatures: [
-    "ledHeadlights",
-    "adaptiveHeadlights",
-    "ambientLighting",
-    "fogLights",
-    "automaticHighBeams",
-  ],
-  convenienceFeatures: [
-    "keylessEntry",
-    "sunroof",
-    "spareKey",
-    "remoteStart",
-    "powerTailgate",
-    "autoDimmingMirrors",
-    "rainSensingWipers",
-  ],
-};
+import { generateFeaturesDetails } from "@/utils/generateFeaturesDetails";
+
+// Generate features details using the shared utility function
+const featuresDetails = useMemo(generateFeaturesDetails, []);
+
 
 const getIconComponent = (iconName: string) => {
   const iconMap: { [key: string]: React.ComponentType } = {
@@ -117,7 +66,7 @@ const getIconComponent = (iconName: string) => {
 };
 
 const EditListing = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'listings']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -132,9 +81,11 @@ const EditListing = () => {
     safetyFeatures: [] as string[],
     cameraFeatures: [] as string[],
     climateFeatures: [] as string[],
-    enternmentFeatures: [] as string[],
+    entertainmentFeatures: [] as string[],
     lightingFeatures: [] as string[],
     convenienceFeatures: [] as string[],
+    interiorFeatures: [] as string[],
+    cargoFeatures: [] as string[],
   });
 
   const [formData, setFormData] = useState<EditFormData>({
@@ -191,7 +142,8 @@ const EditListing = () => {
     }))
     .sort((a, b) => a.order - b.order);
 
-  const advancedDetailFiels = advancedDetail[0]?.fields;
+  // Flatten all schema sections to get a single array of fields so none are missed
+  const advancedDetailFields = advancedDetail.flatMap((section) => section.fields);
 
   useEffect(() => {
     // Redirect if not authenticated after auth is initialized
@@ -226,47 +178,49 @@ const EditListing = () => {
             if (vehicleDetails) {
               setFeatures({
                 safetyFeatures: featuresDetails.safetyFeatures.filter(
-                  (feature) => {
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
                 cameraFeatures: featuresDetails.cameraFeatures.filter(
-                  (feature) => {
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
                 climateFeatures: featuresDetails.climateFeatures.filter(
-                  (feature) => {
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
-                enternmentFeatures: featuresDetails.enternmentFeatures.filter(
-                  (feature) => {
+                entertainmentFeatures: featuresDetails.entertainmentFeatures.filter(
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
                 lightingFeatures: featuresDetails.lightingFeatures.filter(
-                  (feature) => {
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
                 convenienceFeatures: featuresDetails.convenienceFeatures.filter(
-                  (feature) => {
+                  (feature: string) => {
                     return Object.entries(vehicleDetails).some(
                       ([key, value]) => key === feature && value,
                     );
                   },
                 ),
+                interiorFeatures: [],
+                cargoFeatures: [],
               });
             }
 
@@ -694,14 +648,14 @@ const EditListing = () => {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t("listings.editListing")}
+            {t("editListing")}
           </h1>
           <Button
             variant="outline"
             onClick={() => navigate("/profile/listings")}
             className="flex items-center gap-2"
           >
-            <FaArrowLeft /> {t("common.back")}
+            <FaArrowLeft /> {t("back")}
           </Button>
         </div>
 
@@ -723,7 +677,7 @@ const EditListing = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("listings.images")}
+              {t("images")}
             </h2>
             <ImageManager
               images={formData.images.filter(
@@ -850,8 +804,8 @@ const EditListing = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {advancedDetailFiels &&
-                  advancedDetailFiels.map((field: any, idx: number) => {
+                {advancedDetailFields &&
+                  advancedDetailFields.map((field: any, idx: number) => {
                     // Skip fields we're now handling separately
                     if (
                       ["transmissionType", "fuelType", "condition"].includes(
@@ -912,7 +866,7 @@ const EditListing = () => {
                     {t("Safety Features")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.safetyFeatures.map((feature) => {
+                    {featuresDetails.safetyFeatures.map((feature: string) => {
                       return (
                         <div
                           key={feature}
@@ -1030,7 +984,7 @@ const EditListing = () => {
                     {t("Entertainment Features")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.enternmentFeatures.map((feature) => (
+                    {featuresDetails.entertainmentFeatures.map((feature) => (
                       <div
                         key={feature}
                         className="flex items-center space-x-2"
@@ -1133,7 +1087,7 @@ const EditListing = () => {
               onClick={() => navigate("/profile/listings")}
               disabled={saving}
             >
-              {t("common.cancel")}
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -1141,7 +1095,7 @@ const EditListing = () => {
               className="flex items-center gap-2"
             >
               <FaSave />
-              {saving ? t("common.saving") : t("common.save")}
+              {saving ? t("saving") : t("save")}
             </Button>
           </div>
         </form>

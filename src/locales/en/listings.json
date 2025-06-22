@@ -1,4 +1,5 @@
 {
+  "editListing": "Edit Listing",
   "vehicleDetails": "Vehicle Details",
   "essentialDetails": "Essential Details",
   "advancedDetails": "Advanced Details",
@@ -442,7 +443,9 @@
       "ELECTRIC": "Electric",
       "electric": "Electric",
       "HYBRID": "Hybrid",
-      "hybrid": "Hybrid"
+      "hybrid": "Hybrid",
+      "OTHER": "Other",
+      "other": "Other"
     },
 
     "transmissionTypes": {

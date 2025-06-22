@@ -514,7 +514,9 @@
       "ELECTRIC": "كهرباء",
       "electric": "كهرباء",
       "HYBRID": "هجين",
-      "hybrid": "هجين"
+      "hybrid": "هجين",
+      "OTHER": "أخرى",
+      "other": "أخرى"
     },
 
     "transmissionTypes": {

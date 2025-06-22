@@ -30,12 +30,319 @@ interface ExtendedListing extends Listing {
 }
 
 interface Features {
+  // Common vehicle features
   safetyFeatures: string[];
   cameraFeatures: string[];
   climateFeatures: string[];
-  enternmentFeatures: string[];
+  entertainmentFeatures: string[];
   lightingFeatures: string[];
   convenienceFeatures: string[];
+  
+  // ===== Vehicle Features =====
+  // Basic info
+  color: string;
+  interiorColor: string;
+  condition: string;
+  transmissionType: string;
+  mileage: number;
+  fuelType: string;
+  previousOwners: number;
+  registrationStatus: string;
+  serviceHistory: string;
+  vin: string;
+  
+  // Engine & Performance
+  engineType: string;
+  engineSize: string;
+  enginePower: number;
+  torque: number;
+  horsepower: number;
+  driveSystem: string;
+  emissions: string;
+  
+  // Dimensions & Weight
+  operatingWeight: number;
+  payloadCapacity: number;
+  cargoVolume: number;
+  roofHeight: string;
+  interiorLength: string;
+  
+  // ===== Construction Equipment =====
+  equipmentType: string;
+  maxLiftingCapacity: number;
+  maintenanceHistory: string;
+  
+  // ===== House/Apartment Features =====
+  constructionType: string;
+  livingArea: number;
+  halfBathrooms: number;
+  stories: number;
+  parking: string;
+  parkingSpaces: number;
+  floor: number;
+  totalFloors: number;
+  elevator: boolean;
+  balcony: boolean;
+  storage: boolean;
+  heating: string | string[];
+  cooling: string | string[];
+  foundation: string;
+  windowType: string;
+  
+
+  
+  // ===== Vehicle Type Specific =====
+  // Bus
+  busType: string;
+  seatingCapacity: number;
+  airConditioning: string;
+  luggageSpace: number;
+  
+  // Truck
+  truckType: string;
+  cabType: string;
+  
+  // Van
+  vanType: string;
+  
+  // Tractor
+  hours: number;
+  ptoHorsepower: number;
+  hydraulicRemotes: number;
+  
+  // Motorcycle
+  brakeSystem: string[];
+
+  // ===== Motorcycle Specific =====
+  powerOutput: number;
+  fuelSystem: string;
+  coolingSystem: string;
+  frameType: string;
+  frontSuspension: string[];
+  rearSuspension: string[];
+  wheelType: string;
+  startType: string[];
+  riderAids: string[];
+  electronics: string[];
+  lighting: string[];
+  seatHeight: number;
+  handlebarType: string;
+  storageOptions: string[];
+  protectiveEquipment: string[];
+  customParts: string[];
+  accidentHistory: boolean;
+  ownershipHistory: string;
+
+  // ===== Truck Specific =====
+  bedLength: string;
+  suspensionType: string;
+  // Safety Features
+  hillStartAssist: boolean;
+  laneAssist: boolean;
+  collisionWarning: boolean;
+  blindSpotMonitoring: boolean;
+  fireExtinguisher: boolean;
+  firstAidKit: boolean;
+  emergencyTriangle: boolean;
+  // Vehicle Features
+  infotainmentSystem: boolean;
+  gps: boolean;
+  bluetooth: boolean;
+  workLights: boolean;
+  beacon: boolean;
+  strobe: boolean;
+  climateControl: boolean;
+  powerWindows: boolean;
+  powerMirrors: boolean;
+  // Cargo Features
+  payload: boolean;
+  cargoCover: boolean;
+  cargoTieDowns: boolean;
+  lockableCargoArea: boolean;
+  cargoDivider: boolean;
+  securityCameras: boolean;
+
+  // ===== Van Specific =====
+  loadingFeatures: string[];
+  refrigeration: string;
+  temperatureRange: string;
+  interiorHeight: string;
+  seatingConfiguration: string;
+  // Safety
+  frontAirbags: boolean;
+  sideAirbags: boolean;
+  curtainAirbags: boolean;
+  kneeAirbags: boolean;
+  adaptiveCruiseControl: boolean;
+  laneDepartureWarning: boolean;
+  laneKeepAssist: boolean;
+  automaticEmergencyBraking: boolean;
+  backupCamera: boolean;
+  parkingSensors: boolean;
+  crossTrafficAlert: boolean;
+  tractionControl: boolean;
+  stabilityControl: boolean;
+  tirePressureMonitoring: boolean;
+  // Cameras
+  rearCamera: boolean;
+  camera360: boolean;
+  dashCam: boolean;
+  parkingAidCamera: boolean;
+  // Entertainment
+  appleCarPlay: boolean;
+  androidAuto: boolean;
+  premiumSound: boolean;
+  usbPorts: boolean;
+  // Convenience
+  keylessEntry: boolean;
+  remoteStart: boolean;
+  powerSlidingDoors: boolean;
+  powerLiftgate: boolean;
+  handsFreeLiftgate: boolean;
+  // Interior
+  heatedSeats: boolean;
+  ventilatedSeats: boolean;
+  massageSeats: boolean;
+  powerSeats: boolean;
+  memorySeats: boolean;
+  leatherSeats: boolean;
+  sunroof: boolean;
+  panoramicRoof: boolean;
+  ambientLighting: boolean;
+  rearSeatEntertainment: boolean;
+
+  // ===== Tractor Specific =====
+  engineSpecs: string[];
+  engineManufacturer: string;
+  engineModel: string;
+  displacement: string;
+  cylinders: string;
+  hydraulicSystem: string;
+  hydraulicFlow: number;
+  hydraulicOutlets: string[];
+  ptoSystem: string[];
+  frontAttachments: string[];
+  rearAttachments: string[];
+  threePointHitch: string;
+  hitchCapacity: number;
+  modifications: string;
+  electricalSystem: string;
+  // Cab Features
+  airSuspension: boolean;
+  soundproofing: boolean;
+  radio: boolean;
+  // Seating Features
+  airSuspensionSeat: boolean;
+  mechanicalSeat: boolean;
+  heatedSeat: boolean;
+  ventilatedSeat: boolean;
+  instructorSeat: boolean;
+  swivelSeat: boolean;
+  // Steering Features
+  powerSteering: boolean;
+  hydrostaticSteering: boolean;
+  autoSteer: boolean;
+  gpsReadySteering: boolean;
+  joystickSteering: boolean;
+  // Lighting Features
+  halogenLights: boolean;
+  ledLights: boolean;
+  xenonLights: boolean;
+  beaconLights: boolean;
+  roadLights: boolean;
+  cabLights: boolean;
+  // Technology Features
+  autoSteerTech: boolean;
+  variableRateTech: boolean;
+
+  // ===== Apartment Specific =====
+  buildingAmenities: string[];
+  energyRating: string;
+  furnished: string;
+  petPolicy: string;
+  view: string;
+  securityFeatures: string[];
+  fireSafety: string[];
+  flooringType: string;
+  internetIncluded: boolean;
+  kitchenFeatures: string[];
+  bathroomFeatures: string[];
+  renovationHistory: string;
+  nearbyAmenities: string[];
+  leaseTerms: string[];
+
+  // ===== House Specific =====
+  energyFeatures: string[];
+  basement: string;
+  basementFeatures: string[];
+  attic: string;
+  flooringTypes: string[];
+  windowFeatures: string[];
+  roofAge: number;
+  exteriorFeatures: string[];
+  outdoorFeatures: string[];
+  landscaping: string[];
+  waterSystem: string;
+  sewerSystem: string;
+  smartHomeFeatures: string[];
+  communityFeatures: string[];
+  hoaFee: number;
+  hoaFeeFrequency: string;
+
+  // ===== Land Specific =====
+  naturalFeatures: string[];
+  buildable: string;
+  buildingRestrictions: string[];
+  permitsInPlace: string[];
+  environmentalFeatures: string[];
+  soilTypes: string[];
+  floodZone: string;
+  mineralRights: string[];
+  waterRights: string[];
+  easements: string[];
+  fencingType: string[];
+  irrigation: string[];
+  improvements: string[];
+  documentsAvailable: string[];
+  previousUse: string[];
+  propertyHistory: string;
+  
+  // ===== Additional Vehicle Details =====
+  bodyStyle: string;
+  driveType: string;
+  engineNumber: string;
+  accidentFree: boolean;
+  importStatus: string;
+  registrationExpiry: string;
+  warranty: string;
+  roofType: string;
+  customsCleared: boolean;
+  warrantyPeriod: string;
+  serviceHistoryDetails: string;
+  additionalNotes: string;
+  navigationSystem: string;
+  seatBelts: string;
+  communicationSystem: string[];
+  comfortFeatures: string[];
+  accessibilityFeatures: string[];
+  luggageCompartments: number;
+  luggageRacks: boolean;
+  fuelTankCapacity: number;
+  emissionStandard: string;
+  engineTorque: string;
+  suspension: string[];
+  wheelchairAccessible: boolean;
+  wheelchairLift: boolean;
+  seatType: string;
+  seatMaterial: string;
+  emergencyExits: number;
+  certifications: string[];
+  lastInspectionDate: string;
+  engine: string;
+  
+  // ===== Additional Features =====
+  // These are used for feature groups in the UI
+  [key: string]: any; // For any additional dynamic fields
 }
 
 // Using types directly from listings.ts
@@ -48,62 +355,10 @@ const isMotorcycleDetails = (details: any): details is MotorcycleDetails => {
   return details?.vehicleType === 'MOTORCYCLE';
 };
 
-const featuresDetails = {
-  safetyFeatures: [
-    "blindSpotMonitor",
-    "laneAssist",
-    "adaptiveCruiseControl",
-    "tractionControl",
-    "abs",
-    "emergencyBrakeAssist",
-    "tirePressureMonitoring",
-    "parkingSensors",
-    "frontAirbags",
-    "sideAirbags",
-    "curtainAirbags",
-    "kneeAirbags",
-    "cruiseControl",
-    "laneDepartureWarning",
-    "laneKeepAssist",
-    "automaticEmergencyBraking",
-  ],
-  cameraFeatures: ["rearCamera", "camera360", "dashCam", "nightVision"],
-  climateFeatures: [
-    "climateControl",
-    "heatedSeats",
-    "ventilatedSeats",
-    "dualZoneClimate",
-    "rearAC",
-    "airQualitySensor",
-  ],
-  enternmentFeatures: [
-    "bluetooth",
-    "appleCarPlay",
-    "androidAuto",
-    "premiumSound",
-    "wirelessCharging",
-    "usbPorts",
-    "cdPlayer",
-    "dvdPlayer",
-    "rearSeatEntertainment",
-  ],
-  lightingFeatures: [
-    "ledHeadlights",
-    "adaptiveHeadlights",
-    "ambientLighting",
-    "fogLights",
-    "automaticHighBeams",
-  ],
-  convenienceFeatures: [
-    "keylessEntry",
-    "sunroof",
-    "spareKey",
-    "remoteStart",
-    "powerTailgate",
-    "autoDimmingMirrors",
-    "rainSensingWipers",
-  ],
-};
+import { generateFeaturesDetails } from "@/utils/generateFeaturesDetails";
+
+// Generate features details using the shared utility function
+const featuresDetails = generateFeaturesDetails();
 
 const ListingDetails = () => {
   const { t } = useTranslation(["listings", "common", "locations"]);
@@ -118,12 +373,314 @@ const ListingDetails = () => {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [features, setFeatures] = useState<Features>({
+    // Common vehicle features
     safetyFeatures: [],
     cameraFeatures: [],
     climateFeatures: [],
-    enternmentFeatures: [],
+    entertainmentFeatures: [],
     lightingFeatures: [],
     convenienceFeatures: [],
+    
+    // Basic vehicle info
+    color: '',
+    interiorColor: '',
+    condition: '',
+    transmissionType: '',
+    mileage: 0,
+    fuelType: '',
+    previousOwners: 0,
+    registrationStatus: '',
+    serviceHistory: '',
+    vin: '',
+    
+    // Engine & Performance
+    engineType: '',
+    engineSize: '',
+    enginePower: 0,
+    torque: 0,
+    horsepower: 0,
+    driveSystem: '',
+    emissions: '',
+    
+    // Dimensions & Weight
+    operatingWeight: 0,
+    payloadCapacity: 0,
+    cargoVolume: 0,
+    roofHeight: '',
+    interiorLength: '',
+    
+    // Construction Equipment
+    equipmentType: '',
+    maxLiftingCapacity: 0,
+    maintenanceHistory: '',
+    
+    // House/Apartment Features
+    constructionType: '',
+    livingArea: 0,
+    halfBathrooms: 0,
+    stories: 0,
+    parking: '',
+    parkingSpaces: 0,
+    floor: 0,
+    totalFloors: 0,
+    elevator: false,
+    balcony: false,
+    storage: false,
+    heating: [],
+    cooling: [],
+    foundation: '',
+    windowType: '',
+    
+
+    
+    // Vehicle Type Specific
+    // Bus
+    busType: '',
+    seatingCapacity: 0,
+    airConditioning: '',
+    luggageSpace: 0,
+    
+    // Truck
+    truckType: '',
+    cabType: '',
+    
+    // Van
+    vanType: '',
+    
+    // Tractor
+    hours: 0,
+    ptoHorsepower: 0,
+    hydraulicRemotes: 0,
+    
+    // Motorcycle
+    brakeSystem: [],
+
+    // Motorcycle Specific
+    powerOutput: 0,
+    fuelSystem: '',
+    coolingSystem: '',
+    frameType: '',
+    frontSuspension: [],
+    rearSuspension: [],
+    wheelType: '',
+    startType: [],
+    riderAids: [],
+    electronics: [],
+    lighting: [],
+    seatHeight: 0,
+    handlebarType: '',
+    storageOptions: [],
+    protectiveEquipment: [],
+    customParts: [],
+    accidentHistory: false,
+    ownershipHistory: '',
+
+    // Truck Specific
+    bedLength: '',
+    suspensionType: '',
+    // Safety Features
+    hillStartAssist: false,
+    laneAssist: false,
+    collisionWarning: false,
+    blindSpotMonitoring: false,
+    fireExtinguisher: false,
+    firstAidKit: false,
+    emergencyTriangle: false,
+    // Vehicle Features
+    infotainmentSystem: false,
+    gps: false,
+    bluetooth: false,
+    workLights: false,
+    beacon: false,
+    strobe: false,
+    climateControl: false,
+    powerWindows: false,
+    powerMirrors: false,
+    // Cargo Features
+    payload: false,
+    cargoCover: false,
+    cargoTieDowns: false,
+    lockableCargoArea: false,
+    cargoDivider: false,
+    securityCameras: false,
+
+    // Van Specific
+    loadingFeatures: [],
+    refrigeration: '',
+    temperatureRange: '',
+    interiorHeight: '',
+    seatingConfiguration: '',
+    // Safety
+    frontAirbags: false,
+    sideAirbags: false,
+    curtainAirbags: false,
+    kneeAirbags: false,
+    adaptiveCruiseControl: false,
+    laneDepartureWarning: false,
+    laneKeepAssist: false,
+    automaticEmergencyBraking: false,
+    backupCamera: false,
+    parkingSensors: false,
+    crossTrafficAlert: false,
+    tractionControl: false,
+    stabilityControl: false,
+    tirePressureMonitoring: false,
+    // Cameras
+    rearCamera: false,
+    camera360: false,
+    dashCam: false,
+    parkingAidCamera: false,
+    // Entertainment
+    appleCarPlay: false,
+    androidAuto: false,
+    premiumSound: false,
+    usbPorts: false,
+    // Convenience
+    keylessEntry: false,
+    remoteStart: false,
+    powerSlidingDoors: false,
+    powerLiftgate: false,
+    handsFreeLiftgate: false,
+    // Interior
+    heatedSeats: false,
+    ventilatedSeats: false,
+    massageSeats: false,
+    powerSeats: false,
+    memorySeats: false,
+    leatherSeats: false,
+    sunroof: false,
+    panoramicRoof: false,
+    ambientLighting: false,
+    rearSeatEntertainment: false,
+
+    // Tractor Specific
+    engineSpecs: [],
+    engineManufacturer: '',
+    engineModel: '',
+    displacement: '',
+    cylinders: '',
+    hydraulicSystem: '',
+    hydraulicFlow: 0,
+    hydraulicOutlets: [],
+    ptoSystem: [],
+    frontAttachments: [],
+    rearAttachments: [],
+    threePointHitch: '',
+    hitchCapacity: 0,
+    modifications: '',
+    electricalSystem: '',
+    // Cab Features
+    airSuspension: false,
+    soundproofing: false,
+    radio: false,
+    // Seating Features
+    airSuspensionSeat: false,
+    mechanicalSeat: false,
+    heatedSeat: false,
+    ventilatedSeat: false,
+    instructorSeat: false,
+    swivelSeat: false,
+    // Steering Features
+    powerSteering: false,
+    hydrostaticSteering: false,
+    autoSteer: false,
+    gpsReadySteering: false,
+    joystickSteering: false,
+    // Lighting Features
+    halogenLights: false,
+    ledLights: false,
+    xenonLights: false,
+    beaconLights: false,
+    roadLights: false,
+    cabLights: false,
+    // Technology Features
+    autoSteerTech: false,
+    variableRateTech: false,
+
+    // Apartment Specific
+    buildingAmenities: [],
+    energyRating: '',
+    furnished: '',
+    petPolicy: '',
+    view: '',
+    securityFeatures: [],
+    fireSafety: [],
+    flooringType: '',
+    internetIncluded: false,
+    kitchenFeatures: [],
+    bathroomFeatures: [],
+    renovationHistory: '',
+    nearbyAmenities: [],
+    leaseTerms: [],
+
+    // House Specific
+    energyFeatures: [],
+    basement: '',
+    basementFeatures: [],
+    attic: '',
+    flooringTypes: [],
+    windowFeatures: [],
+    roofAge: 0,
+    exteriorFeatures: [],
+    outdoorFeatures: [],
+    landscaping: [],
+    waterSystem: '',
+    sewerSystem: '',
+    smartHomeFeatures: [],
+    communityFeatures: [],
+    hoaFee: 0,
+    hoaFeeFrequency: '',
+
+    // Land Specific
+    naturalFeatures: [],
+    buildable: '',
+    buildingRestrictions: [],
+    permitsInPlace: [],
+    environmentalFeatures: [],
+    soilTypes: [],
+    floodZone: '',
+    mineralRights: [],
+    waterRights: [],
+    easements: [],
+    fencingType: [],
+    irrigation: [],
+    improvements: [],
+    documentsAvailable: [],
+    previousUse: [],
+    propertyHistory: '',
+
+    // Additional Vehicle Details
+    bodyStyle: '',
+    driveType: '',
+    engineNumber: '',
+    accidentFree: false,
+    importStatus: '',
+    registrationExpiry: '',
+    warranty: '',
+    roofType: '',
+    customsCleared: false,
+    warrantyPeriod: '',
+    serviceHistoryDetails: '',
+    additionalNotes: '',
+    navigationSystem: '',
+    seatBelts: '',
+    communicationSystem: [],
+    comfortFeatures: [],
+    accessibilityFeatures: [],
+    luggageCompartments: 0,
+    luggageRacks: false,
+    fuelTankCapacity: 0,
+    emissionStandard: '',
+    engineTorque: '',
+    suspension: [],
+    wheelchairAccessible: false,
+    wheelchairLift: false,
+    seatType: '',
+    seatMaterial: '',
+    emergencyExits: 0,
+    certifications: [],
+    lastInspectionDate: '',
+    engine: ''
   });
 
   useEffect(() => {
@@ -232,123 +789,98 @@ const ListingDetails = () => {
           category.mainCategory === ListingCategory.VEHICLES;
 
         // Transform the features array into a boolean object
-        const transformFeatures = (
-          features: Record<string, boolean> | undefined
-        ) => {
-          if (!features) return {};
 
-          // First, collect all top-level feature values
-          const transformedFeatures: Record<string, boolean> = {
-            // Safety Features
-            blindSpotMonitor: Boolean(features.blindSpotMonitor),
-            laneAssist: Boolean(features.laneAssist),
-            adaptiveCruiseControl: Boolean(features.adaptiveCruiseControl),
-            tractionControl: Boolean(features.tractionControl),
-            abs: Boolean(features.abs),
-            emergencyBrakeAssist: Boolean(features.emergencyBrakeAssist),
-            tirePressureMonitoring: Boolean(features.tirePressureMonitoring),
-
-            // Camera Features
-            rearCamera: Boolean(features.rearCamera),
-            camera360: Boolean(features.camera360),
-            dashCam: Boolean(features.dashCam),
-            nightVision: Boolean(features.nightVision),
-            parkingSensors: Boolean(features.parkingSensors),
-
-            // Climate Features
-            climateControl: Boolean(features.climateControl),
-            heatedSeats: Boolean(features.heatedSeats),
-            ventilatedSeats: Boolean(features.ventilatedSeats),
-            dualZoneClimate: Boolean(features.dualZoneClimate),
-            rearAC: Boolean(features.rearAC),
-            airQualitySensor: Boolean(features.airQualitySensor),
-
-            // Entertainment Features
-            bluetooth: Boolean(features.bluetooth),
-            appleCarPlay: Boolean(features.appleCarPlay),
-            androidAuto: Boolean(features.androidAuto),
-            premiumSound: Boolean(features.premiumSound),
-            wirelessCharging: Boolean(features.wirelessCharging),
-            usbPorts: Boolean(features.usbPorts),
-            cdPlayer: Boolean(features.cdPlayer),
-            dvdPlayer: Boolean(features.dvdPlayer),
-            rearSeatEntertainment: Boolean(features.rearSeatEntertainment),
-
-            // Lighting Features
-            ledHeadlights: Boolean(features.ledHeadlights),
-            adaptiveHeadlights: Boolean(features.adaptiveHeadlights),
-            ambientLighting: Boolean(features.ambientLighting),
-            fogLights: Boolean(features.fogLights),
-            automaticHighBeams: Boolean(features.automaticHighBeams),
-
-            // Convenience Features
-            keylessEntry: Boolean(features.keylessEntry),
-            sunroof: Boolean(features.sunroof),
-            spareKey: Boolean(features.spareKey),
-            remoteStart: Boolean(features.remoteStart),
-            powerTailgate: Boolean(features.powerTailgate),
-            autoDimmingMirrors: Boolean(features.autoDimmingMirrors),
-            rainSensingWipers: Boolean(features.rainSensingWipers),
-
-            // Airbags
-            frontAirbags: Boolean(features.frontAirbags),
-            sideAirbags: Boolean(features.sideAirbags),
-            curtainAirbags: Boolean(features.curtainAirbags),
-            kneeAirbags: Boolean(features.kneeAirbags),
-
-            // Driver Assistance
-            cruiseControl: Boolean(features.cruiseControl),
-            laneDepartureWarning: Boolean(features.laneDepartureWarning),
-            laneKeepAssist: Boolean(features.laneKeepAssist),
-            automaticEmergencyBraking: Boolean(
-              features.automaticEmergencyBraking
-            ),
-          };
-
-          // Now merge in any additional feature properties we didn't explicitly handle
-          Object.keys(features).forEach((key) => {
-            if (
-              typeof features[key] === "boolean" &&
-              transformedFeatures[key] === undefined
-            ) {
-              transformedFeatures[key] = features[key];
-            }
-          });
-
-          return transformedFeatures;
-        };
 
         const transformedDetails = {
           vehicles:
             isVehicleListing && details.vehicles
               ? ({
+                  // Common vehicle fields
+                  ...details.vehicles, // Spread all existing vehicle details first
+                  
+                  // Ensure required fields have defaults
                   vehicleType: details.vehicles.vehicleType,
-                  make: details.vehicles.make,
-                  model: details.vehicles.model,
-                  year: details.vehicles.year,
-                  mileage: details.vehicles.mileage,
-                  fuelType: details.vehicles.fuelType,
-                  transmissionType:
-                    details.vehicles.transmissionType ||
-                    details.vehicles.transmission,
-                  color: details.vehicles.color,
-                  condition: details.vehicles.condition,
-                  features: details.vehicles.features,
-                  interiorColor: details.vehicles.interiorColor,
+                  make: details.vehicles.make || "",
+                  model: details.vehicles.model || "",
+                  year: details.vehicles.year || "",
+                  mileage: typeof details.vehicles.mileage === 'number' ? details.vehicles.mileage : 
+                          (typeof details.vehicles.mileage === 'string' ? parseInt(details.vehicles.mileage) || 0 : 0),
+                  fuelType: details.vehicles.fuelType || "",
+                  transmissionType: details.vehicles.transmissionType || details.vehicles.transmission || "",
+                  color: details.vehicles.color || "",
+                  interiorColor: details.vehicles.interiorColor || "",
+                  condition: details.vehicles.condition || 'good',
+                  features: Array.isArray(details.vehicles.features) ? details.vehicles.features : [],
+                  
+                  // Engine and performance with type safety
                   engine: details.vehicles.engine || "",
-                  warranty: details.vehicles.warranty,
+                  engineType: details.vehicles.engineType || "",
+                  engineSize: details.vehicles.engineSize || "",
+                  enginePower: typeof details.vehicles.enginePower === 'number' ? details.vehicles.enginePower : 0,
+                  torque: typeof details.vehicles.torque === 'number' ? details.vehicles.torque : 0,
+                  horsepower: typeof details.vehicles.horsepower === 'number' ? details.vehicles.horsepower : 0,
+                  emissions: details.vehicles.emissions || "",
+                  
+                  // Vehicle details with proper boolean handling
+                  warranty: Boolean(details.vehicles.warranty),
+                  warrantyPeriod: details.vehicles.warrantyPeriod || "",
                   serviceHistory: Boolean(details.vehicles.serviceHistory),
-                  previousOwners: details.vehicles.previousOwners,
-                  registrationStatus: details.vehicles.registrationStatus || 'unregistered', // Default to 'unregistered' if not provided
+                  serviceHistoryDetails: details.vehicles.serviceHistoryDetails || "",
+                  previousOwners: typeof details.vehicles.previousOwners === 'number' ? details.vehicles.previousOwners : 0,
+                  registrationStatus: details.vehicles.registrationStatus || 'unregistered',
                   accidentFree: Boolean(details.vehicles.accidentFree),
                   customsCleared: Boolean(details.vehicles.customsCleared),
+                  
+                  // Vehicle type specific with proper type checking
                   bodyType: details.vehicles.bodyType || "",
                   roofType: details.vehicles.roofType || "",
-                  warrantyPeriod: details.vehicles.warrantyPeriod || "",
-                  serviceHistoryDetails: details.vehicles.serviceHistoryDetails || "",
+                  busType: details.vehicles.busType || "",
+                  seatingCapacity: typeof details.vehicles.seatingCapacity === 'number' ? details.vehicles.seatingCapacity : 0,
+                  truckType: details.vehicles.truckType || "",
+                  cabType: details.vehicles.cabType || "",
+                  vanType: details.vehicles.vanType || "",
+                  hours: typeof details.vehicles.hours === 'number' ? details.vehicles.hours : 0,
+                  equipmentType: details.vehicles.equipmentType || "",
+                  
+                  // Dimensions and capacity with number validation
+                  operatingWeight: typeof details.vehicles.operatingWeight === 'number' ? details.vehicles.operatingWeight : 0,
+                  payloadCapacity: typeof details.vehicles.payloadCapacity === 'number' ? details.vehicles.payloadCapacity : 0,
+                  cargoVolume: typeof details.vehicles.cargoVolume === 'number' ? details.vehicles.cargoVolume : 0,
+                  maxLiftingCapacity: typeof details.vehicles.maxLiftingCapacity === 'number' ? details.vehicles.maxLiftingCapacity : 0,
+                  roofHeight: details.vehicles.roofHeight || "",
+                  interiorLength: details.vehicles.interiorLength || "",
+                  
+                  // Property specific with proper type checking
+                  livingArea: typeof details.vehicles.livingArea === 'number' ? details.vehicles.livingArea : 0,
+                  halfBathrooms: typeof details.vehicles.halfBathrooms === 'number' ? details.vehicles.halfBathrooms : 0,
+                  stories: typeof details.vehicles.stories === 'number' ? details.vehicles.stories : 0,
+                  parking: details.vehicles.parking || "",
+                  parkingSpaces: typeof details.vehicles.parkingSpaces === 'number' ? details.vehicles.parkingSpaces : 0,
+                  floor: typeof details.vehicles.floor === 'number' ? details.vehicles.floor : 0,
+                  totalFloors: typeof details.vehicles.totalFloors === 'number' ? details.vehicles.totalFloors : 0,
+                  elevator: Boolean(details.vehicles.elevator),
+                  balcony: Boolean(details.vehicles.balcony),
+                  storage: Boolean(details.vehicles.storage),
+                  heating: Array.isArray(details.vehicles.heating) ? details.vehicles.heating : [],
+                  cooling: Array.isArray(details.vehicles.cooling) ? details.vehicles.cooling : [],
+                  foundation: details.vehicles.foundation || "",
+                  windowType: details.vehicles.windowType || "",
+                  
+                  // Land specific with array type checking
+                  zoning: details.vehicles.zoning || "",
+                  utilities: Array.isArray(details.vehicles.utilities) ? details.vehicles.utilities : [],
+                  accessRoad: details.vehicles.accessRoad || "",
+                  parcelNumber: details.vehicles.parcelNumber || "",
+                  topography: Array.isArray(details.vehicles.topography) ? details.vehicles.topography : [],
+                  elevation: typeof details.vehicles.elevation === 'number' ? details.vehicles.elevation : 0,
+                  waterFeatures: Array.isArray(details.vehicles.waterFeatures) ? details.vehicles.waterFeatures : [],
+                  boundaryFeatures: Array.isArray(details.vehicles.boundaryFeatures) ? details.vehicles.boundaryFeatures : [],
+                  
+                  // Additional details
                   additionalNotes: details.vehicles.additionalNotes || "",
-
-                  // Individual feature fields
+                  maintenanceHistory: details.vehicles.maintenanceHistory || "",
+                  
+                  // Individual feature fields with boolean conversion
                   frontAirbags: Boolean(details.vehicles.frontAirbags),
                   sideAirbags: Boolean(details.vehicles.sideAirbags),
                   curtainAirbags: Boolean(details.vehicles.curtainAirbags),
@@ -424,12 +956,8 @@ const ListingDetails = () => {
                     details.vehicles.rainSensingWipers
                   ),
 
-                  // Engine & Performance
-                  engineType: details.vehicles.engineType || "",
-                  engineSize: details.vehicles.engineSize || "",
+                  // Engine & Performance - Removing duplicate keys that are already defined above
                   powerOutput: details.vehicles.powerOutput !== undefined ? details.vehicles.powerOutput : null,
-                  horsepower: details.vehicles.horsepower !== undefined ? details.vehicles.horsepower : null,
-                  torque: details.vehicles.torque !== undefined ? details.vehicles.torque : null,
                   fuelSystem: details.vehicles.fuelSystem || "",
                   coolingSystem: details.vehicles.coolingSystem || "",
                   
@@ -462,7 +990,6 @@ const ListingDetails = () => {
                   
                   // Documentation & History
                   modifications: details.vehicles.modifications || "",
-                  emissions: details.vehicles.emissions || "",
                   importStatus: details.vehicles.importStatus || "",
                 } as any)
               : undefined,
@@ -499,55 +1026,116 @@ const ListingDetails = () => {
         }
 
         // Only set vehicle features if this is a vehicle listing and vehicleDetails exists
-        setFeatures({
-          safetyFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.safetyFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
-          cameraFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.cameraFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
-          climateFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.climateFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
-          enternmentFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.enternmentFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
-          lightingFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.lightingFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
-          convenienceFeatures:
-            isVehicleListing && vehicleDetails
-              ? featuresDetails.convenienceFeatures.filter((feature) => {
-                  return Object.entries(vehicleDetails).some(
-                    ([key, value]) => key === feature && value
-                  );
-                })
-              : [],
+        setFeatures(prevFeatures => {
+          if (!isVehicleListing || !vehicleDetails) {
+            return {
+              ...prevFeatures,
+              // Reset all feature arrays to empty
+              safetyFeatures: [],
+              cameraFeatures: [],
+              climateFeatures: [],
+              entertainmentFeatures: [],
+              lightingFeatures: [],
+              convenienceFeatures: [],
+              // Reset other feature arrays
+              brakeSystem: [],
+              utilities: [],
+              topography: [],
+              waterFeatures: [],
+              boundaryFeatures: [],
+              heating: [],
+              cooling: []
+            };
+          }
+
+          // Helper function to filter features based on vehicle details
+          const getFeatures = (featureList: string[]) => 
+            featureList.filter(feature => 
+              Object.entries(vehicleDetails).some(
+                ([key, value]) => key === feature && value
+              )
+            );
+          
+          return {
+            ...prevFeatures,
+            // Feature groups
+            safetyFeatures: getFeatures(featuresDetails.safetyFeatures),
+            cameraFeatures: getFeatures(featuresDetails.cameraFeatures),
+            climateFeatures: getFeatures(featuresDetails.climateFeatures),
+            entertainmentFeatures: getFeatures(featuresDetails.entertainmentFeatures || []),
+            lightingFeatures: getFeatures(featuresDetails.lightingFeatures),
+            convenienceFeatures: getFeatures(featuresDetails.convenienceFeatures),
+            
+            // Vehicle specific features
+            color: vehicleDetails.color || '',
+            interiorColor: vehicleDetails.interiorColor || '',
+            condition: vehicleDetails.condition || '',
+            transmissionType: vehicleDetails.transmissionType || '',
+            mileage: vehicleDetails.mileage || 0,
+            fuelType: vehicleDetails.fuelType || '',
+            previousOwners: vehicleDetails.previousOwners || 0,
+            registrationStatus: vehicleDetails.registrationStatus || '',
+            serviceHistory: vehicleDetails.serviceHistory || '',
+            vin: vehicleDetails.vin || '',
+            engineType: vehicleDetails.engineType || '',
+            engineSize: vehicleDetails.engineSize || '',
+            enginePower: vehicleDetails.enginePower || 0,
+            torque: vehicleDetails.torque || 0,
+            horsepower: vehicleDetails.horsepower || 0,
+            driveSystem: vehicleDetails.driveSystem || '',
+            emissions: vehicleDetails.emissions || '',
+            operatingWeight: vehicleDetails.operatingWeight || 0,
+            payloadCapacity: vehicleDetails.payloadCapacity || 0,
+            cargoVolume: vehicleDetails.cargoVolume || 0,
+            roofHeight: vehicleDetails.roofHeight || '',
+            interiorLength: vehicleDetails.interiorLength || '',
+            equipmentType: vehicleDetails.equipmentType || '',
+            maxLiftingCapacity: vehicleDetails.maxLiftingCapacity || 0,
+            maintenanceHistory: vehicleDetails.maintenanceHistory || '',
+            constructionType: vehicleDetails.constructionType || '',
+            livingArea: vehicleDetails.livingArea || 0,
+            halfBathrooms: vehicleDetails.halfBathrooms || 0,
+            stories: vehicleDetails.stories || 0,
+            parking: vehicleDetails.parking || '',
+            parkingSpaces: vehicleDetails.parkingSpaces || 0,
+            floor: vehicleDetails.floor || 0,
+            totalFloors: vehicleDetails.totalFloors || 0,
+            elevator: Boolean(vehicleDetails.elevator),
+            balcony: Boolean(vehicleDetails.balcony),
+            storage: Boolean(vehicleDetails.storage),
+            foundation: vehicleDetails.foundation || '',
+            windowType: vehicleDetails.windowType || '',
+            zoning: vehicleDetails.zoning || '',
+            accessRoad: vehicleDetails.accessRoad || '',
+            parcelNumber: vehicleDetails.parcelNumber || '',
+            elevation: vehicleDetails.elevation || 0,
+            busType: vehicleDetails.busType || '',
+            seatingCapacity: vehicleDetails.seatingCapacity || 0,
+            airConditioning: vehicleDetails.airConditioning || '',
+            luggageSpace: vehicleDetails.luggageSpace || 0,
+            truckType: vehicleDetails.truckType || '',
+            cabType: vehicleDetails.cabType || '',
+            vanType: vehicleDetails.vanType || '',
+            hours: vehicleDetails.hours || 0,
+            ptoHorsepower: vehicleDetails.ptoHorsepower || 0,
+            hydraulicRemotes: vehicleDetails.hydraulicRemotes || 0,
+            
+            // Array features
+            brakeSystem: Array.isArray(vehicleDetails.brakeSystem) ? 
+              vehicleDetails.brakeSystem : [],
+            utilities: Array.isArray(vehicleDetails.utilities) ? 
+              vehicleDetails.utilities : [],
+            topography: Array.isArray(vehicleDetails.topography) ? 
+              vehicleDetails.topography : [],
+            waterFeatures: Array.isArray(vehicleDetails.waterFeatures) ? 
+              vehicleDetails.waterFeatures : [],
+            boundaryFeatures: Array.isArray(vehicleDetails.boundaryFeatures) ? 
+              vehicleDetails.boundaryFeatures : [],
+            heating: Array.isArray(vehicleDetails.heating) ? 
+              vehicleDetails.heating : [],
+            cooling: Array.isArray(vehicleDetails.cooling) ? 
+              vehicleDetails.cooling : []
+          };
         });
 
         console.log("[ListingDetails] vehicleDetails:", vehicleDetails);
@@ -1566,7 +2154,7 @@ const ListingDetails = () => {
                 {(features.safetyFeatures.length > 0 ||
                   features.cameraFeatures.length > 0 ||
                   features.climateFeatures.length > 0 ||
-                  features.enternmentFeatures.length > 0 ||
+                  features.entertainmentFeatures.length > 0 ||
                   features.lightingFeatures.length > 0 ||
                   features.convenienceFeatures.length > 0) && (
                   <>
@@ -1599,10 +2187,10 @@ const ListingDetails = () => {
                     )}
 
                     {/* Entertainment Features */}
-                    {features.enternmentFeatures.length > 0 && (
+                    {features.entertainmentFeatures.length > 0 && (
                       <FeatureSection
                         title="entertainmentFeatures"
-                        features={features.enternmentFeatures}
+                        features={features.entertainmentFeatures}
                       />
                     )}
 
