@@ -8,9 +8,10 @@ import { useTranslation } from "react-i18next";
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
 import { SettingsAPI } from "@/api";
+import { LanguageCode } from "@/types/enums";
 import type {
   PreferenceSettings as PreferenceSettingsType,
-  SecuritySettings as SecuritySettingsType,
+  Settings as AppSettings,
 } from "@/types/settings";
 
 interface ToggleProps {
@@ -51,77 +52,145 @@ interface SettingsState {
 function Settings() {
   const { t, i18n } = useTranslation("settings");
   const { settings, updateSettings } = useSettings();
-  const [debouncedToggles, setDebouncedToggles] = useState(settings);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+  const [localSettings, setLocalSettings] = useState(settings);
   const isRTL = i18n.language === "ar";
 
+  // Load settings on component mount
   useEffect(() => {
     const fetchUserSettings = async () => {
-      const response = await SettingsAPI.getSettings();
-      // console.log("userSettings", userSettings);
-      if (response.status === 200) {
-        const userSettings = response.data;
-        if (userSettings)
-          updateSettings({
-            ...settings,
-            notifications: {
-              listingUpdates: userSettings.listingNotifications,
-              newInboxMessages: userSettings.messageNotifications,
-              loginNotifications: userSettings.loginNotifications,
-            },
-            privacy: {
-              showEmail: userSettings.showEmail,
-              showPhone: userSettings.showPhoneNumber,
-              showOnlineStatus: userSettings.showOnlineStatus,
-              allowMessaging: userSettings.allowMessaging,
-              profileVisibility: userSettings.privateProfile
-                ? "private"
-                : "public",
-            },
-          });
+      try {
+        const response = await SettingsAPI.getSettings();
+        if (response.status === 200) {
+          const userSettings = response.data;
+          if (userSettings) {
+            const newSettings: AppSettings = {
+              ...localSettings,
+              notifications: {
+                listingUpdates: Boolean(userSettings.listingNotifications),
+                newInboxMessages: Boolean(userSettings.messageNotifications),
+                loginNotifications: Boolean(userSettings.loginNotifications),
+              },
+              privacy: {
+                showEmail: Boolean(userSettings.showEmail),
+                showPhone: Boolean(userSettings.showPhoneNumber),
+                showOnlineStatus: Boolean(userSettings.showOnlineStatus),
+                allowMessaging: Boolean(userSettings.allowMessaging),
+                profileVisibility: userSettings.privateProfile ? "private" : "public" as const,
+              },
+              // Add default values for any required fields in Settings type
+              preferences: localSettings?.preferences || {},
+              security: localSettings?.security || {}
+            };
+            setLocalSettings(newSettings);
+            updateSettings(newSettings);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+        setSaveStatus({ type: 'error', message: 'Failed to load settings' });
       }
     };
     fetchUserSettings();
   }, []);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedToggles(settings);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }, [settings]);
-
-  useEffect(() => {
-    const sendUpdateSettingsToServer = async () => {
-      try {
-        const response = await SettingsAPI.updatePrivacySettings(settings);
-        if (response.error) {
-          throw new Error(response.error);
-        }
-      } catch (error) {
-        console.error(error);
+  // Handle saving settings
+  const handleSaveSettings = async () => {
+    if (!localSettings) return;
+    
+    setIsSaving(true);
+    setSaveStatus({ type: null, message: '' });
+    
+    try {
+      // Create a complete settings object with all required fields
+      const settingsToSave: AppSettings = {
+        ...localSettings,
+        privacy: {
+          profileVisibility: localSettings.privacy?.profileVisibility === 'private' ? 'private' : 'public',
+          showOnlineStatus: localSettings.privacy?.showOnlineStatus ?? true,
+          showPhone: localSettings.privacy?.showPhone ?? false,
+          showEmail: localSettings.privacy?.showEmail ?? false,
+          allowMessaging: localSettings.privacy?.allowMessaging ?? true,
+        },
+        notifications: {
+          listingUpdates: localSettings.notifications?.listingUpdates ?? false,
+          newInboxMessages: localSettings.notifications?.newInboxMessages ?? false,
+          loginNotifications: localSettings.notifications?.loginNotifications ?? false
+        },
+        preferences: localSettings.preferences || {},
+        security: localSettings.security || {}
+      };
+      
+      const response = await SettingsAPI.updatePrivacySettings(settingsToSave);
+      if (response.error) {
+        throw new Error(response.error);
       }
-    };
-
-    sendUpdateSettingsToServer();
-  }, [debouncedToggles]);
+      
+      // Update the settings in the context with the complete settings object
+      updateSettings(settingsToSave);
+      
+      // Apply language change after successful save
+      if (localSettings.preferences?.language) {
+        const langCode = localSettings.preferences.language === LanguageCode.AR ? 'ar' : 'en';
+        i18n.changeLanguage(langCode);
+        localStorage.setItem('language', langCode);
+        document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+      }
+      
+      setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      setSaveStatus({ type: 'error', message: 'Failed to save settings. Please try again.' });
+    } finally {
+      setIsSaving(false);
+      
+      // Clear success message after 3 seconds
+      if (saveStatus.type === 'success') {
+        setTimeout(() => {
+          setSaveStatus({ type: null, message: '' });
+        }, 3000);
+      }
+    }
+  };
 
   const handlePreferenceUpdate = (preferences: PreferenceSettingsType) => {
-    updateSettings({ preferences });
+    if (!localSettings) return;
+    const newSettings: AppSettings = {
+      ...localSettings,
+      preferences,
+      // Ensure all required fields are present
+      privacy: localSettings.privacy || {
+        profileVisibility: 'public',
+        showOnlineStatus: true,
+        showPhone: false,
+        showEmail: false,
+        allowMessaging: true
+      },
+      notifications: localSettings.notifications || {
+        listingUpdates: false,
+        newInboxMessages: false,
+        loginNotifications: false
+      },
+      security: localSettings.security || {}
+    };
+    setLocalSettings(newSettings);
   };
 
-  const handleSecurityUpdate = (security: Partial<SecuritySettingsType>) => {
-    if (!settings) return;
-    updateSettings({
-      security: {
-        ...settings.security,
-        ...security,
-      },
-    });
-  };
+  // Security settings functionality can be implemented here when needed
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
-    updateSettings({ privacy: { ...settings?.privacy, ...updates } });
+    if (!localSettings) return;
+    const newSettings: AppSettings = {
+      ...localSettings,
+      privacy: { 
+        ...localSettings.privacy, 
+        ...updates,
+        // Ensure profileVisibility is always either 'public' or 'private'
+        profileVisibility: updates.profileVisibility === 'private' ? 'private' : 'public'
+      },
+    };
+    setLocalSettings(newSettings);
   };
 
   // Define the tabs for the settings page
@@ -174,20 +243,59 @@ function Settings() {
               {/* Preferences Panel */}
               <Tab.Panel className="p-6">
                 <PreferenceSettings
-                  settings={settings?.preferences || {}}
+                  settings={localSettings?.preferences || {}}
                   onUpdate={handlePreferenceUpdate}
                   isRTL={isRTL}
                 />
+                <div className="mt-6 flex justify-between items-center">
+                  {saveStatus.type && (
+                    <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                      {saveStatus.message}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSaveSettings}
+                    disabled={isSaving}
+                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                      isSaving 
+                        ? 'bg-green-400' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                  >
+                    {isSaving ? 'Saving...' : t("saveChanges")}
+                  </button>
+                </div>
               </Tab.Panel>
 
               {/* Notifications Panel */}
               <Tab.Panel className="p-6">
                 <NotificationSettings
-                  notifications={settings.notifications}
-                  onUpdate={(notifications) =>
-                    updateSettings({ notifications })
-                  }
+                  notifications={localSettings?.notifications || {}}
+                  onUpdate={(notifications) => {
+                    const newSettings = { ...localSettings, notifications };
+                    setLocalSettings(newSettings);
+                  }}
                 />
+                <div className="mt-6 flex justify-between items-center">
+                  {saveStatus.type && (
+                    <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                      {saveStatus.message}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSaveSettings}
+                    disabled={isSaving}
+                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                      isSaving 
+                        ? 'bg-green-400' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                  >
+                    {isSaving ? 'Saving...' : t("saveChanges")}
+                  </button>
+                </div>
               </Tab.Panel>
 
               {/* Security Panel */}
@@ -293,6 +401,25 @@ function Settings() {
                         label=""
                       />
                     </div>
+                  </div>
+                  <div className="mt-6 flex justify-between items-center">
+                    {saveStatus.type && (
+                      <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                        {saveStatus.message}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      disabled={isSaving}
+                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                        isSaving 
+                          ? 'bg-green-400' 
+                          : 'bg-green-600 hover:bg-green-700'
+                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                    >
+                      {isSaving ? 'Saving...' : t("saveChanges")}
+                    </button>
                   </div>
                 </div>
               </Tab.Panel>
