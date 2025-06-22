@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/contexts/SettingsContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,9 +11,10 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState<number | null>(null);
-  const { login, user, error: authError, clearError, retryAfter } = useAuth();
-  const { settings, updateSettings } = useSettings();
+  const { login, error: authError, clearError, retryAfter } = useAuth();
+  // Removed unused updateSettings to clean up code
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation("auth");
 
   useEffect(() => {
@@ -68,25 +68,13 @@ const Login = () => {
       const success = await login(email, password);
 
       // The navigation now only happens if login is successful
-      if (success && user) {
-        updateSettings({
-          ...settings,
-          notifications: {
-            listingUpdates: user.listingNotifications,
-            newInboxMessages: user.messageNotifications,
-            loginNotifications: user.loginNotifications,
-          },
-          privacy: {
-            showEmail: user.showEmail,
-            showPhone: user.showPhoneNumber,
-            showOnlineStatus: user.showOnlineStatus,
-            allowMessaging: user.allowMessaging,
-            profileVisibility: user.privateProfile ? "private" : "public",
-          },
-        });
-
-        toast.success(t("successfullyLoggedIn"));
-        navigate("/");
+      if (success) {
+        // Get the return URL from location state or default to home
+        const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname;
+        const returnTo = fromPath && fromPath !== '/login' ? fromPath : "/";
+        
+        // Use React Router's navigate for client-side navigation
+        navigate(returnTo, { replace: true });
       } else {
         // If login returns false, it means there was an error but it was handled by the auth context
         // We stay on the login page and don't navigate
