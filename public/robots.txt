@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /api/*
+Disallow: /_next/static/*
+Disallow: /*.json$
+Disallow: /*?*
+
+# Sitemaps
+Sitemap: https://samsar.app/sitemap.xml
+Sitemap: https://samsar.app/server-sitemap.xml
