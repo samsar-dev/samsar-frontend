@@ -756,6 +756,7 @@ export interface Listing {
     username: string;
     profilePicture: string | null;
     allowMessaging: boolean;
+    privateProfile: boolean;
   };
 }
 

@@ -25,6 +25,7 @@ interface ExtendedListing extends Listing {
     username: string;
     profilePicture: string | null;
     allowMessaging: boolean;
+    privateProfile: boolean;
   };
 }
 
@@ -40,6 +41,7 @@ interface Features {
 // Using types directly from listings.ts
 import { LoadingSpinner } from "@/api";
 import FeatureSection from "./FeatureSection";
+import PrivateDisplayPic from "@/components/profile/PrivateDisplayPic";
 
 // Type guard to check if vehicle details are for a motorcycle
 const isMotorcycleDetails = (details: any): details is MotorcycleDetails => {
@@ -566,6 +568,7 @@ const ListingDetails = () => {
             username: listing.seller?.username || "Unknown Seller",
             profilePicture: listing.seller?.profilePicture || null,
             allowMessaging: listing.seller?.allowMessaging || true,
+            privateProfile: listing.seller?.privateProfile || false,
           },
         });
       } catch (error) {
@@ -716,21 +719,32 @@ const ListingDetails = () => {
                 className="flex items-center gap-4 hover:text-blue-600 transition-colors"
                 style={{ textDecoration: "none" }}
               >
-                {listing.seller.profilePicture ? (
-                  <img
-                    src={listing.seller.profilePicture}
-                    alt={listing.seller.username}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow"
-                  />
+                {listing.seller.privateProfile ? (
+                  <PrivateDisplayPic variant="mid" />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl text-gray-600 dark:text-gray-300 border-2 border-blue-500 shadow">
-                    {listing.seller.username[0].toUpperCase()}
+                  <div>
+                    {listing.seller.profilePicture ? (
+                      <img
+                        src={listing.seller.profilePicture}
+                        alt={listing.seller.username}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl text-gray-600 dark:text-gray-300 border-2 border-blue-500 shadow">
+                        {listing.seller.username[0].toUpperCase()}
+                      </div>
+                    )}
                   </div>
                 )}
                 <div>
                   <div className="font-semibold text-base text-gray-900 dark:text-white">
                     {listing.seller.username}
                   </div>
+                  {listing.seller.privateProfile && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Private Profile
+                    </div>
+                  )}
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     Posted on:{" "}
                     <span className="font-medium">
