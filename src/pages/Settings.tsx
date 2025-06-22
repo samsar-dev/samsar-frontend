@@ -3,8 +3,10 @@ import NotificationSettings from "@/components/settings/NotificationSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import "@/styles/scrollable-tabs.css";
+
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
 import { SettingsAPI } from "@/api";
@@ -56,6 +58,8 @@ function Settings() {
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
   const [localSettings, setLocalSettings] = useState(settings);
   const isRTL = i18n.language === "ar";
+
+  const tabListRef = useRef<HTMLDivElement>(null);
 
   // Load settings on component mount
   useEffect(() => {
@@ -138,10 +142,10 @@ function Settings() {
         document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
       }
       
-      setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
+      setSaveStatus({ type: 'success', message: t('saveSuccess') });
     } catch (error) {
       console.error('Failed to save settings:', error);
-      setSaveStatus({ type: 'error', message: 'Failed to save settings. Please try again.' });
+      setSaveStatus({ type: 'error', message: t('saveError') });
     } finally {
       setIsSaving(false);
       
@@ -181,15 +185,27 @@ function Settings() {
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
     if (!localSettings) return;
+    
+    // Start with existing settings or empty object
+    const currentSettings = localSettings.privacy || {};
+    
+    // Merge updates with current settings
+    const updatedSettings = {
+      ...currentSettings,
+      ...updates,
+      // Ensure profileVisibility is always either 'public' or 'private'
+      profileVisibility: updates.profileVisibility 
+        ? updates.profileVisibility === 'private' 
+          ? 'private' 
+          : 'public'
+        : currentSettings.profileVisibility || 'public'
+    };
+
     const newSettings: AppSettings = {
       ...localSettings,
-      privacy: { 
-        ...localSettings.privacy, 
-        ...updates,
-        // Ensure profileVisibility is always either 'public' or 'private'
-        profileVisibility: updates.profileVisibility === 'private' ? 'private' : 'public'
-      },
+      privacy: updatedSettings,
     };
+    
     setLocalSettings(newSettings);
   };
 
@@ -219,25 +235,38 @@ function Settings() {
 
         <div className="bg-white shadow rounded-lg overflow-hidden dark:bg-gray-800">
           <Tab.Group>
-            <Tab.List className="flex border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
-              {tabs.map((tab) => (
-                <Tab
-                  key={tab.name}
-                  className={({ selected }) =>
-                    `flex-1 py-4 px-1 text-center focus:outline-none ${
-                      selected
-                        ? "border-b-2 border-indigo-500 font-medium text-indigo-600 dark:text-white"
-                        : "text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600"
-                    }`
-                  }
+            <div className="relative">
+              <div className="relative">
+                {/* Left scroll indicator - removed as per user request */}
+                <div 
+                  ref={tabListRef}
+                  className="overflow-x-auto pb-1 scrollbar-hide tab-scroll-container"
                 >
-                  <div className="flex flex-col items-center justify-center space-y-1">
-                    <span className="text-xl">{tab.icon}</span>
-                    <span>{tab.name}</span>
-                  </div>
-                </Tab>
-              ))}
-            </Tab.List>
+                  <Tab.List className="flex space-x-1 w-max min-w-full border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-2">
+                    {tabs.map((tab) => (
+                      <Tab
+                        key={tab.name}
+                        className={({ selected }) =>
+                          `flex-shrink-0 py-3 px-4 text-center focus:outline-none transition-colors duration-200 ${
+                            selected
+                              ? "border-b-2 border-indigo-500 font-medium text-indigo-600 dark:text-white"
+                              : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <div className="flex flex-col items-center justify-center space-y-1 min-w-[70px]">
+                          <span className="text-xl">{tab.icon}</span>
+                          <span className="text-xs sm:text-sm whitespace-nowrap">{tab.name}</span>
+                        </div>
+                      </Tab>
+                    ))}
+                  </Tab.List>
+                </div>
+                {/* Right scroll indicator - removed as per user request */}
+              </div>
+              {/* Fade effect on the right side for mobile */}
+              <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-gray-50 to-transparent dark:from-gray-800 pointer-events-none"></div>
+            </div>
 
             <Tab.Panels>
               {/* Preferences Panel */}
@@ -263,7 +292,7 @@ function Settings() {
                         : 'bg-green-600 hover:bg-green-700'
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                   >
-                    {isSaving ? 'Saving...' : t("saveChanges")}
+                    {isSaving ? t('saving') : t("save")}
                   </button>
                 </div>
               </Tab.Panel>
@@ -293,7 +322,7 @@ function Settings() {
                         : 'bg-green-600 hover:bg-green-700'
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                   >
-                    {isSaving ? 'Saving...' : t("saveChanges")}
+                   {isSaving ? t('saving') : t("save")}
                   </button>
                 </div>
               </Tab.Panel>
@@ -346,7 +375,7 @@ function Settings() {
                         {t("privacy.showOnlineStatus")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showOnlineStatus ?? true}
+                        checked={localSettings?.privacy?.showOnlineStatus ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showOnlineStatus: checked })
                         }
@@ -362,7 +391,7 @@ function Settings() {
                         {t("privacy.showPhoneNumber")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showPhone ?? true}
+                        checked={localSettings?.privacy?.showPhone ?? false}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showPhone: checked })
                         }
@@ -378,7 +407,7 @@ function Settings() {
                         {t("privacy.showEmail")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.showEmail ?? true}
+                        checked={localSettings?.privacy?.showEmail ?? false}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showEmail: checked })
                         }
@@ -394,7 +423,7 @@ function Settings() {
                         {t("privacy.allowDirectMessaging")}
                       </span>
                       <Toggle
-                        checked={settings?.privacy?.allowMessaging ?? true}
+                        checked={localSettings?.privacy?.allowMessaging ?? true}
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ allowMessaging: checked })
                         }
@@ -418,7 +447,7 @@ function Settings() {
                           : 'bg-green-600 hover:bg-green-700'
                       } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                     >
-                      {isSaving ? 'Saving...' : t("saveChanges")}
+                      {isSaving ? t('saving') : t("save")}
                     </button>
                   </div>
                 </div>
@@ -484,6 +513,6 @@ function Settings() {
       </div>
     </div>
   );
-}
+};
 
 export default Settings;
