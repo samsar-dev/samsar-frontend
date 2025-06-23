@@ -1465,9 +1465,7 @@ export const listingsAPI: ListingsAPI = {
           id: responseData.userId,
           username: responseData.seller?.username || "Unknown Seller",
           profilePicture: responseData.seller?.profilePicture || null,
-          allowMessaging: responseData.seller?.allowMessaging
-            ? responseData.seller.allowMessaging
-            : true,
+          allowMessaging: responseData.seller?.allowMessaging ? true : false,
           privateProfile: responseData.seller?.privateProfile || false,
         },
       };
