@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/contexts/SettingsContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,9 +11,10 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState<number | null>(null);
-  const { login, user, error: authError, clearError, retryAfter } = useAuth();
-  const { settings, updateSettings } = useSettings();
+  const { login, error: authError, clearError, retryAfter } = useAuth();
+  // Removed unused updateSettings to clean up code
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation("auth");
 
   useEffect(() => {
@@ -68,25 +68,13 @@ const Login = () => {
       const success = await login(email, password);
 
       // The navigation now only happens if login is successful
-      if (success && user) {
-        updateSettings({
-          ...settings,
-          notifications: {
-            listingUpdates: user.listingNotifications,
-            newInboxMessages: user.messageNotifications,
-            loginNotifications: user.loginNotifications,
-          },
-          privacy: {
-            showEmail: user.showEmail,
-            showPhone: user.showPhoneNumber,
-            showOnlineStatus: user.showOnlineStatus,
-            allowMessaging: user.allowMessaging,
-            profileVisibility: user.privateProfile ? "private" : "public",
-          },
-        });
-
-        toast.success(t("successfullyLoggedIn"));
-        navigate("/");
+      if (success) {
+        // Get the return URL from location state or default to home
+        const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname;
+        const returnTo = fromPath && fromPath !== '/login' ? fromPath : "/";
+        
+        // Use React Router's navigate for client-side navigation
+        navigate(returnTo, { replace: true });
       } else {
         // If login returns false, it means there was an error but it was handled by the auth context
         // We stay on the login page and don't navigate
@@ -165,28 +153,33 @@ const Login = () => {
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm pr-10"
-                placeholder={t("password")}
-                value={password}
-                onChange={handleInputChange(setPassword)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
-              >
-                {showPassword ? (
-                  <FaEyeSlash className="h-5 w-5" />
-                ) : (
-                  <FaEye className="h-5 w-5" />
-                )}
-              </button>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
+                  placeholder={t("password")}
+                  value={password}
+                  onChange={handleInputChange(setPassword)}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowPassword(!showPassword);
+                  }}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500 z-10"
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="h-5 w-5" />
+                  ) : (
+                    <FaEye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 

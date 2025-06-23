@@ -4,6 +4,7 @@
   "preferences": "Preferences",
   "language": "Language",
   "themes": {
+    "title": "Themes",
     "light": "Light",
     "dark": "Dark",
     "system": "System"
@@ -12,7 +13,7 @@
   "utc": "UTC",
   "languageSettings": "Language Settings",
   "notifications": {
-    "title": "🔔 Notifications",
+    "title": "Notifications",
     "description": "Manage your notification preferences",
     "emailSection": "📧 Email Notifications",
     "generalUpdates": "Receive general updates and announcements",
@@ -31,7 +32,9 @@
     "changePassword": "Change Password",
     "deleteAccount": "Delete Account",
     "deactivateAccount": "Deactivate Account",
-    "confirmDelete": "Are you sure you want to delete your account? This action cannot be undone."
+    "confirmDelete": "Are you sure you want to delete your account? This action cannot be undone.",
+    "deleteWarning": "Once you delete your account, there is no going back. This action will permanently delete your account and all your listings. Please be certain.",
+    "deleteButton": "Delete Account"
   },
   "connectedAccounts": {
     "title": "Connected Accounts",
@@ -91,6 +94,9 @@
     "fontSize": "Font Size"
   },
   "save": "Save Changes",
+  "saving": "Saving...",
+  "saveSuccess": "Settings saved successfully!",
+  "saveError": "Failed to save settings. Please try again.",
   "cancel": "Cancel",
   "reset": "Reset to Default"
 }

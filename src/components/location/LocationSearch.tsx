@@ -239,7 +239,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       const url = `${baseUrl}?${params.toString()}`;
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Tijara/1.0 (contact@tijara.sy)',
+          'User-Agent': 'Samsar/1.0 (contact@samsar.sy)',
           'Accept-Language': `${lang},${lang === 'ar' ? 'en' : 'ar'};q=0.8,en-US;q=0.7`,
           'Accept': 'application/json',
           'Content-Type': 'application/json; charset=utf-8'

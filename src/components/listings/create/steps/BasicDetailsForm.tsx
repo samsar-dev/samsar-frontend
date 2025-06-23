@@ -1557,7 +1557,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
-    // Normalize the location value before processing
+    // This handler is kept for backward compatibility but is no longer used directly
+    // as LocationSearch component now handles the location selection
     if (!selected) {
       handleInputChange("location", "");
       setFormData(prev => ({
@@ -1567,42 +1568,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return;
     }
     
-    // Store both the value (for internal use) and display label (for showing to user)
-    // Normalize the location value before storing
     handleInputChange("location", normalizeLocation(selected.value));
     setFormData(prev => ({
       ...prev,
       locationDisplay: selected.label
     }));
-
-    // Fetch coordinates for the selected location via Nominatim
-    (async () => {
-      try {
-        // Use the display label for geocoding as it's more likely to return good results
-        const searchQuery = selected.isArea ? selected.label : selected.value;
-        
-        const resp = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(searchQuery)}`
-        );
-        const results = await resp.json();
-        if (results && results.length > 0) {
-          const r = results[0];
-          const lat = parseFloat(r.lat);
-          const lng = parseFloat(r.lon);
-          const bounds = r.boundingbox
-            ? ([
-                parseFloat(r.boundingbox[0]),
-                parseFloat(r.boundingbox[2]),
-                parseFloat(r.boundingbox[1]),
-                parseFloat(r.boundingbox[3]),
-              ] as [number, number, number, number])
-            : undefined;
-          setLocationMeta({ lat, lng, placeId: r.place_id?.toString(), bounds });
-        }
-      } catch (err) {
-        console.error('Failed to fetch coordinates:', err);
-      }
-    })();
   };
 
   return (
@@ -1734,51 +1704,28 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     ) : (
                       <Locate className="w-3 h-3 mr-1" />
                     )}
-                    {isLocating ? 'Locating...' : 'Use my location'}
+                    {isLocating ? t('locating') : t('useMyLocation')}
                   </button>
                 </div>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Select
-                    className="w-full text-sm"
-                    classNamePrefix="select"
-                    name="location"
-                    id="location"
-                    value={formData.location ? { 
-                      value: formData.location, 
-                      label: formData.locationDisplay || formData.location 
-                    } : null}
-                    onChange={handleLocationChange}
-                    options={syrianCities}
-                    placeholder={commonT("propertyDetails.selectLocation")}
-                    isClearable
-                    isSearchable
-                    noOptionsMessage={() => commonT("noOptions")}
-                    classNames={{
-                      control: (state) =>
-                        `block w-full px-3 py-2 pl-10 text-sm bg-white dark:bg-gray-800 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          state.isFocused
-                            ? 'border-blue-500 ring-1 ring-blue-500'
-                            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400'
-                        }`,
-                      option: (state) =>
-                        `px-3 py-2 text-sm ${
-                          state.isFocused ? 'bg-blue-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'
-                        }`,
-                      menu: () => 'z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-300 dark:border-gray-600',
-                    }}
-                    styles={{
-                      singleValue: (base) => ({
-                        ...base,
-                        color: 'inherit',
-                      }),
-                      input: (base) => ({
-                        ...base,
-                        color: 'inherit',
-                      }),
-                    }}
-                  />
-                </div>
+                <LocationSearch
+                  onSelectLocation={(location) => {
+                    handleInputChange("location", location.address);
+                    setFormData(prev => ({
+                      ...prev,
+                      locationDisplay: location.address,
+                      latitude: location.coordinates[0],
+                      longitude: location.coordinates[1]
+                    }));
+                    setLocationMeta({
+                      lat: location.coordinates[0],
+                      lng: location.coordinates[1],
+                      bounds: location.boundingBox
+                    });
+                  }}
+                  placeholder={commonT("propertyDetails.selectLocation")}
+                  className="w-full"
+                  initialValue={formData.locationDisplay || formData.location}
+                />
                 {locationError && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {locationError}

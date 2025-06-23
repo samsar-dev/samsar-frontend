@@ -385,11 +385,6 @@ export const carSchema: ListingFieldSchema[] = [
           },
           { name: "laneAssist", label: "features.laneAssist", type: "toggle" },
           {
-            name: "adaptiveCruiseControl",
-            label: "features.adaptiveCruiseControl",
-            type: "toggle",
-          },
-          {
             name: "tractionControl",
             label: "features.tractionControl",
             type: "toggle",

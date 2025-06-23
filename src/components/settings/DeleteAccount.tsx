@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaExclamationTriangle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { getAuthToken } from "@/utils/cookie";
 import { ACTIVE_API_URL } from "@/config";
@@ -13,6 +14,7 @@ const DeleteAccount = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation("settings");
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,14 +81,12 @@ const DeleteAccount = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold mb-6 text-red-600 flex items-center">
-        <FaExclamationTriangle className="mr-2" />
-        Delete Account
+        <FaExclamationTriangle className="ml-2" />
+        {t("account.deleteAccount")}
       </h2>
 
       <p className="text-gray-600 dark:text-gray-400 mb-4">
-        Once you delete your account, there is no going back. This action will
-        permanently delete your account and all your listings. Please be
-        certain.
+        {t("account.deleteWarning")}
       </p>
 
       <div className="mt-6">
@@ -94,7 +94,7 @@ const DeleteAccount = () => {
           onClick={() => setShowModal(true)}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
-          Delete Account
+          {t("account.deleteButton")}
         </button>
       </div>
 
