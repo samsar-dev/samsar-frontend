@@ -18,7 +18,7 @@ export interface NotificationPreferences {
   pushNotifications?: boolean;
 
   // Newsletter
-  newsletter?: boolean;
+  newsletterSubscribed?: boolean;
 
   // Legacy fields (keep for backward compatibility)
   email?: boolean;
