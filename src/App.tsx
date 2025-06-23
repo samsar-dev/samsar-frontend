@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import Routes from "./routes/Routes";
-import SocketProvider from "./contexts/SocketContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 // Add resource hints for external resources
 if (typeof document !== "undefined") {

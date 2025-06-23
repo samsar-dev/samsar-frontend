@@ -3,21 +3,23 @@ import { MessagesAPI } from "@/api/messaging.api";
 import { useAuth } from "@/hooks/useAuth";
 import { ListingAction, ListingCategory } from "@/types/enums";
 import type { PropertyType, VehicleType } from "@/types/enums";
-import type { Listing, ListingDetails, MotorcycleDetails } from "@/types/listings";
+import type {
+  Listing,
+  ListingDetails,
+  MotorcycleDetails,
+} from "@/types/listings";
 import type { ListingMessageInput } from "@/types/messaging";
 import { formatCurrency } from "@/utils/formatUtils";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
-import { useTranslation } from 'react-i18next';
-import i18n from 'i18next';
-import { normalizeLocation } from '@/utils/locationUtils';
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
+import { normalizeLocation } from "@/utils/locationUtils";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery")
+  () => import("@/components/listings/images/ImageGallery"),
 );
-
-
 
 interface ExtendedListing extends Listing {
   seller?: {
@@ -37,7 +39,7 @@ interface Features {
   entertainmentFeatures: string[];
   lightingFeatures: string[];
   convenienceFeatures: string[];
-  
+
   // ===== Vehicle Features =====
   // Basic info
   color: string;
@@ -50,7 +52,7 @@ interface Features {
   registrationStatus: string;
   serviceHistory: string;
   vin: string;
-  
+
   // Engine & Performance
   engineType: string;
   engineSize: string;
@@ -59,19 +61,19 @@ interface Features {
   horsepower: number;
   driveSystem: string;
   emissions: string;
-  
+
   // Dimensions & Weight
   operatingWeight: number;
   payloadCapacity: number;
   cargoVolume: number;
   roofHeight: string;
   interiorLength: string;
-  
+
   // ===== Construction Equipment =====
   equipmentType: string;
   maxLiftingCapacity: number;
   maintenanceHistory: string;
-  
+
   // ===== House/Apartment Features =====
   constructionType: string;
   livingArea: number;
@@ -88,28 +90,26 @@ interface Features {
   cooling: string | string[];
   foundation: string;
   windowType: string;
-  
 
-  
   // ===== Vehicle Type Specific =====
   // Bus
   busType: string;
   seatingCapacity: number;
   airConditioning: string;
   luggageSpace: number;
-  
+
   // Truck
   truckType: string;
   cabType: string;
-  
+
   // Van
   vanType: string;
-  
+
   // Tractor
   hours: number;
   ptoHorsepower: number;
   hydraulicRemotes: number;
-  
+
   // Motorcycle
   brakeSystem: string[];
 
@@ -306,7 +306,7 @@ interface Features {
   documentsAvailable: string[];
   previousUse: string[];
   propertyHistory: string;
-  
+
   // ===== Additional Vehicle Details =====
   bodyStyle: string;
   driveType: string;
@@ -339,7 +339,7 @@ interface Features {
   certifications: string[];
   lastInspectionDate: string;
   engine: string;
-  
+
   // ===== Additional Features =====
   // These are used for feature groups in the UI
   [key: string]: any; // For any additional dynamic fields
@@ -352,7 +352,7 @@ import PrivateDisplayPic from "@/components/profile/PrivateDisplayPic";
 
 // Type guard to check if vehicle details are for a motorcycle
 const isMotorcycleDetails = (details: any): details is MotorcycleDetails => {
-  return details?.vehicleType === 'MOTORCYCLE';
+  return details?.vehicleType === "MOTORCYCLE";
 };
 
 import { generateFeaturesDetails } from "@/utils/generateFeaturesDetails";
@@ -380,46 +380,46 @@ const ListingDetails = () => {
     entertainmentFeatures: [],
     lightingFeatures: [],
     convenienceFeatures: [],
-    
+
     // Basic vehicle info
-    color: '',
-    interiorColor: '',
-    condition: '',
-    transmissionType: '',
+    color: "",
+    interiorColor: "",
+    condition: "",
+    transmissionType: "",
     mileage: 0,
-    fuelType: '',
+    fuelType: "",
     previousOwners: 0,
-    registrationStatus: '',
-    serviceHistory: '',
-    vin: '',
-    
+    registrationStatus: "",
+    serviceHistory: "",
+    vin: "",
+
     // Engine & Performance
-    engineType: '',
-    engineSize: '',
+    engineType: "",
+    engineSize: "",
     enginePower: 0,
     torque: 0,
     horsepower: 0,
-    driveSystem: '',
-    emissions: '',
-    
+    driveSystem: "",
+    emissions: "",
+
     // Dimensions & Weight
     operatingWeight: 0,
     payloadCapacity: 0,
     cargoVolume: 0,
-    roofHeight: '',
-    interiorLength: '',
-    
+    roofHeight: "",
+    interiorLength: "",
+
     // Construction Equipment
-    equipmentType: '',
+    equipmentType: "",
     maxLiftingCapacity: 0,
-    maintenanceHistory: '',
-    
+    maintenanceHistory: "",
+
     // House/Apartment Features
-    constructionType: '',
+    constructionType: "",
     livingArea: 0,
     halfBathrooms: 0,
     stories: 0,
-    parking: '',
+    parking: "",
     parkingSpaces: 0,
     floor: 0,
     totalFloors: 0,
@@ -428,56 +428,54 @@ const ListingDetails = () => {
     storage: false,
     heating: [],
     cooling: [],
-    foundation: '',
-    windowType: '',
-    
+    foundation: "",
+    windowType: "",
 
-    
     // Vehicle Type Specific
     // Bus
-    busType: '',
+    busType: "",
     seatingCapacity: 0,
-    airConditioning: '',
+    airConditioning: "",
     luggageSpace: 0,
-    
+
     // Truck
-    truckType: '',
-    cabType: '',
-    
+    truckType: "",
+    cabType: "",
+
     // Van
-    vanType: '',
-    
+    vanType: "",
+
     // Tractor
     hours: 0,
     ptoHorsepower: 0,
     hydraulicRemotes: 0,
-    
+
     // Motorcycle
     brakeSystem: [],
 
     // Motorcycle Specific
     powerOutput: 0,
-    fuelSystem: '',
-    coolingSystem: '',
-    frameType: '',
+    fuelSystem: "",
+    coolingSystem: "",
+    frameType: "",
     frontSuspension: [],
     rearSuspension: [],
-    wheelType: '',
+    wheelType: "",
     startType: [],
     riderAids: [],
     electronics: [],
     lighting: [],
     seatHeight: 0,
-    handlebarType: '',
+    handlebarType: "",
     storageOptions: [],
     protectiveEquipment: [],
     customParts: [],
     accidentHistory: false,
-    ownershipHistory: '',
+    ownershipHistory: "",
 
     // Truck Specific
-    bedLength: '',
-    suspensionType: '',
+    bedLength: "",
+    suspensionType: "",
     // Safety Features
     hillStartAssist: false,
     laneAssist: false,
@@ -506,10 +504,10 @@ const ListingDetails = () => {
 
     // Van Specific
     loadingFeatures: [],
-    refrigeration: '',
-    temperatureRange: '',
-    interiorHeight: '',
-    seatingConfiguration: '',
+    refrigeration: "",
+    temperatureRange: "",
+    interiorHeight: "",
+    seatingConfiguration: "",
     // Safety
     frontAirbags: false,
     sideAirbags: false,
@@ -555,20 +553,20 @@ const ListingDetails = () => {
 
     // Tractor Specific
     engineSpecs: [],
-    engineManufacturer: '',
-    engineModel: '',
-    displacement: '',
-    cylinders: '',
-    hydraulicSystem: '',
+    engineManufacturer: "",
+    engineModel: "",
+    displacement: "",
+    cylinders: "",
+    hydraulicSystem: "",
     hydraulicFlow: 0,
     hydraulicOutlets: [],
     ptoSystem: [],
     frontAttachments: [],
     rearAttachments: [],
-    threePointHitch: '',
+    threePointHitch: "",
     hitchCapacity: 0,
-    modifications: '',
-    electricalSystem: '',
+    modifications: "",
+    electricalSystem: "",
     // Cab Features
     airSuspension: false,
     soundproofing: false,
@@ -599,46 +597,46 @@ const ListingDetails = () => {
 
     // Apartment Specific
     buildingAmenities: [],
-    energyRating: '',
-    furnished: '',
-    petPolicy: '',
-    view: '',
+    energyRating: "",
+    furnished: "",
+    petPolicy: "",
+    view: "",
     securityFeatures: [],
     fireSafety: [],
-    flooringType: '',
+    flooringType: "",
     internetIncluded: false,
     kitchenFeatures: [],
     bathroomFeatures: [],
-    renovationHistory: '',
+    renovationHistory: "",
     nearbyAmenities: [],
     leaseTerms: [],
 
     // House Specific
     energyFeatures: [],
-    basement: '',
+    basement: "",
     basementFeatures: [],
-    attic: '',
+    attic: "",
     flooringTypes: [],
     windowFeatures: [],
     roofAge: 0,
     exteriorFeatures: [],
     outdoorFeatures: [],
     landscaping: [],
-    waterSystem: '',
-    sewerSystem: '',
+    waterSystem: "",
+    sewerSystem: "",
     smartHomeFeatures: [],
     communityFeatures: [],
     hoaFee: 0,
-    hoaFeeFrequency: '',
+    hoaFeeFrequency: "",
 
     // Land Specific
     naturalFeatures: [],
-    buildable: '',
+    buildable: "",
     buildingRestrictions: [],
     permitsInPlace: [],
     environmentalFeatures: [],
     soilTypes: [],
-    floodZone: '',
+    floodZone: "",
     mineralRights: [],
     waterRights: [],
     easements: [],
@@ -647,40 +645,40 @@ const ListingDetails = () => {
     improvements: [],
     documentsAvailable: [],
     previousUse: [],
-    propertyHistory: '',
+    propertyHistory: "",
 
     // Additional Vehicle Details
-    bodyStyle: '',
-    driveType: '',
-    engineNumber: '',
+    bodyStyle: "",
+    driveType: "",
+    engineNumber: "",
     accidentFree: false,
-    importStatus: '',
-    registrationExpiry: '',
-    warranty: '',
-    roofType: '',
+    importStatus: "",
+    registrationExpiry: "",
+    warranty: "",
+    roofType: "",
     customsCleared: false,
-    warrantyPeriod: '',
-    serviceHistoryDetails: '',
-    additionalNotes: '',
-    navigationSystem: '',
-    seatBelts: '',
+    warrantyPeriod: "",
+    serviceHistoryDetails: "",
+    additionalNotes: "",
+    navigationSystem: "",
+    seatBelts: "",
     communicationSystem: [],
     comfortFeatures: [],
     accessibilityFeatures: [],
     luggageCompartments: 0,
     luggageRacks: false,
     fuelTankCapacity: 0,
-    emissionStandard: '',
-    engineTorque: '',
+    emissionStandard: "",
+    engineTorque: "",
     suspension: [],
     wheelchairAccessible: false,
     wheelchairLift: false,
-    seatType: '',
-    seatMaterial: '',
+    seatType: "",
+    seatMaterial: "",
     emergencyExits: 0,
     certifications: [],
-    lastInspectionDate: '',
-    engine: ''
+    lastInspectionDate: "",
+    engine: "",
   });
 
   useEffect(() => {
@@ -697,18 +695,18 @@ const ListingDetails = () => {
         // Log the full response data for debugging advanced details
         console.log(
           "Response data details:",
-          JSON.stringify(response.data?.details, null, 2)
+          JSON.stringify(response.data?.details, null, 2),
         );
         console.log(
           "FULL Response Data:",
-          JSON.stringify(response.data, null, 2)
+          JSON.stringify(response.data, null, 2),
         );
 
         // Log specific vehicle details for debugging
         if (response.data?.details?.vehicles) {
           console.log(
             "Vehicle details (raw):",
-            JSON.stringify(response.data.details.vehicles, null, 2)
+            JSON.stringify(response.data.details.vehicles, null, 2),
           );
 
           // Log each individual field for debugging
@@ -718,9 +716,24 @@ const ListingDetails = () => {
           // Check specific fields that might be missing
           console.log("Checking specific fields:");
           console.log("- make:", vehicles.make);
-          console.log("- model:", t("model", { ns: "listings" }), ":", vehicles.model);
-          console.log("- year:", t("year", { ns: "listings" }), ":", vehicles.year);
-          console.log("- mileage:", t("mileage", { ns: "listings" }), ":", vehicles.mileage);
+          console.log(
+            "- model:",
+            t("model", { ns: "listings" }),
+            ":",
+            vehicles.model,
+          );
+          console.log(
+            "- year:",
+            t("year", { ns: "listings" }),
+            ":",
+            vehicles.year,
+          );
+          console.log(
+            "- mileage:",
+            t("mileage", { ns: "listings" }),
+            ":",
+            vehicles.mileage,
+          );
           console.log("- color:", vehicles.color);
           console.log("- condition:", vehicles.condition);
           console.log("- features:", vehicles.features);
@@ -774,13 +787,13 @@ const ListingDetails = () => {
         // Log all the details to debug what's available
         console.log(
           "Details before transformation:",
-          JSON.stringify(details, null, 2)
+          JSON.stringify(details, null, 2),
         );
         console.log(
           "Vehicle details before:",
           details.vehicles
             ? JSON.stringify(details.vehicles, null, 2)
-            : "No vehicle details"
+            : "No vehicle details",
         );
 
         // Transform vehicle details if present
@@ -790,96 +803,171 @@ const ListingDetails = () => {
 
         // Transform the features array into a boolean object
 
-
         const transformedDetails = {
           vehicles:
             isVehicleListing && details.vehicles
               ? ({
                   // Common vehicle fields
                   ...details.vehicles, // Spread all existing vehicle details first
-                  
+
                   // Ensure required fields have defaults
                   vehicleType: details.vehicles.vehicleType,
                   make: details.vehicles.make || "",
                   model: details.vehicles.model || "",
                   year: details.vehicles.year || "",
-                  mileage: typeof details.vehicles.mileage === 'number' ? details.vehicles.mileage : 
-                          (typeof details.vehicles.mileage === 'string' ? parseInt(details.vehicles.mileage) || 0 : 0),
+                  mileage:
+                    typeof details.vehicles.mileage === "number"
+                      ? details.vehicles.mileage
+                      : typeof details.vehicles.mileage === "string"
+                        ? parseInt(details.vehicles.mileage) || 0
+                        : 0,
                   fuelType: details.vehicles.fuelType || "",
-                  transmissionType: details.vehicles.transmissionType || details.vehicles.transmission || "",
+                  transmissionType:
+                    details.vehicles.transmissionType ||
+                    details.vehicles.transmission ||
+                    "",
                   color: details.vehicles.color || "",
                   interiorColor: details.vehicles.interiorColor || "",
-                  condition: details.vehicles.condition || 'good',
-                  features: Array.isArray(details.vehicles.features) ? details.vehicles.features : [],
-                  
+                  condition: details.vehicles.condition || "good",
+                  features: Array.isArray(details.vehicles.features)
+                    ? details.vehicles.features
+                    : [],
+
                   // Engine and performance with type safety
                   engine: details.vehicles.engine || "",
                   engineType: details.vehicles.engineType || "",
                   engineSize: details.vehicles.engineSize || "",
-                  enginePower: typeof details.vehicles.enginePower === 'number' ? details.vehicles.enginePower : 0,
-                  torque: typeof details.vehicles.torque === 'number' ? details.vehicles.torque : 0,
-                  horsepower: typeof details.vehicles.horsepower === 'number' ? details.vehicles.horsepower : 0,
+                  enginePower:
+                    typeof details.vehicles.enginePower === "number"
+                      ? details.vehicles.enginePower
+                      : 0,
+                  torque:
+                    typeof details.vehicles.torque === "number"
+                      ? details.vehicles.torque
+                      : 0,
+                  horsepower:
+                    typeof details.vehicles.horsepower === "number"
+                      ? details.vehicles.horsepower
+                      : 0,
                   emissions: details.vehicles.emissions || "",
-                  
+
                   // Vehicle details with proper boolean handling
                   warranty: Boolean(details.vehicles.warranty),
                   warrantyPeriod: details.vehicles.warrantyPeriod || "",
                   serviceHistory: Boolean(details.vehicles.serviceHistory),
-                  serviceHistoryDetails: details.vehicles.serviceHistoryDetails || "",
-                  previousOwners: typeof details.vehicles.previousOwners === 'number' ? details.vehicles.previousOwners : 0,
-                  registrationStatus: details.vehicles.registrationStatus || 'unregistered',
+                  serviceHistoryDetails:
+                    details.vehicles.serviceHistoryDetails || "",
+                  previousOwners:
+                    typeof details.vehicles.previousOwners === "number"
+                      ? details.vehicles.previousOwners
+                      : 0,
+                  registrationStatus:
+                    details.vehicles.registrationStatus || "unregistered",
                   accidentFree: Boolean(details.vehicles.accidentFree),
                   customsCleared: Boolean(details.vehicles.customsCleared),
-                  
+
                   // Vehicle type specific with proper type checking
                   bodyType: details.vehicles.bodyType || "",
                   roofType: details.vehicles.roofType || "",
                   busType: details.vehicles.busType || "",
-                  seatingCapacity: typeof details.vehicles.seatingCapacity === 'number' ? details.vehicles.seatingCapacity : 0,
+                  seatingCapacity:
+                    typeof details.vehicles.seatingCapacity === "number"
+                      ? details.vehicles.seatingCapacity
+                      : 0,
                   truckType: details.vehicles.truckType || "",
                   cabType: details.vehicles.cabType || "",
                   vanType: details.vehicles.vanType || "",
-                  hours: typeof details.vehicles.hours === 'number' ? details.vehicles.hours : 0,
+                  hours:
+                    typeof details.vehicles.hours === "number"
+                      ? details.vehicles.hours
+                      : 0,
                   equipmentType: details.vehicles.equipmentType || "",
-                  
+
                   // Dimensions and capacity with number validation
-                  operatingWeight: typeof details.vehicles.operatingWeight === 'number' ? details.vehicles.operatingWeight : 0,
-                  payloadCapacity: typeof details.vehicles.payloadCapacity === 'number' ? details.vehicles.payloadCapacity : 0,
-                  cargoVolume: typeof details.vehicles.cargoVolume === 'number' ? details.vehicles.cargoVolume : 0,
-                  maxLiftingCapacity: typeof details.vehicles.maxLiftingCapacity === 'number' ? details.vehicles.maxLiftingCapacity : 0,
+                  operatingWeight:
+                    typeof details.vehicles.operatingWeight === "number"
+                      ? details.vehicles.operatingWeight
+                      : 0,
+                  payloadCapacity:
+                    typeof details.vehicles.payloadCapacity === "number"
+                      ? details.vehicles.payloadCapacity
+                      : 0,
+                  cargoVolume:
+                    typeof details.vehicles.cargoVolume === "number"
+                      ? details.vehicles.cargoVolume
+                      : 0,
+                  maxLiftingCapacity:
+                    typeof details.vehicles.maxLiftingCapacity === "number"
+                      ? details.vehicles.maxLiftingCapacity
+                      : 0,
                   roofHeight: details.vehicles.roofHeight || "",
                   interiorLength: details.vehicles.interiorLength || "",
-                  
+
                   // Property specific with proper type checking
-                  livingArea: typeof details.vehicles.livingArea === 'number' ? details.vehicles.livingArea : 0,
-                  halfBathrooms: typeof details.vehicles.halfBathrooms === 'number' ? details.vehicles.halfBathrooms : 0,
-                  stories: typeof details.vehicles.stories === 'number' ? details.vehicles.stories : 0,
+                  livingArea:
+                    typeof details.vehicles.livingArea === "number"
+                      ? details.vehicles.livingArea
+                      : 0,
+                  halfBathrooms:
+                    typeof details.vehicles.halfBathrooms === "number"
+                      ? details.vehicles.halfBathrooms
+                      : 0,
+                  stories:
+                    typeof details.vehicles.stories === "number"
+                      ? details.vehicles.stories
+                      : 0,
                   parking: details.vehicles.parking || "",
-                  parkingSpaces: typeof details.vehicles.parkingSpaces === 'number' ? details.vehicles.parkingSpaces : 0,
-                  floor: typeof details.vehicles.floor === 'number' ? details.vehicles.floor : 0,
-                  totalFloors: typeof details.vehicles.totalFloors === 'number' ? details.vehicles.totalFloors : 0,
+                  parkingSpaces:
+                    typeof details.vehicles.parkingSpaces === "number"
+                      ? details.vehicles.parkingSpaces
+                      : 0,
+                  floor:
+                    typeof details.vehicles.floor === "number"
+                      ? details.vehicles.floor
+                      : 0,
+                  totalFloors:
+                    typeof details.vehicles.totalFloors === "number"
+                      ? details.vehicles.totalFloors
+                      : 0,
                   elevator: Boolean(details.vehicles.elevator),
                   balcony: Boolean(details.vehicles.balcony),
                   storage: Boolean(details.vehicles.storage),
-                  heating: Array.isArray(details.vehicles.heating) ? details.vehicles.heating : [],
-                  cooling: Array.isArray(details.vehicles.cooling) ? details.vehicles.cooling : [],
+                  heating: Array.isArray(details.vehicles.heating)
+                    ? details.vehicles.heating
+                    : [],
+                  cooling: Array.isArray(details.vehicles.cooling)
+                    ? details.vehicles.cooling
+                    : [],
                   foundation: details.vehicles.foundation || "",
                   windowType: details.vehicles.windowType || "",
-                  
+
                   // Land specific with array type checking
                   zoning: details.vehicles.zoning || "",
-                  utilities: Array.isArray(details.vehicles.utilities) ? details.vehicles.utilities : [],
+                  utilities: Array.isArray(details.vehicles.utilities)
+                    ? details.vehicles.utilities
+                    : [],
                   accessRoad: details.vehicles.accessRoad || "",
                   parcelNumber: details.vehicles.parcelNumber || "",
-                  topography: Array.isArray(details.vehicles.topography) ? details.vehicles.topography : [],
-                  elevation: typeof details.vehicles.elevation === 'number' ? details.vehicles.elevation : 0,
-                  waterFeatures: Array.isArray(details.vehicles.waterFeatures) ? details.vehicles.waterFeatures : [],
-                  boundaryFeatures: Array.isArray(details.vehicles.boundaryFeatures) ? details.vehicles.boundaryFeatures : [],
-                  
+                  topography: Array.isArray(details.vehicles.topography)
+                    ? details.vehicles.topography
+                    : [],
+                  elevation:
+                    typeof details.vehicles.elevation === "number"
+                      ? details.vehicles.elevation
+                      : 0,
+                  waterFeatures: Array.isArray(details.vehicles.waterFeatures)
+                    ? details.vehicles.waterFeatures
+                    : [],
+                  boundaryFeatures: Array.isArray(
+                    details.vehicles.boundaryFeatures,
+                  )
+                    ? details.vehicles.boundaryFeatures
+                    : [],
+
                   // Additional details
                   additionalNotes: details.vehicles.additionalNotes || "",
                   maintenanceHistory: details.vehicles.maintenanceHistory || "",
-                  
+
                   // Individual feature fields with boolean conversion
                   frontAirbags: Boolean(details.vehicles.frontAirbags),
                   sideAirbags: Boolean(details.vehicles.sideAirbags),
@@ -888,25 +976,25 @@ const ListingDetails = () => {
 
                   cruiseControl: Boolean(details.vehicles.cruiseControl),
                   laneDepartureWarning: Boolean(
-                    details.vehicles.laneDepartureWarning
+                    details.vehicles.laneDepartureWarning,
                   ),
                   laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
                   automaticEmergencyBraking: Boolean(
-                    details.vehicles.automaticEmergencyBraking
+                    details.vehicles.automaticEmergencyBraking,
                   ),
 
                   blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
                   laneAssist: Boolean(details.vehicles.laneAssist),
                   adaptiveCruiseControl: Boolean(
-                    details.vehicles.adaptiveCruiseControl
+                    details.vehicles.adaptiveCruiseControl,
                   ),
                   tractionControl: Boolean(details.vehicles.tractionControl),
                   abs: Boolean(details.vehicles.abs),
                   emergencyBrakeAssist: Boolean(
-                    details.vehicles.emergencyBrakeAssist
+                    details.vehicles.emergencyBrakeAssist,
                   ),
                   tirePressureMonitoring: Boolean(
-                    details.vehicles.tirePressureMonitoring
+                    details.vehicles.tirePressureMonitoring,
                   ),
 
                   rearCamera: Boolean(details.vehicles.rearCamera),
@@ -931,17 +1019,17 @@ const ListingDetails = () => {
                   cdPlayer: Boolean(details.vehicles.cdPlayer),
                   dvdPlayer: Boolean(details.vehicles.dvdPlayer),
                   rearSeatEntertainment: Boolean(
-                    details.vehicles.rearSeatEntertainment
+                    details.vehicles.rearSeatEntertainment,
                   ),
 
                   ledHeadlights: Boolean(details.vehicles.ledHeadlights),
                   adaptiveHeadlights: Boolean(
-                    details.vehicles.adaptiveHeadlights
+                    details.vehicles.adaptiveHeadlights,
                   ),
                   ambientLighting: Boolean(details.vehicles.ambientLighting),
                   fogLights: Boolean(details.vehicles.fogLights),
                   automaticHighBeams: Boolean(
-                    details.vehicles.automaticHighBeams
+                    details.vehicles.automaticHighBeams,
                   ),
 
                   keylessEntry: Boolean(details.vehicles.keylessEntry),
@@ -950,44 +1038,77 @@ const ListingDetails = () => {
                   remoteStart: Boolean(details.vehicles.remoteStart),
                   powerTailgate: Boolean(details.vehicles.powerTailgate),
                   autoDimmingMirrors: Boolean(
-                    details.vehicles.autoDimmingMirrors
+                    details.vehicles.autoDimmingMirrors,
                   ),
                   rainSensingWipers: Boolean(
-                    details.vehicles.rainSensingWipers
+                    details.vehicles.rainSensingWipers,
                   ),
 
                   // Engine & Performance - Removing duplicate keys that are already defined above
-                  powerOutput: details.vehicles.powerOutput !== undefined ? details.vehicles.powerOutput : null,
+                  powerOutput:
+                    details.vehicles.powerOutput !== undefined
+                      ? details.vehicles.powerOutput
+                      : null,
                   fuelSystem: details.vehicles.fuelSystem || "",
                   coolingSystem: details.vehicles.coolingSystem || "",
-                  
+
                   // Chassis & Suspension
                   frameType: details.vehicles.frameType || "",
-                  frontSuspension: Array.isArray(details.vehicles.frontSuspension) ? details.vehicles.frontSuspension : [],
-                  rearSuspension: Array.isArray(details.vehicles.rearSuspension) ? details.vehicles.rearSuspension : [],
-                  brakeSystem: Array.isArray(details.vehicles.brakeSystem) ? details.vehicles.brakeSystem : [],
+                  frontSuspension: Array.isArray(
+                    details.vehicles.frontSuspension,
+                  )
+                    ? details.vehicles.frontSuspension
+                    : [],
+                  rearSuspension: Array.isArray(details.vehicles.rearSuspension)
+                    ? details.vehicles.rearSuspension
+                    : [],
+                  brakeSystem: Array.isArray(details.vehicles.brakeSystem)
+                    ? details.vehicles.brakeSystem
+                    : [],
                   brakeType: details.vehicles.brakeType || "",
                   driveType: details.vehicles.driveType || "",
                   wheelSize: details.vehicles.wheelSize || "",
                   wheelType: details.vehicles.wheelType || "",
-                  
+
                   // Starting & Electronics
-                  startType: Array.isArray(details.vehicles.startType) ? details.vehicles.startType : [],
-                  riderAids: Array.isArray(details.vehicles.riderAids) ? details.vehicles.riderAids : [],
-                  electronics: Array.isArray(details.vehicles.electronics) ? details.vehicles.electronics : [],
-                  lighting: Array.isArray(details.vehicles.lighting) ? details.vehicles.lighting : [],
-                  
+                  startType: Array.isArray(details.vehicles.startType)
+                    ? details.vehicles.startType
+                    : [],
+                  riderAids: Array.isArray(details.vehicles.riderAids)
+                    ? details.vehicles.riderAids
+                    : [],
+                  electronics: Array.isArray(details.vehicles.electronics)
+                    ? details.vehicles.electronics
+                    : [],
+                  lighting: Array.isArray(details.vehicles.lighting)
+                    ? details.vehicles.lighting
+                    : [],
+
                   // Comfort & Ergonomics
-                  seatType: Array.isArray(details.vehicles.seatType) ? details.vehicles.seatType : [],
+                  seatType: Array.isArray(details.vehicles.seatType)
+                    ? details.vehicles.seatType
+                    : [],
                   seatHeight: details.vehicles.seatHeight || 0,
                   handlebarType: details.vehicles.handlebarType || "",
-                  comfortFeatures: Array.isArray(details.vehicles.comfortFeatures) ? details.vehicles.comfortFeatures : [],
-                  
+                  comfortFeatures: Array.isArray(
+                    details.vehicles.comfortFeatures,
+                  )
+                    ? details.vehicles.comfortFeatures
+                    : [],
+
                   // Storage & Accessories
-                  storageOptions: Array.isArray(details.vehicles.storageOptions) ? details.vehicles.storageOptions : [],
-                  protectiveEquipment: Array.isArray(details.vehicles.protectiveEquipment) ? details.vehicles.protectiveEquipment : [],
-                  customParts: Array.isArray(details.vehicles.customParts) ? details.vehicles.customParts : [],
-                  
+                  storageOptions: Array.isArray(details.vehicles.storageOptions)
+                    ? details.vehicles.storageOptions
+                    : [],
+                  protectiveEquipment: Array.isArray(
+                    details.vehicles.protectiveEquipment,
+                  )
+                    ? details.vehicles.protectiveEquipment
+                    : [],
+                  customParts: Array.isArray(details.vehicles.customParts)
+                    ? details.vehicles.customParts
+                    : [],
+
                   // Documentation & History
                   modifications: details.vehicles.modifications || "",
                   importStatus: details.vehicles.importStatus || "",
@@ -1026,7 +1147,7 @@ const ListingDetails = () => {
         }
 
         // Only set vehicle features if this is a vehicle listing and vehicleDetails exists
-        setFeatures(prevFeatures => {
+        setFeatures((prevFeatures) => {
           if (!isVehicleListing || !vehicleDetails) {
             return {
               ...prevFeatures,
@@ -1044,97 +1165,108 @@ const ListingDetails = () => {
               waterFeatures: [],
               boundaryFeatures: [],
               heating: [],
-              cooling: []
+              cooling: [],
             };
           }
 
           // Helper function to filter features based on vehicle details
-          const getFeatures = (featureList: string[]) => 
-            featureList.filter(feature => 
+          const getFeatures = (featureList: string[]) =>
+            featureList.filter((feature) =>
               Object.entries(vehicleDetails).some(
-                ([key, value]) => key === feature && value
-              )
+                ([key, value]) => key === feature && value,
+              ),
             );
-          
+
           return {
             ...prevFeatures,
             // Feature groups
             safetyFeatures: getFeatures(featuresDetails.safetyFeatures),
             cameraFeatures: getFeatures(featuresDetails.cameraFeatures),
             climateFeatures: getFeatures(featuresDetails.climateFeatures),
-            entertainmentFeatures: getFeatures(featuresDetails.entertainmentFeatures || []),
+            entertainmentFeatures: getFeatures(
+              featuresDetails.entertainmentFeatures || [],
+            ),
             lightingFeatures: getFeatures(featuresDetails.lightingFeatures),
-            convenienceFeatures: getFeatures(featuresDetails.convenienceFeatures),
-            
+            convenienceFeatures: getFeatures(
+              featuresDetails.convenienceFeatures,
+            ),
+
             // Vehicle specific features
-            color: vehicleDetails.color || '',
-            interiorColor: vehicleDetails.interiorColor || '',
-            condition: vehicleDetails.condition || '',
-            transmissionType: vehicleDetails.transmissionType || '',
+            color: vehicleDetails.color || "",
+            interiorColor: vehicleDetails.interiorColor || "",
+            condition: vehicleDetails.condition || "",
+            transmissionType: vehicleDetails.transmissionType || "",
             mileage: vehicleDetails.mileage || 0,
-            fuelType: vehicleDetails.fuelType || '',
+            fuelType: vehicleDetails.fuelType || "",
             previousOwners: vehicleDetails.previousOwners || 0,
-            registrationStatus: vehicleDetails.registrationStatus || '',
-            serviceHistory: vehicleDetails.serviceHistory || '',
-            vin: vehicleDetails.vin || '',
-            engineType: vehicleDetails.engineType || '',
-            engineSize: vehicleDetails.engineSize || '',
+            registrationStatus: vehicleDetails.registrationStatus || "",
+            serviceHistory: vehicleDetails.serviceHistory || "",
+            vin: vehicleDetails.vin || "",
+            engineType: vehicleDetails.engineType || "",
+            engineSize: vehicleDetails.engineSize || "",
             enginePower: vehicleDetails.enginePower || 0,
             torque: vehicleDetails.torque || 0,
             horsepower: vehicleDetails.horsepower || 0,
-            driveSystem: vehicleDetails.driveSystem || '',
-            emissions: vehicleDetails.emissions || '',
+            driveSystem: vehicleDetails.driveSystem || "",
+            emissions: vehicleDetails.emissions || "",
             operatingWeight: vehicleDetails.operatingWeight || 0,
             payloadCapacity: vehicleDetails.payloadCapacity || 0,
             cargoVolume: vehicleDetails.cargoVolume || 0,
-            roofHeight: vehicleDetails.roofHeight || '',
-            interiorLength: vehicleDetails.interiorLength || '',
-            equipmentType: vehicleDetails.equipmentType || '',
+            roofHeight: vehicleDetails.roofHeight || "",
+            interiorLength: vehicleDetails.interiorLength || "",
+            equipmentType: vehicleDetails.equipmentType || "",
             maxLiftingCapacity: vehicleDetails.maxLiftingCapacity || 0,
-            maintenanceHistory: vehicleDetails.maintenanceHistory || '',
-            constructionType: vehicleDetails.constructionType || '',
+            maintenanceHistory: vehicleDetails.maintenanceHistory || "",
+            constructionType: vehicleDetails.constructionType || "",
             livingArea: vehicleDetails.livingArea || 0,
             halfBathrooms: vehicleDetails.halfBathrooms || 0,
             stories: vehicleDetails.stories || 0,
-            parking: vehicleDetails.parking || '',
+            parking: vehicleDetails.parking || "",
             parkingSpaces: vehicleDetails.parkingSpaces || 0,
             floor: vehicleDetails.floor || 0,
             totalFloors: vehicleDetails.totalFloors || 0,
             elevator: Boolean(vehicleDetails.elevator),
             balcony: Boolean(vehicleDetails.balcony),
             storage: Boolean(vehicleDetails.storage),
-            foundation: vehicleDetails.foundation || '',
-            windowType: vehicleDetails.windowType || '',
-            zoning: vehicleDetails.zoning || '',
-            accessRoad: vehicleDetails.accessRoad || '',
-            parcelNumber: vehicleDetails.parcelNumber || '',
+            foundation: vehicleDetails.foundation || "",
+            windowType: vehicleDetails.windowType || "",
+            zoning: vehicleDetails.zoning || "",
+            accessRoad: vehicleDetails.accessRoad || "",
+            parcelNumber: vehicleDetails.parcelNumber || "",
             elevation: vehicleDetails.elevation || 0,
-            busType: vehicleDetails.busType || '',
+            busType: vehicleDetails.busType || "",
             seatingCapacity: vehicleDetails.seatingCapacity || 0,
-            airConditioning: vehicleDetails.airConditioning || '',
+            airConditioning: vehicleDetails.airConditioning || "",
             luggageSpace: vehicleDetails.luggageSpace || 0,
-            truckType: vehicleDetails.truckType || '',
-            cabType: vehicleDetails.cabType || '',
-            vanType: vehicleDetails.vanType || '',
+            truckType: vehicleDetails.truckType || "",
+            cabType: vehicleDetails.cabType || "",
+            vanType: vehicleDetails.vanType || "",
             hours: vehicleDetails.hours || 0,
             ptoHorsepower: vehicleDetails.ptoHorsepower || 0,
             hydraulicRemotes: vehicleDetails.hydraulicRemotes || 0,
-            
+
             // Array features
-            brakeSystem: Array.isArray(vehicleDetails.brakeSystem) ? 
-              vehicleDetails.brakeSystem : [],
-            utilities: Array.isArray(vehicleDetails.utilities) ? 
-              vehicleDetails.utilities : [],
-            topography: Array.isArray(vehicleDetails.topography) ? 
-              vehicleDetails.topography : [],
-            waterFeatures: Array.isArray(vehicleDetails.waterFeatures) ? 
-              vehicleDetails.waterFeatures : [],
-            boundaryFeatures: Array.isArray(vehicleDetails.boundaryFeatures) ? 
-              vehicleDetails.boundaryFeatures : [],
-            heating: Array.isArray(vehicleDetails.heating) ? 
-              vehicleDetails.heating : [],
-            cooling: Array.isArray(vehicleDetails.cooling) ? 
-              vehicleDetails.cooling : []
+            brakeSystem: Array.isArray(vehicleDetails.brakeSystem)
+              ? vehicleDetails.brakeSystem
+              : [],
+            utilities: Array.isArray(vehicleDetails.utilities)
+              ? vehicleDetails.utilities
+              : [],
+            topography: Array.isArray(vehicleDetails.topography)
+              ? vehicleDetails.topography
+              : [],
+            waterFeatures: Array.isArray(vehicleDetails.waterFeatures)
+              ? vehicleDetails.waterFeatures
+              : [],
+            boundaryFeatures: Array.isArray(vehicleDetails.boundaryFeatures)
+              ? vehicleDetails.boundaryFeatures
+              : [],
+            heating: Array.isArray(vehicleDetails.heating)
+              ? vehicleDetails.heating
+              : [],
+            cooling: Array.isArray(vehicleDetails.cooling)
+              ? vehicleDetails.cooling
+              : [],
           };
         });
 
@@ -1155,7 +1287,7 @@ const ListingDetails = () => {
             id: listing.userId || "",
             username: listing.seller?.username || "Unknown Seller",
             profilePicture: listing.seller?.profilePicture || null,
-            allowMessaging: listing.seller?.allowMessaging || true,
+            allowMessaging: listing.seller?.allowMessaging ? true : false,
             privateProfile: listing.seller?.privateProfile || false,
           },
         });
@@ -1344,7 +1476,7 @@ const ListingDetails = () => {
               {!isOwner && !showContactForm && (
                 <button
                   onClick={handleContactSeller}
-                  className={` flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow ${listing?.seller.allowMessaging === false && "pointer-events-none opacity-50"}}`}
+                  className={` flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow  ${listing?.seller.allowMessaging === false && "pointer-events-none opacity-50 cursor-not-allowed "}}`}
                   style={{ minWidth: 0 }}
                   title={t("contactSeller") as string}
                 >
@@ -1429,36 +1561,51 @@ const ListingDetails = () => {
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {(() => {
-                        const normalizedLocation = normalizeLocation(listing.location);
+                        const normalizedLocation = normalizeLocation(
+                          listing.location,
+                        );
                         const locationText = normalizedLocation
                           ? t(`cities.${normalizedLocation}`, {
-                              ns: 'locations',
+                              ns: "locations",
                               defaultValue: listing.location,
                             })
                           : listing.location;
 
-                        const allCities = t('cities', { returnObjects: true, ns: 'locations' }) || {};
+                        const allCities =
+                          t("cities", {
+                            returnObjects: true,
+                            ns: "locations",
+                          }) || {};
                         const cityKeys = Object.keys(allCities);
 
                         // Debug logging
-                        if (process.env.NODE_ENV === 'development') {
-                          console.group('ListingDetails - Location Translation Debug');
-                          console.log('Current language:', i18n.language);
-                          console.log('Raw location:', listing.location);
-                          console.log('Normalized location:', normalizedLocation);
-                          console.log('Available city keys:', cityKeys);
-                          console.log('Translation result:', locationText);
-                          console.log('Using default value?', !normalizedLocation || !cityKeys.includes(normalizedLocation));
+                        if (process.env.NODE_ENV === "development") {
+                          console.group(
+                            "ListingDetails - Location Translation Debug",
+                          );
+                          console.log("Current language:", i18n.language);
+                          console.log("Raw location:", listing.location);
+                          console.log(
+                            "Normalized location:",
+                            normalizedLocation,
+                          );
+                          console.log("Available city keys:", cityKeys);
+                          console.log("Translation result:", locationText);
+                          console.log(
+                            "Using default value?",
+                            !normalizedLocation ||
+                              !cityKeys.includes(normalizedLocation),
+                          );
                           console.groupEnd();
                         }
 
                         // Create Google Maps search URL with language support
                         const currentLang = i18n.language;
-                        const isRTL = currentLang === 'ar';
-                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}&hl=${currentLang}${isRTL ? '&gl=SA' : ''}`;
-                        
+                        const isRTL = currentLang === "ar";
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}&hl=${currentLang}${isRTL ? "&gl=SA" : ""}`;
+
                         return (
-                          <a 
+                          <a
                             href={mapsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -1468,18 +1615,18 @@ const ListingDetails = () => {
                             }}
                           >
                             {locationText}
-                            <svg 
-                              className="w-4 h-4 ml-1 inline-block" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24" 
+                            <svg
+                              className="w-4 h-4 ml-1 inline-block"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
                               xmlns="http://www.w3.org/2000/svg"
                             >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                               />
                             </svg>
                           </a>
@@ -1494,11 +1641,11 @@ const ListingDetails = () => {
                   {t("listingAction")}
                 </p>
                 <p className="font-medium text-gray-900 dark:text-white capitalize">
-                  {listing.listingAction === 'SALE' 
+                  {listing.listingAction === "SALE"
                     ? t("common.forSale")
-                    : listing.listingAction === 'RENT' 
+                    : listing.listingAction === "RENT"
                       ? t("common.forRent")
-                      : ''}
+                      : ""}
                 </p>
               </div>
             </div>
@@ -1528,7 +1675,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.make && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.make')}
+                            {t("fields.make")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.make}
@@ -1538,7 +1685,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.model && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.model')}
+                            {t("fields.model")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.model}
@@ -1548,7 +1695,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.year && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('listings.fields.year')}
+                            {t("listings.fields.year")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.year}
@@ -1561,7 +1708,7 @@ const ListingDetails = () => {
                             {t("fields.mileage")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.mileage.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : undefined)} ${i18n.language === 'ar' ? 'كم' : 'km'}`}
+                            {`${listing.details.vehicles.mileage.toLocaleString(i18n.language === "ar" ? "ar-EG" : undefined)} ${i18n.language === "ar" ? "كم" : "km"}`}
                           </p>
                         </div>
                       )}
@@ -1572,7 +1719,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`
+                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
                             )}
                           </p>
                         </div>
@@ -1581,7 +1728,7 @@ const ListingDetails = () => {
                         listing?.details?.vehicles?.transmission) && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('listings.fields.transmission')}
+                            {t("listings.fields.transmission")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
@@ -1648,7 +1795,7 @@ const ListingDetails = () => {
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {t(
-                              `fields.conditions.${listing?.details?.vehicles?.condition}`
+                              `fields.conditions.${listing?.details?.vehicles?.condition}`,
                             )}
                           </p>
                         </div>
@@ -1665,11 +1812,12 @@ const ListingDetails = () => {
                   (listing?.details?.vehicles as any)?.accidentFree !==
                     undefined ||
                   listing?.details?.vehicles?.warranty ||
-                  (listing?.details?.vehicles?.registrationStatus !== undefined && 
-                   listing?.details?.vehicles?.registrationStatus !== '')) && (
+                  (listing?.details?.vehicles?.registrationStatus !==
+                    undefined &&
+                    listing?.details?.vehicles?.registrationStatus !== "")) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t('sections.vehicleHistory')}
+                      {t("sections.vehicleHistory")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Vehicle Owner */}
@@ -1677,7 +1825,7 @@ const ListingDetails = () => {
                         listing?.details?.vehicles?.previousOwners) && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.vehicleOwners')}
+                            {t("fields.vehicleOwners")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.numberOfOwners ||
@@ -1690,12 +1838,15 @@ const ListingDetails = () => {
                         undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.serviceHistory')}
+                            {t("fields.serviceHistory")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)?.serviceHistory
-                              ? <CheckCircle className="w-5 h-5 text-green-500" />
-                              : <XCircle className="w-5 h-5 text-red-500" />}
+                            {(listing?.details?.vehicles as any)
+                              ?.serviceHistory ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
@@ -1704,12 +1855,15 @@ const ListingDetails = () => {
                         undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.accidentFree')}
+                            {t("fields.accidentFree")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)?.accidentFree
-                              ? <CheckCircle className="w-5 h-5 text-green-500" />
-                              : <XCircle className="w-5 h-5 text-red-500" />}
+                            {(listing?.details?.vehicles as any)
+                              ?.accidentFree ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
@@ -1717,28 +1871,37 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.warranty && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.warranty')}
+                            {t("fields.warranty")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.warranty === 'yes' 
-                              ? <CheckCircle className="w-5 h-5 text-green-500" />
-                              : <XCircle className="w-5 h-5 text-red-500" />}
+                            {listing.details.vehicles.warranty === "yes" ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
                       {/* Registration Status */}
-                      {listing?.details?.vehicles?.registrationStatus && listing?.details?.vehicles?.registrationStatus !== '' && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.registrationStatus')}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(`fields.registrationStatuses.${listing?.details?.vehicles?.registrationStatus}`, {
-                              defaultValue: listing?.details?.vehicles?.registrationStatus
-                            })}
-                          </p>
-                        </div>
-                      )}
+                      {listing?.details?.vehicles?.registrationStatus &&
+                        listing?.details?.vehicles?.registrationStatus !==
+                          "" && (
+                          <div className="space-y-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {t("fields.registrationStatus")}
+                            </p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {t(
+                                `fields.registrationStatuses.${listing?.details?.vehicles?.registrationStatus}`,
+                                {
+                                  defaultValue:
+                                    listing?.details?.vehicles
+                                      ?.registrationStatus,
+                                },
+                              )}
+                            </p>
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1758,13 +1921,16 @@ const ListingDetails = () => {
                   listing?.details?.vehicles?.roofType) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t('additionalDetails', { ns: 'listings', defaultValue: 'Additional Details' })}
+                      {t("additionalDetails", {
+                        ns: "listings",
+                        defaultValue: "Additional Details",
+                      })}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {listing?.details?.vehicles?.vin && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.vin')}
+                            {t("fields.vin")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.vin}
@@ -1774,7 +1940,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.engineNumber && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.engineNumber')}
+                            {t("fields.engineNumber")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing?.details?.vehicles?.engineNumber}
@@ -1784,12 +1950,17 @@ const ListingDetails = () => {
                       {(listing?.details?.vehicles as any)?.importStatus && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.importStatus')}
+                            {t("fields.importStatus")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {t(`importStatuses.${(listing?.details?.vehicles as any)?.importStatus?.toLowerCase()}`, { 
-                              defaultValue: (listing?.details?.vehicles as any)?.importStatus 
-                            })}
+                            {t(
+                              `importStatuses.${(listing?.details?.vehicles as any)?.importStatus?.toLowerCase()}`,
+                              {
+                                defaultValue: (
+                                  listing?.details?.vehicles as any
+                                )?.importStatus,
+                              },
+                            )}
                           </p>
                         </div>
                       )}
@@ -1797,13 +1968,13 @@ const ListingDetails = () => {
                         ?.registrationExpiry && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.registrationExpiry')}
+                            {t("fields.registrationExpiry")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {new Date(
                               (
                                 listing?.details?.vehicles as any
-                              ).registrationExpiry
+                              ).registrationExpiry,
                             ).toLocaleDateString()}
                           </p>
                         </div>
@@ -1811,7 +1982,7 @@ const ListingDetails = () => {
                       {(listing?.details?.vehicles as any)?.insuranceType && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.insuranceType')}
+                            {t("fields.insuranceType")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {(listing?.details?.vehicles as any)?.insuranceType}
@@ -1821,7 +1992,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.upholsteryMaterial && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.upholsteryMaterial')}
+                            {t("fields.upholsteryMaterial")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing.details.vehicles.upholsteryMaterial}
@@ -1831,7 +2002,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.tireCondition && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.tireCondition')}
+                            {t("fields.tireCondition")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing.details.vehicles.tireCondition}
@@ -1842,36 +2013,38 @@ const ListingDetails = () => {
                         undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.customsCleared')}
+                            {t("fields.customsCleared")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.customsCleared
-                              ? <CheckCircle className="w-5 h-5 text-green-500" />
-                              : <XCircle className="w-5 h-5 text-red-500" />}
+                            {listing.details.vehicles.customsCleared ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.warrantyPeriod && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.warrantyPeriod')}
+                            {t("fields.warrantyPeriod")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.warrantyPeriod} ${t('common:months')}`}
+                            {`${listing.details.vehicles.warrantyPeriod} ${t("common:months")}`}
                           </p>
                         </div>
                       )}
-                      {(listing?.details?.vehicles as any)
-                        ?.serviceHistoryDetails?.trim() && (
+                      {(
+                        listing?.details?.vehicles as any
+                      )?.serviceHistoryDetails?.trim() && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.serviceHistoryDetails')}
+                            {t("fields.serviceHistoryDetails")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {
-                              (listing?.details?.vehicles as any)
-                                ?.serviceHistoryDetails.trim()
-                            }
+                            {(
+                              listing?.details?.vehicles as any
+                            )?.serviceHistoryDetails.trim()}
                           </p>
                         </div>
                       )}
@@ -1879,23 +2052,25 @@ const ListingDetails = () => {
                         // Safely access the vehicle details with proper typing
                         const vehicle = listing?.details?.vehicles;
                         if (!vehicle) return null;
-                        
+
                         // Handle both bodyStyle and bodyType fields with type safety
-                        const bodyValue = (vehicle as any)?.bodyStyle || (vehicle as any)?.bodyType;
+                        const bodyValue =
+                          (vehicle as any)?.bodyStyle ||
+                          (vehicle as any)?.bodyType;
                         if (!bodyValue?.trim()) return null;
-                        
+
                         // Convert to lowercase and replace spaces with underscores for the translation key
-                        const translationKey = `fields.bodyTypes.${bodyValue.toLowerCase().replace(/\s+/g, '')}`;
-                        
+                        const translationKey = `fields.bodyTypes.${bodyValue.toLowerCase().replace(/\s+/g, "")}`;
+
                         return (
                           <div className="space-y-1">
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t('fields.bodyType')}
+                              {t("fields.bodyType")}
                             </p>
                             <p className="font-medium text-gray-900 dark:text-white">
                               {t(translationKey, {
                                 defaultValue: bodyValue,
-                                ns: 'listings'
+                                ns: "listings",
                               })}
                             </p>
                           </div>
@@ -1904,13 +2079,16 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.roofType?.trim() && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.roofType')}
+                            {t("fields.roofType")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {t(`fields.roofTypes.${listing.details.vehicles.roofType.toLowerCase()}`, {
-                              defaultValue: listing.details.vehicles.roofType,
-                              ns: 'listings'
-                            })}
+                            {t(
+                              `fields.roofTypes.${listing.details.vehicles.roofType.toLowerCase()}`,
+                              {
+                                defaultValue: listing.details.vehicles.roofType,
+                                ns: "listings",
+                              },
+                            )}
                           </p>
                         </div>
                       )}
@@ -1936,7 +2114,7 @@ const ListingDetails = () => {
                   listing?.details?.vehicles?.accidentFree) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t('sections.technicalDetails')}
+                      {t("sections.technicalDetails")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {listing?.details?.vehicles?.engine && (
@@ -1952,7 +2130,7 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.engineSize ? (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.engineSize')}
+                            {t("fields.engineSize")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
                             {listing.details.vehicles.engineSize}
@@ -1962,47 +2140,53 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.horsepower ? (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.horsepower')}
+                            {t("fields.horsepower")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.horsepower} {t('fields.hp')}
+                            {listing.details.vehicles.horsepower}{" "}
+                            {t("fields.hp")}
                           </p>
                         </div>
                       ) : null}
                       {listing?.details?.vehicles?.torque ? (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.torque')}
+                            {t("fields.torque")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.torque} {t('fields.nm')}
+                            {listing.details.vehicles.torque} {t("fields.nm")}
                           </p>
                         </div>
                       ) : null}
                       {(() => {
                         const brakeType = listing?.details?.vehicles?.brakeType;
                         // Only show if brakeType exists, is a non-empty string after trimming, and is not 'Not provided'
-                        if (!brakeType || 
-                            typeof brakeType !== 'string' || 
-                            brakeType.trim() === '' ||
-                            brakeType.toLowerCase() === 'not provided') {
+                        if (
+                          !brakeType ||
+                          typeof brakeType !== "string" ||
+                          brakeType.trim() === "" ||
+                          brakeType.toLowerCase() === "not provided"
+                        ) {
                           return null;
                         }
-                        
+
                         // Only show if we have a valid translation for this brake type
-                        const translatedBrakeType = t(`fields.brakeSystemOptions.${brakeType}`, {
-                          ns: 'listings',
-                          defaultValue: ''
-                        });
-                        
+                        const translatedBrakeType = t(
+                          `fields.brakeSystemOptions.${brakeType}`,
+                          {
+                            ns: "listings",
+                            defaultValue: "",
+                          },
+                        );
+
                         if (!translatedBrakeType) {
                           return null;
                         }
-                        
+
                         return (
                           <div className="space-y-1">
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t('brakeType', { ns: 'listings' })}
+                              {t("brakeType", { ns: "listings" })}
                             </p>
                             <p className="font-medium text-gray-900 dark:text-white">
                               {translatedBrakeType}
@@ -2013,35 +2197,44 @@ const ListingDetails = () => {
                       {listing?.details?.vehicles?.driveType?.trim() && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.driveType')}
+                            {t("fields.driveType")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {t(`driveType.${listing.details.vehicles.driveType}`, {
-                              defaultValue: listing.details.vehicles.driveType,
-                              ns: 'listings'
-                            })}
+                            {t(
+                              `driveType.${listing.details.vehicles.driveType}`,
+                              {
+                                defaultValue:
+                                  listing.details.vehicles.driveType,
+                                ns: "listings",
+                              },
+                            )}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.registrationExpiry && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.registrationExpiry')}
+                            {t("fields.registrationExpiry")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {new Date(listing.details.vehicles.registrationExpiry).toLocaleDateString()}
+                            {new Date(
+                              listing.details.vehicles.registrationExpiry,
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                       )}
-                      {listing?.details?.vehicles?.accidentFree !== undefined && (
+                      {listing?.details?.vehicles?.accidentFree !==
+                        undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.accidentFree')}
+                            {t("fields.accidentFree")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.accidentFree ? 
-                              <CheckCircle className="w-5 h-5 text-green-500" /> : 
-                              <XCircle className="w-5 h-5 text-red-500" />}
+                            {listing.details.vehicles.accidentFree ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
@@ -2055,80 +2248,95 @@ const ListingDetails = () => {
                   listing?.details?.vehicles?.customsCleared ||
                   listing?.details?.vehicles?.warranty ||
                   listing?.details?.vehicles?.warrantyPeriod ||
-                  (listing?.details?.vehicles?.serviceHistory !== undefined && listing?.details?.vehicles?.serviceHistory !== null && 
-                  (typeof listing.details.vehicles.serviceHistory === 'boolean' || 
-                   typeof listing.details.vehicles.serviceHistory === 'string'))) && (
+                  (listing?.details?.vehicles?.serviceHistory !== undefined &&
+                    listing?.details?.vehicles?.serviceHistory !== null &&
+                    (typeof listing.details.vehicles.serviceHistory ===
+                      "boolean" ||
+                      typeof listing.details.vehicles.serviceHistory ===
+                        "string"))) && (
                   <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
                     <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t('additionalInformation')}
+                      {t("additionalInformation")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.customsCleared !== undefined && (
+                      {listing?.details?.vehicles?.customsCleared !==
+                        undefined && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.customsCleared')}
+                            {t("fields.customsCleared")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.customsCleared ? 
-                              <CheckCircle className="w-5 h-5 text-green-500" /> : 
-                              <XCircle className="w-5 h-5 text-red-500" />}
+                            {listing.details.vehicles.customsCleared ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.serviceHistory && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.serviceHistory')}
+                            {t("fields.serviceHistory")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {Array.isArray(listing.details.vehicles.serviceHistory)
+                            {Array.isArray(
+                              listing.details.vehicles.serviceHistory,
+                            )
                               ? listing.details.vehicles.serviceHistory
-                                  .map((item: any) => t(`fields.serviceHistoryTypes.${item}`))
-                                  .join(', ')
-                              : t(`fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`)}
+                                  .map((item: any) =>
+                                    t(`fields.serviceHistoryTypes.${item}`),
+                                  )
+                                  .join(", ")
+                              : t(
+                                  `fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`,
+                                )}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.warranty && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.warranty')}
+                            {t("fields.warranty")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.warranty === 'yes' 
-                              ? <CheckCircle className="w-5 h-5 text-green-500" /> 
-                              : <XCircle className="w-5 h-5 text-red-500" />}
+                            {listing.details.vehicles.warranty === "yes" ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.warrantyPeriod && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.warrantyPeriod')}
+                            {t("fields.warrantyPeriod")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.warrantyPeriod} ${t('common:months')}`}
+                            {`${listing.details.vehicles.warrantyPeriod} ${t("common:months")}`}
                           </p>
                         </div>
                       )}
                       {listing?.details?.vehicles?.serviceHistoryDetails && (
                         <div className="space-y-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('fields.serviceHistoryDetails')}
+                            {t("fields.serviceHistoryDetails")}
                           </p>
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.serviceHistoryDetails || t('common:notAvailable')}
+                            {listing.details.vehicles.serviceHistoryDetails ||
+                              t("common:notAvailable")}
                           </p>
                         </div>
                       )}
                     </div>
-                    {(listing?.details?.vehicles?.serviceHistoryDetails?.trim() || 
+                    {(listing?.details?.vehicles?.serviceHistoryDetails?.trim() ||
                       listing?.details?.vehicles?.additionalNotes) && (
                       <div className="mt-4 space-y-4">
                         {listing?.details?.vehicles?.serviceHistoryDetails?.trim() && (
                           <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                              {t('fields.serviceHistoryDetails')}
+                              {t("fields.serviceHistoryDetails")}
                             </p>
                             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                               {listing.details.vehicles.serviceHistoryDetails}
@@ -2138,7 +2346,7 @@ const ListingDetails = () => {
                         {listing?.details?.vehicles?.additionalNotes && (
                           <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                              {t('fields.additionalNotes')}
+                              {t("fields.additionalNotes")}
                             </p>
                             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                               {listing.details.vehicles.additionalNotes}
@@ -2159,7 +2367,7 @@ const ListingDetails = () => {
                   features.convenienceFeatures.length > 0) && (
                   <>
                     <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
-                      {t('listings:vehicleFeatures')}
+                      {t("listings:vehicleFeatures")}
                     </h3>
 
                     {/* Safety Features */}
@@ -2216,10 +2424,11 @@ const ListingDetails = () => {
           )}
 
           {/* Motorcycle Specific Details */}
-          {listing?.details?.vehicles?.vehicleType?.toLowerCase() === 'motorcycle' && (
+          {listing?.details?.vehicles?.vehicleType?.toLowerCase() ===
+            "motorcycle" && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mt-6">
               <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                {t('Motorcycle Details')}
+                {t("Motorcycle Details")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2227,56 +2436,69 @@ const ListingDetails = () => {
                 {listing.details.vehicles.engineType && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.engineType')}
+                      {t("fields.engineType")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.engineTypes.${listing.details.vehicles.engineType}`)}
+                      {t(
+                        `fields.engineTypes.${listing.details.vehicles.engineType}`,
+                      )}
                     </p>
                   </div>
                 )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && 
-                 (listing.details.vehicles.enginePowerOutput !== null && listing.details.vehicles.enginePowerOutput !== undefined || 
-                  listing.details.vehicles.powerOutput !== null && listing.details.vehicles.powerOutput !== undefined) && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.powerOutput')}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.enginePowerOutput || listing.details.vehicles.powerOutput} {t('common.hp')}
-                    </p>
-                  </div>
-                )}
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  ((listing.details.vehicles.enginePowerOutput !== null &&
+                    listing.details.vehicles.enginePowerOutput !== undefined) ||
+                    (listing.details.vehicles.powerOutput !== null &&
+                      listing.details.vehicles.powerOutput !== undefined)) && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.powerOutput")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.enginePowerOutput ||
+                          listing.details.vehicles.powerOutput}{" "}
+                        {t("common.hp")}
+                      </p>
+                    </div>
+                  )}
 
-                {listing.details.vehicles.torque !== null && listing.details.vehicles.torque !== undefined && listing.details.vehicles.torque > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.torque')}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.torque} {t('common.nm')}
-                    </p>
-                  </div>
-                )}
+                {listing.details.vehicles.torque !== null &&
+                  listing.details.vehicles.torque !== undefined &&
+                  listing.details.vehicles.torque > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.torque")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {listing.details.vehicles.torque} {t("common.nm")}
+                      </p>
+                    </div>
+                  )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && listing.details.vehicles.fuelSystem && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.fuelSystem')}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.fuelSystemTypes.${listing.details.vehicles.fuelSystem}`)}
-                    </p>
-                  </div>
-                )}
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  listing.details.vehicles.fuelSystem && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.fuelSystem")}
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {t(
+                          `fields.fuelSystemTypes.${listing.details.vehicles.fuelSystem}`,
+                        )}
+                      </p>
+                    </div>
+                  )}
 
                 {listing.details.vehicles.coolingSystem && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.coolingSystem')}
+                      {t("fields.coolingSystem")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.coolingSystemTypes.${listing.details.vehicles.coolingSystem}`)}
+                      {t(
+                        `fields.coolingSystemTypes.${listing.details.vehicles.coolingSystem}`,
+                      )}
                     </p>
                   </div>
                 )}
@@ -2284,200 +2506,276 @@ const ListingDetails = () => {
                 {listing.details.vehicles.engineSize && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.engineSize')}
+                      {t("fields.engineSize")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {typeof listing.details.vehicles.engineSize === 'string' 
-                        ? listing.details.vehicles.engineSize.replace(/\s*cc\s*/i, '') + ' cc'
-                        : listing.details.vehicles.engineSize + ' cc'}
+                      {typeof listing.details.vehicles.engineSize === "string"
+                        ? listing.details.vehicles.engineSize.replace(
+                            /\s*cc\s*/i,
+                            "",
+                          ) + " cc"
+                        : listing.details.vehicles.engineSize + " cc"}
                     </p>
                   </div>
                 )}
 
-                {listing.details.vehicles.brakeSystem && listing.details.vehicles.brakeSystem.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.brakeSystem')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.brakeSystem.map((brake: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                          {t(`fields.brakeSystems.${brake}`)}
-                        </span>
-                      ))}
+                {listing.details.vehicles.brakeSystem &&
+                  listing.details.vehicles.brakeSystem.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.brakeSystem")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.brakeSystem.map(
+                          (brake: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full"
+                            >
+                              {t(`fields.brakeSystems.${brake}`)}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Chassis & Suspension */}
                 {listing.details.vehicles.frameType && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.frameType')}
+                      {t("fields.frameType")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.frameTypes.${listing.details.vehicles.frameType}`)}
+                      {t(
+                        `fields.frameTypes.${listing.details.vehicles.frameType}`,
+                      )}
                     </p>
                   </div>
                 )}
 
-                {listing.details.vehicles.frontSuspension && 
-                 Array.isArray(listing.details.vehicles.frontSuspension) && 
-                 listing.details.vehicles.frontSuspension.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.frontSuspension')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.frontSuspension.map((type: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">
-                          {t(`fields.suspensionTypes.${type}`, { defaultValue: type })}
-                        </span>
-                      ))}
+                {listing.details.vehicles.frontSuspension &&
+                  Array.isArray(listing.details.vehicles.frontSuspension) &&
+                  listing.details.vehicles.frontSuspension.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.frontSuspension")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.frontSuspension.map(
+                          (type: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
+                            >
+                              {t(`fields.suspensionTypes.${type}`, {
+                                defaultValue: type,
+                              })}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {listing.details.vehicles.rearSuspension && 
-                 Array.isArray(listing.details.vehicles.rearSuspension) && 
-                 listing.details.vehicles.rearSuspension.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.rearSuspension')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.rearSuspension.map((type: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">
-                          {t(`fields.suspensionTypes.${type}`, { defaultValue: type })}
-                        </span>
-                      ))}
+                {listing.details.vehicles.rearSuspension &&
+                  Array.isArray(listing.details.vehicles.rearSuspension) &&
+                  listing.details.vehicles.rearSuspension.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.rearSuspension")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.rearSuspension.map(
+                          (type: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
+                            >
+                              {t(`fields.suspensionTypes.${type}`, {
+                                defaultValue: type,
+                              })}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Rider Aids & Electronics */}
-                {listing.details.vehicles.startType && 
-                 Array.isArray(listing.details.vehicles.startType) && 
-                 listing.details.vehicles.startType.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.startType')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(listing.details.vehicles.startType) 
-                        ? listing.details.vehicles.startType.map((type: string, idx: number) => (
-                            <span key={idx} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                              {t(`fields.startTypes.${type}`)}
+                {listing.details.vehicles.startType &&
+                  Array.isArray(listing.details.vehicles.startType) &&
+                  listing.details.vehicles.startType.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.startType")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.isArray(listing.details.vehicles.startType) ? (
+                          listing.details.vehicles.startType.map(
+                            (type: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full"
+                              >
+                                {t(`fields.startTypes.${type}`)}
+                              </span>
+                            ),
+                          )
+                        ) : (
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
+                            {t(
+                              "fields.startTypes." +
+                                listing.details.vehicles.startType,
+                              {
+                                defaultValue:
+                                  listing.details.vehicles.startType,
+                              },
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {listing.details.vehicles.electronics &&
+                  listing.details.vehicles.electronics.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.electronics")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.electronics.map(
+                          (item: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 text-xs rounded-full"
+                            >
+                              {t(`fields.electronicsTypes.${item}`)}
                             </span>
-                          ))
-                        : (
-                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                              {t('fields.startTypes.' + listing.details.vehicles.startType, { defaultValue: listing.details.vehicles.startType })}
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  listing.details.vehicles.lighting &&
+                  listing.details.vehicles.lighting.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.lighting")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.lighting.map(
+                          (item: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full"
+                            >
+                              {t(`fields.lightingTypes.${item}`)}
                             </span>
-                          )}
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {listing.details.vehicles.electronics && listing.details.vehicles.electronics.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.electronics')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.electronics.map((item: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 text-xs rounded-full">
-                          {t(`fields.electronicsTypes.${item}`)}
-                        </span>
-                      ))}
+                {listing.details.vehicles.riderAids &&
+                  listing.details.vehicles.riderAids.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.riderAids")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.riderAids.map(
+                          (aid: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full"
+                            >
+                              {t(`fields.riderAidTypes.${aid}`)}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                {isMotorcycleDetails(listing.details.vehicles) && listing.details.vehicles.lighting && listing.details.vehicles.lighting.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.lighting')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.lighting.map((item: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full">
-                          {t(`fields.lightingTypes.${item}`)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {listing.details.vehicles.riderAids && listing.details.vehicles.riderAids.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.riderAids')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.riderAids.map((aid: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
-                          {t(`fields.riderAidTypes.${aid}`)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Comfort & Ergonomics */}
-                {listing.details.vehicles.seatType && 
-                 Array.isArray(listing.details.vehicles.seatType) && 
-                 listing.details.vehicles.seatType.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.seatType')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(listing.details.vehicles.seatType) 
-                        ? listing.details.vehicles.seatType.map((type: string, idx: number) => (
-                            <span key={idx} className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
-                              {t(`fields.seatTypes.${type}`)}
-                            </span>
-                          ))
-                        : (
-                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
-                              {t('fields.seatTypes.' + listing.details.vehicles.seatType, { defaultValue: listing.details.vehicles.seatType })}
-                            </span>
-                          )}
+                {listing.details.vehicles.seatType &&
+                  Array.isArray(listing.details.vehicles.seatType) &&
+                  listing.details.vehicles.seatType.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.seatType")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.isArray(listing.details.vehicles.seatType) ? (
+                          listing.details.vehicles.seatType.map(
+                            (type: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full"
+                              >
+                                {t(`fields.seatTypes.${type}`)}
+                              </span>
+                            ),
+                          )
+                        ) : (
+                          <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
+                            {t(
+                              "fields.seatTypes." +
+                                listing.details.vehicles.seatType,
+                              {
+                                defaultValue: listing.details.vehicles.seatType,
+                              },
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {listing.details.vehicles.handlebarType && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.handlebarType')}
+                      {t("fields.handlebarType")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.handlebarTypes.${listing.details.vehicles.handlebarType}`)}
+                      {t(
+                        `fields.handlebarTypes.${listing.details.vehicles.handlebarType}`,
+                      )}
                     </p>
                   </div>
                 )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && listing.details.vehicles.comfortFeatures && listing.details.vehicles.comfortFeatures.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.comfortFeatures')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.comfortFeatures.map((feature: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-100 text-xs rounded-full">
-                          {t(`fields.comfortFeatureTypes.${feature}`)}
-                        </span>
-                      ))}
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  listing.details.vehicles.comfortFeatures &&
+                  listing.details.vehicles.comfortFeatures.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.comfortFeatures")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.comfortFeatures.map(
+                          (feature: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-100 text-xs rounded-full"
+                            >
+                              {t(`fields.comfortFeatureTypes.${feature}`)}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {listing.details.vehicles.seatHeight && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.seatHeight')}
+                      {t("fields.seatHeight")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing.details.vehicles.seatHeight} mm
@@ -2489,77 +2787,109 @@ const ListingDetails = () => {
                 {listing.details.vehicles.wheelType && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.wheelType')}
+                      {t("fields.wheelType")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {t(`fields.wheelTypes.${listing.details.vehicles.wheelType}`)}
+                      {t(
+                        `fields.wheelTypes.${listing.details.vehicles.wheelType}`,
+                      )}
                     </p>
                   </div>
                 )}
 
-                {listing.details.vehicles.storageOptions && listing.details.vehicles.storageOptions.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.storageOptions')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.storageOptions.map((option: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">
-                          {t(`fields.storageOptionTypes.${option}`)}
-                        </span>
-                      ))}
+                {listing.details.vehicles.storageOptions &&
+                  listing.details.vehicles.storageOptions.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.storageOptions")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.storageOptions.map(
+                          (option: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
+                            >
+                              {t(`fields.storageOptionTypes.${option}`)}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && listing.details.vehicles.customParts && listing.details.vehicles.customParts.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.customParts')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.customParts.map((part: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-100 text-xs rounded-full">
-                          {t(`fields.customPartTypes.${part}`)}
-                        </span>
-                      ))}
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  listing.details.vehicles.customParts &&
+                  listing.details.vehicles.customParts.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.customParts")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.customParts.map(
+                          (part: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-100 text-xs rounded-full"
+                            >
+                              {t(`fields.customPartTypes.${part}`)}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {listing.details.vehicles.protectiveEquipment && listing.details.vehicles.protectiveEquipment.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.protectiveEquipment')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.protectiveEquipment.map((equipment: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 text-xs rounded-full">
-                          {t(`fields.protectiveEquipmentTypes.${equipment}`)}
-                        </span>
-                      ))}
+                {listing.details.vehicles.protectiveEquipment &&
+                  listing.details.vehicles.protectiveEquipment.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.protectiveEquipment")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.protectiveEquipment.map(
+                          (equipment: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 text-xs rounded-full"
+                            >
+                              {t(
+                                `fields.protectiveEquipmentTypes.${equipment}`,
+                              )}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Documentation & History */}
                 {listing.details.vehicles.serviceHistory && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.serviceHistory')}
+                      {t("fields.serviceHistory")}
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {Array.isArray(listing.details.vehicles.serviceHistory) 
-                        ? listing.details.vehicles.serviceHistory.map((item: string, idx: number) => (
-                            <span key={idx} className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full">
+                      {Array.isArray(
+                        listing.details.vehicles.serviceHistory,
+                      ) ? (
+                        listing.details.vehicles.serviceHistory.map(
+                          (item: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full"
+                            >
                               {t(`fields.serviceHistoryTypes.${item}`)}
                             </span>
-                          ))
-                        : (
-                            <span className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full">
-                              {t(`fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`)}
-                            </span>
+                          ),
+                        )
+                      ) : (
+                        <span className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full">
+                          {t(
+                            `fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`,
                           )}
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -2567,7 +2897,7 @@ const ListingDetails = () => {
                 {listing.details.vehicles.ownershipHistory && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.ownershipHistory')}
+                      {t("fields.ownershipHistory")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing.details.vehicles.ownershipHistory}
@@ -2575,25 +2905,32 @@ const ListingDetails = () => {
                   </div>
                 )}
 
-                {isMotorcycleDetails(listing.details.vehicles) && listing.details.vehicles.customFeatures && listing.details.vehicles.customFeatures.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.customFeatures')}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {listing.details.vehicles.customFeatures.map((feature: string, idx: number) => (
-                        <span key={idx} className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full">
-                          {feature}
-                        </span>
-                      ))}
+                {isMotorcycleDetails(listing.details.vehicles) &&
+                  listing.details.vehicles.customFeatures &&
+                  listing.details.vehicles.customFeatures.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t("fields.customFeatures")}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {listing.details.vehicles.customFeatures.map(
+                          (feature: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full"
+                            >
+                              {feature}
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {listing.details.vehicles.serviceHistory && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.serviceHistory')}
+                      {t("fields.serviceHistory")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {listing.details.vehicles.serviceHistory}
@@ -2604,10 +2941,12 @@ const ListingDetails = () => {
                 {listing.details.vehicles.accidentHistory !== undefined && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.accidentHistory')}
+                      {t("fields.accidentHistory")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.accidentHistory ? t('common.yes') : t('common.no')}
+                      {listing.details.vehicles.accidentHistory
+                        ? t("common.yes")
+                        : t("common.no")}
                     </p>
                   </div>
                 )}
@@ -2615,10 +2954,12 @@ const ListingDetails = () => {
                 {listing.details.vehicles.ownerManual !== undefined && (
                   <div className="space-y-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('fields.ownerManual')}
+                      {t("fields.ownerManual")}
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.ownerManual ? t('common.yes') : t('common.no')}
+                      {listing.details.vehicles.ownerManual
+                        ? t("common.yes")
+                        : t("common.no")}
                     </p>
                   </div>
                 )}
@@ -2640,7 +2981,7 @@ const ListingDetails = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {t(
-                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`
+                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
                     )}
                   </p>
                 </div>
@@ -2691,7 +3032,7 @@ const ListingDetails = () => {
                     </p>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {t(
-                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`
+                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
                       )}
                     </p>
                   </div>
@@ -2713,7 +3054,7 @@ const ListingDetails = () => {
                           >
                             {feature}
                           </span>
-                        )
+                        ),
                       )}
                     </div>
                   </div>
