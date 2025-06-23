@@ -55,7 +55,10 @@ function Settings() {
   const { t, i18n } = useTranslation("settings");
   const { settings, updateSettings } = useSettings();
   const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+  const [saveStatus, setSaveStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
   const [localSettings, setLocalSettings] = useState(settings);
   const isRTL = i18n.language === "ar";
 
@@ -75,25 +78,30 @@ function Settings() {
                 listingUpdates: Boolean(userSettings.listingNotifications),
                 newInboxMessages: Boolean(userSettings.messageNotifications),
                 loginNotifications: Boolean(userSettings.loginNotifications),
+                newsletterSubscribed: Boolean(
+                  userSettings.newsletterSubscribed
+                ),
               },
               privacy: {
                 showEmail: Boolean(userSettings.showEmail),
                 showPhone: Boolean(userSettings.showPhoneNumber),
                 showOnlineStatus: Boolean(userSettings.showOnlineStatus),
                 allowMessaging: Boolean(userSettings.allowMessaging),
-                profileVisibility: userSettings.privateProfile ? "private" : "public" as const,
+                profileVisibility: userSettings.privateProfile
+                  ? "private"
+                  : ("public" as const),
               },
               // Add default values for any required fields in Settings type
               preferences: localSettings?.preferences || {},
-              security: localSettings?.security || {}
+              security: localSettings?.security || {},
             };
             setLocalSettings(newSettings);
             updateSettings(newSettings);
           }
         }
       } catch (error) {
-        console.error('Failed to load settings:', error);
-        setSaveStatus({ type: 'error', message: 'Failed to load settings' });
+        console.error("Failed to load settings:", error);
+        setSaveStatus({ type: "error", message: "Failed to load settings" });
       }
     };
     fetchUserSettings();
@@ -102,16 +110,19 @@ function Settings() {
   // Handle saving settings
   const handleSaveSettings = async () => {
     if (!localSettings) return;
-    
+
     setIsSaving(true);
-    setSaveStatus({ type: null, message: '' });
-    
+    setSaveStatus({ type: null, message: "" });
+
     try {
       // Create a complete settings object with all required fields
       const settingsToSave: AppSettings = {
         ...localSettings,
         privacy: {
-          profileVisibility: localSettings.privacy?.profileVisibility === 'private' ? 'private' : 'public',
+          profileVisibility:
+            localSettings.privacy?.profileVisibility === "private"
+              ? "private"
+              : "public",
           showOnlineStatus: localSettings.privacy?.showOnlineStatus ?? true,
           showPhone: localSettings.privacy?.showPhone ?? false,
           showEmail: localSettings.privacy?.showEmail ?? false,
@@ -119,40 +130,47 @@ function Settings() {
         },
         notifications: {
           listingUpdates: localSettings.notifications?.listingUpdates ?? false,
-          newInboxMessages: localSettings.notifications?.newInboxMessages ?? false,
-          loginNotifications: localSettings.notifications?.loginNotifications ?? false
+          newInboxMessages:
+            localSettings.notifications?.newInboxMessages ?? false,
+          newsletterSubscribed: localSettings.notifications
+            ?.newsletterSubscribed
+            ? true
+            : false,
+          loginNotifications:
+            localSettings.notifications?.loginNotifications ?? false,
         },
         preferences: localSettings.preferences || {},
-        security: localSettings.security || {}
+        security: localSettings.security || {},
       };
-      
+
       const response = await SettingsAPI.updatePrivacySettings(settingsToSave);
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Update the settings in the context with the complete settings object
       updateSettings(settingsToSave);
-      
+
       // Apply language change after successful save
       if (localSettings.preferences?.language) {
-        const langCode = localSettings.preferences.language === LanguageCode.AR ? 'ar' : 'en';
+        const langCode =
+          localSettings.preferences.language === LanguageCode.AR ? "ar" : "en";
         i18n.changeLanguage(langCode);
-        localStorage.setItem('language', langCode);
-        document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+        localStorage.setItem("language", langCode);
+        document.dir = langCode === "ar" ? "rtl" : "ltr";
       }
-      
-      setSaveStatus({ type: 'success', message: t('saveSuccess') });
+
+      setSaveStatus({ type: "success", message: t("saveSuccess") });
     } catch (error) {
-      console.error('Failed to save settings:', error);
-      setSaveStatus({ type: 'error', message: t('saveError') });
+      console.error("Failed to save settings:", error);
+      setSaveStatus({ type: "error", message: t("saveError") });
     } finally {
       setIsSaving(false);
-      
+
       // Clear success message after 3 seconds
-      if (saveStatus.type === 'success') {
+      if (saveStatus.type === "success") {
         setTimeout(() => {
-          setSaveStatus({ type: null, message: '' });
+          setSaveStatus({ type: null, message: "" });
         }, 3000);
       }
     }
@@ -165,18 +183,18 @@ function Settings() {
       preferences,
       // Ensure all required fields are present
       privacy: localSettings.privacy || {
-        profileVisibility: 'public',
+        profileVisibility: "public",
         showOnlineStatus: true,
         showPhone: false,
         showEmail: false,
-        allowMessaging: true
+        allowMessaging: true,
       },
       notifications: localSettings.notifications || {
         listingUpdates: false,
         newInboxMessages: false,
-        loginNotifications: false
+        loginNotifications: false,
       },
-      security: localSettings.security || {}
+      security: localSettings.security || {},
     };
     setLocalSettings(newSettings);
   };
@@ -185,27 +203,27 @@ function Settings() {
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
     if (!localSettings) return;
-    
+
     // Start with existing settings or empty object
     const currentSettings = localSettings.privacy || {};
-    
+
     // Merge updates with current settings
     const updatedSettings = {
       ...currentSettings,
       ...updates,
       // Ensure profileVisibility is always either 'public' or 'private'
-      profileVisibility: updates.profileVisibility 
-        ? updates.profileVisibility === 'private' 
-          ? 'private' 
-          : 'public'
-        : currentSettings.profileVisibility || 'public'
+      profileVisibility: updates.profileVisibility
+        ? updates.profileVisibility === "private"
+          ? "private"
+          : "public"
+        : currentSettings.profileVisibility || "public",
     };
 
     const newSettings: AppSettings = {
       ...localSettings,
       privacy: updatedSettings,
     };
-    
+
     setLocalSettings(newSettings);
   };
 
@@ -238,7 +256,7 @@ function Settings() {
             <div className="relative">
               <div className="relative">
                 {/* Left scroll indicator - removed as per user request */}
-                <div 
+                <div
                   ref={tabListRef}
                   className="overflow-x-auto pb-1 scrollbar-hide tab-scroll-container"
                 >
@@ -256,7 +274,9 @@ function Settings() {
                       >
                         <div className="flex flex-col items-center justify-center space-y-1 min-w-[70px]">
                           <span className="text-xl">{tab.icon}</span>
-                          <span className="text-xs sm:text-sm whitespace-nowrap">{tab.name}</span>
+                          <span className="text-xs sm:text-sm whitespace-nowrap">
+                            {tab.name}
+                          </span>
                         </div>
                       </Tab>
                     ))}
@@ -278,7 +298,9 @@ function Settings() {
                 />
                 <div className="mt-6 flex justify-between items-center">
                   {saveStatus.type && (
-                    <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    <div
+                      className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                    >
                       {saveStatus.message}
                     </div>
                   )}
@@ -287,12 +309,12 @@ function Settings() {
                     onClick={handleSaveSettings}
                     disabled={isSaving}
                     className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                      isSaving 
-                        ? 'bg-green-400' 
-                        : 'bg-green-600 hover:bg-green-700'
+                      isSaving
+                        ? "bg-green-400"
+                        : "bg-green-600 hover:bg-green-700"
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                   >
-                    {isSaving ? t('saving') : t("save")}
+                    {isSaving ? t("saving") : t("save")}
                   </button>
                 </div>
               </Tab.Panel>
@@ -308,7 +330,9 @@ function Settings() {
                 />
                 <div className="mt-6 flex justify-between items-center">
                   {saveStatus.type && (
-                    <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    <div
+                      className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                    >
                       {saveStatus.message}
                     </div>
                   )}
@@ -317,12 +341,12 @@ function Settings() {
                     onClick={handleSaveSettings}
                     disabled={isSaving}
                     className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                      isSaving 
-                        ? 'bg-green-400' 
-                        : 'bg-green-600 hover:bg-green-700'
+                      isSaving
+                        ? "bg-green-400"
+                        : "bg-green-600 hover:bg-green-700"
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                   >
-                   {isSaving ? t('saving') : t("save")}
+                    {isSaving ? t("saving") : t("save")}
                   </button>
                 </div>
               </Tab.Panel>
@@ -375,7 +399,9 @@ function Settings() {
                         {t("privacy.showOnlineStatus")}
                       </span>
                       <Toggle
-                        checked={localSettings?.privacy?.showOnlineStatus ?? true}
+                        checked={
+                          localSettings?.privacy?.showOnlineStatus ?? true
+                        }
                         onChange={(checked: boolean) =>
                           handlePrivacyUpdate({ showOnlineStatus: checked })
                         }
@@ -433,7 +459,9 @@ function Settings() {
                   </div>
                   <div className="mt-6 flex justify-between items-center">
                     {saveStatus.type && (
-                      <div className={`text-sm ${saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                      <div
+                        className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                      >
                         {saveStatus.message}
                       </div>
                     )}
@@ -442,12 +470,12 @@ function Settings() {
                       onClick={handleSaveSettings}
                       disabled={isSaving}
                       className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                        isSaving 
-                          ? 'bg-green-400' 
-                          : 'bg-green-600 hover:bg-green-700'
+                        isSaving
+                          ? "bg-green-400"
+                          : "bg-green-600 hover:bg-green-700"
                       } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                     >
-                      {isSaving ? t('saving') : t("save")}
+                      {isSaving ? t("saving") : t("save")}
                     </button>
                   </div>
                 </div>
@@ -513,6 +541,6 @@ function Settings() {
       </div>
     </div>
   );
-};
+}
 
 export default Settings;
