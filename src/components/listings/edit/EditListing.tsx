@@ -1,1101 +1,755 @@
 import { listingsAPI } from "@/api/listings.api";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
-import type { FormFieldProps } from "@/components/form/FormField";
 import type { SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
-import {
-  listingsAdvancedFieldSchema,
-  SECTION_CONFIG,
-} from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
-import ListingCard from "@/components/listings/details/ListingCard";
-// Import ColorPickerField statically to avoid issues with React Children in production
-import ColorPickerField from "@/components/listings/forms/ColorPickerField";
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
-import { Condition, TransmissionType, FuelType } from "@/types/enums";
-import type { Listing, ListingFieldSchema, Location } from "@/types/listings";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
-import {
-  FaArrowLeft,
-  FaCar,
-  FaHistory,
-  FaHome,
-  FaInfo,
-  FaSave,
-  FaShieldAlt,
-  FaTools,
-} from "react-icons/fa";
+import { FaArrowLeft, FaSave } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "@/contexts/SocketContext";
+import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
+import type { ListingFieldSchema } from "@/types/listings";
+
 interface EditFormData {
-  id?: string; // Added ID field to store the listing ID
+  id?: string;
   title: string;
   description: string;
   price: number;
-  location: Location;
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    coordinates?: number[];
+  };
   details: {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
   };
-  images: (string | File)[]; // Existing image URLs and new files
-  existingImages: string[]; // Original image URLs from the server
-  deletedImages?: string[]; // Track deleted image URLs
+  images: (string | File)[];
+  existingImages: string[];
+  deletedImages?: string[];
 }
 
-import { generateFeaturesDetails } from "@/utils/generateFeaturesDetails";
-
-// Generate features details using the shared utility function
-const featuresDetails = useMemo(generateFeaturesDetails, []);
-
-
-const getIconComponent = (iconName: string) => {
-  const iconMap: { [key: string]: React.ComponentType } = {
-    car: FaCar,
-    home: FaHome,
-    info: FaInfo,
-    tools: FaTools,
-    history: FaHistory,
-    shield: FaShieldAlt,
-  };
-  return iconMap[iconName] || FaInfo;
-};
-
-const EditListing = () => {
-  const { t } = useTranslation(['common', 'listings']);
+const EditListing: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { socket } = useSocket();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isVehicle, setIsVehicle] = useState(true);
-  const [listing, setListing] = useState<Listing | null>(null);
-  // Add a state for features to match ListingDetails.tsx
-  const [features, setFeatures] = useState({
-    safetyFeatures: [] as string[],
-    cameraFeatures: [] as string[],
-    climateFeatures: [] as string[],
-    entertainmentFeatures: [] as string[],
-    lightingFeatures: [] as string[],
-    convenienceFeatures: [] as string[],
-    interiorFeatures: [] as string[],
-    cargoFeatures: [] as string[],
-  });
-
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<SectionId>('essential');
+  
   const [formData, setFormData] = useState<EditFormData>({
-    title: "",
-    description: "",
+    title: '',
+    description: '',
     price: 0,
-    location: {
-      address: "",
-      city: "",
-      state: "",
-      country: "",
+    location: { 
+      address: '', 
+      city: '', 
+      state: '', 
+      country: '',
+      coordinates: []
     },
-    details: {
-      vehicles: {},
-      realEstate: {},
-    },
+    details: {},
     images: [],
     existingImages: [],
+    deletedImages: [],
   });
 
-  const vehicleType = formData.details?.vehicles?.vehicleType as
-    | VehicleType
-    | undefined;
-  const propertyType = formData.details?.realEstate?.propertyType as
-    | PropertyType
-    | undefined;
+  const isVehicle = useMemo(() => {
+    return formData.details.vehicles !== undefined;
+  }, [formData.details]);
 
-  // Use type assertion to avoid the indexing issues
-  const advancedSchema = ((): ListingFieldSchema[] => {
-    if (isVehicle && vehicleType) {
-      return (listingsAdvancedFieldSchema as any)[vehicleType] || [];
-    } else if (!isVehicle && propertyType) {
-      return (listingsAdvancedFieldSchema as any)[propertyType] || [];
-    }
-    return [];
-  })();
+  // Get the current section fields based on the active tab and schema
+  const currentFields = useMemo<ExtendedFieldProps[]>(() => {
+    if (!activeTab) return [];
+    
+    const listingType = isVehicle 
+      ? (formData.details.vehicles?.vehicleType as VehicleType)
+      : (formData.details.realEstate?.propertyType as PropertyType);
+    
+    if (!listingType) return [];
+    
+    // Get fields from schema utils
+    const fields = getFieldsBySection(listingType, activeTab === 'essential' ? 'essential' : 'advanced');
+    
+    return fields.map(field => ({
+      ...field,
+      value: getFieldValue(formData, field.name),
+      options: Array.isArray(field.options) 
+        ? field.options.map(opt => 
+            typeof opt === 'string' ? { value: opt, label: opt } : opt
+          )
+        : undefined,
+      onChange: (value: any) => {
+        const fieldType = isVehicle ? 'vehicles' : 'realEstate';
+        handleInputChange(field.name, value, fieldType);
+      }
+    }));
+  }, [activeTab, isVehicle, formData]);
 
-  // Get unique sections from the schema and sort them according to SECTION_CONFIG
-  const advancedDetail = Array.from(
-    new Set(advancedSchema.map((field: ListingFieldSchema) => field.section)),
-  )
-    .filter(
-      (sectionId: unknown): sectionId is SectionId =>
-        typeof sectionId === "string" && sectionId in SECTION_CONFIG,
-    )
-    .map((sectionId: SectionId) => ({
-      id: sectionId,
-      title: SECTION_CONFIG[sectionId].label || "",
-      icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
-      order: SECTION_CONFIG[sectionId].order,
-      fields: advancedSchema.filter(
-        (field: ListingFieldSchema) => field.section === sectionId,
-      ),
-    }))
-    .sort((a, b) => a.order - b.order);
-
-  // Flatten all schema sections to get a single array of fields so none are missed
-  const advancedDetailFields = advancedDetail.flatMap((section) => section.fields);
-
-  useEffect(() => {
-    // Redirect if not authenticated after auth is initialized
-    if (!isAuthLoading && !isAuthenticated) {
-      toast.error(t("auth.requiresLogin"));
-      navigate("/auth/login", { state: { from: `/listings/${id}/edit` } });
-      return;
-    }
-
-    // Only fetch if authenticated and we have an ID
-    if (isAuthenticated && id) {
-      const fetchListing = async () => {
-        try {
-          setLoading(true);
-          const response = await listingsAPI.getListing(id);
-          if (response.success && response.data) {
-            console.log("Listing res:", response.data);
-            setListing(response.data);
-            // Parse the location string into components
-            const locationParts = response.data.location.split(", ");
-            const [city = "", state = "", country = ""] = locationParts;
-
-            // Convert image URLs to strings for existing images
-            const existingImages = (response.data.images || []).map(
-              (img: any) => (typeof img === "string" ? img : img.url),
-            );
-
-            // Extract vehicle details
-            const vehicleDetails = response.data.details?.vehicles;
-
-            // Populate features similar to ListingDetails.tsx
-            if (vehicleDetails) {
-              setFeatures({
-                safetyFeatures: featuresDetails.safetyFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                cameraFeatures: featuresDetails.cameraFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                climateFeatures: featuresDetails.climateFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                entertainmentFeatures: featuresDetails.entertainmentFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                lightingFeatures: featuresDetails.lightingFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                convenienceFeatures: featuresDetails.convenienceFeatures.filter(
-                  (feature: string) => {
-                    return Object.entries(vehicleDetails).some(
-                      ([key, value]) => key === feature && value,
-                    );
-                  },
-                ),
-                interiorFeatures: [],
-                cargoFeatures: [],
-              });
-            }
-
-            setFormData({
-              title: response.data.title,
-              description: response.data.description,
-              price: response.data.price,
-              location: {
-                address: response.data.location,
-                city,
-                state,
-                country,
-              },
-              details: {
-                vehicles: response.data.details?.vehicles,
-                realEstate: response.data.details?.realEstate,
-              },
-              images: existingImages,
-              existingImages: existingImages,
-            });
-            setIsVehicle(response.data.details?.vehicles ? true : false);
-          }
-        } catch (error) {
-          console.error("Error fetching listing:", error);
-          toast.error(t("errors.fetchFailed"));
-          navigate("/profile/listings");
-        } finally {
-          setLoading(false);
+  const handleInputChange = useCallback((name: string, value: any, fieldType?: 'vehicles' | 'realEstate' | 'location') => {
+    // Handle location updates
+    if (fieldType === 'location') {
+      setFormData(prev => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          ...value
         }
-      };
-
-      fetchListing();
-    }
-  }, [id, isAuthenticated, isAuthLoading, t, navigate]);
-
-  const validateImages = () => {
-    console.log("=== VALIDATE IMAGES CALLED ===");
-    console.log("Current formData:", JSON.parse(JSON.stringify(formData)));
-
-    if (!formData) {
-      console.error("Form data is not available");
-      toast.error(t("errors.general.somethingWentWrong"));
-      return false;
-    }
-
-    try {
-      // Count new images that are File objects
-      const newImages = formData.images.filter((img) => img instanceof File);
-
-      // Count existing images that are not marked for deletion
-      const validExistingImages = (formData.existingImages || []).filter(
-        (url: string) => !(formData.deletedImages || []).includes(url),
-      );
-
-      const totalImages = newImages.length + validExistingImages.length;
-
-      console.log("Image validation:", {
-        newImages: newImages.length,
-        existingImages: formData.existingImages?.length || 0,
-        deletedImages: formData.deletedImages?.length || 0,
-        validExistingImages: validExistingImages.length,
-        totalImages,
-      });
-
-      if (totalImages === 0) {
-        console.log("No images found - showing error");
-        toast.error(t("errors.noImages", { ns: "listings" }));
-        return false;
-      }
-
-      if (totalImages < 2) {
-        console.log("Less than 2 images - showing error");
-        toast.error(
-          t("errors.minImages", {
-            ns: "listings",
-            count: 2,
-            defaultValue: "At least 2 images are required",
-          }),
-        );
-        return false;
-      }
-
-      console.log("Image validation passed");
-      return true;
-    } catch (error) {
-      console.error("Error validating images:", error);
-      toast.error(t("errors.general.somethingWentWrong"));
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("=== FORM SUBMITTED ===");
-
-    if (!id || !listing || !formData) {
-      console.error("Missing required data:", {
-        id,
-        listing,
-        formData: !!formData,
-      });
-      toast.error(t("errors.general.somethingWentWrong"));
+      }));
       return;
     }
 
-    // Validate images before proceeding
-    console.log("Validating images before submission...");
-    const isValid = validateImages();
-
-    if (!isValid) {
-      console.log("Image validation failed - preventing submission");
-      // Error toast is shown in validateImages
-      return;
-    }
-
-    // If we get here, validation passed
-    console.log("Form validation passed, proceeding with submission...");
-
-    try {
-      setSaving(true);
-
-      // Store the original price for comparison
-      const originalPrice = listing.price;
-      const newPrice = Number(formData.price);
-      const isPriceReduced = newPrice < originalPrice;
-
-      // Create FormData object
-      const formDataObj = new FormData();
-
-      // Add basic fields
-      formDataObj.append("title", formData.title);
-      formDataObj.append("description", formData.description);
-      formDataObj.append("price", String(formData.price));
-      // Ensure category is correctly formatted with main and sub categories
-      if (listing.category && typeof listing.category === "object") {
-        // If it's already an object, stringify it
-        formDataObj.append("category", JSON.stringify(listing.category));
-      } else {
-        // Otherwise use the string version
-        formDataObj.append("category", String(listing.category));
-      }
-      formDataObj.append("location", formData.location.city);
-      // Always set status to ACTIVE when updating to ensure it appears on the Home page
-      formDataObj.append("status", "ACTIVE");
-
-      // Mark listing as public so it appears on the home page
-      formDataObj.append("publicAccess", "true");
-
-      // Add existing images as JSON string
-      formDataObj.append(
-        "existingImages",
-        JSON.stringify(formData.existingImages),
-      );
-
-      // Add deleted images if any
-      if (formData.deletedImages && formData.deletedImages.length > 0) {
-        formDataObj.append(
-          "deletedImages",
-          JSON.stringify(formData.deletedImages),
-        );
-      }
-
-      // Add new images
-      const newImages = formData.images.filter(
-        (img): img is File => img instanceof File,
-      );
-      newImages.forEach((image) => {
-        formDataObj.append("images", image);
-      });
-
-      // Process details
-      const details = {
-        vehicles: isVehicle ? formData.details.vehicles : undefined,
-        realEstate: !isVehicle ? formData.details.realEstate : undefined,
-      };
-
-      delete details.realEstate?.listingId;
-      delete details.vehicles?.listingId;
-
-      // Append details as JSON
-      formDataObj.append("details", JSON.stringify(details));
-
-      console.log("Submitting form data:", {
-        title: formData.title,
-        description: formData.description,
-        price: formData.price,
-        location: formData.location.city,
-        details: details,
-        existingImages: formData.existingImages,
-        newImages: newImages.length,
-      });
-
-      const response = await listingsAPI.updateListing(id, formDataObj);
-      if (response.success) {
-        try {
-          // Create price drop notification if price was reduced
-          if (isPriceReduced) {
-            try {
-              const priceReduction = originalPrice - newPrice;
-              const percentReduction = Math.round(
-                (priceReduction / originalPrice) * 100,
-              );
-
-              // Emit socket event for real-time notification
-              if (socket) {
-                console.log(
-                  "Emitting price change socket event",
-                  priceReduction,
-                );
-                socket.emit(PRICE_CHANGE, {
-                  listingId: id,
-                  title: formData.title,
-                  oldPrice: originalPrice,
-                  newPrice: newPrice,
-                  percentReduction: percentReduction,
-                  userId: user?.id,
-                });
-                console.log("Price drop notification created");
-              } else {
-                console.error(
-                  "Socket not available for price change notification",
-                );
+    // Handle nested fields (e.g., 'engine.size')
+    if (fieldType && name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => {
+        const currentFieldData = prev.details[fieldType] || {};
+        const currentParentData = currentFieldData[parent] || {};
+        
+        return {
+          ...prev,
+          details: {
+            ...prev.details,
+            [fieldType]: {
+              ...currentFieldData,
+              [parent]: {
+                ...currentParentData,
+                [child]: value
               }
-            } catch (notificationError) {
-              console.error(
-                "Failed to create price drop notification:",
-                notificationError,
-              );
-              // Don't block the main flow if notification creation fails
             }
           }
-
-          // Only show success and navigate after all operations complete
-          toast.success(t("listings.updateSuccess"));
-
-          navigate("/listingsuccess", {
-            state: {
-              listingId: id,
-              isUpdate: true,
-              title: formData.title,
-              isPriceReduced: isPriceReduced,
-            },
-          });
-        } catch (error) {
-          console.error("Error during post-update operations:", error);
-          throw error; // Re-throw to be caught by the outer catch block
+        };
+      });
+      return;
+    }
+    
+    // Handle top-level fields in details
+    if (fieldType) {
+      setFormData(prev => ({
+        ...prev,
+        details: {
+          ...prev.details,
+          [fieldType]: {
+            ...(prev.details[fieldType] || {}),
+            [name]: value
+          }
         }
-      } else {
-        const errorMessage = response.error || t("listings.updateFailed");
-        console.error("Update failed:", errorMessage);
-        toast.error(errorMessage);
-        return; // Exit early on failure
+      }));
+    } else {
+      // Handle basic fields (title, description, price, etc.)
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  }, []);
+
+  const handleImageChange = useCallback((newImages: (string | File)[]) => {
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
+  }, []);
+
+  const handleDeleteExisting = useCallback((imageUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      deletedImages: [...(prev.deletedImages || []), imageUrl],
+      existingImages: prev.existingImages.filter(img => img !== imageUrl)
+    }));
+  }, []);
+
+  const validateForm = useCallback((): boolean => {
+    // Basic validation for required fields
+    if (!formData.title.trim()) {
+      toast.error(t('listings.errors.titleRequired'));
+      return false;
+    }
+    if (!formData.description.trim()) {
+      toast.error(t('listings.errors.descriptionRequired'));
+      return false;
+    }
+    if (formData.price <= 0) {
+      toast.error(t('listings.errors.invalidPrice'));
+      return false;
+    }
+
+    // Location validation
+    if (!formData.location.city || !formData.location.country) {
+      toast.error(t('listings.errors.locationRequired'));
+      return false;
+    }
+
+    // Validate schema fields
+    const listingType = isVehicle 
+      ? (formData.details.vehicles?.vehicleType as VehicleType)
+      : (formData.details.realEstate?.propertyType as PropertyType);
+
+    if (!listingType) {
+      toast.error(t('listings.errors.listingTypeRequired'));
+      return false;
+    }
+
+    const fields = getFieldsBySection(listingType, 'essential').concat(
+      getFieldsBySection(listingType, 'advanced')
+    );
+
+    for (const field of fields) {
+      if (field.required) {
+        const details = isVehicle ? formData.details.vehicles : formData.details.realEstate;
+        const value = details?.[field.name as keyof typeof details];
+        
+        if (value === undefined || value === null || value === '') {
+          toast.error(t('listings.errors.fieldRequired', { field: field.label || field.name }));
+          return false;
+        }
       }
-    } catch (error: any) {
-      console.error("Error updating listing:", error);
-      const errorMessage =
-        error.response?.data?.error?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        t("listings.updateFailed");
-      toast.error(errorMessage);
-      throw error; // Re-throw to ensure we don't proceed with success flow
+    }
+
+    return true;
+  }, [formData, isVehicle, t]);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      toast.error(t('auth.pleaseLogin'));
+      return;
+    }
+
+    if (isSubmitting) return;
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      const formDataToSend = new FormData();
+      
+      // Append basic fields
+      formDataToSend.append('title', formData.title.trim());
+      formDataToSend.append('description', formData.description.trim());
+      formDataToSend.append('price', formData.price.toString());
+      formDataToSend.append('location', JSON.stringify({
+        address: formData.location.address,
+        city: formData.location.city,
+        state: formData.location.state,
+        country: formData.location.country,
+        coordinates: formData.location.coordinates
+      }));
+      
+          // Process and append details based on listing type
+      const details = { ...formData.details };
+      const listingType = isVehicle 
+        ? (details.vehicles?.vehicleType as VehicleType)
+        : (details.realEstate?.propertyType as PropertyType);
+
+      // Get all fields for the listing type to ensure we include all schema fields
+      if (listingType) {
+        const allFields = getFieldsBySection(listingType, 'essential').concat(
+          getFieldsBySection(listingType, 'advanced')
+        );
+
+        // Ensure all schema fields are included in the details
+        allFields.forEach(field => {
+          const fieldPath = field.name.split('.');
+          const fieldType = isVehicle ? 'vehicles' : 'realEstate';
+          
+          if (!details[fieldType]) {
+            details[fieldType] = {};
+          }
+          
+          // Initialize nested objects if they don't exist
+          let current = details[fieldType] as Record<string, any>;
+          for (let i = 0; i < fieldPath.length - 1; i++) {
+            const part = fieldPath[i];
+            if (!current[part]) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, any>;
+          }
+          
+          // Ensure the field has a value (use empty string for required fields if not set)
+          const lastPart = fieldPath[fieldPath.length - 1];
+          if (field.required && current[lastPart] === undefined) {
+            current[lastPart] = field.type === 'number' ? 0 : '';
+          }
+        });
+      }
+      
+      // Stringify details with proper handling of undefined values
+      const cleanDetails = JSON.parse(JSON.stringify(details, (_, value) => 
+        value === undefined ? '' : value
+      ));
+      
+      formDataToSend.append('details', JSON.stringify(cleanDetails));
+      
+      // Append images
+      formData.images.forEach((image) => {
+        if (image instanceof File) {
+          formDataToSend.append('images', image);
+        } else if (typeof image === 'string') {
+          formDataToSend.append('existingImages', image);
+        }
+      });
+      
+      // Append deleted images if any
+      if (formData.deletedImages?.length) {
+        formData.deletedImages.forEach((url: string) => {
+          formDataToSend.append('deletedImages', url);
+        });
+      }
+      
+      // Call the API to update the listing
+      const response = id 
+        ? await listingsAPI.update(id, formDataToSend)
+        : await listingsAPI.create(formDataToSend);
+      
+      if (response.success) {
+        toast.success(id ? t('listing.updateSuccess') : t('listing.createSuccess'));
+        navigate(`/listings/${response.data?.id || id}`);
+      } else {
+        throw new Error(response.error || (id ? 'Failed to update listing' : 'Failed to create listing'));
+      }
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      toast.error(t('listing.updateError'));
     } finally {
-      setSaving(false);
+      setIsSubmitting(false);
+    }
+  }, [formData, id, isVehicle, navigate, t]);
+
+  // Load listing data if editing
+  useEffect(() => {
+    const loadListing = async () => {
+      if (!id) return;
+      
+      try {
+        const response = await listingsAPI.getById(id);
+        if (response.success && response.data) {
+          const listing = response.data;
+          // Parse the location if it's a string
+          const locationData = typeof listing.location === 'string' 
+            ? JSON.parse(listing.location) 
+            : listing.location;
+          
+          // Parse details if it's a string
+          let details = listing.details;
+          if (typeof details === 'string') {
+            try {
+              details = JSON.parse(details);
+            } catch (e) {
+              console.error('Failed to parse details:', e);
+              details = {};
+            }
+          }
+          
+          // Ensure all required fields are initialized
+          const initialData: EditFormData = {
+            id: listing.id,
+            title: listing.title || '',
+            description: listing.description || '',
+            price: listing.price || 0,
+            location: {
+              address: locationData.address || '',
+              city: locationData.city || '',
+              state: locationData.state || '',
+              country: locationData.country || '',
+              coordinates: locationData.coordinates || []
+            },
+            details: details || {},
+            images: [],
+            existingImages: listing.images?.map((img: any) => typeof img === 'string' ? img : img.url) || [],
+            deletedImages: [],
+          };
+          
+          // Initialize missing schema fields
+          const listingType = initialData.details.vehicles?.vehicleType || 
+                            initialData.details.realEstate?.propertyType;
+          
+          if (listingType) {
+            const allFields = getFieldsBySection(listingType, 'essential').concat(
+              getFieldsBySection(listingType, 'advanced')
+            );
+            
+            allFields.forEach(field => {
+              const fieldPath = field.name.split('.');
+              const fieldType = initialData.details.vehicles ? 'vehicles' : 'realEstate';
+              
+              if (!initialData.details[fieldType]) {
+                initialData.details[fieldType] = {};
+              }
+              
+              // Initialize nested objects if they don't exist
+              let current = initialData.details[fieldType] as Record<string, any>;
+              for (let i = 0; i < fieldPath.length - 1; i++) {
+                const part = fieldPath[i];
+                if (!current[part]) {
+                  current[part] = {};
+                }
+                current = current[part] as Record<string, any>;
+              }
+            });
+          }
+          
+          setFormData(initialData);
+        } else {
+          throw new Error(response.error || 'Failed to load listing');
+        }
+      } catch (error) {
+        console.error('Error loading listing:', error);
+        toast.error(t('common.errorLoading'));
+        navigate('/listings');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadListing();
+  }, [id, navigate, t]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      navigate('/login', { state: { from: `/listings/${id || 'new'}/edit` } });
+    }
+  }, [isAuthenticated, isAuthLoading, navigate, id]);
+
+  // Set up socket listener for price updates
+  useEffect(() => {
+    if (!socket || !formData.id) return;
+    
+    const handlePriceUpdate = (data: { listingId: string; newPrice: number }) => {
+      if (data.listingId === formData.id) {
+        setFormData(prev => ({
+          ...prev,
+          price: data.newPrice
+        }));
+      }
+    };
+    
+    socket.on(PRICE_CHANGE, handlePriceUpdate);
+    return () => {
+      socket.off(PRICE_CHANGE, handlePriceUpdate);
+    };
+  }, [socket, formData.id]);
+
+  // Extend the base field schema with additional properties needed for the form
+  interface SelectOption {
+    value: string;
+    label: string;
+  }
+
+  type ExtendedFieldProps = Omit<ListingFieldSchema, 'type' | 'options'> & { 
+    min?: number; 
+    max?: number; 
+    placeholder?: string; 
+    type: 'text' | 'number' | 'select' | 'checkbox' | 'textarea' | 'date' | 'colorpicker' | 'multiselect' | 'radio' | 'toggle' | 'featureGroup';
+    options?: SelectOption[];
+  };
+
+  const renderField = (field: ExtendedFieldProps, idx: number) => {
+    // Skip rendering if field type is not supported or name is missing
+    if (!field.name || field.type === 'toggle' || field.type === 'featureGroup') {
+      return null;
+    }
+    
+    // Handle radio fields specially
+    if (field.type === 'radio' && field.options) {
+      const options = field.options;
+      return (
+        <div key={field.name || idx} className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {field.label}
+            {field.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          <div className="space-y-2">
+            {options.map((option) => {
+              // Get the value from the appropriate details object
+              const details = isVehicle 
+                ? formData.details.vehicles 
+                : formData.details.realEstate;
+              const fieldValue = details?.[field.name as keyof typeof details];
+              const isChecked = fieldValue === option.value;
+              
+              return (
+                <div key={option.value} className="flex items-center">
+                  <input
+                    type="radio"
+                    id={`${field.name}-${option.value}`}
+                    name={field.name}
+                    value={option.value}
+                    checked={isChecked}
+                    onChange={(e) => handleInputChange(field.name, e.target.value, isVehicle ? 'vehicles' : 'realEstate')}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor={`${field.name}-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                    {option.label}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+    const fieldType = field.type || 'text';
+    // Get the value from the appropriate details object based on listing type
+    const details = isVehicle 
+      ? formData.details.vehicles 
+      : formData.details.realEstate;
+    const fieldValue = details?.[field.name as keyof typeof details];
+    
+    const fieldOptions = (field.options || []) as Array<{ value: string; label: string }>;
+    
+    const validationError = field.required && !fieldValue ? t('common.requiredField') : undefined;
+
+    const commonProps = {
+      key: field.name || idx,
+      label: field.label,
+      name: field.name,
+      value: fieldValue ?? '',
+      onChange: (value: any) => 
+        handleInputChange(field.name, value, isVehicle ? 'vehicles' : 'realEstate'),
+      error: validationError,
+      required: field.required,
+      placeholder: field.placeholder,
+      options: fieldOptions,
+    };
+
+    switch (fieldType) {
+      case 'select':
+        return <FormField {...commonProps} type="select" />;
+      case 'radio':
+        return (
+          <div className="space-y-2">
+            {fieldOptions.map((option, i) => (
+              <div key={i} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`${field.name}-${i}`}
+                  name={field.name}
+                  value={option.value}
+                  checked={fieldValue === option.value}
+                  onChange={() => handleInputChange(field.name, option.value, isVehicle ? 'vehicles' : 'realEstate')}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <label htmlFor={`${field.name}-${i}`} className="ml-2 block text-sm text-gray-700">
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        );
+      case 'checkbox':
+        return <FormField {...commonProps} type="checkbox" />;
+      case 'number':
+        return (
+          <FormField
+            {...commonProps}
+            type="number"
+            min={field.min}
+            max={field.max}
+          />
+        );
+      case 'textarea':
+        return <FormField {...commonProps} type="textarea" />;
+      default:
+        return <FormField {...commonProps} type="text" />;
     }
   };
 
-  const handleInputChange = (
-    field: string,
-    value: string | number | boolean | string[],
-  ) => {
-    setFormData((prevForm) => {
-      const detailsKey = isVehicle ? "vehicles" : "realEstate";
-
-      // Convert numeric fields to numbers
-      let processedValue = value;
-      if (
-        field === "yearBuilt" ||
-        field === "mileage" ||
-        field === "cargoVolume" ||
-        field === "payloadCapacity" ||
-        field === "previousOwners" ||
-        field === "seatingCapacity" ||
-        field === "horsepower" ||
-        field === "torque" ||
-        field === "luggageSpace"
-      ) {
-        processedValue =
-          typeof value === "string" ? parseInt(value, 10) : value;
-      }
-
-      // Ensure warranty is always a string and handle 0 values
-      if (field === "warranty") {
-        if (value === 0 || value === "0") {
-          processedValue = "";
-        } else {
-          processedValue = String(value || "");
-        }
-        console.log(
-          "Setting warranty value:",
-          processedValue,
-          "type:",
-          typeof processedValue,
-        );
-      }
-
-      return {
-        ...prevForm,
-        details: {
-          ...prevForm.details,
-          [detailsKey]: {
-            ...prevForm.details[detailsKey],
-            [field]: processedValue,
-          },
-        },
-      };
-    });
-  };
-
-  // Memoize the image change handler to prevent unnecessary re-renders
-  const handleImageChange = useCallback((newImages: File[]) => {
-    setFormData((prev) => {
-      // Keep only the File objects from previous images (filter out any strings which are existing URLs)
-      const existingFileImages = prev.images.filter(
-        (img) => img instanceof File,
-      );
-
-      // Create a stable array to prevent unnecessary re-renders
-      return {
-        ...prev,
-        images: [...existingFileImages, ...newImages],
-      };
-    });
-  }, []);
-
-  // Memoize the delete handler to prevent unnecessary re-renders
-  const handleDeleteExisting = useCallback((url: string) => {
-    setFormData((prev) => {
-      // Check if it's an existing image (starts with http)
-      if (url.startsWith("http")) {
-        // Create a stable array to prevent unnecessary re-renders
-        const filteredExistingImages = prev.existingImages.filter(
-          (img) => img !== url,
-        );
-        const updatedDeletedImages = [...(prev.deletedImages || []), url];
-
-        return {
-          ...prev,
-          existingImages: filteredExistingImages,
-          deletedImages: updatedDeletedImages,
-        };
-      }
-
-      // If it's a new image (File object), remove it from the images array
-      const newImages = prev.images.filter((img) => {
-        if (typeof img === "string") {
-          return img !== url;
-        }
-        return true; // Keep all File objects
-      });
-
-      return {
-        ...prev,
-        images: newImages,
-      };
-    });
-  }, []);
-
-  // This function handles reordering of existing images
-  const handleImageReorder = useCallback(
-    (fromIndex: number, toIndex: number) => {
-      // The ImageManager component now handles the reordering internally and just signals us
-      // We need to update our state based on the new order
-
-      setFormData((prev) => {
-        // Create a copy of the existing images array
-        const existingImages = [...prev.existingImages];
-
-        // Ensure indices are valid
-        if (
-          fromIndex < 0 ||
-          fromIndex >= existingImages.length ||
-          toIndex < 0 ||
-          toIndex >= existingImages.length
-        ) {
-          return prev; // Return unchanged state if indices are invalid
-        }
-
-        // Remove the image from its original position
-        const [movedImage] = existingImages.splice(fromIndex, 1);
-
-        // Insert it at the new position
-        existingImages.splice(toIndex, 0, movedImage);
-
-        // Return the updated state with a new reference to prevent React from batching updates
-        return {
-          ...prev,
-          existingImages: [...existingImages],
-        };
-      });
-    },
-    [],
-  );
-
-  if (!listing) {
+  if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {t("listings.notFound")}
-        </h2>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
-  // Helper function to format enum options
-  const getEnumOptions = (enumObj: Record<string, string>) => {
-    return Object.values(enumObj).map((value) => ({
-      value,
-      label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
-    }));
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t("editListing")}
-          </h1>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/profile/listings")}
-            className="flex items-center gap-2"
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-4 text-gray-600 hover:text-gray-900"
           >
-            <FaArrowLeft /> {t("back")}
-          </Button>
+            <FaArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-2xl font-bold">
+            {formData.id ? t('listings.editListing') : t('listings.createListing')}
+          </h1>
         </div>
 
-        <div className="mb-6">
-          <ListingCard
-            listing={{
-              ...listing,
-              vehicleDetails: listing.details?.vehicles,
-              realEstateDetails: listing.details?.realEstate,
-            }}
-            editable={true}
-            deletable={true}
-            showActions={true}
-            showPrice={true}
-            showLocation={true}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Information */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">{t('listings.basicInfo')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                label={t('listings.title')}
+                name="title"
+                type="text"
+                value={formData.title}
+                onChange={(value) => handleInputChange('title', value)}
+                required
+              />
+              <FormField
+                label={t('listings.price')}
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={(value) => handleInputChange('price', Number(value))}
+                min={0}
+                required
+              />
+              <div className="md:col-span-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t('listings.description')}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    rows={4}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("images")}
-            </h2>
+          {/* Location */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">{t('listings.location')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                label={t('listings.city')}
+                name="city"
+                type="text"
+                value={formData.location.city}
+                onChange={(value) => {
+                  handleInputChange('location', {
+                    ...formData.location,
+                    city: value as string,
+                  });
+                }}
+                required
+              />
+              <FormField
+                label={t('listings.state')}
+                name="state"
+                type="text"
+                value={formData.location.state}
+                onChange={(value) => {
+                  handleInputChange('location', {
+                    ...formData.location,
+                    state: value as string,
+                  });
+                }}
+                required
+              />
+              <FormField
+                label={t('listings.country')}
+                name="country"
+                type="text"
+                value={formData.location.country}
+                onChange={(value) => {
+                  handleInputChange('location', {
+                    ...formData.location,
+                    country: value as string,
+                  });
+                }}
+                required
+              />
+              <FormField
+                label={t('listings.address')}
+                name="address"
+                type="text"
+                value={formData.location.address}
+                onChange={(value) => {
+                  handleInputChange('location', {
+                    ...formData.location,
+                    address: value as string,
+                  });
+                }}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Dynamic Fields */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex space-x-4 mb-6 border-b">
+              <button
+                type="button"
+                className={`pb-2 px-1 border-b-2 ${
+                  activeTab === 'essential'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                onClick={() => setActiveTab('essential')}
+              >
+                {t('listings.essentials')}
+              </button>
+              <button
+                type="button"
+                className={`pb-2 px-1 border-b-2 ${
+                  activeTab === 'advanced'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                onClick={() => setActiveTab('advanced')}
+              >
+                {t('listings.advanced')}
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                {currentFields.map((field, idx) => renderField(field, idx))}
+              </div>
+            </div>
+          </div>
+
+          {/* Images */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">{t('listings.images')}</h2>
             <ImageManager
-              images={formData.images.filter(
-                (img): img is File => img instanceof File,
-              )}
+              images={formData.images.filter((img): img is File => img instanceof File)}
               existingImages={formData.existingImages}
               onChange={handleImageChange}
               onDeleteExisting={handleDeleteExisting}
-              onReorderExisting={handleImageReorder}
-              maxImages={10}
-              key={`image-manager-${formData.existingImages.length}`} // Add a key to force proper re-rendering when images change
             />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Basic Details
-            </h1>
-            <FormField
-              label={t("listings.title")}
-              name="title"
-              type="text"
-              value={formData.title}
-              onChange={(value) =>
-                setFormData({ ...formData, title: value as string })
-              }
-              required
-            />
-
-            <FormField
-              label={t("listings.description")}
-              name="description"
-              type="textarea"
-              value={formData.description}
-              onChange={(value) =>
-                setFormData({
-                  ...formData,
-                  description: value as string,
-                })
-              }
-              required
-            />
-
-            <FormField
-              label={t("listings.price")}
-              name="price"
-              type="number"
-              value={formData.price.toString()}
-              onChange={(value) =>
-                setFormData({
-                  ...formData,
-                  price: parseFloat(value as string) || 0,
-                })
-              }
-              required
-            />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {t("listings.location")}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label={t("listings.city")}
-                  name="city"
-                  type="text"
-                  value={formData.location.city}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      location: {
-                        ...formData.location,
-                        city: value as string,
-                      },
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Advanced Details
-            </h1>
-
-            {/* Add special fields here for Transmission, FuelType, and Condition */}
-            {isVehicle && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                <FormField
-                  label={t("listings.fields.transmissionType")}
-                  name="transmissionType"
-                  type="select"
-                  value={formData.details?.vehicles?.transmissionType || ""}
-                  options={getEnumOptions(TransmissionType)}
-                  onChange={(value) =>
-                    handleInputChange("transmissionType", value)
-                  }
-                  required
-                />
-
-                <FormField
-                  label={t("listings.fields.fuelType")}
-                  name="fuelType"
-                  type="select"
-                  value={formData.details?.vehicles?.fuelType || ""}
-                  options={getEnumOptions(FuelType)}
-                  onChange={(value) => handleInputChange("fuelType", value)}
-                  required
-                />
-
-                <FormField
-                  label={t("listings.fields.condition")}
-                  name="condition"
-                  type="select"
-                  value={formData.details?.vehicles?.condition || ""}
-                  options={getEnumOptions(Condition)}
-                  onChange={(value) => handleInputChange("condition", value)}
-                  required
-                />
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {advancedDetailFields &&
-                  advancedDetailFields.map((field: any, idx: number) => {
-                    // Skip fields we're now handling separately
-                    if (
-                      ["transmissionType", "fuelType", "condition"].includes(
-                        field.name,
-                      )
-                    ) {
-                      return null;
-                    }
-
-                    const currentValue = isVehicle
-                      ? formData.details?.vehicles?.[field.name]
-                      : formData.details?.realEstate?.[field.name];
-
-                    if (field.type === "colorpicker") {
-                      return (
-                        <ColorPickerField
-                          key={field.name || idx}
-                          label={field.label}
-                          value={(currentValue as string) || "#000000"}
-                          onChange={(value) =>
-                            handleInputChange(field.name, value)
-                          }
-                          required={field.required}
-                        />
-                      );
-                    }
-                    return (
-                      <FormField
-                        key={field.name || idx}
-                        label={field.label}
-                        name={field.name}
-                        type={field.type as FormFieldProps["type"]}
-                        value={currentValue || ""}
-                        options={field.options?.map((key: string) => ({
-                          value: key,
-                          label: key,
-                        }))}
-                        onChange={(value) =>
-                          handleInputChange(field.name, value)
-                        }
-                        required={field.required}
-                      />
-                    );
-                  })}
-              </div>
-            </div>
-
-            {/* Features Section */}
-            {isVehicle && (
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                  {t("Vehicle Features")}
-                </h2>
-
-                {/* Safety Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Safety Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.safetyFeatures.map((feature: string) => {
-                      return (
-                        <div
-                          key={feature}
-                          className="flex items-center space-x-2"
-                        >
-                          <input
-                            type="checkbox"
-                            id={feature}
-                            checked={Boolean(
-                              formData.details?.vehicles?.[feature],
-                            )}
-                            onChange={(e) => {
-                              handleInputChange(feature, e.target.checked);
-                              // Update features state when checkbox changes
-                              if (e.target.checked) {
-                                setFeatures((prev) => ({
-                                  ...prev,
-                                  safetyFeatures: [
-                                    ...prev.safetyFeatures,
-                                    feature,
-                                  ],
-                                }));
-                              } else {
-                                setFeatures((prev) => ({
-                                  ...prev,
-                                  safetyFeatures: prev.safetyFeatures.filter(
-                                    (f) => f !== feature,
-                                  ),
-                                }));
-                              }
-                            }}
-                            className="h-4 w-4 text-blue-600 rounded"
-                          />
-                          <label
-                            htmlFor={feature}
-                            className="text-sm text-gray-700 dark:text-gray-300"
-                          >
-                            {t(`features.${feature}`) || feature}
-                          </label>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Camera Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Camera Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.cameraFeatures.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center space-x-2"
-                      >
-                        <input
-                          type="checkbox"
-                          id={feature}
-                          checked={Boolean(
-                            formData.details?.vehicles?.[feature],
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(feature, e.target.checked)
-                          }
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                        <label
-                          htmlFor={feature}
-                          className="text-sm text-gray-700 dark:text-gray-300"
-                        >
-                          {t(`features.${feature}`) || feature}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Climate Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Climate Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.climateFeatures.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center space-x-2"
-                      >
-                        <input
-                          type="checkbox"
-                          id={feature}
-                          checked={Boolean(
-                            formData.details?.vehicles?.[feature],
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(feature, e.target.checked)
-                          }
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                        <label
-                          htmlFor={feature}
-                          className="text-sm text-gray-700 dark:text-gray-300"
-                        >
-                          {t(`features.${feature}`) || feature}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Entertainment Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Entertainment Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.entertainmentFeatures.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center space-x-2"
-                      >
-                        <input
-                          type="checkbox"
-                          id={feature}
-                          checked={Boolean(
-                            formData.details?.vehicles?.[feature],
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(feature, e.target.checked)
-                          }
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                        <label
-                          htmlFor={feature}
-                          className="text-sm text-gray-700 dark:text-gray-300"
-                        >
-                          {t(`features.${feature}`) || feature}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Lighting Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Lighting Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.lightingFeatures.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center space-x-2"
-                      >
-                        <input
-                          type="checkbox"
-                          id={feature}
-                          checked={Boolean(
-                            formData.details?.vehicles?.[feature],
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(feature, e.target.checked)
-                          }
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                        <label
-                          htmlFor={feature}
-                          className="text-sm text-gray-700 dark:text-gray-300"
-                        >
-                          {t(`features.${feature}`) || feature}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Convenience Features */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
-                    {t("Convenience Features")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {featuresDetails.convenienceFeatures.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center space-x-2"
-                      >
-                        <input
-                          type="checkbox"
-                          id={feature}
-                          checked={Boolean(
-                            formData.details?.vehicles?.[feature],
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(feature, e.target.checked)
-                          }
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                        <label
-                          htmlFor={feature}
-                          className="text-sm text-gray-700 dark:text-gray-300"
-                        >
-                          {t(`features.${feature}`) || feature}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/profile/listings")}
-              disabled={saving}
-            >
-              {t("cancel")}
-            </Button>
+          {/* Submit Button */}
+          <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={saving}
-              className="flex items-center gap-2"
+              variant="primary"
+              size="lg"
+              disabled={isSubmitting}
+              className="flex items-center"
             >
-              <FaSave />
-              {saving ? t("saving") : t("save")}
+              <FaSave className="mr-2" />
+              {isSubmitting ? t('common.saving') : t('common.save')}
             </Button>
           </div>
         </form>

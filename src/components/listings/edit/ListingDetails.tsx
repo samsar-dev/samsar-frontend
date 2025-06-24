@@ -1,27 +1,55 @@
-import { listingsAPI } from "@/api/listings.api";
-import { MessagesAPI } from "@/api/messaging.api";
-import { useAuth } from "@/hooks/useAuth";
-import { ListingAction, ListingCategory } from "@/types/enums";
-import type { PropertyType, VehicleType } from "@/types/enums";
-import type {
-  Listing,
-  ListingDetails,
-  MotorcycleDetails,
-} from "@/types/listings";
-import type { ListingMessageInput } from "@/types/messaging";
-import { formatCurrency } from "@/utils/formatUtils";
-import { useEffect, useState, lazy, Suspense } from "react";
-import { CheckCircle, XCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import i18n from "i18next";
-import { normalizeLocation } from "@/utils/locationUtils";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery"),
-);
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { CheckCircle } from 'lucide-react';
 
-interface ExtendedListing extends Listing {
+// Helper function to safely render translated text as string
+const renderTranslatedText = (
+  t: (key: string, options?: any) => string, 
+  key: string, 
+  defaultValue: string
+): string => {
+  try {
+    // Force the return type to be a string by using String()
+    const result = t(key, { defaultValue, returnObjects: false });
+    
+    // Handle null or undefined
+    if (result == null) return defaultValue;
+    
+    // Handle primitive types
+    if (typeof result === 'string') return result;
+    if (typeof result === 'number' || typeof result === 'boolean') {
+      return String(result);
+    }
+    
+    // Handle objects with toString method
+    const obj = result as any;
+    if (typeof obj === 'object' && typeof obj.toString === 'function') {
+      return obj.toString();
+    }
+    
+    // Fallback to default value
+    return defaultValue;
+  } catch (e) {
+    console.error('Translation error:', e);
+    return defaultValue;
+  }
+};
+
+import { listingsAPI } from '@/api/listings.api';
+import { MessagesAPI } from '@/api/messaging.api';
+import { useAuth } from '@/hooks/useAuth';
+import { ListingCategory, VehicleType, PropertyType } from '@/types/enums';
+import type { Listing } from '@/types/listings';
+
+type SchemaType = VehicleType | PropertyType;
+import { formatCurrency } from '@/utils/formatUtils';
+import { normalizeLocation } from '@/utils/locationUtils';
+import { getFieldsBySection, getFieldValue } from '@/utils/listingSchemaUtils';
+
+const ImageGallery = lazy(() => import('@/components/listings/images/ImageGallery'));
+
+interface ExtendedListing extends Omit<Listing, 'images' | 'category' | 'details'> {
   seller?: {
     id: string;
     username: string;
@@ -29,1383 +57,544 @@ interface ExtendedListing extends Listing {
     allowMessaging: boolean;
     privateProfile: boolean;
   };
+  sellerId?: string;
+  vehicleType?: VehicleType;
+  propertyType?: PropertyType;
+  details: {
+    vehicles?: any;
+    realEstate?: any;
+    [key: string]: any; // Allow any other properties
+  };
+  images?: (string | File)[];
+  price: number;
+  title: string;
+  description: string;
+  category: {
+    mainCategory: ListingCategory;
+    subCategory: VehicleType | PropertyType;
+  };
+  location: any; // Location is required in the base Listing interface
 }
 
-interface Features {
-  // Common vehicle features
-  safetyFeatures: string[];
-  cameraFeatures: string[];
-  climateFeatures: string[];
-  entertainmentFeatures: string[];
-  lightingFeatures: string[];
-  convenienceFeatures: string[];
-
-  // ===== Vehicle Features =====
-  // Basic info
-  color: string;
-  interiorColor: string;
-  condition: string;
-  transmissionType: string;
-  mileage: number;
-  fuelType: string;
-  previousOwners: number;
-  registrationStatus: string;
-  serviceHistory: string;
-  vin: string;
-
-  // Engine & Performance
-  engineType: string;
-  engineSize: string;
-  enginePower: number;
-  torque: number;
-  horsepower: number;
-  driveSystem: string;
-  emissions: string;
-
-  // Dimensions & Weight
-  operatingWeight: number;
-  payloadCapacity: number;
-  cargoVolume: number;
-  roofHeight: string;
-  interiorLength: string;
-
-  // ===== Construction Equipment =====
-  equipmentType: string;
-  maxLiftingCapacity: number;
-  maintenanceHistory: string;
-
-  // ===== House/Apartment Features =====
-  constructionType: string;
-  livingArea: number;
-  halfBathrooms: number;
-  stories: number;
-  parking: string;
-  parkingSpaces: number;
-  floor: number;
-  totalFloors: number;
-  elevator: boolean;
-  balcony: boolean;
-  storage: boolean;
-  heating: string | string[];
-  cooling: string | string[];
-  foundation: string;
-  windowType: string;
-
-  // ===== Vehicle Type Specific =====
-  // Bus
-  busType: string;
-  seatingCapacity: number;
-  airConditioning: string;
-  luggageSpace: number;
-
-  // Truck
-  truckType: string;
-  cabType: string;
-
-  // Van
-  vanType: string;
-
-  // Tractor
-  hours: number;
-  ptoHorsepower: number;
-  hydraulicRemotes: number;
-
-  // Motorcycle
-  brakeSystem: string[];
-
-  // ===== Motorcycle Specific =====
-  powerOutput: number;
-  fuelSystem: string;
-  coolingSystem: string;
-  frameType: string;
-  frontSuspension: string[];
-  rearSuspension: string[];
-  wheelType: string;
-  startType: string[];
-  riderAids: string[];
-  electronics: string[];
-  lighting: string[];
-  seatHeight: number;
-  handlebarType: string;
-  storageOptions: string[];
-  protectiveEquipment: string[];
-  customParts: string[];
-  accidentHistory: boolean;
-  ownershipHistory: string;
-
-  // ===== Truck Specific =====
-  bedLength: string;
-  suspensionType: string;
-  // Safety Features
-  hillStartAssist: boolean;
-  laneAssist: boolean;
-  collisionWarning: boolean;
-  blindSpotMonitoring: boolean;
-  fireExtinguisher: boolean;
-  firstAidKit: boolean;
-  emergencyTriangle: boolean;
-  // Vehicle Features
-  infotainmentSystem: boolean;
-  gps: boolean;
-  bluetooth: boolean;
-  workLights: boolean;
-  beacon: boolean;
-  strobe: boolean;
-  climateControl: boolean;
-  powerWindows: boolean;
-  powerMirrors: boolean;
-  // Cargo Features
-  payload: boolean;
-  cargoCover: boolean;
-  cargoTieDowns: boolean;
-  lockableCargoArea: boolean;
-  cargoDivider: boolean;
-  securityCameras: boolean;
-
-  // ===== Van Specific =====
-  loadingFeatures: string[];
-  refrigeration: string;
-  temperatureRange: string;
-  interiorHeight: string;
-  seatingConfiguration: string;
-  // Safety
-  frontAirbags: boolean;
-  sideAirbags: boolean;
-  curtainAirbags: boolean;
-  kneeAirbags: boolean;
-  adaptiveCruiseControl: boolean;
-  laneDepartureWarning: boolean;
-  laneKeepAssist: boolean;
-  automaticEmergencyBraking: boolean;
-  backupCamera: boolean;
-  parkingSensors: boolean;
-  crossTrafficAlert: boolean;
-  tractionControl: boolean;
-  stabilityControl: boolean;
-  tirePressureMonitoring: boolean;
-  // Cameras
-  rearCamera: boolean;
-  camera360: boolean;
-  dashCam: boolean;
-  parkingAidCamera: boolean;
-  // Entertainment
-  appleCarPlay: boolean;
-  androidAuto: boolean;
-  premiumSound: boolean;
-  usbPorts: boolean;
-  // Convenience
-  keylessEntry: boolean;
-  remoteStart: boolean;
-  powerSlidingDoors: boolean;
-  powerLiftgate: boolean;
-  handsFreeLiftgate: boolean;
-  // Interior
-  heatedSeats: boolean;
-  ventilatedSeats: boolean;
-  massageSeats: boolean;
-  powerSeats: boolean;
-  memorySeats: boolean;
-  leatherSeats: boolean;
-  sunroof: boolean;
-  panoramicRoof: boolean;
-  ambientLighting: boolean;
-  rearSeatEntertainment: boolean;
-
-  // ===== Tractor Specific =====
-  engineSpecs: string[];
-  engineManufacturer: string;
-  engineModel: string;
-  displacement: string;
-  cylinders: string;
-  hydraulicSystem: string;
-  hydraulicFlow: number;
-  hydraulicOutlets: string[];
-  ptoSystem: string[];
-  frontAttachments: string[];
-  rearAttachments: string[];
-  threePointHitch: string;
-  hitchCapacity: number;
-  modifications: string;
-  electricalSystem: string;
-  // Cab Features
-  airSuspension: boolean;
-  soundproofing: boolean;
-  radio: boolean;
-  // Seating Features
-  airSuspensionSeat: boolean;
-  mechanicalSeat: boolean;
-  heatedSeat: boolean;
-  ventilatedSeat: boolean;
-  instructorSeat: boolean;
-  swivelSeat: boolean;
-  // Steering Features
-  powerSteering: boolean;
-  hydrostaticSteering: boolean;
-  autoSteer: boolean;
-  gpsReadySteering: boolean;
-  joystickSteering: boolean;
-  // Lighting Features
-  halogenLights: boolean;
-  ledLights: boolean;
-  xenonLights: boolean;
-  beaconLights: boolean;
-  roadLights: boolean;
-  cabLights: boolean;
-  // Technology Features
-  autoSteerTech: boolean;
-  variableRateTech: boolean;
-
-  // ===== Apartment Specific =====
-  buildingAmenities: string[];
-  energyRating: string;
-  furnished: string;
-  petPolicy: string;
-  view: string;
-  securityFeatures: string[];
-  fireSafety: string[];
-  flooringType: string;
-  internetIncluded: boolean;
-  kitchenFeatures: string[];
-  bathroomFeatures: string[];
-  renovationHistory: string;
-  nearbyAmenities: string[];
-  leaseTerms: string[];
-
-  // ===== House Specific =====
-  energyFeatures: string[];
-  basement: string;
-  basementFeatures: string[];
-  attic: string;
-  flooringTypes: string[];
-  windowFeatures: string[];
-  roofAge: number;
-  exteriorFeatures: string[];
-  outdoorFeatures: string[];
-  landscaping: string[];
-  waterSystem: string;
-  sewerSystem: string;
-  smartHomeFeatures: string[];
-  communityFeatures: string[];
-  hoaFee: number;
-  hoaFeeFrequency: string;
-
-  // ===== Land Specific =====
-  naturalFeatures: string[];
-  buildable: string;
-  buildingRestrictions: string[];
-  permitsInPlace: string[];
-  environmentalFeatures: string[];
-  soilTypes: string[];
-  floodZone: string;
-  mineralRights: string[];
-  waterRights: string[];
-  easements: string[];
-  fencingType: string[];
-  irrigation: string[];
-  improvements: string[];
-  documentsAvailable: string[];
-  previousUse: string[];
-  propertyHistory: string;
-
-  // ===== Additional Vehicle Details =====
-  bodyStyle: string;
-  driveType: string;
-  engineNumber: string;
-  accidentFree: boolean;
-  importStatus: string;
-  registrationExpiry: string;
-  warranty: string;
-  roofType: string;
-  customsCleared: boolean;
-  warrantyPeriod: string;
-  serviceHistoryDetails: string;
-  additionalNotes: string;
-  navigationSystem: string;
-  seatBelts: string;
-  communicationSystem: string[];
-  comfortFeatures: string[];
-  accessibilityFeatures: string[];
-  luggageCompartments: number;
-  luggageRacks: boolean;
-  fuelTankCapacity: number;
-  emissionStandard: string;
-  engineTorque: string;
-  suspension: string[];
-  wheelchairAccessible: boolean;
-  wheelchairLift: boolean;
-  seatType: string;
-  seatMaterial: string;
-  emergencyExits: number;
-  certifications: string[];
-  lastInspectionDate: string;
-  engine: string;
-
-  // ===== Additional Features =====
-  // These are used for feature groups in the UI
-  [key: string]: any; // For any additional dynamic fields
-}
-
-// Using types directly from listings.ts
-import { LoadingSpinner } from "@/api";
-import FeatureSection from "./FeatureSection";
-import PrivateDisplayPic from "@/components/profile/PrivateDisplayPic";
-
-// Type guard to check if vehicle details are for a motorcycle
-const isMotorcycleDetails = (details: any): details is MotorcycleDetails => {
-  return details?.vehicleType === "MOTORCYCLE";
+// Helper component to safely convert any value to a string
+const safeString = (val: any): string => {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (typeof val === 'object' && val !== null) {
+    if ('toString' in val && typeof val.toString === 'function') {
+      return val.toString();
+    }
+    return JSON.stringify(val);
+  }
+  return String(val);
 };
 
-import { generateFeaturesDetails } from "@/utils/generateFeaturesDetails";
+// Helper component to render a field value
+const FieldValue = ({ field, value }: { field: any; value: any }): React.ReactNode => {
+  const { t } = useTranslation('listings');
+  
+  // Helper function to render translated text
+  const renderText = (text: string | number | boolean, options?: { capitalize?: boolean }): React.ReactNode => {
+    if (text === undefined || text === null || text === '') {
+      return <span className="text-gray-400">-</span>;
+    }
+    
+    const strValue = safeString(text);
+    
+    // Try to translate the value
+    let translated = strValue;
+    try {
+      // Try with field-specific translation first
+      const fieldSpecificKey = `fields.${field?.name}.${strValue}`.toLowerCase();
+      const fieldSpecificTranslation = t(fieldSpecificKey, { defaultValue: undefined });
+      
+      if (fieldSpecificTranslation !== fieldSpecificKey) {
+        translated = fieldSpecificTranslation;
+      } else {
+        // Fall back to general options translation
+        translated = t(`options.${strValue}`, { defaultValue: strValue });
+      }
+    } catch (e) {
+      console.error('Translation error:', e);
+      translated = strValue;
+    }
+    
+    return <span className={options?.capitalize !== false ? 'capitalize' : ''}>{translated}</span>;
+  };
 
-// Generate features details using the shared utility function
-const featuresDetails = generateFeaturesDetails();
+  // Handle empty values
+  if (value === undefined || value === null || value === '') {
+    return renderText('');
+  }
+  
+  // Get the field type from the field definition or infer from the value
+  const fieldType = field?.type || 
+    (Array.isArray(value) ? 'array' : 
+    (value instanceof Date ? 'date' : typeof value));
+    
+  // Handle primitive types first
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    // For boolean values, show Yes/No
+    if (typeof value === 'boolean') {
+      return renderText(value ? 'Yes' : 'No');
+    }
+    return renderText(value);
+  }
+  
+  // Handle special field types based on field type
+  switch (fieldType) {
+    case 'colorpicker':
+      return (
+        <div className="flex items-center">
+          <div
+            className="w-5 h-5 rounded-full border border-gray-300 mr-2"
+            style={{ backgroundColor: safeString(value) }}
+          />
+          <span className="uppercase">{safeString(value)}</span>
+        </div>
+      );
+      
+    case 'date':
+      try {
+        const date = new Date(value);
+        const formattedDate = !isNaN(date.getTime()) ? date.toLocaleDateString() : safeString(value);
+        return <span>{formattedDate}</span>;
+      } catch (e) {
+        console.error('Error formatting date:', e);
+        return <span>{safeString(value)}</span>;
+      }
+      
+    case 'select':
+    case 'radio':
+      // Handle select/radio fields with options
+      if (field.options && Array.isArray(field.options)) {
+        // Convert value to string for comparison if it's a number
+        const stringValue = typeof value === 'number' ? String(value) : value;
+        
+        const option = field.options.find((opt: any) => {
+          if (!opt) return false;
+          if (typeof opt === 'object') {
+            return (
+              opt.value === value || 
+              opt.value === stringValue ||
+              opt.label === value || 
+              opt === value ||
+              (opt.value && String(opt.value).toLowerCase() === String(value).toLowerCase())
+            );
+          }
+          return (
+            opt === value || 
+            opt === stringValue ||
+            String(opt).toLowerCase() === String(value).toLowerCase()
+          );
+        });
+        
+        if (option) {
+          const displayText = typeof option === 'object' ? 
+            (option.label || option.value || '') : 
+            String(option);
+          return renderText(displayText, { capitalize: true });
+        }
+      }
+      // If no matching option found, try to display the raw value
+      return renderText(value, { capitalize: true });
+      
+    case 'number':
+      return <span>{typeof value === 'number' ? value.toLocaleString() : safeString(value)}</span>;
+      
+    case 'currency':
+      return <span>{formatCurrency(Number(value))}</span>;
+      
+    case 'array':
+      if (!Array.isArray(value) || value.length === 0) {
+        return renderText('');
+      }
+      return (
+        <div className="flex flex-wrap gap-1">
+          {value.map((item, index) => {
+            if (item === undefined || item === null || item === '') {
+              return null;
+            }
+            
+            // Handle different types of array items
+            let displayValue;
+            if (typeof item === 'object') {
+              // If it's an object with label or value
+              displayValue = item.label || item.value || '';
+              // If it's an object with a name property (like for features)
+              if (!displayValue && item.name) {
+                displayValue = item.name;
+              }
+              // If it's an object with a value property that's an object
+              if (typeof item.value === 'object' && item.value !== null) {
+                displayValue = item.value.label || item.value.value || '';
+              }
+            } else {
+              // For primitive values
+              displayValue = String(item);
+            }
+            
+            if (!displayValue) return null;
+            
+            return (
+              <span 
+                key={index} 
+                className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm capitalize"
+              >
+                {renderText(displayValue, { capitalize: true })}
+              </span>
+            );
+          })}
+        </div>
+      );
+      
+    default:
+      // For unknown types, try to handle common cases
+      const strValue = safeString(value);
+      
+      // If it looks like a translation key (contains dots), try to translate it
+      if (typeof strValue === 'string' && strValue.includes('.')) {
+        const translated = renderTranslatedText(t, strValue, strValue);
+        if (translated !== strValue) {
+          return <span className="capitalize">{translated}</span>;
+        }
+      }
+      
+      // Default rendering
+      return <span className="capitalize">{strValue}</span>;
+  }
+};
+
+// Section component to group related fields
+const Section = ({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) => (
+  <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 ${className}`}>
+    <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+      {title}
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {children}
+    </div>
+  </div>
+);
+
+// Field component for consistent field display
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => {
+  const { t } = useTranslation('listings');
+  const displayLabel = label.startsWith('fields.') ? t(label) : label;
+  
+  return (
+    <div className="space-y-1">
+      <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+        {displayLabel}
+      </p>
+      <div className="font-medium text-gray-900 dark:text-white">
+        {children}
+      </div>
+    </div>
+  );
+};
 
 const ListingDetails = () => {
-  const { t } = useTranslation(["listings", "common", "locations"]);
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-
-  const [listing, setListing] = useState<ExtendedListing | null>(null);
+  const { t } = useTranslation(['listings', 'common']);
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth(); // Removed unused navigate
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [features, setFeatures] = useState<Features>({
-    // Common vehicle features
-    safetyFeatures: [],
-    cameraFeatures: [],
-    climateFeatures: [],
-    entertainmentFeatures: [],
-    lightingFeatures: [],
-    convenienceFeatures: [],
-
-    // Basic vehicle info
-    color: "",
-    interiorColor: "",
-    condition: "",
-    transmissionType: "",
-    mileage: 0,
-    fuelType: "",
-    previousOwners: 0,
-    registrationStatus: "",
-    serviceHistory: "",
-    vin: "",
-
-    // Engine & Performance
-    engineType: "",
-    engineSize: "",
-    enginePower: 0,
-    torque: 0,
-    horsepower: 0,
-    driveSystem: "",
-    emissions: "",
-
-    // Dimensions & Weight
-    operatingWeight: 0,
-    payloadCapacity: 0,
-    cargoVolume: 0,
-    roofHeight: "",
-    interiorLength: "",
-
-    // Construction Equipment
-    equipmentType: "",
-    maxLiftingCapacity: 0,
-    maintenanceHistory: "",
-
-    // House/Apartment Features
-    constructionType: "",
-    livingArea: 0,
-    halfBathrooms: 0,
-    stories: 0,
-    parking: "",
-    parkingSpaces: 0,
-    floor: 0,
-    totalFloors: 0,
-    elevator: false,
-    balcony: false,
-    storage: false,
-    heating: [],
-    cooling: [],
-    foundation: "",
-    windowType: "",
-
-    // Vehicle Type Specific
-    // Bus
-    busType: "",
-    seatingCapacity: 0,
-    airConditioning: "",
-    luggageSpace: 0,
-
-    // Truck
-    truckType: "",
-    cabType: "",
-
-    // Van
-    vanType: "",
-
-    // Tractor
-    hours: 0,
-    ptoHorsepower: 0,
-    hydraulicRemotes: 0,
-
-    // Motorcycle
-    brakeSystem: [],
-
-    // Motorcycle Specific
-    powerOutput: 0,
-    fuelSystem: "",
-    coolingSystem: "",
-    frameType: "",
-    frontSuspension: [],
-    rearSuspension: [],
-    wheelType: "",
-    startType: [],
-    riderAids: [],
-    electronics: [],
-    lighting: [],
-    seatHeight: 0,
-    handlebarType: "",
-    storageOptions: [],
-    protectiveEquipment: [],
-    customParts: [],
-    accidentHistory: false,
-    ownershipHistory: "",
-
-    // Truck Specific
-    bedLength: "",
-    suspensionType: "",
-    // Safety Features
-    hillStartAssist: false,
-    laneAssist: false,
-    collisionWarning: false,
-    blindSpotMonitoring: false,
-    fireExtinguisher: false,
-    firstAidKit: false,
-    emergencyTriangle: false,
-    // Vehicle Features
-    infotainmentSystem: false,
-    gps: false,
-    bluetooth: false,
-    workLights: false,
-    beacon: false,
-    strobe: false,
-    climateControl: false,
-    powerWindows: false,
-    powerMirrors: false,
-    // Cargo Features
-    payload: false,
-    cargoCover: false,
-    cargoTieDowns: false,
-    lockableCargoArea: false,
-    cargoDivider: false,
-    securityCameras: false,
-
-    // Van Specific
-    loadingFeatures: [],
-    refrigeration: "",
-    temperatureRange: "",
-    interiorHeight: "",
-    seatingConfiguration: "",
-    // Safety
-    frontAirbags: false,
-    sideAirbags: false,
-    curtainAirbags: false,
-    kneeAirbags: false,
-    adaptiveCruiseControl: false,
-    laneDepartureWarning: false,
-    laneKeepAssist: false,
-    automaticEmergencyBraking: false,
-    backupCamera: false,
-    parkingSensors: false,
-    crossTrafficAlert: false,
-    tractionControl: false,
-    stabilityControl: false,
-    tirePressureMonitoring: false,
-    // Cameras
-    rearCamera: false,
-    camera360: false,
-    dashCam: false,
-    parkingAidCamera: false,
-    // Entertainment
-    appleCarPlay: false,
-    androidAuto: false,
-    premiumSound: false,
-    usbPorts: false,
-    // Convenience
-    keylessEntry: false,
-    remoteStart: false,
-    powerSlidingDoors: false,
-    powerLiftgate: false,
-    handsFreeLiftgate: false,
-    // Interior
-    heatedSeats: false,
-    ventilatedSeats: false,
-    massageSeats: false,
-    powerSeats: false,
-    memorySeats: false,
-    leatherSeats: false,
-    sunroof: false,
-    panoramicRoof: false,
-    ambientLighting: false,
-    rearSeatEntertainment: false,
-
-    // Tractor Specific
-    engineSpecs: [],
-    engineManufacturer: "",
-    engineModel: "",
-    displacement: "",
-    cylinders: "",
-    hydraulicSystem: "",
-    hydraulicFlow: 0,
-    hydraulicOutlets: [],
-    ptoSystem: [],
-    frontAttachments: [],
-    rearAttachments: [],
-    threePointHitch: "",
-    hitchCapacity: 0,
-    modifications: "",
-    electricalSystem: "",
-    // Cab Features
-    airSuspension: false,
-    soundproofing: false,
-    radio: false,
-    // Seating Features
-    airSuspensionSeat: false,
-    mechanicalSeat: false,
-    heatedSeat: false,
-    ventilatedSeat: false,
-    instructorSeat: false,
-    swivelSeat: false,
-    // Steering Features
-    powerSteering: false,
-    hydrostaticSteering: false,
-    autoSteer: false,
-    gpsReadySteering: false,
-    joystickSteering: false,
-    // Lighting Features
-    halogenLights: false,
-    ledLights: false,
-    xenonLights: false,
-    beaconLights: false,
-    roadLights: false,
-    cabLights: false,
-    // Technology Features
-    autoSteerTech: false,
-    variableRateTech: false,
-
-    // Apartment Specific
-    buildingAmenities: [],
-    energyRating: "",
-    furnished: "",
-    petPolicy: "",
-    view: "",
-    securityFeatures: [],
-    fireSafety: [],
-    flooringType: "",
-    internetIncluded: false,
-    kitchenFeatures: [],
-    bathroomFeatures: [],
-    renovationHistory: "",
-    nearbyAmenities: [],
-    leaseTerms: [],
-
-    // House Specific
-    energyFeatures: [],
-    basement: "",
-    basementFeatures: [],
-    attic: "",
-    flooringTypes: [],
-    windowFeatures: [],
-    roofAge: 0,
-    exteriorFeatures: [],
-    outdoorFeatures: [],
-    landscaping: [],
-    waterSystem: "",
-    sewerSystem: "",
-    smartHomeFeatures: [],
-    communityFeatures: [],
-    hoaFee: 0,
-    hoaFeeFrequency: "",
-
-    // Land Specific
-    naturalFeatures: [],
-    buildable: "",
-    buildingRestrictions: [],
-    permitsInPlace: [],
-    environmentalFeatures: [],
-    soilTypes: [],
-    floodZone: "",
-    mineralRights: [],
-    waterRights: [],
-    easements: [],
-    fencingType: [],
-    irrigation: [],
-    improvements: [],
-    documentsAvailable: [],
-    previousUse: [],
-    propertyHistory: "",
-
-    // Additional Vehicle Details
-    bodyStyle: "",
-    driveType: "",
-    engineNumber: "",
-    accidentFree: false,
-    importStatus: "",
-    registrationExpiry: "",
-    warranty: "",
-    roofType: "",
-    customsCleared: false,
-    warrantyPeriod: "",
-    serviceHistoryDetails: "",
-    additionalNotes: "",
-    navigationSystem: "",
-    seatBelts: "",
-    communicationSystem: [],
-    comfortFeatures: [],
-    accessibilityFeatures: [],
-    luggageCompartments: 0,
-    luggageRacks: false,
-    fuelTankCapacity: 0,
-    emissionStandard: "",
-    engineTorque: "",
-    suspension: [],
-    wheelchairAccessible: false,
-    wheelchairLift: false,
-    seatType: "",
-    seatMaterial: "",
-    emergencyExits: 0,
-    certifications: [],
-    lastInspectionDate: "",
-    engine: "",
+  const [listing, setListing] = useState<ExtendedListing | null>(null);
+  const [showMessageForm, setShowMessageForm] = useState(false);
+  const [message, setMessage] = useState<{
+    message: string;
+    type: 'question' | 'offer' | 'meeting';
+  }>({
+    message: '',
+    type: 'question',
   });
-
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [messageSuccess, setMessageSuccess] = useState(false);
+  
+  // Debug: Log the listing data when it's loaded
   useEffect(() => {
-    const initializeAndFetchListing = async () => {
-      if (!id) {
-        setError("No listing ID provided");
-        setLoading(false);
-        return;
-      }
-      try {
-        const response = await listingsAPI.getById(id);
-        console.log("Got response:", response);
+    if (listing) {
+      console.log('Listing data:', listing);
+      console.log('Listing category:', listing.category);
+      console.log('Listing details:', listing.details);
+    }
+  }, [listing]);
 
-        // Log the full response data for debugging advanced details
-        console.log(
-          "Response data details:",
-          JSON.stringify(response.data?.details, null, 2),
-        );
-        console.log(
-          "FULL Response Data:",
-          JSON.stringify(response.data, null, 2),
-        );
-
-        // Log specific vehicle details for debugging
-        if (response.data?.details?.vehicles) {
-          console.log(
-            "Vehicle details (raw):",
-            JSON.stringify(response.data.details.vehicles, null, 2),
-          );
-
-          // Log each individual field for debugging
-          const vehicles = response.data.details.vehicles;
-          console.log("Vehicle fields available:", Object.keys(vehicles));
-
-          // Check specific fields that might be missing
-          console.log("Checking specific fields:");
-          console.log("- make:", vehicles.make);
-          console.log(
-            "- model:",
-            t("model", { ns: "listings" }),
-            ":",
-            vehicles.model,
-          );
-          console.log(
-            "- year:",
-            t("year", { ns: "listings" }),
-            ":",
-            vehicles.year,
-          );
-          console.log(
-            "- mileage:",
-            t("mileage", { ns: "listings" }),
-            ":",
-            vehicles.mileage,
-          );
-          console.log("- color:", vehicles.color);
-          console.log("- condition:", vehicles.condition);
-          console.log("- features:", vehicles.features);
-          console.log("- horsepower:", vehicles.horsepower);
-          console.log("- torque:", vehicles.torque);
-        }
-
-        if (!response.success || !response.data) {
-          const error = response.error || "Failed to load listing";
-          console.error("API error:", error);
-          setError(error);
-          setLoading(false);
-          return;
-        }
-
-        const listing = response.data;
-        console.log("Listing data:", listing);
-        console.log("Listing images:", listing.images);
-
-        if (!listing) {
-          console.error("No listing data in response");
-          setError("Listing not found");
-          setLoading(false);
-          return;
-        }
-
-        // Ensure images are in the correct format
-        const processedImages = (listing.images || [])
-          .map((img: string | File) => {
-            if (typeof img === "string") return img;
-            if (img instanceof File) {
-              // Create URL from File object
-              return URL.createObjectURL(img);
+  // Get schema fields based on listing type
+  const { essentialFields, advancedFields } = useMemo(() => {
+    if (!listing) {
+      console.log('No listing data yet');
+      return { essentialFields: [], advancedFields: [] };
+    }
+    
+    console.log('Listing category:', listing.category);
+    
+    // Get vehicle or property type from the appropriate location
+    const vehicleType = listing.details?.vehicles?.vehicleType as VehicleType;
+    const propertyType = listing.details?.realEstate?.propertyType as PropertyType;
+    
+    console.log('Vehicle type from details:', vehicleType);
+    console.log('Property type from details:', propertyType);
+    
+    // Determine the listing type based on the main category
+    let listingType: SchemaType | undefined;
+    
+    if (listing.category?.mainCategory === ListingCategory.VEHICLES) {
+      // For vehicles, use the vehicle type from details.vehicles
+      listingType = vehicleType;
+      console.log('Using vehicle type:', listingType);
+    } else if (listing.category?.mainCategory === ListingCategory.REAL_ESTATE) {
+      // For properties, use the property type from details.realEstate
+      listingType = propertyType;
+      console.log('Using property type:', listingType);
+    } else {
+      // Fallback to using the subCategory if available
+      listingType = listing.category?.subCategory as SchemaType;
+      console.log('Using subCategory as fallback:', listingType);
+    }
+    
+    console.log('Determined listing type:', listingType);
+    
+    if (!listingType) {
+      console.log('No listing type determined');
+      return { essentialFields: [], advancedFields: [] };
+    }
+    
+    // Helper function to get all possible fields from the listing data and schema
+    const getAllPossibleFields = () => {
+      const fields = new Set<string>();
+      
+      // Add all fields from the schema first
+      const schemaFields = [
+        ...getFieldsBySection(listingType, 'essential'), 
+        ...getFieldsBySection(listingType, 'advanced')
+      ];
+      
+      // Add all field names from schema
+      schemaFields.forEach(field => {
+        fields.add(field.name);
+        
+        // Handle feature groups (safety, entertainment, etc.)
+        if (field.featureGroups) {
+          Object.values(field.featureGroups).forEach((group: any) => {
+            if (group.features) {
+              group.features.forEach((feature: any) => {
+                fields.add(feature.name);
+              });
             }
-            return "";
-          })
-          .filter(Boolean);
-
-        console.log("Processed images:", processedImages);
-
-        const {
-          category,
-          details = {},
-          listingAction,
-          status,
-          ...rest
-        } = listing;
-
-        console.log("Listing category:", category);
-
-        // Log all the details to debug what's available
-        console.log(
-          "Details before transformation:",
-          JSON.stringify(details, null, 2),
-        );
-        console.log(
-          "Vehicle details before:",
-          details.vehicles
-            ? JSON.stringify(details.vehicles, null, 2)
-            : "No vehicle details",
-        );
-
-        // Transform vehicle details if present
-        // Determine category type
-        const isVehicleListing =
-          category.mainCategory === ListingCategory.VEHICLES;
-
-        // Transform the features array into a boolean object
-
-        const transformedDetails = {
-          vehicles:
-            isVehicleListing && details.vehicles
-              ? ({
-                  // Common vehicle fields
-                  ...details.vehicles, // Spread all existing vehicle details first
-
-                  // Ensure required fields have defaults
-                  vehicleType: details.vehicles.vehicleType,
-                  make: details.vehicles.make || "",
-                  model: details.vehicles.model || "",
-                  year: details.vehicles.year || "",
-                  mileage:
-                    typeof details.vehicles.mileage === "number"
-                      ? details.vehicles.mileage
-                      : typeof details.vehicles.mileage === "string"
-                        ? parseInt(details.vehicles.mileage) || 0
-                        : 0,
-                  fuelType: details.vehicles.fuelType || "",
-                  transmissionType:
-                    details.vehicles.transmissionType ||
-                    details.vehicles.transmission ||
-                    "",
-                  color: details.vehicles.color || "",
-                  interiorColor: details.vehicles.interiorColor || "",
-                  condition: details.vehicles.condition || "good",
-                  features: Array.isArray(details.vehicles.features)
-                    ? details.vehicles.features
-                    : [],
-
-                  // Engine and performance with type safety
-                  engine: details.vehicles.engine || "",
-                  engineType: details.vehicles.engineType || "",
-                  engineSize: details.vehicles.engineSize || "",
-                  enginePower:
-                    typeof details.vehicles.enginePower === "number"
-                      ? details.vehicles.enginePower
-                      : 0,
-                  torque:
-                    typeof details.vehicles.torque === "number"
-                      ? details.vehicles.torque
-                      : 0,
-                  horsepower:
-                    typeof details.vehicles.horsepower === "number"
-                      ? details.vehicles.horsepower
-                      : 0,
-                  emissions: details.vehicles.emissions || "",
-
-                  // Vehicle details with proper boolean handling
-                  warranty: Boolean(details.vehicles.warranty),
-                  warrantyPeriod: details.vehicles.warrantyPeriod || "",
-                  serviceHistory: Boolean(details.vehicles.serviceHistory),
-                  serviceHistoryDetails:
-                    details.vehicles.serviceHistoryDetails || "",
-                  previousOwners:
-                    typeof details.vehicles.previousOwners === "number"
-                      ? details.vehicles.previousOwners
-                      : 0,
-                  registrationStatus:
-                    details.vehicles.registrationStatus || "unregistered",
-                  accidentFree: Boolean(details.vehicles.accidentFree),
-                  customsCleared: Boolean(details.vehicles.customsCleared),
-
-                  // Vehicle type specific with proper type checking
-                  bodyType: details.vehicles.bodyType || "",
-                  roofType: details.vehicles.roofType || "",
-                  busType: details.vehicles.busType || "",
-                  seatingCapacity:
-                    typeof details.vehicles.seatingCapacity === "number"
-                      ? details.vehicles.seatingCapacity
-                      : 0,
-                  truckType: details.vehicles.truckType || "",
-                  cabType: details.vehicles.cabType || "",
-                  vanType: details.vehicles.vanType || "",
-                  hours:
-                    typeof details.vehicles.hours === "number"
-                      ? details.vehicles.hours
-                      : 0,
-                  equipmentType: details.vehicles.equipmentType || "",
-
-                  // Dimensions and capacity with number validation
-                  operatingWeight:
-                    typeof details.vehicles.operatingWeight === "number"
-                      ? details.vehicles.operatingWeight
-                      : 0,
-                  payloadCapacity:
-                    typeof details.vehicles.payloadCapacity === "number"
-                      ? details.vehicles.payloadCapacity
-                      : 0,
-                  cargoVolume:
-                    typeof details.vehicles.cargoVolume === "number"
-                      ? details.vehicles.cargoVolume
-                      : 0,
-                  maxLiftingCapacity:
-                    typeof details.vehicles.maxLiftingCapacity === "number"
-                      ? details.vehicles.maxLiftingCapacity
-                      : 0,
-                  roofHeight: details.vehicles.roofHeight || "",
-                  interiorLength: details.vehicles.interiorLength || "",
-
-                  // Property specific with proper type checking
-                  livingArea:
-                    typeof details.vehicles.livingArea === "number"
-                      ? details.vehicles.livingArea
-                      : 0,
-                  halfBathrooms:
-                    typeof details.vehicles.halfBathrooms === "number"
-                      ? details.vehicles.halfBathrooms
-                      : 0,
-                  stories:
-                    typeof details.vehicles.stories === "number"
-                      ? details.vehicles.stories
-                      : 0,
-                  parking: details.vehicles.parking || "",
-                  parkingSpaces:
-                    typeof details.vehicles.parkingSpaces === "number"
-                      ? details.vehicles.parkingSpaces
-                      : 0,
-                  floor:
-                    typeof details.vehicles.floor === "number"
-                      ? details.vehicles.floor
-                      : 0,
-                  totalFloors:
-                    typeof details.vehicles.totalFloors === "number"
-                      ? details.vehicles.totalFloors
-                      : 0,
-                  elevator: Boolean(details.vehicles.elevator),
-                  balcony: Boolean(details.vehicles.balcony),
-                  storage: Boolean(details.vehicles.storage),
-                  heating: Array.isArray(details.vehicles.heating)
-                    ? details.vehicles.heating
-                    : [],
-                  cooling: Array.isArray(details.vehicles.cooling)
-                    ? details.vehicles.cooling
-                    : [],
-                  foundation: details.vehicles.foundation || "",
-                  windowType: details.vehicles.windowType || "",
-
-                  // Land specific with array type checking
-                  zoning: details.vehicles.zoning || "",
-                  utilities: Array.isArray(details.vehicles.utilities)
-                    ? details.vehicles.utilities
-                    : [],
-                  accessRoad: details.vehicles.accessRoad || "",
-                  parcelNumber: details.vehicles.parcelNumber || "",
-                  topography: Array.isArray(details.vehicles.topography)
-                    ? details.vehicles.topography
-                    : [],
-                  elevation:
-                    typeof details.vehicles.elevation === "number"
-                      ? details.vehicles.elevation
-                      : 0,
-                  waterFeatures: Array.isArray(details.vehicles.waterFeatures)
-                    ? details.vehicles.waterFeatures
-                    : [],
-                  boundaryFeatures: Array.isArray(
-                    details.vehicles.boundaryFeatures,
-                  )
-                    ? details.vehicles.boundaryFeatures
-                    : [],
-
-                  // Additional details
-                  additionalNotes: details.vehicles.additionalNotes || "",
-                  maintenanceHistory: details.vehicles.maintenanceHistory || "",
-
-                  // Individual feature fields with boolean conversion
-                  frontAirbags: Boolean(details.vehicles.frontAirbags),
-                  sideAirbags: Boolean(details.vehicles.sideAirbags),
-                  curtainAirbags: Boolean(details.vehicles.curtainAirbags),
-                  kneeAirbags: Boolean(details.vehicles.kneeAirbags),
-
-                  cruiseControl: Boolean(details.vehicles.cruiseControl),
-                  laneDepartureWarning: Boolean(
-                    details.vehicles.laneDepartureWarning,
-                  ),
-                  laneKeepAssist: Boolean(details.vehicles.laneKeepAssist),
-                  automaticEmergencyBraking: Boolean(
-                    details.vehicles.automaticEmergencyBraking,
-                  ),
-
-                  blindSpotMonitor: Boolean(details.vehicles.blindSpotMonitor),
-                  laneAssist: Boolean(details.vehicles.laneAssist),
-                  adaptiveCruiseControl: Boolean(
-                    details.vehicles.adaptiveCruiseControl,
-                  ),
-                  tractionControl: Boolean(details.vehicles.tractionControl),
-                  abs: Boolean(details.vehicles.abs),
-                  emergencyBrakeAssist: Boolean(
-                    details.vehicles.emergencyBrakeAssist,
-                  ),
-                  tirePressureMonitoring: Boolean(
-                    details.vehicles.tirePressureMonitoring,
-                  ),
-
-                  rearCamera: Boolean(details.vehicles.rearCamera),
-                  camera360: Boolean(details.vehicles.camera360),
-                  dashCam: Boolean(details.vehicles.dashCam),
-                  nightVision: Boolean(details.vehicles.nightVision),
-                  parkingSensors: Boolean(details.vehicles.parkingSensors),
-
-                  climateControl: Boolean(details.vehicles.climateControl),
-                  heatedSeats: Boolean(details.vehicles.heatedSeats),
-                  ventilatedSeats: Boolean(details.vehicles.ventilatedSeats),
-                  dualZoneClimate: Boolean(details.vehicles.dualZoneClimate),
-                  rearAC: Boolean(details.vehicles.rearAC),
-                  airQualitySensor: Boolean(details.vehicles.airQualitySensor),
-
-                  bluetooth: Boolean(details.vehicles.bluetooth),
-                  appleCarPlay: Boolean(details.vehicles.appleCarPlay),
-                  androidAuto: Boolean(details.vehicles.androidAuto),
-                  premiumSound: Boolean(details.vehicles.premiumSound),
-                  wirelessCharging: Boolean(details.vehicles.wirelessCharging),
-                  usbPorts: Boolean(details.vehicles.usbPorts),
-                  cdPlayer: Boolean(details.vehicles.cdPlayer),
-                  dvdPlayer: Boolean(details.vehicles.dvdPlayer),
-                  rearSeatEntertainment: Boolean(
-                    details.vehicles.rearSeatEntertainment,
-                  ),
-
-                  ledHeadlights: Boolean(details.vehicles.ledHeadlights),
-                  adaptiveHeadlights: Boolean(
-                    details.vehicles.adaptiveHeadlights,
-                  ),
-                  ambientLighting: Boolean(details.vehicles.ambientLighting),
-                  fogLights: Boolean(details.vehicles.fogLights),
-                  automaticHighBeams: Boolean(
-                    details.vehicles.automaticHighBeams,
-                  ),
-
-                  keylessEntry: Boolean(details.vehicles.keylessEntry),
-                  sunroof: Boolean(details.vehicles.sunroof),
-                  spareKey: Boolean(details.vehicles.spareKey),
-                  remoteStart: Boolean(details.vehicles.remoteStart),
-                  powerTailgate: Boolean(details.vehicles.powerTailgate),
-                  autoDimmingMirrors: Boolean(
-                    details.vehicles.autoDimmingMirrors,
-                  ),
-                  rainSensingWipers: Boolean(
-                    details.vehicles.rainSensingWipers,
-                  ),
-
-                  // Engine & Performance - Removing duplicate keys that are already defined above
-                  powerOutput:
-                    details.vehicles.powerOutput !== undefined
-                      ? details.vehicles.powerOutput
-                      : null,
-                  fuelSystem: details.vehicles.fuelSystem || "",
-                  coolingSystem: details.vehicles.coolingSystem || "",
-
-                  // Chassis & Suspension
-                  frameType: details.vehicles.frameType || "",
-                  frontSuspension: Array.isArray(
-                    details.vehicles.frontSuspension,
-                  )
-                    ? details.vehicles.frontSuspension
-                    : [],
-                  rearSuspension: Array.isArray(details.vehicles.rearSuspension)
-                    ? details.vehicles.rearSuspension
-                    : [],
-                  brakeSystem: Array.isArray(details.vehicles.brakeSystem)
-                    ? details.vehicles.brakeSystem
-                    : [],
-                  brakeType: details.vehicles.brakeType || "",
-                  driveType: details.vehicles.driveType || "",
-                  wheelSize: details.vehicles.wheelSize || "",
-                  wheelType: details.vehicles.wheelType || "",
-
-                  // Starting & Electronics
-                  startType: Array.isArray(details.vehicles.startType)
-                    ? details.vehicles.startType
-                    : [],
-                  riderAids: Array.isArray(details.vehicles.riderAids)
-                    ? details.vehicles.riderAids
-                    : [],
-                  electronics: Array.isArray(details.vehicles.electronics)
-                    ? details.vehicles.electronics
-                    : [],
-                  lighting: Array.isArray(details.vehicles.lighting)
-                    ? details.vehicles.lighting
-                    : [],
-
-                  // Comfort & Ergonomics
-                  seatType: Array.isArray(details.vehicles.seatType)
-                    ? details.vehicles.seatType
-                    : [],
-                  seatHeight: details.vehicles.seatHeight || 0,
-                  handlebarType: details.vehicles.handlebarType || "",
-                  comfortFeatures: Array.isArray(
-                    details.vehicles.comfortFeatures,
-                  )
-                    ? details.vehicles.comfortFeatures
-                    : [],
-
-                  // Storage & Accessories
-                  storageOptions: Array.isArray(details.vehicles.storageOptions)
-                    ? details.vehicles.storageOptions
-                    : [],
-                  protectiveEquipment: Array.isArray(
-                    details.vehicles.protectiveEquipment,
-                  )
-                    ? details.vehicles.protectiveEquipment
-                    : [],
-                  customParts: Array.isArray(details.vehicles.customParts)
-                    ? details.vehicles.customParts
-                    : [],
-
-                  // Documentation & History
-                  modifications: details.vehicles.modifications || "",
-                  importStatus: details.vehicles.importStatus || "",
-                } as any)
-              : undefined,
-          realEstate:
-            !isVehicleListing && details.realEstate
-              ? {
-                  ...details.realEstate,
-                  features: details.realEstate.features || [],
-                }
-              : undefined,
-        };
-
-        // Then update the vehicleDetails assignment
-        let vehicleDetails = transformedDetails.vehicles;
-        if (vehicleDetails) {
-          const subCategory = category.subCategory as VehicleType;
-
-          // First ensure all required fields are present
-          const baseVehicle = {
-            ...vehicleDetails,
-            vehicleType: subCategory,
-            make: vehicleDetails.make || "",
-            model: vehicleDetails.model || "",
-            year: vehicleDetails.year || "",
-            mileage: vehicleDetails.mileage || 0,
-            color: vehicleDetails.color || "",
-            condition: vehicleDetails.condition,
-            fuelType: vehicleDetails.fuelType,
-            transmissionType: vehicleDetails.transmissionType,
-          };
-
-          // Use 'as any' to bypass TypeScript checking for this specific assignment
-          vehicleDetails = baseVehicle as any;
+          });
         }
-
-        // Only set vehicle features if this is a vehicle listing and vehicleDetails exists
-        setFeatures((prevFeatures) => {
-          if (!isVehicleListing || !vehicleDetails) {
-            return {
-              ...prevFeatures,
-              // Reset all feature arrays to empty
-              safetyFeatures: [],
-              cameraFeatures: [],
-              climateFeatures: [],
-              entertainmentFeatures: [],
-              lightingFeatures: [],
-              convenienceFeatures: [],
-              // Reset other feature arrays
-              brakeSystem: [],
-              utilities: [],
-              topography: [],
-              waterFeatures: [],
-              boundaryFeatures: [],
-              heating: [],
-              cooling: [],
-            };
+      });
+      
+      // Add all fields from listing.details.vehicles
+      if (listing.details?.vehicles) {
+        Object.keys(listing.details.vehicles).forEach(key => {
+          // Skip internal fields
+          if (!['id', 'listingId', 'createdAt', 'updatedAt'].includes(key)) {
+            fields.add(key);
           }
-
-          // Helper function to filter features based on vehicle details
-          const getFeatures = (featureList: string[]) =>
-            featureList.filter((feature) =>
-              Object.entries(vehicleDetails).some(
-                ([key, value]) => key === feature && value,
-              ),
-            );
-
-          return {
-            ...prevFeatures,
-            // Feature groups
-            safetyFeatures: getFeatures(featuresDetails.safetyFeatures),
-            cameraFeatures: getFeatures(featuresDetails.cameraFeatures),
-            climateFeatures: getFeatures(featuresDetails.climateFeatures),
-            entertainmentFeatures: getFeatures(
-              featuresDetails.entertainmentFeatures || [],
-            ),
-            lightingFeatures: getFeatures(featuresDetails.lightingFeatures),
-            convenienceFeatures: getFeatures(
-              featuresDetails.convenienceFeatures,
-            ),
-
-            // Vehicle specific features
-            color: vehicleDetails.color || "",
-            interiorColor: vehicleDetails.interiorColor || "",
-            condition: vehicleDetails.condition || "",
-            transmissionType: vehicleDetails.transmissionType || "",
-            mileage: vehicleDetails.mileage || 0,
-            fuelType: vehicleDetails.fuelType || "",
-            previousOwners: vehicleDetails.previousOwners || 0,
-            registrationStatus: vehicleDetails.registrationStatus || "",
-            serviceHistory: vehicleDetails.serviceHistory || "",
-            vin: vehicleDetails.vin || "",
-            engineType: vehicleDetails.engineType || "",
-            engineSize: vehicleDetails.engineSize || "",
-            enginePower: vehicleDetails.enginePower || 0,
-            torque: vehicleDetails.torque || 0,
-            horsepower: vehicleDetails.horsepower || 0,
-            driveSystem: vehicleDetails.driveSystem || "",
-            emissions: vehicleDetails.emissions || "",
-            operatingWeight: vehicleDetails.operatingWeight || 0,
-            payloadCapacity: vehicleDetails.payloadCapacity || 0,
-            cargoVolume: vehicleDetails.cargoVolume || 0,
-            roofHeight: vehicleDetails.roofHeight || "",
-            interiorLength: vehicleDetails.interiorLength || "",
-            equipmentType: vehicleDetails.equipmentType || "",
-            maxLiftingCapacity: vehicleDetails.maxLiftingCapacity || 0,
-            maintenanceHistory: vehicleDetails.maintenanceHistory || "",
-            constructionType: vehicleDetails.constructionType || "",
-            livingArea: vehicleDetails.livingArea || 0,
-            halfBathrooms: vehicleDetails.halfBathrooms || 0,
-            stories: vehicleDetails.stories || 0,
-            parking: vehicleDetails.parking || "",
-            parkingSpaces: vehicleDetails.parkingSpaces || 0,
-            floor: vehicleDetails.floor || 0,
-            totalFloors: vehicleDetails.totalFloors || 0,
-            elevator: Boolean(vehicleDetails.elevator),
-            balcony: Boolean(vehicleDetails.balcony),
-            storage: Boolean(vehicleDetails.storage),
-            foundation: vehicleDetails.foundation || "",
-            windowType: vehicleDetails.windowType || "",
-            zoning: vehicleDetails.zoning || "",
-            accessRoad: vehicleDetails.accessRoad || "",
-            parcelNumber: vehicleDetails.parcelNumber || "",
-            elevation: vehicleDetails.elevation || 0,
-            busType: vehicleDetails.busType || "",
-            seatingCapacity: vehicleDetails.seatingCapacity || 0,
-            airConditioning: vehicleDetails.airConditioning || "",
-            luggageSpace: vehicleDetails.luggageSpace || 0,
-            truckType: vehicleDetails.truckType || "",
-            cabType: vehicleDetails.cabType || "",
-            vanType: vehicleDetails.vanType || "",
-            hours: vehicleDetails.hours || 0,
-            ptoHorsepower: vehicleDetails.ptoHorsepower || 0,
-            hydraulicRemotes: vehicleDetails.hydraulicRemotes || 0,
-
-            // Array features
-            brakeSystem: Array.isArray(vehicleDetails.brakeSystem)
-              ? vehicleDetails.brakeSystem
-              : [],
-            utilities: Array.isArray(vehicleDetails.utilities)
-              ? vehicleDetails.utilities
-              : [],
-            topography: Array.isArray(vehicleDetails.topography)
-              ? vehicleDetails.topography
-              : [],
-            waterFeatures: Array.isArray(vehicleDetails.waterFeatures)
-              ? vehicleDetails.waterFeatures
-              : [],
-            boundaryFeatures: Array.isArray(vehicleDetails.boundaryFeatures)
-              ? vehicleDetails.boundaryFeatures
-              : [],
-            heating: Array.isArray(vehicleDetails.heating)
-              ? vehicleDetails.heating
-              : [],
-            cooling: Array.isArray(vehicleDetails.cooling)
-              ? vehicleDetails.cooling
-              : [],
+        });
+      }
+      
+      // Add common fields that might be at the listing level
+      ['price', 'title', 'description', 'location'].forEach(field => fields.add(field));
+      
+      return Array.from(fields);
+    };
+    
+    // Helper function to process and sort fields
+    const processFields = (fields: any[]) => {
+      const processedFields = [];
+      const fieldMap = new Map();
+      const allPossibleFields = getAllPossibleFields();
+      
+      // First, process all fields from the schema
+      for (const field of fields) {
+        let value = getFieldValue(listing, field.name);
+        
+        // Special handling for feature groups
+        if (field.featureGroups) {
+          const features: Array<{
+            name: string;
+            label: string;
+            type: string;
+            value: boolean;
+          }> = [];
+          
+          // Process each feature group
+          Object.values(field.featureGroups).forEach((group: any) => {
+            if (group.features) {
+              group.features.forEach((feature: any) => {
+                if (feature.name) {
+                  const featureValue = getFieldValue(listing, feature.name);
+                  if (featureValue === true) {
+                    features.push({
+                      name: feature.name,
+                      label: feature.label || `fields.${feature.name}`,
+                      type: 'boolean',
+                      value: true
+                    });
+                  }
+                }
+              });
+            }
+          });
+          
+          value = features.length > 0 ? features : undefined;
+        }
+        
+        // Only add the field if it has a value or is required
+        if (value !== undefined && value !== null && value !== '') {
+          const processedField = { 
+            ...field, 
+            value,
+            // Add type if not specified
+            type: field.type || (Array.isArray(value) ? 'array' : typeof value)
           };
-        });
+          
+          processedFields.push(processedField);
+          fieldMap.set(field.name, processedField);
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Processed field ${field.name} (${field.label}):`, {
+              value,
+              type: typeof value,
+              isArray: Array.isArray(value),
+              isEmpty: value === undefined || value === null || value === '' || 
+                      (Array.isArray(value) && value.length === 0)
+            });
+          }
+        }
+      }
+      
+      // Then, add any additional fields found in the listing data
+      for (const fieldName of allPossibleFields) {
+        if (!fieldMap.has(fieldName)) {
+          const value = getFieldValue(listing, fieldName);
+          
+          // Skip empty values except for booleans (which can be false)
+          const shouldInclude = value !== undefined && value !== null && 
+                             (value !== '' || typeof value === 'boolean');
+          
+          if (shouldInclude) {
+            const field = {
+              name: fieldName,
+              label: `fields.${fieldName}`,
+              type: Array.isArray(value) ? 'array' : typeof value,
+              section: 'additional',
+              value
+            };
+            
+            processedFields.push(field);
+            fieldMap.set(fieldName, field);
+            
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`Added additional field ${fieldName}:`, value);
+            }
+          }
+        }
+      }
+      
+      return processedFields.sort((a, b) => {
+        // Sort required fields first, then by label
+        if (a.required && !b.required) return -1;
+        if (!a.required && b.required) return 1;
+        return (a.label || '').localeCompare(b.label || '');
+      });
+    };
+    
+    // Get all fields for the determined type
+    const allEssential = getFieldsBySection(listingType, 'essential');
+    const allAdvanced = getFieldsBySection(listingType, 'advanced');
+    
+    // Process fields (get values and sort)
+    const essential = processFields(allEssential);
+    const advanced = processFields(allAdvanced);
+    
+    console.log('Essential fields:', essential);
+    console.log('Advanced fields:', advanced);
+    
+    return {
+      essentialFields: essential,
+      advancedFields: advanced,
+      listingType // Include listingType in the return value for debugging
+    };
+  }, [listing]);
 
-        console.log("[ListingDetails] vehicleDetails:", vehicleDetails);
-        setListing({
-          ...rest,
-          category: {
-            mainCategory: category.mainCategory as ListingCategory,
-            subCategory: category.subCategory as VehicleType | PropertyType,
-          },
-          details: {
-            ...transformedDetails,
-            vehicles: vehicleDetails as any,
-          },
-          listingAction: listing.listingAction as ListingAction,
-          images: processedImages,
-          seller: {
-            id: listing.userId || "",
-            username: listing.seller?.username || "Unknown Seller",
-            profilePicture: listing.seller?.profilePicture || null,
-            allowMessaging: listing.seller?.allowMessaging ? true : false,
-            privateProfile: listing.seller?.privateProfile || false,
-          },
-        });
-      } catch (error) {
-        console.error("Error fetching listing:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to load listing";
-        setError(errorMessage);
-        toast.error(errorMessage);
+  // Fetch listing data
+  useEffect(() => {
+    const fetchListing = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const response = await listingsAPI.getById(id);
+        
+        if (!response.success || !response.data) {
+          throw new Error(response.error || 'Failed to load listing');
+        }
+        
+        setListing(response.data);
+      } catch (err) {
+        console.error('Error fetching listing:', err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
     };
+    
+    fetchListing();
+  }, [id, user?.id]);
 
-    initializeAndFetchListing();
-  }, [id, navigate, t]);
 
-  const handleContactSeller = async () => {
-    if (!isAuthenticated) {
-      toast.error(t("common.loginRequired"));
-      navigate("/login", { state: { from: `/listings/${id}` } });
-      return;
-    }
-    setShowContactForm(true);
-  };
-
+  // Handle send message
   const handleSendMessage = async () => {
-    if (!isAuthenticated || !user || !listing) {
-      toast.error(t("common.loginRequired"));
-      return;
-    }
-
-    setIsSending(true);
+    if (!listing?.id || !message.message.trim() || !listing.seller?.id) return;
+    
     try {
-      // Create a conversation if it doesn't exist
-      const conversationResponse = await MessagesAPI.createConversation({
-        participantIds: [user?.id || "", listing.userId || ""],
-        initialMessage: message.trim(),
-      });
-
-      if (conversationResponse.success && conversationResponse.data) {
-        const conversationId = conversationResponse.data._id;
-
-        // Send the message using the correct structure
-        const messageInput: ListingMessageInput = {
-          content: message.trim(),
-          listingId: id || "",
-          recipientId: listing.userId || "",
-        };
-        const response = await MessagesAPI.sendMessage(messageInput);
-
-        if (response.success) {
-          toast.success(t("messages.messageSent"));
-          setMessage("");
-          setShowContactForm(false);
-        } else {
-          toast.error(response.error || t("common.errorOccurred"));
-        }
+      setSendingMessage(true);
+      const messageData = {
+        listingId: listing.id,
+        recipientId: listing.seller.id, // Use seller.id instead of sellerId
+        content: message.message,
+        messageType: message.type,
+        // Add any other required fields from ListingMessageInput
+      };
+      const response = await MessagesAPI.sendMessage(messageData);
+      
+      if (response.success) {
+        setMessageSuccess(true);
+        setMessage({ ...message, message: '' });
+        setTimeout(() => setMessageSuccess(false), 3000);
       } else {
-        toast.error(conversationResponse.error || t("common.errorOccurred"));
+        throw new Error(response.error || 'Failed to send message');
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error(t("common.errorOccurred"));
+    } catch (err) {
+      console.error('Error sending message:', err);
+      // Handle error (e.g., show toast)
     } finally {
-      setIsSending(false);
+      setSendingMessage(false);
     }
   };
 
-  // Early return for loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
-  // Early return for error state
-  if (error) {
+  if (error || !listing) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-red-500 mb-4">{error}</div>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
-        >
-          {t("common.back")}
-        </button>
+      <div className="p-4 text-red-600">
+        {error || 'Listing not found'}
       </div>
     );
   }
-
-  // Early return if no listing
-  if (!listing) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-gray-500 mb-4">{t("notFound")}</div>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
-        >
-          {t("common.back")}
-        </button>
-      </div>
-    );
-  }
-
-  const isVehicle =
-    listing.category.mainCategory.toLocaleLowerCase() ===
-    ListingCategory.VEHICLES.toLocaleLowerCase();
-
-  const isRealEstate =
-    listing.category.mainCategory.toLocaleLowerCase() ===
-    ListingCategory.REAL_ESTATE.toLocaleLowerCase();
-  const isOwner = user?.id === listing.userId;
-
-  console.log("features", features);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -1413,1668 +602,159 @@ const ListingDetails = () => {
         {/* Images Section */}
         <div className="w-full">
           <Suspense fallback={<div>Loading images...</div>}>
-            <ImageGallery images={listing?.images || []} />
+            <ImageGallery images={listing.images || []} />
           </Suspense>
         </div>
 
-        {/* Details Section */}
+        {/* Main Content */}
         <div className="space-y-8">
-          {/* Title & Price Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 border border-gray-100 dark:border-gray-800">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">
-              {listing?.title}
+          {/* Title & Price */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {listing.title}
             </h1>
-            <span className="inline-block bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-4 py-1 rounded-full text-lg font-medium shadow-sm">
-              {listing?.price && formatCurrency(listing.price)}
-              {listing?.listingAction?.toLowerCase() === ListingAction.RENT && (
-                <span className="text-sm ml-1 font-normal">/mo</span>
-              )}
-            </span>
+            <div className="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4">
+              {formatCurrency(listing.price)}
+            </div>
+            {listing.location && (
+              <div className="text-gray-600 dark:text-gray-300">
+                {normalizeLocation(listing.location)}
+              </div>
+            )}
           </div>
-          {/* Seller Info Card - Professional Layout */}
-          {listing?.seller && (
-            <div className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-100 dark:border-gray-800 mb-6">
-              <Link
-                to={`/users/${listing.seller.id}`}
-                className="flex items-center gap-4 hover:text-blue-600 transition-colors"
-                style={{ textDecoration: "none" }}
-              >
-                {listing.seller.privateProfile ? (
-                  <PrivateDisplayPic variant="mid" />
-                ) : (
-                  <div>
-                    {listing.seller.profilePicture ? (
-                      <img
-                        src={listing.seller.profilePicture}
-                        alt={listing.seller.username}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl text-gray-600 dark:text-gray-300 border-2 border-blue-500 shadow">
-                        {listing.seller.username[0].toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div>
-                  <div className="font-semibold text-base text-gray-900 dark:text-white">
-                    {listing.seller.username}
-                  </div>
-                  {listing.seller.privateProfile && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Private Profile
-                    </div>
-                  )}
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Posted on:{" "}
-                    <span className="font-medium">
-                      {new Date(listing.createdAt!).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-              {!isOwner && !showContactForm && (
+
+          {/* Contact Seller */}
+          {listing.seller && user?.id !== listing.seller.id && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                {t('contactSeller', { ns: 'listings' })}
+              </h2>
+              {!showMessageForm ? (
                 <button
-                  onClick={handleContactSeller}
-                  className={` flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium mt-4 sm:mt-0 shadow  ${listing?.seller.allowMessaging === false && "pointer-events-none opacity-50 cursor-not-allowed "}}`}
-                  style={{ minWidth: 0 }}
-                  title={t("contactSeller") as string}
+                  onClick={() => setShowMessageForm(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 12H8m0 0l4-4m-4 4l4 4"
-                    />
-                  </svg>
-                  <span>{t("contactSeller")}</span>
+                  {t('contactSeller', { ns: 'listings' })}
                 </button>
+              ) : (
+                <div className="space-y-4">
+                  <select
+                    value={message.type}
+                    onChange={(e) => setMessage({
+                      ...message,
+                      type: e.target.value as 'question' | 'offer' | 'meeting'
+                    })}
+                    className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  >
+                    <option value="question">{t('messageTypes.question', { ns: 'listings' })}</option>
+                    <option value="offer">{t('messageTypes.offer', { ns: 'listings' })}</option>
+                    <option value="meeting">{t('messageTypes.meeting', { ns: 'listings' })}</option>
+                  </select>
+                  <textarea
+                    value={message.message}
+                    onChange={(e) => setMessage({
+                      ...message,
+                      message: e.target.value
+                    })}
+                    className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    rows={4}
+                    placeholder={t('typeYourMessage', { ns: 'listings' })}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={() => setShowMessageForm(false)}
+                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('cancel', { ns: 'common' })}
+                    </button>
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={sendingMessage || !message.message.trim()}
+                      className={`px-4 py-2 rounded-lg text-white ${
+                        sendingMessage ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
+                    >
+                      {sendingMessage ? t('sending', { ns: 'common' }) : t('send', { ns: 'common' })}
+                    </button>
+                  </div>
+                  {messageSuccess && (
+                    <div className="mt-2 text-green-600 dark:text-green-400 flex items-center">
+                      <CheckCircle className="mr-1" size={16} />
+                      {t('messageSent', { ns: 'listings' })}
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-          {/* End Seller Info Card */}
-
-          {/* Contact Seller Form (shows only when triggered) */}
-          {!isOwner && showContactForm && (
-            <div className="mt-4">
-              <div className="space-y-4">
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder={t("messages.enterMessage")}
-                  className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={4}
-                />
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!message.trim() || isSending}
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 font-medium"
-                  >
-                    {isSending ? t("common.sending") : t("messages.send")}
-                  </button>
-                  <button
-                    onClick={() => setShowContactForm(false)}
-                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
-                  >
-                    {t("common.cancel")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Basic Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-              {t("basicInformation")}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("title")}
-                </p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {listing.title}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("price")}
-                </p>
-                <p className="font-medium text-blue-600 dark:text-blue-400">
-                  {formatCurrency(listing.price)}
-                  {listing.listingAction?.toLowerCase() === "rent" && "/month"}
-                </p>
-              </div>
-              <div className="space-y-1">
-                {listing?.location && (
-                  <>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("location")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {(() => {
-                        const normalizedLocation = normalizeLocation(
-                          listing.location,
-                        );
-                        const locationText = normalizedLocation
-                          ? t(`cities.${normalizedLocation}`, {
-                              ns: "locations",
-                              defaultValue: listing.location,
-                            })
-                          : listing.location;
-
-                        const allCities =
-                          t("cities", {
-                            returnObjects: true,
-                            ns: "locations",
-                          }) || {};
-                        const cityKeys = Object.keys(allCities);
-
-                        // Debug logging
-                        if (process.env.NODE_ENV === "development") {
-                          console.group(
-                            "ListingDetails - Location Translation Debug",
-                          );
-                          console.log("Current language:", i18n.language);
-                          console.log("Raw location:", listing.location);
-                          console.log(
-                            "Normalized location:",
-                            normalizedLocation,
-                          );
-                          console.log("Available city keys:", cityKeys);
-                          console.log("Translation result:", locationText);
-                          console.log(
-                            "Using default value?",
-                            !normalizedLocation ||
-                              !cityKeys.includes(normalizedLocation),
-                          );
-                          console.groupEnd();
-                        }
-
-                        // Create Google Maps search URL with language support
-                        const currentLang = i18n.language;
-                        const isRTL = currentLang === "ar";
-                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationText)}&hl=${currentLang}${isRTL ? "&gl=SA" : ""}`;
-
-                        return (
-                          <a
-                            href={mapsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200 cursor-pointer inline-flex items-center"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          >
-                            {locationText}
-                            <svg
-                              className="w-4 h-4 ml-1 inline-block"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </a>
-                        );
-                      })()}
-                    </p>
-                  </>
-                )}
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("listingAction")}
-                </p>
-                <p className="font-medium text-gray-900 dark:text-white capitalize">
-                  {listing.listingAction === "SALE"
-                    ? t("common.forSale")
-                    : listing.listingAction === "RENT"
-                      ? t("common.forRent")
-                      : ""}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Vehicle Details */}
-          {isVehicle && listing?.details?.vehicles && (
-            <div className=" ">
-              {/* <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        {t("vehicleDetails")}
-                     </h2> */}
-
-              <div className="space-y-6">
-                {/* Essential Details */}
-                {(listing?.details?.vehicles?.make ||
-                  listing?.details?.vehicles?.model ||
-                  listing?.details?.vehicles?.year ||
-                  listing?.details?.vehicles?.mileage ||
-                  listing?.details?.vehicles?.fuelType ||
-                  listing?.details?.vehicles?.transmissionType ||
-                  listing?.details?.vehicles?.transmission) && (
-                  <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("essentialDetails")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.make && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.make")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.make}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.model && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.model")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.model}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.year && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.year")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.year}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.mileage && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.mileage")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.mileage.toLocaleString(i18n.language === "ar" ? "ar-EG" : undefined)} ${i18n.language === "ar" ? "كم" : "km"}`}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.fuelType && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.fuelType")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `fields.fuelTypes.${listing?.details?.vehicles?.fuelType}`,
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {(listing?.details?.vehicles?.transmissionType ||
-                        listing?.details?.vehicles?.transmission) && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("listings.fields.transmission")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `fields.transmissionTypes.${listing?.details?.vehicles?.transmissionType || listing?.details?.vehicles?.transmission}`,
-                            )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Appearance */}
-                {(listing?.details?.vehicles?.color ||
-                  listing?.details?.vehicles?.interiorColor ||
-                  listing?.details?.vehicles?.condition) && (
-                  <div className=" bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("appearance")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.color && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("exteriorColor")}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
-                              style={{
-                                backgroundColor:
-                                  listing?.details?.vehicles?.color,
-                              }}
-                            />
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {listing?.details?.vehicles?.color}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.interiorColor && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("interiorColor")}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className="w-6 h-6 rounded-full border border-gray-200 shadow-sm"
-                              style={{
-                                backgroundColor:
-                                  listing?.details?.vehicles?.interiorColor,
-                              }}
-                            />
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {listing?.details?.vehicles?.interiorColor}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.condition && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.condition")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `fields.conditions.${listing?.details?.vehicles?.condition}`,
-                            )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Vehicle History Section */}
-                {(listing?.details?.vehicles?.numberOfOwners ||
-                  listing?.details?.vehicles?.previousOwners ||
-                  (listing?.details?.vehicles as any)?.serviceHistory !==
-                    undefined ||
-                  (listing?.details?.vehicles as any)?.accidentFree !==
-                    undefined ||
-                  listing?.details?.vehicles?.warranty ||
-                  (listing?.details?.vehicles?.registrationStatus !==
-                    undefined &&
-                    listing?.details?.vehicles?.registrationStatus !== "")) && (
-                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("sections.vehicleHistory")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Vehicle Owner */}
-                      {(listing?.details?.vehicles?.numberOfOwners ||
-                        listing?.details?.vehicles?.previousOwners) && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.vehicleOwners")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.numberOfOwners ||
-                              listing?.details?.vehicles?.previousOwners}
-                          </p>
-                        </div>
-                      )}
-                      {/* Service History */}
-                      {(listing?.details?.vehicles as any)?.serviceHistory !==
-                        undefined && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.serviceHistory")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)
-                              ?.serviceHistory ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {/* Accident Free */}
-                      {(listing?.details?.vehicles as any)?.accidentFree !==
-                        undefined && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.accidentFree")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)
-                              ?.accidentFree ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {/* Warranty */}
-                      {listing?.details?.vehicles?.warranty && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.warranty")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.warranty === "yes" ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {/* Registration Status */}
-                      {listing?.details?.vehicles?.registrationStatus &&
-                        listing?.details?.vehicles?.registrationStatus !==
-                          "" && (
-                          <div className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t("fields.registrationStatus")}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {t(
-                                `fields.registrationStatuses.${listing?.details?.vehicles?.registrationStatus}`,
-                                {
-                                  defaultValue:
-                                    listing?.details?.vehicles
-                                      ?.registrationStatus,
-                                },
-                              )}
-                            </p>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Additional Details */}
-                {(listing?.details?.vehicles?.vin ||
-                  listing?.details?.vehicles?.engineNumber ||
-                  (listing?.details?.vehicles as any)?.importStatus ||
-                  (listing?.details?.vehicles as any)?.registrationExpiry ||
-                  (listing?.details?.vehicles as any)?.insuranceType ||
-                  listing?.details?.vehicles?.upholsteryMaterial ||
-                  listing?.details?.vehicles?.tireCondition ||
-                  listing?.details?.vehicles?.customsCleared ||
-                  listing?.details?.vehicles?.warrantyPeriod ||
-                  (listing?.details?.vehicles as any)?.serviceHistoryDetails ||
-                  listing?.details?.vehicles?.bodyType ||
-                  listing?.details?.vehicles?.roofType) && (
-                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("additionalDetails", {
-                        ns: "listings",
-                        defaultValue: "Additional Details",
-                      })}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.vin && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.vin")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.vin}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.engineNumber && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.engineNumber")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.engineNumber}
-                          </p>
-                        </div>
-                      )}
-                      {(listing?.details?.vehicles as any)?.importStatus && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.importStatus")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `importStatuses.${(listing?.details?.vehicles as any)?.importStatus?.toLowerCase()}`,
-                              {
-                                defaultValue: (
-                                  listing?.details?.vehicles as any
-                                )?.importStatus,
-                              },
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {(listing?.details?.vehicles as any)
-                        ?.registrationExpiry && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.registrationExpiry")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {new Date(
-                              (
-                                listing?.details?.vehicles as any
-                              ).registrationExpiry,
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-                      {(listing?.details?.vehicles as any)?.insuranceType && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.insuranceType")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {(listing?.details?.vehicles as any)?.insuranceType}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.upholsteryMaterial && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.upholsteryMaterial")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.upholsteryMaterial}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.tireCondition && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.tireCondition")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.tireCondition}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.customsCleared !==
-                        undefined && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.customsCleared")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.customsCleared ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.warrantyPeriod && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.warrantyPeriod")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.warrantyPeriod} ${t("common:months")}`}
-                          </p>
-                        </div>
-                      )}
-                      {(
-                        listing?.details?.vehicles as any
-                      )?.serviceHistoryDetails?.trim() && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.serviceHistoryDetails")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {(
-                              listing?.details?.vehicles as any
-                            )?.serviceHistoryDetails.trim()}
-                          </p>
-                        </div>
-                      )}
-                      {(() => {
-                        // Safely access the vehicle details with proper typing
-                        const vehicle = listing?.details?.vehicles;
-                        if (!vehicle) return null;
-
-                        // Handle both bodyStyle and bodyType fields with type safety
-                        const bodyValue =
-                          (vehicle as any)?.bodyStyle ||
-                          (vehicle as any)?.bodyType;
-                        if (!bodyValue?.trim()) return null;
-
-                        // Convert to lowercase and replace spaces with underscores for the translation key
-                        const translationKey = `fields.bodyTypes.${bodyValue.toLowerCase().replace(/\s+/g, "")}`;
-
-                        return (
-                          <div className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t("fields.bodyType")}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {t(translationKey, {
-                                defaultValue: bodyValue,
-                                ns: "listings",
-                              })}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                      {listing?.details?.vehicles?.roofType?.trim() && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.roofType")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `fields.roofTypes.${listing.details.vehicles.roofType.toLowerCase()}`,
-                              {
-                                defaultValue: listing.details.vehicles.roofType,
-                                ns: "listings",
-                              },
-                            )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Technical Details */}
-                {(listing?.details?.vehicles?.engine ||
-                  listing?.details?.vehicles?.engineSize ||
-                  listing?.details?.vehicles?.horsepower ||
-                  listing?.details?.vehicles?.torque ||
-                  listing?.details?.vehicles?.brakeType ||
-                  listing?.details?.vehicles?.driveType ||
-                  listing?.details?.vehicles?.wheelSize ||
-                  listing?.details?.vehicles?.wheelType ||
-                  listing?.details?.vehicles?.engineNumber ||
-                  listing?.details?.vehicles?.bodyType ||
-                  listing?.details?.vehicles?.roofType ||
-                  listing?.details?.vehicles?.navigationSystem ||
-                  listing?.details?.vehicles?.importStatus ||
-                  listing?.details?.vehicles?.registrationExpiry ||
-                  listing?.details?.vehicles?.accidentFree) && (
-                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("sections.technicalDetails")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.engine && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Engine
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing?.details?.vehicles?.engine}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.engineSize ? (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.engineSize")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.engineSize}
-                          </p>
-                        </div>
-                      ) : null}
-                      {listing?.details?.vehicles?.horsepower ? (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.horsepower")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.horsepower}{" "}
-                            {t("fields.hp")}
-                          </p>
-                        </div>
-                      ) : null}
-                      {listing?.details?.vehicles?.torque ? (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.torque")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.torque} {t("fields.nm")}
-                          </p>
-                        </div>
-                      ) : null}
-                      {(() => {
-                        const brakeType = listing?.details?.vehicles?.brakeType;
-                        // Only show if brakeType exists, is a non-empty string after trimming, and is not 'Not provided'
-                        if (
-                          !brakeType ||
-                          typeof brakeType !== "string" ||
-                          brakeType.trim() === "" ||
-                          brakeType.toLowerCase() === "not provided"
-                        ) {
-                          return null;
-                        }
-
-                        // Only show if we have a valid translation for this brake type
-                        const translatedBrakeType = t(
-                          `fields.brakeSystemOptions.${brakeType}`,
-                          {
-                            ns: "listings",
-                            defaultValue: "",
-                          },
-                        );
-
-                        if (!translatedBrakeType) {
-                          return null;
-                        }
-
-                        return (
-                          <div className="space-y-1">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t("brakeType", { ns: "listings" })}
-                            </p>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {translatedBrakeType}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                      {listing?.details?.vehicles?.driveType?.trim() && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.driveType")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {t(
-                              `driveType.${listing.details.vehicles.driveType}`,
-                              {
-                                defaultValue:
-                                  listing.details.vehicles.driveType,
-                                ns: "listings",
-                              },
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.registrationExpiry && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.registrationExpiry")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {new Date(
-                              listing.details.vehicles.registrationExpiry,
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.accidentFree !==
-                        undefined && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.accidentFree")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.accidentFree ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Additional Information */}
-                {(listing?.details?.vehicles?.serviceHistoryDetails ||
-                  listing?.details?.vehicles?.additionalNotes ||
-                  listing?.details?.vehicles?.customsCleared ||
-                  listing?.details?.vehicles?.warranty ||
-                  listing?.details?.vehicles?.warrantyPeriod ||
-                  (listing?.details?.vehicles?.serviceHistory !== undefined &&
-                    listing?.details?.vehicles?.serviceHistory !== null &&
-                    (typeof listing.details.vehicles.serviceHistory ===
-                      "boolean" ||
-                      typeof listing.details.vehicles.serviceHistory ===
-                        "string"))) && (
-                  <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-xl space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("additionalInformation")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {listing?.details?.vehicles?.customsCleared !==
-                        undefined && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.customsCleared")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.customsCleared ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.serviceHistory && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.serviceHistory")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {Array.isArray(
-                              listing.details.vehicles.serviceHistory,
-                            )
-                              ? listing.details.vehicles.serviceHistory
-                                  .map((item: any) =>
-                                    t(`fields.serviceHistoryTypes.${item}`),
-                                  )
-                                  .join(", ")
-                              : t(
-                                  `fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`,
-                                )}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.warranty && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.warranty")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.warranty === "yes" ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.warrantyPeriod && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.warrantyPeriod")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {`${listing.details.vehicles.warrantyPeriod} ${t("common:months")}`}
-                          </p>
-                        </div>
-                      )}
-                      {listing?.details?.vehicles?.serviceHistoryDetails && (
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t("fields.serviceHistoryDetails")}
-                          </p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {listing.details.vehicles.serviceHistoryDetails ||
-                              t("common:notAvailable")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {(listing?.details?.vehicles?.serviceHistoryDetails?.trim() ||
-                      listing?.details?.vehicles?.additionalNotes) && (
-                      <div className="mt-4 space-y-4">
-                        {listing?.details?.vehicles?.serviceHistoryDetails?.trim() && (
-                          <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                              {t("fields.serviceHistoryDetails")}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                              {listing.details.vehicles.serviceHistoryDetails}
-                            </p>
-                          </div>
-                        )}
-                        {listing?.details?.vehicles?.additionalNotes && (
-                          <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                              {t("fields.additionalNotes")}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                              {listing.details.vehicles.additionalNotes}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Vehicle Features Section */}
-                {(features.safetyFeatures.length > 0 ||
-                  features.cameraFeatures.length > 0 ||
-                  features.climateFeatures.length > 0 ||
-                  features.entertainmentFeatures.length > 0 ||
-                  features.lightingFeatures.length > 0 ||
-                  features.convenienceFeatures.length > 0) && (
-                  <>
-                    <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-900 dark:text-white">
-                      {t("listings:vehicleFeatures")}
-                    </h3>
-
-                    {/* Safety Features */}
-                    {features.safetyFeatures.length > 0 && (
-                      <FeatureSection
-                        title="safetyFeatures"
-                        features={features.safetyFeatures}
-                      />
-                    )}
-
-                    {/* Camera Features */}
-                    {features.cameraFeatures.length > 0 && (
-                      <FeatureSection
-                        title="cameraFeatures"
-                        features={features.cameraFeatures}
-                      />
-                    )}
-
-                    {/* Climate Features */}
-                    {features.climateFeatures.length > 0 && (
-                      <FeatureSection
-                        title="climateFeatures"
-                        features={features.climateFeatures}
-                      />
-                    )}
-
-                    {/* Entertainment Features */}
-                    {features.entertainmentFeatures.length > 0 && (
-                      <FeatureSection
-                        title="entertainmentFeatures"
-                        features={features.entertainmentFeatures}
-                      />
-                    )}
-
-                    {/* Lighting Features */}
-                    {features.lightingFeatures.length > 0 && (
-                      <FeatureSection
-                        title="lightingFeatures"
-                        features={features.lightingFeatures}
-                      />
-                    )}
-
-                    {/* Convenience Features */}
-                    {features.convenienceFeatures.length > 0 && (
-                      <FeatureSection
-                        title="convenienceFeatures"
-                        features={features.convenienceFeatures}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Motorcycle Specific Details */}
-          {listing?.details?.vehicles?.vehicleType?.toLowerCase() ===
-            "motorcycle" && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mt-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                {t("Motorcycle Details")}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Engine & Performance */}
-                {listing.details.vehicles.engineType && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.engineType")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `fields.engineTypes.${listing.details.vehicles.engineType}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  ((listing.details.vehicles.enginePowerOutput !== null &&
-                    listing.details.vehicles.enginePowerOutput !== undefined) ||
-                    (listing.details.vehicles.powerOutput !== null &&
-                      listing.details.vehicles.powerOutput !== undefined)) && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.powerOutput")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.enginePowerOutput ||
-                          listing.details.vehicles.powerOutput}{" "}
-                        {t("common.hp")}
-                      </p>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.torque !== null &&
-                  listing.details.vehicles.torque !== undefined &&
-                  listing.details.vehicles.torque > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.torque")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {listing.details.vehicles.torque} {t("common.nm")}
-                      </p>
-                    </div>
-                  )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  listing.details.vehicles.fuelSystem && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.fuelSystem")}
-                      </p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {t(
-                          `fields.fuelSystemTypes.${listing.details.vehicles.fuelSystem}`,
-                        )}
-                      </p>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.coolingSystem && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.coolingSystem")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `fields.coolingSystemTypes.${listing.details.vehicles.coolingSystem}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.engineSize && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.engineSize")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {typeof listing.details.vehicles.engineSize === "string"
-                        ? listing.details.vehicles.engineSize.replace(
-                            /\s*cc\s*/i,
-                            "",
-                          ) + " cc"
-                        : listing.details.vehicles.engineSize + " cc"}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.brakeSystem &&
-                  listing.details.vehicles.brakeSystem.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.brakeSystem")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.brakeSystem.map(
-                          (brake: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full"
-                            >
-                              {t(`fields.brakeSystems.${brake}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Chassis & Suspension */}
-                {listing.details.vehicles.frameType && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.frameType")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `fields.frameTypes.${listing.details.vehicles.frameType}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.frontSuspension &&
-                  Array.isArray(listing.details.vehicles.frontSuspension) &&
-                  listing.details.vehicles.frontSuspension.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.frontSuspension")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.frontSuspension.map(
-                          (type: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
-                            >
-                              {t(`fields.suspensionTypes.${type}`, {
-                                defaultValue: type,
-                              })}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.rearSuspension &&
-                  Array.isArray(listing.details.vehicles.rearSuspension) &&
-                  listing.details.vehicles.rearSuspension.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.rearSuspension")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.rearSuspension.map(
-                          (type: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
-                            >
-                              {t(`fields.suspensionTypes.${type}`, {
-                                defaultValue: type,
-                              })}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Rider Aids & Electronics */}
-                {listing.details.vehicles.startType &&
-                  Array.isArray(listing.details.vehicles.startType) &&
-                  listing.details.vehicles.startType.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.startType")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {Array.isArray(listing.details.vehicles.startType) ? (
-                          listing.details.vehicles.startType.map(
-                            (type: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full"
-                              >
-                                {t(`fields.startTypes.${type}`)}
-                              </span>
-                            ),
-                          )
-                        ) : (
-                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                            {t(
-                              "fields.startTypes." +
-                                listing.details.vehicles.startType,
-                              {
-                                defaultValue:
-                                  listing.details.vehicles.startType,
-                              },
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.electronics &&
-                  listing.details.vehicles.electronics.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.electronics")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.electronics.map(
-                          (item: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 text-xs rounded-full"
-                            >
-                              {t(`fields.electronicsTypes.${item}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  listing.details.vehicles.lighting &&
-                  listing.details.vehicles.lighting.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.lighting")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.lighting.map(
-                          (item: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full"
-                            >
-                              {t(`fields.lightingTypes.${item}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.riderAids &&
-                  listing.details.vehicles.riderAids.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.riderAids")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.riderAids.map(
-                          (aid: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full"
-                            >
-                              {t(`fields.riderAidTypes.${aid}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Comfort & Ergonomics */}
-                {listing.details.vehicles.seatType &&
-                  Array.isArray(listing.details.vehicles.seatType) &&
-                  listing.details.vehicles.seatType.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.seatType")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {Array.isArray(listing.details.vehicles.seatType) ? (
-                          listing.details.vehicles.seatType.map(
-                            (type: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full"
-                              >
-                                {t(`fields.seatTypes.${type}`)}
-                              </span>
-                            ),
-                          )
-                        ) : (
-                          <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">
-                            {t(
-                              "fields.seatTypes." +
-                                listing.details.vehicles.seatType,
-                              {
-                                defaultValue: listing.details.vehicles.seatType,
-                              },
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.handlebarType && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.handlebarType")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `fields.handlebarTypes.${listing.details.vehicles.handlebarType}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  listing.details.vehicles.comfortFeatures &&
-                  listing.details.vehicles.comfortFeatures.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.comfortFeatures")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.comfortFeatures.map(
-                          (feature: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-100 text-xs rounded-full"
-                            >
-                              {t(`fields.comfortFeatureTypes.${feature}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.seatHeight && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.seatHeight")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.seatHeight} mm
-                    </p>
-                  </div>
-                )}
-
-                {/* Storage & Accessories */}
-                {listing.details.vehicles.wheelType && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.wheelType")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `fields.wheelTypes.${listing.details.vehicles.wheelType}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.storageOptions &&
-                  listing.details.vehicles.storageOptions.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.storageOptions")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.storageOptions.map(
-                          (option: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full"
-                            >
-                              {t(`fields.storageOptionTypes.${option}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  listing.details.vehicles.customParts &&
-                  listing.details.vehicles.customParts.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.customParts")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.customParts.map(
-                          (part: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-100 text-xs rounded-full"
-                            >
-                              {t(`fields.customPartTypes.${part}`)}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.protectiveEquipment &&
-                  listing.details.vehicles.protectiveEquipment.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.protectiveEquipment")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.protectiveEquipment.map(
-                          (equipment: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 text-xs rounded-full"
-                            >
-                              {t(
-                                `fields.protectiveEquipmentTypes.${equipment}`,
-                              )}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Documentation & History */}
-                {listing.details.vehicles.serviceHistory && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.serviceHistory")}
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {Array.isArray(
-                        listing.details.vehicles.serviceHistory,
-                      ) ? (
-                        listing.details.vehicles.serviceHistory.map(
-                          (item: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full"
-                            >
-                              {t(`fields.serviceHistoryTypes.${item}`)}
-                            </span>
-                          ),
-                        )
-                      ) : (
-                        <span className="px-2 py-1 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-100 text-xs rounded-full">
-                          {t(
-                            `fields.serviceHistoryTypes.${listing.details.vehicles.serviceHistory}`,
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {listing.details.vehicles.ownershipHistory && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.ownershipHistory")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.ownershipHistory}
-                    </p>
-                  </div>
-                )}
-
-                {isMotorcycleDetails(listing.details.vehicles) &&
-                  listing.details.vehicles.customFeatures &&
-                  listing.details.vehicles.customFeatures.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("fields.customFeatures")}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {listing.details.vehicles.customFeatures.map(
-                          (feature: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 text-xs rounded-full"
-                            >
-                              {feature}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {listing.details.vehicles.serviceHistory && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.serviceHistory")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.serviceHistory}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.accidentHistory !== undefined && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.accidentHistory")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.accidentHistory
-                        ? t("common.yes")
-                        : t("common.no")}
-                    </p>
-                  </div>
-                )}
-
-                {listing.details.vehicles.ownerManual !== undefined && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("fields.ownerManual")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing.details.vehicles.ownerManual
-                        ? t("common.yes")
-                        : t("common.no")}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Real Estate Details */}
-          {isRealEstate && listing?.details?.realEstate && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                {t("propertyDetails")}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t("propertyType")}
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {t(
-                      `propertyTypes.${listing?.details?.realEstate?.propertyType.toLowerCase()}`,
-                    )}
-                  </p>
-                </div>
-                {listing?.details?.realEstate?.size && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("size")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing?.details?.realEstate?.size} m²
-                    </p>
-                  </div>
-                )}
-                {listing?.details?.realEstate?.bedrooms && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("bedrooms")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing?.details?.realEstate?.bedrooms}
-                    </p>
-                  </div>
-                )}
-                {listing?.details?.realEstate?.bathrooms && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("bathrooms")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing?.details?.realEstate?.bathrooms}
-                    </p>
-                  </div>
-                )}
-                {listing?.details?.realEstate?.yearBuilt && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("yearBuilt")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {listing?.details?.realEstate?.yearBuilt}
-                    </p>
-                  </div>
-                )}
-                {listing?.details?.realEstate?.condition && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("condition")}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {t(
-                        `conditions.${listing.details.realEstate.condition?.toLowerCase() || ""}`,
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {listing?.details?.realEstate?.features &&
-                listing?.details?.realEstate?.features?.length > 0 && (
-                  <div className="mt-6 space-y-4">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                      {t("features")}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {listing.details.realEstate.features.map(
-                        (feature: string, index: number) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs text-gray-700 dark:text-gray-200"
-                          >
-                            {feature}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                )}
-            </div>
-          )}
-
-          {/* Description */}
-          {listing.description && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-white">
-                {t("description")}
-              </h3>
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {listing.description}
-              </p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Debug Info - Only show in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+          <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Debug Info</h3>
+          <div className="text-sm mb-2">Listing Type: {listing.category?.mainCategory} / {listing.category?.subCategory}</div>
+          <pre className="text-xs overflow-auto p-2 bg-white dark:bg-gray-800 rounded mt-2">
+            {JSON.stringify({
+              essentialFields: essentialFields.map(f => ({
+                name: f.name,
+                label: f.label,
+                value: getFieldValue(listing, f.name)
+              })),
+              advancedFields: advancedFields.map(f => ({
+                name: f.name,
+                label: f.label,
+                value: getFieldValue(listing, f.name)
+              })),
+              listingKeys: Object.keys(listing),
+              detailsKeys: listing.details ? Object.keys(listing.details) : []
+            }, null, 2)}
+          </pre>
+        </div>
+      )}
+
+      {/* Essential Details */}
+      {essentialFields.length > 0 && (
+        <Section title={t('essentialDetails', { ns: 'listings' })} className="mt-8">
+          {essentialFields.map((field) => {
+            const value = getFieldValue(listing, field.name);
+            // Always render the field if it's in essentialFields (already filtered)
+            return (
+              <Field key={field.name} label={field.label}>
+                <FieldValue field={field} value={value} />
+              </Field>
+            );
+          })}
+        </Section>
+      )}
+
+      {/* Advanced Details */}
+      {advancedFields.length > 0 && (
+        <Section title={t('technicalSpecs', { ns: 'listings' })} className="mt-6">
+          {advancedFields.map((field) => {
+            const value = getFieldValue(listing, field.name);
+            // Always render the field if it's in advancedFields (already filtered)
+            return (
+              <Field key={field.name} label={field.label}>
+                <FieldValue field={field} value={value} />
+              </Field>
+            );
+          })}
+        </Section>
+      )}
+
+      {/* Description */}
+      {listing.description && (
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {t('description', { ns: 'listings' })}
+          </h2>
+          <p className="whitespace-pre-line text-gray-700 dark:text-gray-300">
+            {listing.description}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
