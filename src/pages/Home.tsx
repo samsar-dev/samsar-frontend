@@ -46,18 +46,29 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation(["common", "filters", "home", "locations"]);
-  
+  const { t, i18n } = useTranslation([
+    "common",
+    "filters",
+    "home",
+    "locations",
+  ]);
+
   // Get city and area translations for filtering
-  const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
-  const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
-  
+  const cities = t("locations:cities", {
+    returnObjects: true,
+    defaultValue: {},
+  }) as Record<string, string>;
+  const areas = t("locations:areas", {
+    returnObjects: true,
+    defaultValue: {},
+  }) as Record<string, string[]>;
+
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
-    ListingCategory.VEHICLES,
+    ListingCategory.VEHICLES
   );
   const [selectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
@@ -117,10 +128,10 @@ const Home: React.FC = () => {
 
   // Filter states
   const [selectedAction, setSelectedAction] = useState<"SALE" | "RENT" | null>(
-    null,
+    null
   );
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
-    null,
+    null
   );
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
@@ -128,7 +139,7 @@ const Home: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRadius, setSelectedRadius] = useState<number | null>(null);
   const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(
-    null,
+    null
   );
   const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -157,12 +168,12 @@ const Home: React.FC = () => {
           break;
         case "locationAsc":
           sortedListings.sort((a, b) =>
-            (a.location || "").localeCompare(b.location || ""),
+            (a.location || "").localeCompare(b.location || "")
           );
           break;
         case "locationDesc":
           sortedListings.sort((a, b) =>
-            (b.location || "").localeCompare(a.location || ""),
+            (b.location || "").localeCompare(a.location || "")
           );
           break;
         case "newestFirst":
@@ -170,7 +181,7 @@ const Home: React.FC = () => {
           sortedListings.sort(
             (a, b) =>
               new Date(b.createdAt || 0).getTime() -
-              new Date(a.createdAt || 0).getTime(),
+              new Date(a.createdAt || 0).getTime()
           );
       }
 
@@ -299,7 +310,7 @@ const Home: React.FC = () => {
 
       const response = await listingsAPI.getAll(
         buildQueryParams(),
-        abortControllerRef.current.signal,
+        abortControllerRef.current.signal
       );
 
       if (!response.success || !response.data) {
@@ -370,16 +381,15 @@ const Home: React.FC = () => {
       // No need to abort here, it's handled in the fetchListings function
     };
   }, [fetchListings, isInitialLoad, forceRefresh]);
-  
+
   // Memoized filtered listings
   const filteredListings = useMemo(() => {
     if (!listings.all.length) return [];
-    
+
     return listings.all.filter((listing) => {
       // Category filter
       const matchesCategory =
-        !selectedCategory ||
-        listing.category.mainCategory === selectedCategory;
+        !selectedCategory || listing.category.mainCategory === selectedCategory;
 
       // Action filter
       const matchesAction =
@@ -405,7 +415,8 @@ const Home: React.FC = () => {
       // Year filter
       const matchesYear =
         !selectedYear ||
-        (parseInt(listing.details?.vehicles?.year?.toString() || '0', 10) >= parseInt(selectedYear, 10));
+        parseInt(listing.details?.vehicles?.year?.toString() || "0", 10) >=
+          parseInt(selectedYear, 10);
 
       // Price filter
       const matchesPrice = !selectedPrice;
@@ -415,22 +426,27 @@ const Home: React.FC = () => {
       if (selectedLocation) {
         // Find the correct case-insensitive city key
         const cityKey = Object.keys(cities).find(
-          key => key.toLowerCase() === selectedLocation.toLowerCase()
+          (key) => key.toLowerCase() === selectedLocation.toLowerCase()
         );
-        
+
         if (cityKey) {
           if (selectedRadius !== null) {
             // If radius is selected, include nearby areas
             const currentCityAreas = areas[cityKey] || [];
             const allAreasToMatch = [cities[cityKey], ...currentCityAreas];
-            
-            matchesLocation = allAreasToMatch.some(area => 
-              area && listing.location?.toLowerCase().includes(area.toLowerCase())
+
+            matchesLocation = allAreasToMatch.some(
+              (area) =>
+                area &&
+                listing.location?.toLowerCase().includes(area.toLowerCase())
             );
           } else {
             // Exact match if no radius is selected
             const cityName = cities[cityKey];
-            matchesLocation = listing.location?.toLowerCase().includes(cityName.toLowerCase()) || false;
+            matchesLocation =
+              listing.location
+                ?.toLowerCase()
+                .includes(cityName.toLowerCase()) || false;
           }
         } else {
           // If city key not found, no match
@@ -466,18 +482,18 @@ const Home: React.FC = () => {
 
   // Handle filtering state with ref to prevent infinite loop
   const isInitialMount = useRef(true);
-  
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    
+
     setIsFiltering(true);
     const timer = setTimeout(() => {
       setIsFiltering(false);
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, [filteredListings]);
 
@@ -494,8 +510,8 @@ const Home: React.FC = () => {
       new Set(
         listings.all
           .filter((l) => l.category.mainCategory === selectedCategory)
-          .map((l) => l.category.subCategory),
-      ),
+          .map((l) => l.category.subCategory)
+      )
     );
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
@@ -507,8 +523,6 @@ const Home: React.FC = () => {
       setSelectedRadius(null);
     }
   }, []);
-  
-
 
   // Handle radius filter change
   const handleRadiusChange = useCallback((radius: number | null) => {
@@ -537,23 +551,23 @@ const Home: React.FC = () => {
   const sortOptions = [
     {
       value: "newestFirst",
-      label: t('sorting.newest', { ns: 'filters' }),
+      label: t("sorting.newest", { ns: "filters" }),
     },
     {
       value: "priceAsc",
-      label: t('sorting.price_asc', { ns: 'filters' }),
+      label: t("sorting.price_asc", { ns: "filters" }),
     },
     {
       value: "priceDesc",
-      label: t('sorting.price_desc', { ns: 'filters' }),
+      label: t("sorting.price_desc", { ns: "filters" }),
     },
     {
       value: "locationAsc",
-      label: t('sorting.location_asc', { ns: 'filters' }),
+      label: t("sorting.location_asc", { ns: "filters" }),
     },
     {
       value: "locationDesc",
-      label: t('sorting.location_desc', { ns: 'filters' }),
+      label: t("sorting.location_desc", { ns: "filters" }),
     },
   ];
 
@@ -572,7 +586,7 @@ const Home: React.FC = () => {
             className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-auto"
           >
             <MdFilterList className="w-5 h-5" />
-            <span className="text-sm">{t('Filters')}</span>
+            <span className="text-sm">{t("Filters")}</span>
           </button>
 
           {/* Sort By - Always Visible */}
@@ -746,8 +760,8 @@ const Home: React.FC = () => {
           </h1>
           <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
             {selectedCategory === ListingCategory.VEHICLES
-              ? t('find_dream_vehicle', { ns: 'home' })
-              : t('discover_property', { ns: 'home' })}
+              ? t("find_dream_vehicle", { ns: "home" })
+              : t("discover_property", { ns: "home" })}
           </p>
 
           {/* Category Buttons */}
@@ -761,7 +775,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaCar className="text-lg" />
-              {t('vehicles', { ns: 'home' })}
+              {t("vehicles", { ns: "home" })}
             </button>
 
             <button
@@ -773,7 +787,7 @@ const Home: React.FC = () => {
               }`}
             >
               <FaHome className="text-lg" />
-              {t('real_estate', { ns: 'home' })}
+              {t("real_estate", { ns: "home" })}
             </button>
           </div>
         </div>

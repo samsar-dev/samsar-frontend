@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "../../../../../types/listings";
+import type { ListingFieldSchema } from "../../../../../types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 // Car Listing Schema
@@ -136,7 +136,7 @@ export const carSchema: ListingFieldSchema[] = [
       { value: "minivan", label: "Minivan" },
       { value: "crossover", label: "Crossover" },
       { value: "sportsCar", label: "Sports Car" },
-      { value: "luxury", label: "Luxury" }
+      { value: "luxury", label: "Luxury" },
     ],
     section: "advanced",
     required: false,
@@ -234,7 +234,7 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.horsepower",
     type: "select",
     options: ["0-100", "100-200", "200-300", "300-400", "400-500", "500+"].map(
-      (val) => ({ value: val, label: val }),
+      (val) => ({ value: val, label: val })
     ),
     section: "advanced",
     required: false,

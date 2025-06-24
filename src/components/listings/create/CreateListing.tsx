@@ -12,12 +12,25 @@ import {
   VehicleType,
 } from "@/types/enums";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { Suspense, lazy, useCallback, useMemo, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  lazy,
+  useCallback,
+  useMemo,
+  useEffect,
+  useState,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import isEqual from "lodash/isEqual";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { FaCarSide, FaCheckCircle, FaCog, FaMobileAlt, FaCrown } from "react-icons/fa";
+import {
+  FaCarSide,
+  FaCheckCircle,
+  FaCog,
+  FaMobileAlt,
+  FaCrown,
+} from "react-icons/fa";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
@@ -163,13 +176,13 @@ const initialFormState: FormState = {
 
 const CreateListing = () => {
   const { user } = useAuth();
-  const { 
-    canCreate, 
-    maxListings, 
-    currentListings, 
-    isLoading, 
+  const {
+    canCreate,
+    maxListings,
+    currentListings,
+    isLoading,
     userRole,
-    error: permissionError 
+    error: permissionError,
   } = useListingPermission();
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
@@ -185,22 +198,25 @@ const CreateListing = () => {
   // Check if user can create listings
   useEffect(() => {
     if (isLoading) return;
-    
+
     // Only show upgrade prompt for non-admin users who can't create more listings
-    if (!canCreate && userRole === 'FREE_USER') {
-      toast.error(permissionError || 'You need to upgrade your account to create more listings');
+    if (!canCreate && userRole === "FREE_USER") {
+      toast.error(
+        permissionError ||
+          "You need to upgrade your account to create more listings"
+      );
       setShowUpgradePrompt(true);
     } else {
       setShowUpgradePrompt(false);
     }
   }, [canCreate, isLoading, userRole, permissionError]);
-  
+
   // Show upgrade prompt for free users who have reached their limit
   // (early return removed – we now render conditionally in the main JSX)
-  
+
   // Show loading state while checking permissions
   // (early return removed – we now render conditionally in the main JSX)
-  
+
   // Track form changes to ensure hasUnsavedChanges works correctly
   const hasUnsavedChanges = !isEqual(formData, initialFormState);
 
@@ -223,7 +239,7 @@ const CreateListing = () => {
     const handlePopState = (event: PopStateEvent) => {
       if (hasUnsavedChanges && location.pathname === "/listings/create") {
         const confirmLeave = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave?",
+          "You have unsaved changes. Are you sure you want to leave?"
         );
         if (!confirmLeave) {
           // Push them back to where they were
@@ -244,7 +260,7 @@ const CreateListing = () => {
       hasUnsavedChanges &&
       location.pathname === "/listings/create" &&
       !window.confirm(
-        "You have unsaved changes. Are you sure you want to leave?",
+        "You have unsaved changes. Are you sure you want to leave?"
       )
     ) {
       return;
@@ -280,7 +296,7 @@ const CreateListing = () => {
 
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(dataToSave),
+          JSON.stringify(dataToSave)
         );
         console.log("Form data saved to session storage");
       } catch (error) {
@@ -337,7 +353,7 @@ const CreateListing = () => {
         // Ensure listingAction is properly set and uppercase
         formData.append(
           "listingAction",
-          (data.listingAction || "SALE").toUpperCase(),
+          (data.listingAction || "SALE").toUpperCase()
         );
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
@@ -400,7 +416,7 @@ const CreateListing = () => {
         if (data.images && data.images.length > 0) {
           // Filter to only include valid File objects
           const fileImages = data.images.filter(
-            (image): image is File => image instanceof File,
+            (image): image is File => image instanceof File
           );
 
           if (fileImages.length === 0) {
@@ -411,7 +427,7 @@ const CreateListing = () => {
           console.log(`Submitting ${fileImages.length} images:`);
           fileImages.forEach((image, index) => {
             console.log(
-              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
+              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`
             );
             formData.append("images", image);
           });
@@ -425,7 +441,7 @@ const CreateListing = () => {
           console.log(
             pair[0],
             ":",
-            typeof pair[1] === "string" ? pair[1] : "File object",
+            typeof pair[1] === "string" ? pair[1] : "File object"
           );
         }
 
@@ -460,7 +476,7 @@ const CreateListing = () => {
         setIsSubmitting(false);
       }
     },
-    [submitListing, clearSavedFormData, navigate, t],
+    [submitListing, clearSavedFormData, navigate, t]
   );
 
   const handleEditSection = useCallback(
@@ -482,7 +498,7 @@ const CreateListing = () => {
         }, 100);
       }
     },
-    [formData],
+    [formData]
   );
 
   const renderStep = useCallback(() => {
@@ -515,7 +531,7 @@ const CreateListing = () => {
                   isValid,
                   setFormData,
                   setStep,
-                  t,
+                  t
                 )
               }
               onBack={handleBack}
@@ -547,7 +563,7 @@ const CreateListing = () => {
       { icon: FaCog, label: t("steps.advancedDetails") },
       { icon: FaCheckCircle, label: t("steps.review") },
     ],
-    [t],
+    [t]
   );
 
   // Pre-compute main content based on state to avoid conditional early returns that break hook order
@@ -559,18 +575,24 @@ const CreateListing = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
-  } else if (userRole === 'FREE_USER') {
+  } else if (userRole === "FREE_USER") {
     bodyContent = (
       <div className="flex flex-col items-center justify-center min-h-[300px]">
         <FaMobileAlt className="text-5xl text-blue-500 mb-4" />
-        <h2 className="text-xl font-bold mb-2">{t('create.freeUserTitle')}</h2>
-        <p className="mb-4 text-gray-600">{t('create.freeUserDescription')}</p>
+        <h2 className="text-xl font-bold mb-2">{t("create.freeUserTitle")}</h2>
+        <p className="mb-4 text-gray-600">{t("create.freeUserDescription")}</p>
         <div className="flex gap-4">
-          <a href="https://your-app-download-link" className="btn btn-primary flex items-center gap-2">
-            <FaMobileAlt /> {t('create.downloadApp')}
+          <a
+            href="https://your-app-download-link"
+            className="btn btn-primary flex items-center gap-2"
+          >
+            <FaMobileAlt /> {t("create.downloadApp")}
           </a>
-          <a href="/subscription" className="btn btn-warning flex items-center gap-2">
-            <FaCrown /> {t('create.subscribePremium')}
+          <a
+            href="/subscription"
+            className="btn btn-warning flex items-center gap-2"
+          >
+            <FaCrown /> {t("create.subscribePremium")}
           </a>
         </div>
       </div>
@@ -605,11 +627,7 @@ const CreateListing = () => {
     );
   } else {
     // Normal multi-step form content
-    bodyContent = (
-      <>
-        {renderStep()}
-      </>
-    );
+    bodyContent = <>{renderStep()}</>;
   }
 
   return (

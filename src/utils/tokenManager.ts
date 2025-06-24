@@ -293,7 +293,7 @@ export class TokenManager {
         if (missingFields.length > 0) {
           console.error(
             "Missing required fields in token payload:",
-            missingFields,
+            missingFields
           );
           return false;
         }

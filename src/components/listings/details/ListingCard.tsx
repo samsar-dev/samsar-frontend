@@ -8,7 +8,7 @@ import ImageFallback from "@/components/common/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
 import { timeAgo } from "@/utils/dateUtils";
 import { formatCurrency } from "@/utils/formatUtils";
-import { normalizeLocation } from '@/utils/locationUtils';
+import { normalizeLocation } from "@/utils/locationUtils";
 import type {
   Listing,
   VehicleDetails,
@@ -115,7 +115,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   if (typeof window !== "undefined") {
     console.log(
       "[ListingCard Debug] normalizedVehicleDetails:",
-      normalizedVehicleDetails,
+      normalizedVehicleDetails
     );
   }
 
@@ -145,7 +145,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   fav.id || fav.listingId || (fav.item && fav.item.id);
                 const itemId = fav.itemId || (fav.item && fav.item.id);
                 return favId === id || itemId === id;
-              }),
+              })
             );
           }
         } catch (error) {
@@ -172,7 +172,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
     if (!id || !user) {
       console.error(
-        "Cannot save favorite: No listing ID or user not logged in",
+        "Cannot save favorite: No listing ID or user not logged in"
       );
       return;
     }
@@ -322,7 +322,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               className="w-full h-full object-cover"
             />
           </div>
-          
+
           {/* Map has been moved to ListingDetails component */}
           {showBadges && (
             <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
@@ -331,9 +331,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
                   {
                     defaultValue: category.subCategory,
-                  },
+                  }
                 )}
-              </span> 
+              </span>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                   listingAction === ListingAction.SALE
@@ -416,7 +416,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                             `fields.fuelTypes.${(() => {
                               if (!vehicleDetails.fuelType) return "";
                               return vehicleDetails.fuelType;
-                            })()}`,
+                            })()}`
                           )
                         : t("notProvided")}
                     </div>
@@ -551,30 +551,37 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <MdLocationOn className="text-blue-600 w-5 h-5" />
               {(() => {
-                const normalizedLocation = location ? normalizeLocation(location) : '';
+                const normalizedLocation = location
+                  ? normalizeLocation(location)
+                  : "";
                 const locationText = normalizedLocation
                   ? t(`cities.${normalizedLocation}`, {
-                      ns: 'locations',
-                      defaultValue: location || '',
+                      ns: "locations",
+                      defaultValue: location || "",
                     })
-                  : '';
-                
+                  : "";
+
                 // Debug information
-                const allCities = t('cities', { returnObjects: true, ns: 'locations' }) || {};
+                const allCities =
+                  t("cities", { returnObjects: true, ns: "locations" }) || {};
                 const cityKeys = Object.keys(allCities);
                 const currentLang = i18n.language;
 
-                console.group('Location Translation Debug');
-                console.log('Current language:', currentLang);
-                console.log('Raw location:', location);
-                console.log('Normalized location:', normalizedLocation);
-                console.log('Available city keys:', cityKeys);
-                console.log('Translation result:', locationText);
-                console.log('Using default value?', !normalizedLocation || !cityKeys.includes(normalizedLocation));
+                console.group("Location Translation Debug");
+                console.log("Current language:", currentLang);
+                console.log("Raw location:", location);
+                console.log("Normalized location:", normalizedLocation);
+                console.log("Available city keys:", cityKeys);
+                console.log("Translation result:", locationText);
+                console.log(
+                  "Using default value?",
+                  !normalizedLocation || !cityKeys.includes(normalizedLocation)
+                );
                 console.groupEnd();
 
                 return locationText;
-              })()}</p>
+              })()}
+            </p>
           )}
           {showDate && (
             <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">

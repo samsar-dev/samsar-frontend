@@ -8,7 +8,11 @@ import {
   PropertyType,
   Condition,
 } from "@/types/enums";
-import type { RealEstateDetails, LocationMeta, BaseFormState } from "@/types/listings";
+import type {
+  RealEstateDetails,
+  LocationMeta,
+  BaseFormState,
+} from "@/types/listings";
 import {
   FaCar,
   FaMoneyBillWave,
@@ -23,7 +27,9 @@ import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
 import { MapPin, Locate } from "lucide-react";
 import Select from "react-select";
 import ImageManager from "../../images/ImageManager";
-import LocationSearch, { type SelectedLocation } from "@/components/location/LocationSearch";
+import LocationSearch, {
+  type SelectedLocation,
+} from "@/components/location/LocationSearch";
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -65,7 +71,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   onSubmit,
   onImageDelete,
 }) => {
-  const { t, i18n } = useTranslation(["common", "listings", "form", "errors", "locations"]);
+  const { t, i18n } = useTranslation([
+    "common",
+    "listings",
+    "form",
+    "errors",
+    "locations",
+  ]);
   const commonT = (key: string) => t(key, { ns: "common" });
   const formT = (key: string) => t(key, { ns: "form" });
   const listingsT = (key: string) => t(key, { ns: "listings" });
@@ -124,8 +136,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       ...initialData,
       details: {
         ...baseData.details,
-        ...(initialData?.details || {})
-      }
+        ...(initialData?.details || {}),
+      },
     };
 
     // Set locationDisplay if not provided but location is
@@ -179,7 +191,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Generate model options based on selected make
   const getModelOptions = (
-    make: string,
+    make: string
   ): { value: string; label: string }[] => {
     if (
       !make ||
@@ -194,7 +206,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     if (!models || models.length === 0) {
       console.warn(
-        `No models found for make: ${make} and type: ${vehicleType}`,
+        `No models found for make: ${make} and type: ${vehicleType}`
       );
       return [];
     }
@@ -279,7 +291,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleInputChange = (
     path: keyof ExtendedFormState | string,
-    value: string | number,
+    value: string | number
   ) => {
     setFormData((prev) => {
       const newState = { ...prev };
@@ -333,7 +345,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleCategoryChange = (
     mainCategory: ListingCategory,
-    subCategory: VehicleType | PropertyType,
+    subCategory: VehicleType | PropertyType
   ) => {
     setFormData((prev: ExtendedFormState) => {
       const updatedData: ExtendedFormState = {
@@ -449,7 +461,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       // This is a soft validation that shows a warning but doesn't block submission
       // The message is shown in the UI but doesn't prevent form submission
       console.warn(
-        "Less than 6 images uploaded. Consider adding more for better visibility.",
+        "Less than 6 images uploaded. Consider adding more for better visibility."
       );
     }
 
@@ -459,7 +471,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       if (!vehicles?.vehicleType) {
         newErrors["details.vehicles.vehicleType"] = formT(
-          "validation.required",
+          "validation.required"
         );
       }
 
@@ -513,7 +525,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       // Validate year built (required for all property types)
       if (!realEstate?.yearBuilt) {
         newErrors["details.realEstate.yearBuilt"] = formT(
-          "validation.required",
+          "validation.required"
         );
       } else {
         const year = parseInt(realEstate.yearBuilt.toString());
@@ -532,13 +544,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate bedrooms for house, apartment, and condo
           if (!realEstate?.bedrooms) {
             newErrors["details.realEstate.bedrooms"] = formT(
-              "validation.required",
+              "validation.required"
             );
           } else {
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
               newErrors["details.realEstate.bedrooms"] = formT(
-                "validBedroomsRequired",
+                "validBedroomsRequired"
               );
             }
           }
@@ -546,13 +558,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate bathrooms for house, apartment, and condo
           if (!realEstate?.bathrooms) {
             newErrors["details.realEstate.bathrooms"] = formT(
-              "validation.required",
+              "validation.required"
             );
           } else {
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
               newErrors["details.realEstate.bathrooms"] = formT(
-                "validBathroomsRequired",
+                "validBathroomsRequired"
               );
             }
           }
@@ -563,7 +575,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate floor for apartment and condo
           if (!realEstate?.floor) {
             newErrors["details.realEstate.floor"] = formT(
-              "validation.required",
+              "validation.required"
             );
           } else {
             const floor = parseInt(realEstate.floor.toString());
@@ -585,7 +597,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate usage type for commercial
           if (!realEstate?.usageType) {
             newErrors["details.realEstate.usageType"] = formT(
-              "validation.required",
+              "validation.required"
             );
           }
           break;
@@ -676,11 +688,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             : undefined,
       },
       // Include location metadata and coordinates if available
-      ...(locationMeta ? { 
-        locationMeta,
-        latitude: locationMeta.lat,
-        longitude: locationMeta.lng 
-      } : {}),
+      ...(locationMeta
+        ? {
+            locationMeta,
+            latitude: locationMeta.lat,
+            longitude: locationMeta.lng,
+          }
+        : {}),
       // Image filtering is now handled by ImageManager component
     };
 
@@ -764,7 +778,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     const customModelStr = String(value);
                     handleInputChange(
                       "details.vehicles.customModel",
-                      customModelStr,
+                      customModelStr
                     );
 
                     // Update title immediately when custom model changes
@@ -979,11 +993,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Helper function to get nested property from an object
   const getNestedValue = (obj: any, path: string) => {
     try {
-      return path.split('.').reduce((acc, part) => {
+      return path.split(".").reduce((acc, part) => {
         return acc && acc[part] !== undefined ? acc[part] : undefined;
       }, obj);
     } catch (error) {
-      console.error('Error getting nested value:', { path, error });
+      console.error("Error getting nested value:", { path, error });
       return undefined;
     }
   };
@@ -991,7 +1005,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Helper function for safe translation with debugging
   const safeTranslate = (
     text: string,
-    ns: "common" | "form" = "common",
+    ns: "common" | "form" = "common"
   ): string => {
     if (!text) return "";
     if (/^\d+$/.test(text)) return text; // raw number string like year
@@ -1000,30 +1014,33 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     // If the text is already in Arabic, return it as is
     if (isArabic(text)) {
-      console.log('  - Text is already in Arabic, returning as is');
+      console.log("  - Text is already in Arabic, returning as is");
       return text;
     }
 
     // If the text looks like a translation key (contains dots)
-    if (text.includes('.')) {
+    if (text.includes(".")) {
       try {
         // First try to get the nested value from the current namespace
         const resources = i18n.getResourceBundle(i18n.language, ns);
         if (resources) {
           const nestedValue = getNestedValue(resources, text);
           if (nestedValue) {
-            console.log('  - Found nested value:', nestedValue);
+            console.log("  - Found nested value:", nestedValue);
             return nestedValue;
           }
         }
 
         // Try with common namespace if different from current namespace
-        if (ns !== 'common') {
-          const commonResources = i18n.getResourceBundle(i18n.language, 'common');
+        if (ns !== "common") {
+          const commonResources = i18n.getResourceBundle(
+            i18n.language,
+            "common"
+          );
           if (commonResources) {
             const commonNestedValue = getNestedValue(commonResources, text);
             if (commonNestedValue) {
-              console.log('  - Found in common namespace:', commonNestedValue);
+              console.log("  - Found in common namespace:", commonNestedValue);
               return commonNestedValue;
             }
           }
@@ -1032,24 +1049,22 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         // Try with direct translation
         const directTranslation = t(text, { ns });
         if (directTranslation && directTranslation !== text) {
-          console.log('  - Direct translation found:', directTranslation);
+          console.log("  - Direct translation found:", directTranslation);
           return directTranslation;
         }
 
         // Try with common namespace
-        if (ns !== 'common') {
-          const commonTranslation = t(text, { ns: 'common' });
+        if (ns !== "common") {
+          const commonTranslation = t(text, { ns: "common" });
           if (commonTranslation && commonTranslation !== text) {
-            console.log('  - Common namespace translation:', commonTranslation);
+            console.log("  - Common namespace translation:", commonTranslation);
             return commonTranslation;
           }
         }
-
       } catch (error) {
-        console.error('Error in translation lookup:', error);
+        console.error("Error in translation lookup:", error);
       }
     }
-
 
     // If we get here, try one last time with the original text
     try {
@@ -1058,12 +1073,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         return finalAttempt;
       }
     } catch (error) {
-      console.error('Error in final translation attempt:', error);
+      console.error("Error in final translation attempt:", error);
     }
 
     // If all else fails, return the last part of the key or the key itself
-    console.log('  - No translation found, returning key');
-    return text.includes('.') ? text.split('.').pop() || text : text;
+    console.log("  - No translation found, returning key");
+    return text.includes(".") ? text.split(".").pop() || text : text;
   };
 
   const renderRealEstateFields = () => {
@@ -1135,7 +1150,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   typeof translatedHelpText === "string"
                     ? translatedHelpText
                     : String(translatedHelpText),
-                  field.type === "select",
+                  field.type === "select"
                 )}
               </div>
             );
@@ -1157,7 +1172,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     step?: number,
     required: boolean = true,
     helpText?: string,
-    isSearchable?: boolean,
+    isSearchable?: boolean
   ) => {
     // Ensure label and placeholder are properly translated
     const displayLabel = safeTranslate(label);
@@ -1183,10 +1198,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           )}
           {type === "select" && options ? (
             <Select
-              value={options.find((opt) => opt.value === fieldValue || opt.label === fieldValue)}
-              onChange={fieldName === "location" 
-                ? handleLocationChange 
-                : (selected: any) => handleInputChange(fieldName, selected?.value || "")
+              value={options.find(
+                (opt) => opt.value === fieldValue || opt.label === fieldValue
+              )}
+              onChange={
+                fieldName === "location"
+                  ? handleLocationChange
+                  : (selected: any) =>
+                      handleInputChange(fieldName, selected?.value || "")
               }
               options={options}
               className="react-select-container"
@@ -1214,7 +1233,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   fieldName,
                   type === "number"
                     ? parseFloat(e.target.value)
-                    : e.target.value,
+                    : e.target.value
                 )
               }
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
@@ -1326,41 +1345,51 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   // Function to get city and its areas with translations
-  const getCityAreas = (cityKey: string): { value: string; label: string; isArea?: boolean }[] => {
+  const getCityAreas = (
+    cityKey: string
+  ): { value: string; label: string; isArea?: boolean }[] => {
     try {
       // Get all cities and areas from translations
-      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
-      const allAreas = t('areas', { returnObjects: true, ns: 'locations' }) as Record<string, string[]>;
-      
+      const allCities = t("cities", {
+        returnObjects: true,
+        ns: "locations",
+      }) as Record<string, string>;
+      const allAreas = t("areas", {
+        returnObjects: true,
+        ns: "locations",
+      }) as Record<string, string[]>;
+
       // Normalize the city key for consistent matching
       const normalizedKey = normalizeLocation(cityKey);
-      
+
       // Find the city by normalized key
       const cityEntry = Object.entries(allCities || {}).find(
         ([key]) => normalizeLocation(key) === normalizedKey
       );
-      
+
       if (!cityEntry) {
-        console.warn(`City not found for key: ${cityKey} (normalized: ${normalizedKey})`);
+        console.warn(
+          `City not found for key: ${cityKey} (normalized: ${normalizedKey})`
+        );
         return [];
       }
-      
+
       const [cityId, cityName] = cityEntry;
       const cityAreas = allAreas[cityId] || [];
-      
+
       // Return city and its areas as options
       const result = [
         { value: cityId, label: cityName },
-        ...cityAreas.map(area => ({
-          value: `${cityId}_${area.replace(/\s+/g, '_').toUpperCase()}`,
+        ...cityAreas.map((area) => ({
+          value: `${cityId}_${area.replace(/\s+/g, "_").toUpperCase()}`,
           label: `${cityName} - ${area}`,
-          isArea: true
-        }))
+          isArea: true,
+        })),
       ];
-      
+
       return result;
     } catch (error) {
-      console.error('Error in getCityAreas:', error);
+      console.error("Error in getCityAreas:", error);
       return [];
     }
   };
@@ -1368,48 +1397,64 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Get all available cities from translations
   const syrianCities = React.useMemo(() => {
     try {
-      const allCities = t('cities', { returnObjects: true, ns: 'locations' }) as Record<string, string>;
-      return Object.entries(allCities || {}).flatMap(([cityId]) => 
+      const allCities = t("cities", {
+        returnObjects: true,
+        ns: "locations",
+      }) as Record<string, string>;
+      return Object.entries(allCities || {}).flatMap(([cityId]) =>
         getCityAreas(cityId)
       );
     } catch (error) {
-      console.error('Error loading Syrian cities:', error);
+      console.error("Error loading Syrian cities:", error);
       return [];
     }
   }, [t]);
 
   // Calculate distance between two coordinates in kilometers
-  const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const getDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number => {
     const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
   // Reverse geocoding function to get location details from coordinates
-  const reverseGeocode = async (lat: number, lng: number): Promise<{displayName: string; address: any}> => {
+  const reverseGeocode = async (
+    lat: number,
+    lng: number
+  ): Promise<{ displayName: string; address: any }> => {
     try {
       // First, try with zoom level 18 (most detailed)
       let response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=18`
       );
       let data = await response.json();
-      
+
       // If we don't get a good result, try with a broader zoom level
-      if (!data.address || (!data.address.city && !data.address.town && !data.address.village)) {
+      if (
+        !data.address ||
+        (!data.address.city && !data.address.town && !data.address.village)
+      ) {
         response = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=14`
         );
         data = await response.json();
       }
-      
+
       const address = data.address || {};
-      
+
       // Try to get the most specific location name
       let displayName = [
         address.city,
@@ -1420,73 +1465,96 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         address.neighbourhood,
         address.county,
         address.state_district,
-        address.state
+        address.state,
       ].find(Boolean);
-      
+
       // If we still don't have a good name, try to find a meaningful part of display_name
       if (!displayName && data.display_name) {
-        const parts: string[] = (data.display_name as string).split(',').map((p: string) => p.trim()).filter((p: string) => p);
+        const parts: string[] = (data.display_name as string)
+          .split(",")
+          .map((p: string) => p.trim())
+          .filter((p: string) => p);
         // Try to find a meaningful part (not just a road name or number)
-        displayName = parts.find((part: string) => 
-          !/^\d+$/.test(part) && // Not just numbers
-          !/^[\d\s]+$/.test(part) && // Not just numbers and spaces
-          part.length > 3 && // Reasonable length for a place name
-          !part.toLowerCase().includes('unclassified') &&
-          !part.toLowerCase().includes('road') &&
-          !part.toLowerCase().includes('street')
-        ) || parts[0] || 'Your Location';
+        displayName =
+          parts.find(
+            (part: string) =>
+              !/^\d+$/.test(part) && // Not just numbers
+              !/^[\d\s]+$/.test(part) && // Not just numbers and spaces
+              part.length > 3 && // Reasonable length for a place name
+              !part.toLowerCase().includes("unclassified") &&
+              !part.toLowerCase().includes("road") &&
+              !part.toLowerCase().includes("street")
+          ) ||
+          parts[0] ||
+          "Your Location";
       }
-      
+
       // If we're in Syria, try to enhance the address data
-      const isSyria = address.country_code === 'sy' || 
-                     address.country === 'Syria' || 
-                     address.country === 'سوريا';
-      
+      const isSyria =
+        address.country_code === "sy" ||
+        address.country === "Syria" ||
+        address.country === "سوريا";
+
       // If we have coordinates but no city/town, try to find the nearest city
-      if (isSyria && (!address.city && !address.town && !address.village)) {
+      if (isSyria && !address.city && !address.town && !address.village) {
         try {
           // Search for nearby places
           const searchResponse = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=&accept-language=en&countrycodes=sy&viewbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&bounded=1`
+            `https://nominatim.openstreetmap.org/search?format=json&q=&accept-language=en&countrycodes=sy&viewbox=${lng - 0.1},${lat - 0.1},${lng + 0.1},${lat + 0.1}&bounded=1`
           );
           const places = await searchResponse.json();
-          
+
           // Find the nearest city/town/village
           const nearestPlace = places
-            .filter((place: any) => ['city', 'town', 'village', 'hamlet'].includes(place.type))
-            .sort((a: any, b: any) => 
-              getDistance(lat, lng, parseFloat(a.lat), parseFloat(a.lon)) - 
-              getDistance(lat, lng, parseFloat(b.lat), parseFloat(b.lon))
+            .filter((place: any) =>
+              ["city", "town", "village", "hamlet"].includes(place.type)
+            )
+            .sort(
+              (a: any, b: any) =>
+                getDistance(lat, lng, parseFloat(a.lat), parseFloat(a.lon)) -
+                getDistance(lat, lng, parseFloat(b.lat), parseFloat(b.lon))
             )[0];
-            
+
           if (nearestPlace) {
-            displayName = nearestPlace.display_name.split(',')[0].trim();
-            address.city = address.city || nearestPlace.type === 'city' ? displayName : address.city;
-            address.town = address.town || nearestPlace.type === 'town' ? displayName : address.town;
-            address.village = address.village || ['village', 'hamlet'].includes(nearestPlace.type) ? displayName : address.village;
+            displayName = nearestPlace.display_name.split(",")[0].trim();
+            address.city =
+              address.city || nearestPlace.type === "city"
+                ? displayName
+                : address.city;
+            address.town =
+              address.town || nearestPlace.type === "town"
+                ? displayName
+                : address.town;
+            address.village =
+              address.village ||
+              ["village", "hamlet"].includes(nearestPlace.type)
+                ? displayName
+                : address.village;
           }
         } catch (e) {
-          console.warn('Could not find nearby places:', e);
+          console.warn("Could not find nearby places:", e);
         }
       }
-      
+
       return {
-        displayName: displayName || data.display_name || 'Your Location',
+        displayName: displayName || data.display_name || "Your Location",
         address: {
           ...address,
-          country_code: isSyria ? 'sy' : (address.country_code || '').toLowerCase(),
-          country: isSyria ? 'Syria' : (address.country || '')
-        }
+          country_code: isSyria
+            ? "sy"
+            : (address.country_code || "").toLowerCase(),
+          country: isSyria ? "Syria" : address.country || "",
+        },
       };
     } catch (error) {
-      console.error('Reverse geocoding failed:', error);
+      console.error("Reverse geocoding failed:", error);
       // Return a generic location with the coordinates if everything else fails
       return {
         displayName: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         address: {
-          country_code: 'sy',
-          country: 'Syria'
-        }
+          country_code: "sy",
+          country: "Syria",
+        },
       };
     }
   };
@@ -1494,7 +1562,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Get user's current location
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
+      setLocationError("Geolocation is not supported by your browser");
       return;
     }
 
@@ -1505,73 +1573,86 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          const { displayName, address } = await reverseGeocode(latitude, longitude);
-          
+          const { displayName, address } = await reverseGeocode(
+            latitude,
+            longitude
+          );
+
           // Format the location string based on available address components
           let locationString = displayName;
-          
+
           // If we're in Syria, try to include the city/region
-          if (address.country_code === 'sy') {
-            const city = address.city || address.town || address.village || address.county || '';
+          if (address.country_code === "sy") {
+            const city =
+              address.city ||
+              address.town ||
+              address.village ||
+              address.county ||
+              "";
             if (city) {
               locationString = city;
             }
           }
-          
+
           handleInputChange("location", locationString);
           setLocationMeta({ lat: latitude, lng: longitude });
         } catch (error) {
-          console.error('Error getting location:', error);
-          setLocationError('Could not determine your location. Please try again.');
+          console.error("Error getting location:", error);
+          setLocationError(
+            "Could not determine your location. Please try again."
+          );
         } finally {
           setIsLocating(false);
         }
       },
       (error) => {
-        console.error('Geolocation error:', error);
-        let errorMessage = 'Could not access your location. ';
-        
-        switch(error.code) {
+        console.error("Geolocation error:", error);
+        let errorMessage = "Could not access your location. ";
+
+        switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage += 'Please enable location access in your browser settings.';
+            errorMessage +=
+              "Please enable location access in your browser settings.";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information is unavailable.';
+            errorMessage += "Location information is unavailable.";
             break;
           case error.TIMEOUT:
-            errorMessage += 'The request to get your location timed out.';
+            errorMessage += "The request to get your location timed out.";
             break;
           default:
-            errorMessage += 'Please check your browser settings.';
+            errorMessage += "Please check your browser settings.";
         }
-        
+
         setLocationError(errorMessage);
         setIsLocating(false);
       },
-      { 
-        timeout: 15000, 
+      {
+        timeout: 15000,
         maximumAge: 0, // Always get fresh position
-        enableHighAccuracy: true 
+        enableHighAccuracy: true,
       }
     );
   };
 
-  const handleLocationChange = (selected: { value: string; label: string; isArea?: boolean } | null) => {
+  const handleLocationChange = (
+    selected: { value: string; label: string; isArea?: boolean } | null
+  ) => {
     // This handler is kept for backward compatibility but is no longer used directly
     // as LocationSearch component now handles the location selection
     if (!selected) {
       handleInputChange("location", "");
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        locationDisplay: ""
+        locationDisplay: "",
       }));
       return;
     }
-    
+
     handleInputChange("location", normalizeLocation(selected.value));
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      locationDisplay: selected.label
+      locationDisplay: selected.label,
     }));
   };
 
@@ -1597,7 +1678,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.VEHICLES,
-                    VehicleType.CAR,
+                    VehicleType.CAR
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-l-md focus:outline-none focus:z-10 ${
@@ -1617,7 +1698,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.REAL_ESTATE,
-                    PropertyType.HOUSE,
+                    PropertyType.HOUSE
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-r-md focus:outline-none focus:z-10 ${
@@ -1665,7 +1746,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               formData.details?.vehicles?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
-            undefined,
+            undefined
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}
@@ -1684,7 +1765,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               undefined,
               <FaMoneyBillWave className="w-4 h-4" />,
               commonT("propertyDetails.pricePlaceholder"),
-              0,
+              0
             )}
             <div className="w-full">
               <div className="relative">
@@ -1704,22 +1785,22 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     ) : (
                       <Locate className="w-3 h-3 mr-1" />
                     )}
-                    {isLocating ? t('locating') : t('useMyLocation')}
+                    {isLocating ? t("locating") : t("useMyLocation")}
                   </button>
                 </div>
                 <LocationSearch
                   onSelectLocation={(location) => {
                     handleInputChange("location", location.address);
-                    setFormData(prev => ({
+                    setFormData((prev) => ({
                       ...prev,
                       locationDisplay: location.address,
                       latitude: location.coordinates[0],
-                      longitude: location.coordinates[1]
+                      longitude: location.coordinates[1],
                     }));
                     setLocationMeta({
                       lat: location.coordinates[0],
                       lng: location.coordinates[1],
-                      bounds: location.boundingBox
+                      bounds: location.boundingBox,
                     });
                   }}
                   placeholder={commonT("propertyDetails.selectLocation")}
@@ -1741,21 +1822,19 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             "textarea",
             undefined,
             <FaAlignLeft className="w-4 h-4" />,
-            commonT("propertyDetails.descriptionPlaceholder"),
+            commonT("propertyDetails.descriptionPlaceholder")
           )}
         </div>
 
         {/* Image Manager Component */}
         <div className="mt-6">
-          <CollapsibleTip title={listingsT('images.photo_tips.title')}>
-            <p className="mb-2">
-              {listingsT('images.photo_tips.tip1')}
-            </p>
+          <CollapsibleTip title={listingsT("images.photo_tips.title")}>
+            <p className="mb-2">{listingsT("images.photo_tips.tip1")}</p>
             {(formData.images?.length || 0) +
               (formData.existingImages?.length || 0) <
               6 && (
               <p className="text-amber-600">
-                {listingsT('images.photo_tips.tip2')}
+                {listingsT("images.photo_tips.tip2")}
               </p>
             )}
           </CollapsibleTip>
@@ -1782,7 +1861,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   setFormData((prev) => ({
                     ...prev,
                     existingImages: (prev.existingImages || []).filter(
-                      (img) => img !== url,
+                      (img) => img !== url
                     ),
                   }));
                   onImageDelete?.();

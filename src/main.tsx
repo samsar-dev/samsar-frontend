@@ -79,7 +79,7 @@ const initializeApp = () => {
           </ErrorBoundary>
         </BrowserRouter>
       </HelmetProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
   );
 };
 

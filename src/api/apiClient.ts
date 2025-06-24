@@ -85,7 +85,7 @@ apiClient.interceptors.request.use(
   (error) => {
     console.error("Request interceptor error:", error);
     return Promise.reject(error);
-  },
+  }
 );
 
 // Response interceptor
@@ -128,7 +128,7 @@ apiClient.interceptors.response.use(
 
     // For public endpoints or other errors, just reject
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;

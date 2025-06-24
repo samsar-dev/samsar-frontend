@@ -73,7 +73,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
-    null,
+    null
   );
 
   const [editingImage, setEditingImage] = useState<{
@@ -240,7 +240,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         t("errors.fileTooLarge", {
           maxSize: "5MB",
           hint: "Try compressing your image or choosing a smaller one.",
-        }),
+        })
       );
       return false;
     }
@@ -251,7 +251,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         t("errors.fileTooSmall", {
           minSize: "5KB",
           hint: "Try uploading a slightly higher quality photo so it looks great to buyers!",
-        }),
+        })
       );
       return false;
     }
@@ -262,7 +262,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         t("errors.invalidFileType", {
           formats: "JPG, PNG, or WebP",
           hint: "These formats ensure your images look great everywhere.",
-        }),
+        })
       );
       return false;
     }
@@ -275,7 +275,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           t("errors.imageTooSmall", {
             minSize: "200×200",
             hint: "Larger images help buyers see more details!",
-          }),
+          })
         );
         return false;
       }
@@ -283,7 +283,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       toast.error(
         t("errors.invalidImage", {
           hint: "The file might be corrupted. Try another one?",
-        }),
+        })
       );
       return false;
     }
@@ -292,7 +292,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   };
 
   const getImageDimensions = (
-    file: File,
+    file: File
   ): Promise<{ width: number; height: number }> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -334,13 +334,13 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         file.name,
         "Original size:",
         (file.size / 1024).toFixed(2),
-        "KB",
+        "KB"
       );
       const compressedBlob = await imageCompression(file, options);
       console.log(
         "Compressed size:",
         (compressedBlob.size / 1024).toFixed(2),
-        "KB",
+        "KB"
       );
 
       // Update image size in state for display
@@ -425,7 +425,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
     try {
       return await createImageBitmap(blob).then(
         () => true,
-        () => false,
+        () => false
       );
     } catch (e) {
       return false;
@@ -508,7 +508,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       newArray.splice(to, 0, removed);
       return newArray;
     },
-    [],
+    []
   );
 
   // Unified move image function that handles all image types consistently
@@ -559,7 +559,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         .map((img) => img.src);
       setPreviewUrls(newPreviewUrls);
     },
-    [unifiedImages, onChange, onReorderExisting, arrayMove],
+    [unifiedImages, onChange, onReorderExisting, arrayMove]
   );
 
   const handleImageDelete = (index: number) => {
@@ -580,7 +580,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
           URL.revokeObjectURL(imageToDelete.src);
           // Remove from our ref array
           objectUrlsRef.current = objectUrlsRef.current.filter(
-            (url) => url !== imageToDelete.src,
+            (url) => url !== imageToDelete.src
           );
         } catch (error) {
           console.error("Error revoking URL:", error);
@@ -591,7 +591,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
       const newImages = images.filter((_, i) => {
         // Find the corresponding index in the original images array
         const fileIndex = unifiedImages.findIndex(
-          (img) => img.type === "file" && img.data === images[i],
+          (img) => img.type === "file" && img.data === images[i]
         );
         return fileIndex !== index;
       });
@@ -748,7 +748,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
                     // For existing images, we need to handle editing differently
                     if (image.type === "file") {
                       const fileIndex = images.findIndex(
-                        (f) => f === image.data,
+                        (f) => f === image.data
                       );
                       handleImageEdit(fileIndex, url);
                     } else {

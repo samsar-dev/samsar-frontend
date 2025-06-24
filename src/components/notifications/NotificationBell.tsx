@@ -84,9 +84,7 @@ export default function NotificationBell({
       if (response.success) {
         // Update local state
         setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === notification.id ? { ...n, read: true } : n,
-          ),
+          prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
         );
 
         // Call the onNotificationClick callback if provided
@@ -194,7 +192,7 @@ export default function NotificationBell({
       if (location.pathname.split("/")[2] === data.relatedId) {
         try {
           const result = await NotificationsAPI.deleteNotification(
-            data.relatedId,
+            data.relatedId
           );
           console.log("notification deleted result:", result);
           return;
@@ -367,7 +365,7 @@ export default function NotificationBell({
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {notification.title ||
                             t(
-                              `notification.types.${notification.type.toLowerCase()}`,
+                              `notification.types.${notification.type.toLowerCase()}`
                             )}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
