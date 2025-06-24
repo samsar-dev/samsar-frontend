@@ -6,7 +6,7 @@ import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
@@ -20,13 +20,14 @@ interface EditFormData {
   title: string;
   description: string;
   price: number;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    coordinates?: number[];
-  };
+  // location: {
+  //   address: string;
+  //   city: string;
+  //   state: string;
+  //   country: string;
+  //   coordinates?: number[];
+  // };
+  location: string;
   details: {
     vehicles?: Record<string, any>;
     realEstate?: Record<string, any>;
@@ -42,22 +43,16 @@ const EditListing: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { socket } = useSocket();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<SectionId>('essential');
-  
+  const [activeTab, setActiveTab] = useState<SectionId>("essential");
+
   const [formData, setFormData] = useState<EditFormData>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     price: 0,
-    location: { 
-      address: '', 
-      city: '', 
-      state: '', 
-      country: '',
-      coordinates: []
-    },
+    location: "",
     details: {},
     images: [],
     existingImages: [],
@@ -71,146 +66,165 @@ const EditListing: React.FC = () => {
   // Get the current section fields based on the active tab and schema
   const currentFields = useMemo<ExtendedFieldProps[]>(() => {
     if (!activeTab) return [];
-    
-    const listingType = isVehicle 
+
+    const listingType = isVehicle
       ? (formData.details.vehicles?.vehicleType as VehicleType)
       : (formData.details.realEstate?.propertyType as PropertyType);
-    
+
     if (!listingType) return [];
-    
+
     // Get fields from schema utils
-    const fields = getFieldsBySection(listingType, activeTab === 'essential' ? 'essential' : 'advanced');
-    
-    return fields.map(field => ({
+    const fields = getFieldsBySection(
+      listingType,
+      activeTab === "essential" ? "essential" : "advanced"
+    );
+
+    console.log("fields", fields);
+
+    return fields.map((field) => ({
       ...field,
       value: getFieldValue(formData, field.name),
-      options: Array.isArray(field.options) 
-        ? field.options.map(opt => 
-            typeof opt === 'string' ? { value: opt, label: opt } : opt
+      options: Array.isArray(field.options)
+        ? field.options.map((opt) =>
+            typeof opt === "string" ? { value: opt, label: opt } : opt
           )
         : undefined,
       onChange: (value: any) => {
-        const fieldType = isVehicle ? 'vehicles' : 'realEstate';
+        const fieldType = isVehicle ? "vehicles" : "realEstate";
         handleInputChange(field.name, value, fieldType);
-      }
+      },
     }));
   }, [activeTab, isVehicle, formData]);
 
-  const handleInputChange = useCallback((name: string, value: any, fieldType?: 'vehicles' | 'realEstate' | 'location') => {
-    // Handle location updates
-    if (fieldType === 'location') {
-      setFormData(prev => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          ...value
-        }
-      }));
-      return;
-    }
+  const handleInputChange = useCallback(
+    (
+      name: string,
+      value: any,
+      fieldType?: "vehicles" | "realEstate" | "location"
+    ) => {
+      // Handle location updates
+      if (fieldType === "location") {
+        setFormData((prev) => ({
+          ...prev,
+          location: value as string,
+        }));
+        return;
+      }
 
-    // Handle nested fields (e.g., 'engine.size')
-    if (fieldType && name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => {
-        const currentFieldData = prev.details[fieldType] || {};
-        const currentParentData = currentFieldData[parent] || {};
-        
-        return {
+      // Handle nested fields (e.g., 'engine.size')
+      if (fieldType && name.includes(".")) {
+        const [parent, child] = name.split(".");
+        setFormData((prev) => {
+          const currentFieldData = prev.details[fieldType] || {};
+          const currentParentData = currentFieldData[parent] || {};
+
+          return {
+            ...prev,
+            details: {
+              ...prev.details,
+              [fieldType]: {
+                ...currentFieldData,
+                [parent]: {
+                  ...currentParentData,
+                  [child]: value,
+                },
+              },
+            },
+          };
+        });
+        return;
+      }
+
+      // Handle top-level fields in details
+      if (fieldType) {
+        setFormData((prev) => ({
           ...prev,
           details: {
             ...prev.details,
             [fieldType]: {
-              ...currentFieldData,
-              [parent]: {
-                ...currentParentData,
-                [child]: value
-              }
-            }
-          }
-        };
-      });
-      return;
-    }
-    
-    // Handle top-level fields in details
-    if (fieldType) {
-      setFormData(prev => ({
-        ...prev,
-        details: {
-          ...prev.details,
-          [fieldType]: {
-            ...(prev.details[fieldType] || {}),
-            [name]: value
-          }
-        }
-      }));
-    } else {
-      // Handle basic fields (title, description, price, etc.)
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  }, []);
+              ...(prev.details[fieldType] || {}),
+              [name]: value,
+            },
+          },
+        }));
+      } else {
+        // Handle basic fields (title, description, price, etc.)
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    },
+    []
+  );
 
   const handleImageChange = useCallback((newImages: (string | File)[]) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: newImages
+      images: newImages,
     }));
   }, []);
 
   const handleDeleteExisting = useCallback((imageUrl: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       deletedImages: [...(prev.deletedImages || []), imageUrl],
-      existingImages: prev.existingImages.filter(img => img !== imageUrl)
+      existingImages: prev.existingImages.filter((img) => img !== imageUrl),
     }));
   }, []);
 
   const validateForm = useCallback((): boolean => {
     // Basic validation for required fields
     if (!formData.title.trim()) {
-      toast.error(t('listings.errors.titleRequired'));
+      toast.error(t("listings.errors.titleRequired"));
       return false;
     }
     if (!formData.description.trim()) {
-      toast.error(t('listings.errors.descriptionRequired'));
+      toast.error(t("listings.errors.descriptionRequired"));
       return false;
     }
     if (formData.price <= 0) {
-      toast.error(t('listings.errors.invalidPrice'));
+      toast.error(t("listings.errors.invalidPrice"));
       return false;
     }
 
     // Location validation
-    if (!formData.location.city || !formData.location.country) {
-      toast.error(t('listings.errors.locationRequired'));
+    // if (!formData.location.city || !formData.location.country) {
+    //   toast.error(t("listings.errors.locationRequired"));
+    //   return false;
+    // }
+    if (!formData.location) {
+      toast.error(t("listings.errors.locationRequired"));
       return false;
     }
 
     // Validate schema fields
-    const listingType = isVehicle 
+    const listingType = isVehicle
       ? (formData.details.vehicles?.vehicleType as VehicleType)
       : (formData.details.realEstate?.propertyType as PropertyType);
 
     if (!listingType) {
-      toast.error(t('listings.errors.listingTypeRequired'));
+      toast.error(t("listings.errors.listingTypeRequired"));
       return false;
     }
 
-    const fields = getFieldsBySection(listingType, 'essential').concat(
-      getFieldsBySection(listingType, 'advanced')
+    const fields = getFieldsBySection(listingType, "essential").concat(
+      getFieldsBySection(listingType, "advanced")
     );
 
     for (const field of fields) {
       if (field.required) {
-        const details = isVehicle ? formData.details.vehicles : formData.details.realEstate;
+        const details = isVehicle
+          ? formData.details.vehicles
+          : formData.details.realEstate;
         const value = details?.[field.name as keyof typeof details];
-        
-        if (value === undefined || value === null || value === '') {
-          toast.error(t('listings.errors.fieldRequired', { field: field.label || field.name }));
+
+        if (value === undefined || value === null || value === "") {
+          toast.error(
+            t("listings.errors.fieldRequired", {
+              field: field.label || field.name,
+            })
+          );
           return false;
         }
       }
@@ -219,181 +233,210 @@ const EditListing: React.FC = () => {
     return true;
   }, [formData, isVehicle, t]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      toast.error(t('auth.pleaseLogin'));
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!isAuthenticated) {
+        toast.error(t("auth.pleaseLogin"));
+        return;
+      }
 
-    if (isSubmitting) return;
-    
-    // Validate form before submission
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
+      if (isSubmitting) return;
 
-    try {
-      const formDataToSend = new FormData();
-      
-      // Append basic fields
-      formDataToSend.append('title', formData.title.trim());
-      formDataToSend.append('description', formData.description.trim());
-      formDataToSend.append('price', formData.price.toString());
-      formDataToSend.append('location', JSON.stringify({
-        address: formData.location.address,
-        city: formData.location.city,
-        state: formData.location.state,
-        country: formData.location.country,
-        coordinates: formData.location.coordinates
-      }));
-      
-          // Process and append details based on listing type
-      const details = { ...formData.details };
-      const listingType = isVehicle 
-        ? (details.vehicles?.vehicleType as VehicleType)
-        : (details.realEstate?.propertyType as PropertyType);
+      // Validate form before submission
+      if (!validateForm()) {
+        return;
+      }
 
-      // Get all fields for the listing type to ensure we include all schema fields
-      if (listingType) {
-        const allFields = getFieldsBySection(listingType, 'essential').concat(
-          getFieldsBySection(listingType, 'advanced')
+      setIsSubmitting(true);
+
+      try {
+        const formDataToSend = new FormData();
+
+        // Append basic fields
+        formDataToSend.append("title", formData.title.trim());
+        formDataToSend.append("description", formData.description.trim());
+        formDataToSend.append("price", formData.price.toString());
+        formDataToSend.append(
+          "location",
+          // JSON.stringify({
+          //   address: formData.location.address,
+          //   city: formData.location.city,
+          //   state: formData.location.state,
+          //   country: formData.location.country,
+          //   coordinates: formData.location.coordinates,
+          // })
+          formData.location.toString()
         );
 
-        // Ensure all schema fields are included in the details
-        allFields.forEach(field => {
-          const fieldPath = field.name.split('.');
-          const fieldType = isVehicle ? 'vehicles' : 'realEstate';
-          
-          if (!details[fieldType]) {
-            details[fieldType] = {};
-          }
-          
-          // Initialize nested objects if they don't exist
-          let current = details[fieldType] as Record<string, any>;
-          for (let i = 0; i < fieldPath.length - 1; i++) {
-            const part = fieldPath[i];
-            if (!current[part]) {
-              current[part] = {};
+        // Process and append details based on listing type
+        const details = { ...formData.details };
+        const listingType = isVehicle
+          ? (details.vehicles?.vehicleType as VehicleType)
+          : (details.realEstate?.propertyType as PropertyType);
+
+        // Get all fields for the listing type to ensure we include all schema fields
+        if (listingType) {
+          const allFields = getFieldsBySection(listingType, "essential").concat(
+            getFieldsBySection(listingType, "advanced")
+          );
+
+          // Ensure all schema fields are included in the details
+          allFields.forEach((field) => {
+            const fieldPath = field.name.split(".");
+            const fieldType = isVehicle ? "vehicles" : "realEstate";
+
+            if (!details[fieldType]) {
+              details[fieldType] = {};
             }
-            current = current[part] as Record<string, any>;
-          }
-          
-          // Ensure the field has a value (use empty string for required fields if not set)
-          const lastPart = fieldPath[fieldPath.length - 1];
-          if (field.required && current[lastPart] === undefined) {
-            current[lastPart] = field.type === 'number' ? 0 : '';
-          }
-        });
-      }
-      
-      // Stringify details with proper handling of undefined values
-      const cleanDetails = JSON.parse(JSON.stringify(details, (_, value) => 
-        value === undefined ? '' : value
-      ));
-      
-      formDataToSend.append('details', JSON.stringify(cleanDetails));
-      
-      // Append images
-      formData.images.forEach((image) => {
-        if (image instanceof File) {
-          formDataToSend.append('images', image);
-        } else if (typeof image === 'string') {
-          formDataToSend.append('existingImages', image);
+
+            // Initialize nested objects if they don't exist
+            let current = details[fieldType] as Record<string, any>;
+            for (let i = 0; i < fieldPath.length - 1; i++) {
+              const part = fieldPath[i];
+              if (!current[part]) {
+                current[part] = {};
+              }
+              current = current[part] as Record<string, any>;
+            }
+
+            // Ensure the field has a value (use empty string for required fields if not set)
+            const lastPart = fieldPath[fieldPath.length - 1];
+            if (field.required && current[lastPart] === undefined) {
+              current[lastPart] = field.type === "number" ? 0 : "";
+            }
+          });
         }
-      });
-      
-      // Append deleted images if any
-      if (formData.deletedImages?.length) {
-        formData.deletedImages.forEach((url: string) => {
-          formDataToSend.append('deletedImages', url);
+
+        // Stringify details with proper handling of undefined values
+        const cleanDetails = JSON.parse(
+          JSON.stringify(details, (_, value) =>
+            value === undefined ? "" : value
+          )
+        );
+
+        formDataToSend.append("details", JSON.stringify(cleanDetails));
+
+        // Append images
+        formData.images.forEach((image) => {
+          if (image instanceof File) {
+            formDataToSend.append("images", image);
+          } else if (typeof image === "string") {
+            formDataToSend.append("existingImages", image);
+          }
         });
+
+        // Append deleted images if any
+        if (formData.deletedImages?.length) {
+          formData.deletedImages.forEach((url: string) => {
+            formDataToSend.append("deletedImages", url);
+          });
+        }
+
+        // Call the API to update the listing
+        const response = id
+          ? await listingsAPI.update(id, formDataToSend)
+          : await listingsAPI.create(formDataToSend);
+
+        if (response.success) {
+          toast.success(
+            id ? t("listing.updateSuccess") : t("listing.createSuccess")
+          );
+          navigate(`/listings/${response.data?.id || id}`);
+        } else {
+          throw new Error(
+            response.error ||
+              (id ? "Failed to update listing" : "Failed to create listing")
+          );
+        }
+      } catch (error) {
+        console.error("Error updating listing:", error);
+        toast.error(t("listing.updateError"));
+      } finally {
+        setIsSubmitting(false);
       }
-      
-      // Call the API to update the listing
-      const response = id 
-        ? await listingsAPI.update(id, formDataToSend)
-        : await listingsAPI.create(formDataToSend);
-      
-      if (response.success) {
-        toast.success(id ? t('listing.updateSuccess') : t('listing.createSuccess'));
-        navigate(`/listings/${response.data?.id || id}`);
-      } else {
-        throw new Error(response.error || (id ? 'Failed to update listing' : 'Failed to create listing'));
-      }
-    } catch (error) {
-      console.error('Error updating listing:', error);
-      toast.error(t('listing.updateError'));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [formData, id, isVehicle, navigate, t]);
+    },
+    [formData, id, isVehicle, navigate, t]
+  );
 
   // Load listing data if editing
   useEffect(() => {
     const loadListing = async () => {
       if (!id) return;
-      
+
       try {
+        console.log(">>>>>>>>>>");
         const response = await listingsAPI.getById(id);
         if (response.success && response.data) {
+          console.log("Editing listing:", response.data);
           const listing = response.data;
           // Parse the location if it's a string
-          const locationData = typeof listing.location === 'string' 
-            ? JSON.parse(listing.location) 
-            : listing.location;
-          
+          // const locationData =
+          //   typeof listing.location === "string"
+          //     ? JSON.parse(listing.location)
+          //     : listing.location;
+          const locationData = listing.location;
+
           // Parse details if it's a string
           let details = listing.details;
-          if (typeof details === 'string') {
+          if (typeof details === "string") {
             try {
               details = JSON.parse(details);
             } catch (e) {
-              console.error('Failed to parse details:', e);
+              console.error("Failed to parse details:", e);
               details = {};
             }
           }
-          
+
           // Ensure all required fields are initialized
           const initialData: EditFormData = {
             id: listing.id,
-            title: listing.title || '',
-            description: listing.description || '',
+            title: listing.title || "",
+            description: listing.description || "",
             price: listing.price || 0,
-            location: {
-              address: locationData.address || '',
-              city: locationData.city || '',
-              state: locationData.state || '',
-              country: locationData.country || '',
-              coordinates: locationData.coordinates || []
-            },
+            // location: {
+            //   address: locationData.address || "",
+            //   city: locationData.city || "",
+            //   state: locationData.state || "",
+            //   country: locationData.country || "",
+            //   coordinates: locationData.coordinates || [],
+            // },
+            location: locationData || "",
             details: details || {},
             images: [],
-            existingImages: listing.images?.map((img: any) => typeof img === 'string' ? img : img.url) || [],
+            existingImages:
+              listing.images?.map((img: any) =>
+                typeof img === "string" ? img : img.url
+              ) || [],
             deletedImages: [],
           };
-          
+
           // Initialize missing schema fields
-          const listingType = initialData.details.vehicles?.vehicleType || 
-                            initialData.details.realEstate?.propertyType;
-          
+          const listingType =
+            initialData.details.vehicles?.vehicleType ||
+            initialData.details.realEstate?.propertyType;
+
           if (listingType) {
-            const allFields = getFieldsBySection(listingType, 'essential').concat(
-              getFieldsBySection(listingType, 'advanced')
-            );
-            
-            allFields.forEach(field => {
-              const fieldPath = field.name.split('.');
-              const fieldType = initialData.details.vehicles ? 'vehicles' : 'realEstate';
-              
+            const allFields = getFieldsBySection(
+              listingType,
+              "essential"
+            ).concat(getFieldsBySection(listingType, "advanced"));
+
+            allFields.forEach((field) => {
+              const fieldPath = field.name.split(".");
+              const fieldType = initialData.details.vehicles
+                ? "vehicles"
+                : "realEstate";
+
               if (!initialData.details[fieldType]) {
                 initialData.details[fieldType] = {};
               }
-              
+
               // Initialize nested objects if they don't exist
-              let current = initialData.details[fieldType] as Record<string, any>;
+              let current = initialData.details[fieldType] as Record<
+                string,
+                any
+              >;
               for (let i = 0; i < fieldPath.length - 1; i++) {
                 const part = fieldPath[i];
                 if (!current[part]) {
@@ -403,43 +446,46 @@ const EditListing: React.FC = () => {
               }
             });
           }
-          
+
           setFormData(initialData);
         } else {
-          throw new Error(response.error || 'Failed to load listing');
+          throw new Error(response.error || "Failed to load listing");
         }
       } catch (error) {
-        console.error('Error loading listing:', error);
-        toast.error(t('common.errorLoading'));
-        navigate('/listings');
+        console.error("Error loading listing:", error);
+        toast.error(t("common.errorLoading"));
+        navigate("/listings");
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     loadListing();
   }, [id, navigate, t]);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
-      navigate('/login', { state: { from: `/listings/${id || 'new'}/edit` } });
+      navigate("/login", { state: { from: `/listings/${id || "new"}/edit` } });
     }
   }, [isAuthenticated, isAuthLoading, navigate, id]);
 
   // Set up socket listener for price updates
   useEffect(() => {
     if (!socket || !formData.id) return;
-    
-    const handlePriceUpdate = (data: { listingId: string; newPrice: number }) => {
+
+    const handlePriceUpdate = (data: {
+      listingId: string;
+      newPrice: number;
+    }) => {
       if (data.listingId === formData.id) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          price: data.newPrice
+          price: data.newPrice,
         }));
       }
     };
-    
+
     socket.on(PRICE_CHANGE, handlePriceUpdate);
     return () => {
       socket.off(PRICE_CHANGE, handlePriceUpdate);
@@ -452,22 +498,37 @@ const EditListing: React.FC = () => {
     label: string;
   }
 
-  type ExtendedFieldProps = Omit<ListingFieldSchema, 'type' | 'options'> & { 
-    min?: number; 
-    max?: number; 
-    placeholder?: string; 
-    type: 'text' | 'number' | 'select' | 'checkbox' | 'textarea' | 'date' | 'colorpicker' | 'multiselect' | 'radio' | 'toggle' | 'featureGroup';
+  type ExtendedFieldProps = Omit<ListingFieldSchema, "type" | "options"> & {
+    min?: number;
+    max?: number;
+    placeholder?: string;
+    type:
+      | "text"
+      | "number"
+      | "select"
+      | "checkbox"
+      | "textarea"
+      | "date"
+      | "colorpicker"
+      | "multiselect"
+      | "radio"
+      | "toggle"
+      | "featureGroup";
     options?: SelectOption[];
   };
 
   const renderField = (field: ExtendedFieldProps, idx: number) => {
     // Skip rendering if field type is not supported or name is missing
-    if (!field.name || field.type === 'toggle' || field.type === 'featureGroup') {
+    if (
+      !field.name ||
+      field.type === "toggle" ||
+      field.type === "featureGroup"
+    ) {
       return null;
     }
-    
+
     // Handle radio fields specially
-    if (field.type === 'radio' && field.options) {
+    if (field.type === "radio" && field.options) {
       const options = field.options;
       return (
         <div key={field.name || idx} className="mb-4">
@@ -478,12 +539,12 @@ const EditListing: React.FC = () => {
           <div className="space-y-2">
             {options.map((option) => {
               // Get the value from the appropriate details object
-              const details = isVehicle 
-                ? formData.details.vehicles 
+              const details = isVehicle
+                ? formData.details.vehicles
                 : formData.details.realEstate;
               const fieldValue = details?.[field.name as keyof typeof details];
               const isChecked = fieldValue === option.value;
-              
+
               return (
                 <div key={option.value} className="flex items-center">
                   <input
@@ -492,10 +553,19 @@ const EditListing: React.FC = () => {
                     name={field.name}
                     value={option.value}
                     checked={isChecked}
-                    onChange={(e) => handleInputChange(field.name, e.target.value, isVehicle ? 'vehicles' : 'realEstate')}
+                    onChange={(e) =>
+                      handleInputChange(
+                        field.name,
+                        e.target.value,
+                        isVehicle ? "vehicles" : "realEstate"
+                      )
+                    }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                   />
-                  <label htmlFor={`${field.name}-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                  <label
+                    htmlFor={`${field.name}-${option.value}`}
+                    className="ml-2 block text-sm text-gray-700"
+                  >
                     {option.label}
                   </label>
                 </div>
@@ -505,24 +575,32 @@ const EditListing: React.FC = () => {
         </div>
       );
     }
-    const fieldType = field.type || 'text';
+    const fieldType = field.type || "text";
     // Get the value from the appropriate details object based on listing type
-    const details = isVehicle 
-      ? formData.details.vehicles 
+    const details = isVehicle
+      ? formData.details.vehicles
       : formData.details.realEstate;
     const fieldValue = details?.[field.name as keyof typeof details];
-    
-    const fieldOptions = (field.options || []) as Array<{ value: string; label: string }>;
-    
-    const validationError = field.required && !fieldValue ? t('common.requiredField') : undefined;
+
+    const fieldOptions = (field.options || []) as Array<{
+      value: string;
+      label: string;
+    }>;
+
+    const validationError =
+      field.required && !fieldValue ? t("common.requiredField") : undefined;
 
     const commonProps = {
       key: field.name || idx,
       label: field.label,
       name: field.name,
-      value: fieldValue ?? '',
-      onChange: (value: any) => 
-        handleInputChange(field.name, value, isVehicle ? 'vehicles' : 'realEstate'),
+      value: fieldValue ?? "",
+      onChange: (value: any) =>
+        handleInputChange(
+          field.name,
+          value,
+          isVehicle ? "vehicles" : "realEstate"
+        ),
       error: validationError,
       required: field.required,
       placeholder: field.placeholder,
@@ -530,9 +608,9 @@ const EditListing: React.FC = () => {
     };
 
     switch (fieldType) {
-      case 'select':
+      case "select":
         return <FormField {...commonProps} type="select" />;
-      case 'radio':
+      case "radio":
         return (
           <div className="space-y-2">
             {fieldOptions.map((option, i) => (
@@ -543,19 +621,28 @@ const EditListing: React.FC = () => {
                   name={field.name}
                   value={option.value}
                   checked={fieldValue === option.value}
-                  onChange={() => handleInputChange(field.name, option.value, isVehicle ? 'vehicles' : 'realEstate')}
+                  onChange={() =>
+                    handleInputChange(
+                      field.name,
+                      option.value,
+                      isVehicle ? "vehicles" : "realEstate"
+                    )
+                  }
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                 />
-                <label htmlFor={`${field.name}-${i}`} className="ml-2 block text-sm text-gray-700">
+                <label
+                  htmlFor={`${field.name}-${i}`}
+                  className="ml-2 block text-sm text-gray-700"
+                >
                   {option.label}
                 </label>
               </div>
             ))}
           </div>
         );
-      case 'checkbox':
+      case "checkbox":
         return <FormField {...commonProps} type="checkbox" />;
-      case 'number':
+      case "number":
         return (
           <FormField
             {...commonProps}
@@ -564,7 +651,7 @@ const EditListing: React.FC = () => {
             max={field.max}
           />
         );
-      case 'textarea':
+      case "textarea":
         return <FormField {...commonProps} type="textarea" />;
       default:
         return <FormField {...commonProps} type="text" />;
@@ -590,42 +677,48 @@ const EditListing: React.FC = () => {
             <FaArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-2xl font-bold">
-            {formData.id ? t('listings.editListing') : t('listings.createListing')}
+            {formData.id
+              ? t("listings.editListing")
+              : t("listings.createListing")}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('listings.basicInfo')}</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {t("listings.basicInfo")}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
-                label={t('listings.title')}
+                label={t("listings.title")}
                 name="title"
                 type="text"
                 value={formData.title}
-                onChange={(value) => handleInputChange('title', value)}
+                onChange={(value) => handleInputChange("title", value)}
                 required
               />
               <FormField
-                label={t('listings.price')}
+                label={t("listings.price")}
                 name="price"
                 type="number"
                 value={formData.price}
-                onChange={(value) => handleInputChange('price', Number(value))}
+                onChange={(value) => handleInputChange("price", Number(value))}
                 min={0}
                 required
               />
               <div className="md:col-span-2">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    {t('listings.description')}
+                    {t("listings.description")}
                     <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     name="description"
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     rows={4}
                     required
@@ -637,28 +730,27 @@ const EditListing: React.FC = () => {
 
           {/* Location */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('listings.location')}</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {t("listings.location")}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField
-                label={t('listings.city')}
+                label={t("listings.location")}
                 name="city"
                 type="text"
-                value={formData.location.city}
+                value={formData.location}
                 onChange={(value) => {
-                  handleInputChange('location', {
-                    ...formData.location,
-                    city: value as string,
-                  });
+                  handleInputChange("location", value as string);
                 }}
                 required
               />
-              <FormField
-                label={t('listings.state')}
+              {/* <FormField
+                label={t("listings.state")}
                 name="state"
                 type="text"
                 value={formData.location.state}
                 onChange={(value) => {
-                  handleInputChange('location', {
+                  handleInputChange("location", {
                     ...formData.location,
                     state: value as string,
                   });
@@ -666,12 +758,12 @@ const EditListing: React.FC = () => {
                 required
               />
               <FormField
-                label={t('listings.country')}
+                label={t("listings.country")}
                 name="country"
                 type="text"
                 value={formData.location.country}
                 onChange={(value) => {
-                  handleInputChange('location', {
+                  handleInputChange("location", {
                     ...formData.location,
                     country: value as string,
                   });
@@ -679,18 +771,18 @@ const EditListing: React.FC = () => {
                 required
               />
               <FormField
-                label={t('listings.address')}
+                label={t("listings.address")}
                 name="address"
                 type="text"
                 value={formData.location.address}
                 onChange={(value) => {
-                  handleInputChange('location', {
+                  handleInputChange("location", {
                     ...formData.location,
                     address: value as string,
                   });
                 }}
                 required
-              />
+              /> */}
             </div>
           </div>
 
@@ -700,24 +792,24 @@ const EditListing: React.FC = () => {
               <button
                 type="button"
                 className={`pb-2 px-1 border-b-2 ${
-                  activeTab === 'essential'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "essential"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
-                onClick={() => setActiveTab('essential')}
+                onClick={() => setActiveTab("essential")}
               >
-                {t('listings.essentials')}
+                {t("listings.essentials")}
               </button>
               <button
                 type="button"
                 className={`pb-2 px-1 border-b-2 ${
-                  activeTab === 'advanced'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "advanced"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
-                onClick={() => setActiveTab('advanced')}
+                onClick={() => setActiveTab("advanced")}
               >
-                {t('listings.advanced')}
+                {t("listings.advanced")}
               </button>
             </div>
 
@@ -730,9 +822,13 @@ const EditListing: React.FC = () => {
 
           {/* Images */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('listings.images')}</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {t("listings.images")}
+            </h2>
             <ImageManager
-              images={formData.images.filter((img): img is File => img instanceof File)}
+              images={formData.images.filter(
+                (img): img is File => img instanceof File
+              )}
               existingImages={formData.existingImages}
               onChange={handleImageChange}
               onDeleteExisting={handleDeleteExisting}
@@ -749,7 +845,7 @@ const EditListing: React.FC = () => {
               className="flex items-center"
             >
               <FaSave className="mr-2" />
-              {isSubmitting ? t('common.saving') : t('common.save')}
+              {isSubmitting ? t("common.saving") : t("common.save")}
             </Button>
           </div>
         </form>
