@@ -320,6 +320,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               src={mainImage}
               alt={title}
               className="w-full h-full object-cover"
+              category={category.subCategory}
             />
           </div>
           

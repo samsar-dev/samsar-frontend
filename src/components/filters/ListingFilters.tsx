@@ -48,21 +48,21 @@ interface ListingFiltersProps {
   setSelectedModel: (model: string | null) => void;
   selectedYear: number | null;
   setSelectedYear: (year: number | null) => void;
+  selectedGovernorate: string | null;
+  setSelectedGovernorate: (governorate: string | null) => void;
+  selectedCity: string | null;
+  setSelectedCity: (city: string | null) => void;
   selectedLocation: string | null;
   setSelectedLocation: (location: string | null) => void;
   selectedRadius: number | null;
   setSelectedRadius: (radius: number | null) => void;
   selectedBuiltYear: number | null;
   setSelectedBuiltYear: (year: number | null) => void;
-  selectedAreas?: string[];
-  setSelectedAreas?: (areas: string[]) => void;
-  loading?: boolean;
-  onLocationChange?: (location: { 
-    address: string; 
-    coordinates: [number, number];
-    boundingBox?: [number, number, number, number];
-  } | null) => void;
-  onRadiusChange?: (radius: number | null) => void;
+  selectedAreas: string[];
+  setSelectedAreas: (areas: string[]) => void;
+  loading: boolean;
+  onLocationChange: (location: LocationData) => void;
+  onRadiusChange: (radius: number | null) => void;
 }
 
 // Mapping of subcategories to icons
@@ -115,7 +115,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   const { t } = useTranslation(["filters", "common", "locations"]);
   // State for location and radius filtering
   const [showRadiusSlider, setShowRadiusSlider] = useState(false);
-  const [tempRadius, setTempRadius] = useState(10); // Temporary radius value for the slider
+  const [tempRadius, setTempRadius] = useState(10); // Default radius value in km (5-100)
   const [localLoading, setLocalLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   
@@ -156,8 +156,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     // Update location data in parent if callback provided
     onLocationChange?.({
       address: location.address,
-      coordinates: location.coordinates,
-      boundingBox: location.boundingBox
+      coordinates: location.coordinates
     });
     
     // If radius filter is enabled, apply the current radius
@@ -532,44 +531,69 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               )}
             </div>
             {showRadiusSlider && (
-              <div className="pl-1 space-y-2">
+              <div className="pl-1 space-y-3 mt-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{t('radius')}:</span>
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('radius')}:
+                  </span>
+                  <span className="text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 px-2.5 py-0.5 rounded-full">
                     {tempRadius} km
                   </span>
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={tempRadius}
-                  onChange={(e) => {
-                    const newRadius = parseInt(e.target.value, 10);
-                    setTempRadius(newRadius);
-                    if (selectedLocation) {
-                      handleRadiusChange(newRadius);
-                    }
-                  }}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  disabled={!selectedLocation}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>1km</span>
-                  <span>{selectedLocation ? `${tempRadius}km` : 'Select location first'}</span>
-                  <span>100km+</span>
+                <div className="px-1">
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    step="5"
+                    value={tempRadius}
+                    onChange={(e) => {
+                      const newRadius = parseInt(e.target.value, 10);
+                      setTempRadius(newRadius);
+                      if (selectedLocation) {
+                        handleRadiusChange(newRadius);
+                      }
+                    }}
+                    className={`w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer ${
+                      !selectedLocation ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={!selectedLocation}
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 mt-1 px-1">
+                    <span>5km</span>
+                    <span>{selectedLocation ? `${tempRadius}km` : 'Select location'}</span>
+                    <span>100km</span>
+                  </div>
                 </div>
-                {!selectedLocation && (
-                  <button
-                    type="button"
-                    onClick={handleGetCurrentLocation}
-                    className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                    disabled={localLoading}
-                  >
-                    <MdMyLocation className="w-4 h-4 mr-1" />
-                    {t('useMyLocation')}
-                  </button>
-                )}
+                <div className="flex justify-between items-center pt-1">
+                  {!selectedLocation ? (
+                    <button
+                      type="button"
+                      onClick={handleGetCurrentLocation}
+                      className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      disabled={localLoading}
+                    >
+                      <MdMyLocation className="w-4 h-4 mr-1" />
+                      {t('useMyLocation')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedLocation(null);
+                        handleRadiusChange(null);
+                      }}
+                      className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      Clear location
+                    </button>
+                  )}
+                  {selectedLocation && (
+                    <span className="text-xs text-gray-500">
+                      Showing within {tempRadius}km
+                    </span>
+                  )}
+                </div>
               </div>
             )}
             

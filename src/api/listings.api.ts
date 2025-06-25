@@ -35,6 +35,9 @@ interface ListingParams {
   minPrice?: number;
   maxPrice?: number;
   location?: string;
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
   builtYear?: number;
   preview?: boolean;
   forceRefresh?: boolean;
@@ -318,6 +321,9 @@ interface ListingParams {
   minPrice?: number;
   maxPrice?: number;
   location?: string;
+  latitude?: number;
+  longitude?: number;
+  radius?: number;
   builtYear?: number;
   preview?: boolean;
   forceRefresh?: boolean;
@@ -526,6 +532,13 @@ export const listingsAPI: ListingsAPI = {
       if (params.maxPrice)
         queryParams.append("maxPrice", params.maxPrice.toString());
       if (params.location) queryParams.append("location", params.location);
+
+      // Add radius-based location filtering if coordinates and radius are provided
+      if (params.latitude && params.longitude && params.radius) {
+        queryParams.append("latitude", params.latitude.toString());
+        queryParams.append("longitude", params.longitude.toString());
+        queryParams.append("radius", params.radius.toString());
+      }
       if (params.builtYear !== undefined && params.builtYear !== null) {
         queryParams.append("builtYear", params.builtYear.toString());
       }

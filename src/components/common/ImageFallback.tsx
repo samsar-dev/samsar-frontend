@@ -1,23 +1,50 @@
 import React, { useState, useEffect, useRef, memo } from "react";
+import {
+  FaCar,
+  FaHome,
+  FaTruck,
+  FaMotorcycle,
+  FaBus,
+  FaTractor,
+  FaCarSide,
+  FaBuilding,
+  FaLandmark,
+} from "react-icons/fa";
+import { FiMapPin, FiTool } from "react-icons/fi";
+import { IoBusinessOutline } from "react-icons/io5";
+import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 
-// SVG placeholder for when images fail to load
-const svgPlaceholder =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23757575' font-size='16'%3EImage Unavailable%3C/text%3E%3C/svg%3E";
-
-// Backup placeholder in case SVG fails
-const fallbackPlaceholder =
-  "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
+// Category icons mapping
+const categoryIcons = {
+  CAR: FaCar,
+  TRUCK: FaTruck,
+  MOTORCYCLE: FaMotorcycle,
+  RV: FaCarSide,
+  BUS: FaBus,
+  VAN: FaCarSide, // Using car side view for van since no van icon available
+  TRACTOR: FaTractor,
+  CONSTRUCTION: FiTool, // Using tool icon for construction
+  REAL_ESTATE: FaHome,
+  OTHER: FiMapPin,
+  // Adding more specific real estate icons
+  HOUSE: FaHome,
+  APARTMENT: FaBuilding,
+  CONDO: FaBuilding,
+  LAND: FaLandmark,
+  COMMERCIAL: IoBusinessOutline // Using business outline icon for commercial
+};
 
 interface ImageFallbackProps {
   src: string;
   alt: string;
   className?: string;
   loading?: "lazy" | "eager";
-  onError?: (error: React.SyntheticEvent) => void;
+  onError?: (error: Error | React.SyntheticEvent) => void;
   width?: number | string;
   height?: number | string;
   sizes?: string;
   srcSet?: string;
+  category?: string; // Listing category for icon selection
 }
 
 const ImageFallback: React.FC<ImageFallbackProps> = ({
@@ -30,102 +57,99 @@ const ImageFallback: React.FC<ImageFallbackProps> = ({
   height,
   sizes,
   srcSet,
+  category,
 }) => {
-  const [isError, setIsError] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [imgSrc, setImgSrc] = useState(src);
+  const [error, setError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Track mount state to prevent state updates on unmounted component
-  const isMountedRef = useRef(true);
-
-  // Track load attempts to prevent infinite retry loops
-  const loadAttemptsRef = useRef(0);
-  const maxLoadAttempts = 2;
-
-  // Reset component state when src changes
   useEffect(() => {
-    // Only update state if the component is still mounted
-    if (isMountedRef.current) {
-      setIsError(false);
-      setIsLoaded(false);
-      setImgSrc(src);
-      loadAttemptsRef.current = 0;
-    }
-  }, [src]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      setError(false);
     };
-  }, []);
+    img.onerror = () => {
+      setError(true);
+      if (onError) onError(new Error('Image failed to load'));
+    };
+  }, [src, onError]);
 
-  // Handle error state with fallback image
-  if (isError) {
+  if (error) {
+    const Icon = categoryIcons[category as keyof typeof categoryIcons] || categoryIcons.OTHER;
     return (
       <div
-        className={`relative w-full h-full bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden ${className}`}
+        className={`relative ${className}`}
+        style={{
+          width: width || '100%',
+          height: height || '200px',
+          background: '#e2e8f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: '8px',
+        }}
       >
-        <img
-          src={svgPlaceholder}
-          alt="Image Unavailable"
-          className="w-full h-full object-cover"
-          loading={loading}
-          decoding="async"
-          role="img"
-          aria-label="Placeholder image"
-          width={width}
-          height={height}
-          onError={() => {
-            // If even the SVG placeholder fails, use a minimal fallback
-            if (isMountedRef.current) {
-              const img = document.createElement("img");
-              img.src = fallbackPlaceholder;
-            }
-          }}
-        />
+        <Icon className="text-4xl text-gray-400" />
+        <div className="text-gray-500 text-center">
+          <p className="mt-2">Image Unavailable</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`relative w-full h-full ${!isLoaded ? "bg-gray-50 dark:bg-gray-800" : ""}`}
-    >
-      <img
-        src={imgSrc}
-        alt={alt}
-        className={`w-full h-full object-cover ${className} transition-opacity duration-300`}
-        onError={(e) => {
-          // Handle image load errors with retry logic
-          if (isMountedRef.current) {
-            loadAttemptsRef.current += 1;
-
-            // Try to reload the image once before showing error state
-            if (loadAttemptsRef.current <= maxLoadAttempts && imgSrc === src) {
-              // Add cache-busting parameter for retry
-              const retrySrc = `${src}${src.includes("?") ? "&" : "?"}retry=${Date.now()}`;
-              setImgSrc(retrySrc);
-            } else {
-              setIsError(true);
-              onError?.(e);
-            }
-          }
-        }}
-        onLoad={() => {
-          if (isMountedRef.current) {
-            setIsLoaded(true);
-          }
-        }}
-        loading={loading}
-        decoding="async"
-        width={width}
-        height={height}
-        sizes={sizes}
-        srcSet={srcSet}
-      />
-    </div>
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      className={`object-cover ${className}`}
+      loading={loading}
+      width={width}
+      height={height}
+      sizes={sizes}
+      srcSet={srcSet}
+    />
   );
+};
+
+// Helper function to get category from listing
+export const getCategoryIcon = (listing: { category: { mainCategory: string, subCategory?: string } }) => {
+  const { mainCategory, subCategory } = listing.category;
+  
+  // Handle vehicle types
+  if (mainCategory === ListingCategory.VEHICLES) {
+    switch (subCategory) {
+      case VehicleType.CAR:
+      case VehicleType.TRUCK:
+      case VehicleType.MOTORCYCLE:
+      case VehicleType.BUS:
+      case VehicleType.TRACTOR:
+        return subCategory;
+      case VehicleType.RV:
+      case VehicleType.VAN:
+      case VehicleType.CONSTRUCTION:
+        return subCategory;
+      default:
+        return 'OTHER';
+    }
+  }
+  
+  // Handle real estate types
+  if (mainCategory === ListingCategory.REAL_ESTATE) {
+    switch (subCategory) {
+      case PropertyType.HOUSE:
+      case PropertyType.APARTMENT:
+      case PropertyType.CONDO:
+      case PropertyType.LAND:
+      case PropertyType.COMMERCIAL:
+        return subCategory;
+      default:
+        return 'REAL_ESTATE';
+    }
+  }
+  
+  return 'OTHER';
 };
 
 export default memo(ImageFallback);

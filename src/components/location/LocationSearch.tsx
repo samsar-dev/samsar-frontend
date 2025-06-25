@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiMapPin, FiX } from 'react-icons/fi';
 import { useDebounce } from 'react-use';
-import { useLocation } from '@/hooks/useLocation';
-import arLocations from '@/locales/ar/locations.json';
-import enLocations from '@/locales/en/locations.json';
+import { syrianCities } from '@/utils/syrianCitiesEnglish';
+
 
 interface LocationArea {
   name: string;
@@ -13,6 +12,12 @@ interface LocationArea {
   enCity: string;
   arName: string;
   arCity: string;
+  latitude: number;
+  longitude: number;
+  isNeighbor: boolean;
+  governorate?: string;
+  areaType: 'city' | 'neighbor';
+  distance?: number; // Distance from search location in km
 }
 
 interface LocationResult {
@@ -50,15 +55,16 @@ export interface LocationCoordinates {
 export interface LocationData {
   address: string;
   coordinates: [number, number];
-  boundingBox?: [number, number, number, number];
   rawResult: any;
 }
 
 export interface SelectedLocation {
   address: string;
   coordinates: [number, number];
-  boundingBox?: [number, number, number, number];
   rawResult?: any;
+  latitude: number;
+  longitude: number;
+  radius?: number;
 }
 
 interface LocationSearchProps {
@@ -85,48 +91,76 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { getCurrentLocation } = useLocation();
+
 
   const { i18n } = useTranslation();
   
+  // Function to get governorate name based on city name
+  const getGovernorate = (cityName: string): string => {
+    // Add mapping of cities to their governorates
+    const governorateMap: { [key: string]: string } = {
+      'Damascus': 'Damascus',
+      'Aleppo': 'Aleppo',
+      'Homs': 'Homs',
+      'Hama': 'Hama',
+      'Latakia': 'Latakia',
+      'Tartus': 'Tartus',
+      'Idlib': 'Idlib',
+      'Deir ez-Zor': 'Deir ez-Zor',
+      'Raqqa': 'Raqqa',
+      'Hasakah': 'Hasakah',
+      'Quneitra': 'Quneitra',
+      'Sweida': 'Sweida',
+      'Daraa': 'Daraa',
+      'Al-Hasakah': 'Hasakah',
+      'Al-Raqqah': 'Raqqa',
+      'Al-Quneitra': 'Quneitra',
+      'As-Suwayda': 'Sweida',
+      'Ad-Dar': 'Daraa'
+    };
+    
+    return governorateMap[cityName] || 'Unknown';
+  };
+
   // Get all predefined areas from the locations data
   const allPredefinedAreas = useMemo<LocationArea[]>(() => {
     const currentLang = i18n.language;
     const isArabic = currentLang.startsWith('ar');
-    const cities = isArabic ? arLocations.cities : enLocations.cities;
-    const areasData = isArabic ? arLocations.areas : enLocations.areas;
     
     const areas: LocationArea[] = [];
     
-    // Add cities
-    Object.entries(cities).forEach(([key]) => {
-      const enName = enLocations.cities[key as keyof typeof enLocations.cities];
-      const arName = arLocations.cities[key as keyof typeof arLocations.cities];
-      
+    // Add cities with their coordinates
+    syrianCities.forEach(city => {
       areas.push({
-        name: isArabic ? arName : enName,
-        city: isArabic ? arName : enName,
-        enName,
-        enCity: enName,
-        arName,
-        arCity: arName
+        name: city.name,
+        city: city.name,
+        enName: city.name,
+        enCity: city.name,
+        arName: city.name,
+        arCity: city.name,
+        latitude: city.latitude,
+        longitude: city.longitude,
+        isNeighbor: false,
+        areaType: 'city',
+        governorate: getGovernorate(city.name)
       });
     });
     
-    // Add areas with their cities
-    Object.entries(areasData).forEach(([cityKey, areaNames]) => {
-      const cityEn = enLocations.cities[cityKey as keyof typeof enLocations.cities];
-      const cityAr = arLocations.cities[cityKey as keyof typeof arLocations.cities];
-      const areaNamesEn = enLocations.areas[cityKey as keyof typeof enLocations.areas] || [];
-      
-      (areaNames as string[]).forEach((areaName, index) => {
+    // Add neighbors with their coordinates
+    syrianCities.forEach(city => {
+      city.neighbors.forEach(neighbor => {
         areas.push({
-          name: isArabic ? areaName : (areaNamesEn[index] || areaName),
-          city: isArabic ? cityAr : cityEn,
-          enName: areaNamesEn[index] || areaName,
-          enCity: cityEn,
-          arName: areaName,
-          arCity: cityAr
+          name: neighbor.name,
+          city: isArabic ? city.name : city.name,
+          enName: neighbor.name,
+          enCity: city.name,
+          arName: neighbor.name,
+          arCity: city.name,
+          latitude: neighbor.latitude,
+          longitude: neighbor.longitude,
+          isNeighbor: true,
+          areaType: 'neighbor',
+          governorate: getGovernorate(city.name)
         });
       });
     });
@@ -152,8 +186,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         `${area.arName}, ${area.arCity}` :
         `${area.enName}, ${area.enCity}`,
       name: isArabic ? area.arName : area.enName,
-      lat: '0',
-      lon: '0',
+      lat: area.latitude?.toString() || '0',
+      lon: area.longitude?.toString() || '0',
       address: {
         city: isArabic ? area.arCity : area.enCity,
         state: isArabic ? 'سوريا' : 'Syria',
@@ -266,17 +300,14 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     setShowResults(false);
 
     const lat = parseFloat(result.lat);
-    const lng = parseFloat(result.lon);
-
-    const boundingBox = result.boundingbox 
-      ? result.boundingbox.map(coord => parseFloat(coord)) as [number, number, number, number]
-      : undefined;
+    const lon = parseFloat(result.lon);
 
     onSelectLocation({
       address: displayName,
-      coordinates: [lat, lng],
-      boundingBox,
-      rawResult: result,
+      coordinates: [lat, lon],
+      latitude: lat,
+      longitude: lon,
+      radius: 5 // Default radius of 5km
     });
   };
 
@@ -356,6 +387,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     onSelectLocation({
       address: '',
       coordinates: [0, 0],
+      latitude: 0,
+      longitude: 0,
+      radius: 0,
       rawResult: null
     });
   };

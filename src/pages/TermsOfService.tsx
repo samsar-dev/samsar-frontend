@@ -169,7 +169,7 @@ const TermsOfService = () => {
             If you have any questions about these Terms, please contact us at:
           </Typography>
           <Typography variant="body1" paragraph>
-            Email: <Link href="mailto:legal@marketplace.com" color="primary">legal@marketplace.com</Link>
+            Email: <Link href="mailto:contact@samsar.app" color="primary">contact@samsar.app</Link>
             <br />
             Phone: +1 (555) 987-6543
             <br />
