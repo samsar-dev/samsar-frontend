@@ -74,10 +74,7 @@ const EditListing: React.FC = () => {
     if (!listingType) return [];
 
     // Get fields from schema utils
-    const fields = getFieldsBySection(
-      listingType,
-      activeTab === "essential" ? "essential" : "advanced"
-    );
+    const fields = getFieldsBySection(listingType, activeTab);
 
     console.log("fields", fields);
 
@@ -358,6 +355,10 @@ const EditListing: React.FC = () => {
     },
     [formData, id, isVehicle, navigate, t]
   );
+
+  useEffect(() => {
+    console.log("formdata >>>>>> ", formData);
+  }, [formData]);
 
   // Load listing data if editing
   useEffect(() => {

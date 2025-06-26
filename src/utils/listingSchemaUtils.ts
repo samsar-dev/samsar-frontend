@@ -68,6 +68,7 @@ export const getFieldsBySection = (
   listingType: VehicleType | PropertyType,
   section: "essential" | "advanced"
 ): ListingFieldSchema[] => {
+  console.log("getFieldsBySection >>>>> ", listingType, section);
   const schema = getListingSchema(listingType);
   return schema.filter((field) => field.section === section);
 };
