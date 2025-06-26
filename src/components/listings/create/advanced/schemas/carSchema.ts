@@ -166,7 +166,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "fields.serviceHistory",
-    type: "select",
+    type: "multiselect",
     options: [
       { value: "full", label: "Full Service History" },
       { value: "partial", label: "Partial Service History" },
@@ -232,10 +232,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "horsepower",
     label: "fields.horsepower",
-    type: "select",
-    options: ["0-100", "100-200", "200-300", "300-400", "400-500", "500+"].map(
-      (val) => ({ value: val, label: val })
-    ),
+    type: "number",
     section: "advanced",
     required: false,
     tooltip:
@@ -244,11 +241,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "torque",
     label: "fields.torque",
-    type: "select",
-    options: ["0-200", "200-300", "300-400", "400-500", "500+"].map((val) => ({
-      value: val,
-      label: val,
-    })),
+    type: "number",
     section: "advanced",
     required: false,
     tooltip:
@@ -275,7 +268,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "customsCleared",
     label: "fields.customsCleared",
-    type: "select",
+    type: "checkbox",
     options: [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },
