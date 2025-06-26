@@ -611,6 +611,8 @@ const EditListing: React.FC = () => {
     switch (fieldType) {
       case "select":
         return <FormField {...commonProps} type="select" />;
+      case "multiselect":
+        return <FormField {...commonProps} type="multiselect" />;
       case "radio":
         return (
           <div className="space-y-2">
