@@ -66,7 +66,7 @@ export const commonVehicleFields: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "serviceHistory",
-    type: "select",
+    type: "multiselect",
     options: ["full", "partial", "no_history", "unknown"],
     section: "essential",
     required: false,

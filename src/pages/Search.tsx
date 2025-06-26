@@ -59,11 +59,10 @@ const Search: React.FC = () => {
         "Search component - Searching with query:",
         query,
         "and params:",
-        params,
+        params
       );
       const response = await listingsAPI.search(query, params);
       console.log("Search component - Response received:", response);
-
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
@@ -83,7 +82,7 @@ const Search: React.FC = () => {
         "Search component - Normalized listings:",
         normalizedListings.length > 0
           ? `Found ${normalizedListings.length} listings`
-          : "No listings found",
+          : "No listings found"
       );
 
       if (normalizedListings.length > 0) {
@@ -97,7 +96,7 @@ const Search: React.FC = () => {
         // If no results, try manually filtering all listings as fallback
         try {
           console.log(
-            "Search component - No results from API, trying to fetch all listings",
+            "Search component - No results from API, trying to fetch all listings"
           );
           const allResponse = await listingsAPI.getAll({ limit: 100 });
 
@@ -109,7 +108,7 @@ const Search: React.FC = () => {
           ) {
             const allListings = allResponse.data.listings;
             console.log(
-              `Search component - Got ${allListings.length} total listings, filtering client-side`,
+              `Search component - Got ${allListings.length} total listings, filtering client-side`
             );
 
             // Filter listings by search term - case insensitive
@@ -130,7 +129,7 @@ const Search: React.FC = () => {
 
             if (matchedListings.length > 0) {
               console.log(
-                `Search component - Found ${matchedListings.length} listings by client-side filtering`,
+                `Search component - Found ${matchedListings.length} listings by client-side filtering`
               );
               setListings(matchedListings);
               setError(null);
@@ -180,7 +179,6 @@ const Search: React.FC = () => {
       ) : error ? (
         <div className="text-center py-8">
           <p className="text-red-600 dark:text-red-400">{error}</p>
-
         </div>
       ) : !query ? (
         <div className="text-center py-8">
@@ -193,7 +191,6 @@ const Search: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">
             {t("search.no_results")}
           </p>
-
         </div>
       ) : (
         <>
@@ -208,8 +205,6 @@ const Search: React.FC = () => {
               />
             ))}
           </div>
-
-
         </>
       )}
     </div>

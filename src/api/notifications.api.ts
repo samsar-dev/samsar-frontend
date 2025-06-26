@@ -122,7 +122,7 @@ export const NotificationsAPI = {
   async getNotification(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.get<APIResponse<Notification>>(
-        `${BASE_URL}/${id}`,
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {
@@ -132,12 +132,12 @@ export const NotificationsAPI = {
   },
 
   async createNotification(
-    input: NotificationCreateInput,
+    input: NotificationCreateInput
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.post<APIResponse<Notification>>(
         BASE_URL,
-        input,
+        input
       );
       return response.data;
     } catch (error) {
@@ -148,12 +148,12 @@ export const NotificationsAPI = {
 
   async updateNotification(
     id: string,
-    input: NotificationUpdateInput,
+    input: NotificationUpdateInput
   ): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
         `${BASE_URL}/${id}`,
-        input,
+        input
       );
       return response.data;
     } catch (error) {
@@ -165,7 +165,7 @@ export const NotificationsAPI = {
   async markAsRead(id: string): Promise<APIResponse<Notification>> {
     try {
       const response = await apiClient.put<APIResponse<Notification>>(
-        `${BASE_URL}/${id}/read`,
+        `${BASE_URL}/${id}/read`
       );
       return response.data;
     } catch (error) {
@@ -177,7 +177,7 @@ export const NotificationsAPI = {
   async markAllAsRead(): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.put<APIResponse<void>>(
-        `${BASE_URL}/read-all`,
+        `${BASE_URL}/read-all`
       );
       return response.data;
     } catch (error) {
@@ -189,7 +189,7 @@ export const NotificationsAPI = {
   async deleteNotification(id: string): Promise<APIResponse<void>> {
     try {
       const response = await apiClient.delete<APIResponse<void>>(
-        `${BASE_URL}/${id}`,
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {

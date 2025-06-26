@@ -39,7 +39,7 @@ const SavedListings = () => {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("Failed to remove favorite"),
+        error instanceof Error ? error.message : t("Failed to remove favorite")
       );
     }
   };
@@ -91,7 +91,7 @@ const SavedListings = () => {
     } catch (error) {
       console.error("Error fetching listings:", error);
       toast.error(
-        error instanceof Error ? error.message : t("errors.fetch_failed"),
+        error instanceof Error ? error.message : t("errors.fetch_failed")
       );
     } finally {
       setLoading(false);
@@ -254,7 +254,7 @@ const SavedListings = () => {
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t(
-                    "Browse listings and tap the heart to save your favorites.",
+                    "Browse listings and tap the heart to save your favorites."
                   )}
                 </p>
               </div>

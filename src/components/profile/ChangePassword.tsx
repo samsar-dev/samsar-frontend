@@ -189,7 +189,7 @@ const ChangePassword = () => {
       const response = await UserAPI.changePasswordWithVerification(
         formData.currentPassword,
         formData.newPassword,
-        formData.verificationCode,
+        formData.verificationCode
       );
 
       // More detailed logging and error handling
@@ -237,7 +237,7 @@ const ChangePassword = () => {
     value: string,
     showPassword: boolean,
     setShowPassword: (show: boolean) => void,
-    icon: React.ReactNode,
+    icon: React.ReactNode
   ) => (
     <div className="space-y-2">
       <label
@@ -295,7 +295,7 @@ const ChangePassword = () => {
             formData.currentPassword,
             showCurrentPassword,
             setShowCurrentPassword,
-            <FaLock className="text-gray-500" />,
+            <FaLock className="text-gray-500" />
           )}
 
           {renderPasswordInput(
@@ -304,7 +304,7 @@ const ChangePassword = () => {
             formData.newPassword,
             showNewPassword,
             setShowNewPassword,
-            <FaLock className="text-gray-500" />,
+            <FaLock className="text-gray-500" />
           )}
 
           {/* Password strength indicator */}
@@ -394,7 +394,7 @@ const ChangePassword = () => {
             formData.confirmPassword,
             showConfirmPassword,
             setShowConfirmPassword,
-            <FaLock className="text-gray-500" />,
+            <FaLock className="text-gray-500" />
           )}
 
           {/* Password match indicator */}

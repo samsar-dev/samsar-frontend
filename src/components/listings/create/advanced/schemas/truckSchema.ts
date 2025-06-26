@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 export const truckSchema: ListingFieldSchema[] = [
@@ -214,6 +214,32 @@ export const truckSchema: ListingFieldSchema[] = [
     required: false,
   },
   {
+    name: "warranty",
+    label: "warranty",
+    type: "text",
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "suspensionType",
+    label: "suspensionType",
+    type: "select",
+    options: ["air", "leaf", "coil", "torsion", "other"],
+    section: "advanced",
+    required: false,
+  },
+  {
+    name: "seatConfiguration",
+    label: "seatConfiguration",
+    type: "select",
+    options: ["standard", "bench", "bucket", "other"],
+    section: "advanced",
+    required: false,
+  },
+
+  // Features
+
+  {
     name: "safetyFeatures",
     label: "safetyFeatures",
     type: "featureGroup",
@@ -341,29 +367,6 @@ export const truckSchema: ListingFieldSchema[] = [
         ],
       },
     },
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "warranty",
-    label: "warranty",
-    type: "text",
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "suspensionType",
-    label: "suspensionType",
-    type: "select",
-    options: ["air", "leaf", "coil", "torsion", "other"],
-    section: "advanced",
-    required: false,
-  },
-  {
-    name: "seatConfiguration",
-    label: "seatConfiguration",
-    type: "select",
-    options: ["standard", "bench", "bucket", "other"],
     section: "advanced",
     required: false,
   },

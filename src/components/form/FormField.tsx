@@ -34,7 +34,7 @@ export interface FormFieldProps {
   max?: number;
   prefix?: string;
   customValidation?: (
-    value: string | string[],
+    value: string | string[]
   ) => string | string[] | undefined | null;
   isSearchable?: boolean;
   tooltip?: string;
@@ -63,7 +63,7 @@ export const FormField = forwardRef<
       isSearchable,
       tooltip,
     },
-    ref,
+    ref
   ) => {
     const handleChange = (
       e:
@@ -71,7 +71,7 @@ export const FormField = forwardRef<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
           >
         | SingleValue<{ value: string; label: string }>,
-      _actionMeta?: ActionMeta<{ value: string; label: string }>,
+      _actionMeta?: ActionMeta<{ value: string; label: string }>
     ) => {
       let newValue: string | boolean | string[];
 
@@ -85,7 +85,9 @@ export const FormField = forwardRef<
           newValue = target.checked;
         } else if (type === "date") {
           // Format date to YYYY-MM-DD
-          newValue = target.value ? new Date(target.value).toISOString().split('T')[0] : '';
+          newValue = target.value
+            ? new Date(target.value).toISOString().split("T")[0]
+            : "";
         } else {
           newValue = target.value;
         }
@@ -115,12 +117,15 @@ export const FormField = forwardRef<
         }
       }
 
-      onChange(newValue, validationError || undefined);
+      onChange(
+        type === "number" ? Number(newValue) : newValue,
+        validationError || undefined
+      );
     };
 
     const handleMultiSelectChange = (
       newValue: MultiValue<unknown>,
-      _actionMeta?: ActionMeta<unknown>,
+      _actionMeta?: ActionMeta<unknown>
     ) => {
       let newValueArr: string[] | null = null;
 
@@ -161,7 +166,7 @@ export const FormField = forwardRef<
         "opacity-50 cursor-not-allowed": disabled,
         "pl-10": prefix,
       },
-      "placeholder-gray-400",
+      "placeholder-gray-400"
     );
 
     const animatedComponents = makeAnimated();
@@ -345,7 +350,7 @@ export const FormField = forwardRef<
                 type={type}
                 id={name}
                 name={name}
-                value={value as string}
+                value={type === "number" ? Number(value) : value.toString()}
                 onChange={handleChange}
                 className={inputClasses}
                 placeholder={placeholder}
@@ -388,7 +393,7 @@ export const FormField = forwardRef<
         )}
       </div>
     );
-  },
+  }
 );
 
 FormField.displayName = "FormField";

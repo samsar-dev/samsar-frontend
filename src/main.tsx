@@ -71,15 +71,13 @@ const initializeApp = () => {
 
   // Use concurrent mode features
   root.render(
-    <React.StrictMode>
-      <HelmetProvider>
-        <BrowserRouter>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
-        </BrowserRouter>
-      </HelmetProvider>
-    </React.StrictMode>,
+    <HelmetProvider>
+      <BrowserRouter>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 };
 

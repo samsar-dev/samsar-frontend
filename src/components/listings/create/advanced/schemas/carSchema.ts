@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "../../../../../types/listings";
+import type { ListingFieldSchema } from "../../../../../types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 // Car Listing Schema
@@ -136,7 +136,7 @@ export const carSchema: ListingFieldSchema[] = [
       { value: "minivan", label: "Minivan" },
       { value: "crossover", label: "Crossover" },
       { value: "sportsCar", label: "Sports Car" },
-      { value: "luxury", label: "Luxury" }
+      { value: "luxury", label: "Luxury" },
     ],
     section: "advanced",
     required: false,
@@ -232,10 +232,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "horsepower",
     label: "fields.horsepower",
-    type: "select",
-    options: ["0-100", "100-200", "200-300", "300-400", "400-500", "500+"].map(
-      (val) => ({ value: val, label: val }),
-    ),
+    type: "number",
     section: "advanced",
     required: false,
     tooltip:
@@ -244,11 +241,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "torque",
     label: "fields.torque",
-    type: "select",
-    options: ["0-200", "200-300", "300-400", "400-500", "500+"].map((val) => ({
-      value: val,
-      label: val,
-    })),
+    type: "number",
     section: "advanced",
     required: false,
     tooltip:
@@ -275,7 +268,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "customsCleared",
     label: "fields.customsCleared",
-    type: "select",
+    type: "checkbox",
     options: [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },

@@ -150,7 +150,7 @@ export const vanSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "fields.serviceHistory",
-    type: "select",
+    type: "multiselect",
     options: ["full", "partial", "none"],
     section: "advanced",
     required: false,
@@ -183,11 +183,8 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "number",
     section: "advanced",
     required: false,
-    validate: (value: string | number | boolean) => {
-      if (typeof value === "number" && value < 0)
-        return "Torque must be 0 or greater";
-      return null;
-    },
+    tooltip:
+      "The rotational force of the vehicle's engine, typically measured in newton-meters (Nm). Higher torque values provide better acceleration and pulling power.",
   },
   {
     name: "roofHeight",
