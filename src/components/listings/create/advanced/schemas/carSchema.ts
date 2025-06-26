@@ -166,7 +166,7 @@ export const carSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "fields.serviceHistory",
-    type: "multiselect",
+    type: "select",
     options: [
       { value: "full", label: "Full Service History" },
       { value: "partial", label: "Partial Service History" },

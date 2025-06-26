@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 import { Condition, TransmissionType, FuelType } from "@/types/enums";
 
 export const busSchema: ListingFieldSchema[] = [
@@ -134,7 +134,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "serviceHistory",
     label: "fields.serviceHistory",
-    type: "multiselect",
+    type: "select",
     options: ["full", "partial", "none"],
     section: "essential",
     required: false,
@@ -155,7 +155,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "entertainmentFeatures",
     label: "fields.entertainmentFeatures",
-    type: "multiselect",
+    type: "select",
     options: [
       "tv",
       "dvdPlayer",
@@ -179,7 +179,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "communicationSystem",
     label: "fields.communicationSystem",
-    type: "multiselect",
+    type: "select",
     options: ["pa", "intercom", "radioSystem"],
     section: "advanced",
     required: false,
@@ -211,7 +211,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "certifications",
     label: "fields.certifications",
-    type: "multiselect",
+    type: "select",
     options: ["safety", "emissions", "accessibility", "tourism"],
     section: "advanced",
     required: false,
@@ -265,7 +265,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "suspension",
     label: "fields.suspension",
-    type: "multiselect",
+    type: "select",
     options: ["air", "leaf", "electronic", "hydraulic"],
     section: "advanced",
     required: false,
@@ -273,7 +273,7 @@ export const busSchema: ListingFieldSchema[] = [
   {
     name: "brakeSystem",
     label: "fields.brakeSystem",
-    type: "multiselect",
+    type: "select",
     options: ["abs", "disc", "drum", "retarder", "engineBrake"],
     section: "advanced",
     required: false,
