@@ -133,7 +133,12 @@
     "delete_success": "Image deleted successfully",
     "delete_error": "Error deleting image",
     "primary_set_success": "Primary image set successfully",
-    "primary_set_error": "Error setting primary image"
+    "primary_set_error": "Error setting primary image",
+    "photo_tips": {
+      "title": "Photo Tips for Better Results",
+      "tip1": "Upload high-quality photos that clearly show your vehicle from multiple angles, including interior and exterior shots.",
+      "tip2": "We recommend uploading at least 6 photos for better visibility. Include images of the engine, dashboard, and any special features."
+    }
   },
   "steps": {
     "basicDetails": "Basic Details",

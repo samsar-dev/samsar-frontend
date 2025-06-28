@@ -52,6 +52,7 @@ export enum CustomFeature {
 export interface SelectOption {
   value: string;
   label: string;
+  translationKey?: string;
 }
 
 // Real estate specific interfaces

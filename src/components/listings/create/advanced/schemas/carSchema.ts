@@ -36,7 +36,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(Condition).map((value) => ({
       value,
-      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+      label: value, // The actual value will be used as the translation key
+      translationKey: `enums.condition.${value}` // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -50,7 +51,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(TransmissionType).map((value) => ({
       value,
-      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+      label: value, // The actual value will be used as the translation key
+      translationKey: `enums.transmission.${value}` // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -90,7 +92,8 @@ export const carSchema: ListingFieldSchema[] = [
     type: "select",
     options: Object.values(FuelType).map((value) => ({
       value,
-      label: `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`,
+      label: value, // The actual value will be used as the translation key
+      translationKey: `enums.fuelType.${value}` // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -125,18 +128,18 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.bodyType",
     type: "select",
     options: [
-      { value: "sedan", label: "Sedan" },
-      { value: "suv", label: "SUV" },
-      { value: "coupe", label: "Coupe" },
-      { value: "convertible", label: "Convertible" },
-      { value: "wagon", label: "Wagon" },
-      { value: "hatchback", label: "Hatchback" },
-      { value: "pickup", label: "Pickup" },
-      { value: "van", label: "Van" },
-      { value: "minivan", label: "Minivan" },
-      { value: "crossover", label: "Crossover" },
-      { value: "sportsCar", label: "Sports Car" },
-      { value: "luxury", label: "Luxury" },
+      { value: "sedan", label: "SEDAN", translationKey: "enums.bodyStyle.SEDAN" },
+      { value: "suv", label: "SUV", translationKey: "enums.bodyStyle.SUV" },
+      { value: "coupe", label: "COUPE", translationKey: "enums.bodyStyle.COUPE" },
+      { value: "convertible", label: "CONVERTIBLE", translationKey: "enums.bodyStyle.CONVERTIBLE" },
+      { value: "wagon", label: "WAGON", translationKey: "enums.bodyStyle.WAGON" },
+      { value: "hatchback", label: "HATCHBACK", translationKey: "enums.bodyStyle.HATCHBACK" },
+      { value: "pickup", label: "PICKUP", translationKey: "enums.bodyStyle.PICKUP" },
+      { value: "van", label: "VAN", translationKey: "enums.bodyStyle.VAN" },
+      { value: "minivan", label: "MINIVAN", translationKey: "enums.bodyStyle.MINIVAN" },
+      { value: "crossover", label: "CROSSOVER", translationKey: "enums.bodyStyle.CROSSOVER" },
+      { value: "sportsCar", label: "SPORTS_CAR", translationKey: "enums.bodyStyle.SPORTS_CAR" },
+      { value: "luxury", label: "LUXURY", translationKey: "enums.bodyStyle.LUXURY" },
     ],
     section: "advanced",
     required: false,
@@ -146,7 +149,12 @@ export const carSchema: ListingFieldSchema[] = [
     name: "driveType",
     label: "fields.driveType",
     type: "select",
-    options: ["fwd", "rwd", "awd", "fourwd"],
+    options: [
+      { value: "fwd", label: "FWD", translationKey: "enums.driveType.FWD" },
+      { value: "rwd", label: "RWD", translationKey: "enums.driveType.RWD" },
+      { value: "awd", label: "AWD", translationKey: "enums.driveType.AWD" },
+      { value: "fourwd", label: "FOUR_WD", translationKey: "enums.driveType.FOUR_WD" }
+    ],
     section: "advanced",
     required: false,
     tooltip:
@@ -168,9 +176,9 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.serviceHistory",
     type: "multiselect",
     options: [
-      { value: "full", label: "Full Service History" },
-      { value: "partial", label: "Partial Service History" },
-      { value: "none", label: "No Service History" },
+      { value: "full", label: "FULL", translationKey: "enums.serviceHistory.FULL" },
+      { value: "partial", label: "PARTIAL", translationKey: "enums.serviceHistory.PARTIAL" },
+      { value: "none", label: "NONE", translationKey: "enums.serviceHistory.NONE" },
     ],
     section: "advanced",
     required: false,
@@ -191,8 +199,8 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.importStatus",
     type: "select",
     options: [
-      { value: "local", label: "Local" },
-      { value: "imported", label: "Imported" },
+      { value: "local", label: "LOCAL", translationKey: "enums.importStatus.LOCAL" },
+      { value: "imported", label: "IMPORTED", translationKey: "enums.importStatus.IMPORTED" },
     ],
     section: "advanced",
     required: false,
@@ -212,8 +220,8 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.warranty",
     type: "select",
     options: [
-      { value: "yes", label: "Yes" },
-      { value: "no", label: "No" },
+      { value: "yes", label: "YES", translationKey: "common.yes" },
+      { value: "no", label: "NO", translationKey: "common.no" },
     ],
     section: "advanced",
     required: false,
@@ -254,10 +262,12 @@ export const carSchema: ListingFieldSchema[] = [
     name: "roofType",
     label: "fields.roofType",
     type: "select",
-    options: ["fixed", "sunroof", "moonroof", "convertible"].map((val) => ({
-      value: val,
-      label: val,
-    })),
+    options: [
+      { value: "fixed", label: "FIXED", translationKey: "enums.roofType.FIXED" },
+      { value: "sunroof", label: "SUNROOF", translationKey: "enums.roofType.SUNROOF" },
+      { value: "moonroof", label: "MOONROOF", translationKey: "enums.roofType.MOONROOF" },
+      { value: "convertible", label: "CONVERTIBLE", translationKey: "enums.roofType.CONVERTIBLE" },
+    ],
     section: "advanced",
     required: false,
     tooltip:
@@ -270,8 +280,8 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.customsCleared",
     type: "checkbox",
     options: [
-      { value: "yes", label: "Yes" },
-      { value: "no", label: "No" },
+      { value: "yes", label: "YES", translationKey: "common.yes" },
+      { value: "no", label: "NO", translationKey: "common.no" },
     ],
     section: "advanced",
     required: false,
@@ -283,9 +293,9 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.warrantyPeriod",
     type: "select",
     options: [
-      { value: "3", label: "3 months" },
-      { value: "6", label: "6 months" },
-      { value: "12", label: "12 months" },
+      { value: "3", label: "3_MONTHS", translationKey: "enums.warrantyPeriod.THREE_MONTHS" },
+      { value: "6", label: "6_MONTHS", translationKey: "enums.warrantyPeriod.SIX_MONTHS" },
+      { value: "12", label: "12_MONTHS", translationKey: "enums.warrantyPeriod.TWELVE_MONTHS" },
     ],
     section: "advanced",
     required: false,
@@ -314,7 +324,11 @@ export const carSchema: ListingFieldSchema[] = [
     name: "navigationSystem",
     label: "fields.navigationSystem",
     type: "select",
-    options: ["built-in", "portable", "none"],
+    options: [
+      { value: "built-in", label: "BUILT_IN", translationKey: "enums.navigationSystem.BUILT_IN" },
+      { value: "portable", label: "PORTABLE", translationKey: "enums.navigationSystem.PORTABLE" },
+      { value: "none", label: "NONE", translationKey: "common.none" },
+    ],
     section: "advanced",
     required: false,
   },
@@ -327,32 +341,32 @@ export const carSchema: ListingFieldSchema[] = [
     required: false,
     featureGroups: {
       airbags: {
-        label: "Airbags",
+        label: "featureCategories.airbags",
         features: [
-          { name: "frontAirbags", label: "Front Airbags", type: "toggle" },
-          { name: "sideAirbags", label: "Side Airbags", type: "toggle" },
-          { name: "curtainAirbags", label: "Curtain Airbags", type: "toggle" },
-          { name: "kneeAirbags", label: "Knee Airbags", type: "toggle" },
+          { name: "frontAirbags", label: "features.frontAirbags", type: "toggle" },
+          { name: "sideAirbags", label: "features.sideAirbags", type: "toggle" },
+          { name: "curtainAirbags", label: "features.curtainAirbags", type: "toggle" },
+          { name: "kneeAirbags", label: "features.kneeAirbags", type: "toggle" },
         ],
       },
       driverAssist: {
-        label: "Driver Assistance",
+        label: "featureCategories.driverAssistance",
         features: [
-          { name: "cruiseControl", label: "Cruise Control", type: "toggle" },
+          { name: "cruiseControl", label: "features.cruiseControl", type: "toggle" },
           {
             name: "adaptiveCruiseControl",
-            label: "Adaptive Cruise Control",
+            label: "features.adaptiveCruiseControl",
             type: "toggle",
           },
           {
             name: "laneDepartureWarning",
-            label: "Lane Departure Warning",
+            label: "features.laneDepartureWarning",
             type: "toggle",
           },
-          { name: "laneKeepAssist", label: "Lane Keep Assist", type: "toggle" },
+          { name: "laneKeepAssist", label: "features.laneKeepAssist", type: "toggle" },
           {
             name: "automaticEmergencyBraking",
-            label: "Automatic Emergency Braking",
+            label: "features.automaticEmergencyBraking",
             type: "toggle",
           },
         ],
@@ -474,7 +488,7 @@ export const carSchema: ListingFieldSchema[] = [
         ],
       },
       cameras: {
-        label: "Camera Features",
+        label: "featureCategories.cameraFeatures",
         features: [
           { name: "rearCamera", label: "features.rearCamera", type: "toggle" },
           { name: "camera360", label: "features.camera360", type: "toggle" },
@@ -570,7 +584,7 @@ export const carSchema: ListingFieldSchema[] = [
         ],
       },
       lighting: {
-        label: "Lighting Features",
+        label: "featureCategories.lightingFeatures",
         features: [
           {
             name: "ledHeadlights",
@@ -611,163 +625,12 @@ export const carSchema: ListingFieldSchema[] = [
           {
             name: "lightSensor",
             label: "features.lightSensor",
-            type: "toggle",
-          },
-        ],
-      },
-      climate: {
-        label: "Climate Features",
-        features: [
-          {
-            name: "climateControl",
-            label: "features.climateControl",
-            type: "toggle",
-          },
-          {
-            name: "heatedSeats",
-            label: "features.heatedSeats",
-            type: "toggle",
-          },
-          {
-            name: "ventilatedSeats",
-            label: "features.ventilatedSeats",
-            type: "toggle",
-          },
-          {
-            name: "dualZoneClimate",
-            label: "features.dualZoneClimate",
-            type: "toggle",
-          },
-          { name: "rearAC", label: "features.rearAC", type: "toggle" },
-          {
-            name: "airQualitySensor",
-            label: "features.airQualitySensor",
-            type: "toggle",
-          },
-          {
-            name: "airConditioning",
-            label: "features.airConditioning",
-            type: "toggle",
-          },
-          {
-            name: "twoZoneClimateControl",
-            label: "features.twoZoneClimateControl",
-            type: "toggle",
-          },
-        ],
-      },
-      convenience: {
-        label: "featureCategories.convenience",
-        features: [
-          {
-            name: "keylessEntry",
-            label: "features.keylessEntry",
-            type: "toggle",
-          },
-          { name: "sunroof", label: "features.sunroof", type: "toggle" },
-          { name: "spareKey", label: "features.spareKey", type: "toggle" },
-          {
-            name: "remoteStart",
-            label: "features.remoteStart",
-            type: "toggle",
-          },
-          {
-            name: "powerTailgate",
-            label: "features.powerTailgate",
-            type: "toggle",
-          },
-          {
-            name: "autoDimmingMirrors",
-            label: "features.autoDimmingMirrors",
-            type: "toggle",
-          },
-          {
-            name: "rainSensingWipers",
-            label: "features.rainSensingWipers",
-            type: "toggle",
-          },
-          {
-            name: "mountainDrivingAssistant",
-            label: "features.mountainDrivingAssistant",
-            type: "toggle",
-          },
-          {
-            name: "electricalWindowLifter",
-            label: "features.electricalWindowLifter",
-            type: "toggle",
-          },
-          {
-            name: "electricalSideMirrors",
-            label: "features.electricalSideMirrors",
-            type: "toggle",
-          },
-          {
-            name: "electricSeats",
-            label: "features.electricSeats",
-            type: "toggle",
-          },
-          {
-            name: "headUpDisplay",
-            label: "features.headUpDisplay",
-            type: "toggle",
-          },
-          {
-            name: "leatherSteeringWheel",
-            label: "features.leatherSteeringWheel",
-            type: "toggle",
-          },
-          {
-            name: "lumbarSupport",
-            label: "features.lumbarSupport",
-            type: "toggle",
-          },
-          {
-            name: "multifunctionalSteeringWheel",
-            label: "features.multifunctionalSteeringWheel",
-            type: "toggle",
-          },
-          // navigationSystem moved to main schema
-          { name: "rainSensor", label: "features.rainSensor", type: "toggle" },
-          {
-            name: "automaticStartStop",
-            label: "features.automaticStartStop",
-            type: "toggle",
-          },
-          {
-            name: "automaticDazzlingInteriorMirrors",
-            label: "features.automaticDazzlingInteriorMirrors",
-            type: "toggle",
-          },
-          {
-            name: "switchingRockers",
-            label: "features.switchingRockers",
-            type: "toggle",
-          },
-          { name: "armrest", label: "features.armrest", type: "toggle" },
-          {
-            name: "voiceControl",
-            label: "features.voiceControl",
-            type: "toggle",
-          },
-          {
-            name: "touchscreen",
-            label: "features.touchscreen",
-            type: "toggle",
-          },
-        ],
-      },
-      extras: {
-        label: "Extra Features",
-        features: [
-          {
-            name: "aluminumRims",
-            label: "features.aluminumRims",
-            type: "toggle",
+            type: "toggle"
           },
           {
             name: "luggageCompartmentSeparation",
             label: "features.luggageCompartmentSeparation",
-            type: "toggle",
+            type: "toggle"
           },
           {
             name: "summerTires",

@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import type { SingleValue, ActionMeta, MultiValue } from "react-select";
 import makeAnimated from "react-select/animated";
@@ -28,7 +29,7 @@ export interface FormFieldProps {
   error?: string;
   required?: boolean;
   placeholder?: string;
-  options?: Array<{ value: string; label: string }>;
+  options?: Array<{ value: string; label: string; translationKey?: string }>;
   disabled?: boolean;
   min?: number;
   max?: number;
@@ -65,6 +66,7 @@ export const FormField = forwardRef<
     },
     ref
   ) => {
+    const { t } = useTranslation();
     const handleChange = (
       e:
         | React.ChangeEvent<
@@ -244,15 +246,22 @@ export const FormField = forwardRef<
               aria-describedby={error ? `${name}-error` : undefined}
             >
               <option value="">{placeholder || "Select an option"}</option>
-              {options?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {typeof option.label === "string"
-                    ? option.label === option.value
-                      ? `${option.label.charAt(0).toUpperCase()}${option.label.slice(1).toLowerCase()}`
-                      : option.label
-                    : String(option.label)}
-                </option>
-              ))}
+              {options?.map((option) => {
+                // Use translationKey if available, otherwise use the label
+                const displayLabel = option.translationKey 
+                  ? t(option.translationKey, option.label) 
+                  : option.label;
+                
+                return (
+                  <option key={option.value} value={option.value}>
+                    {typeof displayLabel === "string"
+                      ? displayLabel === option.value
+                        ? `${displayLabel.charAt(0).toUpperCase()}${displayLabel.slice(1).toLowerCase()}`
+                        : displayLabel
+                      : String(displayLabel)}
+                  </option>
+                );
+              })}
             </select>
           );
 

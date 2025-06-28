@@ -1,5 +1,6 @@
-import React, { Fragment, useMemo, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getAllCities } from '../../services/cityService';
 import { MdFilterList, MdCheck, MdMyLocation, MdLocationOn } from "react-icons/md";
 import { Listbox, Transition, Switch } from "@headlessui/react";
 import { FaCar, FaMotorcycle, FaTruck, FaHome, FaShuttleVan, FaBus, FaTractor } from "react-icons/fa";
@@ -112,23 +113,33 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) =>
     (currentYear - i).toString(),
   );
-  const { t } = useTranslation(["filters", "common", "locations"]);
+  const { t } = useTranslation(["filters", "common", "locations", "cities"]);
   // State for location and radius filtering
   const [showRadiusSlider, setShowRadiusSlider] = useState(false);
   const [tempRadius, setTempRadius] = useState(10); // Default radius value in km (5-100)
   const [localLoading, setLocalLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   
-  // Get city and area translations - keeping for potential future use
-  // const cities = t('locations:cities', { returnObjects: true, defaultValue: {} }) as Record<string, string>;
-  // const areas = t('locations:areas', { returnObjects: true, defaultValue: {} }) as Record<string, string[]>;
+  // State for cities and loading state
+  const [cities, setCities] = useState<Array<{ name: string; latitude: number; longitude: number }>>([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
 
-  // City and area handling - keeping for potential future use
-  // const getCityAreas = (cityId: string | null): string[] => {
-  //   if (!cityId) return [];
-  //   const cityAreas = areas[cityId];
-  //   return Array.isArray(cityAreas) ? cityAreas : [];
-  // };
+  // Load cities on component mount
+  useEffect(() => {
+    const loadCities = async () => {
+      setIsLoadingCities(true);
+      try {
+        const citiesData = await getAllCities();
+        setCities(citiesData);
+      } catch (error) {
+        console.error('Error loading cities:', error);
+      } finally {
+        setIsLoadingCities(false);
+      }
+    };
+
+    loadCities();
+  }, []);
 
   // Handle radius change
   const handleRadiusChange = useCallback((radius: number | null) => {
@@ -164,6 +175,25 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
       handleRadiusChange(tempRadius);
     }
   }, [onLocationChange, handleRadiusChange, showRadiusSlider, tempRadius]);
+
+  // Handle city selection from dropdown
+  const handleCitySelect = useCallback((cityName: string) => {
+    const city = cities.find(c => c.name === cityName);
+    if (!city) return;
+
+    setSelectedLocation(cityName);
+    
+    // Update location data in parent if callback provided
+    onLocationChange?.({
+      address: cityName,
+      coordinates: [city.latitude, city.longitude] as [number, number]
+    });
+    
+    // If radius filter is enabled, apply the current radius
+    if (showRadiusSlider) {
+      handleRadiusChange(tempRadius);
+    }
+  }, [cities, onLocationChange, showRadiusSlider, tempRadius, handleRadiusChange]);
 
   // Toggle radius slider
   const toggleRadiusSlider = useCallback((enabled: boolean) => {
@@ -494,12 +524,70 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             {t("location")}
           </label>
           <div className="space-y-3">
-            <div className={localLoading ? 'opacity-50' : ''}>
-              <LocationSearch
-                onSelectLocation={handleLocationSelect}
-                className="w-full"
-                placeholder={t('searchLocation') || 'Search for a location...'}
-              />
+            <div className="grid grid-cols-1 gap-3">
+              <div className={localLoading ? 'opacity-50' : ''}>
+                <LocationSearch
+                  onSelectLocation={handleLocationSelect}
+                  className="w-full"
+                  placeholder={t('searchLocation') || 'Search for a location...'}
+                />
+              </div>
+              
+              {/* City Selection Dropdown */}
+              <div className="relative">
+                <Listbox value={selectedLocation} onChange={handleCitySelect} disabled={isLoadingCities}>
+                  <Listbox.Button className={`relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-2 pl-3 pr-10 text-left shadow-sm border ${isLoadingCities ? 'border-gray-200 dark:border-gray-700' : 'border-gray-300 dark:border-gray-600'} focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm`}>
+                    <span className="block truncate">
+                      {isLoadingCities ? t('loading') : (selectedLocation || t('selectCity', 'Select a city'))}
+                    </span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <MdFilterList className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </span>
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                      {isLoadingCities ? (
+                        <div className="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                          {t('loadingCities', 'Loading cities...')}
+                        </div>
+                      ) : cities.length === 0 ? (
+                        <div className="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                          {t('noCitiesAvailable', 'No cities available')}
+                        </div>
+                      ) : (
+                        cities.map((city) => (
+                        <Listbox.Option
+                          key={city.name}
+                          className={({ active }) =>
+                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                              active ? 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-white'
+                            }`
+                          }
+                          value={city.name}
+                        >
+                          {({ selected }) => (
+                            <>
+                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                {city.name}
+                              </span>
+                              {selected ? (
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600 dark:text-blue-400">
+                                  <MdCheck className="h-5 w-5" aria-hidden="true" />
+                                </span>
+                              ) : null}
+                            </>
+                          )}
+                        </Listbox.Option>
+                      )))}
+                    </Listbox.Options>
+                  </Transition>
+                </Listbox>
+              </div>
             </div>
             
             {/* Location and Radius Toggle */}
