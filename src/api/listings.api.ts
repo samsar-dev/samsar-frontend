@@ -551,16 +551,53 @@ export const listingsAPI: ListingsAPI = {
       // Mark this as a public request
       queryParams.append("publicAccess", "true");
 
-      const response = await apiClient.get(`/listings?${queryParams}`, {
-        signal, // Pass abort signal to axios
-        headers: {
-          requiresAuth: false, // Public endpoint, no auth required
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/listings?${queryParams}`,
+        {
+          method: "GET",
+          signal,
+        }
+      );
 
-      // Process the response data from the backend
-      const data = response.data;
-      console.log("Raw API response:", data); // Debug the full response
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+      console.log("Response type:", response.type);
+
+      // IMPORTANT: Check if there's actually content before parsing JSON
+      const contentType = response.headers.get("content-type");
+      console.log("Content-Type:", contentType);
+
+      // Get the raw text first to see what we're actually receiving
+      const responseText = await response.text();
+      console.log("Raw response text:", responseText);
+      console.log("Response text length:", responseText.length);
+
+      // Only try to parse JSON if we have content
+      let data;
+      if (responseText.trim().length === 0) {
+        console.error("Response body is empty!");
+        throw new Error("Server returned empty response");
+      }
+
+      try {
+        data = JSON.parse(responseText);
+        console.log("Parsed JSON data:", data);
+      } catch (err) {
+        console.error("JSON parse error:", err);
+        console.error("Response text that failed to parse:", responseText);
+        throw new Error(`Invalid JSON response: ${err.message}`);
+      }
+
+      // Continue with your existing logic...
+      console.log("Raw API response:", data);
       console.log("API response data structure:", typeof data.data, data.data); // Debug the data structure
 
       // Debug listing actions
@@ -581,19 +618,6 @@ export const listingsAPI: ListingsAPI = {
       // Handle different response formats
       let responseData;
       if (data.data && typeof data.data === "object") {
-        // The API is returning data in this format:
-        // {
-        //   success: true,
-        //   data: {
-        //     items: Array(4),
-        //     total: 4,
-        //     page: 1,
-        //     limit: 10,
-        //     hasMore: false
-        //   },
-        //   status: 200
-        // }
-
         if (data.data.items && Array.isArray(data.data.items)) {
           responseData = {
             listings: data.data.items,
@@ -720,11 +744,34 @@ export const listingsAPI: ListingsAPI = {
     params: ListingParams
   ): Promise<APIResponse<ListingsResponse>> {
     try {
-      const response = await apiClient.get<ListingsResponse>(
+      console.log("response>>>>", params);
+      const response = await apiClient.get<APIResponse<ListingsResponse>>(
         `/listings/vehicles`,
         { params }
       );
-      return { success: true, data: response.data };
+      const data = response.data;
+
+      if (data.success && data.data) {
+        if (data.data.items && Array.isArray(data.data.items)) {
+          const responseData = {
+            listings: data.data.items,
+            total: data.data.total || 0,
+            page: data.data.page || 1,
+            limit: data.data.limit || 10,
+            hasMore: data.data.hasMore || false,
+          };
+          return { success: true, data: responseData };
+        } else {
+          console.warn("Expected items array not found in response");
+          return {
+            success: false,
+            data: null,
+            error: "Failed to fetch listings",
+          };
+        }
+      }
+
+      return response.data;
     } catch (error) {
       const err = error as AxiosError;
       const errorData = err.response?.data as { message?: string };
@@ -752,6 +799,93 @@ export const listingsAPI: ListingsAPI = {
         success: false,
         data: null,
         error: errorData?.message || err.message,
+      };
+    }
+  },
+
+  // Get user listings with abort signal support
+  async getUserListings(
+    params?: ListingParams,
+    signal?: AbortSignal
+  ): Promise<APIResponse<UserListingsResponse>> {
+    try {
+      // Check if user is authenticated
+      const token = TokenManager.getAccessToken();
+      if (!token) {
+        // Return empty array if not authenticated instead of making the request
+        return {
+          success: true,
+          data: null, // Return null for unauthenticated users
+        };
+      }
+
+      const queryString = params
+        ? new URLSearchParams(params as any).toString()
+        : "";
+
+      // Create request config with proper typing
+      const requestConfig: any = signal ? { signal } : {};
+      requestConfig.headers = { Authorization: `Bearer ${token}` };
+      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
+
+      const response = await apiClient.get<APIResponse<UserListingsResponse>>(
+        `/listings/user${queryString ? `?${queryString}` : ""}`,
+        requestConfig
+      );
+
+      // Debug the response
+      console.log("User listings API response:", response.data);
+
+      // Handle different response formats
+      const data = response.data;
+
+      if (data.success && data.data) {
+        // Check if the data structure is as expected
+        if (data.data.listings) {
+          // Response has the expected structure
+          return data;
+        } else if (Array.isArray(data.data)) {
+          // Data is directly an array of listings
+          console.log("Converting array response to expected format");
+          return {
+            success: true,
+            data: {
+              listings: data.data,
+              total: data.data.length,
+              page: 1,
+              limit: data.data.length,
+              hasMore: false,
+            },
+          };
+        } else {
+          // Unknown data structure, log it for debugging
+          console.warn("Unexpected user listings data structure:", data.data);
+          return {
+            success: true,
+            data: {
+              listings: [],
+              total: 0,
+              page: 1,
+              limit: 10,
+              hasMore: false,
+            },
+          };
+        }
+      }
+
+      return response.data;
+    } catch (error: any) {
+      // Don't log aborted request errors
+      if (error.name !== "AbortError") {
+        console.error("Error fetching user listings:", error);
+      }
+
+      return {
+        success: false,
+        data: null,
+        error:
+          error.response?.data?.error?.message ||
+          "Failed to fetch user listings",
       };
     }
   },
@@ -1080,93 +1214,6 @@ export const listingsAPI: ListingsAPI = {
       throw new Error(
         error instanceof Error ? error.message : "Failed to remove favorite"
       );
-    }
-  },
-
-  // Get user listings with abort signal support
-  async getUserListings(
-    params?: ListingParams,
-    signal?: AbortSignal
-  ): Promise<APIResponse<UserListingsResponse>> {
-    try {
-      // Check if user is authenticated
-      const token = TokenManager.getAccessToken();
-      if (!token) {
-        // Return empty array if not authenticated instead of making the request
-        return {
-          success: true,
-          data: null, // Return null for unauthenticated users
-        };
-      }
-
-      const queryString = params
-        ? new URLSearchParams(params as any).toString()
-        : "";
-
-      // Create request config with proper typing
-      const requestConfig: any = signal ? { signal } : {};
-      requestConfig.headers = { Authorization: `Bearer ${token}` };
-      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
-
-      const response = await apiClient.get<APIResponse<UserListingsResponse>>(
-        `/listings/user${queryString ? `?${queryString}` : ""}`,
-        requestConfig
-      );
-
-      // Debug the response
-      console.log("User listings API response:", response.data);
-
-      // Handle different response formats
-      const data = response.data;
-
-      if (data.success && data.data) {
-        // Check if the data structure is as expected
-        if (data.data.listings) {
-          // Response has the expected structure
-          return data;
-        } else if (Array.isArray(data.data)) {
-          // Data is directly an array of listings
-          console.log("Converting array response to expected format");
-          return {
-            success: true,
-            data: {
-              listings: data.data,
-              total: data.data.length,
-              page: 1,
-              limit: data.data.length,
-              hasMore: false,
-            },
-          };
-        } else {
-          // Unknown data structure, log it for debugging
-          console.warn("Unexpected user listings data structure:", data.data);
-          return {
-            success: true,
-            data: {
-              listings: [],
-              total: 0,
-              page: 1,
-              limit: 10,
-              hasMore: false,
-            },
-          };
-        }
-      }
-
-      return response.data;
-    } catch (error: any) {
-      // Don't log aborted request errors
-      if (error.name !== "AbortError") {
-        console.error("Error fetching user listings:", error);
-      }
-
-      return {
-        success: false,
-        data: null,
-        error:
-          error.response?.data?.error?.message ||
-          "Failed to fetch user listings",
-      };
     }
   },
 
