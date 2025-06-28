@@ -552,7 +552,7 @@ export const listingsAPI: ListingsAPI = {
       queryParams.append("publicAccess", "true");
 
       const response = await fetch(
-        `http://localhost:5000/api/listings?${queryParams}`,
+        `${API_URL}/listings?${queryParams}`,
         {
           method: "GET",
           signal,
