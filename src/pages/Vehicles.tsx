@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
-import {
-  VehicleFilter,
-  VehicleFilterState,
-} from "@/components/filters/VehicleFilter";
+import ListingFilters from "@/components/filters/ListingFilters";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { ExtendedListing } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
+import { ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
+import { getMakesForType, getModelsForMakeAndType } from "@/components/listings/data/vehicleModels";
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -23,18 +21,19 @@ const VehiclesPage: React.FC = () => {
     loading: true,
     error: null,
   });
-  const [filters, setFilters] = useState<VehicleFilterState>({
-    vehicleType: null,
-    make: "",
-    model: "",
-    minPrice: "",
-    maxPrice: "",
-    minYear: "",
-    maxYear: "",
-    fuelType: null,
-    transmission: null,
-    condition: null,
-    location: "",
+  
+  // Filter states
+  const [selectedAction, setSelectedAction] = useState<'SALE' | 'RENT' | null>(null);
+  const [selectedVehicleType, setSelectedVehicleType] = useState<VehicleType | null>(null);
+  const [selectedMake, setSelectedMake] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedMileage, setSelectedMileage] = useState<number | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedRadius, setSelectedRadius] = useState<number | null>(50);
+  const [priceRange, setPriceRange] = useState<{ min: number | ''; max: number | '' }>({
+    min: '',
+    max: ''
   });
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
@@ -47,21 +46,36 @@ const VehiclesPage: React.FC = () => {
   const fetchVehicleListings = useCallback(async () => {
     try {
       setListings((prev) => ({ ...prev, loading: true, error: null }));
-      const response = await listingsAPI.getAll(
-        {
-          category: {
-            mainCategory: ListingCategory.VEHICLES,
-            ...(filters.vehicleType && { subCategory: filters.vehicleType }),
-          },
-          minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-          location: filters.location || undefined,
-          year: filters.minYear ? Number(filters.minYear) : undefined,
-          vehicleDetails: {
-            ...(filters.make && { make: filters.make }),
-            ...(filters.model && { model: filters.model }),
-          },
+      
+      const params: any = {
+        category: {
+          mainCategory: ListingCategory.VEHICLES,
+          ...(selectedVehicleType && { subCategory: selectedVehicleType }),
         },
+        listingAction: selectedAction || undefined,
+        ...(selectedYear && { year: selectedYear }),
+        ...(priceRange.min && { minPrice: Number(priceRange.min) }),
+        ...(priceRange.max && { maxPrice: Number(priceRange.max) }),
+        ...(selectedMake && { make: selectedMake }),
+        ...(selectedModel && { model: selectedModel }),
+      };
+      
+      if (selectedLocation) {
+        params.location = selectedLocation;
+        if (selectedRadius) {
+          params.radius = selectedRadius;
+        }
+      }
+      
+      if (selectedBuiltYear) {
+        params.vehicleDetails = {
+          ...params.vehicleDetails,
+          year: selectedBuiltYear,
+        };
+      }
+
+      const response = await listingsAPI.getAll(
+        params,
         abortControllerRef.current.signal,
       );
 
@@ -81,19 +95,25 @@ const VehiclesPage: React.FC = () => {
       toast.error(errorMessage);
       console.error(err);
     }
-  }, [filters]);
+  }, [selectedAction, selectedVehicleType, selectedMake, selectedModel, selectedYear, selectedLocation, selectedRadius, priceRange]);
 
   // Debounced filter update
-  const debouncedFetch = debounce(fetchVehicleListings, 500);
+  const debouncedFetch = useMemo(
+    () => debounce(fetchVehicleListings, 500),
+    [fetchVehicleListings]
+  );
 
   useEffect(() => {
     debouncedFetch();
     return () => debouncedFetch.cancel();
   }, [debouncedFetch]);
 
-  const handleFilterChange = (filterUpdates: Partial<VehicleFilterState>) => {
-    setFilters((prev) => ({ ...prev, ...filterUpdates }));
-  };
+  // No default vehicle type - show all vehicle types by default
+
+  // Handle subcategory change
+  const handleSubcategoryChange = useCallback((subcategory: string | null) => {
+    setSelectedVehicleType(subcategory as VehicleType | null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -102,9 +122,34 @@ const VehiclesPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Vehicle Listings
           </h1>
-          <VehicleFilter
-            filters={filters}
-            onFilterChange={handleFilterChange}
+          <ListingFilters
+            selectedCategory={ListingCategory.VEHICLES}
+            selectedAction={selectedAction}
+            setSelectedAction={setSelectedAction}
+            selectedSubcategory={selectedVehicleType}
+            setSelectedSubcategory={handleSubcategoryChange}
+            allSubcategories={Object.values(VehicleType)}
+            selectedMake={selectedMake}
+            setSelectedMake={setSelectedMake}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMileage={selectedMileage}
+            setSelectedMileage={setSelectedMileage}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            selectedRadius={selectedRadius}
+            setSelectedRadius={setSelectedRadius}
+            loading={listings.loading}
+            onLocationChange={(location) => {
+              setSelectedLocation(location.address);
+            }}
+            onRadiusChange={(radius) => {
+              setSelectedRadius(radius);
+            }}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
           />
         </div>
 

@@ -2,8 +2,6 @@ import type {
   ListingCategory,
   VehicleType,
   PropertyType,
-  FuelType,
-  TransmissionType,
   Condition,
   ListingAction,
   ListingStatus,

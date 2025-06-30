@@ -3,7 +3,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
-import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import { ListingCategory, VehicleType, PropertyType, ListingAction } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 
 import { motion } from "framer-motion";
@@ -70,6 +70,11 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES
   );
+  // Price range state
+  const [priceRange, setPriceRange] = useState<{ min: number | ''; max: number | '' }>({ min: '', max: '' });
+  // Year range state
+  const [yearRange, setYearRange] = useState<{ min: number | ''; max: number | '' }>({ min: '', max: '' });
+  // Selected price for filtering (single price filter)
   const [selectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
     all: [],
@@ -127,22 +132,23 @@ const Home: React.FC = () => {
   }, [listings.all]);
 
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<"SALE" | "RENT" | null>(
-    null
-  );
+  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null
   );
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  // Mileage filter state
+  const [selectedMileage, setSelectedMileage] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRadius, setSelectedRadius] = useState<number | null>(null);
-  const [selectedBuiltYear, setSelectedBuiltYear] = useState<string | null>(
-    null
-  );
+  const [selectedBuiltYear, setSelectedBuiltYear] = useState<number | null>(null);
   const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const toggleFilters = useCallback(() => {
+    setIsFilterOpen(prev => !prev);
+  }, []);
 
   // Cache for storing initial listings data
   const listingsCache = useRef<{
@@ -190,14 +196,15 @@ const Home: React.FC = () => {
         if (selectedCategory === ListingCategory.VEHICLES) {
           // Vehicle filtering
           if (selectedYear && listing.details?.vehicles?.year) {
-            if (
-              parseInt(listing.details.vehicles.year) !== parseInt(selectedYear)
-            )
+            if (parseInt(listing.details.vehicles.year) !== selectedYear) {
               return false;
+            }
           }
-          if (selectedSubcategory && listing.details?.vehicles?.vehicleType) {
-            if (listing.details.vehicles.vehicleType !== selectedSubcategory)
+          if (selectedSubcategory) {
+            const listingSubCat = listing.category?.subCategory || listing.details?.vehicles?.vehicleType;
+            if (listingSubCat !== selectedSubcategory) {
               return false;
+            }
           }
           if (selectedMake && listing.details?.vehicles?.make) {
             if (listing.details.vehicles.make !== selectedMake) return false;
@@ -206,7 +213,46 @@ const Home: React.FC = () => {
             if (listing.details.vehicles.model !== selectedModel) return false;
           }
           if (selectedPrice && listing.price) {
-            if (listing.price.toString() !== selectedPrice) return false;
+            // Compare numeric values for price filtering
+            const listingPrice = typeof listing.price === 'number' ? listing.price : Number(listing.price);
+            const filterPrice = Number(selectedPrice);
+            if (isNaN(listingPrice) || isNaN(filterPrice) || listingPrice !== filterPrice) {
+              return false;
+            }
+          }
+          
+          // Apply mileage filter for vehicles
+          if (selectedMileage !== null && selectedMileage !== undefined) {
+            const vehicleMileage = listing.details?.vehicles?.mileage;
+            console.log('Mileage filter - Listing ID:', listing.id, 'Mileage value:', vehicleMileage, 'Type:', typeof vehicleMileage);
+            
+            if (vehicleMileage !== null && vehicleMileage !== undefined) {
+              try {
+                // Convert to number if it's a string
+                let mileageValue: number;
+                if (typeof vehicleMileage === 'string') {
+                  // Extract numbers from string (handles formats like '100,000 km' or '100k')
+                  const numericValue = vehicleMileage.replace(/[^0-9.]/g, '');
+                  mileageValue = parseFloat(numericValue);
+                } else {
+                  // It's already a number
+                  mileageValue = Number(vehicleMileage);
+                }
+                
+                console.log('Processed mileage:', mileageValue, 'Selected max:', selectedMileage);
+                
+                // Only filter if we have a valid number
+                if (!isNaN(mileageValue) && mileageValue > selectedMileage) {
+                  console.log('Filtering out - mileage too high');
+                  return false;
+                }
+              } catch (error) {
+                console.warn('Error processing mileage:', error, 'for listing:', listing.id);
+                // If there's an error parsing, don't filter out the listing
+              }
+            } else {
+              console.log('No mileage data for listing, keeping it');
+            }
           }
         } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
           // Real estate filtering
@@ -226,13 +272,12 @@ const Home: React.FC = () => {
           if (selectedBuiltYear && listing.details?.realEstate?.yearBuilt) {
             // Built year filter: "2023 and newer", "2010 and newer", "Before 2000"
             const builtYear = Number(listing.details.realEstate.yearBuilt);
-            const filterYear = parseInt(selectedBuiltYear);
-            if (selectedBuiltYear === "2000") {
+            if (selectedBuiltYear === 2000) {
               // Before 2000
               if (builtYear >= 2000) return false;
-            } else if (!isNaN(filterYear)) {
+            } else if (selectedBuiltYear) {
               // e.g. 2023 and newer, 2010 and newer
-              if (builtYear < filterYear) return false;
+              if (builtYear < selectedBuiltYear) return false;
             }
           }
         }
@@ -257,41 +302,42 @@ const Home: React.FC = () => {
 
       const buildQueryParams = (): ListingParams => {
         const params: ListingParams = {
-          limit: 20,
-          preview: true,
+          limit: 12,
+          page: 1,
+          sortBy: sortBy === 'newestFirst' ? 'createdAt' : 'price',
+          sortOrder: sortBy === 'priceDesc' ? 'desc' : 'asc',
         };
 
-        if (selectedCategory) {
+        if (selectedAction) {
+          params.listingAction = selectedAction as 'SALE' | 'RENT';
+        }
+
+        if (selectedCategory === ListingCategory.VEHICLES) {
           params.category = {
-            mainCategory: selectedCategory,
+            mainCategory: ListingCategory.VEHICLES,
+            subCategory: selectedSubcategory as VehicleType || undefined,
           };
 
-          if (selectedSubcategory) {
-            params.category.subCategory = selectedSubcategory as any;
+          // Initialize vehicleDetails with make, model, and mileage if any are selected
+          if (selectedMake || selectedModel || selectedMileage) {
+            params.vehicleDetails = {
+              ...(selectedMake && { make: selectedMake }),
+              ...(selectedModel && { model: selectedModel }),
+              ...(selectedMileage && { mileage: selectedMileage.toString() })
+            };
+          }
+
+
+          if (selectedYear) {
+            params.year = selectedYear;
           }
         }
 
-        if (selectedAction) {
-          params.listingAction = selectedAction as any;
-        }
-
-        if (selectedMake) {
-          if (!params.vehicleDetails) params.vehicleDetails = {};
-          params.vehicleDetails.make = selectedMake;
-        }
-
-        if (selectedModel) {
-          if (!params.vehicleDetails) params.vehicleDetails = {};
-          params.vehicleDetails.model = selectedModel;
-        }
-
-        if (selectedYear) {
-          params.year = parseInt(selectedYear);
-        }
 
         if (selectedLocation) {
           params.location = selectedLocation;
         }
+
 
         // Add sorting
         if (sortBy === "newestFirst") {
@@ -413,13 +459,35 @@ const Home: React.FC = () => {
           selectedModel.toLowerCase();
 
       // Year filter
-      const matchesYear =
-        !selectedYear ||
-        parseInt(listing.details?.vehicles?.year?.toString() || "0", 10) >=
-          parseInt(selectedYear, 10);
+      const listingYear = listing.details?.vehicles?.year ? 
+        parseInt(listing.details.vehicles.year.toString(), 10) : 
+        new Date(listing.createdAt || '').getFullYear();
+        
+      // Check if year is within selected range
+      const matchesYearRange = 
+        (yearRange.min === '' || listingYear >= (yearRange.min as number)) &&
+        (yearRange.max === '' || listingYear <= (yearRange.max as number));
+        
+      // For backward compatibility with single year filter
+      const matchesSingleYear = !selectedYear || listingYear >= (selectedYear || 0);
+      
+      const matchesYear = matchesYearRange && matchesSingleYear;
+
+      // Mileage filter
+      let matchesMileage = true;
+      if (selectedMileage && selectedCategory === ListingCategory.VEHICLES) {
+        const listingMileage = listing.details?.vehicles?.mileage ? 
+          (typeof listing.details.vehicles.mileage === 'string' ? 
+            parseInt(listing.details.vehicles.mileage.replace(/[^0-9.]/g, ''), 10) : 
+            listing.details.vehicles.mileage) : 0;
+        matchesMileage = listingMileage <= selectedMileage;
+      }
 
       // Price filter
-      const matchesPrice = !selectedPrice;
+      const listingPrice = typeof listing.price === 'string' ? parseFloat(listing.price) : listing.price || 0;
+      const matchesMinPrice = priceRange.min === '' || listingPrice >= (priceRange.min as number);
+      const matchesMaxPrice = priceRange.max === '' || listingPrice <= (priceRange.max as number);
+      const matchesPrice = matchesMinPrice && matchesMaxPrice;
 
       // Location filter
       let matchesLocation = true;
@@ -461,6 +529,7 @@ const Home: React.FC = () => {
         matchesMake &&
         matchesModel &&
         matchesYear &&
+        matchesMileage &&
         matchesPrice &&
         matchesLocation
       );
@@ -476,8 +545,11 @@ const Home: React.FC = () => {
     selectedPrice,
     selectedLocation,
     selectedRadius,
+    priceRange,
     cities,
     areas,
+    selectedMileage,
+    yearRange,
   ]);
 
   // Handle filtering state with ref to prevent infinite loop
@@ -516,31 +588,7 @@ const Home: React.FC = () => {
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
 
-  // Handle location filter change
-  const handleLocationChange = useCallback((location: string | null) => {
-    setSelectedLocation(location);
-    if (!location) {
-      setSelectedRadius(null);
-    }
-  }, []);
-
-  // Handle radius filter change
-  const handleRadiusChange = useCallback((radius: number | null) => {
-    setSelectedRadius(radius);
-  }, []);
-
-  // Reset filters when category changes
-  useEffect(() => {
-    setSelectedSubcategory(null);
-    setSelectedMake(null);
-    setSelectedModel(null);
-    setSelectedLocation(null);
-    setSelectedBuiltYear(null);
-  }, [selectedCategory]);
-
-  const toggleFilters = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
+  // Location and radius changes are handled directly by setSelectedLocation and setSelectedRadius
 
   // Debug logging for i18n
   console.log("i18n instance:", i18n);
@@ -631,25 +679,36 @@ const Home: React.FC = () => {
 
         {isFilterOpen && (
           <ListingFilters
-            selectedCategory={selectedCategory}
             selectedAction={selectedAction}
             setSelectedAction={setSelectedAction}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            allSubcategories={allSubcategories}
             selectedMake={selectedMake}
             setSelectedMake={setSelectedMake}
             selectedModel={selectedModel}
             setSelectedModel={setSelectedModel}
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
+            selectedMileage={selectedMileage}
+            setSelectedMileage={setSelectedMileage}
             selectedLocation={selectedLocation}
-            setSelectedLocation={handleLocationChange}
+            setSelectedLocation={setSelectedLocation}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
             selectedRadius={selectedRadius}
-            setSelectedRadius={handleRadiusChange}
+            setSelectedRadius={setSelectedRadius}
             selectedBuiltYear={selectedBuiltYear}
             setSelectedBuiltYear={setSelectedBuiltYear}
             loading={listings.loading}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            yearRange={yearRange}
+            onYearRangeChange={setYearRange}
+            onLocationChange={(location) => {
+              setSelectedLocation(location.address);
+            }}
+            onRadiusChange={(radius) => {
+              setSelectedRadius(radius);
+            }}
+            onSearch={fetchListings}
           />
         )}
 

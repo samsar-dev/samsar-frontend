@@ -575,26 +575,50 @@ export const listingsAPI: ListingsAPI = {
       const contentType = response.headers.get("content-type");
       console.log("Content-Type:", contentType);
 
-      // Get the raw text first to see what we're actually receiving
+      // Get the raw response text
       const responseText = await response.text();
-      console.log("Raw response text:", responseText);
-      console.log("Response text length:", responseText.length);
+      
+      // Log response details for debugging
+      console.log({
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        responseTextLength: responseText.length,
+        responseTextPreview: responseText.length > 200 
+          ? `${responseText.substring(0, 200)}...` 
+          : responseText
+      });
 
-      // Only try to parse JSON if we have content
-      let data;
-      if (responseText.trim().length === 0) {
-        console.error("Response body is empty!");
-        throw new Error("Server returned empty response");
+      // Check for empty response
+      if (!responseText.trim()) {
+        const error = new Error('Server returned empty response');
+        console.error(error.message, { status: response.status });
+        throw error;
       }
 
+      // Parse JSON response
+      let data: any;
       try {
         data = JSON.parse(responseText);
-        console.log("Parsed JSON data:", data);
-      } catch (err) {
-        console.error("JSON parse error:", err);
-        console.error("Response text that failed to parse:", responseText);
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Failed to parse JSON response:', {
+          error: err.message,
+          responsePreview: responseText.length > 200 
+            ? `${responseText.substring(0, 200)}...` 
+            : responseText
+        });
         throw new Error(`Invalid JSON response: ${err.message}`);
       }
+
+      // Log parsed data structure for debugging
+      console.log('Parsed response data:', {
+        hasData: !!data,
+        hasDataProperty: !!(data && data.data !== undefined),
+        dataType: data ? typeof data : 'null',
+        dataKeys: data ? Object.keys(data) : []
+      });
 
       // Continue with your existing logic...
       console.log("Raw API response:", data);

@@ -1,8 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  RealEstateFilter,
-  RealEstateFilterState,
-} from "@/components/filters/RealEstateFilter";
 import ListingCard from "@/components/listings/details/ListingCard";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
