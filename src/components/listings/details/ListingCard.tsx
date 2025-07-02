@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import i18n from "i18next";
 import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
 import { Link } from "react-router-dom";
@@ -550,38 +549,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
             renderDetails()}
           {showLocation && location && (
             <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <MdLocationOn className="text-blue-600 w-5 h-5" />
-              {(() => {
-                const normalizedLocation = location
-                  ? normalizeLocation(location)
-                  : "";
-                const locationText = normalizedLocation
-                  ? t(`cities.${normalizedLocation}`, {
-                      ns: "locations",
-                      defaultValue: location || "",
-                    })
-                  : "";
-
-                // Debug information
-                const allCities =
-                  t("cities", { returnObjects: true, ns: "locations" }) || {};
-                const cityKeys = Object.keys(allCities);
-                const currentLang = i18n.language;
-
-                console.group("Location Translation Debug");
-                console.log("Current language:", currentLang);
-                console.log("Raw location:", location);
-                console.log("Normalized location:", normalizedLocation);
-                console.log("Available city keys:", cityKeys);
-                console.log("Translation result:", locationText);
-                console.log(
-                  "Using default value?",
-                  !normalizedLocation || !cityKeys.includes(normalizedLocation)
-                );
-                console.groupEnd();
-
-                return locationText;
-              })()}
+              <MdLocationOn className="text-blue-600 w-5 h-5 flex-shrink-0" />
+              <span className="truncate">
+                {location.split(',').map((part, index, parts) => {
+                  const partTrimmed = part.trim();
+                  const normalizedPart = normalizeLocation(partTrimmed);
+                  const translatedPart = t(`cities.${normalizedPart}`, {
+                    ns: "locations",
+                    defaultValue: partTrimmed,
+                  });
+                  
+                  return (
+                    <span key={index}>
+                      {translatedPart}
+                      {index < parts.length - 1 ? ', ' : ''}
+                    </span>
+                  );
+                })}
+              </span>
             </p>
           )}
           {showDate && (

@@ -3,11 +3,11 @@ import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import ListingFilters from "@/components/filters/ListingFilters";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { ExtendedListing } from "@/types/listings";
-import { ListingCategory, VehicleType } from "@/types/enums";
+import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
-import { getMakesForType, getModelsForMakeAndType } from "@/components/listings/data/vehicleModels";
+ 
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -23,7 +23,7 @@ const VehiclesPage: React.FC = () => {
   });
   
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<'SALE' | 'RENT' | null>(null);
+  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(null);
   const [selectedVehicleType, setSelectedVehicleType] = useState<VehicleType | null>(null);
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
@@ -31,6 +31,7 @@ const VehiclesPage: React.FC = () => {
   const [selectedMileage, setSelectedMileage] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRadius, setSelectedRadius] = useState<number | null>(50);
+  const [selectedBuiltYear] = useState<number | null>(null);
   const [priceRange, setPriceRange] = useState<{ min: number | ''; max: number | '' }>({
     min: '',
     max: ''
@@ -95,7 +96,7 @@ const VehiclesPage: React.FC = () => {
       toast.error(errorMessage);
       console.error(err);
     }
-  }, [selectedAction, selectedVehicleType, selectedMake, selectedModel, selectedYear, selectedLocation, selectedRadius, priceRange]);
+  }, [selectedAction, selectedVehicleType, selectedMake, selectedModel, selectedYear, selectedLocation, selectedRadius, priceRange, selectedBuiltYear]);
 
   // Debounced filter update
   const debouncedFetch = useMemo(
@@ -123,12 +124,10 @@ const VehiclesPage: React.FC = () => {
             Vehicle Listings
           </h1>
           <ListingFilters
-            selectedCategory={ListingCategory.VEHICLES}
             selectedAction={selectedAction}
             setSelectedAction={setSelectedAction}
             selectedSubcategory={selectedVehicleType}
             setSelectedSubcategory={handleSubcategoryChange}
-            allSubcategories={Object.values(VehicleType)}
             selectedMake={selectedMake}
             setSelectedMake={setSelectedMake}
             selectedModel={selectedModel}
@@ -142,14 +141,12 @@ const VehiclesPage: React.FC = () => {
             selectedRadius={selectedRadius}
             setSelectedRadius={setSelectedRadius}
             loading={listings.loading}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
             onLocationChange={(location) => {
               setSelectedLocation(location.address);
             }}
-            onRadiusChange={(radius) => {
-              setSelectedRadius(radius);
-            }}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
+            onSearch={fetchVehicleListings}
           />
         </div>
 

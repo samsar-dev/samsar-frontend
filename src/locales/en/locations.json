@@ -16,7 +16,7 @@
   },
   "areas": {
     "damascus": ["Douma", "Darayya", "Al-Tall", "Al-Zabadani", "Qatana"],
-    "aleppo": ["Manbij", "Afrin", "Al-Safira", "Al-Bab", "A'zaz"],
+    "aleppo": ["Manbij", "Afrin", "Al-Safira", "Al-Bab", "A'zaz", "Rajo", "Nubl"],
     "homs": ["Al-Rastan", "Talbiseh", "Al-Qusayr", "Al-Mukharram", "Al-Mukharram"],
     "hama": ["Mhardeh", "Kafr Zita", "Al-Lataminah", "Al-Salamiyah", "Kafr Nabudah"],
     "latakia": ["Jableh", "Al-Haffah", "Al-Qardaha", "Kassab", "Al-Shamaliyeh"],
@@ -28,5 +28,10 @@
     "daraa": ["Izra'", "Nawa", "Tafas", "Al-Sheikh Miskeen", "Inkhil"],
     "sweida": ["Shahba", "Salkhad", "Al-Qurayya", "Al-Masmiyah", "Al-Ghariyah"],
     "quneitra": ["Al-Ba'ath", "Al-Rafid", "Ein Qiniya", "Khisfin", "Al-Rafid"]
+  },
+  "neighborhoods": {
+    "afrin": ["Kafr Safra", "Basuta", "Jalbul", "Qibar", "Kafr Naya", "Sharan", "Qarah Mazar"],
+    "rajo": ["Sorkê", "Khanasir", "Qarah Qawzaq", "Qastal Miqdad", "Qarqafin"],
+    "nubl": ["Al-Zahraa", "Kafr Hamra", "Anadan", "Hreitan", "Hayyan"]
   }
 }

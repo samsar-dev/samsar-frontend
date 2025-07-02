@@ -1,5 +1,5 @@
 {
-  "appName": "Best Website",
+  "appName": "Samsar",
   "all": "All",
   "all_types": "All Types",
   "search": "Search",
@@ -14,6 +14,7 @@
   "cancel": "Cancel",
   "save": "Save",
   "edit": "Edit",
+  "searching": "Searching",
   "delete": "Delete",
   "yes": "Yes",
   "no": "No",
@@ -27,6 +28,8 @@
   "loading": "Loading...",
   "saving": "Saving...",
   "continue": "Continue",
+  "reset": "Reset",
+  "moreFilters": "More filters",
   "back": "Back",
   "overview": "Overview",
   "essentialDetails": "Essential Details",

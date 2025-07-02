@@ -86,5 +86,18 @@
   "selectCity": "Select a city",
   "includeNearbyAreas": "Include nearby areas",
   "nearbyAreas": "Nearby areas included",
-"locationPlaceholder": "Select location"
+  "locationPlaceholder": "Select location",
+  "select_make": "Select make",
+  "select_model": "Select model",
+  "first_registration": "First registration from",
+  "kilometers_up_to": "Kilometers up to",
+  "payment_method": "Payment method",
+  "price_up_to": "Price up to",
+  "search": "Search",
+  "search_location_placeholder": "Search for a location...",
+  "distance": {
+    "km": "km"
+  },
+  "any": "Any",
+  "no_max": "No max"
 }

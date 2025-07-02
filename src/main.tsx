@@ -2,6 +2,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 import App from "./App";
 import "./config/i18n"; // Import i18n configuration
 import "./assets/css/index.css";
@@ -73,9 +75,13 @@ const initializeApp = () => {
   root.render(
     <HelmetProvider>
       <BrowserRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <Provider store={store}>
+          <ErrorBoundary>
+            <HelmetProvider>
+              <App />
+            </HelmetProvider>
+          </ErrorBoundary>
+        </Provider>
       </BrowserRouter>
     </HelmetProvider>
   );

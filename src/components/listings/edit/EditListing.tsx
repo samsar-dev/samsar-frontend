@@ -171,31 +171,27 @@ const EditListing: React.FC = () => {
   }, []);
 
   const validateForm = useCallback((): boolean => {
-    // Basic validation for required fields
     if (!formData.title.trim()) {
       toast.error(t("listings.errors.titleRequired"));
       return false;
     }
+
     if (!formData.description.trim()) {
       toast.error(t("listings.errors.descriptionRequired"));
       return false;
     }
+
     if (formData.price <= 0) {
-      toast.error(t("listings.errors.invalidPrice"));
+      toast.error(t("listings.errors.validPrice"));
       return false;
     }
 
-    // Location validation
-    // if (!formData.location.city || !formData.location.country) {
-    //   toast.error(t("listings.errors.locationRequired"));
-    //   return false;
-    // }
     if (!formData.location) {
       toast.error(t("listings.errors.locationRequired"));
       return false;
     }
 
-    // Validate schema fields
+    // Check if we have the required details based on the listing type
     const listingType = isVehicle
       ? (formData.details.vehicles?.vehicleType as VehicleType)
       : (formData.details.realEstate?.propertyType as PropertyType);
@@ -214,9 +210,37 @@ const EditListing: React.FC = () => {
         const details = isVehicle
           ? formData.details.vehicles
           : formData.details.realEstate;
-        const value = details?.[field.name as keyof typeof details];
 
-        if (value === undefined || value === null || value === "") {
+        // Handle nested fields
+        let value;
+        if (field.name.includes(".")) {
+          const parts = field.name.split(".");
+          value = details?.[parts[0]]?.[parts[1]];
+        } else {
+          value = details?.[field.name as keyof typeof details];
+        }
+
+        // Special handling for number fields that might be 0
+        if (field.type === "number") {
+          if (value === undefined || value === null || value === "") {
+            toast.error(
+              t("listings.errors.fieldRequired", {
+                field: field.label || field.name,
+              })
+            );
+            return false;
+          }
+          // Ensure number is not negative
+          const numValue = Number(value);
+          if (isNaN(numValue) || numValue < 0) {
+            toast.error(
+              t("listings.errors.validNumber", {
+                field: field.label || field.name,
+              })
+            );
+            return false;
+          }
+        } else if (value === undefined || value === null || value === "") {
           toast.error(
             t("listings.errors.fieldRequired", {
               field: field.label || field.name,
@@ -297,10 +321,36 @@ const EditListing: React.FC = () => {
               current = current[part] as Record<string, any>;
             }
 
-            // Ensure the field has a value (use empty string for required fields if not set)
-            const lastPart = fieldPath[fieldPath.length - 1];
-            if (field.required && current[lastPart] === undefined) {
-              current[lastPart] = field.type === "number" ? 0 : "";
+            // Get the field name and current value
+            const fieldName = fieldPath[fieldPath.length - 1];
+            const currentValue = current[fieldName];
+
+            // Handle field based on its type
+            if (field.required && (currentValue === undefined || currentValue === null)) {
+              // Set default values based on field type
+              switch (field.type) {
+                case 'number':
+                  current[fieldName] = 0;
+                  break;
+                case 'select':
+                  // For select fields, use the first option if available
+                  if (Array.isArray(field.options) && field.options.length > 0) {
+                    const firstOption = field.options[0];
+                    current[fieldName] = typeof firstOption === 'string' 
+                      ? firstOption 
+                      : firstOption.value;
+                  } else {
+                    current[fieldName] = '';
+                  }
+                  break;
+                case 'text':
+                default:
+                  current[fieldName] = '';
+                  break;
+              }
+            } else if (field.type === 'number' && currentValue !== undefined) {
+              // Ensure number fields are converted to actual numbers
+              current[fieldName] = Number(currentValue);
             }
           });
         }
@@ -314,7 +364,7 @@ const EditListing: React.FC = () => {
 
         formDataToSend.append("details", JSON.stringify(cleanDetails));
 
-        // Append images
+        // Append new images (Files) and any existing images included in the `images` array
         formData.images.forEach((image) => {
           if (image instanceof File) {
             formDataToSend.append("images", image);
@@ -322,6 +372,15 @@ const EditListing: React.FC = () => {
             formDataToSend.append("existingImages", image);
           }
         });
+
+        // Always include remaining existing images so that they are preserved
+        if (formData.existingImages?.length) {
+          formData.existingImages
+            .filter((url) => !formData.deletedImages?.includes(url))
+            .forEach((url) => {
+              formDataToSend.append("existingImages", url);
+            });
+        }
 
         // Append deleted images if any
         if (formData.deletedImages?.length) {
@@ -434,16 +493,46 @@ const EditListing: React.FC = () => {
               }
 
               // Initialize nested objects if they don't exist
-              let current = initialData.details[fieldType] as Record<
-                string,
-                any
-              >;
+              let current = initialData.details[fieldType] as Record<string, any>;
+              const fieldName = fieldPath[fieldPath.length - 1];
+              
+              // Navigate to the parent object
               for (let i = 0; i < fieldPath.length - 1; i++) {
                 const part = fieldPath[i];
                 if (!current[part]) {
                   current[part] = {};
                 }
                 current = current[part] as Record<string, any>;
+              }
+              
+              // Initialize the field with its current value or a default value
+              if (current[fieldName] === undefined || current[fieldName] === null) {
+                // Set default values for required fields
+                if (field.required) {
+                  switch (field.type) {
+                    case 'number':
+                      // Special handling for seatingCapacity to ensure it's not negative
+                      if (fieldName === 'seatingCapacity') {
+                        current[fieldName] = Math.max(0, Number(current[fieldName] || 0));
+                      } else {
+                        current[fieldName] = 0;
+                      }
+                      break;
+                    case 'select':
+                      // For select fields, use the first option if available
+                      if (Array.isArray(field.options) && field.options.length > 0) {
+                        const firstOption = field.options[0];
+                        current[fieldName] = typeof firstOption === 'string' ? firstOption : firstOption.value;
+                      } else {
+                        current[fieldName] = '';
+                      }
+                      break;
+                    case 'text':
+                    default:
+                      current[fieldName] = '';
+                      break;
+                  }
+                }
               }
             });
           }

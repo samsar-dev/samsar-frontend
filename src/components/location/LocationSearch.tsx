@@ -180,28 +180,34 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       const searchInCity = isArabic ? area.arCity : area.enCity;
       return searchInName?.toLowerCase().includes(query.toLowerCase()) || 
              searchInCity?.toLowerCase().includes(query.toLowerCase());
-    }).map(area => ({
-      place_id: `predefined-${area.enName}-${area.enCity}`,
-      display_name: isArabic ? 
+    }).map(area => {
+      // For neighborhoods, always include the city in the display name
+      const displayName = isArabic ? 
         `${area.arName}, ${area.arCity}` :
-        `${area.enName}, ${area.enCity}`,
-      name: isArabic ? area.arName : area.enName,
-      lat: area.latitude?.toString() || '0',
-      lon: area.longitude?.toString() || '0',
-      address: {
-        city: isArabic ? area.arCity : area.enCity,
-        state: isArabic ? 'سوريا' : 'Syria',
-        country: isArabic ? 'سوريا' : 'Syria',
-        country_code: 'sy'
-      },
-      namedetails: {
-        name: area.enName,
-        'name:ar': area.arName,
-        'name:en': area.enName
-      },
-      importance: 1,
-      isPredefined: true
-    }));
+        `${area.enName}, ${area.enCity}`;
+      
+      return {
+        place_id: `predefined-${area.enName}-${area.enCity}`,
+        display_name: displayName,
+        name: isArabic ? area.arName : area.enName,
+        lat: area.latitude?.toString() || '0',
+        lon: area.longitude?.toString() || '0',
+        address: {
+          city: isArabic ? area.arCity : area.enCity,
+          town: isArabic ? area.arName : area.enName,
+          state: isArabic ? 'سوريا' : 'Syria',
+          country: isArabic ? 'سوريا' : 'Syria',
+          country_code: 'sy'
+        },
+        namedetails: {
+          name: area.enName,
+          'name:ar': area.arName,
+          'name:en': area.enName
+        },
+        importance: 1,
+        isPredefined: true
+      };
+    });
     
     // Combine with API results and remove duplicates
     const allResults = [...matchedAreas, ...apiResults];
@@ -302,17 +308,31 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     const lat = parseFloat(result.lat);
     const lon = parseFloat(result.lon);
 
+    // Get the city name from the result
+    const city = result.address?.city || result.address?.town || '';
+    
+    // Create a combined display name with neighborhood and city if they're different
+    const combinedDisplayName = city && displayName.toLowerCase() !== city.toLowerCase() 
+      ? `${displayName}, ${city}`
+      : displayName;
+
     onSelectLocation({
-      address: displayName,
+      address: combinedDisplayName,
       coordinates: [lat, lon],
       latitude: lat,
       longitude: lon,
-      radius: 5 // Default radius of 5km
+      radius: 5, // Default radius of 5km
+      rawResult: result // Include raw result for debugging
     });
   };
 
   const getDisplayName = (result: LocationResult): string => {
     if (!result) return 'Unknown location';
+
+    // For predefined locations, use the display_name which already includes city
+    if ((result as any).isPredefined && result.display_name) {
+      return result.display_name;
+    }
 
     // Check if the current query is in Arabic
     const isArabicQuery = /[\u0600-\u06FF]/.test(query);
@@ -344,11 +364,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       const { address } = result;
       const parts = [];
 
+      // For predefined locations, use town, city format if both exist
+      if ((result as any).isPredefined) {
+        if (address.town && address.city) {
+          return `${address.town}, ${address.city}`;
+        }
+        return address.town || address.city || '';
+      }
+
       // Add the most specific location name first
-      if (address.city) parts.push(address.city);
-      else if (address.town) parts.push(address.town);
-      else if (address.village) parts.push(address.village);
-      else if (address.municipality) parts.push(address.municipality);
+      if (address.town) parts.push(address.town);
+      if (address.city && !parts.includes(address.city)) parts.push(address.city);
+      else if (address.village && !parts.includes(address.village)) parts.push(address.village);
+      else if (address.municipality && !parts.includes(address.municipality)) parts.push(address.municipality);
 
       // Add state if available and not already included
       if (address.state && !parts.includes(address.state)) {
@@ -445,7 +473,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       {isLoading && (
         <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
           <div className="px-4 py-2 text-sm text-gray-500">
-            {t ? `${t('common.searching')}...` : 'Searching...'}
+            {t ? `${t('searching')}...` : 'Searching...'}
           </div>
         </div>
       )}

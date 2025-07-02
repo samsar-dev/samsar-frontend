@@ -86,5 +86,18 @@
   "selectCity": "اختر مدينة",
   "includeNearbyAreas": "تضمين المناطق القريبة",
   "nearbyAreas": "المناطق القريبة المشمولة",
-  "locationPlaceholder": "اختر الموقع"
+  "locationPlaceholder": "اختر الموقع",
+  "select_make": "اختر الماركة",
+  "select_model": "اختر الموديل",
+  "first_registration": "التسجيل الأول من",
+  "kilometers_up_to": "كيلومترات حتى",
+  "payment_method": "طريقة الدفع",
+  "price_up_to": "السعر حتى",
+  "search": "بحث",
+  "search_location_placeholder": "ابحث عن موقع...",
+  "distance": {
+    "km": "كم"
+  },
+  "any": "أي",
+  "no_max": "لا حد أقصى"
 }

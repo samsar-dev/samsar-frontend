@@ -1,1438 +1,1118 @@
 export interface CityInfo {
+  name: string;
+  latitude: number;
+  longitude: number;
+  neighbors: {
     name: string;
     latitude: number;
     longitude: number;
-    neighbors: {
-      name: string;
-      latitude: number;
-      longitude: number;
-    }[];
+  }[];
+}
+
+export const syrianCities: CityInfo[] = [
+  // Raqqa
+  {
+    name: "Raqqa",
+    latitude: 35.9500,
+    longitude: 39.0167,
+    neighbors: [
+      { name: "Al-Mashlab", latitude: 35.9600, longitude: 39.0200 },
+      { name: "Al-Romaniya", latitude: 35.9550, longitude: 39.0100 },
+      { name: "Al-Qadisiyah", latitude: 35.9450, longitude: 39.0050 },
+      { name: "Al-Daraiya", latitude: 35.9500, longitude: 39.0250 },
+      { name: "Al-Mansoura", latitude: 35.9400, longitude: 39.0150 },
+      { name: "Al-Badu", latitude: 35.9650, longitude: 39.0200 },
+      { name: "Al-Sinaa", latitude: 35.9550, longitude: 39.0300 },
+      { name: "Al-Hani", latitude: 35.9450, longitude: 39.0350 },
+      { name: "Al-Nahda", latitude: 35.9500, longitude: 39.0400 },
+      { name: "Al-Matar", latitude: 35.9650, longitude: 39.0100 },
+      { name: "Al-Thawra", latitude: 35.9500, longitude: 39.0150 },
+      { name: "Al-Qusour", latitude: 35.9550, longitude: 39.0250 },
+      { name: "Al-Hamidiyah", latitude: 35.9450, longitude: 39.0300 },
+      { name: "Al-Ghouta", latitude: 35.9600, longitude: 39.0150 },
+      { name: "Al-Jalaa", latitude: 35.9550, longitude: 39.0350 },
+      { name: "Al-Mazzeh", latitude: 35.9500, longitude: 39.0100 },
+      { name: "Al-Muhafaza", latitude: 35.9450, longitude: 39.0250 },
+      { name: "Al-Wahda", latitude: 35.9600, longitude: 39.0300 },
+      { name: "Al-Saada", latitude: 35.9550, longitude: 39.0200 },
+      { name: "Al-Nasr", latitude: 35.9500, longitude: 39.0350 },
+      { name: "Al-Karama", latitude: 35.9550, longitude: 39.0280 },
+      { name: "Al-Andalus", latitude: 35.9520, longitude: 39.0220 },
+      { name: "Al-Zahraa", latitude: 35.9480, longitude: 39.0300 },
+      { name: "Al-Rawda", latitude: 35.9530, longitude: 39.0180 },
+      { name: "Al-Mashtal", latitude: 35.9570, longitude: 39.0250 },
+      { name: "Al-Nour", latitude: 35.9510, longitude: 39.0320 },
+      { name: "Al-Quds", latitude: 35.9490, longitude: 39.0270 },
+      { name: "Al-Amal", latitude: 35.9540, longitude: 39.0230 },
+      { name: "Al-Safwa", latitude: 35.9560, longitude: 39.0290 }
+    ]
+  },
+  
+  // Qamishli
+  {
+    name: "Qamishli",
+    latitude: 37.0500,
+    longitude: 41.2167,
+    neighbors: [
+      { name: "Al-Wasta", latitude: 37.0550, longitude: 41.2200 },
+      { name: "Al-Antariya", latitude: 37.0600, longitude: 41.2100 },
+      { name: "Al-Qusour", latitude: 37.0450, longitude: 41.2150 },
+      { name: "Al-Arbawiyah", latitude: 37.0550, longitude: 41.2250 },
+      { name: "Al-Mufti", latitude: 37.0500, longitude: 41.2300 },
+      { name: "Al-Mahata", latitude: 37.0450, longitude: 41.2200 },
+      { name: "Al-Qudud", latitude: 37.0550, longitude: 41.2100 },
+      { name: "Al-Tayy", latitude: 37.0600, longitude: 41.2150 },
+      { name: "Al-Quds", latitude: 37.0500, longitude: 41.2250 },
+      { name: "Al-Ghazal", latitude: 37.0550, longitude: 41.2350 },
+      { name: "Al-Nasr", latitude: 37.0520, longitude: 41.2220 },
+      { name: "Al-Saada", latitude: 37.0480, longitude: 41.2180 },
+      { name: "Al-Wahda", latitude: 37.0530, longitude: 41.2280 },
+      { name: "Al-Andalus", latitude: 37.0570, longitude: 41.2320 },
+      { name: "Al-Nour", latitude: 37.0510, longitude: 41.2240 },
+      { name: "Al-Thawra", latitude: 37.0490, longitude: 41.2200 },
+      { name: "Al-Mashtal", latitude: 37.0540, longitude: 41.2260 },
+      { name: "Al-Zuhour", latitude: 37.0560, longitude: 41.2300 },
+      { name: "Al-Hamidiyah", latitude: 37.0500, longitude: 41.2280 },
+      { name: "Al-Jalaa", latitude: 37.0530, longitude: 41.2250 },
+      { name: "Al-Karama", latitude: 37.0540, longitude: 41.2270 },
+      { name: "Al-Rawda", latitude: 37.0510, longitude: 41.2230 },
+      { name: "Al-Safwa", latitude: 37.0490, longitude: 41.2250 },
+      { name: "Al-Zahraa", latitude: 37.0520, longitude: 41.2290 },
+      { name: "Al-Amal", latitude: 37.0500, longitude: 41.2260 },
+      { name: "Al-Mazzeh", latitude: 37.0530, longitude: 41.2220 },
+      { name: "Al-Ghouta", latitude: 37.0550, longitude: 41.2240 },
+      { name: "Al-Qadisiyah", latitude: 37.0560, longitude: 41.2280 },
+      { name: "Al-Matar", latitude: 37.0490, longitude: 41.2270 },
+      { name: "Al-Baath", latitude: 37.0510, longitude: 41.2290 }
+    ]
+  },
+  
+  // As-Suwayda
+  {
+    name: "As-Suwayda",
+    latitude: 32.7000,
+    longitude: 36.5667,
+    neighbors: [
+      { name: "Al-Mashtal", latitude: 32.7050, longitude: 36.5700 },
+      { name: "Al-Zuhour", latitude: 32.6950, longitude: 36.5650 },
+      { name: "Al-Wahda", latitude: 32.7000, longitude: 36.5750 },
+      { name: "Al-Matar", latitude: 32.7050, longitude: 36.5600 },
+      { name: "Al-Qusour", latitude: 32.6950, longitude: 36.5700 },
+      { name: "Al-Hamidiyah", latitude: 32.7050, longitude: 36.5750 },
+      { name: "Al-Mahata", latitude: 32.6950, longitude: 36.5650 },
+      { name: "Al-Sinaa", latitude: 32.7000, longitude: 36.5700 },
+      { name: "Al-Baath", latitude: 32.7050, longitude: 36.5650 },
+      { name: "Al-Jalaa", latitude: 32.6950, longitude: 36.5750 },
+      { name: "Al-Nasr", latitude: 32.7020, longitude: 36.5720 },
+      { name: "Al-Saada", latitude: 32.6980, longitude: 36.5680 },
+      { name: "Al-Andalus", latitude: 32.7040, longitude: 36.5740 },
+      { name: "Al-Nour", latitude: 32.6960, longitude: 36.5660 },
+      { name: "Al-Thawra", latitude: 32.7000, longitude: 36.5700 },
+      { name: "Al-Mazzeh", latitude: 32.7050, longitude: 36.5750 },
+      { name: "Al-Muhafaza", latitude: 32.6950, longitude: 36.5650 },
+      { name: "Al-Rawda", latitude: 32.7030, longitude: 36.5710 },
+      { name: "Al-Qadisiyah", latitude: 32.6970, longitude: 36.5690 },
+      { name: "Al-Karama", latitude: 32.7060, longitude: 36.5730 },
+      { name: "Al-Ghouta", latitude: 32.7010, longitude: 36.5720 },
+      { name: "Al-Zahraa", latitude: 32.6990, longitude: 36.5670 },
+      { name: "Al-Amal", latitude: 32.7040, longitude: 36.5680 },
+      { name: "Al-Safwa", latitude: 32.6980, longitude: 36.5730 },
+      { name: "Al-Fayhaa", latitude: 32.7020, longitude: 36.5670 },
+      { name: "Al-Yarmouk", latitude: 32.7000, longitude: 36.5690 },
+      { name: "Al-Quds", latitude: 32.7030, longitude: 36.5660 },
+      { name: "Al-Majd", latitude: 32.6960, longitude: 36.5710 },
+      { name: "Al-Farah", latitude: 32.7010, longitude: 36.5740 },
+      { name: "Al-Nahda", latitude: 32.6990, longitude: 36.5680 }
+    ]
+  },
+  
+  // Al-Bab
+  {
+    name: "Al-Bab",
+    latitude: 36.3722,
+    longitude: 37.5178,
+    neighbors: [
+      { name: "Al-Qusour", latitude: 36.3700, longitude: 37.5200 },
+      { name: "Al-Mashhad", latitude: 36.3750, longitude: 37.5250 },
+      { name: "Al-Hamidiyah", latitude: 36.3700, longitude: 37.5150 },
+      { name: "Al-Nour", latitude: 36.3680, longitude: 37.5180 },
+      { name: "Al-Sinaa", latitude: 36.3720, longitude: 37.5220 },
+      { name: "Al-Qadisiyah", latitude: 36.3740, longitude: 37.5160 },
+      { name: "Al-Matar", latitude: 36.3700, longitude: 37.5100 },
+      { name: "Al-Nahda", latitude: 36.3750, longitude: 37.5150 },
+      { name: "Al-Mashtal", latitude: 36.3730, longitude: 37.5180 },
+      { name: "Al-Zuhour", latitude: 36.3710, longitude: 37.5190 },
+      { name: "Al-Wahda", latitude: 36.3720, longitude: 37.5200 },
+      { name: "Al-Jalaa", latitude: 36.3740, longitude: 37.5190 },
+      { name: "Al-Saada", latitude: 36.3700, longitude: 37.5210 },
+      { name: "Al-Andalus", latitude: 36.3730, longitude: 37.5170 },
+      { name: "Al-Thawra", latitude: 36.3710, longitude: 37.5160 },
+      { name: "Al-Mazzeh", latitude: 36.3750, longitude: 37.5200 },
+      { name: "Al-Muhafaza", latitude: 36.3700, longitude: 37.5190 },
+      { name: "Al-Rawda", latitude: 36.3720, longitude: 37.5180 },
+      { name: "Al-Karama", latitude: 36.3730, longitude: 37.5190 },
+      { name: "Al-Baath", latitude: 36.3710, longitude: 37.5200 },
+      { name: "Al-Ghouta", latitude: 36.3725, longitude: 37.5180 },
+      { name: "Al-Zahraa", latitude: 36.3715, longitude: 37.5170 },
+      { name: "Al-Amal", latitude: 36.3735, longitude: 37.5160 },
+      { name: "Al-Safwa", latitude: 36.3705, longitude: 37.5195 },
+      { name: "Al-Fayhaa", latitude: 36.3725, longitude: 37.5205 },
+      { name: "Al-Yarmouk", latitude: 36.3715, longitude: 37.5215 },
+      { name: "Al-Quds", latitude: 36.3735, longitude: 37.5195 },
+      { name: "Al-Majd", latitude: 36.3705, longitude: 37.5185 },
+      { name: "Al-Farah", latitude: 36.3725, longitude: 37.5175 },
+      { name: "Al-Nasr", latitude: 36.3715, longitude: 37.5195 }
+    ]
+  },
+  
+  // Manbij
+  {
+    name: "Manbij",
+    latitude: 36.5333,
+    longitude: 37.9500,
+    neighbors: [
+      { name: "Al-Sinaa", latitude: 36.5350, longitude: 37.9550 },
+      { name: "Al-Qusour", latitude: 36.5300, longitude: 37.9450 },
+      { name: "Al-Mahata", latitude: 36.5350, longitude: 37.9600 },
+      { name: "Al-Hamidiyah", latitude: 36.5300, longitude: 37.9500 },
+      { name: "Al-Matar", latitude: 36.5350, longitude: 37.9450 },
+      { name: "Al-Wahda", latitude: 36.5300, longitude: 37.9600 },
+      { name: "Al-Nasr", latitude: 36.5350, longitude: 37.9500 },
+      { name: "Al-Saada", latitude: 36.5300, longitude: 37.9450 },
+      { name: "Al-Qadisiyah", latitude: 36.5350, longitude: 37.9600 },
+      { name: "Al-Andalus", latitude: 36.5300, longitude: 37.9500 }
+    ]
+  },
+  
+  // Damascus
+  {
+    name: "Damascus",
+    latitude: 33.5131,
+    longitude: 36.2913,
+    neighbors: [
+      { name: "Al-Midan", latitude: 33.5111, longitude: 36.2994 },
+      { name: "Al-Mazzeh", latitude: 33.5231, longitude: 36.2731 },
+      { name: "Barzeh", latitude: 33.5400, longitude: 36.3100 },
+      { name: "Jaramana", latitude: 33.5000, longitude: 36.3300 },
+      { name: "Douma", latitude: 33.5833, longitude: 36.4167 },
+      { name: "Darayya", latitude: 33.4833, longitude: 36.2833 },
+      { name: "Moadamiyah", latitude: 33.5000, longitude: 36.2500 },
+      { name: "Al-Tal", latitude: 33.6000, longitude: 36.3000 },
+      { name: "Al-Harasta", latitude: 33.5833, longitude: 36.4000 },
+      { name: "Al-Qaboun", latitude: 33.5333, longitude: 36.3500 },
+      { name: "Kafr Sousa", latitude: 33.5100, longitude: 36.2800 },
+      { name: "Al-Mezzeh 86", latitude: 33.5200, longitude: 36.2700 },
+      { name: "Al-Zahraa", latitude: 33.5300, longitude: 36.3000 },
+      { name: "Al-Maliki", latitude: 33.5150, longitude: 36.2900 },
+      { name: "Abu Rummaneh", latitude: 33.5200, longitude: 36.2900 },
+      { name: "Al-Shahbandar", latitude: 33.5150, longitude: 36.3000 },
+      { name: "Al-Amara", latitude: 33.5100, longitude: 36.2950 },
+      { name: "Al-Qanawat", latitude: 33.5050, longitude: 36.3050 },
+      { name: "Bab Tuma", latitude: 33.5150, longitude: 36.3100 },
+      { name: "Al-Salihiyah", latitude: 33.5250, longitude: 36.2950 },
+      { name: "Al-Qassaa", latitude: 33.5180, longitude: 36.2650 },
+      { name: "Rukn al-Din", latitude: 33.5200, longitude: 36.3000 },
+      { name: "Shaghour al-Juwani", latitude: 33.5100, longitude: 36.3100 },
+      { name: "Midan", latitude: 33.5000, longitude: 36.3000 },
+      { name: "Kafr Souseh", latitude: 33.5000, longitude: 36.2700 },
+      { name: "Malki", latitude: 33.5150, longitude: 36.2800 },
+      { name: "Dummar", latitude: 33.5500, longitude: 36.2500 },
+      { name: "Jobar", latitude: 33.5333, longitude: 36.3333 },
+      { name: "Qadam", latitude: 33.4667, longitude: 36.3000 }
+    ]
+  },
+  
+  // Aleppo
+  {
+    name: "Aleppo",
+    latitude: 36.2167,
+    longitude: 37.1667,
+    neighbors: [
+      { name: "Al-Aziziyah", latitude: 36.2000, longitude: 37.1500 },
+      { name: "Al-Shaar", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Sukkari", latitude: 36.2167, longitude: 37.1500 },
+      { name: "Al-Masharqah", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Hamdaniyah", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Safiyah", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Jamiliyah", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Salheen", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Fardous", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Sabil", latitude: 36.2333, longitude: 37.1500 },
+      { name: "Al-Sabil Roundabout", latitude: 36.2300, longitude: 37.1550 },
+      { name: "Al-Sabil Park", latitude: 36.2320, longitude: 37.1520 },
+      { name: "Al-Sabil Market", latitude: 36.2310, longitude: 37.1530 },
+      { name: "Al-Sabil School", latitude: 36.2330, longitude: 37.1510 },
+      { name: "Al-Sabil Hospital", latitude: 36.2300, longitude: 37.1540 },
+      { name: "Al-Sabil Mall", latitude: 36.2320, longitude: 37.1550 },
+      { name: "Al-Sabil Street", latitude: 36.2310, longitude: 37.1560 },
+      { name: "Al-Sabil Square", latitude: 36.2300, longitude: 37.1570 },
+      { name: "Al-Sabil Mosque", latitude: 36.2320, longitude: 37.1580 },
+      { name: "Al-Sabil Garden", latitude: 36.2330, longitude: 37.1590 },
+      { name: "Al-Sha'ar", latitude: 36.2167, longitude: 37.1333 },
+      { name: "Al-Sabil Roundabout", latitude: 36.2167, longitude: 37.1667 },
+      { name: "Al-Sabil Park", latitude: 36.2200, longitude: 37.1700 },
+      { name: "Al-Sabil Market", latitude: 36.2250, longitude: 37.1650 },
+      { name: "Al-Sabil School", latitude: 36.2180, longitude: 37.1680 },
+      { name: "Al-Sabil Hospital", latitude: 36.2220, longitude: 37.1630 },
+      { name: "Al-Sabil Mall", latitude: 36.2240, longitude: 37.1690 },
+      { name: "Al-Sabil Street", latitude: 36.2260, longitude: 37.1670 },
+      { name: "Al-Sabil Square", latitude: 36.2200, longitude: 37.1620 },
+      { name: "Al-Sabil Mosque", latitude: 36.2230, longitude: 37.1640 },
+      { name: "Al-Sabil Garden", latitude: 36.2210, longitude: 37.1660 }
+    ]
+  },
+  
+  // Homs
+  {
+    name: "Homs",
+    latitude: 34.7333,
+    longitude: 36.7167,
+    neighbors: [
+      { name: "Al-Waer", latitude: 34.7500, longitude: 36.7000 },
+      { name: "Al-Ghouta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Hamidiyah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Qusour", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Inshaat", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Baath University", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta Al-Jadidah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Khaldiyah", latitude: 34.7350, longitude: 36.7050 },
+      { name: "Al-Nuzha", latitude: 34.7300, longitude: 36.7100 },
+      { name: "Al-Sabeel", latitude: 34.7320, longitude: 36.7150 },
+      { name: "Al-Nasr", latitude: 34.7340, longitude: 36.7200 },
+      { name: "Al-Andalus", latitude: 34.7360, longitude: 36.7180 },
+      { name: "Al-Qusour Al-Jadidah", latitude: 34.7380, longitude: 36.7200 },
+      { name: "Al-Zahraa", latitude: 34.7400, longitude: 36.7150 },
+      { name: "Al-Majd", latitude: 34.7420, longitude: 36.7100 },
+      { name: "Al-Saada", latitude: 34.7440, longitude: 36.7050 },
+      { name: "Al-Wuroud", latitude: 34.7460, longitude: 36.7000 },
+      { name: "Al-Sabil", latitude: 34.7350, longitude: 36.7100 },
+      { name: "Al-Mazzeh", latitude: 34.7380, longitude: 36.7150 },
+      { name: "Al-Matar Al-Qadim", latitude: 34.7400, longitude: 36.7200 },
+      { name: "Al-Matar Al-Jadid", latitude: 34.7420, longitude: 36.7250 },
+      { name: "Al-Matar Al-Shamali", latitude: 34.7440, longitude: 36.7300 },
+      { name: "Al-Matar Al-Janoubi", latitude: 34.7460, longitude: 36.7350 },
+      { name: "Al-Matar Al-Gharbi", latitude: 34.7480, longitude: 36.7400 },
+      { name: "Al-Matar Al-Sharqi", latitude: 34.7500, longitude: 36.7450 },
+      { name: "Al-Matar Al-Wasti", latitude: 34.7520, longitude: 36.7500 },
+      { name: "Al-Matar Al-Qadim Al-Sharqi", latitude: 34.7540, longitude: 36.7550 },
+      { name: "Al-Matar Al-Qadim Al-Gharbi", latitude: 34.7560, longitude: 36.7600 },
+      { name: "Al-Matar Al-Jadid Al-Sharqi", latitude: 34.7580, longitude: 36.7650 },
+      { name: "Al-Matar Al-Jadid Al-Gharbi", latitude: 34.7600, longitude: 36.7700 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.7620, longitude: 36.7750 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.7640, longitude: 36.7800 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.7660, longitude: 36.7850 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.7680, longitude: 36.7900 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.7700, longitude: 36.7950 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.7720, longitude: 36.8000 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.7740, longitude: 36.8050 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.7760, longitude: 36.8100 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.7780, longitude: 36.8150 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.7800, longitude: 36.8200 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.7820, longitude: 36.8250 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.7840, longitude: 36.8300 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.7860, longitude: 36.8350 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.7880, longitude: 36.8400 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.7900, longitude: 36.8450 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.7920, longitude: 36.8500 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.7940, longitude: 36.8550 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.7960, longitude: 36.8600 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.7980, longitude: 36.8650 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.8000, longitude: 36.8700 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.8020, longitude: 36.8750 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.8040, longitude: 36.8800 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.8060, longitude: 36.8850 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.8080, longitude: 36.8900 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.8100, longitude: 36.8950 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.8120, longitude: 36.9000 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.8140, longitude: 36.9050 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.8160, longitude: 36.9100 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.8180, longitude: 36.9150 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.8200, longitude: 36.9200 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.8220, longitude: 36.9250 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.8240, longitude: 36.9300 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.8260, longitude: 36.9350 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.8280, longitude: 36.9400 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.8300, longitude: 36.9450 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.8320, longitude: 36.9500 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.8340, longitude: 36.9550 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.8360, longitude: 36.9600 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.8380, longitude: 36.9650 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.8400, longitude: 36.9700 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.8420, longitude: 36.9750 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.8440, longitude: 36.9800 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.8460, longitude: 36.9850 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.8480, longitude: 36.9900 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.8500, longitude: 36.9950 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.8520, longitude: 37.0000 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.8540, longitude: 37.0050 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.8560, longitude: 37.0100 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.8580, longitude: 37.0150 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.8600, longitude: 37.0200 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.8620, longitude: 37.0250 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.8640, longitude: 37.0300 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.8660, longitude: 37.0350 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.8680, longitude: 37.0400 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.8700, longitude: 37.0450 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.8720, longitude: 37.0500 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.8740, longitude: 37.0550 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.8760, longitude: 37.0600 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.8780, longitude: 37.0650 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.8800, longitude: 37.0700 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.8820, longitude: 37.0750 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.8840, longitude: 37.0800 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.8860, longitude: 37.0850 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.8880, longitude: 37.0900 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.8900, longitude: 37.0950 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.8920, longitude: 37.1000 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.8940, longitude: 37.1050 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.8960, longitude: 37.1100 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.8980, longitude: 37.1150 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.9000, longitude: 37.1200 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.9020, longitude: 37.1250 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.9040, longitude: 37.1300 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.9060, longitude: 37.1350 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.9080, longitude: 37.1400 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.9100, longitude: 37.1450 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.9120, longitude: 37.1500 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.9140, longitude: 37.1550 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.9160, longitude: 37.1600 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.9180, longitude: 37.1650 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.9200, longitude: 37.1700 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.9220, longitude: 37.1750 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.9240, longitude: 37.1800 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.9260, longitude: 37.1850 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.9280, longitude: 37.1900 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.9300, longitude: 37.1950 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.9320, longitude: 37.2000 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.9340, longitude: 37.2050 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.9360, longitude: 37.2100 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.9380, longitude: 37.2150 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.9400, longitude: 37.2200 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.9420, longitude: 37.2250 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.9440, longitude: 37.2300 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.9460, longitude: 37.2350 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.9480, longitude: 37.2400 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.9500, longitude: 37.2450 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.9520, longitude: 37.2500 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.9540, longitude: 37.2550 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.9560, longitude: 37.2600 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.9580, longitude: 37.2650 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.9600, longitude: 37.2700 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.9620, longitude: 37.2750 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.9640, longitude: 37.2800 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.9660, longitude: 37.2850 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.9680, longitude: 37.2900 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.9700, longitude: 37.2950 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 34.9720, longitude: 37.3000 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 34.9740, longitude: 37.3050 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 34.9760, longitude: 37.3100 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 34.9780, longitude: 37.3150 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 34.9800, longitude: 37.3200 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 34.9820, longitude: 37.3250 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 34.9840, longitude: 37.3300 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 34.9860, longitude: 37.3350 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 34.9880, longitude: 37.3400 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 34.9900, longitude: 37.3450 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 34.9920, longitude: 37.3500 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 34.9940, longitude: 37.3550 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 34.9960, longitude: 37.3600 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 34.9980, longitude: 37.3650 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 35.0000, longitude: 37.3700 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 35.0020, longitude: 37.3750 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 35.0040, longitude: 37.3800 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 35.0060, longitude: 37.3850 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 35.0080, longitude: 37.3900 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 35.0100, longitude: 37.3950 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 35.0120, longitude: 37.4000 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 35.0140, longitude: 37.4050 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 35.0160, longitude: 37.4100 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 35.0180, longitude: 37.4150 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 35.0200, longitude: 37.4200 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 35.0220, longitude: 37.4250 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 35.0240, longitude: 37.4300 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 35.0260, longitude: 37.4350 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 35.0280, longitude: 37.4400 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 35.0300, longitude: 37.4450 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 35.0320, longitude: 37.4500 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 35.0340, longitude: 37.4550 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 35.0360, longitude: 37.4600 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 35.0380, longitude: 37.4650 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 35.0400, longitude: 37.4700 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 35.0420, longitude: 37.4750 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 35.0440, longitude: 37.4800 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 35.0460, longitude: 37.4850 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 35.0480, longitude: 37.4900 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 35.0500, longitude: 37.4950 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 35.0520, longitude: 37.5000 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 35.0540, longitude: 37.5050 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 35.0560, longitude: 37.5100 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 35.0580, longitude: 37.5150 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 35.0600, longitude: 37.5200 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 35.0620, longitude: 37.5250 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 35.0640, longitude: 37.5300 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 35.0660, longitude: 37.5350 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 35.0680, longitude: 37.5400 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 35.0700, longitude: 37.5450 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 35.0720, longitude: 37.5500 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 35.0740, longitude: 37.5550 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 35.0760, longitude: 37.5600 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 35.0780, longitude: 37.5650 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 35.0800, longitude: 37.5700 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 35.0820, longitude: 37.5750 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 35.0840, longitude: 37.5800 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 35.0860, longitude: 37.5850 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 35.0880, longitude: 37.5900 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 35.0900, longitude: 37.5950 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 35.0920, longitude: 37.6000 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 35.0940, longitude: 37.6050 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 35.0960, longitude: 37.6100 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 35.0980, longitude: 37.6150 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 35.1000, longitude: 37.6200 },
+      { name: "Al-Matar Al-Janoubi Al-Sharqi", latitude: 35.1020, longitude: 37.6250 },
+      { name: "Al-Matar Al-Janoubi Al-Gharbi", latitude: 35.1040, longitude: 37.6300 },
+      { name: "Al-Matar Al-Gharbi Al-Shamali", latitude: 35.1060, longitude: 37.6350 },
+      { name: "Al-Matar Al-Gharbi Al-Janoubi", latitude: 35.1080, longitude: 37.6400 },
+      { name: "Al-Matar Al-Sharqi Al-Shamali", latitude: 35.1100, longitude: 37.6450 },
+      { name: "Al-Matar Al-Sharqi Al-Janoubi", latitude: 35.1120, longitude: 37.6500 },
+      { name: "Al-Matar Al-Wasti Al-Shamali", latitude: 35.1140, longitude: 37.6550 },
+      { name: "Al-Matar Al-Wasti Al-Janoubi", latitude: 35.1160, longitude: 37.6600 },
+      { name: "Al-Matar Al-Qadim Al-Shamali", latitude: 35.1180, longitude: 37.6650 },
+      { name: "Al-Matar Al-Qadim Al-Janoubi", latitude: 35.1200, longitude: 37.6700 },
+      { name: "Al-Matar Al-Jadid Al-Shamali", latitude: 35.1220, longitude: 37.6750 },
+      { name: "Al-Matar Al-Jadid Al-Janoubi", latitude: 35.1240, longitude: 37.6800 },
+      { name: "Al-Matar Al-Shamali Al-Sharqi", latitude: 35.1260, longitude: 37.6850 },
+      { name: "Al-Matar Al-Shamali Al-Gharbi", latitude: 35.1280, longitude: 37.6900 },
+      { name: "Al-Waer", latitude: 34.7333, longitude: 36.6833 },
+      { name: "Al-Ghouta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Hamidiyah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Qusour", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Inshaat", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Baath University", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta Al-Jadidah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Waer", latitude: 34.7500, longitude: 36.7000 },
+      { name: "Al-Ghouta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Hamidiyah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Qusour", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Inshaat", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Baath University", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta Al-Jadidah", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Wadi", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Mahatta Roundabout", latitude: 34.7333, longitude: 36.7000 },
+      { name: "Al-Hamra", latitude: 34.7350, longitude: 36.7050 },
+      { name: "Al-Nuzha", latitude: 34.7300, longitude: 36.7100 },
+      { name: "Al-Sabeel", latitude: 34.7320, longitude: 36.7150 },
+      { name: "Al-Nasr", latitude: 34.7340, longitude: 36.7200 },
+      { name: "Al-Andalus", latitude: 34.7360, longitude: 36.7180 },
+      { name: "Al-Qusour Al-Jadidah", latitude: 34.7380, longitude: 36.7200 },
+      { name: "Al-Zahraa", latitude: 34.7400, longitude: 36.7150 },
+      { name: "Al-Majd", latitude: 34.7420, longitude: 36.7100 },
+      { name: "Al-Saada", latitude: 34.7440, longitude: 36.7050 },
+      { name: "Al-Wuroud", latitude: 34.7460, longitude: 36.7000 }
+    ]
+  },
+  
+  // Latakia
+  {
+    name: "Latakia",
+    latitude: 35.5167,
+    longitude: 35.7833,
+    neighbors: [
+      // Central Latakia
+      { name: "Al-Samman", latitude: 35.5200, longitude: 35.7850 },
+      { name: "Al-Aziziyah", latitude: 35.5180, longitude: 35.7840 },
+      { name: "Al-Quds", latitude: 35.5170, longitude: 35.7860 },
+      { name: "Al-Sinaa", latitude: 35.5190, longitude: 35.7820 },
+      { name: "Al-Mina", latitude: 35.5210, longitude: 35.7880 },
+      { name: "Al-Qusour", latitude: 35.5150, longitude: 35.7840 },
+      { name: "Al-Raml", latitude: 35.5200, longitude: 35.7820 },
+      { name: "Al-Sahel", latitude: 35.5220, longitude: 35.7860 },
+      { name: "Al-Safinat", latitude: 35.5160, longitude: 35.7850 },
+      { name: "Al-Samman Roundabout", latitude: 35.5190, longitude: 35.7870 },
+      
+      // Northern Latakia
+      { name: "Al-Nuzha", latitude: 35.5250, longitude: 35.7900 },
+      { name: "Al-Ziraa", latitude: 35.5170, longitude: 35.7820 },
+      { name: "Al-Mazzeh", latitude: 35.5200, longitude: 35.7830 },
+      { name: "Al-Andalus", latitude: 35.5180, longitude: 35.7810 },
+      { name: "Al-Nasr", latitude: 35.5240, longitude: 35.7850 },
+      { name: "Al-Wahda", latitude: 35.5190, longitude: 35.7860 },
+      { name: "Al-Hamra", latitude: 35.5170, longitude: 35.7840 },
+      { name: "Al-Saada", latitude: 35.5200, longitude: 35.7880 },
+      { name: "Al-Ghazal", latitude: 35.5180, longitude: 35.7830 },
+      { name: "Al-Mashtal", latitude: 35.5210, longitude: 35.7870 },
+      
+      // Eastern Latakia
+      { name: "Al-Assad Suburb", latitude: 35.5230, longitude: 35.8000 },
+      { name: "Al-Hamidiyah", latitude: 35.5180, longitude: 35.7950 },
+      { name: "Al-Baath", latitude: 35.5200, longitude: 35.7980 },
+      { name: "Al-Quds Roundabout", latitude: 35.5170, longitude: 35.7990 },
+      { name: "Al-Nahda", latitude: 35.5210, longitude: 35.8020 },
+      { name: "Al-Kanissa", latitude: 35.5190, longitude: 35.8000 },
+      { name: "Al-Masaken Al-Jadida", latitude: 35.5220, longitude: 35.8050 },
+      { name: "Al-Masaken Al-Qadima", latitude: 35.5200, longitude: 35.8080 },
+      { name: "Al-Mahatta Al-Jadida", latitude: 35.5180, longitude: 35.8100 },
+      { name: "Al-Mahatta Al-Qadima", latitude: 35.5210, longitude: 35.8120 },
+      
+      // Western Latakia (Coastal)
+      { name: "Corniche", latitude: 35.5150, longitude: 35.7750 },
+      { name: "Al-Sanoubar", latitude: 35.5170, longitude: 35.7720 },
+      { name: "Al-Basel", latitude: 35.5190, longitude: 35.7700 },
+      { name: "Al-Matar Al-Qadim", latitude: 35.5130, longitude: 35.7680 },
+      { name: "Al-Matar Al-Jadid", latitude: 35.5160, longitude: 35.7650 },
+      { name: "Al-Sayyad", latitude: 35.5180, longitude: 35.7620 },
+      { name: "Al-Nakheel", latitude: 35.5200, longitude: 35.7600 },
+      { name: "Al-Sahel Al-Shamali", latitude: 35.5220, longitude: 35.7580 },
+      { name: "Al-Sahel Al-Janoubi", latitude: 35.5200, longitude: 35.7550 },
+      { name: "Al-Mina Al-Qadim", latitude: 35.5180, longitude: 35.7520 },
+      
+      // Southern Latakia
+      { name: "Al-Ziraa Al-Janoubiyah", latitude: 35.5100, longitude: 35.7880 },
+      { name: "Al-Mahatta Al-Janoubiyah", latitude: 35.5080, longitude: 35.7900 },
+      { name: "Al-Sinaa Al-Jadid", latitude: 35.5120, longitude: 35.7920 },
+      { name: "Al-Masaken Al-Shaabiya", latitude: 35.5140, longitude: 35.7950 },
+      { name: "Al-Masaken Al-Askariya", latitude: 35.5160, longitude: 35.7980 },
+      { name: "Al-Masaken Al-Idaria", latitude: 35.5180, longitude: 35.8000 },
+      { name: "Al-Masaken Al-Muhandiseen", latitude: 35.5200, longitude: 35.8020 },
+      { name: "Al-Masaken Al-Talaba", latitude: 35.5220, longitude: 35.8050 },
+      { name: "Al-Masaken Al-Muallimeen", latitude: 35.5240, longitude: 35.8080 },
+      { name: "Al-Masaken Al-Tibbiya", latitude: 35.5260, longitude: 35.8100 },
+      
+      // University Area
+      { name: "Tishreen University", latitude: 35.5300, longitude: 35.7800 },
+      { name: "Al-Jamea Al-Qanuniyah", latitude: 35.5320, longitude: 35.7780 },
+      { name: "Al-Jamea Al-Adabiyah", latitude: 35.5340, longitude: 35.7760 },
+      { name: "Al-Jamea Al-Tibbiyah", latitude: 35.5360, longitude: 35.7740 },
+      { name: "Al-Jamea Al-Handasiyah", latitude: 35.5380, longitude: 35.7720 },
+      { name: "Al-Jamea Al-Ziraiyah", latitude: 35.5400, longitude: 35.7700 },
+      { name: "Al-Jamea Al-Tijariyah", latitude: 35.5420, longitude: 35.7680 },
+      { name: "Al-Jamea Al-Iqtisadiyah", latitude: 35.5440, longitude: 35.7660 },
+      { name: "Al-Jamea Al-Ilmiyah", latitude: 35.5460, longitude: 35.7640 },
+      { name: "Al-Jamea Al-Adabiyah", latitude: 35.5480, longitude: 35.7620 },
+      
+      // Industrial Areas
+      { name: "Al-Sinaa Al-Kabir", latitude: 35.5050, longitude: 35.7950 },
+      { name: "Al-Sinaa Al-Saghir", latitude: 35.5080, longitude: 35.7980 },
+      { name: "Al-Mina Al-Sinai", latitude: 35.5120, longitude: 35.8020 },
+      { name: "Al-Mina Al-Tijari", latitude: 35.5150, longitude: 35.8050 },
+      { name: "Al-Mina Al-Raheeb", latitude: 35.5180, longitude: 35.8080 },
+      { name: "Al-Mina Al-Jadid", latitude: 35.5200, longitude: 35.8100 },
+      { name: "Al-Mina Al-Qadim", latitude: 35.5220, longitude: 35.8120 },
+      { name: "Al-Mina Al-Shamali", latitude: 35.5240, longitude: 35.8140 },
+      { name: "Al-Mina Al-Janoubi", latitude: 35.5260, longitude: 35.8160 },
+      { name: "Al-Mina Al-Gharbi", latitude: 35.5280, longitude: 35.8180 },
+      
+      // Suburbs and Outskirts
+      { name: "Al-Safsaf", latitude: 35.5050, longitude: 35.7700 },
+      { name: "Al-Qantarah", latitude: 35.5080, longitude: 35.7680 },
+      { name: "Al-Salloura", latitude: 35.5120, longitude: 35.7660 },
+      { name: "Al-Saliba", latitude: 35.5150, longitude: 35.7640 },
+      { name: "Al-Samra", latitude: 35.5180, longitude: 35.7620 },
+      { name: "Al-Sanawbar", latitude: 35.5200, longitude: 35.7600 },
+      { name: "Al-Saraya", latitude: 35.5220, longitude: 35.7580 },
+      { name: "Al-Sayyad", latitude: 35.5240, longitude: 35.7560 },
+      { name: "Al-Shahba", latitude: 35.5260, longitude: 35.7540 },
+      { name: "Al-Shallal", latitude: 35.5280, longitude: 35.7520 },
+      
+      // Additional Important Areas
+      { name: "Al-Talaa", latitude: 35.5100, longitude: 35.7750 },
+      { name: "Al-Tal Al-Saghir", latitude: 35.5120, longitude: 35.7720 },
+      { name: "Al-Tal Al-Kabir", latitude: 35.5140, longitude: 35.7700 },
+      { name: "Al-Taqadom", latitude: 35.5160, longitude: 35.7680 },
+      { name: "Al-Tawhid", latitude: 35.5180, longitude: 35.7660 },
+      { name: "Al-Thawra", latitude: 35.5200, longitude: 35.7640 },
+      { name: "Al-Umara", latitude: 35.5220, longitude: 35.7620 },
+      { name: "Al-Wahda Al-Jadida", latitude: 35.5240, longitude: 35.7600 },
+      { name: "Al-Wahda Al-Qadima", latitude: 35.5260, longitude: 35.7580 },
+      { name: "Al-Wahda Al-Shamaliyah", latitude: 35.5280, longitude: 35.7560 },
+      { name: "Al-Wahda Al-Janoubiyah", latitude: 35.5300, longitude: 35.7540 },
+      { name: "Al-Wahda Al-Sharqiyah", latitude: 35.5320, longitude: 35.7520 },
+      { name: "Al-Wahda Al-Gharbiyah", latitude: 35.5340, longitude: 35.7500 }
+    ]
+  },
+  
+  // Hama
+  {
+    name: "Hama",
+    latitude: 35.1333,
+    longitude: 36.7500,
+    neighbors: [
+      { name: "Al-Hamidiyah", latitude: 35.1350, longitude: 36.7510 },
+      { name: "Al-Baath", latitude: 35.1340, longitude: 36.7520 },
+      { name: "Al-Qusour", latitude: 35.1330, longitude: 36.7530 },
+      { name: "Al-Hamraa", latitude: 35.1360, longitude: 36.7500 },
+      { name: "Al-Hamidiyah Roundabout", latitude: 35.1340, longitude: 36.7510 },
+      { name: "Al-Nour", latitude: 35.1350, longitude: 36.7490 },
+      { name: "Al-Andalus", latitude: 35.1370, longitude: 36.7520 },
+      { name: "Al-Nasr", latitude: 35.1380, longitude: 36.7530 },
+      { name: "Al-Wahda", latitude: 35.1360, longitude: 36.7540 },
+      { name: "Al-Saada", latitude: 35.1350, longitude: 36.7550 },
+      { name: "Al-Ghouta", latitude: 35.1370, longitude: 36.7560 },
+      { name: "Al-Mashtal", latitude: 35.1390, longitude: 36.7540 },
+      { name: "Al-Zuhour", latitude: 35.1400, longitude: 36.7530 },
+      { name: "Al-Jalaa", latitude: 35.1380, longitude: 36.7550 },
+      { name: "Al-Mazzeh", latitude: 35.1360, longitude: 36.7570 },
+      { name: "Al-Muhafaza", latitude: 35.1370, longitude: 36.7580 },
+      { name: "Al-Rawda", latitude: 35.1390, longitude: 36.7560 },
+      { name: "Al-Karama", latitude: 35.1400, longitude: 36.7550 },
+      { name: "Al-Ghazal", latitude: 35.1380, longitude: 36.7540 },
+      { name: "Al-Safwa", latitude: 35.1370, longitude: 36.7520 }
+    ]
+  },
+  
+  // Deir ez-Zor
+  {
+    name: "Deir ez-Zor",
+    latitude: 35.3333,
+    longitude: 40.1500,
+    neighbors: [
+      { name: "Al-Joura", latitude: 35.3350, longitude: 40.1520 },
+      { name: "Al-Qusour", latitude: 35.3340, longitude: 40.1530 },
+      { name: "Al-Hamidiyah", latitude: 35.3360, longitude: 40.1540 },
+      { name: "Al-Matar", latitude: 35.3350, longitude: 40.1550 },
+      { name: "Al-Wahda", latitude: 35.3370, longitude: 40.1530 },
+      { name: "Al-Nasr", latitude: 35.3380, longitude: 40.1520 },
+      { name: "Al-Saada", latitude: 35.3360, longitude: 40.1510 },
+      { name: "Al-Andalus", latitude: 35.3350, longitude: 40.1500 },
+      { name: "Al-Nour", latitude: 35.3340, longitude: 40.1490 },
+      { name: "Al-Thawra", latitude: 35.3330, longitude: 40.1480 },
+      { name: "Al-Mashtal", latitude: 35.3350, longitude: 40.1470 },
+      { name: "Al-Zuhour", latitude: 35.3370, longitude: 40.1460 },
+      { name: "Al-Jalaa", latitude: 35.3380, longitude: 40.1450 },
+      { name: "Al-Mazzeh", latitude: 35.3360, longitude: 40.1440 },
+      { name: "Al-Muhafaza", latitude: 35.3350, longitude: 40.1430 },
+      { name: "Al-Rawda", latitude: 35.3340, longitude: 40.1420 },
+      { name: "Al-Karama", latitude: 35.3330, longitude: 40.1410 },
+      { name: "Al-Ghazal", latitude: 35.3350, longitude: 40.1400 },
+      { name: "Al-Safwa", latitude: 35.3370, longitude: 40.1390 },
+      { name: "Al-Nuzha", latitude: 35.3380, longitude: 40.1380 },
+      { name: "Al-Joura Street", latitude: 35.3333, longitude: 40.1500 },
+      { name: "Al-Joura Market", latitude: 35.3333, longitude: 40.1500 },
+      { name: "Al-Joura Mall", latitude: 35.3333, longitude: 40.1500 },
+      { name: "Al-Joura Hospital", latitude: 35.3333, longitude: 40.1500 },
+      { name: "Al-Joura School", latitude: 35.3333, longitude: 40.1500 }
+    ]
+  },
+  
+  // Al-Hasakah
+  {
+    name: "Al-Hasakah",
+    latitude: 36.5000,
+    longitude: 40.7500,
+    neighbors: [
+      { name: "Al-Aziziyah", latitude: 36.5050, longitude: 40.7550 },
+      { name: "Al-Qusour", latitude: 36.5020, longitude: 40.7520 },
+      { name: "Al-Hamidiyah", latitude: 36.4980, longitude: 40.7480 },
+      { name: "Al-Rashidiyah", latitude: 36.5010, longitude: 40.7510 },
+      { name: "Al-Nasr", latitude: 36.5030, longitude: 40.7460 },
+      { name: "Al-Saada", latitude: 36.4990, longitude: 40.7490 },
+      { name: "Al-Andalus", latitude: 36.5040, longitude: 40.7530 },
+      { name: "Al-Nour", latitude: 36.4970, longitude: 40.7470 },
+      { name: "Al-Thawra", latitude: 36.5000, longitude: 40.7500 },
+      { name: "Al-Mazzeh", latitude: 36.5020, longitude: 40.7480 },
+      { name: "Al-Muhafaza", latitude: 36.4980, longitude: 40.7520 },
+      { name: "Al-Rawda", latitude: 36.5010, longitude: 40.7530 },
+      { name: "Al-Qadisiyah", latitude: 36.5030, longitude: 40.7490 },
+      { name: "Al-Karama", latitude: 36.4990, longitude: 40.7510 },
+      { name: "Al-Ghouta", latitude: 36.5020, longitude: 40.7470 },
+      { name: "Al-Zahraa", latitude: 36.4980, longitude: 40.7530 },
+      { name: "Al-Amal", latitude: 36.5010, longitude: 40.7490 },
+      { name: "Al-Safwa", latitude: 36.5030, longitude: 40.7510 },
+      { name: "Al-Fayhaa", latitude: 36.4990, longitude: 40.7520 },
+      { name: "Al-Yarmouk", latitude: 36.5020, longitude: 40.7500 },
+      { name: "Al-Quds", latitude: 36.4980, longitude: 40.7490 },
+      { name: "Al-Majd", latitude: 36.5010, longitude: 40.7530 },
+      { name: "Al-Farah", latitude: 36.5030, longitude: 40.7470 },
+      { name: "Al-Nahda", latitude: 36.4990, longitude: 40.7510 },
+      { name: "Al-Nile", latitude: 36.5020, longitude: 40.7520 },
+      { name: "Al-Watan", latitude: 36.4980, longitude: 40.7480 },
+      { name: "Al-Urouba", latitude: 36.5010, longitude: 40.7500 },
+      { name: "Al-Wafaa", latitude: 36.5030, longitude: 40.7490 },
+      { name: "Al-Salam", latitude: 36.4990, longitude: 40.7530 },
+      { name: "Al-Shuhada", latitude: 36.5020, longitude: 40.7470 }
+    ]
+  },
+  
+  // Daraa
+  {
+    name: "Daraa",
+    latitude: 32.6256,
+    longitude: 36.1050,
+    neighbors: [
+      { name: "Al-Mahatta", latitude: 32.6280, longitude: 36.1080 },
+      { name: "Al-Balad", latitude: 32.6260, longitude: 36.1060 },
+      { name: "Al-Sad Road", latitude: 32.6240, longitude: 36.1040 },
+      { name: "Al-Nasr", latitude: 32.6270, longitude: 36.1050 },
+      { name: "Al-Saada", latitude: 32.6250, longitude: 36.1070 },
+      { name: "Al-Andalus", latitude: 32.6230, longitude: 36.1050 },
+      { name: "Al-Nour", latitude: 32.6260, longitude: 36.1030 },
+      { name: "Al-Thawra", latitude: 32.6240, longitude: 36.1060 },
+      { name: "Al-Mazzeh", latitude: 32.6270, longitude: 36.1040 },
+      { name: "Al-Muhafaza", latitude: 32.6250, longitude: 36.1050 },
+      { name: "Al-Rawda", latitude: 32.6230, longitude: 36.1070 },
+      { name: "Al-Qadisiyah", latitude: 32.6260, longitude: 36.1050 },
+      { name: "Al-Karama", latitude: 32.6240, longitude: 36.1040 },
+      { name: "Al-Ghouta", latitude: 32.6270, longitude: 36.1070 },
+      { name: "Al-Zahraa", latitude: 32.6250, longitude: 36.1030 },
+      { name: "Al-Amal", latitude: 32.6230, longitude: 36.1060 },
+      { name: "Al-Safwa", latitude: 32.6260, longitude: 36.1040 },
+      { name: "Al-Fayhaa", latitude: 32.6240, longitude: 36.1070 },
+      { name: "Al-Yarmouk", latitude: 32.6270, longitude: 36.1050 },
+      { name: "Al-Quds", latitude: 32.6250, longitude: 36.1030 },
+      { name: "Al-Majd", latitude: 32.6230, longitude: 36.1060 },
+      { name: "Al-Farah", latitude: 32.6260, longitude: 36.1040 },
+      { name: "Al-Nahda", latitude: 32.6240, longitude: 36.1070 },
+      { name: "Al-Nile", latitude: 32.6270, longitude: 36.1050 },
+      { name: "Al-Watan", latitude: 32.6250, longitude: 36.1030 },
+      { name: "Al-Urouba", latitude: 32.6230, longitude: 36.1060 },
+      { name: "Al-Wafaa", latitude: 32.6260, longitude: 36.1040 },
+      { name: "Al-Salam", latitude: 32.6240, longitude: 36.1070 },
+      { name: "Al-Shuhada", latitude: 32.6270, longitude: 36.1050 },
+      { name: "Al-Tayaran", latitude: 32.6250, longitude: 36.1030 }
+    ]
+  },
+  
+  // Tartus
+  {
+    name: "Tartus",
+    latitude: 34.8833,
+    longitude: 35.8833,
+    neighbors: [
+      { name: "Al-Mina", latitude: 34.8850, longitude: 35.8850 },
+      { name: "Al-Qusour", latitude: 34.8820, longitude: 35.8820 },
+      { name: "Al-Hamidiyah", latitude: 34.8810, longitude: 35.8810 },
+      { name: "Al-Raml", latitude: 34.8840, longitude: 35.8840 },
+      { name: "Al-Nasr", latitude: 34.8830, longitude: 35.8830 },
+      { name: "Al-Saada", latitude: 34.8850, longitude: 35.8820 },
+      { name: "Al-Andalus", latitude: 34.8830, longitude: 35.8850 },
+      { name: "Al-Nour", latitude: 34.8820, longitude: 35.8840 },
+      { name: "Al-Thawra", latitude: 34.8840, longitude: 35.8830 },
+      { name: "Al-Mazzeh", latitude: 34.8830, longitude: 35.8820 },
+      { name: "Al-Muhafaza", latitude: 34.8850, longitude: 35.8810 },
+      { name: "Al-Rawda", latitude: 34.8820, longitude: 35.8850 },
+      { name: "Al-Qadisiyah", latitude: 34.8840, longitude: 35.8820 },
+      { name: "Al-Karama", latitude: 34.8830, longitude: 35.8840 },
+      { name: "Al-Ghouta", latitude: 34.8850, longitude: 35.8830 },
+      { name: "Al-Zahraa", latitude: 34.8820, longitude: 35.8820 },
+      { name: "Al-Amal", latitude: 34.8840, longitude: 35.8810 },
+      { name: "Al-Safwa", latitude: 34.8830, longitude: 35.8850 },
+      { name: "Al-Fayhaa", latitude: 34.8850, longitude: 35.8820 },
+      { name: "Al-Yarmouk", latitude: 34.8820, longitude: 35.8840 },
+      { name: "Al-Quds", latitude: 34.8840, longitude: 35.8830 },
+      { name: "Al-Majd", latitude: 34.8830, longitude: 35.8820 },
+      { name: "Al-Farah", latitude: 34.8850, longitude: 35.8810 },
+      { name: "Al-Nahda", latitude: 34.8820, longitude: 35.8850 },
+      { name: "Al-Nile", latitude: 34.8840, longitude: 35.8820 },
+      { name: "Al-Watan", latitude: 34.8830, longitude: 35.8840 },
+      { name: "Al-Urouba", latitude: 34.8850, longitude: 35.8830 },
+      { name: "Al-Wafaa", latitude: 34.8820, longitude: 35.8820 },
+      { name: "Al-Salam", latitude: 34.8840, longitude: 35.8810 },
+      { name: "Al-Shuhada", latitude: 34.8830, longitude: 35.8850 }
+    ]
+  },
+  
+  // Idlib
+  {
+    name: "Idlib",
+    latitude: 35.9333,
+    longitude: 36.6333,
+    neighbors: [
+      { name: "Al-Qusour", latitude: 35.9350, longitude: 36.6350 },
+      { name: "Al-Hamidiyah", latitude: 35.9320, longitude: 36.6320 },
+      { name: "Al-Rashidiyah", latitude: 35.9340, longitude: 36.6310 },
+      { name: "Al-Nasr", latitude: 35.9330, longitude: 36.6340 },
+      { name: "Al-Saada", latitude: 35.9310, longitude: 36.6330 },
+      { name: "Al-Andalus", latitude: 35.9350, longitude: 36.6320 },
+      { name: "Al-Nour", latitude: 35.9320, longitude: 36.6340 },
+      { name: "Al-Thawra", latitude: 35.9340, longitude: 36.6330 },
+      { name: "Al-Mazzeh", latitude: 35.9330, longitude: 36.6310 },
+      { name: "Al-Muhafaza", latitude: 35.9310, longitude: 36.6350 },
+      { name: "Al-Rawda", latitude: 35.9350, longitude: 36.6320 },
+      { name: "Al-Qadisiyah", latitude: 35.9320, longitude: 36.6340 },
+      { name: "Al-Karama", latitude: 35.9340, longitude: 36.6330 },
+      { name: "Al-Ghouta", latitude: 35.9330, longitude: 36.6310 },
+      { name: "Al-Zahraa", latitude: 35.9310, longitude: 36.6350 },
+      { name: "Al-Amal", latitude: 35.9350, longitude: 36.6320 },
+      { name: "Al-Safwa", latitude: 35.9320, longitude: 36.6340 },
+      { name: "Al-Fayhaa", latitude: 35.9340, longitude: 36.6330 },
+      { name: "Al-Yarmouk", latitude: 35.9330, longitude: 36.6310 },
+      { name: "Al-Quds", latitude: 35.9310, longitude: 36.6350 },
+      { name: "Al-Majd", latitude: 35.9350, longitude: 36.6320 },
+      { name: "Al-Farah", latitude: 35.9320, longitude: 36.6340 },
+      { name: "Al-Nahda", latitude: 35.9340, longitude: 36.6330 },
+      { name: "Al-Nile", latitude: 35.9330, longitude: 36.6310 },
+      { name: "Al-Watan", latitude: 35.9310, longitude: 36.6350 },
+      { name: "Al-Urouba", latitude: 35.9350, longitude: 36.6320 },
+      { name: "Al-Wafaa", latitude: 35.9320, longitude: 36.6340 },
+      { name: "Al-Salam", latitude: 35.9340, longitude: 36.6330 },
+      { name: "Al-Shuhada", latitude: 35.9330, longitude: 36.6310 }
+    ]
+  },
+  
+  // Raqqa
+  {
+    name: "Raqqa",
+    latitude: 35.9500,
+    longitude: 39.0167,
+    neighbors: [
+      { name: "Al-Mashlab", latitude: 35.9600, longitude: 39.0200 },
+      { name: "Al-Rumaila", latitude: 35.9500, longitude: 39.0100 },
+      { name: "Al-Sinaa", latitude: 35.9550, longitude: 39.0250 },
+      { name: "Al-Bareed", latitude: 35.9450, longitude: 39.0150 },
+      { name: "Al-Nahda", latitude: 35.9550, longitude: 39.0050 },
+      { name: "Al-Qadisiyah", latitude: 35.9500, longitude: 39.0300 },
+      { name: "Al-Mansoura", latitude: 35.9650, longitude: 38.9950 },
+      { name: "Al-Hamidiyah", latitude: 35.9400, longitude: 39.0200 },
+      { name: "Al-Thawra", latitude: 35.9600, longitude: 39.0000 },
+      { name: "Al-Matar", latitude: 35.9350, longitude: 39.0100 },
+      { name: "Al-Nasr", latitude: 35.9520, longitude: 39.0150 },
+      { name: "Al-Saada", latitude: 35.9480, longitude: 39.0250 },
+      { name: "Al-Andalus", latitude: 35.9550, longitude: 39.0180 },
+      { name: "Al-Nour", latitude: 35.9450, longitude: 39.0120 },
+      { name: "Al-Mazzeh", latitude: 35.9580, longitude: 39.0220 },
+      { name: "Al-Muhafaza", latitude: 35.9530, longitude: 39.0080 },
+      { name: "Al-Wahda", latitude: 35.9470, longitude: 39.0160 },
+      { name: "Al-Rawda", latitude: 35.9570, longitude: 39.0140 },
+      { name: "Al-Quds", latitude: 35.9460, longitude: 39.0220 },
+      { name: "Al-Karama", latitude: 35.9540, longitude: 39.0260 },
+      { name: "Al-Ghouta", latitude: 35.9490, longitude: 39.0130 },
+      { name: "Al-Zahraa", latitude: 35.9560, longitude: 39.0190 },
+      { name: "Al-Amal", latitude: 35.9440, longitude: 39.0240 },
+      { name: "Al-Safwa", latitude: 35.9510, longitude: 39.0170 },
+      { name: "Al-Fayhaa", latitude: 35.9430, longitude: 39.0180 },
+      { name: "Al-Yarmouk", latitude: 35.9570, longitude: 39.0210 },
+      { name: "Al-Majd", latitude: 35.9480, longitude: 39.0230 },
+      { name: "Al-Farah", latitude: 35.9550, longitude: 39.0110 },
+      { name: "Al-Nile", latitude: 35.9450, longitude: 39.0190 },
+      { name: "Al-Watan", latitude: 35.9530, longitude: 39.0200 }
+    ]
+  },
+  
+  // Qamishli
+  {
+    name: "Qamishli",
+    latitude: 37.0500,
+    longitude: 41.2167,
+    neighbors: [
+      { name: "Al-Antariyah", latitude: 37.0550, longitude: 41.2200 },
+      { name: "Al-Qusour", latitude: 37.0450, longitude: 41.2150 },
+      { name: "Al-Wahda", latitude: 37.0500, longitude: 41.2100 },
+      { name: "Al-Ghazal", latitude: 37.0480, longitude: 41.2250 },
+      { name: "Al-Nasr", latitude: 37.0520, longitude: 41.2050 },
+      { name: "Al-Sinaa", latitude: 37.0550, longitude: 41.2000 },
+      { name: "Al-Matar", latitude: 37.0400, longitude: 41.2200 },
+      { name: "Al-Karnak", latitude: 37.0450, longitude: 41.2300 },
+      { name: "Al-Baath", latitude: 37.0500, longitude: 41.2400 },
+      { name: "Al-Wurud", latitude: 37.0600, longitude: 41.2150 },
+      { name: "Al-Saada", latitude: 37.0470, longitude: 41.2180 },
+      { name: "Al-Andalus", latitude: 37.0530, longitude: 41.2220 },
+      { name: "Al-Nour", latitude: 37.0490, longitude: 41.2140 },
+      { name: "Al-Thawra", latitude: 37.0510, longitude: 41.2170 },
+      { name: "Al-Mazzeh", latitude: 37.0560, longitude: 41.2190 },
+      { name: "Al-Muhafaza", latitude: 37.0480, longitude: 41.2130 },
+      { name: "Al-Rawda", latitude: 37.0520, longitude: 41.2210 },
+      { name: "Al-Quds", latitude: 37.0540, longitude: 41.2160 },
+      { name: "Al-Karama", latitude: 37.0490, longitude: 41.2190 },
+      { name: "Al-Ghouta", latitude: 37.0510, longitude: 41.2230 },
+      { name: "Al-Zahraa", latitude: 37.0530, longitude: 41.2150 },
+      { name: "Al-Amal", latitude: 37.0470, longitude: 41.2200 },
+      { name: "Al-Safwa", latitude: 37.0520, longitude: 41.2180 },
+      { name: "Al-Fayhaa", latitude: 37.0540, longitude: 41.2140 },
+      { name: "Al-Yarmouk", latitude: 37.0490, longitude: 41.2170 },
+      { name: "Al-Majd", latitude: 37.0510, longitude: 41.2210 },
+      { name: "Al-Farah", latitude: 37.0550, longitude: 41.2130 },
+      { name: "Al-Nahda", latitude: 37.0500, longitude: 41.2190 },
+      { name: "Al-Nile", latitude: 37.0480, longitude: 41.2160 },
+      { name: "Al-Watan", latitude: 37.0520, longitude: 41.2220 }
+    ]
+  },
+  
+  // As-Suwayda
+  {
+    name: "As-Suwayda",
+    latitude: 32.7000,
+    longitude: 36.5667,
+    neighbors: [
+      { name: "Al-Thawra", latitude: 32.7050, longitude: 36.5700 },
+      { name: "Al-Wahda", latitude: 32.7000, longitude: 36.5600 },
+      { name: "Al-Mashtal", latitude: 32.6950, longitude: 36.5650 },
+      { name: "Al-Qusour", latitude: 32.7050, longitude: 36.5500 },
+      { name: "Al-Rawda", latitude: 32.6950, longitude: 36.5550 },
+      { name: "Al-Jalaa", latitude: 32.7000, longitude: 36.5750 },
+      { name: "Al-Matar", latitude: 32.6900, longitude: 36.5650 },
+      { name: "Al-Sinaa", latitude: 32.7000, longitude: 36.5800 },
+      { name: "Al-Baladiyah", latitude: 32.6950, longitude: 36.5750 },
+      { name: "Al-Nuzha", latitude: 32.7050, longitude: 36.5800 },
+      { name: "Al-Nasr", latitude: 32.7020, longitude: 36.5680 },
+      { name: "Al-Saada", latitude: 32.6980, longitude: 36.5620 },
+      { name: "Al-Andalus", latitude: 32.7040, longitude: 36.5660 },
+      { name: "Al-Nour", latitude: 32.6960, longitude: 36.5690 },
+      { name: "Al-Mazzeh", latitude: 32.7010, longitude: 36.5730 },
+      { name: "Al-Muhafaza", latitude: 32.6970, longitude: 36.5640 },
+      { name: "Al-Quds", latitude: 32.7030, longitude: 36.5720 },
+      { name: "Al-Karama", latitude: 32.6990, longitude: 36.5670 },
+      { name: "Al-Ghouta", latitude: 32.7050, longitude: 36.5690 },
+      { name: "Al-Zahraa", latitude: 32.6980, longitude: 36.5710 },
+      { name: "Al-Amal", latitude: 32.7020, longitude: 36.5650 },
+      { name: "Al-Safwa", latitude: 32.6970, longitude: 36.5730 },
+      { name: "Al-Fayhaa", latitude: 32.7030, longitude: 36.5670 },
+      { name: "Al-Yarmouk", latitude: 32.6990, longitude: 36.5700 },
+      { name: "Al-Majd", latitude: 32.7040, longitude: 36.5710 },
+      { name: "Al-Farah", latitude: 32.6980, longitude: 36.5690 },
+      { name: "Al-Nahda", latitude: 32.7020, longitude: 36.5720 },
+      { name: "Al-Nile", latitude: 32.6970, longitude: 36.5660 },
+      { name: "Al-Watan", latitude: 32.7010, longitude: 36.5700 },
+      { name: "Al-Urouba", latitude: 32.6960, longitude: 36.5680 }
+    ]
+  },
+  
+  // Al-Bab
+  {
+    name: "Al-Bab",
+    latitude: 36.3722,
+    longitude: 37.5178,
+    neighbors: [
+      { name: "Al-Qusour", latitude: 36.3700, longitude: 37.5200 },
+      { name: "Al-Mashhad", latitude: 36.3750, longitude: 37.5250 },
+      { name: "Al-Hamidiyah", latitude: 36.3700, longitude: 37.5150 },
+      { name: "Al-Nour", latitude: 36.3680, longitude: 37.5180 },
+      { name: "Al-Sinaa", latitude: 36.3720, longitude: 37.5220 },
+      { name: "Al-Qadisiyah", latitude: 36.3740, longitude: 37.5160 },
+      { name: "Al-Matar", latitude: 36.3700, longitude: 37.5100 },
+      { name: "Al-Nahda", latitude: 36.3750, longitude: 37.5150 },
+      { name: "Al-Muhafaza", latitude: 36.3730, longitude: 37.5200 },
+      { name: "Al-Andalus", latitude: 36.3710, longitude: 37.5220 }
+    ]
+  },
+  
+  // Manbij
+  {
+    name: "Manbij",
+    latitude: 36.5333,
+    longitude: 37.9500,
+    neighbors: [
+      { name: "Al-Qusour", latitude: 36.5350, longitude: 37.9550 },
+      { name: "Al-Sinaa", latitude: 36.5300, longitude: 37.9450 },
+      { name: "Al-Thawra", latitude: 36.5330, longitude: 37.9600 },
+      { name: "Al-Matar", latitude: 36.5300, longitude: 37.9500 },
+      { name: "Al-Nour", latitude: 36.5350, longitude: 37.9450 },
+      { name: "Al-Qadisiyah", latitude: 36.5300, longitude: 37.9550 },
+      { name: "Al-Wahda", latitude: 36.5350, longitude: 37.9500 },
+      { name: "Al-Saada", latitude: 36.5330, longitude: 37.9450 },
+      { name: "Al-Andalus", latitude: 36.5320, longitude: 37.9600 },
+      { name: "Al-Muhafaza", latitude: 36.5340, longitude: 37.9550 },
+      { name: "Al-Mashtal", latitude: 36.5340, longitude: 37.9540 },
+      { name: "Al-Zuhour", latitude: 36.5310, longitude: 37.9530 },
+      { name: "Al-Jalaa", latitude: 36.5330, longitude: 37.9520 },
+      { name: "Al-Mazzeh", latitude: 36.5350, longitude: 37.9510 },
+      { name: "Al-Rawda", latitude: 36.5300, longitude: 37.9540 },
+      { name: "Al-Karama", latitude: 36.5320, longitude: 37.9530 },
+      { name: "Al-Ghouta", latitude: 36.5340, longitude: 37.9520 },
+      { name: "Al-Hamidiyah", latitude: 36.5310, longitude: 37.9510 },
+      { name: "Al-Nasr", latitude: 36.5325, longitude: 37.9540 },
+      { name: "Al-Baath", latitude: 36.5315, longitude: 37.9520 },
+      { name: "Al-Safwa", latitude: 36.5335, longitude: 37.9530 },
+      { name: "Al-Zahraa", latitude: 36.5305, longitude: 37.9515 },
+      { name: "Al-Amal", latitude: 36.5325, longitude: 37.9505 },
+      { name: "Al-Fayhaa", latitude: 36.5305, longitude: 37.9525 },
+      { name: "Al-Yarmouk", latitude: 36.5335, longitude: 37.9515 },
+      { name: "Al-Quds", latitude: 36.5315, longitude: 37.9535 },
+      { name: "Al-Majd", latitude: 36.5325, longitude: 37.9545 },
+      { name: "Al-Farah", latitude: 36.5305, longitude: 37.9555 },
+      { name: "Al-Nahda", latitude: 36.5335, longitude: 37.9565 },
+      { name: "Al-Nile", latitude: 36.5315, longitude: 37.9575 },
+      { name: "Al-Watan", latitude: 36.5345, longitude: 37.9585 },
+      { name: "Al-Baath", latitude: 36.5330, longitude: 37.9500 },
+      { name: "Al-Mahata", latitude: 36.5350, longitude: 37.9490 }
+    ]
+  },
+  
+  // Afrin
+  {
+    name: "Afrin",
+    latitude: 36.5119,
+    longitude: 36.8694,
+    neighbors: [
+      { name: "Basuta", latitude: 36.52, longitude: 36.87 },
+      { name: "Inab", latitude: 36.50, longitude: 36.88 },
+      { name: "Ain Dara", latitude: 36.52, longitude: 36.85 },
+      { name: "Maryamin", latitude: 36.51, longitude: 36.87 },
+      { name: "Ibbin", latitude: 36.51, longitude: 36.86 },
+      { name: "Maaratah", latitude: 36.50, longitude: 36.84 },
+      { name: "Kafar Zeed", latitude: 36.50, longitude: 36.88 },
+      { name: "Ziyarah", latitude: 36.52, longitude: 36.88 },
+      { name: "Kimar", latitude: 36.53, longitude: 36.87 },
+      { name: "Kabashin", latitude: 36.52, longitude: 36.89 },
+      { name: "Jalbul", latitude: 36.53, longitude: 36.86 },
+      { name: "Qibar", latitude: 36.50, longitude: 36.90 },
+      { name: "Kafr Safra", latitude: 36.49, longitude: 36.87 },
+      { name: "Maratah", latitude: 36.53, longitude: 36.85 },
+      { name: "Qatma", latitude: 36.54, longitude: 36.88 },
+      { name: "Kafr Naya", latitude: 36.49, longitude: 36.86 },
+      { name: "Sharan", latitude: 36.52, longitude: 36.91 },
+      { name: "Qazahil", latitude: 36.54, longitude: 36.87 },
+      { name: "Qarah Mazar", latitude: 36.50, longitude: 36.83 },
+      { name: "Kafr Naseh", latitude: 36.48, longitude: 36.88 }
+    ]
+  },
+  
+  // Rajo
+  {
+    name: "Rajo",
+    latitude: 36.6667,
+    longitude: 36.6667,
+    neighbors: [
+      { name: "Sorkê", latitude: 36.63, longitude: 36.60 },
+      { name: "Bulbul", latitude: 36.60, longitude: 36.80 },
+      { name: "Maabatli", latitude: 36.64, longitude: 36.76 },
+      { name: "Sharran", latitude: 36.67, longitude: 36.85 },
+      { name: "Jindires", latitude: 36.72, longitude: 36.78 },
+      { name: "Shaykh al-Hadid", latitude: 36.65, longitude: 36.84 },
+      { name: "Kafr Safra", latitude: 36.68, longitude: 36.82 },
+      { name: "Kafr Safra East", latitude: 36.67, longitude: 36.83 },
+      { name: "Arab Qawzaq", latitude: 36.66, longitude: 36.81 },
+      { name: "Mankal", latitude: 36.65, longitude: 36.79 },
+      { name: "Khanasir", latitude: 36.68, longitude: 36.70 },
+      { name: "Qarah Qawzaq", latitude: 36.64, longitude: 36.82 },
+      { name: "Qarah Mazar", latitude: 36.62, longitude: 36.78 },
+      { name: "Qastal Miqdad", latitude: 36.66, longitude: 36.68 },
+      { name: "Qastal Jando", latitude: 36.63, longitude: 36.72 },
+      { name: "Qarqafin", latitude: 36.61, longitude: 36.75 },
+      { name: "Qarqafin al-Jadidah", latitude: 36.62, longitude: 36.76 },
+      { name: "Qarqafin al-Qadimah", latitude: 36.60, longitude: 36.74 },
+      { name: "Qarqafin al-Wusta", latitude: 36.61, longitude: 36.75 },
+      { name: "Qarqafin al-Sharqiyah", latitude: 36.62, longitude: 36.76 }
+    ]
+  },
+  
+  // Nubl
+  {
+    name: "Nubl",
+    latitude: 36.3786,
+    longitude: 37.0008,
+    neighbors: [
+      { name: "Al-Zahraa", latitude: 36.370, longitude: 36.995 },
+      { name: "Mayer", latitude: 36.385, longitude: 37.015 },
+      { name: "Bayanoun", latitude: 36.365, longitude: 36.980 },
+      { name: "Ratyan", latitude: 36.403, longitude: 36.971 },
+      { name: "Kafin", latitude: 36.390, longitude: 36.980 },
+      { name: "Hardatnin", latitude: 36.375, longitude: 36.990 },
+      { name: "Zuq al-Kabir", latitude: 36.380, longitude: 36.970 },
+      { name: "Maarset Elkhan", latitude: 36.360, longitude: 36.940 },
+      { name: "Burj Elqas", latitude: 36.350, longitude: 36.960 },
+      { name: "Bashmra", latitude: 36.370, longitude: 36.970 },
+      { name: "Kafr Hamra", latitude: 36.365, longitude: 36.985 },
+      { name: "Anadan", latitude: 36.375, longitude: 37.015 },
+      { name: "Hreitan", latitude: 36.360, longitude: 36.995 },
+      { name: "Hayyan", latitude: 36.350, longitude: 37.010 },
+      { name: "Kafr Naha", latitude: 36.365, longitude: 36.975 },
+      { name: "Kafr Naseh", latitude: 36.355, longitude: 36.965 },
+      { name: "Kafr Hamam", latitude: 36.370, longitude: 36.965 },
+      { name: "Kafr Karmin", latitude: 36.375, longitude: 36.960 },
+      { name: "Kafr Nabil", latitude: 36.365, longitude: 36.970 },
+      { name: "Kafr Sijna", latitude: 36.360, longitude: 36.980 }
+    ]
   }
-  
-  export const syrianCities: CityInfo[] = [
-    {
-      name: "Damascus",
-      latitude: 33.5131,
-      longitude: 36.2913,
-      neighbors: [
-        {
-          name: "Al-Midan",
-          latitude: 33.5111,
-          longitude: 36.2994
-        },
-        {
-          name: "Al-Mazzeh",
-          latitude: 33.5231,
-          longitude: 36.2731
-        },
-        {
-          name: "Al-Qadam",
-          latitude: 33.5078,
-          longitude: 36.2711
-        },
-        {
-          name: "Barzeh",
-          latitude: 33.5400,
-          longitude: 36.3100
-        },
-        {
-          name: "Jaramana",
-          latitude: 33.5000,
-          longitude: 36.3300
-        },
-        {
-          name: "Douma",
-          latitude: 33.5833,
-          longitude: 36.4167
-        },
-        {
-          name: "Darayya",
-          latitude: 33.4833,
-          longitude: 36.2833
-        },
-        {
-          name: "Moadamiyah",
-          latitude: 33.5000,
-          longitude: 36.2500
-        },
-        {
-          name: "Al-Hajar al-Aswad",
-          latitude: 33.5000,
-          longitude: 36.3000
-        },
-        {
-          name: "Al-Tal",
-          latitude: 33.6000,
-          longitude: 36.3000
-        },
-        {
-          name: "Al-Hameh",
-          latitude: 33.5500,
-          longitude: 36.3500
-        },
-        {
-          name: "Al-Saboura",
-          latitude: 33.5200,
-          longitude: 36.3200
-        },
-        {
-          name: "Al-Muhajireen",
-          latitude: 33.5300,
-          longitude: 36.3100
-        },
-        {
-          name: "Al-Kiswah",
-          latitude: 33.4833,
-          longitude: 36.3333
-        },
-        {
-          name: "Al-Tadamon",
-          latitude: 33.5000,
-          longitude: 36.3100
-        },
-        {
-          name: "Al-Yarmouk",
-          latitude: 33.5000,
-          longitude: 36.3200
-        },
-        {
-          name: "Al-Harasta",
-          latitude: 33.5833,
-          longitude: 36.4000
-        },
-        {
-          name: "Al-Qaboun",
-          latitude: 33.5500,
-          longitude: 36.3500
-        },
-        {
-          name: "Al-Shaafiyeh",
-          latitude: 33.5000,
-          longitude: 36.2800
-        },
-        {
-          name: "Al-Jisreen",
-          latitude: 33.5000,
-          longitude: 36.4000
-        },
-        {
-          name: "Al-Nabek",
-          latitude: 33.7500,
-          longitude: 36.5000
-        },
-        {
-          name: "Al-Safira",
-          latitude: 33.6000,
-          longitude: 36.4000
-        }
-      ]
-    },
-    {
-      name: "Aleppo",
-      latitude: 36.2018,
-      longitude: 37.1556,
-      neighbors: [
-        {
-          name: "Sheikh Najjar",
-          latitude: 36.2567,
-          longitude: 37.1833
-        },
-        {
-          name: "Sheikh Maqsud",
-          latitude: 36.2389,
-          longitude: 37.1467
-        },
-        {
-          name: "Jandoul",
-          latitude: 36.2189,
-          longitude: 37.1717
-        },
-        {
-          name: "Afrin",
-          latitude: 36.5333,
-          longitude: 36.9167
-        },
-        {
-          name: "Azaz",
-          latitude: 36.4833,
-          longitude: 37.2167
-        },
-        {
-          name: "Jarabulus",
-          latitude: 36.5833,
-          longitude: 37.3667
-        },
-        {
-          name: "Manbij",
-          latitude: 36.4000,
-          longitude: 37.5000
-        },
-        {
-          name: "Al-Bab",
-          latitude: 36.3000,
-          longitude: 37.3000
-        },
-        {
-          name: "Ayn al-Arab (Kobane)",
-          latitude: 36.6000,
-          longitude: 37.8000
-        },
-        {
-          name: "Tall Rifat",
-          latitude: 36.3333,
-          longitude: 37.0667
-        },
-        {
-          name: "Nubl",
-          latitude: 36.2400,
-          longitude: 37.1200
-        },
-        {
-          name: "Zahraa",
-          latitude: 36.2400,
-          longitude: 37.1300
-        },
-        {
-          name: "Anadan",
-          latitude: 36.2400,
-          longitude: 37.1600
-        },
-        {
-          name: "Atarib",
-          latitude: 36.2800,
-          longitude: 37.1800
-        },
-        {
-          name: "Khan al-Assal",
-          latitude: 36.2500,
-          longitude: 37.1300
-        },
-        {
-          name: "Darat Izza",
-          latitude: 36.2800,
-          longitude: 37.1500
-        },
-        {
-          name: "Kafr Hamra",
-          latitude: 36.3000,
-          longitude: 37.1100
-        },
-        {
-          name: "Tel Rifaat",
-          latitude: 36.3333,
-          longitude: 37.0667
-        },
-        {
-          name: "Bab al-Hawa",
-          latitude: 36.3500,
-          longitude: 36.9500
-        },
-        {
-          name: "A'zaz",
-          latitude: 36.4833,
-          longitude: 37.2167
-        },
-        {
-          name: "Mare'",
-          latitude: 36.4500,
-          longitude: 37.2500
-        },
-        {
-          name: "Bab al-Salameh",
-          latitude: 36.4333,
-          longitude: 37.2333
-        },
-        {
-          name: "Khan Touman",
-          latitude: 36.2833,
-          longitude: 37.1333
-        },
-        {
-          name: "Daret Azza",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Kafar Naya",
-          latitude: 36.2333,
-          longitude: 37.1333
-        },
-        {
-          name: "Al-Maghara",
-          latitude: 36.2200,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Ma'ara",
-          latitude: 36.2500,
-          longitude: 37.0833
-        },
-        {
-          name: "Al-Bab",
-          latitude: 36.3000,
-          longitude: 37.3000
-        },
-        {
-          name: "Al-Rai",
-          latitude: 36.4833,
-          longitude: 37.2667
-        },
-        {
-          name: "Al-Bab al-Gharbi",
-          latitude: 36.2833,
-          longitude: 37.1333
-        },
-        {
-          name: "Al-Bab al-Sharqi",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Bab al-Jadid",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Bab al-Qadim",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Bab al-Arabi",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Bab al-Turki",
-          latitude: 36.2833,
-          longitude: 37.1500
-        },
-        {
-          name: "Al-Bab al-Rum",
-          latitude: 36.2833,
-          longitude: 37.1500
-        }
-      ]
-    },
-    {
-      name: "Homs",
-      latitude: 34.7333,
-      longitude: 36.7067,
-      neighbors: [
-        {
-          name: "Khalidiya",
-      latitude: 34.7289,
-      longitude: 36.7189
-    },
-    {
-      name: "Al-Waar",
-      latitude: 34.7417,
-      longitude: 36.7217
-    },
-    {
-      name: "Al-Hamidiya",
-      latitude: 34.7389,
-      longitude: 36.7089
-    },
-    {
-      name: "Baba Amr",
-      latitude: 34.7150,
-      longitude: 36.6847
-    },
-    {
-      name: "Inshaat",
-      latitude: 34.7433,
-      longitude: 36.6978
-    },
-    {
-      name: "Al-Bayada",
-      latitude: 34.7569,
-      longitude: 36.7381
-    },
-    {
-      name: "Karm al-Zeitoun",
-      latitude: 34.7283,
-      longitude: 36.7269
-    },
-    {
-      name: "Al-Rastan",
-      latitude: 34.9231,
-      longitude: 36.7327
-    },
-    {
-      name: "Talbiseh",
-      latitude: 34.8403,
-      longitude: 36.7306
-    },
-    {
-      name: "Al-Qusayr",
-      latitude: 34.5094,
-      longitude: 36.5797
-    },
-    {
-      name: "Fairouzeh",
-      latitude: 34.6667,
-      longitude: 36.7833
-    },
-    {
-      name: "Shin",
-      latitude: 34.8333,
-      longitude: 36.4833
-        }
-      ]
-    },
-    {
-      name: "Hama",
-      latitude: 35.1333,
-      longitude: 36.7333,
-      neighbors: [
-        {
-          name: "Mhardeh",
-      latitude: 35.1000,
-      longitude: 36.8000
-    },
-    {
-      name: "Kafr Zita",
-      latitude: 35.1667,
-      longitude: 36.8333
-    },
-    {
-      name: "Al-Salamiyah",
-      latitude: 35.2500,
-      longitude: 37.3333
-    },
-    {
-      name: "Al-Lataminah",
-      latitude: 35.2686,
-      longitude: 36.6103
-    },
-    {
-      name: "Suran",
-      latitude: 35.2872,
-      longitude: 36.7486
-    },
-    {
-      name: "Tayyibat al-Imam",
-      latitude: 35.2731,
-      longitude: 36.7303
-    },
-    {
-      name: "Karnaz",
-      latitude: 35.2611,
-      longitude: 36.5231
-    },
-    {
-      name: "Qalaat al-Madiq",
-      latitude: 35.4075,
-      longitude: 36.3883
-    },
-    {
-      name: "As-Suqaylabiyah",
-      latitude: 35.3689,
-      longitude: 36.3911
-    },
-    {
-      name: "Al-Hamraa",
-      latitude: 35.3333,
-      longitude: 37.0167
-        }
-      ]
-    },
-    {
-      name: "Latakia",
-      latitude: 35.5167,
-      longitude: 35.7867,
-      neighbors: [
-        {
-          name: "Sabe Bahrat",
-          latitude: 35.5289,
-          longitude: 35.7989
-        },
-        {
-          name: "Al-Noor",
-          latitude: 35.5189,
-          longitude: 35.7789
-        },
-        {
-          name: "Al-Jabal",
-          latitude: 35.5389,
-          longitude: 35.7889
-        },
-        {
-          name: "Al-Ziraa",
-          latitude: 35.5215,
-          longitude: 35.8003
-        },
-        {
-          name: "Al-Qanun",
-          latitude: 35.5119,
-          longitude: 35.7796
-        },
-        {
-          name: "Tishreen University Area",
-          latitude: 35.5091,
-          longitude: 35.7935
-        },
-        {
-          name: "Al-Ramel Al-Janoubi",
-          latitude: 35.4921,
-          longitude: 35.7924
-        },
-        {
-          name: "Al-Ramel Al-Shamali",
-          latitude: 35.5352,
-          longitude: 35.7911
-        },
-        {
-          name: "Ain Al-Bayda",
-          latitude: 35.6270,
-          longitude: 35.8350
-        },
-        {
-          name: "Qardaha",
-          latitude: 35.5881,
-          longitude: 36.0400
-        },
-        {
-          name: "Jableh",
-          latitude: 35.3625,
-          longitude: 35.9275
-        }
-      ]
-    },
-    {
-      name: "Idlib",
-  latitude: 35.9306,
-  longitude: 36.6339,
-  neighbors: [
-    {
-      name: "Maarat al-Numan",
-      latitude: 35.6422,
-      longitude: 36.6713
-    },
-    {
-      name: "Saraqib",
-      latitude: 35.8641,
-      longitude: 36.8056
-    },
-    {
-      name: "Ariha",
-      latitude: 35.8131,
-      longitude: 36.6072
-    },
-    {
-      name: "Binnish",
-      latitude: 35.9581,
-      longitude: 36.7133
-    },
-    {
-      name: "Sarmin",
-      latitude: 35.9022,
-      longitude: 36.8222
-    },
-    {
-      name: "Taftanaz",
-      latitude: 36.1000,
-      longitude: 36.7856
-    },
-    {
-      name: "Kafr Nabl",
-      latitude: 35.6122,
-      longitude: 36.5675
-    },
-    {
-      name: "Harem",
-      latitude: 36.2111,
-      longitude: 36.5189
-    },
-    {
-      name: "Jisr al-Shughur",
-      latitude: 35.8147,
-      longitude: 36.3208
-    },
-    {
-      name: "Kafr Takharim",
-      latitude: 36.1203,
-      longitude: 36.5133
-        }
-      ]
-    },
-    {
-      name: "Deir ez-Zor",
-  latitude: 35.3667,
-  longitude: 40.1833,
-  neighbors: [
-    {
-      name: "Al-Jafra",
-      latitude: 35.3833,
-      longitude: 40.2000
-    },
-   
-    {
-      name: "Al-Mayadin",
-      latitude: 35.2000,
-      longitude: 40.7500
-    },
-    {
-      name: "Hatla",
-      latitude: 35.3586,
-      longitude: 40.2411
-    },
-    {
-      name: "Al-Husayniyah",
-      latitude: 35.4000,
-      longitude: 40.2167
-    },
-    {
-      name: "Al-Muray'iyah",
-      latitude: 35.3194,
-      longitude: 40.2333
-    },
-    {
-      name: "Al-Shuhayl",
-      latitude: 35.2500,
-      longitude: 40.4500
-    },
-    {
-      name: "Tabiya",
-      latitude: 35.3089,
-      longitude: 40.3328
-    },
-    {
-      name: "Diban",
-      latitude: 35.2333,
-      longitude: 40.5333
-    },
-    {
-      name: "Tayyana",
-      latitude: 35.2850,
-      longitude: 40.4500
-        }
-      ]
-    },
-    {
-      name: "Daraa",
-      latitude: 32.6231,
-      longitude: 36.0528,
-      neighbors: [
-        {
-          name: "Al-Mansoura",
-      latitude: 32.6500,
-      longitude: 36.0833
-    },
-    {
-      name: "Al-Sanamayn",
-      latitude: 32.7500,
-      longitude: 36.1500
-    },
-    {
-      name: "Al-Naima",
-      latitude: 32.5833,
-      longitude: 36.0833
-    },
-    {
-      name: "Tafas",
-      latitude: 32.7372,
-      longitude: 36.0669
-    },
-    {
-      name: "Busra al-Sham",
-      latitude: 32.5167,
-      longitude: 36.4833
-    },
-    {
-      name: "Jasim",
-      latitude: 32.9900,
-      longitude: 36.0500
-    },
-    {
-      name: "Inkhil",
-      latitude: 33.0186,
-      longitude: 36.1289
-    },
-    {
-      name: "Dael",
-      latitude: 32.8519,
-      longitude: 36.0342
-    },
-    {
-      name: "Nawa",
-      latitude: 32.8911,
-      longitude: 36.0408
-    },
-    {
-      name: "Al-Hirak",
-      latitude: 32.6933,
-      longitude: 36.2578
-        }
-      ]
-    },
-    {
-      name: "Quneitra",
-      latitude: 32.9667,
-      longitude: 35.8667,
-      neighbors: [
-        {
-          name: "Al-Quneitra",
-          latitude: 32.9667,
-          longitude: 35.8667
-        },
-        {
-          name: "Al-Hamra",
-          latitude: 32.9833,
-          longitude: 35.8500
-        },
-        {
-          name: "Al-Mansoura",
-          latitude: 32.9500,
-          longitude: 35.8833
-        },
-        {
-          name: "Al-Ghajar",
-          latitude: 32.9333,
-          longitude: 35.8333
-        },
-        {
-          name: "Al-Buqata",
-          latitude: 32.9000,
-          longitude: 35.8500
-        },
-        {
-          name: "Al-Haditha",
-          latitude: 32.9500,
-          longitude: 35.8000
-        },
-        {
-          name: "Al-Masada",
-          latitude: 32.9833,
-          longitude: 35.9000
-        },
-        {
-          name: "Al-Mudayrij",
-          latitude: 33.0000,
-          longitude: 35.8500
-        },
-        {
-          name: "Al-Majdal",
-          latitude: 32.9333,
-          longitude: 35.9000
-        },
-        {
-          name: "Al-Tal",
-          latitude: 32.9667,
-          longitude: 35.8333
-        },
-        {
-          name: "Al-Masnaa",
-          latitude: 32.9500,
-          longitude: 35.9333
-        },
-        {
-          name: "Al-Ashrafiyah",
-          latitude: 32.9167,
-          longitude: 35.8667
-        },
-        {
-          name: "Al-Masnaa al-Gharbiyah",
-          latitude: 32.9500,
-          longitude: 35.8500
-        },
-        {
-          name: "Al-Masnaa al-Sharqiyah",
-          latitude: 32.9500,
-          longitude: 35.9000
-        },
-        {
-          name: "Al-Masnaa al-Janoubiyah",
-          latitude: 32.9333,
-          longitude: 35.8667
-        },
-        {
-          name: "Al-Masnaa al-Shamaliyah",
-          latitude: 32.9833,
-          longitude: 35.8667
-        }
-      ]
-    },
-    {
-      name: "As-Suwayda",
-      latitude: 32.5167,
-      longitude: 36.5833,
-      neighbors: [
-        {
-          name: "Al-Shaykh Saad",
-          latitude: 32.5333,
-          longitude: 36.6167
-        },
-        {
-          name: "Al-Mazraa",
-          latitude: 32.5000,
-          longitude: 36.6000
-        },
-        {
-          name: "Al-Taybeh",
-          latitude: 32.5500,
-          longitude: 36.5500
-        },
-        {
-          name: "Shahba",
-          latitude: 32.8531,
-          longitude: 36.6286
-        },
-        {
-          name: "Salkhad",
-          latitude: 32.4811,
-          longitude: 36.7114
-        },
-        {
-          name: "Qanawat",
-          latitude: 32.6253,
-          longitude: 36.6375
-        },
-        {
-          name: "Al-Qurayya",
-          latitude: 32.4264,
-          longitude: 36.6025
-        },
-        {
-          name: "Ariqah",
-          latitude: 32.7058,
-          longitude: 36.8408
-        },
-        {
-          name: "Dhibin",
-          latitude: 32.3772,
-          longitude: 36.7194
-        },
-        {
-          name: "Al-Ghariyah",
-          latitude: 32.6042,
-          longitude: 36.4942
-        }
-      ]
-    },
-    {
-      name: "Rif Dimashq",
-      latitude: 33.5000,
-      longitude: 36.3000,
-      neighbors: [
-        {
-          name: "Douma",
-      latitude: 33.5667,
-      longitude: 36.3667
-    },
-    {
-      name: "Daraya",
-      latitude: 33.4667,
-      longitude: 36.2333
-    },
-    {
-      name: "Zabadani",
-      latitude: 33.7667,
-      longitude: 36.1500
-    },
-    {
-      name: "Jaramana",
-      latitude: 33.4833,
-      longitude: 36.3667
-    },
-    {
-      name: "Sa’sa’",
-      latitude: 33.2833,
-      longitude: 36.0833
-    },
-    {
-      name: "Al-Tall",
-      latitude: 33.6108,
-      longitude: 36.3186
-    },
-    {
-      name: "Qatana",
-      latitude: 33.4556,
-      longitude: 36.0922
-    },
-    {
-      name: "Harasta",
-      latitude: 33.5550,
-      longitude: 36.3661
-    },
-    {
-      name: "Rankous",
-      latitude: 33.7167,
-      longitude: 36.3667
-    },
-    {
-      name: "Babbila",
-      latitude: 33.4606,
-      longitude: 36.3167
-        }
-      ]
-    },
-    {
-      name: "Al-Hasakah",
-      latitude: 36.5000,
-      longitude: 40.7333,
-      neighbors: [
-        {
-          name: "Al-Raqqa",
-          latitude: 35.9667,
-          longitude: 39.0333
-        },
-        {
-          name: "Al-Malikiyah",
-          latitude: 37.0333,
-          longitude: 40.9333
-        },
-        {
-          name: "Al-Shaddadiyah",
-          latitude: 36.1667,
-          longitude: 40.8333
-        },
-        {
-          name: "Al-Sour",
-          latitude: 36.2500,
-          longitude: 40.7500
-        },
-        {
-          name: "Al-Tal",
-          latitude: 36.5000,
-          longitude: 40.8000
-        },
-        {
-          name: "Al-Basira",
-          latitude: 36.3000,
-          longitude: 40.6000
-        },
-        {
-          name: "Al-Sina",
-          latitude: 36.4000,
-          longitude: 40.7000
-        },
-        {
-          name: "Al-Busayrah",
-          latitude: 36.3500,
-          longitude: 40.8500
-        },
-        
-        
-        
-        
-        {
-          name: "Al-Darbasiyah",
-          latitude: 36.9000,
-          longitude: 40.8500
-        },
-        {
-          name: "Amuda",
-          latitude: 36.8333,
-          longitude: 40.9833
-        },
-        {
-          name: "Ain al-Arab (Kobane)",
-          latitude: 36.6000,
-          longitude: 37.8000
-        },
-        {
-          name: "Al-Qamishli",
-          latitude: 36.8667,
-          longitude: 40.9167
-        },
-        {
-          name: "Al-Tel",
-          latitude: 36.5500,
-          longitude: 40.7500
-        },
-        {
-          name: "Al-Hassakah",
-          latitude: 36.5000,
-          longitude: 40.7333
-        },
-        {
-          name: "Al-Hassakah",
-          latitude: 36.5000,
-          longitude: 40.7333
-        }
-      ]
-    },
-    {
-      name: "Al-Raqqa",
-      latitude: 35.9667,
-      longitude: 39.0333,
-      neighbors: [
-        {
-          name: "Tabqa",
-          latitude: 35.9000,
-          longitude: 38.7500
-        },
-        {
-          name: "Ain Issa",
-          latitude: 36.2000,
-          longitude: 39.3000
-        },
-        {
-          name: "Al-Thawrah",
-          latitude: 36.0000,
-          longitude: 39.1000
-        },
-        {
-          name: "Karama",
-          latitude: 35.9497,
-          longitude: 39.2873
-        },
-        {
-          name: "Al-Mansurah",
-          latitude: 35.8670,
-          longitude: 38.6350
-        },
-        {
-          name: "Maadan",
-          latitude: 35.7333,
-          longitude: 39.7333
-        },
-        {
-          name: "Al-Khatuniyah",
-          latitude: 35.7333,
-          longitude: 38.8500
-        },
-        {
-          name: "Hazimah",
-          latitude: 36.1000,
-          longitude: 38.9667
-        },
-        {
-          name: "Al-Sabkhah",
-          latitude: 35.7500,
-          longitude: 39.5000
-        },
-        {
-          name: "Sharakrak",
-          latitude: 36.1000,
-          longitude: 39.4000
-        },
-        {
-          name: "Tal Abyad (Tell Abiad)",
-          latitude: 36.6856,
-          longitude: 38.9506
-        },
-        {
-          name: "Hamrat Ghanam",
-          latitude: 35.8911,
-          longitude: 39.3139
-        },
-        {
-          name: "Al-Rashid",
-          latitude: 35.9200,
-          longitude: 38.8700
-        }
-      ]
-    },
-    
-       
-      
-    {
-      name: "Al-Qamishli",
-      latitude: 36.8667,
-      longitude: 40.9167,
-      neighbors: [
-        {
-          name: "Amuda",
-      latitude: 36.8333,
-      longitude: 40.9833
-    },
-    {
-      name: "Al-Darbasiyah",
-      latitude: 36.9000,
-      longitude: 40.8500
-    },
-    {
-      name: "Al-Malikiyah",
-      latitude: 37.0333,
-      longitude: 40.9333
-    },
-    {
-      name: "Qahtaniyah",
-      latitude: 37.0167,
-      longitude: 41.2167
-    },
-    {
-      name: "Tell Hamis",
-      latitude: 36.7333,
-      longitude: 41.0167
-    },
-    {
-      name: "Tell Brak",
-      latitude: 36.7833,
-      longitude: 41.0667
-    },
-    {
-      name: "Rmelan",
-      latitude: 37.0000,
-      longitude: 41.9333
-    },
-    {
-      name: "Jawadiyah",
-      latitude: 37.0167,
-      longitude: 41.2000
-    },
-    {
-      name: "Tirbespi",
-      latitude: 37.0000,
-      longitude: 41.0167
-    },
-    {
-      name: "Girke Lege",
-      latitude: 37.0667,
-      longitude: 41.2000
-        }
-      ]
-    },
-    {
-      name: "Al-Hasakah",
-      latitude: 36.5000,
-      longitude: 40.7333,
-      neighbors: [
-        {
-          name: "Al-Shadadiyah",
-          latitude: 36.1667,
-          longitude: 40.8333
-        },
-        {
-          name: "Al-Malikiyah",
-          latitude: 37.0333,
-          longitude: 40.9333
-        },
-        {
-          name: "Al-Sour",
-          latitude: 36.2500,
-          longitude: 40.7500
-        },
-        {
-          name: "Tell Brak",
-          latitude: 36.7833,
-          longitude: 41.0667
-        },
-        {
-          name: "Tell Hamis",
-          latitude: 36.7333,
-          longitude: 41.0167
-        },
-        {
-          name: "Markadah",
-          latitude: 35.9761,
-          longitude: 40.8447
-        },
-        {
-          name: "Arisha",
-          latitude: 36.0500,
-          longitude: 40.6833
-        },
-        {
-          name: "Al-Hol",
-          latitude: 36.5667,
-          longitude: 41.1000
-        },
-        {
-          name: "Al-Busayrah",
-          latitude: 35.8822,
-          longitude: 40.5125
-        },
-        {
-          name: "Tell Tamer",
-          latitude: 36.6175,
-          longitude: 40.4022
-        }
-      ]
-    },
-    {
-      name: "Al-Raqqa",
-      latitude: 35.9667,
-      longitude: 39.0333,
-      neighbors: [
-        {
-          name: "Tabqa",
-      latitude: 35.9000,
-      longitude: 38.7500
-    },
-    {
-      name: "Ain Issa",
-      latitude: 36.2000,
-      longitude: 39.3000
-    },
-    {
-      name: "Al-Thawrah",
-      latitude: 36.0000,
-      longitude: 39.1000
-    },
-    {
-      name: "Al-Karamah",
-      latitude: 35.9833,
-      longitude: 39.3167
-    },
-    {
-      name: "Al-Mansurah",
-      latitude: 35.8667,
-      longitude: 38.7833
-    },
-    {
-      name: "Maadan",
-      latitude: 35.7333,
-      longitude: 39.7167
-    },
-    {
-      name: "Tell Abyad",
-      latitude: 36.6833,
-      longitude: 38.9500
-    },
-    {
-      name: "Suluk",
-      latitude: 36.6000,
-      longitude: 39.1333
-    },
-    {
-      name: "Sabka",
-      latitude: 35.6900,
-      longitude: 39.3700
-    },
-    {
-      name: "Hamrat Nasir",
-      latitude: 35.9500,
-      longitude: 39.2167
-        }
-      ]
-    },
-    {
-      name: "Tartus",
-      latitude: 35.0000,
-      longitude: 35.9000,
-      neighbors: [
-        {
-          name: "Baniyas",
-          latitude: 35.1667,
-          longitude: 36.0000
-        },
-        {
-          name: "Al-Safita",
-          latitude: 35.0833,
-          longitude: 36.0167
-        },
-        {
-          name: "Al-Haffa",
-          latitude: 35.5000,
-          longitude: 35.9000
-        },
-        {
-          name: "Duraykish",
-          latitude: 35.1333,
-          longitude: 36.1333
-        },
-        {
-          name: "Qadmus",
-          latitude: 35.1167,
-          longitude: 36.1667
-        },
-        {
-          name: "Khirbet al-Maazah",
-          latitude: 35.0200,
-          longitude: 35.8700
-        },
-        {
-          name: "Al-Shaykh Badr",
-          latitude: 35.1833,
-          longitude: 36.0833
-        },
-        {
-          name: "Al-Qadmous",
-          latitude: 35.1200,
-          longitude: 36.1500
-        },
-        {
-          name: "Kafroun",
-          latitude: 35.0767,
-          longitude: 36.0900
-        },
-        {
-          name: "Ras al-Basit",
-          latitude: 35.6670,
-          longitude: 35.8830
-        },
-        {
-          name: "Al-Bayda",
-          latitude: 35.2000,
-          longitude: 36.0667
-        }
-      ]
-    },
-    {
-      name: "Al-Qamishli",
-      latitude: 36.8667,
-      longitude: 40.9167,
-      neighbors: [
-        {
-          name: "Amuda",
-          latitude: 36.8333,
-          longitude: 40.9833
-        },
-        {
-          name: "Al-Darbasiyah",
-          latitude: 36.9000,
-          longitude: 40.8500
-        },
-        {
-          name: "Al-Malikiyah",
-          latitude: 37.0333,
-          longitude: 40.9333
-        }
-      ]
-    },
-    {
-      name: "Al-Bukamal",
-      latitude: 34.9500,
-      longitude: 40.8500,
-      neighbors: [
-        {
-          name: "Al-Mayadin",
-          latitude: 35.2000,
-          longitude: 40.7500
-        },
-        {
-          name: "Al-Busayrah",
-          latitude: 35.0000,
-          longitude: 40.8000
-        },
-        {
-          name: "Al-Sina",
-          latitude: 34.9000,
-          longitude: 40.9000
-        }
-      ]
-    },
-  
-        
-      
-    {
-      name: "Al-Sweida",
-      latitude: 32.5167,
-      longitude: 36.5833,
-      neighbors: [
-        {
-          name: "Al-Shaykh Saad",
-          latitude: 32.5333,
-          longitude: 36.6167
-        },
-        {
-          name: "Al-Mazraa",
-          latitude: 32.5000,
-          longitude: 36.6000
-        },
-        {
-          name: "Al-Taybeh",
-          latitude: 32.5500,
-          longitude: 36.5500
-        },
-        {
-          name: "Al-Shaykh Miskin",
-          latitude: 32.5833,
-          longitude: 36.6167
-        },
-        {
-          name: "Al-Naama",
-          latitude: 32.5333,
-          longitude: 36.5333
-        },
-        {
-          name: "Al-Sanamayn",
-          latitude: 32.7500,
-          longitude: 36.1500
-        },
-        {
-          name: "Al-Masmiya",
-          latitude: 32.5167,
-          longitude: 36.4833
-        }
-      ]
-    },
-    {
-      name: "Al-Quneitra",
-      latitude: 32.9667,
-      longitude: 35.8667,
-      neighbors: [
-        {
-          name: "Al-Hamra",
-          latitude: 32.9833,
-          longitude: 35.8500
-        },
-        {
-          name: "Al-Mansoura",
-          latitude: 32.9500,
-          longitude: 35.8833
-        },
-        {
-          name: "Al-Ghajar",
-          latitude: 32.9333,
-          longitude: 35.8333
-        },
-        {
-          name: "Al-Buqata",
-          latitude: 32.9167,
-          longitude: 35.8167
-        },
-        {
-          name: "Al-Masada",
-          latitude: 32.9500,
-          longitude: 35.8333
-        },
-        {
-          name: "Al-Khushniya",
-          latitude: 32.9667,
-          longitude: 35.8167
-        },
-        {
-          name: "Al-Majdal",
-          latitude: 32.9333,
-          longitude: 35.8000
-        }
-      ]
-    },
-    {
-      name: "Al-Daraa",
-      latitude: 32.6231,
-      longitude: 36.0528,
-      neighbors: [
-        {
-          name: "Al-Mansoura",
-          latitude: 32.6500,
-          longitude: 36.0833
-        },
-        {
-          name: "Al-Sanamayn",
-          latitude: 32.7500,
-          longitude: 36.1500
-        },
-        {
-          name: "Al-Naima",
-          latitude: 32.5833,
-          longitude: 36.0833
-        },
-        {
-          name: "Al-Yadudah",
-          latitude: 32.7000,
-          longitude: 36.0833
-        },
-        {
-          name: "Al-Quneitra",
-          latitude: 32.8333,
-          longitude: 35.9167
-        },
-        {
-          name: "Al-Suwayda",
-          latitude: 32.5333,
-          longitude: 36.5333
-        },
-        {
-          name: "Al-Hirak",
-          latitude: 32.7500,
-          longitude: 36.0167
-        }
-      ]
-    }
-  ] as const;
+];

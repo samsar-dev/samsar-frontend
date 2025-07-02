@@ -126,9 +126,12 @@ export const busSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) => {
-      if (!value) return "Seating capacity is required";
-      if (typeof value === "number" && value <= 0)
-        return "Seating capacity must be greater than 0";
+      if (value === undefined || value === null || value === '') return "Seating capacity is required";
+      const numValue = Number(value);
+      if (isNaN(numValue) || numValue < 0) {
+        return "Seating capacity must be a non-negative number";
+      }
+      if (numValue === 0) return null; // Allow 0 as a valid value
       return null;
     },
   },

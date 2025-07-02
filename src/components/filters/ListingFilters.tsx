@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { FaCar, FaMotorcycle, FaTruck, FaCaravan, FaBus } from "react-icons/fa";
 import { MdSend } from "react-icons/md";
+import { useTranslation } from 'react-i18next';
 
 import { ListingAction, VehicleType } from "@/types/enums";
 import { getMakesForType, getModelsForMakeAndType } from "@/components/listings/data/vehicleModels";
@@ -17,7 +18,6 @@ interface ListingFiltersProps {
   setSelectedYear: (year: number | null) => void;
   selectedMileage: number | null;
   setSelectedMileage: (mileage: number | null) => void;
-  selectedLocation: string | null;
   setSelectedLocation: (location: string | null) => void;
   selectedSubcategory: string | null;
   setSelectedSubcategory: (subcategory: string | null) => void;
@@ -47,20 +47,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   setSelectedYear,
   selectedMileage,
   setSelectedMileage,
-  selectedLocation,
   setSelectedLocation,
   selectedSubcategory,
   setSelectedSubcategory,
+  onSearch,
   loading,
   priceRange,
   onPriceRangeChange,
   onLocationChange,
-  selectedRadius,
-  setSelectedRadius,
-  selectedBuiltYear,
-  setSelectedBuiltYear,
-  yearRange = { min: '', max: '' },
-  onYearRangeChange = () => {},
   onRadiusChange = () => {}
 }) => {
   // Local UI state
@@ -68,16 +62,19 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [locationData, setLocationData] = useState<SelectedLocation | null>(null);
 
+  const { t } = useTranslation('filters');
+  const { t: tEnums } = useTranslation('enums');
+
   const vehicleTypes = [
-    { id: VehicleType.CAR, name: 'Car', icon: <FaCar className="w-6 h-6" /> },
-    { id: VehicleType.MOTORCYCLE, name: 'Motorcycle', icon: <FaMotorcycle className="w-6 h-6" /> },
-    { id: VehicleType.TRUCK, name: 'Truck', icon: <FaTruck className="w-6 h-6" /> },
-    { id: VehicleType.VAN, name: 'Van', icon: <FaTruck className="w-6 h-6" /> },
-    { id: VehicleType.RV, name: 'RV', icon: <FaCaravan className="w-6 h-6" /> },
-    { id: VehicleType.BUS, name: 'Bus', icon: <FaBus className="w-6 h-6" /> },
-    { id: VehicleType.CONSTRUCTION, name: 'Construction', icon: <FaTruck className="w-6 h-6" /> },
-    { id: VehicleType.TRACTOR, name: 'Tractor', icon: <FaTruck className="w-6 h-6" /> },
-    { id: VehicleType.OTHER, name: 'Other', icon: <FaTruck className="w-6 h-6" /> },
+    { id: VehicleType.CAR, name: tEnums('vehicleType.CAR'), icon: <FaCar className="w-6 h-6" /> },
+    { id: VehicleType.MOTORCYCLE, name: tEnums('vehicleType.MOTORCYCLE'), icon: <FaMotorcycle className="w-6 h-6" /> },
+    { id: VehicleType.TRUCK, name: tEnums('vehicleType.TRUCK'), icon: <FaTruck className="w-6 h-6" /> },
+    { id: VehicleType.VAN, name: tEnums('vehicleType.VAN'), icon: <FaTruck className="w-6 h-6" /> },
+    { id: VehicleType.RV, name: tEnums('vehicleType.RV'), icon: <FaCaravan className="w-6 h-6" /> },
+    { id: VehicleType.BUS, name: tEnums('vehicleType.BUS'), icon: <FaBus className="w-6 h-6" /> },
+    { id: VehicleType.CONSTRUCTION, name: tEnums('vehicleType.CONSTRUCTION'), icon: <FaTruck className="w-6 h-6" /> },
+    { id: VehicleType.TRACTOR, name: tEnums('vehicleType.TRACTOR'), icon: <FaTruck className="w-6 h-6" /> },
+    { id: VehicleType.OTHER, name: tEnums('vehicleType.OTHER'), icon: <FaTruck className="w-6 h-6" /> },
   ];
 
   // Update available makes when vehicle type changes
@@ -125,9 +122,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     }
   }, [onLocationChange, onRadiusChange]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    onSearch();
+    try {
+      onSearch();
+    } catch (error) {
+      console.error('Search failed:', error);
+      // Optionally show error to user via toast or other UI feedback
+    }
   };
 
   const handleReset = () => {
@@ -144,7 +146,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 relative z-20 w-full max-w-6xl mx-auto">
-      <div className="flex flex-row gap-6">
+      <div className="flex flex-row gap-6 items-start">
         {/* Vehicle Type Selector */}
         <div className="flex flex-col space-y-2">
           {vehicleTypes.map((type) => (
@@ -167,16 +169,16 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
 
         {/* Main Filter Area */}
         <div className="flex-1">
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('make')}</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={selectedMake || ''}
                 onChange={(e) => setSelectedMake(e.target.value || null)}
                 disabled={loading}
               >
-                <option value="">Select make</option>
+                <option value="">{t('select_make')}</option>
                 {availableMakes.map((make) => (
                   <option key={make} value={make}>
                     {make}
@@ -185,14 +187,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('model')}</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={selectedModel || ''}
                 onChange={(e) => setSelectedModel(e.target.value || null)}
                 disabled={!selectedMake || loading}
               >
-                <option value="">Select model</option>
+                <option value="">{t('select_model')}</option>
                 {availableModels.map((model) => (
                   <option key={model} value={model}>
                     {model}
@@ -201,14 +203,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">First registration from</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('first_registration')}</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={selectedYear || ''}
                 onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : null)}
                 disabled={loading}
               >
-                <option value="">Any year</option>
+                <option value="">{t('builtYearOptions.any')}</option>
                 {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -217,14 +219,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kilometers up to</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('kilometers_up_to')}</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={selectedMileage || ''}
                 onChange={(e) => setSelectedMileage(e.target.value ? parseInt(e.target.value) : null)}
                 disabled={loading}
               >
-                <option value="">No max</option>
+                <option value="">{t('no_max')}</option>
                 {[
                   5000, 10000, 20000, 30000, 40000, 50000, 
                   75000, 100000, 125000, 150000, 175000, 200000
@@ -236,20 +238,20 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Payment method</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('payment_method')}</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={selectedAction || ''}
                 onChange={(e) => handleActionChange(e.target.value)}
                 disabled={loading}
               >
-                <option value="">Any</option>
-                <option value={ListingAction.SALE}>For Sale</option>
-                <option value={ListingAction.RENT}>For Rent</option>
+                <option value="">{t('any')}</option>
+                <option value={ListingAction.SALE}>{tEnums('listingType.FOR_SALE')}</option>
+                <option value={ListingAction.RENT}>{tEnums('listingType.FOR_RENT')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price up to (€)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('price_up_to')} (€)</label>
               <select
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={priceRange.max || ''}
@@ -259,7 +261,7 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                 })}
                 disabled={loading}
               >
-                <option value="">No max</option>
+                <option value="">{t('no_max')}</option>
                 {[
                   500, 1000, 2500, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 
                   50000, 75000, 100000, 125000, 150000, 175000, 200000, 250000, 300000, 400000, 500000
@@ -271,11 +273,11 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('location')}</label>
               <LocationSearch
                 key={`location-search-${!!locationData}`} // Force re-render on reset
                 onSelectLocation={handleLocationSelect}
-                placeholder="Search for a location..."
+                placeholder={t('search_location_placeholder')}
                 className="w-full"
                 inputClassName="w-full p-2 border border-gray-300 rounded-md pl-10"
                 initialValue={locationData?.address || ''}
@@ -301,9 +303,9 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>1 km</span>
-                    <span>50 km</span>
-                    <span>100 km</span>
+                    <span>{t('reset')}</span>
+                    <span>50 {t('distance.km')}</span>
+                    <span>100 {t('distance.km')}</span>
                   </div>
                 </div>
               )}
@@ -317,20 +319,20 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
                     handleReset();
                   }}
                 >
-                  Reset
+                  {t('reset')}
                 </button>
                 <button
                   type="button"
                   className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
                 >
-                  More filters
+                  {t('moreFilters')}
                 </button>
                 <button
                   type="submit"
                   className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
                 >
                   <MdSend className="mr-2" />
-                  Search
+                  {t('search')}
                 </button>
               </div>
             </div>

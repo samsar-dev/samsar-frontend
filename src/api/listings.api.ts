@@ -776,9 +776,9 @@ export const listingsAPI: ListingsAPI = {
       const data = response.data;
 
       if (data.success && data.data) {
-        if (data.data.items && Array.isArray(data.data.items)) {
+        if (data.data.listings && Array.isArray(data.data.listings)) {
           const responseData = {
-            listings: data.data.items,
+            listings: data.data.listings,
             total: data.data.total || 0,
             page: data.data.page || 1,
             limit: data.data.limit || 10,
