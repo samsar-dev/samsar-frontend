@@ -1,6 +1,8 @@
 import { LISTING_TYPES } from "./listing.types";
 import { Listing } from "@/types/listings";
 import type { AppDispatch } from "../store";
+import { validateField as validateFieldUtil } from "@/utils/listingSchemaRedux";
+import { VehicleType, PropertyType } from "@/types/enums";
 
 export const setCurrentListing = (listing: Listing | null) => ({
   type: LISTING_TYPES.SET_CURRENT_LISTING,
@@ -40,6 +42,40 @@ export const setError = (error: string | null) => ({
 export const resetListingState = () => ({
   type: LISTING_TYPES.RESET_STATE,
 });
+
+interface SetFieldValueAction {
+  type: typeof LISTING_TYPES.SET_FIELD_VALUE;
+  payload: {
+    field: string;
+    value: any;
+  };
+}
+
+export const setFieldValue = (field: string, value: any): SetFieldValueAction => ({
+  type: LISTING_TYPES.SET_FIELD_VALUE,
+  payload: { field, value },
+});
+
+interface ValidateFieldAction {
+  type: typeof LISTING_TYPES.VALIDATE_FIELD;
+  payload: {
+    field: string;
+    error: string | null;
+  };
+}
+
+export const validateField = (field: string, value: any, listingType: VehicleType | PropertyType | string): ValidateFieldAction => {
+  // Ensure listingType is a valid VehicleType or PropertyType
+  const validListingType = typeof listingType === 'string' 
+    ? (listingType as VehicleType | PropertyType)
+    : listingType;
+    
+  const error = validateFieldUtil(validListingType, field, value);
+  return {
+    type: LISTING_TYPES.VALIDATE_FIELD,
+    payload: { field, error },
+  };
+};
 
 // Thunk actions
 export const createListing = (formData: FormData) => async (dispatch: AppDispatch) => {

@@ -14,15 +14,35 @@ import { Button } from "@/components/ui/Button2";
 import { useAuth } from "@/hooks/useAuth";
 import { useSocket } from "@/contexts/SocketContext";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
-import type { ListingFieldSchema, VehicleType, PropertyType } from "@/types/listings";
+import { VehicleType, PropertyType } from "@/types/enums";
 
-type SectionId = 'basic' | 'details' | 'features' | 'location' | 'media' | 'pricing' | 'contact';
+type SectionId = 'basic' | 'essential' | 'advanced' | 'features' | 'location' | 'media' | 'pricing' | 'contact';
 
-interface ExtendedFieldProps extends ListingFieldSchema {
+type SupportedFieldType = 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color' | 'boolean' | 'multiselect' | 'date';
+
+interface ExtendedFieldProps {
+  name: string;
+  label: string;
+  type: SupportedFieldType;
   value: any;
   onChange: (value: any) => void;
   options?: Array<{ value: string; label: string }>;
+  required?: boolean;
+  placeholder?: string;
 }
+
+const mapFieldType = (type: string): SupportedFieldType => {
+  switch (type) {
+    case 'toggle':
+      return 'checkbox';
+    case 'colorpicker':
+      return 'color';
+    case 'featureGroup':
+      return 'multiselect';
+    default:
+      return type as SupportedFieldType;
+  }
+};
 
 const EditListingRedux: React.FC = () => {
   const { t } = useTranslation();
@@ -56,33 +76,55 @@ const EditListingRedux: React.FC = () => {
     return formData.details?.vehicles !== undefined;
   }, [formData.details]);
 
+  const setFieldValue = useCallback((name: string, value: any) => {
+    setFormDataAction(prev => {
+      // Handle nested fields (e.g., details.vehicles.make)
+      if (name.includes('.')) {
+        const [parent, child] = name.split('.');
+        return {
+          ...prev,
+          [parent]: {
+            ...prev[parent as keyof typeof prev],
+            [child]: value
+          }
+        };
+      }
+      
+      // Handle direct form fields
+      return { ...prev, [name]: value };
+    });
+  }, [setFormDataAction]);
+
   // Get the current section fields based on the active tab and schema
   const currentFields = useMemo<ExtendedFieldProps[]>(() => {
-    if (!activeTab) return [];
-
-    const listingType = isVehicle
-      ? (formData.details.vehicles?.vehicleType as VehicleType)
-      : (formData.details.realEstate?.propertyType as PropertyType);
-
-    if (!listingType) return [];
-
-    // Get fields from schema utils
-    const fields = getFieldsBySection(listingType, activeTab);
-
-    return fields.map((field) => ({
-      ...field,
-      value: getFieldValue(formData, field.name),
-      options: Array.isArray(field.options)
-        ? field.options.map((opt) =>
-            typeof opt === "string" ? { value: opt, label: opt } : opt
-          )
-        : undefined,
-      onChange: (value: any) => {
-        const fieldType = isVehicle ? "vehicles" : "realEstate";
-        handleInputChange(field.name, value, fieldType);
-      },
-    }));
-  }, [activeTab, isVehicle, formData]);
+    if (!currentListing) return [];
+    
+    const listingType = currentListing.listingType as VehicleType | PropertyType;
+    const sectionFields = getFieldsBySection(listingType, 'basic');
+    
+    return sectionFields.map((field) => {
+      const value = getFieldValue(currentListing, field.name);
+      const mappedType = mapFieldType(field.type);
+      
+      return {
+        name: field.name,
+        label: field.label || field.name,
+        type: mappedType,
+        value: mappedType === 'checkbox' ? Boolean(value) : value,
+        options: field.options?.map(option => ({
+          value: option.value,
+          label: option.label || option.value
+        })),
+        required: field.required,
+        placeholder: field.placeholder,
+        onChange: (newValue: any) => {
+          // Convert checkbox values for boolean fields
+          const finalValue = mappedType === 'checkbox' ? Boolean(newValue) : newValue;
+          setFieldValue(field.name, finalValue);
+        },
+      };
+    });
+  }, [currentListing, setFieldValue]);
 
   // Fetch listing data when component mounts
   useEffect(() => {
