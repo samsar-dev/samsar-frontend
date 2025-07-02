@@ -1,23 +1,23 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 
 import { useListingStore } from "@/hooks/useListingStore";
-import { prepareListingFormData, validateListingForm } from "@/utils/listingFormUtils";
-import { listingsAPI } from "@/api/listings.api";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
 import ImageManager from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import { useAuth } from "@/hooks/useAuth";
 import { useSocket } from "@/contexts/SocketContext";
-import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
+import { getFieldsBySection } from "@/utils/listingSchemaUtils";
 import { VehicleType, PropertyType } from "@/types/enums";
+import type { Listing, ListingFieldSchema } from "@/types/listings";
+import { updateListing } from "@/store/listing/listing.actions";
+
 
 type SectionId = 'basic' | 'essential' | 'advanced' | 'features' | 'location' | 'media' | 'pricing' | 'contact';
-
 type SupportedFieldType = 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color' | 'boolean' | 'multiselect' | 'date';
 
 interface ExtendedFieldProps {
@@ -31,118 +31,228 @@ interface ExtendedFieldProps {
   placeholder?: string;
 }
 
-const mapFieldType = (type: string): SupportedFieldType => {
-  switch (type) {
-    case 'toggle':
-      return 'checkbox';
-    case 'colorpicker':
-      return 'color';
-    case 'featureGroup':
-      return 'multiselect';
-    default:
-      return type as SupportedFieldType;
-  }
-};
+interface ExtendedListing extends Omit<Listing, 'listingType'> {
+  listingType?: VehicleType | PropertyType | string;
+  [key: string]: any;
+}
 
-const EditListingRedux: React.FC = () => {
+interface FormData {
+  [key: string]: any;
+  details?: {
+    [key: string]: any;
+    vehicles?: {
+      [key: string]: any;
+    };
+  };
+}
+
+interface ExtendedFieldSchema extends Omit<ListingFieldSchema, 'placeholder'> {
+  placeholder?: string;
+}
+
+export const EditListingRedux = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { socket } = useSocket();
   
-  // Get state and actions from Redux store
   const {
     formData,
     images,
     loading,
     error,
     currentListing,
+    fetchListing: fetchListingAction,
     setFormData: setFormDataAction,
+    setLoading: setLoadingAction,
     addImage: addImageAction,
     removeImage: removeImageAction,
-    setLoading: setLoadingAction,
-    setError: setErrorAction,
-    updateListing: updateListingAction,
-    fetchListing: fetchListingAction,
     resetListingState
   } = useListingStore();
 
-  // Set up active tab state
   const [activeTab, setActiveTab] = useState<SectionId>('basic');
-  
-  // Determine if this is a vehicle listing
-  const isVehicle = useMemo(() => {
-    return formData.details?.vehicles !== undefined;
-  }, [formData.details]);
 
+  // Get field value helper function
+  const getFieldValue = useCallback((obj: any, path: string): any => {
+    if (!obj) return undefined;
+    return path.split('.').reduce((o, p) => (o || {})[p], obj);
+  }, []);
+
+  // Get the listing type safely
+  const listingType = useMemo<VehicleType | PropertyType | null>(() => {
+    if (!currentListing) return null;
+    const listing = currentListing as ExtendedListing;
+    const type = listing.listingType;
+    if (!type) return null;
+    
+    if (Object.values(VehicleType).includes(type as VehicleType)) {
+      return type as VehicleType;
+    }
+    if (Object.values(PropertyType).includes(type as PropertyType)) {
+      return type as PropertyType;
+    }
+    return null;
+  }, [currentListing]);
+  
   const setFieldValue = useCallback((name: string, value: any) => {
-    setFormDataAction(prev => {
-      // Handle nested fields (e.g., details.vehicles.make)
+    setFormDataAction((prev: FormData) => {
       if (name.includes('.')) {
-        const [parent, child] = name.split('.');
+        const [parent, ...rest] = name.split('.');
+        const child = rest.join('.');
         return {
           ...prev,
           [parent]: {
-            ...prev[parent as keyof typeof prev],
+            ...(prev[parent] || {}),
             [child]: value
           }
         };
       }
-      
-      // Handle direct form fields
       return { ...prev, [name]: value };
     });
   }, [setFormDataAction]);
 
+  // Map schema field types to supported form field types
+  const mapFieldType = (type: string): SupportedFieldType => {
+    const typeMap: Record<string, SupportedFieldType> = {
+      text: 'text',
+      number: 'number',
+      textarea: 'textarea',
+      select: 'select',
+      toggle: 'checkbox',
+      colorpicker: 'color',
+      boolean: 'checkbox',
+      multiselect: 'multiselect',
+      date: 'date'
+    };
+    return typeMap[type] || 'text';
+  };
+
   // Get the current section fields based on the active tab and schema
   const currentFields = useMemo<ExtendedFieldProps[]>(() => {
-    if (!currentListing) return [];
+    if (!currentListing || !listingType) return [];
     
-    const listingType = currentListing.listingType as VehicleType | PropertyType;
-    const sectionFields = getFieldsBySection(listingType, 'basic');
-    
-    return sectionFields.map((field) => {
-      const value = getFieldValue(currentListing, field.name);
-      const mappedType = mapFieldType(field.type);
+    try {
+      const section = activeTab === 'basic' ? 'essential' : 
+                    activeTab === 'advanced' ? 'advanced' : 'essential';
       
-      return {
-        name: field.name,
-        label: field.label || field.name,
-        type: mappedType,
-        value: mappedType === 'checkbox' ? Boolean(value) : value,
-        options: field.options?.map(option => ({
-          value: option.value,
-          label: option.label || option.value
-        })),
-        required: field.required,
-        placeholder: field.placeholder,
-        onChange: (newValue: any) => {
-          // Convert checkbox values for boolean fields
-          const finalValue = mappedType === 'checkbox' ? Boolean(newValue) : newValue;
-          setFieldValue(field.name, finalValue);
-        },
-      };
-    });
-  }, [currentListing, setFieldValue]);
+      const sectionFields = (getFieldsBySection(listingType, section) || []) as ExtendedFieldSchema[];
+      
+      return sectionFields.map((field) => {
+        const value = getFieldValue(currentListing, field.name);
+        const mappedType = mapFieldType(field.type || 'text');
+        
+        const options = Array.isArray(field.options) 
+          ? field.options.map(opt => 
+              typeof opt === 'string' ? { value: opt, label: opt } : opt
+            )
+          : undefined;
+        
+        const fieldProps: Omit<ExtendedFieldProps, 'onChange'> = {
+          name: field.name,
+          label: field.label || field.name,
+          type: mappedType,
+          value: mappedType === 'checkbox' ? Boolean(value) : value,
+          options,
+          required: field.required,
+          placeholder: (field as any).placeholder
+        };
+        
+        return {
+          ...fieldProps,
+          onChange: (newValue: any) => {
+            const finalValue = mappedType === 'checkbox' ? Boolean(newValue) : newValue;
+            setFieldValue(field.name, finalValue);
+          },
+        };
+      });
+    } catch (error) {
+      console.error('Error loading fields:', error);
+      return [];
+    }
+  }, [currentListing, listingType, activeTab, getFieldValue, setFieldValue]);
 
-  // Fetch listing data when component mounts
+  // Handle form submission
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !currentListing?.id) return;
+
+    try {
+      setLoadingAction(true);
+      
+      const formDataToSubmit = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formDataToSubmit.append(key, value.toString());
+        }
+      });
+
+      // Add images to form data
+      images.forEach((img, index) => {
+        if (typeof img === 'string') {
+          formDataToSubmit.append(`images[${index}]`, img);
+        } else if (img instanceof File) {
+          formDataToSubmit.append(`images[${index}]`, img);
+        }
+      });
+
+      // Update the listing using the Redux action
+      const result = await updateListing(currentListing.id, formDataToSubmit)(
+        // @ts-ignore - TypeScript doesn't recognize the thunk action
+        (action) => {
+          // This is a no-op dispatch function since we're not using it
+          return action;
+        },
+        // @ts-ignore - TypeScript doesn't recognize the getState parameter
+        () => ({}),
+        undefined
+      );
+
+      if (result?.success) {
+        toast.success(t('listings.updateSuccess'));
+        navigate(`/listings/${currentListing.id}`);
+      } else {
+        throw new Error(result?.error || 'Failed to update listing');
+      }
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      toast.error(error instanceof Error ? error.message : t('common.errorOccurred'));
+    } finally {
+      setLoadingAction(false);
+    }
+  }, [user, currentListing?.id, formData, navigate, setLoadingAction, t, updateListing]);
+
+  // Handle image updates
+  const handleImagesChange = useCallback((newImages: (string | File)[]) => {
+    // Handle image updates
+    newImages.forEach(img => {
+      if (typeof img === 'string') {
+        addImageAction(img);
+      } else if (img instanceof File) {
+        // Convert File to data URL if needed
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            addImageAction(e.target.result as string);
+          }
+        };
+        reader.readAsDataURL(img);
+      }
+    });
+  }, [addImageAction]);
+
+  // Fetch listing data on mount
   useEffect(() => {
-    if (!id) return;
-    
     const loadListing = async () => {
+      if (!id) return;
+      
       try {
         setLoadingAction(true);
-        const result = await fetchListingAction(id);
-        
-        if (!result.success) {
-          toast.error(t("errors.failedToLoadListing"));
-          navigate("/dashboard/listings");
-        }
-      } catch (err) {
-        console.error("Error loading listing:", err);
-        toast.error(t("errors.failedToLoadListing"));
-        navigate("/dashboard/listings");
+        await fetchListingAction(id);
+      } catch (error) {
+        console.error('Error loading listing:', error);
+        toast.error(t('listings.loadError'));
+        navigate('/listings');
       } finally {
         setLoadingAction(false);
       }
@@ -150,116 +260,37 @@ const EditListingRedux: React.FC = () => {
 
     loadListing();
 
-    // Clean up when component unmounts
+    // Cleanup on unmount
     return () => {
       resetListingState();
     };
-  }, [id, navigate, t]);
+  }, [id, fetchListingAction, resetListingState, setLoadingAction, t, navigate]);
 
-  // Handle form input changes
-  const handleInputChange = useCallback(
-    (name: string, value: any, fieldType?: "vehicles" | "realEstate" | "location") => {
-      setFormDataAction(prev => {
-        // Handle nested fields (e.g., details.vehicles.make)
-        if (name.includes('.')) {
-          const [parent, child] = name.split('.');
-          return {
-            ...prev,
-            [parent]: {
-              ...prev[parent as keyof typeof prev],
-              [child]: value
-            }
-          };
-        }
-        
-        // Handle direct form fields
-        return { ...prev, [name]: value };
-      });
-    },
-    [setFormDataAction]
-  );
+  // Listen for price updates via WebSocket
+  useEffect(() => {
+    if (!socket || !currentListing?.id) return;
 
-  // Handle image uploads
-  const handleImageUpload = useCallback((files: File[]) => {
-    files.forEach(file => {
-      addImageAction(file);
-    });
-  }, [addImageAction]);
-
-  // Handle image removal
-  const handleImageRemove = useCallback((index: number, isUrl: boolean) => {
-    removeImageAction(index, isUrl);
-  }, [removeImageAction]);
-
-  // Handle form submission
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user) {
-      toast.error(t("errors.unauthorized"));
-      return;
-    }
-
-    // Validate form data
-    const validationError = validateListingForm(formData, true);
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
-
-    try {
-      setLoadingAction(true);
-      
-      // Prepare form data for submission
-      const formDataToSubmit = prepareListingFormData(formData, images);
-      
-      // Update the listing
-      const result = await updateListingAction(id!, formDataToSubmit);
-      
-      if (result.success) {
-        toast.success(t("listings.updateSuccess"));
-        
-        // Notify about price change via socket if price changed
-        if (currentListing && formData.price !== currentListing.price) {
-          socket?.emit(PRICE_CHANGE, {
-            listingId: id,
-            oldPrice: currentListing.price,
-            newPrice: formData.price,
-            userId: user.id,
-          });
-        }
-        
-        navigate(`/listings/${id}`);
-      } else {
-        toast.error(result.error || t("errors.updateFailed"));
+    const handlePriceUpdate = (data: { listingId: string; newPrice: number }) => {
+      if (data.listingId === currentListing.id) {
+        setFieldValue('price', data.newPrice.toString());
+        toast(t('listings.priceUpdated', { price: data.newPrice }));
       }
-    } catch (err) {
-      console.error("Error updating listing:", err);
-      setErrorAction(t("errors.updateFailed"));
-      toast.error(t("errors.updateFailed"));
-    } finally {
-      setLoadingAction(false);
-    }
-  }, [
-    user, 
-    formData, 
-    images, 
-    id, 
-    currentListing, 
-    socket, 
-    t, 
-    navigate, 
-    setLoadingAction, 
-    setErrorAction, 
-    updateListingAction
-  ]);
+    };
 
-  if (loading && !formData) {
-    return <div>Loading...</div>;
+    socket.on(PRICE_CHANGE, handlePriceUpdate);
+    return () => {
+      socket.off(PRICE_CHANGE, handlePriceUpdate);
+    };
+  }, [socket, currentListing, setFieldValue, t]);
+
+  if (loading && !currentListing) {
+    return <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500 p-4">{error}</div>;
   }
 
   return (
@@ -269,8 +300,8 @@ const EditListingRedux: React.FC = () => {
         <Button
           variant="outline"
           onClick={() => navigate(-1)}
-          startIcon={<FaArrowLeft />}
         >
+          <FaArrowLeft className="mr-2" />
           {t("common.back")}
         </Button>
       </div>
@@ -286,7 +317,7 @@ const EditListingRedux: React.FC = () => {
                 onClick={() => setActiveTab(tab as SectionId)}
                 className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab
-                    ? 'border-indigo-500 text-indigo-600'
+                    ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -301,33 +332,39 @@ const EditListingRedux: React.FC = () => {
           {currentFields.map((field) => (
             <FormField
               key={field.name}
-              label={field.label}
               name={field.name}
+              label={field.label}
               type={field.type}
               value={field.value}
               onChange={field.onChange}
               options={field.options}
               required={field.required}
-              disabled={loading}
               placeholder={field.placeholder}
             />
           ))}
-        </div>
 
-        {/* Image manager */}
-        <div className="mt-8">
-          <h2 className="text-lg font-medium mb-4">{t("listings.images")}</h2>
-          <ImageManager
-            images={images}
-            onUpload={handleImageUpload}
-            onRemove={handleImageRemove}
-            maxFiles={10}
-            disabled={loading}
-          />
+          {/* Image manager */}
+          {activeTab === 'media' && (
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-4">{t('listings.images')}</h3>
+              <ImageManager
+                images={images.filter((img): img is File => img instanceof File)}
+                existingImages={images.filter((img): img is string => typeof img === 'string')}
+                onChange={handleImagesChange}
+                onDeleteExisting={(url) => {
+                  const index = images.findIndex(img => img === url);
+                  if (index !== -1) {
+                    removeImageAction(index, true);
+                  }
+                }}
+                maxImages={10}
+              />
+            </div>
+          )}
         </div>
 
         {/* Form actions */}
-        <div className="flex justify-end space-x-4 pt-6">
+        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
           <Button
             type="button"
             variant="outline"
@@ -338,10 +375,14 @@ const EditListingRedux: React.FC = () => {
           </Button>
           <Button
             type="submit"
-            startIcon={<FaSave />}
-            loading={loading}
+            className="flex items-center gap-2"
             disabled={loading}
           >
+            {loading ? (
+              <span className="animate-spin">↻</span>
+            ) : (
+              <FaSave />
+            )}
             {t("common.saveChanges")}
           </Button>
         </div>

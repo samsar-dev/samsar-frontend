@@ -9,6 +9,9 @@ const initialState: ListingState = {
   step: 0,
   images: [],
   deletedImages: [],
+  schema: [],
+  activeSchema: [],
+  validationErrors: {},
 };
 
 export const listingReducer = (
