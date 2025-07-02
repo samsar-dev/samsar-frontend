@@ -19,6 +19,7 @@ export interface APIResponse<T = any> {
 
 export interface RequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
+  _retryCount?: number;
   requiresAuth?: boolean;
 }
 
@@ -44,9 +45,13 @@ const getBaseUrl = () => {
 const baseURL = getBaseUrl();
 console.log("API Base URL:", baseURL); // For debugging
 
+// Configure retry settings
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
+
 export const apiConfig = {
   baseURL,
-  timeout: 15000,
+  timeout: 30000, // Increased timeout to 30 seconds
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -59,6 +64,43 @@ export const apiConfig = {
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create(apiConfig);
+
+// Add retry interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config as RequestConfig;
+    
+    // Don't retry if there's no config or it's not a network/5xx error
+    if (!config || (error.response && error.response.status < 500)) {
+      return Promise.reject(error);
+    }
+
+    // Initialize or increment retry count
+    const retryCount = (config._retryCount || 0) + 1;
+    
+    // If we haven't exceeded max retries
+    if (retryCount <= MAX_RETRIES) {
+      // Wait before retrying (exponential backoff)
+      const delay = Math.pow(2, retryCount - 1) * INITIAL_RETRY_DELAY;
+      console.warn(`Request failed, retrying (${retryCount}/${MAX_RETRIES}) in ${delay}ms...`);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      // Update retry count and retry the request
+      const retryConfig: RequestConfig = {
+        ...config,
+        _retry: true
+      };
+      retryConfig._retryCount = retryCount;
+      
+      return apiClient(retryConfig);
+    }
+    
+    console.error(`Max retries (${MAX_RETRIES}) exceeded for request to ${config.url}`);
+    return Promise.reject(error);
+  }
+);
 
 // Request interceptor
 apiClient.interceptors.request.use(

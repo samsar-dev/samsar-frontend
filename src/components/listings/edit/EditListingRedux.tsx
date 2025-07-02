@@ -1,43 +1,45 @@
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { FaArrowLeft, FaSave } from "react-icons/fa";
 
+// Hooks
 import { useListingStore } from "@/hooks/useListingStore";
-import { PRICE_CHANGE } from "@/constants/socketEvents";
-import { FormField } from "@/components/form/FormField";
-import ImageManager from "@/components/listings/images/ImageManager";
-import { Button } from "@/components/ui/Button2";
-import { useAuth } from "@/hooks/useAuth";
 import { useSocket } from "@/contexts/SocketContext";
+
+// Utils & Types
 import { getFieldsBySection } from "@/utils/listingSchemaUtils";
 import { VehicleType, PropertyType } from "@/types/enums";
-import type { Listing, ListingFieldSchema } from "@/types/listings";
-import { updateListing } from "@/store/listing/listing.actions";
+import { updateListing as updateListingAction } from "@/store/listing/listing.actions";
+import { AppDispatch } from "@/store/store";
+import { PRICE_CHANGE } from "@/constants/socketEvents";
 
+// Components
+import { ImageManager } from "@/components/listings/images/ImageManager";
 
-type SectionId = 'basic' | 'essential' | 'advanced' | 'features' | 'location' | 'media' | 'pricing' | 'contact';
+// Types
+type SectionId = 'basic' | 'essential' | 'advanced' | 'features' | 'location' | 'media' | 'pricing' | 'contact' | 'images';
 type SupportedFieldType = 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color' | 'boolean' | 'multiselect' | 'date';
+
+interface FieldOption {
+  value: string;
+  label: string;
+}
 
 interface ExtendedFieldProps {
   name: string;
   label: string;
   type: SupportedFieldType;
   value: any;
-  onChange: (value: any) => void;
-  options?: Array<{ value: string; label: string }>;
+  options?: FieldOption[];
   required?: boolean;
   placeholder?: string;
+  onChange: (value: any) => void;
 }
 
-interface ExtendedListing extends Omit<Listing, 'listingType'> {
-  listingType?: VehicleType | PropertyType | string;
+interface IFormData {
   [key: string]: any;
-}
-
-interface FormData {
-  [key: string]: any;
+  images?: File[];
   details?: {
     [key: string]: any;
     vehicles?: {
@@ -46,57 +48,71 @@ interface FormData {
   };
 }
 
-interface ExtendedFieldSchema extends Omit<ListingFieldSchema, 'placeholder'> {
-  placeholder?: string;
-}
+interface EditListingReduxProps {}
 
-export const EditListingRedux = () => {
-  const { t } = useTranslation();
+const EditListingRedux: React.FC<EditListingReduxProps> = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const { socket } = useSocket();
-  
+
   const {
-    formData,
-    images,
+    formData = { images: [] } as IFormData,
     loading,
-    error,
     currentListing,
     fetchListing: fetchListingAction,
     setFormData: setFormDataAction,
-    setLoading: setLoadingAction,
-    addImage: addImageAction,
-    removeImage: removeImageAction,
-    resetListingState
+    setLoading,
   } = useListingStore();
 
   const [activeTab, setActiveTab] = useState<SectionId>('basic');
 
-  // Get field value helper function
   const getFieldValue = useCallback((obj: any, path: string): any => {
     if (!obj) return undefined;
     return path.split('.').reduce((o, p) => (o || {})[p], obj);
   }, []);
 
-  // Get the listing type safely
   const listingType = useMemo<VehicleType | PropertyType | null>(() => {
-    if (!currentListing) return null;
-    const listing = currentListing as ExtendedListing;
-    const type = listing.listingType;
-    if (!type) return null;
+    if (!currentListing) {
+      console.log('No currentListing available');
+      return null;
+    }
+
+    const listingData = currentListing as any;
+    const type = listingData.listingType || 
+                listingData.details?.type || 
+                listingData.type ||
+                listingData.category?.subCategory;
+    
+    console.log('Derived listing type:', { 
+      type, 
+      hasListingType: !!listingData.listingType,
+      hasDetailsType: !!listingData.details?.type,
+      hasType: !!listingData.type,
+      hasCategory: !!listingData.category?.subCategory,
+      category: listingData.category,
+      currentListing: listingData
+    });
+                
+    if (!type) {
+      console.error('Could not determine listing type from:', listingData);
+      return null;
+    }
     
     if (Object.values(VehicleType).includes(type as VehicleType)) {
+      console.log('Vehicle type detected:', type);
       return type as VehicleType;
     }
     if (Object.values(PropertyType).includes(type as PropertyType)) {
+      console.log('Property type detected:', type);
       return type as PropertyType;
     }
+    
+    console.error('Unsupported listing type:', type);
     return null;
   }, [currentListing]);
-  
+
   const setFieldValue = useCallback((name: string, value: any) => {
-    setFormDataAction((prev: FormData) => {
+    setFormDataAction((prev: IFormData) => {
       if (name.includes('.')) {
         const [parent, ...rest] = name.split('.');
         const child = rest.join('.');
@@ -112,281 +128,683 @@ export const EditListingRedux = () => {
     });
   }, [setFormDataAction]);
 
-  // Map schema field types to supported form field types
-  const mapFieldType = (type: string): SupportedFieldType => {
+  const mapFieldType = useCallback((type: string | undefined): SupportedFieldType => {
+    if (!type) return 'text';
+    
     const typeMap: Record<string, SupportedFieldType> = {
       text: 'text',
+      string: 'text',
       number: 'number',
+      integer: 'number',
       textarea: 'textarea',
       select: 'select',
       toggle: 'checkbox',
+      checkbox: 'checkbox',
+      color: 'color',
       colorpicker: 'color',
       boolean: 'checkbox',
       multiselect: 'multiselect',
-      date: 'date'
+      date: 'date',
+      datetime: 'date',
+      time: 'text',
+      email: 'text',
+      tel: 'text',
+      url: 'text',
+      password: 'text'
     };
-    return typeMap[type] || 'text';
-  };
-
-  // Get the current section fields based on the active tab and schema
-  const currentFields = useMemo<ExtendedFieldProps[]>(() => {
-    if (!currentListing || !listingType) return [];
     
-    try {
-      const section = activeTab === 'basic' ? 'essential' : 
-                    activeTab === 'advanced' ? 'advanced' : 'essential';
-      
-      const sectionFields = (getFieldsBySection(listingType, section) || []) as ExtendedFieldSchema[];
-      
-      return sectionFields.map((field) => {
-        const value = getFieldValue(currentListing, field.name);
-        const mappedType = mapFieldType(field.type || 'text');
-        
-        const options = Array.isArray(field.options) 
-          ? field.options.map(opt => 
-              typeof opt === 'string' ? { value: opt, label: opt } : opt
-            )
-          : undefined;
-        
-        const fieldProps: Omit<ExtendedFieldProps, 'onChange'> = {
-          name: field.name,
-          label: field.label || field.name,
-          type: mappedType,
-          value: mappedType === 'checkbox' ? Boolean(value) : value,
-          options,
-          required: field.required,
-          placeholder: (field as any).placeholder
-        };
-        
-        return {
-          ...fieldProps,
-          onChange: (newValue: any) => {
-            const finalValue = mappedType === 'checkbox' ? Boolean(newValue) : newValue;
-            setFieldValue(field.name, finalValue);
-          },
-        };
-      });
-    } catch (error) {
-      console.error('Error loading fields:', error);
+    return typeMap[type.toLowerCase()] || 'text';
+  }, []);
+
+  const section = useMemo(() => 
+    activeTab === 'basic' ? 'essential' : activeTab === 'advanced' ? 'advanced' : 'essential',
+    [activeTab]
+  );
+
+  const sectionFields = useMemo(() => {
+    if (!listingType) return [];
+    console.log('Getting fields for:', { listingType, section });
+    return getFieldsBySection(listingType, section) || [];
+  }, [listingType, section]);
+
+  // Create a memoized handler creator for field changes
+  const createFieldChangeHandler = useCallback((fieldName: string, fieldType: string) => {
+    return (newValue: any) => {
+      const finalValue = fieldType === 'checkbox' ? Boolean(newValue) : newValue;
+      setFieldValue(fieldName, finalValue);
+    };
+  }, [setFieldValue]);
+
+  const currentFields = useMemo<ExtendedFieldProps[]>(() => {
+    if (!currentListing || !listingType || !sectionFields.length) {
       return [];
     }
-  }, [currentListing, listingType, activeTab, getFieldValue, setFieldValue]);
+    
+    console.log('Calculating currentFields', { listingType, activeTab });
+    
+    return sectionFields.map((field) => {
+      const fieldName = field.name;
+      const fieldType = field.type || 'text';
+      const mappedType = mapFieldType(fieldType);
+      const value = getFieldValue(formData, fieldName);
+      
+      const options = Array.isArray(field.options) 
+        ? field.options.map(opt => {
+            if (typeof opt === 'string') {
+              return { value: opt, label: opt };
+            }
+            return {
+              value: String(opt.value),
+              label: String(opt.label || opt.value)
+            };
+          })
+        : undefined;
+      
+      return {
+        name: fieldName,
+        label: field.label || fieldName,
+        type: mappedType,
+        value: mappedType === 'checkbox' ? Boolean(value) : value,
+        options,
+        required: !!field.required,
+        placeholder: (field as any).placeholder,
+        onChange: createFieldChangeHandler(fieldName, mappedType),
+        key: fieldName
+      };
+    });
+  }, [sectionFields, formData, getFieldValue, mapFieldType, listingType, activeTab, createFieldChangeHandler]);
 
-  // Handle form submission
+  const uploadFiles = useCallback(async (files: File[]): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+    
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || '/api'}/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error('File upload failed');
+        }
+        
+        const data = await response.json();
+        uploadedUrls.push(data.url);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        throw new Error(`Failed to upload file: ${file.name}`);
+      }
+    }
+    
+    return uploadedUrls;
+  }, []);
+
+  const dispatch = useDispatch<AppDispatch>();
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !currentListing?.id) return;
-
+    console.log('[handleSubmit] Form submission started');
+    
+    if (!currentListing?.id || !formData) {
+      console.error('[handleSubmit] Missing currentListing.id or formData', { 
+        hasCurrentListing: !!currentListing, 
+        hasFormData: !!formData 
+      });
+      return;
+    }
+    
     try {
-      setLoadingAction(true);
+      console.log('[handleSubmit] Setting loading to true');
+      dispatch(setLoading(true));
       
-      const formDataToSubmit = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formDataToSubmit.append(key, value.toString());
-        }
+      // Log current form data for debugging
+      console.log('[handleSubmit] Current form data:', {
+        formDataKeys: Object.keys(formData),
+        hasImages: !!(formData.images && formData.images.length > 0)
       });
-
-      // Add images to form data
-      images.forEach((img, index) => {
-        if (typeof img === 'string') {
-          formDataToSubmit.append(`images[${index}]`, img);
-        } else if (img instanceof File) {
-          formDataToSubmit.append(`images[${index}]`, img);
+      
+      // Separate existing URLs from new files that need to be uploaded
+      const existingImages = (formData.images || []).filter(
+        (img: string | File | FileMetadata): img is string | FileMetadata => {
+          const isString = typeof img === 'string';
+          const isFileMetadata = !(img instanceof File) && !(img as FileMetadata).isNew;
+          return isString || isFileMetadata;
         }
-      });
-
-      // Update the listing using the Redux action
-      const result = await updateListing(currentListing.id, formDataToSubmit)(
-        // @ts-ignore - TypeScript doesn't recognize the thunk action
-        (action) => {
-          // This is a no-op dispatch function since we're not using it
-          return action;
-        },
-        // @ts-ignore - TypeScript doesn't recognize the getState parameter
-        () => ({}),
-        undefined
       );
-
-      if (result?.success) {
-        toast.success(t('listings.updateSuccess'));
-        navigate(`/listings/${currentListing.id}`);
+      
+      console.log(`[handleSubmit] Found ${existingImages.length} existing images`);
+      
+      const newFiles = (formData.images || []).filter(
+        (img: string | File | FileMetadata): img is File => img instanceof File
+      );
+      
+      console.log(`[handleSubmit] Found ${newFiles.length} new files to upload`);
+      
+      // Upload new files and get their URLs
+      let uploadedUrls: string[] = [];
+      if (newFiles.length > 0) {
+        try {
+          console.log('[handleSubmit] Starting file upload for', newFiles.length, 'files');
+          uploadedUrls = await uploadFiles(newFiles);
+          console.log('[handleSubmit] Successfully uploaded', uploadedUrls.length, 'files');
+        } catch (error) {
+          console.error('[handleSubmit] Error uploading files:', error);
+          throw new Error('Failed to upload one or more files');
+        }
       } else {
-        throw new Error(result?.error || 'Failed to update listing');
+        console.log('[handleSubmit] No new files to upload');
+      }
+      
+      // Combine existing URLs with newly uploaded ones
+      const allImageUrls = [
+        ...existingImages.map((img: string | FileMetadata) => 
+          typeof img === 'string' ? img : img.name
+        ),
+        ...uploadedUrls
+      ];
+      
+      console.log('[handleSubmit] Combined', allImageUrls.length, 'images total');
+      
+      // Prepare the form data with updated image URLs
+      const formDataToSubmit = new FormData();
+      const formDataEntries: Record<string, any> = {
+        ...formData,
+        images: allImageUrls
+      };
+      
+      console.log('[handleSubmit] Preparing form data with keys:', Object.keys(formDataEntries));
+      
+      // Append all form data fields
+      Object.entries(formDataEntries).forEach(([key, value]) => {
+        try {
+          if (value !== null && value !== undefined) {
+            if (Array.isArray(value)) {
+              value.forEach(item => formDataToSubmit.append(key, String(item)));
+            } else if (value && typeof value === 'object' && 'name' in value && 'lastModified' in value) {
+              // This is a File object
+              formDataToSubmit.append(key, value as File);
+            } else if (value && typeof value === 'object') {
+              formDataToSubmit.append(key, JSON.stringify(value));
+            } else {
+              formDataToSubmit.append(key, String(value));
+            }
+          }
+        } catch (error) {
+          console.error(`[handleSubmit] Error appending field ${key}:`, error);
+        }
+      });
+      
+      console.log('[handleSubmit] Dispatching updateListingAction');
+      
+      // Submit the form data using the Redux action
+      const result = await dispatch(updateListingAction(currentListing.id, formDataToSubmit));
+      
+      console.log('[handleSubmit] Received result from updateListingAction:', { 
+        success: result?.success,
+        hasError: !!result?.error,
+        error: result?.error
+      });
+      
+      if (!result) {
+        console.error('[handleSubmit] No result returned from updateListingAction');
+        throw new Error('No response received from server');
+      }
+      
+      if (result.success) {
+        console.log('[handleSubmit] Update successful, navigating to listing page');
+        toast.success('Listing updated successfully');
+        navigate(`/listings/${currentListing.id}`);
+        console.log('[handleSubmit] Navigation initiated');
+      } else {
+        console.error('[handleSubmit] Update failed:', result.error);
+        throw new Error(result.error || 'Failed to update listing');
       }
     } catch (error) {
       console.error('Error updating listing:', error);
-      toast.error(error instanceof Error ? error.message : t('common.errorOccurred'));
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while updating the listing';
+      toast.error(errorMessage);
+      // Re-throw the error to be caught by the form submission handler
+      throw error;
     } finally {
-      setLoadingAction(false);
+      // Ensure loading is always reset, even if navigation fails
+      dispatch(setLoading(false));
     }
-  }, [user, currentListing?.id, formData, navigate, setLoadingAction, t, updateListing]);
+  }, [currentListing, formData, dispatch, navigate, uploadFiles]);
 
-  // Handle image updates
-  const handleImagesChange = useCallback((newImages: (string | File)[]) => {
-    // Handle image updates
-    newImages.forEach(img => {
-      if (typeof img === 'string') {
-        addImageAction(img);
-      } else if (img instanceof File) {
-        // Convert File to data URL if needed
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            addImageAction(e.target.result as string);
-          }
-        };
-        reader.readAsDataURL(img);
-      }
-    });
-  }, [addImageAction]);
-
-  // Fetch listing data on mount
-  useEffect(() => {
-    const loadListing = async () => {
-      if (!id) return;
+  // Get the current loading state from Redux
+  const { loading: currentLoadingState } = useListingStore();
+  
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('[handleFormSubmit] Starting form submission');
+    
+    try {
+      console.log('[handleFormSubmit] Calling handleSubmit');
+      await handleSubmit(e);
+      console.log('[handleFormSubmit] handleSubmit completed successfully');
+    } catch (error) {
+      console.error('[handleFormSubmit] Error caught in handleFormSubmit:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
+    } finally {
+      console.log('[handleFormSubmit] Entering finally block');
+      console.log(`[handleFormSubmit] Current loading state: ${currentLoadingState}`);
       
-      try {
-        setLoadingAction(true);
+      if (currentLoadingState) {
+        console.log('[handleFormSubmit] Loading state is still true, resetting it');
+        try {
+          dispatch(setLoading(false));
+          console.log('[handleFormSubmit] Successfully reset loading state');
+        } catch (dispatchError) {
+          console.error('[handleFormSubmit] Error resetting loading state:', dispatchError);
+        }
+      } else {
+        console.log('[handleFormSubmit] Loading state is already false');
+      }
+    }
+  };
+
+  type FileMetadata = {
+    name: string;
+    size: number;
+    type: string;
+    lastModified: number;
+    isNew?: boolean; // Flag to indicate this is a new file that needs upload
+  };
+
+  const handleImagesChange = useCallback((newImages: File[]) => {
+    console.log('handleImagesChange called with:', newImages);
+    
+    if (!formData) return;
+    
+    // Convert new File objects to serializable metadata
+    const newFileMetadata = newImages.map((file: File): FileMetadata => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
+      isNew: true // Mark as new file that needs upload
+    }));
+
+    // Get existing images, keeping both string URLs and metadata objects
+    const existingImages = (formData.images || []).filter(
+      (img: File | string | FileMetadata) => {
+        // Keep string URLs as is
+        if (typeof img === 'string') return true;
+        
+        // For File objects or metadata, check if they're being replaced by new files
+        const isFile = img instanceof File;
+        const name = isFile ? img.name : (img as FileMetadata).name;
+        const size = isFile ? img.size : (img as FileMetadata).size;
+        
+        return !newImages.some(
+          (newImg) => newImg.name === name && newImg.size === size
+        );
+      }
+    ) as (string | FileMetadata)[];
+
+    // Combine existing images with new metadata
+    const updatedFormData = {
+      ...formData,
+      images: [
+        ...existingImages,
+        ...newFileMetadata
+      ]
+    };
+    
+    setFormDataAction(updatedFormData);
+  }, [formData, setFormDataAction]);
+
+  const handleDeleteExistingImage = useCallback(async (imageUrl: string) => {
+    if (!id) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to delete images');
+        return;
+      }
+
+      // Optimistically update the UI
+      setFormDataAction((prev: IFormData) => ({
+        ...prev,
+        images: (prev.images || []).filter(img => {
+          if (typeof img === 'string') return img !== imageUrl;
+          if (img && typeof img === 'object' && 'url' in img) return (img as any).url !== imageUrl;
+          return true;
+        })
+      }));
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || '/api'}/listings/${id}/images`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ imageUrl }),
+      });
+
+      if (!response.ok) {
+        // If the API call fails, refetch the listing to restore the correct state
         await fetchListingAction(id);
-      } catch (error) {
-        console.error('Error loading listing:', error);
-        toast.error(t('listings.loadError'));
-        navigate('/listings');
-      } finally {
-        setLoadingAction(false);
+        throw new Error('Failed to delete image');
       }
+
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
+      
+      // Ensure we have the latest state after an error
+      if (id) {
+        await fetchListingAction(id);
+      }
+    }
+  }, [id, fetchListingAction]);
+
+  const renderField = useCallback((field: ExtendedFieldProps) => {
+    const commonProps = {
+      id: field.name,
+      name: field.name,
+      value: field.value ?? '',
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        let value: any = e.target.value;
+        
+        if (field.type === 'number') {
+          value = parseFloat(value) || 0;
+        } else if (field.type === 'checkbox') {
+          value = (e.target as HTMLInputElement).checked;
+        }
+        
+        field.onChange(value);
+      },
+      placeholder: field.placeholder,
+      className: 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
     };
 
-    loadListing();
+    switch (field.type) {
+      case 'textarea':
+        return (
+          <textarea
+            {...commonProps}
+            rows={3}
+            className={`${commonProps.className} min-h-[100px]`}
+            value={field.value || ''}
+          />
+        );
+      
+      case 'select':
+        return (
+          <select
+            {...commonProps}
+            value={field.value || ''}
+            className={`${commonProps.className} cursor-pointer`}
+          >
+            <option value="">Select {field.label}</option>
+            {field.options?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
 
-    // Cleanup on unmount
-    return () => {
-      resetListingState();
-    };
-  }, [id, fetchListingAction, resetListingState, setLoadingAction, t, navigate]);
+      case 'checkbox':
+        return (
+          <input
+            type="checkbox"
+            id={field.name}
+            name={field.name}
+            checked={Boolean(field.value)}
+            onChange={commonProps.onChange}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+        );
 
-  // Listen for price updates via WebSocket
+      default:
+        return (
+          <input
+            type={field.type || 'text'}
+            {...commonProps}
+            className={`${commonProps.className} ${field.type === 'color' ? 'h-10 p-1' : ''}`}
+          />
+        );
+    }
+  }, []);
+
+  const handleReorderExistingImages = useCallback((fromIndex: number, toIndex: number) => {
+    if (!currentListing?.images) return;
+    
+    const newImages = [...currentListing.images];
+    const [moved] = newImages.splice(fromIndex, 1);
+    newImages.splice(toIndex, 0, moved);
+    
+    // Update the current listing with the new order
+    setFormDataAction((prev: IFormData) => ({
+      ...prev,
+      images: newImages
+    }));
+  }, [currentListing?.images, setFormDataAction]);
+
+  const renderImagesTab = useCallback((): JSX.Element => {
+    // Handle existing images from the server
+    const existingImages = currentListing?.images
+      ? (currentListing.images as Array<unknown>)
+          .filter((img: unknown): img is { url: string } => {
+            if (!img || typeof img !== 'object') return false;
+            return 'url' in img && typeof (img as { url: unknown }).url === 'string';
+          })
+          .map(img => img.url)
+      : [];
+
+    // Get uploaded files
+    const uploadedFiles = (formData.images || [])
+      .filter((img: unknown): img is File => img instanceof File);
+
+    console.log('Rendering ImageManager with:', { 
+      uploadedFiles, 
+      existingImages,
+      formDataImages: formData.images 
+    });
+
+    return (
+      <div className="mt-4">
+        <div className="mb-4">
+          
+            
+          
+        </div>
+
+        <ImageManager
+          images={uploadedFiles}
+          onChange={handleImagesChange}
+          existingImages={existingImages}
+          onDeleteExisting={handleDeleteExistingImage}
+          onReorderExisting={handleReorderExistingImages}
+          maxImages={10}
+        />
+        
+        {/* Hidden file input for direct file selection */}
+        <input
+          type="file"
+          id="file-upload"
+          className="hidden"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            console.log('File input changed, files:', files);
+            if (files.length > 0) {
+              handleImagesChange([...uploadedFiles, ...files]);
+            }
+            // Reset the input to allow selecting the same file again
+            e.target.value = '';
+          }}
+        />
+      </div>
+    );
+  }, [
+    currentListing?.images, 
+    formData.images, 
+    handleImagesChange, 
+    handleDeleteExistingImage, 
+    handleReorderExistingImages
+  ]);
+
+  const fetchListing = useCallback(async (listingId: string) => {
+    // Skip if already loading or if we already have the listing data
+    if (loading || (currentListing?.id === listingId)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await fetchListingAction(listingId);
+    } catch (error) {
+      console.error('Error loading listing:', error);
+      toast.error('Failed to load listing');
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchListingAction, setLoading, loading, currentListing?.id]);
+
+  // Fetch listing on mount or when ID changes
   useEffect(() => {
-    if (!socket || !currentListing?.id) return;
+    if (!id) {
+      navigate('/listings');
+      return;
+    }
+    
+    const loadListing = async () => {
+      await fetchListing(id);
+    };
+    
+    loadListing();
+  }, [id, navigate, fetchListing]);
 
-    const handlePriceUpdate = (data: { listingId: string; newPrice: number }) => {
-      if (data.listingId === currentListing.id) {
-        setFieldValue('price', data.newPrice.toString());
-        toast(t('listings.priceUpdated', { price: data.newPrice }));
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handlePriceUpdate = (data: { listingId: string; price: number }) => {
+      if (data.listingId === currentListing?.id) {
+        setFormDataAction((prev: IFormData) => ({
+          ...prev,
+          price: data.price
+        }));
+        toast.success(`Price updated to $${data.price}`);
       }
     };
-
+    
     socket.on(PRICE_CHANGE, handlePriceUpdate);
+    
     return () => {
       socket.off(PRICE_CHANGE, handlePriceUpdate);
     };
-  }, [socket, currentListing, setFieldValue, t]);
+  }, [socket, currentListing?.id, setFormDataAction]);
 
   if (loading && !currentListing) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{t("listings.editListing")}</h1>
-        <Button
-          variant="outline"
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="flex items-center mb-6">
+        <button
           onClick={() => navigate(-1)}
+          className="flex items-center text-blue-600 hover:text-blue-800 mr-4"
         >
-          <FaArrowLeft className="mr-2" />
-          {t("common.back")}
-        </Button>
+          <span>← Back to Listings</span>
+        </button>
+        <h1 className="text-2xl font-bold">Edit Listing</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Tab navigation */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {['basic', 'details', 'features', 'location', 'media', 'pricing'].map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab as SectionId)}
-                className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t(`listings.tabs.${tab}`)}
-              </button>
-            ))}
-          </nav>
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex border-b mb-6">
+          <button
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'basic'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('basic')}
+          >
+            Basic Information
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'advanced'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('advanced')}
+          >
+            Advanced Details
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ml-auto ${
+              activeTab === 'images'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('images')}
+          >
+            Images
+          </button>
         </div>
 
-        {/* Form fields */}
-        <div className="space-y-4">
-          {currentFields.map((field) => (
-            <FormField
-              key={field.name}
-              name={field.name}
-              label={field.label}
-              type={field.type}
-              value={field.value}
-              onChange={field.onChange}
-              options={field.options}
-              required={field.required}
-              placeholder={field.placeholder}
-            />
-          ))}
-
-          {/* Image manager */}
-          {activeTab === 'media' && (
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-4">{t('listings.images')}</h3>
-              <ImageManager
-                images={images.filter((img): img is File => img instanceof File)}
-                existingImages={images.filter((img): img is string => typeof img === 'string')}
-                onChange={handleImagesChange}
-                onDeleteExisting={(url) => {
-                  const index = images.findIndex(img => img === url);
-                  if (index !== -1) {
-                    removeImageAction(index, true);
-                  }
-                }}
-                maxImages={10}
-              />
+        <form onSubmit={handleFormSubmit} className="space-y-6">
+          {activeTab === 'basic' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentFields.map((field) => (
+                  <div key={field.name} className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {renderField(field)}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Form actions */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate(-1)}
-            disabled={loading}
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button
-            type="submit"
-            className="flex items-center gap-2"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="animate-spin">↻</span>
-            ) : (
-              <FaSave />
-            )}
-            {t("common.saveChanges")}
-          </Button>
-        </div>
-      </form>
+          {activeTab === 'images' && (
+            <div className="space-y-4">
+              {renderImagesTab()}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-4 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

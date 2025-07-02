@@ -2,7 +2,7 @@ import { listingsAPI } from "@/api/listings.api";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 import { FormField } from "@/components/form/FormField";
 import type { SectionId } from "@/components/listings/create/advanced/listingsAdvancedFieldSchema";
-import ImageManager from "@/components/listings/images/ImageManager";
+import { ImageManager } from "@/components/listings/images/ImageManager";
 import { Button } from "@/components/ui/Button2";
 import { useAuth } from "@/hooks/useAuth";
 import type { PropertyType, VehicleType } from "@/types/enums";
