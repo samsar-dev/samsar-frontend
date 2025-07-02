@@ -39,7 +39,7 @@ const importListingDetails = () =>
 const importCreateListing = () =>
   import("@/components/listings/create/CreateListing");
 const importEditListing = () =>
-  import("@/components/listings/edit/EditListing");
+  import("@/components/listings/edit/EditListingRedux");
 const importMessages = () => import("@/pages/Messages");
 const importSettings = () => import("@/pages/Settings");
 const importChangePassword = () =>
@@ -68,7 +68,7 @@ const UserProfile = lazy(importUserProfile);
 const Search = lazy(importSearch);
 const ListingDetails = lazy(importListingDetails);
 const CreateListing = lazy(importCreateListing);
-const EditListing = lazy(importEditListing);
+const EditListingRedux = lazy(importEditListing);
 const Messages = lazy(importMessages);
 const Settings = lazy(importSettings);
 const ChangePassword = lazy(importChangePassword);
@@ -221,7 +221,7 @@ const Routes = (): JSX.Element => {
 
             <Route path="/settings" element={<Settings />} />
             <Route path="/listings/create" element={<CreateListing />} />
-            <Route path="/listings/:id/edit" element={<EditListing />} />
+            <Route path="/listings/:id/edit" element={<EditListingRedux />} />
             <Route path="/saved-listings" element={<SavedListings />} />
             <Route path="/messages/" element={<Messages />} />
             <Route path="/messages/:chatId" element={<Messages />} />

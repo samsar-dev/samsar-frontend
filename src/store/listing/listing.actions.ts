@@ -2,7 +2,7 @@ import { LISTING_TYPES } from "./listing.types";
 import { Listing } from "@/types/listings";
 import type { AppDispatch } from "../store";
 import { validateField as validateFieldUtil } from "@/utils/listingSchemaRedux";
-import { VehicleType, PropertyType } from "@/types/enums";
+import { VehicleType, PropertyType, ListingCategory, ListingStatus } from "@/types/enums";
 
 export const setCurrentListing = (listing: Listing | null) => ({
   type: LISTING_TYPES.SET_CURRENT_LISTING,
@@ -113,13 +113,72 @@ export const updateListing = (id: string, formData: FormData) => async (dispatch
 export const fetchListing = (id: string) => async (dispatch: AppDispatch) => {
   try {
     dispatch(setLoading(true));
+    
     // Replace with your actual API call
     // const response = await listingsAPI.getById(id);
-    // dispatch(setCurrentListing(response.data));
-    console.log('Fetching listing with ID:', id);
-    return { success: true };
+    // const listing = response.data;
+    
+    // For now, we'll use a mock listing with all required fields
+    const mockListing = {
+      id,
+      title: 'Sample Car Listing',
+      description: 'This is a sample car listing with all required fields',
+      price: 25000,
+      category: {
+        mainCategory: ListingCategory.VEHICLES,
+        subCategory: VehicleType.CAR
+      },
+      make: 'Toyota',
+      model: 'Camry',
+      year: 2020,
+      mileage: 35000,
+      color: 'Silver',
+      fuelType: 'gasoline',
+      transmission: 'automatic',
+      engineSize: 2.5,
+      doors: 4,
+      seats: 5,
+      features: ['Bluetooth', 'Backup Camera', 'Cruise Control'],
+      location: 'New York, NY',
+      latitude: 40.7128,
+      longitude: -74.0060,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      userId: 'user-123',
+      images: [
+        'https://example.com/car1.jpg',
+        'https://example.com/car2.jpg'
+      ]
+    } as unknown as Listing; // Type assertion to handle any missing optional fields
+    
+    if (!mockListing) {
+      throw new Error('Listing not found');
+    }
+    
+    // Set the current listing and form data
+    dispatch(setCurrentListing(mockListing));
+    
+    // Flatten the data for the form
+    const formData = {
+      ...mockListing,
+      // Flatten nested objects
+      mainCategory: mockListing.category?.mainCategory,
+      subCategory: mockListing.category?.subCategory,
+      // Add other fields that might be nested
+    };
+    
+    dispatch(setFormData(formData));
+    
+    // Set images if available
+    if (mockListing.images && Array.isArray(mockListing.images)) {
+      // dispatch(setImages(mockListing.images));
+    }
+    
+    return { success: true, data: mockListing };
   } catch (error: any) {
-    dispatch(setError(error.message));
+    console.error('Error fetching listing:', error);
+    dispatch(setError(error.message || 'Failed to fetch listing'));
     return { success: false, error: error.message };
   } finally {
     dispatch(setLoading(false));
