@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckCircle } from "lucide-react";
@@ -21,16 +21,16 @@ import { formatCurrency } from "@/utils/formatUtils";
 import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
 
-// Simple image gallery component that handles both string and File objects
-const ImageGallery = ({ images }: { images: (string | File)[] }) => (
+// Lazy load the ImageGallery component
+const ImageGallery = lazy(
+  () => import("@/components/listings/images/ImageGallery")
+);
+
+// Fallback component for when ImageGallery is loading
+const ImageGalleryFallback = () => (
   <div className="grid grid-cols-2 gap-2">
-    {images.map((img, i) => (
-      <img 
-        key={i} 
-        src={typeof img === 'string' ? img : URL.createObjectURL(img)} 
-        alt={`Listing ${i + 1}`}
-        className="w-full h-48 object-cover rounded"
-      />
+    {[1, 2].map((i) => (
+      <div key={i} className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
     ))}
   </div>
 );
@@ -263,7 +263,11 @@ const ListingDetailsRedux = () => {
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-4">Images</h2>
         {listing.images?.length ? (
-          <ImageGallery images={listing.images} />
+          <div className="mb-6">
+            <Suspense fallback={<ImageGalleryFallback />}>
+              <ImageGallery images={listing.images} />
+            </Suspense>
+          </div>
         ) : (
           <p>No images available</p>
         )}

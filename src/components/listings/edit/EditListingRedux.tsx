@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 
 // Hooks
-import { useListingStore } from "@/hooks/useListingStore";
+import { useListingStore } from "@/hooks/useListingEdit";
 import { useSocket } from "@/contexts/SocketContext";
 
 // Utils & Types

@@ -18,14 +18,19 @@ export function useListings(): UseListingsResult {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await listingsAPI.getListings();
-      if (response.success && response.data?.items) {
-        setListings(response.data.items);
+      const response = await listingsAPI.getAll({});
+      // The response data is directly available in response.data
+      if (response.data) {
+        // Check if the response has a data property (common pattern)
+        const listingsData = response.data.data || response.data;
+        setListings(Array.isArray(listingsData) ? listingsData : []);
       } else {
-        throw new Error(response.message || "Failed to fetch listings");
+        throw new Error("No data received from the server");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch listings");
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch listings";
+      setError(errorMessage);
+      console.error("Error fetching listings:", err);
     } finally {
       setIsLoading(false);
     }
