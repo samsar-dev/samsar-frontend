@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, lazy, Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckCircle } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,12 +14,13 @@ import {
   resetListingDetailsState
 } from "@/store/listing/listingDetails.actions";
 import type { Listing } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 
 import { useAuth } from "@/hooks/useAuth";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
-import { formatCurrency } from "@/utils/formatUtils";
 import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
+import { formatCurrency } from "@/utils/formatUtils";
 
 // Lazy load the ImageGallery component
 const ImageGallery = lazy(
@@ -36,7 +37,7 @@ const ImageGalleryFallback = () => (
 );
 
 // Types
-type SchemaType = VehicleType | PropertyType;
+type SchemaType = string;
 
 // Extended type for the listing with all required properties
 type ExtendedListing = Listing & {
@@ -74,11 +75,9 @@ const Field = ({
   value: React.ReactNode;
   className?: string;
 }) => (
-  <div className={`grid grid-cols-1 md:grid-cols-3 gap-2 ${className}`}>
-    <dt className="font-medium text-gray-700 dark:text-gray-300">{label}</dt>
-    <dd className="md:col-span-2 text-gray-900 dark:text-gray-100">
-      {value || "-"}
-    </dd>
+  <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
+    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
+    <dd className="text-sm text-gray-900 dark:text-gray-100">{value}</dd>
   </div>
 );
 
@@ -93,9 +92,7 @@ const Section = ({
   className?: string;
 }) => (
   <div className={`space-y-4 ${className}`}>
-    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-      {title}
-    </h3>
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
     <div className="space-y-4">{children}</div>
   </div>
 );
@@ -173,8 +170,8 @@ const ListingDetailsRedux = () => {
 
     // Determine the listing type based on the main category
     let listingType: SchemaType | undefined;
-    const vehicleType = listing.details?.vehicles?.vehicleType;
-    const propertyType = listing.details?.realEstate?.propertyType;
+    const vehicleType = listing.details?.vehicles?.vehicleType as VehicleType;
+    const propertyType = listing.details?.realEstate?.propertyType as PropertyType;
 
     if (listing.category?.mainCategory === ListingCategory.VEHICLES) {
       listingType = vehicleType;
@@ -188,10 +185,253 @@ const ListingDetailsRedux = () => {
       return { essentialFields: [], advancedFields: [] };
     }
 
-    // Get fields by section
+    // Helper to get all fields including nested feature groups
+    const getAllFields = (fields: ListingFieldSchema[]): ListingFieldSchema[] => {
+      const result: ListingFieldSchema[] = [];
+      
+      fields.forEach(field => {
+        // Add the field itself
+        const fieldCopy = { ...field };
+        result.push(fieldCopy);
+        
+        // If it's a feature group, add all its features
+        if (field.type === 'featureGroup' && field.featureGroups) {
+          Object.entries(field.featureGroups).forEach(([groupName, group]: [string, any]) => {
+            if (group.features) {
+              group.features.forEach((feature: any) => {
+                result.push({
+                  ...feature,
+                  section: field.section,
+                  isFeature: true,
+                  parentGroup: field.name,
+                  groupName: groupName,
+                  groupLabel: group.label
+                });
+              });
+            }
+          });
+        }
+      });
+      
+      return result;
+    };
+
+    // Get all fields from schema including nested ones
+    const allEssentialFields = getAllFields(getFieldsBySection(listingType as VehicleType | PropertyType, 'essential'));
+    const allAdvancedFields = getAllFields(getFieldsBySection(listingType as VehicleType | PropertyType, 'advanced'));
+
+    // Process fields to include all fields from schema, even if empty
+    const renderFieldValueFn = (field: any) => {
+      if (!listing) return <span className="text-gray-400">-</span>;
+      
+      // Handle nested paths for feature groups
+      let value;
+      if (field.isFeature && field.parentGroup) {
+        // For features, check both direct path and nested under feature group
+        const directValue = getFieldValue(listing, field.name);
+        const nestedValue = getFieldValue(listing, `${field.parentGroup}.${field.name}`);
+        value = directValue !== undefined ? directValue : nestedValue;
+      } else {
+        value = getFieldValue(listing, field.name);
+      }
+      
+      // Handle empty values - show a dash but still render the field
+      if (value === undefined || value === null || value === "") {
+        return <span className="text-gray-400">-</span>;
+      }
+
+      // Handle boolean values
+      if (typeof value === 'boolean') {
+        return value ? t('common:yes') : t('common:no');
+      }
+
+      // Handle numeric values
+      if (typeof value === 'number') {
+        // Special handling for mileage, odometer, etc.
+        if (['mileage', 'odometer', 'distance'].includes(field.name)) {
+          return value.toLocaleString() + ' ' + (field.unit || 'km');
+        }
+        // Handle engine size
+        if (['engineSize', 'displacement'].includes(field.name)) {
+          return value.toLocaleString() + ' ' + (field.unit || 'L');
+        }
+        // Handle currency fields
+        if (['price', 'amount', 'cost', 'value', 'msrp', 'marketValue', 'pricePerUnit'].includes(field.name)) {
+          return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(value);
+        }
+        // Handle percentages
+        if (field.name.endsWith('Percentage') || field.name.endsWith('Rate') || field.type === 'percentage') {
+          return value.toLocaleString() + '%';
+        }
+        // Handle years
+        if (field.name.endsWith('Year') || field.name === 'year') {
+          return value.toString();
+        }
+        // Default number formatting
+        return value.toLocaleString();
+      }
+
+      // Handle arrays (like features)
+      if (Array.isArray(value)) {
+        if (value.length === 0) return <span className="text-gray-400">-</span>;
+        
+        // If array of objects with label property
+        if (value[0] && typeof value[0] === 'object') {
+          // Handle feature groups
+          if ('name' in value[0] && 'label' in value[0]) {
+            return (
+              <div className="flex flex-wrap gap-2">
+                {value.map((item, idx) => (
+                  <span 
+                    key={idx} 
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                  >
+                    {t(item.label, { defaultValue: item.name })}
+                  </span>
+                ))}
+              </div>
+            );
+          }
+          
+          // Handle array of objects with value/label
+          if ('value' in value[0] && 'label' in value[0]) {
+            return value.map(item => item.label).join(', ');
+          }
+          
+          // Handle array of strings or numbers
+          if (value.every(item => typeof item === 'string' || typeof item === 'number')) {
+            return value.join(', ');
+          }
+          
+          // Fallback for any other object array
+          return (
+            <div className="space-y-2">
+              {value.map((item, idx) => (
+                <div key={idx} className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                  {JSON.stringify(item)}
+                </div>
+              ))}
+            </div>
+          );
+        }
+        
+        // Simple string or number array
+        return value.join(', ');
+      }
+
+      // Handle color fields
+      if (field.type === 'colorpicker' || field.name.toLowerCase().includes('color')) {
+        return (
+          <div className="flex items-center">
+            <div
+              className="w-5 h-5 rounded-full border border-gray-300 mr-2"
+              style={{ backgroundColor: String(value) }}
+            />
+            <span className="uppercase">{String(value)}</span>
+          </div>
+        );
+      }
+
+      // Handle date fields
+      if (field.type === 'date' || field.name.toLowerCase().endsWith('date')) {
+        try {
+          const date = new Date(value);
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString();
+          }
+        } catch (e) {
+          console.error('Error formatting date:', e);
+        }
+      }
+
+      // Handle select fields with options
+      if (field.options && Array.isArray(field.options)) {
+        const option = field.options.find((opt: any) => {
+          // Handle both string and number comparisons
+          return String(opt.value) === String(value) || opt.value === value;
+        });
+        
+        if (option) {
+          // Try to translate using the translationKey first, then label, then fallback to value
+          const translationKey = option.translationKey || option.label || option.value;
+          const translated = t(translationKey, { defaultValue: option.value });
+          return translated !== translationKey ? translated : String(option.value);
+        }
+        
+        // If no matching option but we have a value, show the raw value
+        return String(value);
+      }
+
+      // Translate field value if it matches an enum
+      const translationKey = `enums.${field.name}.${value}`;
+      const translated = t(translationKey, { defaultValue: undefined });
+      if (translated !== translationKey) {
+        return translated;
+      }
+
+      // Default string representation
+      return String(value);
+    };  
+
+    const processFields = (fields: ListingFieldSchema[]) => {
+      return fields.map(field => {
+        const value = getFieldValue(listing, field.name);
+        
+        // For feature groups, get all enabled features
+        if (field.type === 'featureGroup') {
+          const enabledFeatures: any[] = [];
+          
+          if (field.featureGroups) {
+            Object.entries(field.featureGroups).forEach(([groupName, group]: [string, any]) => {
+              if (group.features) {
+                group.features.forEach((feature: any) => {
+                  const featureValue = getFieldValue(listing, feature.name);
+                  if (featureValue) {
+                    enabledFeatures.push({
+                      ...feature,
+                      value: featureValue,
+                      group: groupName,
+                      groupLabel: group.label
+                    });
+                  }
+                });
+              }
+            });
+          }
+          
+          return {
+            ...field,
+            value: enabledFeatures,
+            type: 'featureGroup'
+          };
+        }
+        
+        // For regular fields
+        return {
+          ...field,
+          value,
+          type: field.type || (Array.isArray(value) ? 'array' : typeof value)
+        };
+      });
+    };
+
+    const essential = processFields(allEssentialFields);
+    const advanced = processFields(allAdvancedFields);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Essential fields:', essential);
+      console.log('Advanced fields:', advanced);
+      console.log('Listing data:', listing);
+    }
+
     return {
-      essentialFields: getFieldsBySection(listingType, "essential"),
-      advancedFields: getFieldsBySection(listingType, "advanced"),
+      essentialFields: essential,
+      advancedFields: advanced,
     };
   }, [listing]);
   

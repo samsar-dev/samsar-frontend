@@ -19,7 +19,28 @@ import { ImageManager } from "@/components/listings/images/ImageManager";
 
 // Types
 type SectionId = 'basic' | 'essential' | 'advanced' | 'features' | 'location' | 'media' | 'pricing' | 'contact' | 'images';
-type SupportedFieldType = 'text' | 'number' | 'textarea' | 'select' | 'checkbox' | 'color' | 'boolean' | 'multiselect' | 'date';
+type SupportedFieldType = 
+  | 'text' 
+  | 'number' 
+  | 'textarea' 
+  | 'select' 
+  | 'checkbox' 
+  | 'color' 
+  | 'colorpicker'
+  | 'boolean' 
+  | 'multiselect' 
+  | 'date'
+  | 'file'
+  | 'feature-group'
+  | 'featureGroup'
+  | 'radio'
+  | 'toggle'
+  | 'datetime'
+  | 'time'
+  | 'email'
+  | 'tel'
+  | 'url'
+  | 'password';
 
 interface FieldOption {
   value: string;
@@ -34,6 +55,19 @@ interface ExtendedFieldProps {
   options?: FieldOption[];
   required?: boolean;
   placeholder?: string;
+  description?: string;
+  section?: string;
+  featureGroups?: Record<string, {
+    label: string;
+    features: Array<{
+      name: string;
+      label: string;
+      type: string;
+      options?: Array<{ value: string; label: string }>;
+      required?: boolean;
+      description?: string;
+    }>;
+  }>;
   onChange: (value: any) => void;
 }
 
@@ -111,35 +145,70 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
     return null;
   }, [currentListing]);
 
+  // Enhanced setFieldValue to handle nested paths and array indices
   const setFieldValue = useCallback((name: string, value: any) => {
     setFormDataAction((prev: IFormData) => {
-      if (name.includes('.')) {
-        const [parent, ...rest] = name.split('.');
-        const child = rest.join('.');
-        return {
-          ...prev,
-          [parent]: {
-            ...(prev[parent] || {}),
-            [child]: value
+      const setNestedValue = (obj: any, path: string, val: any): any => {
+        const [current, ...rest] = path.split('.');
+        
+        // Handle array indices in path (e.g., 'features[0].name')
+        const arrayMatch = current.match(/(.*?)\[(\d+)\]/);
+        if (arrayMatch) {
+          const arrayPath = arrayMatch[1];
+          const index = parseInt(arrayMatch[2], 10);
+          const array = obj[arrayPath] || [];
+          
+          if (rest.length === 0) {
+            // Direct array item assignment
+            const newArray = [...array];
+            newArray[index] = val;
+            return { ...obj, [arrayPath]: newArray };
+          } else {
+            // Nested path within array item
+            const item = array[index] || {};
+            const updatedItem = setNestedValue(item, rest.join('.'), val);
+            const newArray = [...array];
+            newArray[index] = updatedItem;
+            return { ...obj, [arrayPath]: newArray };
           }
+        }
+        
+        if (rest.length === 0) {
+          // Base case: set the value
+          return { ...obj, [current]: val };
+        }
+        
+        // Recursive case: traverse the path
+        return {
+          ...obj,
+          [current]: setNestedValue(obj[current] || {}, rest.join('.'), val)
         };
-      }
-      return { ...prev, [name]: value };
+      };
+      
+      return setNestedValue(prev, name, value);
     });
   }, [setFormDataAction]);
 
-  const mapFieldType = useCallback((type: string | undefined): SupportedFieldType => {
-    if (!type) return 'text';
+  // Enhanced mapFieldType with support for more field types and validation
+  const mapFieldType = useCallback((field: any): SupportedFieldType => {
+    if (!field || !field.type) return 'text';
     
+    const type = field.type.toLowerCase();
     const typeMap: Record<string, SupportedFieldType> = {
+      // Basic types
       text: 'text',
       string: 'text',
       number: 'number',
       integer: 'number',
+      float: 'number',
+      decimal: 'number',
+      
+      // Complex types
       textarea: 'textarea',
       select: 'select',
       toggle: 'checkbox',
       checkbox: 'checkbox',
+      radio: 'select',
       color: 'color',
       colorpicker: 'color',
       boolean: 'checkbox',
@@ -150,10 +219,24 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
       email: 'text',
       tel: 'text',
       url: 'text',
-      password: 'text'
+      password: 'text',
+      file: 'file',
+      image: 'file',
+      
+      // Special types
+      feature: 'multiselect',
+      'feature-group': 'feature-group',
+      
+      // Fallback
+      default: 'text'
     };
+      
+    // Handle special cases
+    if (field.options) return 'select';
+    if (field.featureGroups) return 'multiselect';
+    if (field.multiple) return 'multiselect';
     
-    return typeMap[type.toLowerCase()] || 'text';
+    return typeMap[type] || typeMap.default;
   }, []);
 
   const section = useMemo(() => 
@@ -175,6 +258,71 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
     };
   }, [setFieldValue]);
 
+  // Process field value based on its type
+  const processFieldValue = (field: any, value: any) => {
+    if (value === undefined || value === null) return value;
+    
+    // Handle different field types
+    switch (field.type) {
+      case 'number':
+      case 'integer':
+      case 'float':
+      case 'decimal':
+        return Number(value);
+      case 'boolean':
+      case 'checkbox':
+      case 'toggle':
+        return Boolean(value);
+      case 'date':
+      case 'datetime':
+        return new Date(value).toISOString();
+      case 'multiselect':
+        return Array.isArray(value) ? value : [value].filter(Boolean);
+      default:
+        return value;
+    }
+  };
+
+  // Get all fields including nested ones
+  const getAllNestedFields = useCallback((fields: any[], parentPath = ''): any[] => {
+    let result: any[] = [];
+    
+    fields.forEach(field => {
+      const fieldPath = parentPath ? `${parentPath}.${field.name}` : field.name;
+      
+      // Add the field itself
+      result.push({
+        ...field,
+        path: fieldPath,
+        fullPath: fieldPath // For backward compatibility
+      });
+      
+      // Handle nested fields in feature groups
+      if (field.type === 'feature-group' && field.featureGroups) {
+        Object.entries(field.featureGroups).forEach(([groupName, group]: [string, any]) => {
+          if (group.features) {
+            group.features.forEach((feature: any) => {
+              const featurePath = `${fieldPath}.${groupName}.${feature.name}`;
+              result.push({
+                ...feature,
+                path: featurePath,
+                fullPath: featurePath,
+                isFeature: true,
+                parentGroup: field.name,
+                groupName,
+                groupLabel: group.label,
+                section: field.section
+              });
+            });
+          }
+        });
+      }
+    });
+    
+    return result;
+  }, []);
+
+  // Get all fields for the current section
   const currentFields = useMemo<ExtendedFieldProps[]>(() => {
     if (!currentListing || !listingType || !sectionFields.length) {
       return [];
@@ -182,47 +330,129 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
     
     console.log('Calculating currentFields', { listingType, activeTab });
     
-    return sectionFields.map((field) => {
-      const fieldName = field.name;
-      const fieldType = field.type || 'text';
-      const mappedType = mapFieldType(fieldType);
+    // Get all fields including nested ones
+    const allFields = getAllNestedFields(sectionFields);
+    
+    return allFields.map((field) => {
+      const fieldName = field.path || field.name;
+      const mappedType = mapFieldType(field);
       const value = getFieldValue(formData, fieldName);
       
+      // Process options for select fields
       const options = Array.isArray(field.options) 
-        ? field.options.map(opt => {
+        ? field.options.map((opt: any) => {
             if (typeof opt === 'string') {
               return { value: opt, label: opt };
             }
             return {
               value: String(opt.value),
-              label: String(opt.label || opt.value)
+              label: String(opt.label || opt.value),
+              translationKey: opt.translationKey
             };
           })
         : undefined;
       
+      // Handle feature options
+      let featureOptions;
+      if (field.isFeature && field.parentGroup) {
+        const parentField = sectionFields.find(f => f.name === field.parentGroup);
+        if (parentField?.featureGroups?.[field.groupName]?.features) {
+          featureOptions = parentField.featureGroups[field.groupName].features
+            .map((f: any) => ({
+              value: f.name,
+              label: f.label || f.name,
+              translationKey: f.translationKey
+            }));
+        }
+      }
+      
       return {
         name: fieldName,
-        label: field.label || fieldName,
+        label: field.label || field.name,
         type: mappedType,
-        value: mappedType === 'checkbox' ? Boolean(value) : value,
-        options,
+        value: processFieldValue(field, value),
+        options: featureOptions || options,
         required: !!field.required,
-        placeholder: (field as any).placeholder,
+        placeholder: field.placeholder,
+        description: field.description,
+        tooltip: field.tooltip,
+        disabled: field.disabled,
+        readOnly: field.readOnly,
+        min: field.min,
+        max: field.max,
+        step: field.step,
+        pattern: field.pattern,
+        rows: field.rows,
+        cols: field.cols,
+        multiple: field.multiple,
+        accept: field.accept,
+        autoComplete: field.autoComplete,
+        autoFocus: field.autoFocus,
         onChange: createFieldChangeHandler(fieldName, mappedType),
-        key: fieldName
+        key: fieldName,
+        className: field.className,
+        style: field.style,
+        // Additional metadata
+        isFeature: field.isFeature,
+        parentGroup: field.parentGroup,
+        groupName: field.groupName,
+        groupLabel: field.groupLabel,
+        section: field.section
       };
     });
-  }, [sectionFields, formData, getFieldValue, mapFieldType, listingType, activeTab, createFieldChangeHandler]);
+  }, [sectionFields, formData, getFieldValue, mapFieldType, listingType, activeTab, createFieldChangeHandler, getAllNestedFields]);
 
-  const uploadFiles = useCallback(async (files: File[]): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
+
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Process form data before submission
+  const prepareFormData = (data: any) => {
+    const formData = new FormData();
     
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
+    const appendFormData = (key: string, value: any) => {
+      if (value === undefined || value === null) return;
       
+      if (Array.isArray(value)) {
+        value.forEach(item => appendFormData(key, item));
+      } else if (value instanceof File) {
+        formData.append(key, value);
+      } else if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    };
+
+    // Process all fields, including nested ones
+    const processObject = (obj: any, prefix = '') => {
+      Object.entries(obj).forEach(([key, value]) => {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        
+        if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof File)) {
+          processObject(value, fullKey);
+        } else {
+          appendFormData(fullKey, value);
+        }
+      });
+    };
+
+    processObject(data);
+    return formData;
+  };
+
+  // Handle file uploads
+  const handleFileUploads = async (files: (File | string | FileMetadata)[]) => {
+    const uploadedUrls: string[] = [];
+    const newFiles = files.filter(file => file instanceof File) as File[];
+    
+    // Upload new files
+    for (const file of newFiles) {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || '/api'}/upload`, {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -230,9 +460,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
           body: formData,
         });
         
-        if (!response.ok) {
-          throw new Error('File upload failed');
-        }
+        if (!response.ok) throw new Error('Upload failed');
         
         const data = await response.json();
         uploadedUrls.push(data.url);
@@ -242,108 +470,62 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
       }
     }
     
-    return uploadedUrls;
-  }, []);
+    // Add existing file URLs
+    const existingUrls = files
+      .filter(file => typeof file === 'string')
+      .map(file => file as string);
+    
+    return [...existingUrls, ...uploadedUrls];
+  };
 
-  const dispatch = useDispatch<AppDispatch>();
-
+  // Main form submission handler
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('[handleSubmit] Form submission started');
     
     if (!currentListing?.id || !formData) {
-      console.error('[handleSubmit] Missing currentListing.id or formData', { 
-        hasCurrentListing: !!currentListing, 
-        hasFormData: !!formData 
-      });
+      console.error('Missing required data');
+      toast.error('Missing required data');
       return;
     }
-    
+
     try {
-      console.log('[handleSubmit] Setting loading to true');
       dispatch(setLoading(true));
       
-      // Log current form data for debugging
-      console.log('[handleSubmit] Current form data:', {
-        formDataKeys: Object.keys(formData),
-        hasImages: !!(formData.images && formData.images.length > 0)
+      // Process all form fields
+      const processedData = { ...formData };
+      
+      // Process each field according to its type
+      const allFields = getAllNestedFields(sectionFields);
+      allFields.forEach(field => {
+        const fieldName = field.path || field.name;
+        const value = formData[fieldName];
+        
+        if (value !== undefined) {
+          processedData[fieldName] = processFieldValue(field, value);
+        }
       });
       
-      // Separate existing URLs from new files that need to be uploaded
-      const existingImages = (formData.images || []).filter(
-        (img: string | File | FileMetadata): img is string | FileMetadata => {
-          const isString = typeof img === 'string';
-          const isFileMetadata = !(img instanceof File) && !(img as FileMetadata).isNew;
-          return isString || isFileMetadata;
-        }
-      );
+      // Handle file uploads
+      const { images, ...otherData } = processedData;
+      const uploadedImages = await handleFileUploads(images || []);
       
-      console.log(`[handleSubmit] Found ${existingImages.length} existing images`);
-      
-      const newFiles = (formData.images || []).filter(
-        (img: string | File | FileMetadata): img is File => img instanceof File
-      );
-      
-      console.log(`[handleSubmit] Found ${newFiles.length} new files to upload`);
-      
-      // Upload new files and get their URLs
-      let uploadedUrls: string[] = [];
-      if (newFiles.length > 0) {
-        try {
-          console.log('[handleSubmit] Starting file upload for', newFiles.length, 'files');
-          uploadedUrls = await uploadFiles(newFiles);
-          console.log('[handleSubmit] Successfully uploaded', uploadedUrls.length, 'files');
-        } catch (error) {
-          console.error('[handleSubmit] Error uploading files:', error);
-          throw new Error('Failed to upload one or more files');
-        }
-      } else {
-        console.log('[handleSubmit] No new files to upload');
-      }
-      
-      // Combine existing URLs with newly uploaded ones
-      const allImageUrls = [
-        ...existingImages.map((img: string | FileMetadata) => 
-          typeof img === 'string' ? img : img.name
-        ),
-        ...uploadedUrls
-      ];
-      
-      console.log('[handleSubmit] Combined', allImageUrls.length, 'images total');
-      
-      // Prepare the form data with updated image URLs
-      const formDataToSubmit = new FormData();
-      const formDataEntries: Record<string, any> = {
-        ...formData,
-        images: allImageUrls
+      // Prepare final data with uploaded files
+      const submissionData = {
+        ...otherData,
+        images: uploadedImages
       };
       
-      console.log('[handleSubmit] Preparing form data with keys:', Object.keys(formDataEntries));
-      
-      // Append all form data fields
-      Object.entries(formDataEntries).forEach(([key, value]) => {
-        try {
-          if (value !== null && value !== undefined) {
-            if (Array.isArray(value)) {
-              value.forEach(item => formDataToSubmit.append(key, String(item)));
-            } else if (value && typeof value === 'object' && 'name' in value && 'lastModified' in value) {
-              // This is a File object
-              formDataToSubmit.append(key, value as File);
-            } else if (value && typeof value === 'object') {
-              formDataToSubmit.append(key, JSON.stringify(value));
-            } else {
-              formDataToSubmit.append(key, String(value));
-            }
-          }
-        } catch (error) {
-          console.error(`[handleSubmit] Error appending field ${key}:`, error);
-        }
-      });
+      // Convert to FormData
+      const formDataToSubmit = prepareFormData(submissionData);
       
       console.log('[handleSubmit] Dispatching updateListingAction');
       
-      // Submit the form data using the Redux action
-      const result = await dispatch(updateListingAction(currentListing.id, formDataToSubmit));
+      // Submit the data
+      const result = await dispatch(updateListingAction(
+        currentListing.id, 
+        formDataToSubmit
+      ));
       
       console.log('[handleSubmit] Received result from updateListingAction:', { 
         success: result?.success,
@@ -351,31 +533,21 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         error: result?.error
       });
       
-      if (!result) {
-        console.error('[handleSubmit] No result returned from updateListingAction');
-        throw new Error('No response received from server');
-      }
-      
-      if (result.success) {
-        console.log('[handleSubmit] Update successful, navigating to listing page');
+      if (result?.success) {
         toast.success('Listing updated successfully');
         navigate(`/listings/${currentListing.id}`);
-        console.log('[handleSubmit] Navigation initiated');
       } else {
-        console.error('[handleSubmit] Update failed:', result.error);
-        throw new Error(result.error || 'Failed to update listing');
+        throw new Error(result?.error || 'Failed to update listing');
       }
     } catch (error) {
       console.error('Error updating listing:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred while updating the listing';
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       toast.error(errorMessage);
-      // Re-throw the error to be caught by the form submission handler
       throw error;
     } finally {
-      // Ensure loading is always reset, even if navigation fails
       dispatch(setLoading(false));
     }
-  }, [currentListing, formData, dispatch, navigate, uploadFiles]);
+  }, [currentListing, formData, dispatch, navigate, sectionFields, getAllNestedFields]);
 
   // Get the current loading state from Redux
   const { loading: currentLoadingState } = useListingStore();
@@ -778,6 +950,73 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'advanced' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentFields.map((field) => {
+                  // Skip if this is a basic field
+                  if (field.section === 'basic' || field.section === 'essential') {
+                    return null;
+                  }
+                  
+                  return (
+                    <div key={field.name} className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {field.label}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </label>
+                      {renderField(field)}
+                      {field.description && (
+                        <p className="mt-1 text-sm text-gray-500">{field.description}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {/* Render feature groups */}
+              {sectionFields
+                .filter(field => (field.type as string) === 'feature-group' || field.type === 'featureGroup')
+                .map((group) => (
+                  <div key={group.name} className="col-span-full mt-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{group.label}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg">
+                      {group.featureGroups && Object.entries(group.featureGroups).map(([groupName, groupData]: [string, any]) => (
+                        <div key={groupName} className="space-y-4">
+                          <h4 className="font-medium text-gray-700">{groupData.label}</h4>
+                          <div className="space-y-3">
+                            {groupData.features?.map((feature: any) => {
+                              const fieldName = `${group.name}.${groupName}.${feature.name}`;
+                              const field = currentFields.find(f => f.name === fieldName);
+                              
+                              if (!field) return null;
+                              
+                              return (
+                                <div key={field.name} className="flex items-center">
+                                  <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      {field.label}
+                                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                                    </label>
+                                    {field.description && (
+                                      <p className="text-xs text-gray-500 mt-1">{field.description}</p>
+                                    )}
+                                  </div>
+                                  <div className="ml-4">
+                                    {renderField(field)}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
             </div>
           )}
 

@@ -73,10 +73,11 @@ export const getFieldsBySection = (
 };
 
 export const getFieldValue = (listing: any, fieldName: string): any => {
+  // Early return for invalid inputs
   if (!listing || !fieldName) {
     if (process.env.NODE_ENV === "development") {
       console.log("getFieldValue: Missing listing or fieldName", {
-        listing,
+        listing: !!listing,
         fieldName,
       });
     }
@@ -84,21 +85,32 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
   }
 
   // Debug: Log the full listing data structure
-  if (
-    process.env.NODE_ENV === "development" &&
-    fieldName === "debug_all_fields"
-  ) {
-    console.log(
-      "Full listing data structure:",
-      JSON.stringify(listing, null, 2)
-    );
+  if (process.env.NODE_ENV === "development" && fieldName === "debug_all_fields") {
+    console.log("Full listing data structure:", JSON.stringify(listing, null, 2));
   }
 
   // Helper function to safely get value from object path
   const safeGet = (obj: any, path: string) => {
     try {
-      return path.split(".").reduce((o, p) => o?.[p], obj);
+      return path.split('.').reduce((o, p) => {
+        // Skip if object is null or undefined
+        if (o == null) return undefined;
+        
+        // Handle array indices in path (e.g., 'features[0]')
+        const arrayMatch = p.match(/(.+?)\[(\d+)\]/);
+        if (arrayMatch) {
+          const arrayName = arrayMatch[1];
+          const index = parseInt(arrayMatch[2], 10);
+          return Array.isArray(o[arrayName]) ? o[arrayName][index] : undefined;
+        }
+        
+        // Handle regular property access
+        return o[p];
+      }, obj);
     } catch (e) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Error accessing path '${path}':`, e);
+      }
       return undefined;
     }
   };
@@ -112,63 +124,87 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
     // Nested under details.realEstate
     `details.realEstate.${fieldName}`,
     // Try with camelCase if fieldName is in snake_case
-    fieldName.includes("_")
-      ? fieldName.split("_").reduce((acc, part, index) => {
-          return index === 0
-            ? part
-            : acc + part[0].toUpperCase() + part.slice(1);
-        }, "")
+    fieldName.includes('_') 
+      ? fieldName.split('_').reduce((acc, part, index) => 
+          index === 0 ? part : acc + part[0].toUpperCase() + part.slice(1), 
+          ''
+        )
       : null,
     // Try with snake_case if fieldName is in camelCase
-    fieldName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`),
-  ].filter(Boolean);
+    fieldName.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`),
+  ].filter(Boolean) as string[];
 
   // Try each path until we find a value
-  for (const path of paths.filter((p): p is string => p !== null)) {
+  for (const path of paths) {
     const value = safeGet(listing, path);
-
-    // If we found a value that's not undefined or null, return it
     if (value !== undefined && value !== null) {
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === 'development') {
         console.log(`Found value for ${fieldName} at path ${path}:`, value);
       }
       return value;
     }
   }
 
-  // Special handling for array fields that might be empty
-  if (
-    listing.details?.vehicles?.[fieldName] === null ||
-    listing.details?.realEstate?.[fieldName] === null
-  ) {
-    return [];
-  }
-
-  // Try to find the field in the details.vehicles object
+  // Handle special cases for vehicle features and arrays
   if (listing.details?.vehicles) {
+    // Check if features is an array and fieldName is in it
+    const vehicleFeatures = listing.details.vehicles.features;
+    if (Array.isArray(vehicleFeatures)) {
+      if (vehicleFeatures.includes(fieldName)) {
+        return true; // Feature exists in the features array
+      }
+      
+      // Check if any feature object has a 'name' property matching fieldName
+      const feature = vehicleFeatures.find(
+        (f: any) => f && typeof f === 'object' && 'name' in f && f.name === fieldName
+      );
+      if (feature) {
+        return feature.value ?? true;
+      }
+    }
+
+    // Check if field exists directly in vehicles with case-insensitive match
     const vehicleFields = Object.keys(listing.details.vehicles);
     const matchingField = vehicleFields.find(
-      (field) => field.toLowerCase() === fieldName.toLowerCase()
+      field => field.toLowerCase() === fieldName.toLowerCase()
     );
 
     if (matchingField) {
       const value = listing.details.vehicles[matchingField];
       if (value !== undefined && value !== null) {
-        if (process.env.NODE_ENV === "development") {
-          console.log(
-            `Found case-insensitive match for ${fieldName} as ${matchingField}:`,
-            value
-          );
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Found case-insensitive match for ${fieldName} as ${matchingField}:`, value);
         }
         return value;
       }
     }
   }
 
+  // Handle special boolean fields that might be undefined
+  const booleanFields = ['isActive', 'isFeatured', 'isAvailable'];
+  if (booleanFields.includes(fieldName)) {
+    return false; // Default value for boolean fields
+  }
+
+  // Handle numeric fields that might be undefined
+  const numericFields = ['mileage', 'price', 'year'];
+  if (numericFields.includes(fieldName)) {
+    return 0; // Default value for numeric fields
+  }
+
+  // Return appropriate defaults for different field types
+  if (fieldName.endsWith('Date') || fieldName.endsWith('At')) {
+    return null; // Default for date fields
+  }
+
+  if (fieldName.endsWith('s') && fieldName !== 'status') {
+    return []; // Default for array fields (plural names)
+  }
+
   // Try direct access as a last resort
   const directValue = listing[fieldName];
   if (directValue !== undefined) {
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === 'development') {
       console.log(`Found ${fieldName} as direct property:`, directValue);
     }
     return directValue;
