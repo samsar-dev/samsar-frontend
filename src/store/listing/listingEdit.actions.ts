@@ -1,4 +1,4 @@
-import { LISTING_TYPES } from "./listing.types";
+import { LISTING_TYPES } from "./listingEdit.types";
 import { Listing } from "@/types/listings";
 import type { AppDispatch } from "../store";
 import { validateField as validateFieldUtil } from "@/utils/listingSchemaRedux";

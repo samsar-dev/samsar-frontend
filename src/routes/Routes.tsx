@@ -35,7 +35,7 @@ const importProfile = () => import("@/pages/Profile");
 const importUserProfile = () => import("@/pages/UserProfile");
 const importSearch = () => import("@/pages/Search");
 const importListingDetails = () =>
-  import("@/components/listings/edit/ListingDetails");
+  import("@/components/listings/edit/ListingDetailsRedux");
 const importCreateListing = () =>
   import("@/components/listings/create/CreateListing");
 const importEditListing = () =>
@@ -66,7 +66,7 @@ const VerifyEmail = lazy(importVerifyEmail);
 const Profile = lazy(importProfile);
 const UserProfile = lazy(importUserProfile);
 const Search = lazy(importSearch);
-const ListingDetails = lazy(importListingDetails);
+const ListingDetailsRedux = lazy(importListingDetails);
 const CreateListing = lazy(importCreateListing);
 const EditListingRedux = lazy(importEditListing);
 const Messages = lazy(importMessages);
@@ -165,7 +165,7 @@ const Routes = (): JSX.Element => {
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/search" element={<Search />} />
 
-          <Route path="/listings/:id" element={<ListingDetails />} />
+          <Route path="/listings/:id" element={<ListingDetailsRedux />} />
           <Route path="/listings" element={<Navigate to="/" replace />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/realestate" element={<RealEstate />} />

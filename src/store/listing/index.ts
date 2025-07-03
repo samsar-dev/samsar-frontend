@@ -1,7 +1,7 @@
-import { listingReducer } from "./listing.reducer";
+import { listingReducer } from "./listingEdit.reducer";
 
-export * from "./listing.actions";
-export * from "./listing.selectors";
-export * from "./listing.types";
+export * from "./listingEdit.actions";
+export * from "./listingEdit.selectors";
+export * from "./listingEdit.types";
 
-export default listingReducer;
+export { listingReducer as listingEditReducer };

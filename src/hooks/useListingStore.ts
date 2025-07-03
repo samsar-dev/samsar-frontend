@@ -9,28 +9,18 @@ import {
   selectDeletedImages,
   selectLoading,
   selectError,
-} from '@/store/listing/listing.selectors';
-import * as listingActions from '@/store/listing/listing.actions';
+  selectListingDetails,
+  selectDetailsLoading,
+  selectDetailsError
+} from '@/store/listing/listingEdit.selectors';
+import * as listingActions from '@/store/listing/listingEdit.actions';
 import { 
   getNestedValue,
   setNestedValue
 } from '@/utils/listingSchemaRedux';
 import { Listing } from '@/types/listings';
 
-// Define action types for better type safety
-type ListingAction = ReturnType<typeof listingActions.setCurrentListing>
-  | ReturnType<typeof listingActions.setFormData>
-  | ReturnType<typeof listingActions.setStep>
-  | ReturnType<typeof listingActions.addImage>
-  | ReturnType<typeof listingActions.removeImage>
-  | ReturnType<typeof listingActions.setLoading>
-  | ReturnType<typeof listingActions.setError>
-  | ReturnType<typeof listingActions.createListing>
-  | ReturnType<typeof listingActions.updateListing>
-  | ReturnType<typeof listingActions.fetchListing>
-  | ReturnType<typeof listingActions.resetListingState>
-  | ReturnType<typeof listingActions.setFieldValue>
-  | ReturnType<typeof listingActions.validateField>;
+// Action types are now inferred from the actions themselves
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -40,7 +30,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useListingStore = () => {
   const dispatch = useAppDispatch();
   
-  // Selectors
+  // Selectors - using the correct state paths
   const currentListing = useAppSelector(selectCurrentListing);
   const formData = useAppSelector(selectFormData);
   const step = useAppSelector(selectStep);
@@ -48,6 +38,9 @@ export const useListingStore = () => {
   const deletedImages = useAppSelector(selectDeletedImages);
   const loading = useAppSelector(selectLoading);
   const error = useAppSelector(selectError);
+  const listingDetails = useAppSelector(selectListingDetails);
+  const detailsLoading = useAppSelector(selectDetailsLoading);
+  const detailsError = useAppSelector(selectDetailsError);
   
   // Actions
   const setCurrentListingAction = (listing: Listing) => dispatch(listingActions.setCurrentListing(listing));
@@ -89,13 +82,13 @@ export const useListingStore = () => {
 
   return {
     // State
-    currentListing,
+    currentListing: currentListing || listingDetails, // Fallback to listingDetails if currentListing is null
     formData,
     step,
     images,
     deletedImages,
-    loading,
-    error,
+    loading: loading || detailsLoading,
+    error: error || detailsError,
     
     // Form field methods
     getFieldValue,

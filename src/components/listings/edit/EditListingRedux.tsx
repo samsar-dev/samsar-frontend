@@ -10,7 +10,7 @@ import { useSocket } from "@/contexts/SocketContext";
 // Utils & Types
 import { getFieldsBySection } from "@/utils/listingSchemaUtils";
 import { VehicleType, PropertyType } from "@/types/enums";
-import { updateListing as updateListingAction } from "@/store/listing/listing.actions";
+import { updateListing as updateListingAction } from "@/store/listing/listingEdit.actions";
 import { AppDispatch } from "@/store/store";
 import { PRICE_CHANGE } from "@/constants/socketEvents";
 
