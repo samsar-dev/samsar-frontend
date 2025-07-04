@@ -1,68 +1,74 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
 interface PreloadImagesProps {
   imageUrls: string[];
-  priority?: "high" | "low" | "auto";
-  optimizeForR2?: boolean;
-  sizes?: number[];
+  priority?: boolean;
+  quality?: number;
+  sizes?: { width: number; media?: string }[];
 }
 
+/**
+ * Preloads images to improve perceived performance
+ * Only preloads the first image by default as it's likely the LCP candidate
+ */
 const PreloadImages: React.FC<PreloadImagesProps> = ({
   imageUrls,
-  priority = "high",
-  optimizeForR2 = true,
-  sizes = [600],
+  priority = false,
+  quality = 85,
+  sizes = [
+    { width: 400, media: '(max-width: 640px)' },
+    { width: 800, media: '(max-width: 1024px)' },
+    { width: 1200, media: '(min-width: 1025px)' },
+  ],
 }) => {
   useEffect(() => {
-    // Only preload a limited number of images to avoid resource contention
-    // Focus on the first image which is most likely to be an LCP candidate
-    const imagesToPreload = imageUrls.slice(0, 1);
-
-    if (imagesToPreload.length === 0) return;
+    if (!imageUrls?.length) return;
+    
+    // Only preload the first image to avoid resource contention
+    const imageUrl = imageUrls[0];
+    if (!imageUrl) return;
 
     const links: HTMLLinkElement[] = [];
+    const isR2Image = imageUrl.includes('r2.dev');
+    const baseUrl = imageUrl.split('?')[0];
 
-    imagesToPreload.forEach((url) => {
-      if (!url) return;
-
-      // Apply R2 optimization if enabled and URL is from R2
-      if (optimizeForR2 && url.includes("r2.dev")) {
-        const baseUrl = url.split("?")[0];
-
-        // For R2 images, preload the webp version with appropriate size
-        // This creates one preload link per size
-        sizes.forEach((size) => {
-          const link = document.createElement("link");
-          link.rel = "preload";
-          link.as = "image";
-          link.href = `${baseUrl}?format=webp&quality=85&width=${size}`;
-          link.setAttribute("fetchpriority", priority);
-          link.setAttribute("imagesizes", `${size}px`);
-          link.setAttribute("imagesrcset", `${link.href} ${size}w`);
-          document.head.appendChild(link);
-          links.push(link);
+    // Create a single preload for the most likely size (800px)
+    const createPreloadLink = (width: number) => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      
+      if (isR2Image) {
+        const params = new URLSearchParams({
+          format: 'webp',
+          quality: quality.toString(),
+          width: width.toString(),
         });
+        link.href = `${baseUrl}?${params.toString()}`;
       } else {
-        // For non-R2 images, just preload the original
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = url;
-        link.setAttribute("fetchpriority", priority);
-        document.head.appendChild(link);
-        links.push(link);
+        link.href = imageUrl;
       }
-    });
+      
+      link.setAttribute('fetchpriority', priority ? 'high' : 'low');
+      document.head.appendChild(link);
+      return link;
+    };
+
+    // Preload the most common size (800px)
+    const commonSize = sizes.find(s => s.width === 800) || sizes[Math.floor(sizes.length / 2)];
+    if (commonSize) {
+      links.push(createPreloadLink(commonSize.width));
+    }
 
     return () => {
       // Cleanup preload links when component unmounts
-      links.forEach((link) => {
+      links.forEach(link => {
         if (document.head.contains(link)) {
           document.head.removeChild(link);
         }
       });
     };
-  }, [imageUrls, priority, optimizeForR2, sizes]);
+  }, [imageUrls, priority, quality, sizes]);
 
   return null;
 };

@@ -49,7 +49,6 @@ interface ImageProps {
   category?: CategoryType;
   placeholder?: string;
   blur?: boolean;
-  fetchPriority?: "high" | "low" | "auto";
   onLoad?: () => void;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
@@ -69,7 +68,6 @@ const Image: React.FC<ImageProps> = ({
   category,
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
-  fetchPriority = "auto",
   onLoad,
   onError,
 }) => {
@@ -77,10 +75,48 @@ const Image: React.FC<ImageProps> = ({
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Handle R2 image optimization
+  // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
-  const imageQuality = priority ? Math.min(90, quality) : quality;
+  const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
+  
+  // Generate optimized image URL with WebP format and proper caching
+  const getOptimizedImageUrl = (width?: number) => {
+    if (!isR2Image || !baseUrl) return src || "";
+    const params = new URLSearchParams();
+    params.append('format', 'webp');
+    params.append('quality', imageQuality.toString());
+    if (width) params.append('width', width.toString());
+    
+    // Add cache-busting parameter for non-production environments
+    if (process.env.NODE_ENV !== 'production') {
+      params.append('_t', Date.now().toString());
+    }
+    
+    return `${baseUrl}?${params.toString()}`;
+  };
+  
+  // Define responsive image sizes based on viewport
+  const responsiveSizes = [
+    { media: '(max-width: 640px)', width: 400 },
+    { media: '(max-width: 1024px)', width: 800 },
+    { media: '(min-width: 1025px)', width: 1200 },
+  ];
+  
+  // Preload critical images
+  useEffect(() => {
+    if (priority && isR2Image && baseUrl) {
+      const preloadLink = document.createElement('link');
+      preloadLink.rel = 'preload';
+      preloadLink.as = 'image';
+      preloadLink.href = getOptimizedImageUrl(800); // Preload medium size
+      document.head.appendChild(preloadLink);
+      
+      return () => {
+        document.head.removeChild(preloadLink);
+      };
+    }
+  }, [priority, isR2Image, baseUrl, imageQuality]);
 
   // Helper function to get the most appropriate icon based on category
   const getCategoryIcon = (category?: CategoryType) => {
@@ -100,22 +136,7 @@ const Image: React.FC<ImageProps> = ({
     return categoryIcons.OTHER;
   };
 
-  // Generate optimized image URL
-  const getOptimizedSrc = (width?: number) => {
-    if (!isR2Image || !baseUrl) return src || "";
-    return width
-      ? `${baseUrl}?format=webp&quality=${imageQuality}&width=${width}`
-      : `${baseUrl}?format=webp&quality=${imageQuality}`;
-  };
-
-  // Generate srcSet for responsive images
-  const srcSet = (() => {
-    if (!isR2Image || !baseUrl) return undefined;
-    const widths = priority ? [400, 600, 800, 1200] : [800, 1200];
-    return widths
-      .map((w) => `${getOptimizedSrc(w)} ${w}w`)
-      .join(", ");
-  })();
+  // getOptimizedImageUrl is used consistently for all image URL generation
 
   // Handle image load events
   const handleLoad = () => {
@@ -129,22 +150,7 @@ const Image: React.FC<ImageProps> = ({
     if (onError) onError(e);
   };
 
-  // Preload priority images
-  useEffect(() => {
-    if (priority && typeof window !== "undefined" && baseUrl) {
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = getOptimizedSrc(600);
-      link.fetchPriority = "high";
-      document.head.appendChild(link);
-      return () => {
-        if (document.head.contains(link)) {
-          document.head.removeChild(link);
-        }
-      };
-    }
-  }, [priority, baseUrl, imageQuality]);
+
 
   // Render fallback UI if image fails to load
   if (hasError || !src) {
@@ -190,60 +196,69 @@ const Image: React.FC<ImageProps> = ({
   // Render the actual image
   return (
     <div 
-      className={`relative w-full h-full flex items-center justify-center ${className}`}
-      style={{ minHeight: 40 }}
-      tabIndex={0}
-      aria-label={alt || 'Image'}
-      role="img"
+      className={`relative ${className}`} 
+      style={{ 
+        width: width || '100%', 
+        height: height || 'auto',
+        minHeight: '40px' // Ensure minimum height for placeholder
+      }}
     >
-      {isLoading && blur && (
-        <div 
-          className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse z-0"
-          aria-hidden="true"
-        />
+      {/* Loading state */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+          {category && React.createElement(getCategoryIcon(category), {
+            className: 'w-1/3 h-1/3 text-gray-400',
+            'aria-hidden': 'true',
+          })}
+        </div>
       )}
       
-      <img
-        ref={imgRef}
-        src={getOptimizedSrc()}
-        srcSet={srcSet}
-        sizes={sizes}
-        alt={alt || ''}
-        className={`${className} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        loading={loading}
-        width={width}
-        height={height}
-        onLoad={handleLoad}
-        onError={handleError}
-        // @ts-ignore - fetchpriority is valid HTML but not yet in React types
-        fetchpriority={fetchPriority}
-        decoding={priority ? 'sync' : 'async'}
-        draggable={false}
-      />
-
-      {isLoading && !blur && (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <svg
-            className="animate-spin h-7 w-7 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            />
-          </svg>
+      {/* Error state */}
+      {hasError ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
+          {React.createElement(getCategoryIcon(category), {
+            className: 'w-1/4 h-1/4 text-gray-400 mb-2',
+            'aria-hidden': 'true'
+          })}
+          <span className="text-sm text-gray-500 text-center">
+            {alt || 'Image not available'}
+          </span>
         </div>
+      ) : (
+        /* Image content */
+        <picture>
+          {/* WebP sources for modern browsers */}
+          {isR2Image && (
+            <source
+              type="image/webp"
+              srcSet={responsiveSizes
+                .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
+                .join(', ')}
+              sizes={sizes}
+            />
+          )}
+          
+          {/* Fallback image */}
+          <img
+            ref={imgRef}
+            src={isR2Image ? getOptimizedImageUrl(1200) : src}
+            srcSet={isR2Image ? responsiveSizes
+              .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
+              .join(', ') : undefined}
+            alt={alt}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              isLoading ? 'opacity-0' : 'opacity-100'
+            } ${blur ? 'blur-sm' : ''}`}
+            loading={loading}
+            fetchPriority={priority ? 'high' : 'low'}
+            width={width}
+            height={height}
+            onLoad={handleLoad}
+            onError={handleError}
+            sizes={sizes}
+            decoding={priority ? 'sync' : 'async'}
+          />
+        </picture>
       )}
     </div>
   );

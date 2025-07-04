@@ -50,6 +50,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showLocation = false,
   showDate = false,
   showBadges = true,
+  priority = false,
 }) => {
   const { t } = useTranslation(["listings", "common", "locations"]);
   const { user } = useAuth();
@@ -310,7 +311,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
     >
       {/* Preload the main image for LCP optimization */}
       {mainImage && typeof mainImage === "string" && (
-        <PreloadImages imageUrls={[mainImage]} />
+        <PreloadImages 
+          imageUrls={[mainImage]} 
+          priority={priority}
+          quality={85}
+        />
       )}
       <Link to={`/listings/${id}`} className="block h-full">
         <div className="relative">
@@ -319,7 +324,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
               src={mainImage}
               alt={title}
               className="w-full h-full object-cover"
-              category={category.subCategory}
+              category={category?.subCategory}
+              priority={priority}
+              quality={85}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading={priority ? 'eager' : 'lazy'}
+              width={400}
+              height={300}
             />
           </div>
 
