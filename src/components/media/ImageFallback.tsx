@@ -78,30 +78,60 @@ const Image: React.FC<ImageProps> = ({
   // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
-  const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
+  // Use more aggressive quality settings for non-priority images
+  const imageQuality = priority ? Math.min(85, quality) : Math.max(50, Math.min(70, quality));
   
   // Generate optimized image URL with WebP format and proper caching
   const getOptimizedImageUrl = (width?: number) => {
     if (!isR2Image || !baseUrl) return src || "";
+    
     const params = new URLSearchParams();
     params.append('format', 'webp');
     params.append('quality', imageQuality.toString());
-    if (width) params.append('width', width.toString());
     
-    // Add cache-busting parameter for non-production environments
-    if (process.env.NODE_ENV !== 'production') {
+    // Only add width if specified and greater than 0
+    if (width && width > 0) {
+      params.append('width', Math.ceil(width).toString());
+    }
+    
+    // Add cache-control headers for production
+    if (process.env.NODE_ENV === 'production') {
+      // Set long cache TTL (1 year) for production
+      params.append('cache-control', 'public, max-age=31536000, immutable');
+    } else {
+      // Cache busting for development
       params.append('_t', Date.now().toString());
     }
     
     return `${baseUrl}?${params.toString()}`;
   };
   
-  // Define responsive image sizes based on viewport
+  // Define responsive image sizes based on viewport and common display sizes
   const responsiveSizes = [
+    // Mobile - 1x and 2x for high DPI displays
     { media: '(max-width: 640px)', width: 400 },
-    { media: '(max-width: 1024px)', width: 800 },
+    { media: '(max-width: 640px) and (-webkit-min-device-pixel-ratio: 2)', width: 800 },
+    
+    // Tablet - 1x and 2x for high DPI displays
+    { media: '(min-width: 641px) and (max-width: 1024px)', width: 800 },
+    { media: '(min-width: 641px) and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 2)', width: 1200 },
+    
+    // Desktop - 1x and 2x for high DPI displays
     { media: '(min-width: 1025px)', width: 1200 },
+    { media: '(min-width: 1025px) and (-webkit-min-device-pixel-ratio: 2)', width: 1800 },
   ];
+  
+  // Get the most appropriate image size based on viewport
+  const getOptimalImageSize = () => {
+    if (typeof window === 'undefined') return 1200; // Default server-side
+    
+    const viewportWidth = window.innerWidth;
+    const dpr = window.devicePixelRatio || 1;
+    
+    if (viewportWidth <= 640) return Math.ceil(400 * dpr);
+    if (viewportWidth <= 1024) return Math.ceil(800 * dpr);
+    return Math.ceil(1200 * dpr);
+  };
   
   // Preload critical images
   useEffect(() => {
@@ -193,15 +223,40 @@ const Image: React.FC<ImageProps> = ({
     );
   }
 
+  // Calculate optimal image dimensions
+  const optimalWidth = width || (height ? undefined : '100%');
+  const optimalHeight = height || (width ? 'auto' : '100%');
+  const imgAspectRatio = width && height ? (Number(width) / Number(height)).toFixed(2) : '4/3';
+  
+  // Generate srcSet string for responsive images
+  const generateSrcSet = () => {
+    if (!isR2Image || !baseUrl) return undefined;
+    
+    const uniqueSizes = Array.from(new Set(responsiveSizes.map(s => s.width)));
+    return uniqueSizes
+      .map(width => `${getOptimizedImageUrl(width)} ${width}w`)
+      .join(',');
+  };
+  
+  // Get the most appropriate image source
+  const getOptimalSrc = () => {
+    if (!isR2Image || !baseUrl) return src || '';
+    const optimalSize = getOptimalImageSize();
+    return getOptimizedImageUrl(optimalSize);
+  };
+
   // Render the actual image
   return (
     <div 
       className={`relative ${className}`} 
       style={{ 
-        width: width || '100%', 
-        height: height || 'auto',
-        minHeight: '40px' // Ensure minimum height for placeholder
+        width: optimalWidth, 
+        height: optimalHeight,
+        minHeight: '40px', // Ensure minimum height for placeholder
+        aspectRatio: imgAspectRatio,
+        contain: 'paint', // Improve rendering performance
       }}
+      data-priority={priority ? 'true' : 'false'}
     >
       {/* Loading state */}
       {isLoading && (
@@ -241,10 +296,8 @@ const Image: React.FC<ImageProps> = ({
           {/* Fallback image */}
           <img
             ref={imgRef}
-            src={isR2Image ? getOptimizedImageUrl(1200) : src}
-            srcSet={isR2Image ? responsiveSizes
-              .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
-              .join(', ') : undefined}
+            src={getOptimalSrc()}
+            srcSet={generateSrcSet()}
             alt={alt}
             className={`w-full h-full object-cover transition-opacity duration-300 ${
               isLoading ? 'opacity-0' : 'opacity-100'
@@ -255,8 +308,11 @@ const Image: React.FC<ImageProps> = ({
             height={height}
             onLoad={handleLoad}
             onError={handleError}
-            sizes={sizes}
+            sizes={`(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw`}
             decoding={priority ? 'sync' : 'async'}
+            style={{
+              contentVisibility: 'auto', // Improve rendering performance
+            }}
           />
         </picture>
       )}

@@ -55,6 +55,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const { t } = useTranslation(["listings", "common", "locations"]);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     id,
@@ -314,7 +316,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <PreloadImages 
           imageUrls={[mainImage]} 
           priority={priority}
-          quality={85}
+          quality={priority ? 80 : 65} // Higher quality for priority images
         />
       )}
       <Link to={`/listings/${id}`} className="block h-full">
@@ -326,11 +328,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
               className="w-full h-full object-cover"
               category={category?.subCategory}
               priority={priority}
-              quality={85}
+              quality={priority ? 80 : 65} // Higher quality for priority images
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               loading={priority ? 'eager' : 'lazy'}
               width={400}
               height={300}
+              blur={!priority} // Add blur effect for non-priority images while loading
             />
           </div>
 
