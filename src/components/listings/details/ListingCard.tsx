@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import ImageFallback from "@/components/common/ImageFallback";
+import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
 import { timeAgo } from "@/utils/dateUtils";
 import { formatCurrency } from "@/utils/formatUtils";

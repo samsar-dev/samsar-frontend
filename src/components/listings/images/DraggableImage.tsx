@@ -2,7 +2,7 @@ import React, { useRef, memo, useMemo, useCallback } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { motion } from "framer-motion";
 import { FaTrash, FaEdit } from "react-icons/fa";
-import ImageFallback from "@/components/common/ImageFallback";
+import ImageFallback from "@/components/media/ImageFallback";
 
 /**
  * DraggableImage component for drag-and-drop image reordering

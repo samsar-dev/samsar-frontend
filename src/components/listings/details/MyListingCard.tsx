@@ -1,6 +1,6 @@
 import PreloadImages from "@/components/media/PreloadImages";
 import { ListingCategory } from "@/types/enums";
-import ImageFallback from "@/components/common/ImageFallback";
+import ImageFallback from "@/components/media/ImageFallback";
 import type {
   Listing,
   RealEstateDetails,

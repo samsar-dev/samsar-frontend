@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ResponsiveImage from "@/components/media/ResponsiveImage";
+import ImageFallback from "@/components/media/ImageFallback";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 
@@ -71,7 +71,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
           }
           tabIndex={0}
         >
-          <ResponsiveImage
+          <ImageFallback
             src={imageUrls[selectedImage !== null ? selectedImage : 0]}
             alt={`Main Image`}
             className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
@@ -89,7 +89,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
               onClick={() => setSelectedImage(idx)}
               tabIndex={0}
             >
-              <ResponsiveImage
+              <ImageFallback
                 src={url}
                 alt={`Thumbnail ${idx + 1}`}
                 className="object-cover w-full h-full rounded-lg"
@@ -137,7 +137,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                   className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
                   onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 >
-                  <ResponsiveImage
+                  <ImageFallback
                     src={imageUrls[selectedImage]}
                     alt={`Image ${selectedImage + 1}`}
                     className="max-h-[90vh] w-auto object-contain"

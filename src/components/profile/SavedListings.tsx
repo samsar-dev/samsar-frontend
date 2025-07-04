@@ -1,5 +1,5 @@
 import { listingsAPI } from "@/api/listings.api";
-import ImageFallback from "@/components/common/ImageFallback";
+import ImageFallback from "@/components/media/ImageFallback";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { ListingAction } from "@/types/enums";
@@ -11,15 +11,18 @@ import { BsSend } from "react-icons/bs";
 import { MdDelete, MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { toast } from "react-toastify";
 
-interface ExtendedListing extends Omit<Listing, "details"> {
+interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
   seller?: {
     id: string;
     username: string;
     profilePicture: string | null;
+    allowMessaging: boolean;
+    privateProfile: boolean;
   };
   details: ListingDetails & {
     area?: number;
   };
+  images: string[];
 }
 
 const SavedListings = () => {
@@ -63,8 +66,14 @@ const SavedListings = () => {
       }
 
       // More robust data extraction
-      const favoriteItems =
-        response.data?.items || response.data?.favorites || response.data || [];
+      // Safely extract favorite items from different response formats
+      const favoriteItems = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.items)
+        ? response.data.items
+        : Array.isArray(response.data?.favorites)
+        ? response.data.favorites
+        : [];
 
       console.log("Favorite Items:", favoriteItems);
 
@@ -141,7 +150,7 @@ const SavedListings = () => {
 
           <div className="flex flex-col gap-4">
             {listings.length > 0 ? (
-              listings.map((item) => (
+              listings.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -170,13 +179,14 @@ const SavedListings = () => {
                       </div>
                       <div className="w-full h-full bg-gray-100 dark:bg-gray-700">
                         {item.images && item.images.length > 0 ? (
-                          <img
+                          <ImageFallback
                             src={item.images[0] as string}
                             alt={item.title}
-                            className="inset-0 w-full h-full object-cover bg-white dark:bg-gray-800 bg-cover rounded-sm"
-                            onError={() => {
-                              // Error handling is now managed by ImageFallback
-                            }}
+                            className="w-full h-full object-cover bg-white dark:bg-gray-800 rounded-sm"
+                            width={144}
+                            height={144}
+                            loading="lazy"
+                            priority={index < 3}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
