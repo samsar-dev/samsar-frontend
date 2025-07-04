@@ -8,7 +8,7 @@ import type {
 } from "@/types/listings";
 import { useTranslation } from "react-i18next";
 import { PriceConverter } from "@/components/common/PriceConverter";
-import { FaEdit, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
+import { FaEdit, FaMapMarkerAlt, FaTrash, FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 export interface MyListingCardProps {
@@ -22,6 +22,13 @@ export interface MyListingCardProps {
 const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
   const mainImage = listing?.images?.[0];
   const { t } = useTranslation();
+  
+  const formatViews = (count?: number) => {
+    if (!count) return '0';
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return count.toString();
+  };
   const {
     id,
     title,
@@ -222,6 +229,22 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
           <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
             <PriceConverter price={price} />
           </p>
+          
+          {/* Location and Views */}
+          <div className="flex items-center justify-between mb-3 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center">
+              <FaMapMarkerAlt className="mr-1" />
+              <span className="truncate max-w-[180px]">{location}</span>
+            </div>
+            {listing.views !== undefined && (
+              <div className="flex items-center text-xs text-gray-500">
+                <FaEye className="mr-1" />
+                <span>{formatViews(listing.views)}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Features */}
           <div className="flex flex-wrap gap-2 mb-3">
             {listing?.vehicleDetails?.features?.map(
               (feature: string, index: number) => (
@@ -231,12 +254,8 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
                 >
                   {feature}
                 </span>
-              ),
+              )
             )}
-          </div>
-          <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
-            <FaMapMarkerAlt className="mr-1" />
-            <span className="truncate">{location}</span>
           </div>
         </div>
       </Link>

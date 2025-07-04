@@ -37,7 +37,7 @@
     "date-fns": "^2.30.0",
     "formdata-node": "^6.0.3",
     "formik": "^2.4.6",
-    "framer-motion": "^12.16.0",
+    "framer-motion": "^12.23.0",
     "fuse.js": "^7.1.0",
     "history": "^5.3.0",
     "i18n": "^0.15.1",

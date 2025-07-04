@@ -976,6 +976,7 @@ export interface Listing {
     allowMessaging: boolean;
     privateProfile: boolean;
   };
+  views?: number;
 }
 
 export interface ListingUpdateInput {

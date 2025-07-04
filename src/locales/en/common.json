@@ -22,6 +22,8 @@
   "notProvided": "Not Provided",
   "beds": "beds",
   "baths": "baths",
+  "showInUSD": "Show in USD",
+  "showInSYP": "Show in SYP",
   "deleteConfirmation": "Are you sure you want to delete this listing? This action cannot be undone.",
   "title": "Title",
   "titlePlaceholder": "Enter a title for your listing",
@@ -29,6 +31,12 @@
   "saving": "Saving...",
   "continue": "Continue",
   "reset": "Reset",
+  "sort": {
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "price_high": "Price: High to Low",
+    "price_low": "Price: Low to High"
+  },
   "moreFilters": "More filters",
   "back": "Back",
   "overview": "Overview",

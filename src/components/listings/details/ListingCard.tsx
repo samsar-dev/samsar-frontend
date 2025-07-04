@@ -14,7 +14,7 @@ import type {
 } from "@/types/listings";
 import { ListingCategory, ListingAction, ListingStatus } from "@/types/enums";
 import { motion } from "framer-motion";
-import { MdFavorite, MdFavoriteBorder, MdLocationOn } from "react-icons/md";
+import { MdFavorite, MdFavoriteBorder, MdLocationOn, MdOutlineRemoveRedEye } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
 import { useState, useEffect } from "react";
@@ -26,6 +26,7 @@ interface ExtendedListing extends Omit<BaseListing, 'latitude' | 'longitude'> {
   latitude: number | null;
   longitude: number | null;
   originalPrice?: number;
+  views?: number; // Add views field to match the API response
 }
 
 export interface ListingCardProps {
@@ -52,6 +53,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
   priority = false,
 }) => {
   const { t } = useTranslation(["listings", "common", "locations"]);
+  const formatViews = (count?: number) => {
+    if (!count) return '0';
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return count.toString();
+  };
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [distance] = useState<number | null>(null); // Distance will be implemented later
@@ -446,19 +453,23 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {/* Location, Distance and Date */}
           <div className="flex flex-col space-y-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
             {location && (
-              <div className="flex items-center">
-                <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 flex-shrink-0" />
-                <span className="truncate">{location}</span>
-              </div>
-            )}
-            {distance !== null && (
-              <div className="flex items-center text-xs text-gray-400">
-                <span>~{distance.toFixed(1)} km away</span>
-              </div>
-            )}
-            {createdAt && (
-              <div className="text-xs text-gray-400">
-                {timeAgo(new Date(createdAt).toISOString())}
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center">
+                  <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 flex-shrink-0" />
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude || ''}${!listing.latitude ? encodeURIComponent(location) : ''}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="truncate hover:underline hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {location}
+                  </a>
+                </div>
+                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                  <MdOutlineRemoveRedEye className="mr-1 text-gray-400" />
+                  <span>{formatViews(listing.views)}</span>
+                </div>
               </div>
             )}
           </div>
