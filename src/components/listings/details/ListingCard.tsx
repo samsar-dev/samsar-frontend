@@ -317,71 +317,69 @@ const ListingCard: React.FC<ListingCardProps> = ({
           quality={85}
         />
       )}
-      <Link to={`/listings/${id}`} className="block h-full">
-        <div className="relative">
-          <div className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
-            <ImageFallback
-              src={mainImage}
-              alt={title}
-              className="w-full h-full object-cover"
-              category={category?.subCategory}
-              priority={priority}
-              quality={85}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              loading={priority ? 'eager' : 'lazy'}
-              width={400}
-              height={300}
-            />
-          </div>
-
-          {/* Map has been moved to ListingDetails component */}
-          {showBadges && (
-            <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-              <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {t(
-                  `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
-                  {
-                    defaultValue: category.subCategory,
-                  }
-                )}
-              </span>
-              <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  listingAction === ListingAction.SALE
-                    ? "bg-blue-600 text-white"
-                    : "bg-green-600 text-white"
-                }`}
-              >
-                {listingAction === ListingAction.SALE
-                  ? t("common.forSale")
-                  : t("common.forRent")}
-              </span>
+      <div className="h-full">
+        <Link to={`/listings/${id}`} className="block h-full">
+          <div className="relative">
+            {showBadges && (
+              <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+                <span className="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                  {t(
+                    `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
+                    {
+                      defaultValue: category.subCategory,
+                    }
+                  )}
+                </span>
+                <span
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                    listingAction === ListingAction.SALE
+                      ? "bg-blue-700 text-white"
+                      : "bg-green-700 text-white"
+                  }`}
+                >
+                  {listingAction === ListingAction.SALE
+                    ? t("common.forSale")
+                    : t("common.forRent")}
+                </span>
+              </div>
+            )}
+            <div className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+              <ImageFallback
+                src={mainImage}
+                alt={title}
+                className="w-full h-full object-cover"
+                category={category?.subCategory}
+                priority={priority}
+                quality={85}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                loading={priority ? 'eager' : 'lazy'}
+                width={400}
+                height={300}
+              />
+              {showSaveButton && user && (
+                <div className="absolute top-2 right-2 z-20">
+                  <button
+                    onClick={handleFavoriteClick}
+                    className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
+                      isFavorite
+                        ? "bg-red-500 text-white hover:bg-red-600"
+                        : "bg-white text-gray-600 hover:text-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {isFavorite ? (
+                      <MdFavorite className="w-6 h-6" />
+                    ) : (
+                      <MdFavoriteBorder className="w-6 h-6" />
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-
-          {showSaveButton && user && (
-            <div className="absolute top-2 right-2 z-20">
-              <button
-                onClick={handleFavoriteClick}
-                className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
-                  isFavorite
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : "bg-white text-gray-600 hover:text-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-                }`}
-              >
-                {isFavorite ? (
-                  <MdFavorite className="w-6 h-6" />
-                ) : (
-                  <MdFavoriteBorder className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="relative p-4">
-          <h3 className="text-lg font-semibold mb-2 pr-8 truncate">{title}</h3>
-          {showPrice && (
-            <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
+            <div className="relative p-4">
+              <h3 className="text-lg font-semibold mb-2 pr-8 truncate">{title}</h3>
+          {/* Price */}
+          {showPrice && price && (
+            <p className="text-green-700 dark:text-green-300 font-semibold mb-2">
               {formatCurrency(price)}
               {listingAction === ListingAction.RENT && (
                 <span className="text-sm ml-1">/mo</span>
@@ -395,33 +393,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
               {vehicleDetails ? (
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {/* Mileage box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                    <div className="font-semibold text-gray-800 dark:text-gray-200">
                       {t("listings.fields.mileage")}
                     </div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                       {vehicleDetails?.mileage
                         ? `${vehicleDetails.mileage} km`
                         : t("notProvided")}
                     </div>
                   </div>
                   {/* Year box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                    <div className="font-semibold text-gray-800 dark:text-gray-200">
                       {t("year")}
                     </div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                       {vehicleDetails?.year
                         ? vehicleDetails.year
                         : t("notProvided")}
                     </div>
                   </div>
                   {/* Fuel type box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                    <div className="font-semibold text-gray-800 dark:text-gray-200">
                       {t("fields.fuelType")}
                     </div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                       {vehicleDetails?.fuelType
                         ? t(
                             `fields.fuelTypes.${(() => {
@@ -433,11 +431,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     </div>
                   </div>
                   {/* Transmission box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                    <div className="font-semibold text-gray-800 dark:text-gray-200">
                       {t("fields.transmission")}
                     </div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                       {(() => {
                         const transmissionValue =
                           vehicleDetails?.transmissionType ||
@@ -494,11 +492,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
             realEstateDetails && (
               <div className="grid grid-cols-2 gap-2 mb-3">
                 {/* Size box */}
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                  <div className="font-semibold text-gray-500 dark:text-gray-400">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                  <div className="font-semibold text-gray-800 dark:text-gray-200">
                     {t("fields.size")}
                   </div>
-                  <div className="font-medium text-gray-800 dark:text-gray-200">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {realEstateDetails.size
                       ? `${realEstateDetails.size} m²`
                       : t("notProvided")}
@@ -509,21 +507,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 category.subCategory.toLowerCase() === "land" ? (
                   <>
                     {realEstateDetails.bedrooms && (
-                      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                        <div className="font-semibold text-gray-500 dark:text-gray-400">
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                        <div className="font-semibold text-gray-800 dark:text-gray-200">
                           {t("fields.bedrooms")}
                         </div>
-                        <div className="font-medium text-gray-800 dark:text-gray-200">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
                           {`${realEstateDetails.bedrooms} ${t("beds")}`}
                         </div>
                       </div>
                     )}
                     {realEstateDetails.bathrooms && (
-                      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                        <div className="font-semibold text-gray-500 dark:text-gray-400">
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                        <div className="font-semibold text-gray-800 dark:text-gray-200">
                           {t("fields.bathrooms")}
                         </div>
-                        <div className="font-medium text-gray-800 dark:text-gray-200">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
                           {`${realEstateDetails.bathrooms} ${t("baths")}`}
                         </div>
                       </div>
@@ -531,21 +529,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   </>
                 ) : (
                   <>
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                      <div className="font-semibold text-gray-500 dark:text-gray-400">
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                      <div className="font-semibold text-gray-800 dark:text-gray-200">
                         {t("fields.bedrooms")}
                       </div>
-                      <div className="font-medium text-gray-800 dark:text-gray-200">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">
                         {realEstateDetails.bedrooms
                           ? `${realEstateDetails.bedrooms} ${t("beds")}`
                           : t("notProvided")}
                       </div>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1.5 text-center text-xs">
-                      <div className="font-semibold text-gray-500 dark:text-gray-400">
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
+                      <div className="font-semibold text-gray-800 dark:text-gray-200">
                         {t("fields.bathrooms")}
                       </div>
-                      <div className="font-medium text-gray-800 dark:text-gray-200">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">
                         {realEstateDetails.bathrooms
                           ? `${realEstateDetails.bathrooms} ${t("baths")}`
                           : t("notProvided")}
@@ -558,67 +556,69 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {category.mainCategory !== ListingCategory.VEHICLES &&
             category.mainCategory !== ListingCategory.REAL_ESTATE &&
             renderDetails()}
-          {showLocation && location && (
-            <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <MdLocationOn className="text-blue-600 w-5 h-5 flex-shrink-0" />
-              <span className="truncate">
-                {location.split(',').map((part, index, parts) => {
-                  const partTrimmed = part.trim();
-                  const normalizedPart = normalizeLocation(partTrimmed);
-                  const translatedPart = t(`cities.${normalizedPart}`, {
-                    ns: "locations",
-                    defaultValue: partTrimmed,
-                  });
-                  
-                  return (
-                    <span key={index}>
-                      {translatedPart}
-                      {index < parts.length - 1 ? ', ' : ''}
-                    </span>
-                  );
-                })}
-              </span>
-            </p>
-          )}
-          {showDate && (
-            <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-              {timeAgo(createdAt as string)}
-            </p>
-          )}
-        </div>
-      </Link>
-      {showActions && (
-        <div className="flex justify-end gap-2 p-4 pt-0">
-          {editable && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.location.href = `/listings/${id}/edit`;
-              }}
-              className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
-            >
-              <FaEdit className="w-4 h-4" />
-              {t("edit")}
-            </button>
-          )}
-          {deletable && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (window.confirm(t("deleteConfirmation"))) {
-                  onDelete?.(id as string);
-                }
-              }}
-              className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
-            >
-              <FaTrash className="w-4 h-4" />
-              {t("delete")}
-            </button>
-          )}
-        </div>
-      )}
+              {showLocation && location && (
+                <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <MdLocationOn className="text-blue-600 w-5 h-5 flex-shrink-0" />
+                  <span className="truncate">
+                    {location.split(',').map((part, index, parts) => {
+                      const partTrimmed = part.trim();
+                      const normalizedPart = normalizeLocation(partTrimmed);
+                      const translatedPart = t(`cities.${normalizedPart}`, {
+                        ns: "locations",
+                        defaultValue: partTrimmed,
+                      });
+                      
+                      return (
+                        <span key={index}>
+                          {translatedPart}
+                          {index < parts.length - 1 ? ', ' : ''}
+                        </span>
+                      );
+                    })}
+                  </span>
+                </p>
+              )}
+              {showDate && (
+                <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
+                  {timeAgo(createdAt as string)}
+                </p>
+              )}
+            </div>
+          </div>
+        </Link>
+        {showActions && (
+          <div className="flex justify-end gap-2 p-4 pt-0">
+            {editable && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/listings/${id}/edit`;
+                }}
+                className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
+              >
+                <FaEdit className="w-4 h-4" />
+                {t("edit")}
+              </button>
+            )}
+            {deletable && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (window.confirm(t("deleteConfirmation"))) {
+                    onDelete?.(id as string);
+                  }
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
+              >
+                <FaTrash className="w-4 h-4" />
+                {t("delete")}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
