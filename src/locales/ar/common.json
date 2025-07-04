@@ -284,5 +284,11 @@
   "sortOptions.priceAsc": "السعر: من الأقل إلى الأعلى",
   "sortOptions.priceDesc": "السعر: من الأعلى إلى الأقل",
   "sortOptions.locationAsc": "الموقع: أ إلى ي",
-  "sortOptions.locationDesc": "الموقع: ي إلى أ"
+  "sortOptions.locationDesc": "الموقع: ي إلى أ",
+  "currency": {
+    "usd": "دولار أمريكي",
+    "syp": "ليرة سورية"
+  },
+  "showInUSD": "عرض السعر بالدولار",
+  "showInSYP": "عرض السعر بالليرة"
 }

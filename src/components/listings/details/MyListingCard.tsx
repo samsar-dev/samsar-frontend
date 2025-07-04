@@ -6,8 +6,8 @@ import type {
   RealEstateDetails,
   VehicleDetails,
 } from "@/types/listings";
-import { formatCurrency } from "@/utils/formatUtils";
 import { useTranslation } from "react-i18next";
+import { PriceConverter } from "@/components/common/PriceConverter";
 import { FaEdit, FaMapMarkerAlt, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -30,7 +30,6 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
     category,
     location,
     createdAt,
-    listingAction,
     vehicleDetails,
     realEstateDetails,
   } = listing;
@@ -100,19 +99,22 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
           </div>
 
           {/* Features */}
-          {vehicleDetails.features && vehicleDetails.features.length > 0 && (
+          {vehicleDetails.features && Object.values(vehicleDetails.features).filter(Boolean).length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
-              {vehicleDetails.features.slice(0, 3).map((feature, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
-                >
-                  {feature}
-                </span>
-              ))}
-              {vehicleDetails.features.length > 3 && (
+              {Object.entries(vehicleDetails.features)
+                .filter(([_, value]) => value === true)
+                .slice(0, 3)
+                .map(([feature], index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              {Object.values(vehicleDetails.features).filter(Boolean).length > 3 && (
                 <span className="text-xs text-gray-500">
-                  +{vehicleDetails.features.length - 3} more
+                  +{Object.values(vehicleDetails.features).filter(Boolean).length - 3} more
                 </span>
               )}
             </div>
@@ -218,7 +220,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
           <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
-            {formatCurrency(price)}
+            <PriceConverter price={price} />
           </p>
           <div className="flex flex-wrap gap-2 mb-3">
             {listing?.vehicleDetails?.features?.map(

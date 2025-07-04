@@ -20,12 +20,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
-import { formatCurrency } from "@/utils/formatUtils";
 
 // Lazy load the ImageGallery component
 const ImageGallery = lazy(
   () => import("@/components/listings/images/ImageGallery")
 );
+
+// Components
+import { PriceConverter } from "@/components/common/PriceConverter";
 
 // Fallback component for when ImageGallery is loading
 const ImageGalleryFallback = () => (
@@ -492,7 +494,7 @@ const ListingDetailsRedux = () => {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{listing.title || 'Untitled Listing'}</h1>
         <p className="text-2xl font-semibold text-blue-600">
-          {formatCurrency(listing.price || 0)}
+          <PriceConverter price={listing.price || 0} />
         </p>
         <div className="flex items-center text-sm text-gray-500">
           <span>{listing.location ? normalizeLocation(listing.location) : 'Location not specified'}</span>

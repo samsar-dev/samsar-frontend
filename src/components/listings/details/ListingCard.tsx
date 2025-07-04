@@ -6,35 +6,36 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
 import { timeAgo } from "@/utils/dateUtils";
-import { formatCurrency } from "@/utils/formatUtils";
-import { normalizeLocation } from "@/utils/locationUtils";
+import { PriceConverter } from "@/components/common/PriceConverter";
 import type {
-  Listing,
+  Listing as BaseListing,
   VehicleDetails,
   RealEstateDetails,
 } from "@/types/listings";
-import { ListingCategory, ListingAction } from "@/types/enums";
+import { ListingCategory, ListingAction, ListingStatus } from "@/types/enums";
 import { motion } from "framer-motion";
 import { MdFavorite, MdFavoriteBorder, MdLocationOn } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
 import { useState, useEffect } from "react";
 
+// Extend the base Listing type to include our custom fields
+interface ExtendedListing extends Omit<BaseListing, 'latitude' | 'longitude'> {
+  vehicleDetails?: VehicleDetails;
+  realEstateDetails?: RealEstateDetails;
+  latitude: number | null;
+  longitude: number | null;
+  originalPrice?: number;
+}
+
 export interface ListingCardProps {
-  listing: Listing & {
-    vehicleDetails?: VehicleDetails;
-    realEstateDetails?: RealEstateDetails;
-    latitude?: number;
-    longitude?: number;
-  };
+  listing: ExtendedListing;
   onDelete?: (id: string) => void;
   editable?: boolean;
   deletable?: boolean;
   showActions?: boolean;
   showSaveButton?: boolean;
   showPrice?: boolean;
-  showLocation?: boolean;
-  showDate?: boolean;
   showBadges?: boolean;
   priority?: boolean;
 }
@@ -47,14 +48,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showActions = false,
   showSaveButton = false,
   showPrice = false,
-  showLocation = false,
-  showDate = false,
   showBadges = true,
   priority = false,
 }) => {
   const { t } = useTranslation(["listings", "common", "locations"]);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [distance] = useState<number | null>(null); // Distance will be implemented later
 
   const {
     id,
@@ -70,23 +70,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
     details,
   } = listing;
 
-  // Get the listing action from the API response
-  const getListingAction = () => {
-    // Log the raw listing action for debugging
-    console.log(`[ListingCard Debug] Listing ${listing.id} action:`, {
-      raw: listing.listingAction,
-      type: typeof listing.listingAction,
-    });
-
-    // Compare with the enum values directly
-    if (listing.listingAction === ListingAction.RENT) {
-      return ListingAction.RENT;
-    } else if (listing.listingAction === ListingAction.SALE) {
+  // Get the listing action from the API response with type safety
+  const getListingAction = (): ListingAction => {
+    // Default to SALE if undefined
+    if (!listing.listingAction) {
       return ListingAction.SALE;
     }
 
-    // Default to SALE if no match
-    return ListingAction.SALE;
+    // Ensure the action is a valid ListingAction
+    return Object.values(ListingAction).includes(listing.listingAction as ListingAction)
+      ? listing.listingAction as ListingAction
+      : ListingAction.SALE;
   };
 
   const listingAction = getListingAction();
@@ -156,15 +150,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
     checkFavoriteStatus();
   }, [id, user]);
 
-  // Get the main image and determine if this is a high-priority image (first in list)
-  const mainImage =
-    listing?.image ||
-    (images?.[0] && typeof images[0] === "string" ? images[0] : "");
-
-  // Debugging logs
-  if (typeof window !== "undefined") {
-    console.log("[ListingCard Debug] mainImage:", mainImage);
-  }
+  // Get the main image with proper type safety
+  const mainImage: string = listing?.image || 
+    (Array.isArray(images) && images.length > 0 && typeof images[0] === 'string' 
+      ? images[0] 
+      : '');
+  
+  // Ensure id is defined before using it
+  const listingId = id || '';
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -193,7 +186,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
     }
   };
 
-  const renderDetails = () => {
+  const renderDetails = (): JSX.Element | null => {
     if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
       return (
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -299,15 +292,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{
-        scale: 1.01,
-        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        y: -6,
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)",
+        transition: { duration: 0.3 }
       }}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
+      transition={{ 
+        type: "spring", 
+        stiffness: 400,
+        damping: 25
+      }}
+      className="bg-white dark:bg-gray-825 rounded-2xl shadow-sm hover:shadow-xl overflow-hidden group relative transition-all duration-300 border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
     >
       {/* Preload the main image for LCP optimization */}
       {mainImage && typeof mainImage === "string" && (
@@ -317,162 +315,228 @@ const ListingCard: React.FC<ListingCardProps> = ({
           quality={85}
         />
       )}
-      <div className="h-full">
-        <Link to={`/listings/${id}`} className="block h-full">
-          <div className="relative">
-            {showBadges && (
-              <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
-                <span className="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+      <div className="relative h-full">
+        <Link to={`/listings/${listingId}`} className="block h-full">
+          <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/80 dark:to-gray-800/90 flex items-center justify-center relative group">
+            {/* Image overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+            
+            {/* Main image with smooth loading */}
+            <ImageFallback
+              src={mainImage}
+              alt={title || 'Listing image'}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              category={category?.subCategory}
+              priority={priority}
+              quality={90}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading={priority ? 'eager' : 'lazy'}
+              width={480}
+              height={360}
+            />
+          
+            {/* Status badge */}
+            <div className="absolute top-3 left-3 z-20 flex flex-col space-y-2">
+              {listing.status === ListingStatus.SOLD && (
+                <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                  {t('status.sold')}
+                </span>
+              )}
+              {listing.status === ListingStatus.RESERVED && (
+                <span className="bg-amber-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                  {t('status.reserved')}
+                </span>
+              )}
+              {listing.status === ListingStatus.PENDING || listing.status === ListingStatus.PENDING_REVIEW ? (
+                <span className="bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                  {t('status.pending')}
+                </span>
+              ) : null}
+            </div>
+
+            {/* Map has been moved to ListingDetails component */}
+            <div className="absolute inset-0 flex flex-col justify-between p-4 z-20 pointer-events-none">
+              {showBadges && (
+                <div className="flex flex-wrap gap-2">
+                {/* Category badge */}
+                <span 
+                  className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-200 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto 
+                  hover:bg-white hover:shadow-md transition-all duration-200"
+                >
                   {t(
                     `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
-                    {
-                      defaultValue: category.subCategory,
-                    }
+                    { defaultValue: category.subCategory }
                   )}
                 </span>
+                
+                {/* Action badge */}
                 <span
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto
+                  transition-all duration-200 hover:shadow-md ${
                     listingAction === ListingAction.SALE
-                      ? "bg-blue-700 text-white"
-                      : "bg-green-700 text-white"
+                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
+                      : "bg-gradient-to-r from-emerald-600 to-teal-500 text-white"
                   }`}
                 >
                   {listingAction === ListingAction.SALE
                     ? t("common.forSale")
                     : t("common.forRent")}
                 </span>
-              </div>
-            )}
-            <div className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
-              <ImageFallback
-                src={mainImage}
-                alt={title}
-                className="w-full h-full object-cover"
-                category={category?.subCategory}
-                priority={priority}
-                quality={85}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                loading={priority ? 'eager' : 'lazy'}
-                width={400}
-                height={300}
-              />
-              {showSaveButton && user && (
-                <div className="absolute top-2 right-2 z-20">
-                  <button
-                    onClick={handleFavoriteClick}
-                    className={`p-2 flex items-center justify-center rounded-full transition-colors duration-300 ${
-                      isFavorite
-                        ? "bg-red-500 text-white hover:bg-red-600"
-                        : "bg-white text-gray-600 hover:text-blue-500 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    {isFavorite ? (
-                      <MdFavorite className="w-6 h-6" />
-                    ) : (
-                      <MdFavoriteBorder className="w-6 h-6" />
-                    )}
-                  </button>
+                
+                {/* New listing badge */}
+          {createdAt && new Date(createdAt).getTime() > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() && (
+            <span className="bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto">
+              {t('common.new')}
+            </span>
+          )}
                 </div>
               )}
-            </div>
-            <div className="relative p-4">
-              <h3 className="text-lg font-semibold mb-2 pr-8 truncate">{title}</h3>
-          {/* Price */}
-          {showPrice && price && (
-            <p className="text-green-700 dark:text-green-300 font-semibold mb-2">
-              {formatCurrency(price)}
-              {listingAction === ListingAction.RENT && (
-                <span className="text-sm ml-1">/mo</span>
-              )}
-            </p>
-          )}
+
+              {showSaveButton && user && (
+              <div className="ml-auto mt-auto">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleFavoriteClick(e);
+                  }}
+                  className={`p-2 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110 shadow-md pointer-events-auto ${
+                    isFavorite
+                      ? "bg-red-500 text-white hover:bg-red-600"
+                      : "bg-white/90 dark:bg-gray-800/90 text-gray-600 hover:text-red-500 hover:bg-white dark:hover:bg-gray-700"
+                  }`}
+                  aria-label={isFavorite ? t("removeFromFavorites") : t("addToFavorites")}
+                >
+                  {isFavorite ? (
+                    <MdFavorite className="w-5 h-5" />
+                  ) : (
+                    <MdFavoriteBorder className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="p-5">
+          {/* Title and Price Row */}
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+              <Link to={`/listings/${id}`} className="hover:underline decoration-2 underline-offset-2 decoration-blue-400/50">
+                {title}
+              </Link>
+            </h3>
+            {showPrice && (
+              <div className="flex-shrink-0 ml-3">
+                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                  <PriceConverter 
+                    price={price} 
+                    showMonthly={listingAction === ListingAction.RENT}
+                    className="font-semibold"
+                  />
+                </p>
+                {'originalPrice' in listing && listing.originalPrice && listing.originalPrice > price && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 line-through text-right">
+                    <PriceConverter price={listing.originalPrice} className="line-through" />
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Location, Distance and Date */}
+          <div className="flex flex-col space-y-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
+            {location && (
+              <div className="flex items-center">
+                <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 flex-shrink-0" />
+                <span className="truncate">{location}</span>
+              </div>
+            )}
+            {distance !== null && (
+              <div className="flex items-center text-xs text-gray-400">
+                <span>~{distance.toFixed(1)} km away</span>
+              </div>
+            )}
+            {createdAt && (
+              <div className="text-xs text-gray-400">
+                {timeAgo(new Date(createdAt).toISOString())}
+              </div>
+            )}
+          </div>
 
           {/* Vehicle Info Boxes */}
           {category.mainCategory === ListingCategory.VEHICLES && (
-            <>
+            <div className="space-y-3">
               {vehicleDetails ? (
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  {/* Mileage box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {t("listings.fields.mileage")}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Mileage box */}
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {t("listings.fields.mileage")}
+                      </span>
                     </div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
                       {vehicleDetails?.mileage
-                        ? `${vehicleDetails.mileage} km`
-                        : t("notProvided")}
+                        ? `${vehicleDetails.mileage.toLocaleString()} km`
+                        : <span className="text-gray-400">-</span>}
                     </div>
                   </div>
-                  {/* Year box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {t("year")}
+                  
+                  {/* Year box */}
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {t("year")}
+                      </span>
                     </div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {vehicleDetails?.year
-                        ? vehicleDetails.year
-                        : t("notProvided")}
-                    </div>
-                  </div>
-                  {/* Fuel type box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {t("fields.fuelType")}
-                    </div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {vehicleDetails?.fuelType
-                        ? t(
-                            `fields.fuelTypes.${(() => {
-                              if (!vehicleDetails.fuelType) return "";
-                              return vehicleDetails.fuelType;
-                            })()}`
-                          )
-                        : t("notProvided")}
+                    <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                      {vehicleDetails?.year || <span className="text-gray-400">-</span>}
                     </div>
                   </div>
-                  {/* Transmission box - always show, with N/A fallback */}
-                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                    <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {t("fields.transmission")}
+                  {/* Fuel type box */}
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {t("fields.fuelType")}
+                      </span>
                     </div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                      {vehicleDetails?.fuelType ? (
+                        t(`fields.fuelTypes.${vehicleDetails.fuelType}`, {
+                          defaultValue: vehicleDetails.fuelType
+                        })
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Transmission box */}
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/60 dark:to-gray-800/60 rounded-xl p-3 border border-gray-100/50 dark:border-gray-700/50 transition-colors duration-200">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {t("fields.transmission")}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
                       {(() => {
                         const transmissionValue =
                           vehicleDetails?.transmissionType ||
                           vehicleDetails?.transmission;
 
-                        if (!transmissionValue) return t("notProvided");
+                        if (!transmissionValue) return <span className="text-gray-400">-</span>;
 
-                        // Convert to camelCase for the translation key
                         let translationKey = transmissionValue.toLowerCase();
 
                         // Handle special cases
-                        if (
-                          transmissionValue === "cvt" ||
-                          transmissionValue === "continuously_variable" ||
-                          transmissionValue === "continuouslyvariable"
-                        ) {
+                        if (["cvt", "continuously_variable", "continuouslyvariable"].includes(transmissionValue)) {
                           return "CVT";
-                        } else if (
-                          transmissionValue === "semi_automatic" ||
-                          transmissionValue === "semi-automatic"
-                        ) {
+                        } else if (["semi_automatic", "semi-automatic"].includes(transmissionValue)) {
                           translationKey = "semiAutomatic";
-                        } else if (
-                          transmissionValue === "dual_clutch" ||
-                          transmissionValue === "dualclutch"
-                        ) {
+                        } else if (["dual_clutch", "dualclutch"].includes(transmissionValue)) {
                           translationKey = "dualClutch";
-                        } else if (
-                          transmissionValue === "manual" ||
-                          transmissionValue === "automatic"
-                        ) {
-                          // These are already in the correct format
-                        } else {
-                          translationKey = transmissionValue;
                         }
 
-                        // Get the translation from the listings namespace
                         return t(`fields.transmissionTypes.${translationKey}`, {
                           defaultValue: transmissionValue,
                         });
@@ -481,72 +545,87 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-500 italic mb-3">
-                  Vehicle details not available
+                <div className="text-sm text-gray-500 dark:text-gray-400 italic mb-3 text-center py-2">
+                  {t("vehicleDetailsNotAvailable")}
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {category.mainCategory === ListingCategory.REAL_ESTATE &&
             realEstateDetails && (
-              <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Size box */}
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                  <div className="font-semibold text-gray-800 dark:text-gray-200">
-                    {t("fields.size")}
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">
+                      {t("fields.size")}
+                    </span>
                   </div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">
-                    {realEstateDetails.size
-                      ? `${realEstateDetails.size} m²`
-                      : t("notProvided")}
+                  <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                    {realEstateDetails.size ? (
+                      <>{realEstateDetails.size.toLocaleString()} m²</>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
                   </div>
                 </div>
-                {/* Bedrooms and Bathrooms: Only show for land if value is present, else always show for other types */}
-                {category.subCategory &&
-                category.subCategory.toLowerCase() === "land" ? (
+                {/* Bedrooms and Bathrooms */}
+                {category.subCategory?.toLowerCase() === "land" ? (
                   <>
                     {realEstateDetails.bedrooms && (
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                        <div className="font-semibold text-gray-800 dark:text-gray-200">
-                          {t("fields.bedrooms")}
+                      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center justify-center space-x-2">
+                          <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            {t("fields.bedrooms")}
+                          </span>
                         </div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
-                          {`${realEstateDetails.bedrooms} ${t("beds")}`}
+                        <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                          {realEstateDetails.bedrooms} {t("beds")}
                         </div>
                       </div>
                     )}
                     {realEstateDetails.bathrooms && (
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                        <div className="font-semibold text-gray-800 dark:text-gray-200">
-                          {t("fields.bathrooms")}
+                      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center justify-center space-x-2">
+                          <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            {t("fields.bathrooms")}
+                          </span>
                         </div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
-                          {`${realEstateDetails.bathrooms} ${t("baths")}`}
+                        <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                          {realEstateDetails.bathrooms} {t("baths")}
                         </div>
                       </div>
                     )}
                   </>
                 ) : (
                   <>
-                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                      <div className="font-semibold text-gray-800 dark:text-gray-200">
-                        {t("fields.bedrooms")}
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                          {t("fields.bedrooms")}
+                        </span>
                       </div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {realEstateDetails.bedrooms
-                          ? `${realEstateDetails.bedrooms} ${t("beds")}`
-                          : t("notProvided")}
+                      <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                        {realEstateDetails.bedrooms ? (
+                          <>{realEstateDetails.bedrooms} {t("beds")}</>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </div>
                     </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1.5 text-center text-xs">
-                      <div className="font-semibold text-gray-800 dark:text-gray-200">
-                        {t("fields.bathrooms")}
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">
+                          {t("fields.bathrooms")}
+                        </span>
                       </div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {realEstateDetails.bathrooms
-                          ? `${realEstateDetails.bathrooms} ${t("baths")}`
-                          : t("notProvided")}
+                      <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
+                        {realEstateDetails.bathrooms ? (
+                          <>{realEstateDetails.bathrooms} {t("baths")}</>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </div>
                     </div>
                   </>
@@ -556,53 +635,31 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {category.mainCategory !== ListingCategory.VEHICLES &&
             category.mainCategory !== ListingCategory.REAL_ESTATE &&
             renderDetails()}
-              {showLocation && location && (
-                <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <MdLocationOn className="text-blue-600 w-5 h-5 flex-shrink-0" />
-                  <span className="truncate">
-                    {location.split(',').map((part, index, parts) => {
-                      const partTrimmed = part.trim();
-                      const normalizedPart = normalizeLocation(partTrimmed);
-                      const translatedPart = t(`cities.${normalizedPart}`, {
-                        ns: "locations",
-                        defaultValue: partTrimmed,
-                      });
-                      
-                      return (
-                        <span key={index}>
-                          {translatedPart}
-                          {index < parts.length - 1 ? ', ' : ''}
-                        </span>
-                      );
-                    })}
-                  </span>
-                </p>
-              )}
-              {showDate && (
-                <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
-                  {timeAgo(createdAt as string)}
-                </p>
-              )}
-            </div>
           </div>
         </Link>
-        {showActions && (
-          <div className="flex justify-end gap-2 p-4 pt-0">
+      </div>
+      {showActions && (
+        <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-3 bg-gray-50 dark:bg-gray-800/50">
+          <div className="flex justify-end gap-3">
             {editable && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   window.location.href = `/listings/${id}/edit`;
                 }}
-                className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center gap-1"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
               >
-                <FaEdit className="w-4 h-4" />
+                <FaEdit className="w-3.5 h-3.5" />
                 {t("edit")}
-              </button>
+              </motion.button>
             )}
             {deletable && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -610,17 +667,86 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     onDelete?.(id as string);
                   }
                 }}
-                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 flex items-center gap-1"
+                className="px-4 py-2 bg-white hover:bg-gray-50 text-red-600 border border-red-200 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 dark:bg-gray-700 dark:border-gray-600 dark:text-red-400 dark:hover:bg-gray-600"
               >
-                <FaTrash className="w-4 h-4" />
+                <FaTrash className="w-3.5 h-3.5" />
                 {t("delete")}
-              </button>
+              </motion.button>
             )}
           </div>
-        )}
+        </div>
+      )}
+      
+      {/* Footer with action buttons */}
+      <div className="px-5 pb-4 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Handle share functionality
+            }}
+            className="p-2 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200"
+            aria-label="Share listing"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+          </button>
+          
+          <div className="flex items-center space-x-2">
+            {user?.id === listing.userId && (
+              <>
+                <Link
+                  to={`/listings/edit/${listingId}`}
+                  className="p-2 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Edit listing"
+                >
+                  <FaEdit className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onDelete && id) onDelete(id);
+                  }}
+                  className="p-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200"
+                  aria-label="Delete listing"
+                >
+                  <FaTrash className="w-4 h-4" />
+                </button>
+              </>
+            )}
+            
+            <button
+              onClick={handleFavoriteClick}
+              className={`p-2 rounded-full transition-all duration-200 ${
+                isFavorite
+                  ? 'text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'
+                  : 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+              }`}
+              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+            </button>
+            
+            <Link
+              to={`/listings/${listingId}`}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {listingAction === ListingAction.SALE ? t('common.viewDetails') : t('common.inquireNow')}
+            </Link>
+          </div>
+        </div>
       </div>
-    </motion.div>
+    </motion.article>
+    
   );
+  
 };
 
 export default ListingCard;

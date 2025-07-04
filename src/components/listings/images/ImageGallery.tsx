@@ -75,6 +75,12 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
             src={imageUrls[selectedImage !== null ? selectedImage : 0]}
             alt={`Main Image`}
             className="object-contain w-full h-[350px] md:h-[450px] hover:scale-110 transition-all duration-300 cursor-pointer"
+            width={800}
+            height={600}
+            priority={true}
+            quality={85}
+            sizes="(max-width: 768px) 100vw, 75vw"
+            loading="eager"
           />
         </button>
       </div>
@@ -93,6 +99,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                 src={url}
                 alt={`Thumbnail ${idx + 1}`}
                 className="object-cover w-full h-full rounded-lg"
+                width={72}
+                height={72}
+                quality={60}
+                loading="lazy"
+                sizes="72px"
               />
             </button>
           ))}
@@ -141,6 +152,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                     src={imageUrls[selectedImage]}
                     alt={`Image ${selectedImage + 1}`}
                     className="max-h-[90vh] w-auto object-contain"
+                    width={1200}
+                    height={900}
+                    quality={90}
+                    priority={true}
+                    sizes="90vw"
                   />
                 </div>
               </motion.div>

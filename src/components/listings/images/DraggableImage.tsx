@@ -1,8 +1,15 @@
-import React, { useRef, memo, useMemo, useCallback } from "react";
+import React, { useRef, memo, useMemo, useCallback, useId } from "react";
+import type { Identifier } from 'dnd-core';
 import { useDrag, useDrop } from "react-dnd";
 import { motion } from "framer-motion";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import ImageFallback from "@/components/media/ImageFallback";
+
+interface DragItem {
+  type: string;
+  index: number;
+  id: string;
+}
 
 /**
  * DraggableImage component for drag-and-drop image reordering
@@ -32,23 +39,35 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   fileSize,
   dimensions,
 }) => {
-  const ref = useRef<HTMLDivElement | null>(null);
-
+  const ref = useRef<HTMLDivElement>(null);
+  const dragPreviewRef = useRef<HTMLDivElement | null>(null);
+  const componentId = useId();
+  
   // Create a stable identifier that persists across re-renders
-  const stableId = useMemo(() => `${url}-${index}`, [url, index]);
+  const stableId = useMemo(() => `${componentId}-${index}`, [componentId, index]);
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     type: "image",
-    item: { type: "image", index, id: stableId },
+    item: () => ({ type: "image", index, id: stableId }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
     canDrag: !isUploading,
+    // Optimize performance by preventing expensive operations during drag
+    isDragging: (monitor) => {
+      const item = monitor.getItem() as DragItem | null;
+      return item ? item.id === stableId : false;
+    },
   });
 
-  const [, drop] = useDrop({
+  const [, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
     accept: "image",
-    hover(item: { type: string; index: number; id: string }, monitor) {
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor) {
       if (!ref.current || item.id === stableId) {
         return;
       }
@@ -61,16 +80,16 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         return;
       }
 
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current.getBoundingClientRect();
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      // Get bounding rectangle of the hovered item
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
       const clientOffset = monitor.getClientOffset();
 
-      if (!clientOffset) {
+      if (!hoverBoundingRect || !clientOffset) {
         return;
       }
 
+      // Get vertical middle of the hovered item
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
       // Only perform the move when the mouse has crossed half of the items height
@@ -81,25 +100,45 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         return;
       }
 
+      // Time to actually perform the action
       moveImage(dragIndex, hoverIndex);
       item.index = hoverIndex;
     },
   });
 
-  // Memoize handlers
-  const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
-  const handleEdit = useCallback(
-    () => onEdit(url, index),
-    [onEdit, url, index],
+  // Memoize handlers with stable references
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onDelete(index);
+    },
+    [onDelete, index]
   );
 
-  // Set up the ref for drag and drop
-  const setDragRef = (node: HTMLDivElement | null) => {
-    if (node) {
-      ref.current = node;
-      drag(drop(node));
-    }
-  };
+  const handleEdit = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onEdit(url, index);
+    },
+    [onEdit, url, index]
+  );
+
+  // Set up refs for drag and drop
+  const setDragRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) {
+        // Store the node reference
+        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        // Setup drag and drop
+        drag(drop(node));
+        // Setup preview if preview ref is available
+        if (dragPreviewRef.current) {
+          preview(dragPreviewRef);
+        }
+      }
+    },
+    [drag, drop, preview]
+  );
 
   return (
     <motion.div
@@ -110,12 +149,17 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       className={`relative group ${isDragging ? "opacity-40" : "opacity-100"}`}
       ref={setDragRef}
     >
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800" ref={dragPreviewRef}>
         <ImageFallback
           src={url}
           alt="Listing image"
           className="w-full h-full object-cover"
-          loading="lazy"
+          width={200}
+          height={200}
+          quality={75}
+          priority={index === 0}
+          loading={index < 3 ? 'eager' : 'lazy'}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {/* Image metadata overlay */}
         {(fileSize || dimensions) && (

@@ -195,8 +195,8 @@ const Image: React.FC<ImageProps> = ({
 
   // Render the actual image
   return (
-    <div 
-      className={`relative ${className}`} 
+    <div
+      className={`relative overflow-hidden flex items-center justify-center ${className}`}
       style={{ 
         width: width || '100%', 
         height: height || 'auto',
@@ -246,7 +246,7 @@ const Image: React.FC<ImageProps> = ({
               .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
               .join(', ') : undefined}
             alt={alt}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${
+            className={`max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300 ${
               isLoading ? 'opacity-0' : 'opacity-100'
             } ${blur ? 'blur-sm' : ''}`}
             loading={loading}

@@ -264,5 +264,11 @@
   "sortOptions.priceAsc": "Price: Low to High",
   "sortOptions.priceDesc": "Price: High to Low",
   "sortOptions.locationAsc": "Location: A to Z",
-  "sortOptions.locationDesc": "Location: Z to A"
+  "sortOptions.locationDesc": "Location: Z to A",
+  "currency": {
+    "usd": "USD",
+    "syp": "SYP"
+  },
+  "showInUSD": "Show price in USD",
+  "showInSYP": "Show price in SYP"
 }
