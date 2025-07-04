@@ -78,68 +78,30 @@ const Image: React.FC<ImageProps> = ({
   // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
+  const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
   
-  // Use memo to prevent unnecessary recalculations
-  const imageQuality = React.useMemo(() => 
-    priority ? Math.min(85, quality) : Math.max(50, Math.min(70, quality)),
-    [priority, quality]
-  );
-  
-  // Memoize the optimized URL generation
-  const getOptimizedImageUrl = React.useCallback((width?: number) => {
+  // Generate optimized image URL with WebP format and proper caching
+  const getOptimizedImageUrl = (width?: number) => {
     if (!isR2Image || !baseUrl) return src || "";
-    
     const params = new URLSearchParams();
-    params.set('format', 'webp');
-    params.set('quality', imageQuality.toString());
+    params.append('format', 'webp');
+    params.append('quality', imageQuality.toString());
+    if (width) params.append('width', width.toString());
     
-    // Only add width if specified and greater than 0
-    if (width && width > 0) {
-      params.set('width', Math.ceil(width).toString());
-    }
-    
-    // Add cache-control headers for production
-    if (process.env.NODE_ENV === 'production') {
-      params.set('cache-control', 'public, max-age=31536000, immutable');
-    } else {
-      // Cache busting for development - only add if not already present
-      if (!params.has('_t')) {
-        params.set('_t', Date.now().toString());
-      }
+    // Add cache-busting parameter for non-production environments
+    if (process.env.NODE_ENV !== 'production') {
+      params.append('_t', Date.now().toString());
     }
     
     return `${baseUrl}?${params.toString()}`;
-  }, [isR2Image, baseUrl, src, imageQuality]);
+  };
   
-  // Define responsive image sizes based on viewport and common display sizes
-  // Using a single source set with width descriptors instead of media queries
-  const responsiveSizes = React.useMemo(() => [
-    // Smaller sizes for mobile
-    { width: 320 },
-    { width: 480 },
-    // Medium sizes for tablets
-    { width: 768 },
-    { width: 1024 },
-    // Larger sizes for desktops
-    { width: 1280 },
-    { width: 1600 },
-    { width: 1920 }
-  ], []);
-  
-  // Get the most appropriate image size based on viewport
-  const getOptimalImageSize = React.useCallback(() => {
-    if (typeof window === 'undefined') return 800; // Default server-side
-    
-    const viewportWidth = Math.min(window.innerWidth, 1920); // Cap at 1920px
-    const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x DPR
-    
-    // Find the smallest size that's larger than viewport width
-    const sortedSizes = [...responsiveSizes].sort((a, b) => a.width - b.width);
-    const optimalSize = sortedSizes.find(size => size.width * dpr >= viewportWidth) || 
-                       sortedSizes[sortedSizes.length - 1];
-    
-    return Math.ceil(optimalSize.width * dpr);
-  }, [responsiveSizes]);
+  // Define responsive image sizes based on viewport
+  const responsiveSizes = [
+    { media: '(max-width: 640px)', width: 400 },
+    { media: '(max-width: 1024px)', width: 800 },
+    { media: '(min-width: 1025px)', width: 1200 },
+  ];
   
   // Preload critical images
   useEffect(() => {
@@ -231,40 +193,15 @@ const Image: React.FC<ImageProps> = ({
     );
   }
 
-  // Calculate optimal image dimensions
-  const optimalWidth = width || (height ? undefined : '100%');
-  const optimalHeight = height || (width ? 'auto' : '100%');
-  const imgAspectRatio = width && height ? (Number(width) / Number(height)).toFixed(2) : '4/3';
-  
-  // Generate srcSet string for responsive images
-  const generateSrcSet = () => {
-    if (!isR2Image || !baseUrl) return undefined;
-    
-    const uniqueSizes = Array.from(new Set(responsiveSizes.map(s => s.width)));
-    return uniqueSizes
-      .map(width => `${getOptimizedImageUrl(width)} ${width}w`)
-      .join(',');
-  };
-  
-  // Get the most appropriate image source
-  const getOptimalSrc = () => {
-    if (!isR2Image || !baseUrl) return src || '';
-    const optimalSize = getOptimalImageSize();
-    return getOptimizedImageUrl(optimalSize);
-  };
-
   // Render the actual image
   return (
     <div 
       className={`relative ${className}`} 
       style={{ 
-        width: optimalWidth, 
-        height: optimalHeight,
-        minHeight: '40px', // Ensure minimum height for placeholder
-        aspectRatio: imgAspectRatio,
-        contain: 'paint', // Improve rendering performance
+        width: width || '100%', 
+        height: height || 'auto',
+        minHeight: '40px' // Ensure minimum height for placeholder
       }}
-      data-priority={priority ? 'true' : 'false'}
     >
       {/* Loading state */}
       {isLoading && (
@@ -304,8 +241,10 @@ const Image: React.FC<ImageProps> = ({
           {/* Fallback image */}
           <img
             ref={imgRef}
-            src={getOptimalSrc()}
-            srcSet={generateSrcSet()}
+            src={isR2Image ? getOptimizedImageUrl(1200) : src}
+            srcSet={isR2Image ? responsiveSizes
+              .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
+              .join(', ') : undefined}
             alt={alt}
             className={`w-full h-full object-cover transition-opacity duration-300 ${
               isLoading ? 'opacity-0' : 'opacity-100'
@@ -316,11 +255,8 @@ const Image: React.FC<ImageProps> = ({
             height={height}
             onLoad={handleLoad}
             onError={handleError}
-            sizes={`(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw`}
+            sizes={sizes}
             decoding={priority ? 'sync' : 'async'}
-            style={{
-              contentVisibility: 'auto', // Improve rendering performance
-            }}
           />
         </picture>
       )}

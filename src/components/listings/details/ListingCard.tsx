@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import { MdFavorite, MdFavoriteBorder, MdLocationOn } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 
 export interface ListingCardProps {
   listing: Listing & {
@@ -55,22 +55,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const { t } = useTranslation(["listings", "common", "locations"]);
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
-  
-  // Get the main image URL safely with fallback to images array
-  const mainImage = useMemo(() => {
-    // First try to get from listing.image
-    if (listing?.image && typeof listing.image === 'string') {
-      return listing.image;
-    }
-    
-    // Fallback to first image in images array
-    if (listing?.images?.length) {
-      const firstImage = Array.isArray(listing.images) ? listing.images[0] : listing.images;
-      return typeof firstImage === 'string' ? firstImage : '';
-    }
-    
-    return '';
-  }, [listing.image, listing.images]);
 
   const {
     id,
@@ -172,10 +156,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
     checkFavoriteStatus();
   }, [id, user]);
 
+  // Get the main image and determine if this is a high-priority image (first in list)
+  const mainImage =
+    listing?.image ||
+    (images?.[0] && typeof images[0] === "string" ? images[0] : "");
+
   // Debugging logs
-  if (typeof window !== "undefined" && process.env.NODE_ENV === 'development') {
-    console.log("[ListingCard] Main image URL:", mainImage);
-    console.log("[ListingCard] Priority loading:", priority);
+  if (typeof window !== "undefined") {
+    console.log("[ListingCard Debug] mainImage:", mainImage);
   }
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
@@ -321,12 +309,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
       className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative"
     >
-      {/* Preload only the first image and only if it's above the fold */}
-      {priority && mainImage && (
+      {/* Preload the main image for LCP optimization */}
+      {mainImage && typeof mainImage === "string" && (
         <PreloadImages 
           imageUrls={[mainImage]} 
-          priority={true}
-          quality={75}
+          priority={priority}
+          quality={85}
         />
       )}
       <Link to={`/listings/${id}`} className="block h-full">
@@ -338,12 +326,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
               className="w-full h-full object-cover"
               category={category?.subCategory}
               priority={priority}
-              quality={priority ? 80 : 60} // Slightly lower quality for non-priority
-              sizes={`(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw`}
+              quality={85}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               loading={priority ? 'eager' : 'lazy'}
               width={400}
               height={300}
-              blur={!priority}
             />
           </div>
 
