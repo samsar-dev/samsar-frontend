@@ -70,30 +70,71 @@ function ChatSection({
 
   const handleSendMessage = async () => {
     const receiverId = participant?.id;
-    if (!user || !participant || !currentChat || !inputMessage || !receiverId) {
-      throw new Error("Data is incomplete for sending message");
+    if (!user || !participant || !currentChat?.id || !inputMessage.trim() || !receiverId) {
+      console.error("Cannot send message: Missing required data");
+      return;
     }
+    
     if (!socket) {
-      throw new Error("Socket not initialized");
+      console.error("Cannot send message: Socket not initialized");
+      return;
     }
-    const soketData: Message = {
-      id: `temp-${Date.now()}`, // Add a temporary unique ID for new messages
-      content: inputMessage,
-      senderId: user?.id,
+    
+    const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const messageData: Message = {
+      id: tempMessageId,
+      content: inputMessage.trim(),
+      senderId: user.id,
       recipientId: receiverId,
       conversationId: currentChat.id,
       createdAt: new Date().toISOString(),
+      status: 'sending',
     };
-    console.log(soketData);
 
-    // Clear input first
+    // Optimistically update the UI
+    setMessages(prev => [...prev, messageData]);
     setInputMessage("");
+    scrollBottonFn();
 
-    // Then update messages and emit
-    setMessages((prev) => [...prev, soketData]);
-    socket.emit(NEW_MESSAGE, soketData);
+    try {
+      // Send the message via API
+      const response = await MessagesAPI.sendMessage({
+        content: messageData.content,
+        recipientId: messageData.recipientId,
+        // The API expects listingId, not conversationId
+        listingId: currentChat.listingId || '',
+      });
 
-    scrollBottonFn(); // Scroll to bottom after sending
+      // Update the message with the server response
+      if (response.data) {
+        // The response data is the message itself, not wrapped in a data property
+        const sentMessage = response.data as Message;
+        
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === tempMessageId 
+              ? { ...sentMessage, status: 'sent' }
+              : msg
+          )
+        );
+        
+        // Emit socket event with the sent message
+        socket.emit(NEW_MESSAGE, {
+          ...sentMessage,
+          status: 'sent',
+        });
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      // Update message status to failed
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === tempMessageId 
+            ? { ...msg, status: 'failed' as const }
+            : msg
+        )
+      );
+    }
   };
 
   useEffect(() => {
@@ -118,22 +159,72 @@ function ChatSection({
   }, [currentChat]);
 
   useEffect(() => {
-    console.log("Socket initialized", socket);
     if (!socket) {
-      throw new Error("Socket not initialized");
+      console.warn("Socket not initialized");
+      return;
     }
-    socket.on(NEW_MESSAGE, (message: Message) => {
-      console.log("Socket new message response:", message);
-      setMessages((prev) => [...prev, message]);
-    });
-    socket.on("connect_error", (err: any) => {
-      console.log("Socket error:", err.message);
-    });
-  }, [socket]);
 
+    console.log("Socket initialized", socket);
+
+    const handleNewMessage = (message: Message) => {
+      console.log("New message received:", message);
+      setMessages(prev => {
+        // Check if message already exists to prevent duplicates
+        if (!prev.some(m => m.id === message.id || 
+            (m.content === message.content && 
+             m.senderId === message.senderId && 
+             Math.abs(new Date(m.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000))) {
+          return [...prev, message];
+        }
+        return prev;
+      });
+    };
+
+    const handleConversationUpdate = (updatedConversation: Conversation) => {
+      console.log("Conversation updated:", updatedConversation);
+      // This will trigger a re-render of the parent component with the updated conversation
+    };
+
+    // Listen for new messages in this conversation
+    const conversationEvent = `conversation:${currentChat.id}`;
+    socket.on(conversationEvent, handleNewMessage);
+    
+    // Also listen to global new message event
+    socket.on(NEW_MESSAGE, (message: Message) => {
+      // Only process if the message belongs to the current conversation
+      if (message.conversationId === currentChat.id) {
+        handleNewMessage(message);
+      }
+    });
+    
+    // Listen for conversation updates
+    socket.on('conversation:updated', (updatedConversation: Conversation) => {
+      // Only update if it's the current conversation
+      if (updatedConversation.id === currentChat.id) {
+        handleConversationUpdate(updatedConversation);
+      }
+    });
+    socket.on('connect_error', (err: any) => {
+      console.error("Socket connection error:", err.message);
+    });
+
+    // Clean up event listeners
+    return () => {
+      socket.off(conversationEvent, handleNewMessage);
+      socket.off(NEW_MESSAGE, handleNewMessage);
+      socket.off('conversation:updated', handleConversationUpdate);
+      socket.off('connect_error');
+    };
+  }, [socket, currentChat.id]);
+
+  // Scroll to bottom when messages change or conversation changes
   useEffect(() => {
-    scrollBottonFn();
-  }, [messages]);
+    const timer = setTimeout(() => {
+      scrollBottonFn();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [messages, currentChat.id]);
   console.log(messages);
 
   return (

@@ -10,6 +10,8 @@ import {
 import { NotificationType } from "./notifications";
 
 // Base Types
+export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+
 export interface Message {
   id?: string;
   listingId?: string;
@@ -19,6 +21,7 @@ export interface Message {
   createdAt: string;
   read?: boolean;
   conversationId?: string;
+  status?: MessageStatus;
 }
 
 export interface Conversation {

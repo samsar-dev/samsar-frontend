@@ -7,44 +7,86 @@ import UserDetails from "@/components/chat/UserDetails";
 import { useContextMessages } from "@/contexts/MessagesContext";
 import { useAuth } from "@/hooks";
 import type { Conversation, User } from "@/types";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { useSocket } from "@/contexts/SocketContext";
+import { NEW_MESSAGE } from "@/constants/socketEvents";
 
 export default function ChatInterface() {
   const [infoOpen, setInfoOpen] = useState(true);
   const {
     isLoading,
-    setCurrentConversation,
-    currentConversation,
     conversations,
   } = useContextMessages();
   const [currentChat, setCurrentChat] = useState<Conversation | null>(null);
   const [participant, setParticipant] = useState<User | null>();
   const { chatId } = useParams();
   const { user } = useAuth();
+  const { socket } = useSocket();
 
-  const fetchCurrentConversation = () => {
+  const updateCurrentConversation = useCallback((conversation: Conversation) => {
+    setCurrentChat(conversation);
+    setParticipant(
+      conversation.participants.find((p) => p.id !== user?.id) || null
+    );
+  }, [user]);
+
+  const fetchCurrentConversation = useCallback(() => {
     try {
       if (!chatId) {
-        throw new Error("No chatId provided");
+        setCurrentChat(null);
+        setParticipant(null);
+        return;
       }
+      
       const conversation = conversations.find((c) => c.id === chatId);
       if (conversation) {
-        setCurrentChat(conversation);
-
-        setParticipant(
-          conversation.participants.find((p) => p.id !== user?.id) || null
-        );
+        updateCurrentConversation(conversation);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching current conversation:", error);
+      setCurrentChat(null);
+      setParticipant(null);
     }
-  };
+  }, [chatId, conversations, updateCurrentConversation]);
 
+  // Handle real-time updates for conversations and messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (message: any) => {
+      // If the new message is for the current chat, update the last message
+      if (currentChat?.id === message.conversationId) {
+        setCurrentChat(prev => ({
+          ...prev!,
+          lastMessage: message,
+          updatedAt: new Date().toISOString()
+        }));
+      }
+    };
+
+    const handleConversationUpdate = (updatedConversation: Conversation) => {
+      // If the updated conversation is the current one, update it
+      if (currentChat?.id === updatedConversation.id) {
+        updateCurrentConversation(updatedConversation);
+      }
+    };
+
+    // Listen for new messages and conversation updates
+    socket.on(NEW_MESSAGE, handleNewMessage);
+    socket.on('conversation:updated', handleConversationUpdate);
+
+    // Clean up event listeners
+    return () => {
+      socket.off(NEW_MESSAGE, handleNewMessage);
+      socket.off('conversation:updated', handleConversationUpdate);
+    };
+  }, [socket, currentChat, updateCurrentConversation]);
+
+  // Update current conversation when chatId or conversations change
   useEffect(() => {
     fetchCurrentConversation();
-  }, [isLoading, conversations, chatId]);
+  }, [fetchCurrentConversation]);
 
   if (isLoading) {
     return (
@@ -54,14 +96,19 @@ export default function ChatInterface() {
     );
   }
 
-  console.log(currentChat);
-  console.log(currentConversation);
+  // Debug logging
+  // console.log('Current chat:', currentChat);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] w-screen">
       <div className="mx-auto w-full overflow-hidden bg-white flex">
         {/* Contacts/chats sidebar */}
-        <ConversationsList user={user} />
+        <ConversationsList 
+          user={user} 
+          onConversationSelect={(conversation) => {
+            updateCurrentConversation(conversation);
+          }}
+        />
 
         {currentChat && (
           <div className="w-full overflow-hidden flex">
@@ -93,23 +140,5 @@ export default function ChatInterface() {
         )}
       </div>
     </div>
-  );
-}
-function Check(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
   );
 }
