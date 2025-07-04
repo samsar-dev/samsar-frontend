@@ -78,60 +78,68 @@ const Image: React.FC<ImageProps> = ({
   // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
-  // Use more aggressive quality settings for non-priority images
-  const imageQuality = priority ? Math.min(85, quality) : Math.max(50, Math.min(70, quality));
   
-  // Generate optimized image URL with WebP format and proper caching
-  const getOptimizedImageUrl = (width?: number) => {
+  // Use memo to prevent unnecessary recalculations
+  const imageQuality = React.useMemo(() => 
+    priority ? Math.min(85, quality) : Math.max(50, Math.min(70, quality)),
+    [priority, quality]
+  );
+  
+  // Memoize the optimized URL generation
+  const getOptimizedImageUrl = React.useCallback((width?: number) => {
     if (!isR2Image || !baseUrl) return src || "";
     
     const params = new URLSearchParams();
-    params.append('format', 'webp');
-    params.append('quality', imageQuality.toString());
+    params.set('format', 'webp');
+    params.set('quality', imageQuality.toString());
     
     // Only add width if specified and greater than 0
     if (width && width > 0) {
-      params.append('width', Math.ceil(width).toString());
+      params.set('width', Math.ceil(width).toString());
     }
     
     // Add cache-control headers for production
     if (process.env.NODE_ENV === 'production') {
-      // Set long cache TTL (1 year) for production
-      params.append('cache-control', 'public, max-age=31536000, immutable');
+      params.set('cache-control', 'public, max-age=31536000, immutable');
     } else {
-      // Cache busting for development
-      params.append('_t', Date.now().toString());
+      // Cache busting for development - only add if not already present
+      if (!params.has('_t')) {
+        params.set('_t', Date.now().toString());
+      }
     }
     
     return `${baseUrl}?${params.toString()}`;
-  };
+  }, [isR2Image, baseUrl, src, imageQuality]);
   
   // Define responsive image sizes based on viewport and common display sizes
-  const responsiveSizes = [
-    // Mobile - 1x and 2x for high DPI displays
-    { media: '(max-width: 640px)', width: 400 },
-    { media: '(max-width: 640px) and (-webkit-min-device-pixel-ratio: 2)', width: 800 },
-    
-    // Tablet - 1x and 2x for high DPI displays
-    { media: '(min-width: 641px) and (max-width: 1024px)', width: 800 },
-    { media: '(min-width: 641px) and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 2)', width: 1200 },
-    
-    // Desktop - 1x and 2x for high DPI displays
-    { media: '(min-width: 1025px)', width: 1200 },
-    { media: '(min-width: 1025px) and (-webkit-min-device-pixel-ratio: 2)', width: 1800 },
-  ];
+  // Using a single source set with width descriptors instead of media queries
+  const responsiveSizes = React.useMemo(() => [
+    // Smaller sizes for mobile
+    { width: 320 },
+    { width: 480 },
+    // Medium sizes for tablets
+    { width: 768 },
+    { width: 1024 },
+    // Larger sizes for desktops
+    { width: 1280 },
+    { width: 1600 },
+    { width: 1920 }
+  ], []);
   
   // Get the most appropriate image size based on viewport
-  const getOptimalImageSize = () => {
-    if (typeof window === 'undefined') return 1200; // Default server-side
+  const getOptimalImageSize = React.useCallback(() => {
+    if (typeof window === 'undefined') return 800; // Default server-side
     
-    const viewportWidth = window.innerWidth;
-    const dpr = window.devicePixelRatio || 1;
+    const viewportWidth = Math.min(window.innerWidth, 1920); // Cap at 1920px
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x DPR
     
-    if (viewportWidth <= 640) return Math.ceil(400 * dpr);
-    if (viewportWidth <= 1024) return Math.ceil(800 * dpr);
-    return Math.ceil(1200 * dpr);
-  };
+    // Find the smallest size that's larger than viewport width
+    const sortedSizes = [...responsiveSizes].sort((a, b) => a.width - b.width);
+    const optimalSize = sortedSizes.find(size => size.width * dpr >= viewportWidth) || 
+                       sortedSizes[sortedSizes.length - 1];
+    
+    return Math.ceil(optimalSize.width * dpr);
+  }, [responsiveSizes]);
   
   // Preload critical images
   useEffect(() => {
