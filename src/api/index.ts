@@ -103,8 +103,6 @@ export const messagesAPI = {
     apiClient.delete(
       `/messages/conversations/${conversationId}/messages/${messageId}`,
     ),
-  deleteConversation: (conversationId: string) =>
-    apiClient.delete(`/messages/conversations/${conversationId}`),
 };
 
 // Reports API

@@ -1,7 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Conversation, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
-import { ComponentProps } from "react";
 
 function ChatItem({
   chat,
@@ -9,23 +8,16 @@ function ChatItem({
   participants,
   lastMessageDate,
   user,
-  isSelected = false,
 }: {
   chat: Conversation;
   chatId: string;
   participants: User;
   lastMessageDate: Date | null;
   user: AuthUser | null;
-  isSelected?: boolean;
 }) {
   return (
     <div
-      className={`flex items-start space-x-3 hover:bg-gray-100/30 cursor-pointer ${isSelected ? 'bg-blue-50' : ''} ${chatId === chat?.id && !isSelected ? 'bg-gray-100' : ''} py-2 px-2 rounded`}
-      onClick={(e) => {
-        if (isSelected) {
-          e.stopPropagation();
-        }
-      }}
+      className={`flex items-start space-x-3 hover:bg-gray-100/30 cursor-pointer ${chatId === chat?.id && "bg-gray-100"} py-2 px-2 rounded`}
     >
       <Avatar className="h-8 w-8">
         <AvatarImage src={participants.profilePicture} />
@@ -39,12 +31,12 @@ function ChatItem({
             {participants.name || participants.username}
           </div>
 
-          {lastMessageDate && (
-            <div className="text-xs text-gray-400">
-              {lastMessageDate.getHours().toString().padStart(2, '0')}:
-              {lastMessageDate.getMinutes().toString().padStart(2, '0')}
-            </div>
-          )}
+          <div className="text-xs text-gray-400">
+            {lastMessageDate ? 
+              `${lastMessageDate.getHours().toString().padStart(2, '0')}:${lastMessageDate.getMinutes().toString().padStart(2, '0')}`
+              : ''
+            }
+          </div>
         </div>
         {/* ON typing */}
         {/* <div className="flex items-center text-xs text-gray-500">
@@ -79,7 +71,7 @@ function ChatItem({
 }
 
 export default ChatItem;
-export function Check(props: ComponentProps<'svg'>) {
+export function Check(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

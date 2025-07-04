@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useSocket } from "@/contexts/SocketContext";
 import type {
   Message,
   Conversation,
@@ -15,7 +14,6 @@ export interface MessagesContextType {
   messages: Message[];
   isLoading: boolean;
   unreadMessages: number;
-  socket: any; // TODO: Import proper Socket type from your socket client
   toggleNotifications: () => void;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   createConversation: (
@@ -23,8 +21,6 @@ export interface MessagesContextType {
     initialMessage?: string,
   ) => Promise<string>;
   markAsRead: (conversationId: string, messageId: string) => Promise<void>;
-  deleteMessage: (conversationId: string, messageId: string) => Promise<void>;
-  deleteConversation: (conversationId: string) => Promise<void>;
   setCurrentConversation: (conversationId: string) => Promise<void>;
   fetchMessages: (conversationId: string) => Promise<void>;
 }
@@ -42,93 +38,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const auth = useAuth();
-  const { socket, connected } = useSocket();
 
-  // Delete an entire conversation
-  const deleteConversation = async (conversationId: string): Promise<void> => {
-    try {
-      await messagesAPI.deleteConversation(conversationId);
-      
-      // Update the UI state
-      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-      if (currentConversation?.id === conversationId) {
-        setCurrentConversation(null);
-        setMessages([]);
-      }
-      
-      console.log('Successfully deleted conversation:', conversationId);
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-      throw error;
-    }
-  };
-
-  // Handle real-time message events
-  useEffect(() => {
-    if (!socket || !connected) return;
-
-    // Handle new message received
-    const handleNewMessage = (newMessage: Message) => {
-      setMessages(prevMessages => {
-        // Don't add if message already exists
-        if (prevMessages.some(msg => msg.id === newMessage.id)) {
-          return prevMessages;
-        }
-        return [...prevMessages, newMessage];
-      });
-
-      // Update last message in conversations list
-      setConversations(prevConversations => {
-        return prevConversations.map(conv => {
-          if (conv.id === newMessage.conversationId) {
-            return {
-              ...conv,
-              lastMessage: newMessage,
-              updatedAt: new Date().toISOString()
-            };
-          }
-          return conv;
-        }).sort((a, b) => {
-          // Sort by most recent message
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        });
-      });
-    };
-
-    // Handle new conversation
-    const handleNewConversation = (conversation: Conversation) => {
-      setConversations(prev => {
-        // Don't add if conversation already exists
-        if (prev.some(conv => conv.id === conversation.id)) {
-          return prev;
-        }
-        return [conversation, ...prev];
-      });
-    };
-
-    // Subscribe to socket events
-    socket.on('newMessage', handleNewMessage);
-    socket.on('newConversation', handleNewConversation);
-    socket.on('messageRead', handleMessageRead);
-
-    // Cleanup
-    return () => {
-      socket.off('newMessage', handleNewMessage);
-      socket.off('newConversation', handleNewConversation);
-      socket.off('messageRead', handleMessageRead);
-    };
-  }, [socket, connected]);
-
-  // Handle message read updates
-  const handleMessageRead = (data: { conversationId: string, messageId: string }) => {
-    setMessages(prevMessages => 
-      prevMessages.map(msg => 
-        msg.id === data.messageId ? { ...msg, read: true } : msg
-      )
-    );
-  };
-
-  // Fetch conversations on mount and when user changes
   useEffect(() => {
     const fetchConversations = async () => {
       if (!auth?.user) {
@@ -141,10 +51,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsLoading(true);
         const response = await messagesAPI.getConversations();
         if (response.status === 200 && response.data) {
-          const sortedConversations = response.data.data?.items?.sort((a: Conversation, b: Conversation) => {
-            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          }) || [];
-          setConversations(sortedConversations);
+          setConversations(response.data.data?.items);
         }
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
@@ -155,44 +62,6 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
 
     fetchConversations();
   }, [auth?.user]);
-
-  const sendMessage = async (conversationId: string, content: string) => {
-    if (!auth?.user) throw new Error("Must be logged in to send messages");
-
-    try {
-      const messageInput = { content };
-      const response = await messagesAPI.sendMessage(conversationId, messageInput);
-      
-      if (response.status === 200 && response.data) {
-        const newMessage = response.data;
-        
-        // Update messages list
-        setMessages((prev) =>
-          [...prev, newMessage].filter((m): m is Message => m !== null)
-        );
-
-        // Update conversation's last message
-        setConversations((prev) =>
-          prev.map((conv) =>
-            conv.id === conversationId
-              ? ({
-                  ...conv,
-                  lastMessage: newMessage,
-                  updatedAt: newMessage.createdAt,
-                } as Conversation)
-              : conv
-          )
-        );
-        
-        return newMessage;
-      }
-      
-      throw new Error("Failed to send message");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      throw error;
-    }
-  };
 
   const fetchMessages = async (conversationId: string) => {
     try {
@@ -210,6 +79,40 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const sendMessage = async (conversationId: string, content: string) => {
+    if (!auth?.user) throw new Error("Must be logged in to send messages");
+
+    try {
+      const messageInput: MessageInput = { content };
+      const response = await messagesAPI.sendMessage(
+        conversationId,
+        messageInput,
+      );
+
+      if (response.status === 200 && response.data) {
+        setMessages((prev) =>
+          [...prev, response.data].filter((m): m is Message => m !== null),
+        );
+
+        // Update conversation's last message
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === conversationId
+              ? ({
+                  ...conv,
+                  lastMessage: response.data,
+                  updatedAt: response.data.createdAt,
+                } as Conversation)
+              : conv,
+          ),
+        );
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      throw error;
     }
   };
 
@@ -244,40 +147,20 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
   const markAsRead = async (conversationId: string, messageId: string) => {
     try {
       await messagesAPI.markAsRead(conversationId, messageId);
-      // Update local state
+
       setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === messageId ? { ...msg, read: true } : msg,
+        prev.map((message) =>
+          message.id === messageId ? { ...message, read: true } : message,
         ),
       );
-      // Update unread count
-      setUnreadMessages((prev) => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark message as read:', error);
-    }
-  };
 
-  const deleteMessage = async (conversationId: string, messageId: string) => {
-    try {
-      await messagesAPI.deleteMessage(conversationId, messageId);
-      // Update local state
-      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
-      // If current conversation has this message, update last message
-      if (currentConversation?.lastMessage?.id === messageId) {
-        const updatedConversations = conversations.map((conv) => {
-          if (conv.id === conversationId) {
-            const otherMessages = messages.filter((msg) => msg.id !== messageId);
-            return {
-              ...conv,
-              lastMessage: otherMessages[otherMessages.length - 1] || null,
-            };
-          }
-          return conv;
-        });
-        setConversations(updatedConversations);
-      }
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv,
+        ),
+      );
     } catch (error) {
-      console.error('Failed to delete message:', error);
+      console.error("Failed to mark messages as read:", error);
       throw error;
     }
   };
@@ -313,13 +196,10 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
         messages,
         isLoading,
         unreadMessages,
-        socket,
         toggleNotifications,
         sendMessage,
         createConversation,
         markAsRead,
-        deleteMessage,
-        deleteConversation,
         setCurrentConversation: setCurrentConversationById,
         fetchMessages,
       }}
