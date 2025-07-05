@@ -228,21 +228,10 @@ function ChatSection({
   console.log(messages);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex flex-col h-full">
       {/* Chat header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => setInfoOpen(true)}
-        >
-          {/* <Avatar className="h-8 w-8 mr-2">
-            <AvatarImage
-              src={participant?.profilePicture || "/placeholder.svg"}
-            />
-            <AvatarFallback>
-              {participant?.username?.slice(0, 2).toUpperCase() || "US"}
-            </AvatarFallback>
-          </Avatar> */}
+      <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center cursor-pointer" onClick={() => setInfoOpen(true)}>
           <h2 className="text-2xl font-semibold">
             {participant?.name || participant?.username}
           </h2>
@@ -252,51 +241,47 @@ function ChatSection({
             </Badge>
           )}
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="h-6 w-px bg-gray-200"></div>
-          <Button variant="ghost" size="icon" onClick={() => setInfoOpen(true)}>
-            <MoreHorizontal className="h-5 w-5 text-gray-500" />
-          </Button>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setInfoOpen(prev => !prev)}
+          aria-label="Toggle user details"
+        >
+          <MoreHorizontal className="h-5 w-5 text-gray-500" />
+        </Button>
       </div>
 
       {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-6" key="messages-container">
-          {messages?.map((message, index) => (
-            <div key={message.id} className="flex flex-col">
-              {message.senderId === user?.id ? (
-                <UserMessageBubble
-                  message={message}
-                  user={user}
-                  index={index}
-                />
-              ) : (
-                <ParticipantMessageBubble
-                  message={message}
-                  participant={participant!}
-                  index={index}
-                />
-              )}
-            </div>
-          ))}
-          <div key="scroll-ref" ref={scrollRef} className="w-full"></div>
-        </div>
-      </ScrollArea>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-6" key="messages-container">
+            {messages?.map((message) => (
+              <div key={message.id} className="flex flex-col">
+                {message.senderId === user?.id ? (
+                  <UserMessageBubble
+                    message={message}
+                    user={user}
+                  />
+                ) : (
+                  <ParticipantMessageBubble
+                    message={message}
+                    participant={participant!}
+                  />
+                )}
+              </div>
+            ))}
+            <div key="scroll-ref" ref={scrollRef} className="w-full"></div>
+          </div>
+        </ScrollArea>
+      </div>
 
       {/* Chat input */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="flex items-center">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
-            <AvatarFallback>
-              {user?.username?.slice(0, 2).toUpperCase() || "ME"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 mx-3 relative">
+      <div className="p-4 border-t border-gray-100 bg-white">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
             <Input
-              placeholder="Type Something ..."
-              className="pl-12"
+              placeholder="Type a message..."
+              className="pr-12 pl-4 py-5 rounded-full border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -306,100 +291,42 @@ function ChatSection({
                 }
               }}
             />
-            <div
-              className="absolute left-2 bottom-full mb-2"
-              ref={emojiPickerRef}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-gray-100"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             >
-              {showEmojiPicker && (
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-2 w-64">
-                  <div className="mb-2 border-b pb-2">
-                    <div className="flex overflow-x-auto space-x-2 pb-2">
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        <Smile className="h-8 w-8 text-gray-500" />
-                      </button>
-                      {/* Category buttons can be added here */}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-8 gap-1">
-                    {[
-                      "😀",
-                      "😁",
-                      "😂",
-                      "🤣",
-                      "😃",
-                      "😄",
-                      "😅",
-                      "😆",
-                      "😉",
-                      "😊",
-                      "😋",
-                      "😎",
-                      "😍",
-                      "😘",
-                      "😗",
-                      "😙",
-                      "😚",
-                      "🙂",
-                      "🤗",
-                      "🤔",
-                      "🤨",
-                      "😐",
-                      "😑",
-                      "😶",
-                      "🙄",
-                      "😏",
-                      "😣",
-                      "😥",
-                      "😮",
-                      "🤐",
-                      "😯",
-                      "😪",
-                      "😫",
-                      "😴",
-                      "😌",
-                      "😛",
-                      "😜",
-                      "😝",
-                      "🤤",
-                      "😒",
-                      "👍",
-                      "👎",
-                      "👏",
-                      "🙌",
-                      "👋",
-                      "🤝",
-                      "💪",
-                      "❤️",
-                    ].map((emoji, index) => (
-                      <button
-                        key={index}
-                        className="p-1 hover:bg-gray-100 rounded text-xl"
-                        onClick={() => handleEmojiClick(emoji)}
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              <Smile className="h-5 w-5 text-gray-500" />
+            </Button>
+            
+            {showEmojiPicker && (
+              <div 
+                className="absolute right-0 bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 w-64 z-10"
+                ref={emojiPickerRef}
               >
-                <Smile className="h-8 w-8 text-gray-500" />
-              </Button>
-            </div>
+                <div className="grid grid-cols-8 gap-1">
+                  {["😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","😋","😎","😍","😘","😗","😙","😚","🙂","🤗","🤔"].map((emoji, index) => (
+                    <button
+                      key={index}
+                      className="p-1 hover:bg-gray-100 rounded text-xl"
+                      onClick={() => handleEmojiClick(emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+          
           <Button
             size="icon"
-            className="rounded-full bg-blue-500 hover:bg-blue-600"
+            className="h-12 w-12 rounded-full bg-blue-500 hover:bg-blue-600 flex-shrink-0"
             onClick={handleSendMessage}
+            disabled={!inputMessage.trim()}
           >
-            <Send className="h-6 w-6" />
+            <Send className="h-5 w-5" />
           </Button>
         </div>
       </div>
@@ -409,15 +336,15 @@ function ChatSection({
 
 export default ChatSection;
 
+interface ParticipantMessageBubbleProps {
+  message: Message;
+  participant: User;
+}
+
 const ParticipantMessageBubble = ({
   message,
   participant,
-  index,
-}: {
-  message: Message;
-  participant: User;
-  index: number;
-}) => {
+}: ParticipantMessageBubbleProps) => {
   return (
     <div className="flex items-start space-x-3">
       <Avatar className="h-10 w-10 border">
@@ -449,15 +376,15 @@ const ParticipantMessageBubble = ({
   );
 };
 
+interface UserMessageBubbleProps {
+  message: Message;
+  user: AuthUser;
+}
+
 const UserMessageBubble = ({
   message,
   user,
-  index,
-}: {
-  message: Message;
-  user: AuthUser;
-  index: number;
-}) => {
+}: UserMessageBubbleProps) => {
   return (
     <div className="flex justify-end space-x-2">
       <div className="flex flex-col items-end">

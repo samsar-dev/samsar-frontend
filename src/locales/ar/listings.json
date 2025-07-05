@@ -13,6 +13,11 @@
   "descriptionPlaceholder": "أخبرنا المزيد عن إعلانك... (مثل المميزات والحالة وسبب البيع)",
   "notFound": "لم يتم العثور على الإعلان",
   "contactLister": "تواصل مع المعلن",
+  "messageTypes": {
+    "question": "لدي سؤال",
+    "offer": "أريد تقديم عرض",
+    "meeting": "أريد تحديد موعد"
+  },
 
   "propertyDetails": "تفاصيل العقار",
 

@@ -36,7 +36,7 @@ const categoryIcons = {
 // Union type of all possible category enums
 type CategoryType = ListingCategory | VehicleType | PropertyType | string;
 
-interface ImageProps {
+interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'fetchPriority'> {
   src: string;
   alt: string;
   className?: string;
@@ -55,7 +55,7 @@ interface ImageProps {
 
 const DEFAULT_PLACEHOLDER = "";
 
-const Image: React.FC<ImageProps> = ({
+const ImageComponent: React.FC<ImageProps> = ({
   src,
   alt,
   className = "",
@@ -70,6 +70,7 @@ const Image: React.FC<ImageProps> = ({
   blur = false,
   onLoad,
   onError,
+  ...rest
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -250,13 +251,12 @@ const Image: React.FC<ImageProps> = ({
               isLoading ? 'opacity-0' : 'opacity-100'
             } ${blur ? 'blur-sm' : ''}`}
             loading={loading}
-            fetchPriority={priority ? 'high' : 'low'}
+            {...(priority ? { fetchpriority: 'high', decoding: 'sync' as const } : { decoding: 'async' as const })}
             width={width}
             height={height}
             onLoad={handleLoad}
             onError={handleError}
             sizes={sizes}
-            decoding={priority ? 'sync' : 'async'}
           />
         </picture>
       )}
@@ -264,4 +264,22 @@ const Image: React.FC<ImageProps> = ({
   );
 };
 
-export default memo(Image);
+// Custom comparison function for React.memo
+const areEqual = (prevProps: ImageProps, nextProps: ImageProps) => {
+  return (
+    prevProps.src === nextProps.src &&
+    prevProps.alt === nextProps.alt &&
+    prevProps.className === nextProps.className &&
+    prevProps.loading === nextProps.loading &&
+    prevProps.priority === nextProps.priority &&
+    prevProps.sizes === nextProps.sizes &&
+    prevProps.width === nextProps.width &&
+    prevProps.height === nextProps.height &&
+    prevProps.quality === nextProps.quality &&
+    prevProps.category === nextProps.category &&
+    prevProps.placeholder === nextProps.placeholder &&
+    prevProps.blur === nextProps.blur
+  );
+};
+
+export default memo(ImageComponent, areEqual);

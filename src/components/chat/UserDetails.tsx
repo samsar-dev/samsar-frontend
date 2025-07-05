@@ -41,7 +41,7 @@ export default function UserDetails({
   }
 
   return (
-    <div className="w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100">
+    <div className="fixed inset-0 md:relative md:inset-auto md:w-1/4 h-[calc(100vh-3.5rem)] border-l border-gray-100 bg-white z-50 md:z-auto">
       <ScrollArea>
         <div className="p-4 flex items-center justify-between border-b border-gray-100">
           <div className="font-medium text-blue-500">About User</div>
@@ -49,6 +49,15 @@ export default function UserDetails({
             variant="ghost"
             size="icon"
             onClick={() => setInfoOpen(false)}
+            className="md:hidden"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setInfoOpen(false)}
+            className="hidden md:flex"
           >
             <X className="h-4 w-4" />
           </Button>

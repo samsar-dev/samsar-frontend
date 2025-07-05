@@ -100,45 +100,46 @@ export default function ChatInterface() {
   // console.log('Current chat:', currentChat);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] w-screen">
-      <div className="mx-auto w-full overflow-hidden bg-white flex">
-        {/* Contacts/chats sidebar */}
-        <ConversationsList 
-          user={user} 
-          onConversationSelect={(conversation) => {
-            updateCurrentConversation(conversation);
-          }}
-        />
+    <div className="flex h-[calc(100vh-4rem)] w-screen bg-white">
+      {/* Contacts/chats sidebar */}
+      <ConversationsList 
+        user={user} 
+        onConversationSelect={(conversation) => {
+          updateCurrentConversation(conversation);
+        }}
+      />
 
-        {currentChat && (
-          <div className="w-full overflow-hidden flex">
+      {currentChat ? (
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <div className="flex-1 flex overflow-hidden">
             {/* Main chat area */}
-            <ChatSection
-              participant={participant}
-              user={user}
-              currentChat={currentChat}
-              setInfoOpen={setInfoOpen}
-            />
+            <div className={`${infoOpen ? 'hidden md:block' : 'w-full'} flex-1 overflow-hidden`}>
+              <ChatSection
+                participant={participant}
+                user={user}
+                currentChat={currentChat}
+                setInfoOpen={setInfoOpen}
+              />
+            </div>
 
             {/* Right sidebar - group info */}
             {infoOpen && (
-              <UserDetails
-                participant={participant}
-                setInfoOpen={setInfoOpen}
-              />
+              <div className="w-full md:w-1/4 border-l border-gray-200 overflow-y-auto">
+                <UserDetails
+                  participant={participant}
+                  setInfoOpen={setInfoOpen}
+                />
+              </div>
             )}
           </div>
-        )}
-
-        {!currentChat && (
-          <div className="w-full overflow-hidden flex">
-            {/* Main chat area */}
-            <h1 className=" text-center text-3xl text-gray-600 m-auto">
-              No chat selected
-            </h1>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <h1 className="text-3xl text-gray-400">
+            Select a chat to start messaging
+          </h1>
+        </div>
+      )}
     </div>
   );
 }

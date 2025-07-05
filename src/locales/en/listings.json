@@ -14,6 +14,11 @@
   "descriptionPlaceholder": "Enter description",
   "notFound": "Listing not found",
   "contactLister": "Contact Lister",
+  "messageTypes": {
+    "question": "I have a question",
+    "offer": "I want to make an offer",
+    "meeting": "I want to schedule a meeting"
+  },
 
   "propertyDetails": "Property Details",
 
