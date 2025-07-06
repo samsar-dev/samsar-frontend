@@ -15,6 +15,7 @@ import type {
 import type { ExtendedFormState } from "../steps/AdvancedDetailsForm";
 import type { Dispatch, SetStateAction } from "react";
 import type { TFunction } from "i18next";
+import { cleanLocationString } from "@/utils/locationUtils";
 
 export const handleAdvancedDetailsSubmit = (
   data: ExtendedFormState,
@@ -30,23 +31,28 @@ export const handleAdvancedDetailsSubmit = (
     // Ensure we preserve all feature values
 
     setFormData((prev) => {
+      // Clean location data if it exists
+      const cleanedData = {
+        ...data,
+        location: data.location ? cleanLocationString(data.location) : prev.location,
+      };
       // Deep merge the details objects
       const mergedVehicles =
-        data.category.mainCategory === ListingCategory.VEHICLES
+        cleanedData.category.mainCategory === ListingCategory.VEHICLES
           ? {
               ...prev.details?.vehicles,
-              ...data.details?.vehicles,
+              ...cleanedData.details?.vehicles,
               // Ensure all fields have proper fallback values
               vehicleType:
-                data.details?.vehicles?.vehicleType ||
+                cleanedData.details?.vehicles?.vehicleType ||
                 prev.details?.vehicles?.vehicleType ||
                 VehicleType.CAR,
               make:
-                data.details?.vehicles?.make ||
+                cleanedData.details?.vehicles?.make ||
                 prev.details?.vehicles?.make ||
                 "",
               model:
-                data.details?.vehicles?.model ||
+                cleanedData.details?.vehicles?.model ||
                 prev.details?.vehicles?.model ||
                 "",
               mileage:

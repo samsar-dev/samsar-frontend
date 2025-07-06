@@ -10,6 +10,7 @@ import type { TFunction } from "i18next";
 import type { Dispatch, SetStateAction } from "react";
 import { toast } from "react-hot-toast";
 import type { FormState } from "../../../../types/listings";
+import { cleanLocationString } from "@/utils/locationUtils";
 
 import type { ExtendedFormState } from "../steps/AdvancedDetailsForm";
 
@@ -32,7 +33,7 @@ export const handleBasicDetailsSubmit = (
           typeof data.price === "string"
             ? parseFloat(data.price) || 0
             : (data.price ?? prev.price),
-        location: data.location || prev.location,
+        location: data.location ? cleanLocationString(data.location) : prev.location,
         images: data.images || prev.images,
         category: {
           ...prev.category,

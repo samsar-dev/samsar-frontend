@@ -30,3 +30,40 @@ export const normalizeLocation = (location: string): string => {
   const normalized = location.toLowerCase().trim().replace(/\s+/g, '_');
   return locationMap[normalized] || normalized;
 };
+
+/**
+ * Cleans up location strings that contain duplicate city/neighborhood names
+ * Examples:
+ *   - "Afrin, Afrin, Afrin" -> "Afrin"
+ *   - "Al-Aziziyah, Aleppo, Aleppo" -> "Al-Aziziyah, Aleppo"
+ *   - "Damascus, Damascus" -> "Damascus"
+ */
+export const cleanLocationString = (location: string): string => {
+  if (!location) return '';
+  
+  // Split by commas and clean up each part
+  const parts = location
+    .split(',')
+    .map(part => part.trim())
+    .filter(part => part.length > 0);
+  
+  if (parts.length <= 1) return location;
+  
+  // Remove consecutive duplicates
+  const uniqueParts = [];
+  let lastPart = '';
+  
+  for (const part of parts) {
+    if (part.toLowerCase() !== lastPart.toLowerCase()) {
+      uniqueParts.push(part);
+      lastPart = part;
+    }
+  }
+  
+  // If we have more than 2 parts (neighborhood, city, city), take the first two
+  if (uniqueParts.length > 2) {
+    return `${uniqueParts[0]}, ${uniqueParts[1]}`;
+  }
+  
+  return uniqueParts.join(', ');
+};

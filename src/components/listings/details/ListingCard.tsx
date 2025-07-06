@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { timeAgo } from "@/utils/dateUtils";
 import { PriceConverter } from "@/components/common/PriceConverter";
+import { cleanLocationString } from "@/utils/locationUtils";
 import type {
   Listing as BaseListing,
   VehicleDetails,
@@ -390,12 +390,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     : t("common.forRent")}
                 </span>
                 
-                {/* New listing badge */}
-          {createdAt && new Date(createdAt).getTime() > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() && (
-            <span className="bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto">
-              {t('common.new')}
-            </span>
-          )}
                 </div>
               )}
 
@@ -463,7 +457,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     className="truncate hover:underline hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {location}
+                    {cleanLocationString(location)}
                   </a>
                 </div>
                 <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
