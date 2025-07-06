@@ -1,20 +1,22 @@
-import apiClient from "./apiClient";
-import type {
-  APIResponse,
-  Report,
-  ReportCreateInput,
-  ReportUpdateInput,
-  PaginatedData,
-} from "@/types";
+import apiClient from './apiClient';
+import type { APIResponse, PaginatedData } from '@/types/api';
+import type { Report, ReportCreateInput, ReportUpdateInput } from '@/types/reports';
 
-const BASE_URL = "/reports";
+const BASE_URL = '/reports';
 
-function handleApiError(error: any, defaultMessage: string): APIResponse<any> {
+interface CreateReportResponse {
+  success: boolean;
+  data: Report;
+  status: number;
+  error?: string;
+}
+
+function createErrorResponse<T>(error: any, defaultMessage: string): APIResponse<T> {
   return {
     success: false,
     error: error.response?.data?.error || defaultMessage,
-    data: null,
-    status: error.response?.status || 500,
+    message: error.response?.data?.message || defaultMessage,
+    data: null as unknown as T,
   };
 }
 
@@ -32,7 +34,7 @@ export const ReportsAPI = {
       );
       return response.data;
     } catch (error: any) {
-      return handleApiError(error, "Failed to fetch reports");
+      return createErrorResponse<PaginatedData<Report>>(error, "Failed to fetch reports");
     }
   },
 
@@ -43,19 +45,41 @@ export const ReportsAPI = {
       );
       return response.data;
     } catch (error: any) {
-      return handleApiError(error, "Failed to fetch report");
+      return createErrorResponse<Report>(error, "Failed to fetch report");
     }
   },
 
   async createReport(input: ReportCreateInput): Promise<APIResponse<Report>> {
     try {
-      const response = await apiClient.post<APIResponse<Report>>(
+      const response = await apiClient.post<CreateReportResponse>(
         BASE_URL,
-        input,
+        {
+          type: input.type,
+          targetId: input.targetId,
+          reason: input.reason,
+          notes: input.notes || null
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      return response.data;
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to create report');
+      }
+      
+      return {
+        success: true,
+        data: response.data.data
+      };
     } catch (error: any) {
-      return handleApiError(error, "Failed to create report");
+      console.error('Error in createReport:', error);
+      return createErrorResponse<Report>(
+        error,
+        error.response?.data?.error || error.message || 'Failed to create report'
+      );
     }
   },
 
@@ -70,7 +94,7 @@ export const ReportsAPI = {
       );
       return response.data;
     } catch (error: any) {
-      return handleApiError(error, "Failed to update report");
+      return createErrorResponse<Report>(error, "Failed to update report");
     }
   },
 
@@ -81,7 +105,7 @@ export const ReportsAPI = {
       );
       return response.data;
     } catch (error: any) {
-      return handleApiError(error, "Failed to delete report");
+      return createErrorResponse<void>(error, "Failed to delete report");
     }
   },
 };

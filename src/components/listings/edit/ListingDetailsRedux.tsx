@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, Suspense, lazy, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Flag } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import * as listingDetailsActions from "@/store/listing/listingDetails.actions";
+import { toast } from "sonner";
 
 // Helper function to safely render translated text as string
 const renderTranslatedText = (
@@ -369,6 +370,12 @@ const ListingDetails = () => {
     type: 'question' | 'offer' | 'meeting';
   }>({ content: "", type: "question" });
 
+  // Report state
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportType, setReportType] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
+
   // Fetch listing details when component mounts or id changes
   useEffect(() => {
     if (id) {
@@ -434,6 +441,35 @@ const ListingDetails = () => {
       setSendingMessage(false);
     }
   }, [listing, message, dispatch, toggleMessageForm]);
+
+  // Handle report submission
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportReason.trim() || !reportType) return;
+
+    try {
+      setIsReporting(true);
+      // Here you would typically call your API to submit the report
+      // For example: await ReportsAPI.createReport({
+      //   targetId: listing.id,
+      //   type: reportType,
+      //   reason: reportReason,
+      // });
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success('Report submitted successfully');
+      setShowReportForm(false);
+      setReportReason('');
+      setReportType('');
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast.error('Failed to submit report');
+    } finally {
+      setIsReporting(false);
+    }
+  };
 
   // Get schema fields based on listing type
   const { essentialFields, advancedFields } = useMemo(() => {
@@ -721,20 +757,30 @@ const ListingDetails = () => {
             )}
           </div>
 
-          {/* Contact Seller */}
+          {/* Contact & Report Section */}
           {listing.seller && user?.id !== listing.seller.id && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("contactSeller", { ns: "listings" })}
-              </h2>
-              {!showMessageForm ? (
-                <button
-                  onClick={() => dispatch(listingDetailsActions.setMessageFormVisibility(true))}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                <h2 className="text-lg font-semibold mb-4">
                   {t("contactSeller", { ns: "listings" })}
-                </button>
-              ) : (
+                </h2>
+                {!showMessageForm ? (
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => dispatch(listingDetailsActions.setMessageFormVisibility(true))}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                    >
+                      {t("contactSeller", { ns: "listings" })}
+                    </button>
+                    <button
+                      onClick={() => setShowReportForm(true)}
+                      className="flex items-center justify-center w-12 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium py-2 px-3 rounded-lg transition-colors"
+                      title="Report this listing"
+                    >
+                      <Flag size={18} />
+                    </button>
+                  </div>
+                ) : (
                 <div className="space-y-4">
                   <select
                     value={message.type}
@@ -816,6 +862,79 @@ const ListingDetails = () => {
                 </div>
               )}
             </div>
+
+            {/* Report Form */}
+            {showReportForm && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Report Listing</h2>
+                  <button
+                    onClick={() => {
+                      setShowReportForm(false);
+                      setReportReason('');
+                      setReportType('');
+                    }}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <form onSubmit={handleReportSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Reason for Report
+                    </label>
+                    <select
+                      value={reportType}
+                      onChange={(e) => setReportType(e.target.value)}
+                      className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      required
+                    >
+                      <option value="">Select a reason</option>
+                      <option value="spam">Spam or Scam</option>
+                      <option value="inappropriate">Inappropriate Content</option>
+                      <option value="misleading">Misleading Information</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Additional Details
+                    </label>
+                    <textarea
+                      value={reportReason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      rows={3}
+                      placeholder="Please provide more details about your report"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowReportForm(false);
+                        setReportReason('');
+                        setReportType('');
+                      }}
+                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                      disabled={isReporting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg disabled:opacity-50"
+                      disabled={isReporting || !reportReason.trim() || !reportType}
+                    >
+                      {isReporting ? 'Submitting...' : 'Submit Report'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
           )}
         </div>
       </div>
