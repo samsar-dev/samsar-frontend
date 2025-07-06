@@ -18,7 +18,7 @@
 //   useEffect(() => {
 //     if (user) {
 //       const manager = new Manager(
-//         "https://tijara-backend-production.up.railway.app",
+//         "https://samsar-backend-production.up.railway.app",
 //         {
 //           auth: {
 //             token: localStorage.getItem("token"),

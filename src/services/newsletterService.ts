@@ -7,7 +7,7 @@ import type {
 // Using Vite's environment variables
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  "https://tijara-backend-production.up.railway.app";
+  "https://samsar-backend-production.up.railway.app";
 
 export const sendNewsletter = async (
   data: NewsletterFormData,

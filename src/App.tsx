@@ -23,13 +23,13 @@ if (typeof document !== "undefined") {
   // Preconnect to API server
   const preconnectLink = document.createElement("link");
   preconnectLink.rel = "preconnect";
-  preconnectLink.href = "https://tijara-backend-production.up.railway.app";
+  preconnectLink.href = "https://samsar-backend-production.up.railway.app";
   document.head.appendChild(preconnectLink);
 
   // DNS prefetch
   const dnsPrefetchLink = document.createElement("link");
   dnsPrefetchLink.rel = "dns-prefetch";
-  dnsPrefetchLink.href = "https://tijara-backend-production.up.railway.app";
+  dnsPrefetchLink.href = "https://samsar-backend-production.up.railway.app";
   document.head.appendChild(dnsPrefetchLink);
 }
 
