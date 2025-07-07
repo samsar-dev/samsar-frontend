@@ -94,15 +94,27 @@ export default defineConfig({
         entryFileNames: "assets/[name]-[hash].js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash].[ext]",
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'react-i18next', 'i18next'],
-          ui: ['@headlessui/react', '@heroicons/react'],
-          utils: ['date-fns', 'lodash', 'axios'],
-          ...(process.env.NODE_ENV === 'production' && {
-            vendorReact: ['react', 'react-dom'],
-            vendorI18n: ['i18next', 'react-i18next'],
-            vendorUi: ['@headlessui/react', '@heroicons/react'],
-          })
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Group React-related dependencies
+            if (id.includes('react-dom')) return 'vendor-react';
+            if (id.includes('react-router-dom')) return 'vendor-router';
+            if (id.includes('react-i18next') || id.includes('i18next')) return 'vendor-i18n';
+            if (id.includes('@headlessui') || id.includes('@heroicons')) return 'vendor-ui';
+            if (id.includes('date-fns') || id.includes('lodash') || id.includes('axios')) return 'vendor-utils';
+            
+            // For other node_modules, group them by package name
+            const match = id.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+            if (match) {
+              const packageName = match[1];
+              // Group core-js and other polyfills
+              if (packageName.startsWith('core-js')) return 'vendor-polyfills';
+              // Group other dependencies by package name
+              return `vendor-${packageName.replace('@', '')}`;
+            }
+          }
+          // Everything else goes into a common chunk
+          return 'common';
         }
       },
     },
