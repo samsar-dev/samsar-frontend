@@ -1,11 +1,10 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isDev = process.env.NODE_ENV === "development";
 
 export default defineConfig({
   plugins: [
@@ -77,45 +76,33 @@ export default defineConfig({
   build: {
     outDir: process.env.VITE_BUILD_DIR || "dist",
     chunkSizeWarningLimit: 1000,
-    reportCompressedSize: false,
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'vendor';
-            }
-            if (id.includes('@radix-ui') || id.includes('@headlessui')) {
-              return 'ui';
-            }
-            if (id.includes('i18next')) return 'i18n';
-            if (id.includes('date-fns')) return 'date';
-            if (id.includes('framer-motion')) return 'motion';
-            if (id.includes('lucide-react')) return 'icons';
-            return 'vendor-other';
-          }
-        },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
-          if (ext === 'css') {
-            return `assets/css/[name]-[hash][extname]`;
-          }
-          return `assets/[ext]/[name]-[hash][extname]`;
-        },
-      },
-    },
+    sourcemap: process.env.VITE_ENV === "development",
+    minify: "terser",
+    assetsInlineLimit: 2048,
     terserOptions: {
       compress: {
-        drop_console: !isDev,
-        drop_debugger: !isDev,
-      },
-      format: {
-        comments: false,
+        drop_console: process.env.VITE_ENV !== "development",
+        drop_debugger: process.env.VITE_ENV !== "development",
       },
     },
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react")) return "vendor-react";
+            if (id.includes("i18next")) return "vendor-i18n";
+            if (id.includes("date-fns")) return "vendor-date";
+            if (id.includes("framer-motion")) return "vendor-motion";
+            if (id.includes("@headlessui")) return "vendor-ui";
+            if (id.includes("lucide-react")) return "vendor-icons";
+          }
+        },
+      },
+    },
+    target: "es2020",
   },
   css: {
     devSourcemap: true,
