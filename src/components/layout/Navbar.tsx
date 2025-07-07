@@ -143,54 +143,75 @@ const Navbar: React.FC = () => {
             <div className="w-full">
               <div className="flex gap-2 items-center w-full">
                 {/* Category Dropdown */}
-                <select
-                  className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    setSelectedSubcategory("");
-                  }}
-                >
-                  <option value="all">{t("all")}</option>
-                  <option value="vehicles">{t("navigation.vehicles")}</option>
-                  <option value="realEstate">
-                    {t("navigation.real_estate")}
-                  </option>
-                </select>
+                <div className="relative">
+                  <label htmlFor="category-select" className="sr-only">
+                    {t('selectCategory')}
+                  </label>
+                  <select
+                    id="category-select"
+                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      setSelectedSubcategory("");
+                    }}
+                    aria-label={t('selectCategory')}
+                  >
+                    <option value="all">{t("all")}</option>
+                    <option value="vehicles">{t("navigation.vehicles")}</option>
+                    <option value="realEstate">
+                      {t("navigation.real_estate")}
+                    </option>
+                  </select>
+                </div>
 
                 {/* Subcategory Dropdown (conditional) */}
                 {selectedCategory === "vehicles" && (
-                  <select
-                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={selectedSubcategory}
-                    onChange={(e) => setSelectedSubcategory(e.target.value)}
-                  >
-                    <option value="">All Types</option>
-                    <option value="CAR">Car</option>
-                    <option value="TRUCK">Truck</option>
-                    <option value="MOTORCYCLE">Motorcycle</option>
-                    <option value="RV">RV</option>
-                    <option value="BUS">Bus</option>
-                    <option value="VAN">Van</option>
-                    <option value="TRACTOR">Tractor</option>
-                    <option value="CONSTRUCTION">Construction</option>
-                    <option value="OTHER">Other</option>
-                  </select>
+                  <div className="relative">
+                    <label htmlFor="vehicles-subcategory-select" className="sr-only">
+                      {t('selectVehicleType')}
+                    </label>
+                    <select
+                      id="vehicles-subcategory-select"
+                      className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      value={selectedSubcategory}
+                      onChange={(e) => setSelectedSubcategory(e.target.value)}
+                      aria-label={t('selectVehicleType')}
+                    >
+                      <option value="">All Types</option>
+                      <option value="CAR">Car</option>
+                      <option value="TRUCK">Truck</option>
+                      <option value="MOTORCYCLE">Motorcycle</option>
+                      <option value="RV">RV</option>
+                      <option value="BUS">Bus</option>
+                      <option value="VAN">Van</option>
+                      <option value="TRACTOR">Tractor</option>
+                      <option value="CONSTRUCTION">Construction</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
                 )}
                 {selectedCategory === "realEstate" && (
-                  <select
-                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={selectedSubcategory}
-                    onChange={(e) => setSelectedSubcategory(e.target.value)}
-                  >
-                    <option value="">All Types</option>
-                    <option value="HOUSE">House</option>
-                    <option value="APARTMENT">Apartment</option>
-                    <option value="CONDO">Condo</option>
-                    <option value="LAND">Land</option>
-                    <option value="COMMERCIAL">Commercial</option>
-                    <option value="OTHER">Other</option>
-                  </select>
+                  <div className="relative">
+                    <label htmlFor="realestate-subcategory-select" className="sr-only">
+                      {t('selectPropertyType')}
+                    </label>
+                    <select
+                      id="realestate-subcategory-select"
+                      className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      value={selectedSubcategory}
+                      onChange={(e) => setSelectedSubcategory(e.target.value)}
+                      aria-label={t('selectPropertyType')}
+                    >
+                      <option value="">All Types</option>
+                      <option value="HOUSE">House</option>
+                      <option value="APARTMENT">Apartment</option>
+                      <option value="CONDO">Condo</option>
+                      <option value="LAND">Land</option>
+                      <option value="COMMERCIAL">Commercial</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
                 )}
 
                 <div className="flex-1">
@@ -221,6 +242,9 @@ const Navbar: React.FC = () => {
                     <button
                       onClick={toggleListingsMenu}
                       className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                      aria-label={t('listings')}
+                      aria-expanded={showListingsMenu}
+                      aria-haspopup="true"
                     >
                       <FaList className="h-5 w-5" />
                     </button>
@@ -266,6 +290,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/messages"
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                    aria-label={t('messages')}
                   >
                     <FaEnvelope className="h-5 w-5" />
                   </Link>
@@ -277,6 +302,9 @@ const Navbar: React.FC = () => {
                     <button
                       onClick={toggleProfileMenu}
                       className="flex items-center focus:outline-none"
+                      aria-label={t('profileMenu')}
+                      aria-expanded={showProfileMenu}
+                      aria-haspopup="true"
                     >
                       {user.profilePicture ? (
                         <img
@@ -349,6 +377,7 @@ const Navbar: React.FC = () => {
             <button
               onClick={toggleTheme}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              aria-label={theme === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')}
             >
               {theme === "dark" ? (
                 <FaSun className="h-5 w-5" />
