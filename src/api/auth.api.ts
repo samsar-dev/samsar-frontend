@@ -9,7 +9,7 @@ import type {
 import TokenManager from "../utils/tokenManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import { apiConfig } from "./apiClient";
+import { ACTIVE_API_URL } from "@/config";
 
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
@@ -555,8 +555,8 @@ class UserAPI extends AuthAPI {
     try {
       // Create a new axios instance for this request to avoid auth headers
       const publicApiClient = axios.create({
-        baseURL: apiConfig.baseURL,
-        timeout: apiConfig.timeout,
+        baseURL: ACTIVE_API_URL,
+        timeout: 30000, // 30 seconds
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",

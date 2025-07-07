@@ -17,16 +17,23 @@ import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import Routes from "./routes/Routes";
 import { SocketProvider } from "./contexts/SocketContext";
+import { API_URL_PRIMARY, API_URL_FALLBACK } from "@/config";
 
 // Add resource hints for external resources
 if (typeof document !== "undefined") {
-  // Preconnect to API server
-  const preconnectLink = document.createElement("link");
-  preconnectLink.rel = "preconnect";
-  preconnectLink.href = "https://samsar-backend-production.up.railway.app";
-  document.head.appendChild(preconnectLink);
+  // Preconnect to primary API server
+  const preconnectPrimary = document.createElement("link");
+  preconnectPrimary.rel = "preconnect";
+  preconnectPrimary.href = new URL(API_URL_PRIMARY).origin;
+  document.head.appendChild(preconnectPrimary);
 
-  // DNS prefetch
+  // Preconnect to fallback API server
+  const preconnectFallback = document.createElement("link");
+  preconnectFallback.rel = "preconnect";
+  preconnectFallback.href = new URL(API_URL_FALLBACK).origin;
+  document.head.appendChild(preconnectFallback);
+
+  // DNS prefetch for API domains
   const dnsPrefetchLink = document.createElement("link");
   dnsPrefetchLink.rel = "dns-prefetch";
   dnsPrefetchLink.href = "https://samsar-backend-production.up.railway.app";
