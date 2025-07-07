@@ -1,16 +1,15 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
-import criticalCSS from "./plugins/critical-css";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isDev = process.env.NODE_ENV === "development";
 
 export default defineConfig({
   plugins: [
     react(),
-    criticalCSS(),
     viteCompression({
       threshold: 10240, // Compress files >10KB
       algorithm: "brotliCompress",
@@ -76,49 +75,47 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    cssCodeSplit: true,
-    minify: 'esbuild',
+    outDir: process.env.VITE_BUILD_DIR || "dist",
     chunkSizeWarningLimit: 1000,
-    sourcemap: process.env.NODE_ENV === 'development',
-    assetsInlineLimit: 4096,
-    terserOptions: {
-      compress: {
-        drop_console: process.env.NODE_ENV !== 'development',
-        drop_debugger: process.env.NODE_ENV !== 'development',
-      },
-    },
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
-        entryFileNames: "assets/[name]-[hash].js",
-        chunkFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
-        manualChunks(id) {
+        manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Group React-related dependencies
-            if (id.includes('react-dom')) return 'vendor-react';
-            if (id.includes('react-router-dom')) return 'vendor-router';
-            if (id.includes('react-i18next') || id.includes('i18next')) return 'vendor-i18n';
-            if (id.includes('@headlessui') || id.includes('@heroicons')) return 'vendor-ui';
-            if (id.includes('date-fns') || id.includes('lodash') || id.includes('axios')) return 'vendor-utils';
-            
-            // For other node_modules, group them by package name
-            const match = id.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
-            if (match) {
-              const packageName = match[1];
-              // Group core-js and other polyfills
-              if (packageName.startsWith('core-js')) return 'vendor-polyfills';
-              // Group other dependencies by package name
-              return `vendor-${packageName.replace('@', '')}`;
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor';
             }
+            if (id.includes('@radix-ui') || id.includes('@headlessui')) {
+              return 'ui';
+            }
+            if (id.includes('i18next')) return 'i18n';
+            if (id.includes('date-fns')) return 'date';
+            if (id.includes('framer-motion')) return 'motion';
+            if (id.includes('lucide-react')) return 'icons';
+            return 'vendor-other';
           }
-          // Everything else goes into a common chunk
-          return 'common';
-        }
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (ext === 'css') {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+          return `assets/[ext]/[name]-[hash][extname]`;
+        },
       },
     },
-    target: "es2020",
+    terserOptions: {
+      compress: {
+        drop_console: !isDev,
+        drop_debugger: !isDev,
+      },
+      format: {
+        comments: false,
+      },
+    },
   },
   css: {
     devSourcemap: true,
@@ -130,14 +127,14 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      'react-i18next',
-      'i18next',
-      '@headlessui/react',
-      'date-fns',
-      'axios'
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "react-i18next",
+      "i18next",
+      "date-fns",
+      "framer-motion",
+      "lodash",
     ],
     esbuildOptions: {
       target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],

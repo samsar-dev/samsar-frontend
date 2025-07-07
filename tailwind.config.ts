@@ -153,28 +153,26 @@ import typography from "@tailwindcss/typography";
 import aspectRatio from "@tailwindcss/aspect-ratio";
 
 const config: Config = {
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
-  darkMode: ["class"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: ['class'],
+  mode: 'jit',
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}",
+    ],
+    options: {
+      safelist: ['dark'], // Always include dark mode classes
+    },
+  },
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          'Inter', 
-          'Noto Sans Arabic',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'Noto Sans',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
-        ],
+        sans: ["Inter", "Noto Sans Arabic", "sans-serif"],
       },
       spacing: {
         "128": "32rem",
@@ -271,6 +269,8 @@ const config: Config = {
     plugin,
     aspectRatio,
     typography,
+    // Add @tailwindcss/forms if needed
+    // require('@tailwindcss/forms'),
     function ({ addBase }) {
       addBase({
         ":root": {
