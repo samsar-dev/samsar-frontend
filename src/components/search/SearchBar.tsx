@@ -154,13 +154,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       className={`relative ${className}`}
       onSubmit={handleSubmit}
       autoComplete="off"
-      role="search"
-      aria-label="Search listings"
+      aria-label="Search form"
     >
       <div className="relative">
         <input
           ref={inputRef}
           type="search"
+          id="search-input"
           className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-20 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder={placeholder}
           value={searchTerm}
@@ -168,11 +168,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           onKeyDown={handleKeyDown}
           onFocus={() => searchTerm && setShowSuggestions(true)}
           aria-label="Search listings"
-          aria-controls="search-suggestions"
+          aria-controls={showSuggestions ? "search-suggestions" : undefined}
           aria-expanded={showSuggestions && suggestions.length > 0}
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck="false"
+          role="combobox"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
           <svg

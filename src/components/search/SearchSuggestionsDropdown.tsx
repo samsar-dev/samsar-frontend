@@ -25,7 +25,12 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   // Show loading state
   if (isLoading) {
     return (
-      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+      <div 
+        id="search-suggestions"
+        role="status"
+        aria-live="polite"
+        className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
+      >
         <div className="p-3 text-center text-gray-500">
           {t('search.searching') || 'Searching...'}
         </div>
@@ -36,7 +41,12 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   // Show no results message if we have a query but no suggestions
   if (!suggestions.length && query) {
     return (
-      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+      <div 
+        id="search-suggestions"
+        role="status"
+        aria-live="polite"
+        className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
+      >
         <div className="p-3 text-center text-gray-500">
           {t('search.noResults') || `No results found for "${query}"`}
         </div>
@@ -49,80 +59,89 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
 
   return (
     <div 
-      className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+      id="search-suggestions"
       role="listbox"
-      aria-label="Search suggestions"
+      aria-labelledby="search-input"
+      className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
     >
-      {suggestions.map((listing) => {
-        // Determine category and subcategory for display
-        let categoryLabel = "";
-        let subcategoryLabel = "";
+      <ul className="py-1">
+        {suggestions.map((listing, index) => {
+          // Determine category and subcategory for display
+          let categoryLabel = "";
+          let subcategoryLabel = "";
 
-        if (
-          listing.category?.mainCategory === ListingCategory.VEHICLES &&
-          listing.details?.vehicles?.vehicleType
-        ) {
-          categoryLabel = t("navigation.vehicles");
-          subcategoryLabel = listing.details.vehicles.vehicleType;
-        } else if (
-          listing.category?.mainCategory === ListingCategory.REAL_ESTATE &&
-          listing.details?.realEstate?.propertyType
-        ) {
-          categoryLabel = t("navigation.real_estate");
-          subcategoryLabel = listing.details.realEstate.propertyType;
-        }
+          if (
+            listing.category?.mainCategory === ListingCategory.VEHICLES &&
+            listing.details?.vehicles?.vehicleType
+          ) {
+            categoryLabel = t("navigation.vehicles");
+            subcategoryLabel = listing.details.vehicles.vehicleType;
+          } else if (
+            listing.category?.mainCategory === ListingCategory.REAL_ESTATE &&
+            listing.details?.realEstate?.propertyType
+          ) {
+            categoryLabel = t("navigation.real_estate");
+            subcategoryLabel = listing.details.realEstate.propertyType;
+          }
 
-        return (
-          <Link
-            key={listing.id}
-            to={`/listings/${listing.id}`}
-            className="flex items-center px-4 py-2 hover:bg-gray-100 transition-colors cursor-pointer"
-            role="option"
-            aria-selected="false"
-            onClick={(e) => {
-              e.preventDefault();
-              onClose();
-              if (onSuggestionClick && listing.id) {
-                onSuggestionClick(String(listing.id));
-              }
-            }}
-          >
-            {listing.images && listing.images.length > 0 && (
-              <img
-                src={
-                  typeof listing.images[0] === "string" ? listing.images[0] : ""
-                }
-                alt={listing.title}
-                className="w-10 h-10 object-cover rounded mr-3"
-              />
-            )}
-            <div className="flex-1">
-              <div 
-                className="font-medium text-gray-900 truncate"
-                aria-label={`Title: ${listing.title}`}
+          return (
+            <li 
+              key={listing.id} 
+              role="option"
+              id={`suggestion-${index}`}
+              aria-selected="false"
+              className="hover:bg-gray-50"
+            >
+              <Link
+                to={`/listings/${listing.id}`}
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                  if (onSuggestionClick && listing.id) {
+                    onSuggestionClick(String(listing.id));
+                  }
+                  window.location.href = `/listings/${listing.id}`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClose();
+                    if (onSuggestionClick && listing.id) {
+                      onSuggestionClick(String(listing.id));
+                    }
+                    window.location.href = `/listings/${listing.id}`;
+                  } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    onClose();
+                    // Return focus to the search input
+                    document.getElementById('search-input')?.focus();
+                  }
+                }}
               >
-                {listing.title}
-              </div>
-              <div className="flex items-center text-xs text-gray-500" aria-label={`Location: ${listing.location}`}>
-                <span className="truncate">{listing.location}</span>
-                {categoryLabel && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-gray-200 rounded-sm text-gray-700">
-                    {categoryLabel}
+                <div className="font-medium text-gray-900" aria-label={`Title: ${listing.title}`}>
+                  {listing.title}
+                </div>
+                <div className="flex items-center text-xs text-gray-500">
+                  <span className="truncate" aria-label={`Location: ${listing.location}`}>
+                    {listing.location}
                   </span>
-                )}
-                {subcategoryLabel && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-blue-100 rounded-sm text-blue-700">
-                    {subcategoryLabel}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="ml-2 text-sm text-blue-600 font-semibold whitespace-nowrap">
-              {listing.price ? `${listing.price}` : ""}
-            </div>
-          </Link>
-        );
-      })}
+                  {categoryLabel && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-gray-200 rounded-sm text-gray-700">
+                      {categoryLabel}
+                    </span>
+                  )}
+                  {subcategoryLabel && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-sm text-gray-600">
+                      {subcategoryLabel}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
