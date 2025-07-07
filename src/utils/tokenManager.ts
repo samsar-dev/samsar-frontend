@@ -1,6 +1,11 @@
 import type { AuthTokens, JWTPayload } from "../types/auth.types";
 import { AuthAPI } from "../api/auth.api";
-import { setAuthToken, getAuthToken, setAuthRefreshToken } from "./cookie";
+import { 
+  setAuthToken, 
+  getAuthToken, 
+  setAuthRefreshToken, 
+  clearTokens as clearAuthCookies 
+} from "./cookie";
 import { getItem, removeItem } from "./storage";
 
 export class TokenManager {
@@ -233,10 +238,8 @@ export class TokenManager {
   }
 
   static clearTokens(): void {
-    // Use the centralized cookie utility
-    import("../utils/cookie").then(({ clearTokens }) => {
-      clearTokens();
-    });
+    // Clear all auth-related cookies
+    clearAuthCookies();
 
     // Clear localStorage items
     removeItem("authTokens");

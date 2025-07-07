@@ -1,5 +1,4 @@
 import Cookies from "js-cookie";
-import TokenManager from "./tokenManager";
 import type { AuthTokens } from "../types/auth.types";
 
 // Standardize token key names across the application
@@ -15,16 +14,35 @@ const cookieOptions = {
 };
 
 /**
+ * Set a cookie with the given name, value, and options
+ */
+export const setCookie = (name: string, value: string, options?: Cookies.CookieAttributes): void => {
+  Cookies.set(name, value, { ...cookieOptions, ...options });
+};
+
+/**
+ * Get a cookie by name
+ */
+export const getCookie = (name: string): string | undefined => {
+  return Cookies.get(name);
+};
+
+/**
+ * Remove a cookie by name
+ */
+export const removeCookie = (name: string, options?: Cookies.CookieAttributes): void => {
+  Cookies.remove(name, { ...cookieOptions, ...options });
+};
+
+/**
  * Set auth token in cookie
  */
 export const setAuthToken = (tokens: AuthTokens): void => {
   // Set access token cookie
-  Cookies.set(ACCESS_TOKEN_KEY, tokens.accessToken, {
-    ...cookieOptions,
+  setCookie(ACCESS_TOKEN_KEY, tokens.accessToken, {
     expires: 1 / 96, // 15 minutes in days
   });
 
-  // Update TokenManager with the token
   // Also store in localStorage as backup
   const tokensString = JSON.stringify({
     accessToken: tokens.accessToken,
@@ -38,8 +56,7 @@ export const setAuthToken = (tokens: AuthTokens): void => {
  */
 export const setAuthRefreshToken = (tokens: AuthTokens): void => {
   // Set refresh token cookie
-  Cookies.set(REFRESH_TOKEN_KEY, tokens.refreshToken, {
-    ...cookieOptions,
+  setCookie(REFRESH_TOKEN_KEY, tokens.refreshToken, {
     expires: 1 / 96, // 15 minutes in days
   });
 
@@ -54,51 +71,51 @@ export const setAuthRefreshToken = (tokens: AuthTokens): void => {
 /**
  * Get auth token from cookie
  */
-export const getAuthToken = (): string | null => {
-  // let token: string | null | undefined = Cookies.get(ACCESS_TOKEN_KEY);
-  // if (!token) token = localStorage.getItem("token");
-  // if (!token) {
-  //   console.error("No auth token found");
-  //   clearTokens();
-  //   return null;
-  // }
-  // // Update TokenManager with the token
-  // const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
-  // TokenManager.setTokens({
-  //   accessToken: token,
-  //   refreshToken: refreshToken || "",
-  // } as AuthTokens);
-  // return token;
-  return (
-    Cookies.get(ACCESS_TOKEN_KEY) ??
-    JSON.parse(localStorage.getItem("authTokens") || "{}")?.accessToken
-  );
-};
+export function getAuthToken(): string | null {
+  // First try to get from cookie
+  const token = getCookie(ACCESS_TOKEN_KEY) || null;
+  if (token) return token;
+
+  // Fallback to localStorage if cookie is not available
+  try {
+    const storedTokens = localStorage.getItem("authTokens");
+    if (storedTokens) {
+      const { accessToken } = JSON.parse(storedTokens);
+      if (accessToken) {
+        // Try to restore the cookie
+        setAuthToken({ accessToken, refreshToken: "" });
+        return accessToken;
+      }
+    }
+  } catch (error) {
+    console.error("Error getting auth token:", error);
+  }
+
+  return null;
+}
 
 /**
  * Clear auth token from cookie
  */
 export const clearAuthToken = (): void => {
-  Cookies.remove(ACCESS_TOKEN_KEY, { path: "/" });
-  // Don't call TokenManager.clearTokens() here to avoid circular dependency
+  removeCookie(ACCESS_TOKEN_KEY);
+  localStorage.removeItem("authTokens");
 };
 
 /**
  * Clear both tokens from cookies
  */
 export const clearTokens = (): void => {
-  clearAuthToken();
-  Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
+  removeCookie(ACCESS_TOKEN_KEY);
+  removeCookie(REFRESH_TOKEN_KEY);
+  localStorage.removeItem("authTokens");
 };
 
 /**
  * Set both access and refresh tokens
  */
 export const setTokens = (accessToken: string, refreshToken: string): void => {
-  // Set access token
   setAuthToken({ accessToken, refreshToken });
-
-  // Set refresh token (expires in 7 days)
   setAuthRefreshToken({ accessToken, refreshToken });
 };
 
@@ -106,8 +123,19 @@ export const setTokens = (accessToken: string, refreshToken: string): void => {
  * Get refresh token from cookie
  */
 export const getRefreshToken = (): string | undefined => {
-  return (
-    Cookies.get(REFRESH_TOKEN_KEY) ??
-    JSON.parse(localStorage.getItem("authTokens") || "{}")?.refreshToken
-  );
+  return getCookie(REFRESH_TOKEN_KEY);
+};
+
+// Export all cookie operations
+export default {
+  set: setCookie,
+  get: getCookie,
+  remove: removeCookie,
+  setAuthToken,
+  getAuthToken,
+  setAuthRefreshToken,
+  getRefreshToken,
+  clearAuthToken,
+  clearTokens,
+  setTokens,
 };
