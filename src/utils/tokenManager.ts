@@ -233,11 +233,9 @@ export class TokenManager {
   }
 
   static clearTokens(): void {
-    // Don't call clearAuthToken() here to avoid circular dependency
-    // Instead, directly remove cookies using js-cookie
-    import("js-cookie").then((Cookies) => {
-      Cookies.default.remove("jwt", { path: "/" });
-      Cookies.default.remove("refresh_token", { path: "/" });
+    // Use the centralized cookie utility
+    import("../utils/cookie").then(({ clearTokens }) => {
+      clearTokens();
     });
 
     // Clear localStorage items

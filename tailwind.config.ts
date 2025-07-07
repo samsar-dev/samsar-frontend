@@ -156,19 +156,19 @@ const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.html",
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.jsx",
+    "./src/**/*.tsx",
   ],
   darkMode: ['class'],
-  mode: 'jit',
-  purge: {
-    enabled: process.env.NODE_ENV === 'production',
-    content: [
-      "./index.html",
-      "./src/**/*.{js,ts,jsx,tsx}",
-    ],
-    options: {
-      safelist: ['dark'], // Always include dark mode classes
-    },
-  },
+  safelist: [
+    'dark',
+    { pattern: /^bg-.*/ },
+    { pattern: /^text-.*/ },
+    { pattern: /^border-.*/ },
+  ],
   theme: {
     extend: {
       fontFamily: {

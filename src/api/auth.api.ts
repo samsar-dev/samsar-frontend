@@ -8,7 +8,7 @@ import type {
 
 import TokenManager from "../utils/tokenManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import Cookies from "js-cookie";
+import { clearAuthToken } from "@/utils/cookie";
 import { ACTIVE_API_URL } from "@/config";
 
 const RETRY_DELAY = 1000; // 1 second
@@ -66,14 +66,12 @@ class AuthAPI {
           // If refresh didn't work but didn't throw, clear auth and throw original error
           TokenManager.clearTokens();
           localStorage.clear();
-          Cookies.remove("token");
-          throw axiosError;
+          return Promise.reject(axiosError);
         } catch (refreshError) {
           // If refresh fails, clear auth state
           TokenManager.clearTokens();
           localStorage.clear();
-          Cookies.remove("token");
-          throw refreshError; // Throw the refresh error for better debugging
+          return Promise.reject(refreshError); // Throw the refresh error for better debugging
         }
       }
 
@@ -265,7 +263,7 @@ class AuthAPI {
       if (!tokens?.refreshToken || !tokens?.accessToken || !tokens) {
         TokenManager.clearTokens();
         localStorage.clear();
-        Cookies.remove("token");
+        clearAuthToken();
         return {
           success: false,
           error: {
@@ -290,7 +288,7 @@ class AuthAPI {
       if (!response.data.success) {
         TokenManager.clearTokens();
         localStorage.clear();
-        Cookies.remove("token");
+        clearAuthToken();
         throw Error("Failed to refresh token");
       }
 
@@ -303,7 +301,7 @@ class AuthAPI {
       const axiosError = error as Error;
       TokenManager.clearTokens();
       localStorage.clear();
-      Cookies.remove("token");
+      clearAuthToken();
       console.error("Token refresh error:", axiosError);
       return {
         success: false,
@@ -332,7 +330,7 @@ class AuthAPI {
       // Clear tokens regardless of response
       TokenManager.clearTokens();
       localStorage.clear();
-      Cookies.remove("token");
+      clearAuthToken();
 
       return (
         response.data || {
@@ -347,7 +345,7 @@ class AuthAPI {
       // Clear tokens even if the request fails
       TokenManager.clearTokens();
       localStorage.clear();
-      Cookies.remove("token");
+      clearAuthToken();
 
       return {
         success: true, // Always return success for logout
