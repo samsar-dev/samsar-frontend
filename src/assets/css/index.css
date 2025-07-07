@@ -5,6 +5,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom border color variable for dark/light mode */
+@layer base {
+  :root {
+    --border: 214.3 31.8% 91.4%;
+  }
+  
+  .dark {
+    --border: 217.2 32.6% 17.5%;
+  }
+}
+
 /**
  * Base Styles
  * Global HTML element styles and resets
@@ -44,6 +55,11 @@
   /* RTL specific */
   html[dir="rtl"] {
     font-family: "Noto Sans Arabic", "Inter", sans-serif;
+  }
+  
+  /* Border utility */
+  .border-border {
+    @apply border-gray-200 dark:border-gray-700;
   }
   :root {
     --background: 0 0% 100%;
@@ -280,6 +296,6 @@ html[dir="rtl"] {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
   }
 }
