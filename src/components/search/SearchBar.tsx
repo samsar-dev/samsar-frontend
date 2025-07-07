@@ -154,17 +154,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       className={`relative ${className}`}
       onSubmit={handleSubmit}
       autoComplete="off"
+      role="search"
+      aria-label="Search listings"
     >
       <div className="relative">
         <input
           ref={inputRef}
-          type="text"
+          type="search"
           className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-20 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder={placeholder}
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => searchTerm && setShowSuggestions(true)}
+          aria-label="Search listings"
+          aria-controls="search-suggestions"
+          aria-expanded={showSuggestions && suggestions.length > 0}
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck="false"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
           <svg
@@ -186,6 +194,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             className="absolute inset-y-0 right-10 flex items-center pr-3"
             onClick={handleClear}
             tabIndex={-1}
+            aria-label="Clear search"
           >
             <svg
               className="h-5 w-5 text-gray-400 hover:text-gray-600"
@@ -204,6 +213,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <button
           type="submit"
           className="absolute inset-y-0 right-0 flex items-center px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-r-lg transition-colors"
+          aria-label="Search"
         >
           <svg
             className="h-5 w-5"
@@ -222,7 +232,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </button>
         {/* Suggestions Dropdown */}
         {showSuggestions && suggestions.length > 0 && (
-          <div ref={suggestionsRef} className="w-full">
+          <div 
+            ref={suggestionsRef} 
+            id="search-suggestions"
+            className="w-full"
+            role="listbox"
+            aria-label="Search suggestions"
+          >
             <SearchSuggestionsDropdown
               suggestions={suggestions}
               onClose={() => setShowSuggestions(false)}

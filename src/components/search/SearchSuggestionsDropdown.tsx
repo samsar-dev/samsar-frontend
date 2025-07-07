@@ -48,7 +48,11 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   if (!suggestions.length) return null;
 
   return (
-    <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+    <div 
+      className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+      role="listbox"
+      aria-label="Search suggestions"
+    >
       {suggestions.map((listing) => {
         // Determine category and subcategory for display
         let categoryLabel = "";
@@ -73,6 +77,8 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
             key={listing.id}
             to={`/listings/${listing.id}`}
             className="flex items-center px-4 py-2 hover:bg-gray-100 transition-colors cursor-pointer"
+            role="option"
+            aria-selected="false"
             onClick={(e) => {
               e.preventDefault();
               onClose();
@@ -91,10 +97,13 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
               />
             )}
             <div className="flex-1">
-              <div className="font-medium text-gray-900 truncate">
+              <div 
+                className="font-medium text-gray-900 truncate"
+                aria-label={`Title: ${listing.title}`}
+              >
                 {listing.title}
               </div>
-              <div className="flex items-center text-xs text-gray-500">
+              <div className="flex items-center text-xs text-gray-500" aria-label={`Location: ${listing.location}`}>
                 <span className="truncate">{listing.location}</span>
                 {categoryLabel && (
                   <span className="ml-1 px-1.5 py-0.5 bg-gray-200 rounded-sm text-gray-700">

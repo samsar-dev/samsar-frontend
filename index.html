@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"></noscript>
     <!-- Essential Meta -->
     <meta charset="utf-8" />
     <meta
@@ -10,6 +22,9 @@
     <meta name="theme-color" content="#1a56db" />
     
     <!-- Primary Meta Tags -->
+    <!-- Preload critical scripts -->
+    <link rel="modulepreload" href="/src/main.tsx" as="script">
+    
     <title>سمسار | سوق السيارات والعقارات الأول في سوريا | Samsar</title>
     <meta name="title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
     <meta name="description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تواصل مع أفضل الوكلاء واعثر على أفضل العروض في جميع المدن السورية">
@@ -122,6 +137,13 @@
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Critical scripts -->
+    <script type="module" src="/src/main.tsx" async></script>
+    
+    <!-- Load non-critical CSS asynchronously -->
+    <link rel="preload" href="/src/App.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/src/App.css"></noscript>
 
     <!-- Main App Script -->
     <script type="module" src="/src/main.tsx"></script>
