@@ -156,6 +156,7 @@ const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/flowbite/**/*.js"
   ],
   darkMode: ['class'],
   mode: 'jit',
@@ -269,9 +270,9 @@ const config: Config = {
     plugin,
     aspectRatio,
     typography,
-    // Add @tailwindcss/forms if needed
-    // require('@tailwindcss/forms'),
-    function ({ addBase }) {
+    require('@tailwindcss/forms'),
+    require('flowbite/plugin'),
+    function ({ addBase }: { addBase: any }) {
       addBase({
         ":root": {
           "--background-primary-light": colors.background.primary.light,
