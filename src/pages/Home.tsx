@@ -689,7 +689,6 @@ const Home: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-            selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
@@ -700,14 +699,9 @@ const Home: React.FC = () => {
             loading={listings.loading}
             priceRange={priceRange}
             onPriceRangeChange={setPriceRange}
+            onLocationChange={(location) => setSelectedLocation(location.address)}
             yearRange={yearRange}
             onYearRangeChange={setYearRange}
-            onLocationChange={(location) => {
-              setSelectedLocation(location.address);
-            }}
-            onRadiusChange={(radius) => {
-              setSelectedRadius(radius);
-            }}
             onSearch={fetchListings}
           />
         )}
@@ -720,7 +714,7 @@ const Home: React.FC = () => {
               showActions={false}
               showSaveButton={true}
               showPrice={true}
-              showLocation={true}
+
               showBadges={true}
               priority={index < 2} // Prioritize first two listings for LCP
             />
@@ -774,7 +768,7 @@ const Home: React.FC = () => {
                   showActions={false}
                   showSaveButton={true}
                   showPrice={true}
-                  showLocation={true}
+    
                   showBadges={true}
                   priority={index === 0} // Prioritize only the first popular listing
                 />
@@ -806,11 +800,8 @@ const Home: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
-        {/* Optional Decorative Background Pattern */}
-        <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-no-repeat opacity-5 pointer-events-none" />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <header className="bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow-sm">
             {t("home.find_perfect")}{" "}
             {selectedCategory === ListingCategory.VEHICLES

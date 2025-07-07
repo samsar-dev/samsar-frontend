@@ -3,11 +3,32 @@
   <head>
     <!-- Essential Meta -->
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#1a56db" />
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" as="style" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.samsar.app" />
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/src/assets/css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="/src/assets/css/index.css" /></noscript>
+    
+    <!-- Preload critical fonts -->
+    <link 
+      rel="preload" 
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" 
+      as="style" 
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link 
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" 
+        rel="stylesheet"
+      />
+    </noscript>
     
     <!-- Primary Meta Tags -->
     <title>سمسار | سوق السيارات والعقارات الأول في سوريا | Samsar</title>
@@ -163,6 +184,38 @@
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Inline critical CSS -->
+    <style id="critical-css">
+      /* Critical CSS will be injected here by Vite */
+      body{visibility:hidden}
+    </style>
+    
+    <!-- Load non-critical CSS asynchronously -->
+    <script>
+      /*! Load CSS asynchronously */
+      function loadCSS(href, before, media) {
+        var ss = window.document.createElement('link');
+        var ref = before || window.document.getElementsByTagName('script')[0];
+        ss.rel = 'stylesheet';
+        ss.href = href;
+        ss.media = 'only x';
+        ref.parentNode.insertBefore(ss, ref);
+        setTimeout(function() {
+          ss.media = media || 'all';
+        });
+        return ss;
+      }
+      
+      /* Load non-critical CSS */
+      window.addEventListener('load', function() {
+        // Load remaining CSS
+        loadCSS('/src/assets/css/index.css');
+        
+        // Make body visible after critical CSS is loaded
+        document.body.style.visibility = 'visible';
+      });
+    </script>
 
     <!-- Main App Script -->
     <script type="module" src="/src/main.tsx"></script>
