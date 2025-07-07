@@ -1,54 +1,84 @@
-import { NextSeo, NextSeoProps } from 'next-seo';
-import { useRouter } from 'next/router';
+import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
-// Inline SEO configuration
-const seoConfig = {
+// Base URL for the website
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://samsar.app';
+
+// Common Syrian cities in Arabic for SEO
+const SYRIAN_CITIES = [
+  'دمشق', 'حلب', 'حمص', 'حماة', 'اللاذقية', 'طرطوس', 'دير الزور',
+  'الحسكة', 'الرقة', 'السويداء', 'درعا', 'إدلب', 'القنيطرة'
+];
+
+// Common vehicle types in Arabic for SEO
+const VEHICLE_TYPES = [
+  'سيارات', 'مركبات', 'عربيات', 'شاحنات', 'دراجات نارية', 'باصات',
+  'سيارات مستعملة', 'سيارات جديدة', 'سيارات فخمة', 'سيارات عائلية'
+];
+
+// Common property types in Arabic for SEO
+const PROPERTY_TYPES = [
+  'شقق', 'منازل', 'فلل', 'أراضي', 'محلات', 'مكاتب', 'عقارات',
+  'شقق للايجار', 'شقق للبيع', 'عقار سكني', 'عقار تجاري'
+];
+
+// Generate dynamic keywords based on listing type and location
+const generateKeywords = (type: 'vehicle' | 'property' | 'general', city?: string) => {
+  const baseKeywords = type === 'vehicle' 
+    ? [...VEHICLE_TYPES, 'بيع سيارات', 'شراء سيارات']
+    : type === 'property'
+    ? [...PROPERTY_TYPES, 'عقارات للبيع', 'عقارات للايجار']
+    : [];
+    
+  const locationKeywords = city 
+    ? [
+        ...baseKeywords.map(kw => `${kw} في ${city}`),
+        ...baseKeywords.map(kw => `${kw} ${city}`)
+      ]
+    : [];
+    
+  const cityKeywords = SYRIAN_CITIES.flatMap(city => 
+    type === 'vehicle' 
+      ? [`سيارات ${city}`, `معارض سيارات ${city}`]
+      : [`عقارات ${city}`, `شقق ${city}`, `فلل ${city}`]
+  );
+  
+  return [...new Set([...baseKeywords, ...locationKeywords, ...cityKeywords])].join(', ');
+};
+
+// Default SEO configuration
+const defaultSEO = {
   title: 'سمسار | سوق السيارات والعقارات الأول في سوريا',
-  description: 'منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تواصل مع أفضل الوكلاء واعثر على أفضل العروض',
-  openGraph: {
-    type: 'website',
-    locale: 'ar_SY',
-    url: 'https://samsar.app',
-    site_name: 'سمسار',
-    title: 'سمسار | سوق السيارات والعقارات الأول في سوريا',
-    description: 'منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا',
-    images: [
-      {
-        url: 'https://samsar.app/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'سمسار - سوق السيارات والعقارات',
-      },
-    ],
-  },
-  twitter: {
-    handle: '@samsar_sy',
-    site: '@samsar_sy',
-    cardType: 'summary_large_image',
-  },
-  additionalMetaTags: [
-    {
-      name: 'keywords',
-      content: 'سمسار, سيارات سوريا, عقارات سوريا, سيارات للبيع, شقق للايجار, عقارات للبيع, معارض سيارات, مكاتب عقارية, سوريا, دمشق, حلب, حمص, اللاذقية',
-    },
-    {
-      name: 'author',
-      content: 'Samsar Team',
-    },
-  ],
-  additionalLinkTags: [
-    {
-      rel: 'icon',
-      href: '/favicon.ico',
-    },
-  ],
+  description: 'منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا',
+  keywords: generateKeywords('general'),
+  author: 'Samsar Team',
+  siteName: 'سمسار',
+  image: `${BASE_URL}/og-image.jpg`,
+  twitter: '@samsar_sy',
+  locale: 'ar_SY',
+  alternateUrls: {
+    en: `${BASE_URL}/en`,
+    ar: `${BASE_URL}/ar`
+  }
 };
 
 // SEO component props
-interface SEOProps extends NextSeoProps {
+interface SEOProps {
   title?: string;
   description?: string;
+  keywords?: string;
+  image?: string;
+  type?: 'website' | 'article' | 'product' | 'profile' | 'book';
+  noIndex?: boolean;
   canonical?: string;
+  children?: ReactNode;
+  listingType?: 'vehicle' | 'property';
+  location?: string;
+  price?: string | number;
+  year?: string | number;
+  area?: string | number;
   openGraph?: {
     type?: string;
     url?: string;
@@ -56,43 +86,131 @@ interface SEOProps extends NextSeoProps {
     description?: string;
     images?: Array<{
       url: string;
-      width: number;
-      height: number;
-      alt: string;
+      width?: number;
+      height?: number;
+      alt?: string;
     }>;
+    locale?: string;
+    site_name?: string;
   };
-  // Additional SEO props can be added here
 }
 
+/**
+ * SEO component for setting page metadata
+ */
 export const SEO: React.FC<SEOProps> = ({
-  title,
-  description,
-  canonical,
-  openGraph,
-  additionalMetaTags = [],
+  title: propTitle,
+  description: propDescription,
+  keywords: propKeywords,
+  image = defaultSEO.image,
+  type = 'website',
+  noIndex = false,
+  listingType,
+  location,
+  price,
+  year,
+  area,
+  children,
+  ...props
 }) => {
-  const { asPath } = useRouter();
-  const canonicalUrl = canonical || `${seoConfig.openGraph.url}${asPath}`;
+  const { pathname } = useLocation();
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language || 'ar';
+  const currentUrl = `${BASE_URL}${pathname}`;
+
+  // Generate dynamic title and description based on listing details
+  const getDynamicMetadata = () => {
+    if (!listingType) return {};
+
+    if (listingType === 'vehicle') {
+      const locationText = location ? ` في ${location}` : '';
+      const yearText = year ? ` موديل ${year}` : '';
+      const priceText = price ? ` بسعر ${price} ل.س` : '';
+      
+      return {
+        title: `سيارة${locationText}${yearText}${priceText} | سمسار`,
+        description: `إعلان سيارة${locationText}${yearText}${priceText}. تصفح المزيد من السيارات المتاحة للبيع في سوريا على منصة سمسار.`,
+        keywords: generateKeywords('vehicle', location)
+      };
+    }
+
+    if (listingType === 'property') {
+      const locationText = location ? ` في ${location}` : '';
+      const areaText = area ? ` مساحة ${area} م²` : '';
+      const priceText = price ? ` بسعر ${price} ل.س` : '';
+      
+      return {
+        title: `عقار${locationText}${areaText}${priceText} | سمسار`,
+        description: `إعلان عقار${locationText}${areaText}${priceText}. تصفح المزيد من العقارات المتاحة للبيع أو الإيجار في سوريا على منصة سمسار.`,
+        keywords: generateKeywords('property', location)
+      };
+    }
+
+    return {};
+  };
+
+  const dynamicMetadata = getDynamicMetadata();
+  
+  const title = propTitle || dynamicMetadata.title || defaultSEO.title;
+  const description = propDescription || dynamicMetadata.description || defaultSEO.description;
+  const keywords = propKeywords || dynamicMetadata.keywords || defaultSEO.keywords;
+  const ogImage = props.openGraph?.images?.[0]?.url || image;
 
   return (
-    <NextSeo
-      {...seoConfig}
-      title={title}
-      description={description}
-      canonical={canonicalUrl}
-      openGraph={{
-        ...seoConfig.openGraph,
-        ...openGraph,
-        images: openGraph?.images || seoConfig.openGraph?.images,
-      }}
-      additionalMetaTags={[
-        ...(seoConfig.additionalMetaTags || []),
-        ...additionalMetaTags,
-      ]}
-    />
+    <Helmet>
+      {/* Primary Meta Tags */}
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="author" content={defaultSEO.author} />
+      
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={currentUrl} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:site_name" content={defaultSEO.siteName} />
+      <meta property="og:locale" content={currentLanguage === 'en' ? 'en_US' : 'ar_AR'} />
+      
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={currentUrl} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:creator" content={defaultSEO.twitter} />
+      
+      {/* Canonical URL */}
+      <link rel="canonical" href={currentUrl} />
+      
+      {/* Multilingual Alternate URLs */}
+      {Object.entries(defaultSEO.alternateUrls).map(([lang, url]) => (
+        <link 
+          key={lang} 
+          rel="alternate" 
+          hrefLang={lang} 
+          href={`${url}${lang === 'ar' ? pathname.replace(/^\/en/, '') : pathname.replace(/^\/ar/, '')}`} 
+        />
+      ))}
+      
+      {/* Favicon */}
+      <link rel="icon" href="/favicon.ico" />
+      
+      {/* No indexing if specified */}
+      {noIndex && <meta name="robots" content="noindex, nofollow" />}
+      
+      {/* Additional Open Graph tags */}
+      {price && <meta property="product:price:amount" content={String(price)} />}
+      {price && <meta property="product:price:currency" content="SYP" />}
+      {year && <meta property="product:release_date" content={String(year)} />}
+      
+      {children}
+    </Helmet>
   );
 };
 
-export const DefaultSEO = () => {
-  return <NextSeo {...seoConfig} />;
-};
+/**
+ * Default SEO configuration for the app
+ */
+export const DefaultSEO = () => <SEO />;
