@@ -74,38 +74,52 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: process.env.VITE_BUILD_DIR || "dist",
-    chunkSizeWarningLimit: 1000,
-    sourcemap: process.env.VITE_ENV === "development",
+    outDir: "dist",
+    sourcemap: process.env.NODE_ENV !== "production",
     minify: "terser",
-    assetsInlineLimit: 2048,
     terserOptions: {
       compress: {
-        drop_console: process.env.VITE_ENV !== "development",
-        drop_debugger: process.env.VITE_ENV !== "development",
+        drop_console: true,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
       },
     },
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        entryFileNames: "assets/[name]-[hash].js",
-        chunkFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react")) return "vendor-react";
-            if (id.includes("i18next")) return "vendor-i18n";
-            if (id.includes("date-fns")) return "vendor-date";
-            if (id.includes("framer-motion")) return "vendor-motion";
-            if (id.includes("@headlessui")) return "vendor-ui";
-            if (id.includes("lucide-react")) return "vendor-icons";
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@headlessui/react', '@heroicons/react'],
+          utils: ['date-fns', 'lodash', 'axios'],
         },
       },
     },
     target: "es2020",
   },
   css: {
-    devSourcemap: true,
+    devSourcemap: false,
+    modules: {
+      localsConvention: 'camelCaseOnly',
+    },
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+        ...(process.env.NODE_ENV === 'production'
+          ? [
+              require('cssnano')({
+                preset: ['default', {
+                  discardComments: {
+                    removeAll: true,
+                  },
+                }],
+              }),
+            ]
+          : []),
+      ],
+    },
     preprocessorOptions: {
       scss: {
         additionalData: `@import "@/assets/styles/variables.scss";`,
