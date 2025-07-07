@@ -2,53 +2,37 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { readFileSync } from 'fs';
 import viteCompression from 'vite-plugin-compression';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { visualizer } from 'rollup-plugin-visualizer';
-import type { PluginOption } from 'vite';
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
 
-// Critical CSS plugin
-const criticalCSS = (): PluginOption => {
-  let criticalCSS = '';
-  
-  return {
-    name: 'critical-css',
-    apply: 'build',
-    
-    // Read critical CSS during build
-    configResolved() {
-      try {
-        criticalCSS = readFileSync(
-          path.resolve(__dirname, 'src/assets/css/critical.css'),
-          'utf-8'
-        );
-      } catch (e) {
-        console.warn('Failed to load critical CSS:', e);
-      }
-    },
-    
-    // Inject critical CSS into HTML
-    transformIndexHtml: {
-      order: 'pre',
-      handler(html: string) {
-        return html.replace(
-          '<style id="critical-css">',
-          `<style id="critical-css">${criticalCSS}`
-        );
-      },
-    },
-  };
-};
+import type { PluginOption, HtmlTagDescriptor } from 'vite';
+
+// Critical CSS plugin with updated API
+const criticalCSSPlugin = (): PluginOption => ({
+  name: 'critical-css',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler(html: string) {
+      const tags: HtmlTagDescriptor[] = [
+        {
+          tag: 'style',
+          attrs: { id: 'critical-css' },
+          children: '/* Critical CSS will be inlined here during build */',
+          injectTo: 'head-prepend' as const
+        }
+      ];
+      return { html, tags };
+    }
+  }
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const isProduction = mode === 'production';
   
   // Only include necessary environment variables
   const envVars: Record<string, string> = {};
@@ -61,36 +45,12 @@ export default defineConfig(({ mode }) => {
   });
   
   return {
-    define: {
-      'process.env.NODE_ENV': `"${mode}"`,
-      'process.env.VITE_API_URL': `"${env.VITE_API_URL || ''}"`,
-      ...envVars
-    },
+    define: envVars,
     plugins: [
-      // Workaround for react-helmet-async
-      {
-        name: 'react-helmet-async',
-        enforce: 'pre',
-        resolveId(source) {
-          if (source === 'react-helmet-async') {
-            return require.resolve('react-helmet-async/lib/index.js');
-          }
-          return null;
-        }
-      } as PluginOption,
-      criticalCSS(),
-      react({
-        jsxImportSource: '@emotion/react',
-        jsxRuntime: 'automatic',
-        babel: {
-          plugins: [
-            'babel-plugin-macros',
-            ['@emotion/babel-plugin', { sourceMap: !isProduction }]
-          ]
-        },
-      }),
+      criticalCSSPlugin(),
+      react(),
       createHtmlPlugin({
-        minify: isProduction ? {
+        minify: {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
@@ -99,11 +59,7 @@ export default defineConfig(({ mode }) => {
           useShortDoctype: true,
           minifyCSS: true,
           minifyJS: true,
-          removeEmptyAttributes: true,
-          removeTagWhitespace: true,
-          collapseBooleanAttributes: true,
-          removeAttributeQuotes: false,
-        } : false,
+        },
         inject: {
           data: {
             title: 'Samsar - سمسار',
@@ -112,18 +68,23 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+      // Image optimization will be handled by the build script
+      
+      // Compression
       viteCompression({
-        threshold: 1024,
+        threshold: 1024, // Compress files >1KB
         algorithm: 'brotliCompress',
         ext: '.br',
       }),
       viteCompression({
-        threshold: 1024,
+        threshold: 1024, // Compress files >1KB
         algorithm: 'gzip',
         ext: '.gz',
       }),
-      isProduction && visualizer({
-        open: false,
+      
+      // Bundle analyzer (only in analyze mode)
+      mode === 'analyze' && visualizer({
+        open: true,
         filename: 'bundle-analyzer-report.html',
         gzipSize: true,
         brotliSize: true,
@@ -140,17 +101,17 @@ export default defineConfig(({ mode }) => {
     },
     
     resolve: {
-      alias: [
-        { find: '@', replacement: path.resolve(__dirname, 'src') },
-        { find: '@components', replacement: path.resolve(__dirname, 'src/components') },
-        { find: '@pages', replacement: path.resolve(__dirname, 'src/pages') },
-        { find: '@assets', replacement: path.resolve(__dirname, 'src/assets') },
-        { find: '@hooks', replacement: path.resolve(__dirname, 'src/hooks') },
-        { find: '@services', replacement: path.resolve(__dirname, 'src/services') },
-        { find: '@store', replacement: path.resolve(__dirname, 'src/store') },
-        { find: '@types', replacement: path.resolve(__dirname, 'src/types') },
-        { find: '@utils', replacement: path.resolve(__dirname, 'src/utils') },
-      ],
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "@components": path.resolve(__dirname, "src/components"),
+        "@pages": path.resolve(__dirname, "src/pages"),
+        "@assets": path.resolve(__dirname, "src/assets"),
+        "@hooks": path.resolve(__dirname, "src/hooks"),
+        "@services": path.resolve(__dirname, "src/services"),
+        "@store": path.resolve(__dirname, "src/store"),
+        "@types": path.resolve(__dirname, "src/types"),
+        "@utils": path.resolve(__dirname, "src/utils"),
+      },
     },
     
     server: {
@@ -160,7 +121,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // API proxy configuration
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:3001',
+          target: process.env.VITE_API_URL || 'http://localhost:3001',
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, '')
@@ -176,16 +137,10 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
-      emptyOutDir: true,
       sourcemap: mode !== 'production',
-      cssCodeSplit: true,
       minify: 'terser',
       chunkSizeWarningLimit: 1600,
       reportCompressedSize: false,
-      target: 'esnext',
-      modulePreload: {
-        polyfill: false,
-      },
       rollupOptions: {
         output: {
           manualChunks: {
@@ -195,20 +150,13 @@ export default defineConfig(({ mode }) => {
             forms: ['formik', 'yup', 'react-hook-form'],
             maps: ['leaflet', 'react-leaflet'],
           },
-          assetFileNames: (assetInfo) => {
-            if (assetInfo.name === 'index.css') {
-              return 'assets/css/index.[hash].css';
-            }
-            return 'assets/[name].[hash][extname]';
-          },
-          chunkFileNames: 'assets/js/[name].[hash].js',
-          entryFileNames: 'assets/js/[name].[hash].js',
         },
       },
       terserOptions: {
         compress: {
-          drop_console: isProduction,
-          drop_debugger: isProduction,
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production',
+          pure_funcs: ['console.log'],
         },
         format: {
           comments: false,
@@ -217,17 +165,17 @@ export default defineConfig(({ mode }) => {
     },
     
     css: {
-      devSourcemap: true,
+      postcss: './postcss.config.js',
+      devSourcemap: mode !== 'production',
       modules: {
         localsConvention: 'camelCaseOnly',
       },
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "@/assets/css/index.css";`
-        }
-      }
+          additionalData: `@import "@/assets/styles/variables.scss";`,
+        },
+      },
     },
-
     
     optimizeDeps: {
       include: [

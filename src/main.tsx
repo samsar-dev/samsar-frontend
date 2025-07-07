@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import App from "./App";
 import "./config/i18n"; // Import i18n configuration
-import "@/assets/css/index.css";
+import "./assets/css/index.css";
 
 // Performance monitoring
 if (process.env.NODE_ENV === "production") {
