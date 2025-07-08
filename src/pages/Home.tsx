@@ -801,6 +801,13 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-[100svh] bg-gray-50 dark:bg-[#0f172a] transition-colors duration-300">
       {/* Preload for LCP Optimization */}
+      <link 
+        rel="preload" 
+        href="/waves-light.svg" 
+        as="image" 
+        type="image/svg+xml"
+        fetchPriority="high"
+      />
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
@@ -811,11 +818,13 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-no-repeat opacity-5 pointer-events-none" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow-sm">
+          <h1 className="lcp-text">
             {t("home.find_perfect")}{" "}
-            {selectedCategory === ListingCategory.VEHICLES
-              ? t("home.vehicle")
-              : t("home.property")}
+            <span className="inline-block">
+              {selectedCategory === ListingCategory.VEHICLES
+                ? t("home.vehicle")
+                : t("home.property")}
+            </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
             {selectedCategory === ListingCategory.VEHICLES

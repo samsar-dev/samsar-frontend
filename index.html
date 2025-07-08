@@ -7,13 +7,48 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload critical CSS with fallback -->
-    <link rel="preload" as="style" href="/src/index.css" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Preload main CSS asynchronously -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
+    <script>
+      // Load non-critical CSS after initial render
+      function loadNonCriticalCSS() {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/src/App.css';
+        document.head.appendChild(link);
+      }
+      // Load after the critical rendering is done
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(loadNonCriticalCSS);
+      } else {
+        window.addEventListener('load', loadNonCriticalCSS);
+      }
+    </script>
     
     <!-- Inline critical CSS -->
-    <style>
-      /* Critical CSS inlined */
+    <style id="critical-css">
+      /* Critical CSS for LCP element */
+      .lcp-text {
+        font-size: 1.875rem; /* text-3xl */
+        line-height: 2.25rem;
+        font-weight: 800;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        color: white;
+        margin: 0;
+        padding: 0;
+        opacity: 1;
+        transform: translateZ(0);
+        will-change: transform;
+      }
+      @media (min-width: 640px) {
+        .lcp-text { font-size: 2.25rem; } /* sm:text-4xl */
+      }
+      @media (min-width: 768px) {
+        .lcp-text { font-size: 3rem; } /* md:text-5xl */
+      }
+      
+      /* Basic styles to prevent layout shifts */
       :root {
         --background: 0 0% 100%;
         --foreground: 0 0% 3.9%;
