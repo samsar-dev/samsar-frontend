@@ -7,11 +7,7 @@ import { store } from "./store/store";
 import App from "./App";
 import "react-toastify/dist/ReactToastify.css";
 import "react-loading-skeleton/dist/skeleton.css";
-import { loadNonCriticalCSS } from "./utils/loadNonCriticalCSS";
 import "./config/i18n"; // Import i18n configuration
-
-// Load non-critical CSS after initial render
-loadNonCriticalCSS("/src/App.css");
 
 // Import critical styles
 import "./assets/css/index.css";

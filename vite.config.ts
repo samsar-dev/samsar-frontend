@@ -6,28 +6,6 @@ import viteCompression from 'vite-plugin-compression';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-import type { PluginOption, HtmlTagDescriptor } from 'vite';
-
-// Critical CSS plugin with updated API
-const criticalCSSPlugin = (): PluginOption => ({
-  name: 'critical-css',
-  apply: 'build',
-  transformIndexHtml: {
-    order: 'post',
-    handler(html: string) {
-      const tags: HtmlTagDescriptor[] = [
-        {
-          tag: 'style',
-          attrs: { id: 'critical-css' },
-          children: '/* Critical CSS will be inlined here during build */',
-          injectTo: 'head-prepend' as const
-        }
-      ];
-      return { html, tags };
-    }
-  }
-});
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
@@ -44,13 +22,16 @@ export default defineConfig(({ mode }) => {
     }
   });
   
+  const isProduction = mode === 'production';
+  
   return {
     define: envVars,
     plugins: [
-      criticalCSSPlugin(),
       react({
         // Enable TypeScript decorators
         tsDecorators: true,
+        // Development options
+        jsxImportSource: '@emotion/react',
       }),
       createHtmlPlugin({
         minify: {
@@ -141,12 +122,12 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: mode !== 'production',
-      minify: 'terser',
+      sourcemap: !isProduction,
+      minify: isProduction ? 'terser' : false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
-      brotliSize: false, // Faster build when not using bundle visualizer
+      brotliSize: false,
       rollupOptions: {
         output: {
           manualChunks: {
