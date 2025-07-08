@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { BsSend } from "react-icons/bs";
 import { MdDelete, MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { toast } from "react-toastify";
+import { SEO } from "@/utils/seo";
 
 interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
   seller?: {
@@ -27,6 +28,9 @@ interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
 
 const SavedListings = () => {
   const { t } = useTranslation();
+  const pageTitle = t('saved_listings.meta_title', 'المحفوظات - سمسار');
+  const pageDescription = t('saved_listings.meta_description', 'عرض العقارات والمركبات المحفوظة في حسابك على منصة سمسار');
+  const pageKeywords = t('saved_listings.meta_keywords', 'المحفوظات, العقارات المحفوظة, المركبات المحفوظة, المفضلة, سمسار');
   const [listings, setListings] = useState<ExtendedListing[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -131,6 +135,11 @@ const SavedListings = () => {
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-transparent py-8">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0 }}

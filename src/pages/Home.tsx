@@ -13,6 +13,7 @@ import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
+import { SEO } from "@/utils/seo";
 
 interface ListingParams {
   category?: {
@@ -46,12 +47,12 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation([
-    "common",
-    "filters",
-    "home",
-    "locations",
-  ]);
+  const { t, i18n } = useTranslation(["common", "filters", "home", "locations"]);
+  
+  // SEO Meta Tags
+  const pageTitle = t('home.meta_title', 'سمسار | سوق السيارات والعقارات الأول في سوريا');
+  const pageDescription = t('home.meta_description', 'مرحباً بكم في منصة سمسار، الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. تصفح آلاف العروض المميزة للشقق، الفلل، الأراضي، السيارات، والشاحنات. نوفر لك أحدث قوائم العقارات والمركبات مع تفاصيل دقيقة، صور عالية الجودة، وأسعار تنافسية. ابدأ رحلتك اليوم للعثور على ما تبحث عنه!');
+  const pageKeywords = t('home.meta_keywords', 'عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار');
 
   // Get city and area translations for filtering
   const cities = t("locations:cities", {
@@ -799,7 +800,12 @@ const Home: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-[100svh] bg-gray-50 dark:bg-[#0f172a] transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       {/* Preload for LCP Optimization */}
       <link 
         rel="preload" 

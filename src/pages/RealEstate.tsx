@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import ListingCard from "@/components/listings/details/ListingCard";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
@@ -6,6 +7,7 @@ import { ListingCategory, PropertyType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash-es";
 import { toast } from "react-toastify";
+import { SEO } from "@/utils/seo";
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -43,6 +45,13 @@ const RealEstateFilter: React.FC<RealEstateFilterProps> = () => {
 };
 
 const RealEstatePage: React.FC = () => {
+  const { t } = useTranslation();
+  
+  // SEO Meta Tags
+  const pageTitle = t('real_estate.meta_title', 'العقارات - سمسار');
+  const pageDescription = t('real_estate.meta_description', 'أضخم منصة عقارية في سوريا تقدم أفضل العروض العقارية المميزة. تصفح الآف العقارات المعروضة للبيع وللايجار في مختلف المدن السورية. نوفر لك شقق سكنية، فلل فاخرة، شقق فندقية، محلات تجارية، مكاتب إدارية، أراضي سكنية، مزارع، وعقارات استثمارية. خدمة مجانية لعرض العقارات مع وصف تفصيلي، صور عالية الجودة، وخرائط الموقع. نوفر لك أدوات متقدمة للبحث والتصفية حسب المساحة، السعر، الموقع، والمواصفات. ابدأ رحلتك الآن للعثور على عقارك المثالي!');
+  const pageKeywords = t('real_estate.meta_keywords', 'عقارات للبيع, شقق للايجار, فلل فاخرة, محلات تجارية, مكاتب إدارية, أراضي سكنية, عقارات دمشق, عقارات حلب, عقارات حمص, عقارات اللاذقية, عقارات طرطوس, شقق فندقية, شقق مفروشة, عقارات استثمارية, تمليك, إيجار شهري, إيجار سنوي, عقارات سوريا, سمسار عقارات, مشاريع سكنية');
+  
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     loading: true,
@@ -116,6 +125,11 @@ const RealEstatePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
