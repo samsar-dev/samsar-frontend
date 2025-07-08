@@ -1,13 +1,15 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
-    <!-- Preconnect to external domains with resource hints -->
+    <!-- Preconnect to critical domains -->
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Preload critical CSS with fallback -->
+    <link rel="preload" as="style" href="/src/index.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
     
     <!-- Inline critical CSS -->
     <style>

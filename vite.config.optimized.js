@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { splitVendorChunkPlugin } from 'vite';
 
@@ -7,28 +7,8 @@ import { splitVendorChunkPlugin } from 'vite';
 export default defineConfig({
   plugins: [
     react({
-      // Only use the new JSX transform in production
-      jsxRuntime: 'automatic',
-      // Enable fast refresh
-      fastRefresh: true,
-      // Babel configuration for modern browsers
-      babel: {
-        plugins: [
-          // Remove console.log in production
-          ['transform-remove-console', { exclude: ['error', 'warn'] }],
-        ],
-        presets: [
-          ['@babel/preset-env', 
-            { 
-              targets: '>0.2%, not dead, not op_mini all',
-              useBuiltIns: 'usage',
-              corejs: 3,
-              modules: false,
-              debug: false
-            }
-          ]
-        ]
-      }
+      // Enable TypeScript decorators
+      tsDecorators: true,
     }),
     splitVendorChunkPlugin(),
     visualizer({
@@ -43,6 +23,7 @@ export default defineConfig({
     sourcemap: false,
     minify: 'terser',
     cssCodeSplit: true,
+    cssMinify: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {

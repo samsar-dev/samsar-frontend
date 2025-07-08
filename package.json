@@ -92,11 +92,6 @@
     "start": "vite"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.1",
-    "@babel/plugin-transform-react-jsx": "^7.27.1",
-    "@babel/plugin-transform-runtime": "^7.28.0",
-    "@babel/preset-env": "^7.27.1",
-    "@babel/preset-react": "^7.27.1",
     "@eslint/js": "^9.21.0",
     "@tailwindcss/forms": "^0.5.10",
     "@types/brotli-webpack-plugin": "^1.1.0",
@@ -110,7 +105,6 @@
     "@typescript-eslint/parser": "^8.26.0",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "autoprefixer": "^10.4.21",
-    "babel-plugin-transform-remove-console": "^6.9.4",
     "brotli-webpack-plugin": "^1.1.0",
     "compression-webpack-plugin": "^10.0.0",
     "critters": "^0.0.23",
