@@ -132,8 +132,9 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['lodash', 'axios', 'date-fns'],
-            ui: ['@headlessui/react', '@heroicons/react', 'framer-motion'],
+            'vendor-large': ['framer-motion'],
+            vendor: ['axios', 'date-fns'],
+            ui: ['@headlessui/react', '@heroicons/react'],
             forms: ['formik', 'yup', 'react-hook-form'],
             maps: ['leaflet', 'react-leaflet'],
           },
@@ -176,7 +177,7 @@ export default defineConfig(({ mode }) => {
         'i18next',
         'date-fns',
         'framer-motion',
-        'lodash'
+        
       ],
       esbuildOptions: {
         target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge79'],

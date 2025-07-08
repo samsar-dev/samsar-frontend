@@ -5,7 +5,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import { ExtendedListing } from "@/types/listings";
 import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { toast } from "react-toastify";
  
 

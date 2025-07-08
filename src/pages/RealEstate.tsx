@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import ListingCard from "@/components/listings/details/ListingCard";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
+import { ListingCategory, PropertyType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { toast } from "react-toastify";
 
 interface ListingsState {
@@ -12,6 +12,35 @@ interface ListingsState {
   loading: boolean;
   error: string | null;
 }
+
+interface RealEstateFilterState {
+  propertyType: string | null;
+  listingAction: string | null;
+  minPrice: string;
+  maxPrice: string;
+  minSize: string;
+  maxSize: string;
+  bedrooms: string;
+  bathrooms: string;
+  condition: string | null;
+  location: string;
+}
+
+interface RealEstateFilterProps {
+  filters: RealEstateFilterState;
+  onFilterChange: (updates: Partial<RealEstateFilterState>) => void;
+}
+
+const RealEstateFilter: React.FC<RealEstateFilterProps> = () => {
+  // Filter UI implementation will go here
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Filter inputs will be added here */}
+      </div>
+    </div>
+  );
+};
 
 const RealEstatePage: React.FC = () => {
   const [listings, setListings] = useState<ListingsState>({
@@ -42,18 +71,16 @@ const RealEstatePage: React.FC = () => {
   const fetchRealEstateListings = useCallback(async () => {
     try {
       setListings((prev) => ({ ...prev, loading: true, error: null }));
-      const response = await listingsAPI.getAll(
-        {
-          category: {
-            mainCategory: ListingCategory.REAL_ESTATE,
-            ...(filters.propertyType && { subCategory: filters.propertyType }),
-          },
-          minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-          location: filters.location || undefined,
+      const params: Record<string, any> = {
+        category: {
+          mainCategory: ListingCategory.REAL_ESTATE,
+          ...(filters.propertyType && { subCategory: filters.propertyType as PropertyType }),
         },
-        abortControllerRef.current.signal,
-      );
+        minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+        maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+        location: filters.location || undefined,
+      };
+      const response = await listingsAPI.getAll(params, abortControllerRef.current.signal);
 
       if (response.success && response.data?.listings) {
         setListings((prev) => ({
@@ -83,8 +110,8 @@ const RealEstatePage: React.FC = () => {
     return () => debouncedFetch.cancel();
   }, [debouncedFetch]);
 
-  const handleFilterChange = (filterUpdates: Partial<typeof filters>) => {
-    setFilters((prev) => ({ ...prev, ...filterUpdates }));
+  const handleFilterChange = (updates: Partial<RealEstateFilterState>) => {
+    setFilters((prev: RealEstateFilterState) => ({ ...prev, ...updates }));
   };
 
   return (

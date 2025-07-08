@@ -38,6 +38,7 @@ export interface ListingCardProps {
   showSaveButton?: boolean;
   showPrice?: boolean;
   showBadges?: boolean;
+  showLocation?: boolean;
   priority?: boolean;
 }
 

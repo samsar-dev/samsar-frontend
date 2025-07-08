@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { Socket } from "socket.io-client";
 import socketIO from "socket.io-client";
+
+type SocketType = Socket | null;
 import { useAuth } from "@/hooks/useAuth";
 import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
 import { getAuthToken } from "@/utils/cookie";
 
 interface SocketContextType {
-  socket: typeof Socket | null;
+  socket: SocketType;
   connected: boolean;
   connectionError: string | null;
 }
@@ -20,7 +22,7 @@ const SocketContext = createContext<SocketContextType>({
 export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const [socket, setSocket] = useState<typeof Socket | null>(null);
+  const [socket, setSocket] = useState<SocketType>(null);
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
