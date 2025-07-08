@@ -7,22 +7,59 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload main CSS asynchronously -->
+    <!-- Preload critical assets -->
     <link rel="preload" href="/src/assets/css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/your-critical-font.woff2" crossorigin>
+    
+    <!-- Inline critical CSS -->
+    <style id="critical-css">
+      /* Add critical CSS here - this should be minimal */
+      :root {
+        --primary: #2563eb;
+        --background: #ffffff;
+        --text: #1f2937;
+      }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      .lcp-element { will-change: transform; }
+    </style>
+
+    <!-- Load non-critical CSS asynchronously -->
+    <link rel="preload" href="/src/assets/css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='all'" media="print">
     <noscript><link rel="stylesheet" href="/src/assets/css/index.css"></noscript>
+    
+    <!-- Preload key requests -->
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.samsar.app">
+    
+    <!-- Load scripts with appropriate priorities -->
     <script>
       // Load non-critical CSS after initial render
-      function loadNonCriticalCSS() {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = '/src/App.css';
-        document.head.appendChild(link);
+      function loadNonCriticalAssets() {
+        // Load non-critical CSS
+        const styles = document.createElement('link');
+        styles.rel = 'stylesheet';
+        styles.href = '/src/App.css';
+        document.head.appendChild(styles);
+        
+        // Load non-critical scripts
+        const scripts = [
+          // Add paths to non-critical scripts here
+        ];
+        
+        scripts.forEach(src => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.async = true;
+          document.body.appendChild(script);
+        });
       }
-      // Load after the critical rendering is done
+      
+      // Use requestIdleCallback if available, otherwise use load event
       if (window.requestIdleCallback) {
-        window.requestIdleCallback(loadNonCriticalCSS);
+        window.requestIdleCallback(loadNonCriticalAssets, { timeout: 2000 });
       } else {
-        window.addEventListener('load', loadNonCriticalCSS);
+        window.addEventListener('load', loadNonCriticalAssets);
       }
     </script>
     
