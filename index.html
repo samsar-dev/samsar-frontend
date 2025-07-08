@@ -1,17 +1,16 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
+    <!-- Preconnect to external domains with resource hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
     <!-- Inline critical CSS -->
-    <style id="critical-css">
+    <style>
       /* Critical CSS inlined */
       :root {
         --background: 0 0% 100%;
@@ -23,46 +22,12 @@
         margin: 0;
         padding: 0;
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
       }
       #root {
         height: 100%;
-        display: flex;
-        flex-direction: column;
+        width: 100%;
       }
-      /* Add smooth scrolling for better UX */
-      html {
-        scroll-behavior: smooth;
-      }
-    </style>
-    
-    <!-- Preload critical fonts -->
-    <link 
-      rel="preload" 
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" 
-      as="style" 
-      onload="this.onload=null;this.rel='stylesheet'"
-    >
-    <noscript>
-      <link 
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" 
-        rel="stylesheet"
-      >
-    </noscript>
-    
-    <!-- Defer non-critical CSS -->
-    <link 
-      rel="preload" 
-      href="/src/index.css" 
-      as="style" 
-      onload="this.onload=null;this.rel='stylesheet'"
-    >
-    <noscript>
-      <link rel="stylesheet" href="/src/index.css">
-    </noscript>
-    
-    <!-- Add any other critical above-the-fold styles here -->
+      /* Add any other critical above-the-fold styles here */
     </style>
     
     <!-- No-JS fallback -->
@@ -163,7 +128,9 @@
     <!-- Fonts: Optimized for Arabic & English -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"></noscript>
+    
 
     <!-- Preload Critical Assets -->
     <link rel="preload" href="/images/hero.webp" as="image" type="image/webp" fetchpriority="high">
@@ -196,13 +163,13 @@
     <div id="root"></div>
     
     <!-- Critical scripts -->
-    <script type="module" src="/src/main.tsx" async></script>
+    
     
     <!-- Load non-critical CSS asynchronously -->
     <link rel="preload" href="/src/App.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/src/App.css"></noscript>
 
     <!-- Main App Script -->
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" defer></script>
   </body>
 </html>

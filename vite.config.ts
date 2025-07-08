@@ -49,8 +49,6 @@ export default defineConfig(({ mode }) => {
     plugins: [
       criticalCSSPlugin(),
       react({
-        // JSX runtime options
-        jsxImportSource: '@emotion/react',
         // Enable TypeScript decorators
         tsDecorators: true,
       }),
