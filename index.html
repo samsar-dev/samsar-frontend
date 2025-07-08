@@ -7,64 +7,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/src/assets/css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/your-critical-font.woff2" crossorigin>
-    
-    <!-- Inline critical CSS -->
-    <style id="critical-css">
-      /* Add critical CSS here - this should be minimal */
-      :root {
-        --primary: #2563eb;
-        --background: #ffffff;
-        --text: #1f2937;
-      }
-      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-      .lcp-element { will-change: transform; }
-    </style>
-
-    <!-- Load non-critical CSS asynchronously -->
-    <link rel="preload" href="/src/assets/css/index.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='all'" media="print">
-    <noscript><link rel="stylesheet" href="/src/assets/css/index.css"></noscript>
-    
     <!-- Preload key requests -->
     <link rel="preconnect" href="https://api.samsar.app" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.samsar.app">
     
-    <!-- Load scripts with appropriate priorities -->
-    <script>
-      // Load non-critical CSS after initial render
-      function loadNonCriticalAssets() {
-        // Load non-critical CSS
-        const styles = document.createElement('link');
-        styles.rel = 'stylesheet';
-        styles.href = '/src/App.css';
-        document.head.appendChild(styles);
-        
-        // Load non-critical scripts
-        const scripts = [
-          // Add paths to non-critical scripts here
-        ];
-        
-        scripts.forEach(src => {
-          const script = document.createElement('script');
-          script.src = src;
-          script.async = true;
-          document.body.appendChild(script);
-        });
-      }
-      
-      // Use requestIdleCallback if available, otherwise use load event
-      if (window.requestIdleCallback) {
-        window.requestIdleCallback(loadNonCriticalAssets, { timeout: 2000 });
-      } else {
-        window.addEventListener('load', loadNonCriticalAssets);
-      }
-    </script>
-    
     <!-- Inline critical CSS -->
     <style id="critical-css">
+      /* Critical CSS for above-the-fold content */
+      :root {
+        --primary: #2563eb;
+        --background: #ffffff;
+        --text: #1f2937;
+      }
+      body { 
+        margin: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: var(--text);
+      }
+      .lcp-element { 
+        will-change: transform;
+        font-weight: 700;
+      }
+      /* Critical layout styles */
+      #root {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
       /* Critical CSS for LCP element */
       .lcp-text {
         font-size: 1.875rem; /* text-3xl */
@@ -104,11 +75,7 @@
       /* Add any other critical above-the-fold styles here */
     </style>
     
-    <!-- No-JS fallback -->
-    <noscript>
-      <link rel="stylesheet" href="/src/index.css">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
-    </noscript>
+   
     <!-- Essential Meta -->
     <meta charset="utf-8" />
     <meta
@@ -118,8 +85,7 @@
     <meta name="theme-color" content="#1a56db" />
     
     <!-- Primary Meta Tags -->
-    <!-- Preload critical scripts -->
-    <link rel="modulepreload" href="/src/main.tsx" as="script">
+    
     
     <title>سمسار | سوق السيارات والعقارات الأول في سوريا | Samsar</title>
     <meta name="title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
@@ -214,9 +180,7 @@
     <link rel="preconnect" href="https://maps.googleapis.com">
     <link rel="preconnect" href="https://www.google-analytics.com">
     
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/css/critical.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/critical.css"></noscript>
+  
 
     <!-- Social: Open Graph -->
     <meta property="og:title" content="Marketplace - Buy and Sell Locally" />
@@ -236,13 +200,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <!-- Critical scripts -->
-    
-    
-    <!-- Load non-critical CSS asynchronously -->
-    <link rel="preload" href="/src/App.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/src/App.css"></noscript>
-
+  
     <!-- Main App Script -->
     <script type="module" src="/src/main.tsx" defer></script>
   </body>
