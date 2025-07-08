@@ -49,6 +49,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       criticalCSSPlugin(),
       react({
+        // JSX runtime options
+        jsxImportSource: '@emotion/react',
         // Enable TypeScript decorators
         tsDecorators: true,
       }),
@@ -171,28 +173,15 @@ export default defineConfig(({ mode }) => {
     },
     
     css: {
+      postcss: './postcss.config.js',
       devSourcemap: mode !== 'production',
       modules: {
         localsConvention: 'camelCaseOnly',
-        generateScopedName: mode === 'production' ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]',
       },
       preprocessorOptions: {
         scss: {
           additionalData: `@import "@/assets/styles/variables.scss";`,
         },
-      },
-      // Minify CSS in production
-      postcss: {
-        plugins: [
-          require('autoprefixer'),
-          mode === 'production' && require('cssnano')({
-            preset: ['default', {
-              discardComments: {
-                removeAll: true,
-              },
-            }],
-          }),
-        ].filter(Boolean),
       },
     },
     
