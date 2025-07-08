@@ -269,7 +269,7 @@ export const UserProfile = () => {
                 listing={listing}
                 showPrice={true}
                 showLocation={true}
-                showDate={true}
+                
               />
             ))}
           </motion.div>

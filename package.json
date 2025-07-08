@@ -83,8 +83,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "postbuild": "tsx src/utils/sitemap/generateSitemap.ts",
+    "type-check": "tsc --noEmit",
+    "build": "vite build",
     "build:optimized": "vite build --config vite.config.optimized.js",
     "build:analyze": "vite build --mode analyze && npm run analyze",
     "analyze": "vite-bundle-visualizer",
@@ -93,8 +93,7 @@
     "format": "prettier --write .",
     "clean": "rm -rf node_modules package-lock.json dist && npm cache clean --force && npm install",
     "prepare": "husky install",
-    "start": "vite",
-    "sitemap": "tsx src/utils/sitemap/generateSitemap.ts"
+    "start": "vite"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

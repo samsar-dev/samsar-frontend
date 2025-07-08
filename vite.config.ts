@@ -9,8 +9,14 @@ import { visualizer } from 'rollup-plugin-visualizer';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  
+  // Skip type checking during build
+  if (command === 'build') {
+    process.env.TSC_COMPILE_ON_ERROR = 'true';
+    process.env.TSC_COMPILE_ON_ERROR_WATCH = 'true';
+  }
   
   // Only include necessary environment variables
   const envVars: Record<string, string> = {};

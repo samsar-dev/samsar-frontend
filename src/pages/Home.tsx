@@ -690,7 +690,7 @@ const Home: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-            selectedLocation={selectedLocation}
+          
             setSelectedLocation={setSelectedLocation}
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
