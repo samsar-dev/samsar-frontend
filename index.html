@@ -1,18 +1,43 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
-    <!-- Preconnect to external domains -->
+    <!-- Preconnect to external domains with resource hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload critical CSS -->
+    <!-- Preload critical resources -->
     <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
     
-    <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"></noscript>
+    <!-- Load fonts with font-display: swap -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Inline critical CSS -->
+    <style>
+      /* Critical CSS inlined */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+      }
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      }
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+      /* Add any other critical above-the-fold styles here */
+    </style>
+    
+    <!-- No-JS fallback -->
+    <noscript>
+      <link rel="stylesheet" href="/src/index.css">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
+    </noscript>
     <!-- Essential Meta -->
     <meta charset="utf-8" />
     <meta
