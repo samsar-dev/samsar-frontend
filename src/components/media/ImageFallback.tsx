@@ -69,8 +69,7 @@ const ImageComponent: React.FC<ImageProps> = ({
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
   onLoad,
-  onError,
-  ...rest
+  onError
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
