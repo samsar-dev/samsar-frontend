@@ -1,12 +1,6 @@
 import { ACTIVE_API_URL as API_URL } from "@/config";
 import { apiClient } from "./apiClient";
-import {
-  Condition,
-  ListingAction,
-  ListingCategory,
-  TransmissionType,
-  VehicleType,
-} from "@/types/enums";
+import type { ListingCategory, PropertyType } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import type {
   Listing,
@@ -15,7 +9,12 @@ import type {
   RealEstateDetails,
   VehicleDetails,
 } from "@/types/listings";
-import type { PropertyType } from "@/types/enums";
+import {
+  VehicleType,
+  ListingAction,
+  TransmissionType,
+  Condition,
+} from "@/types/enums";
 // Define custom ListingParams interface directly here to avoid import conflicts
 interface ListingParams {
   year?: number;
@@ -551,13 +550,10 @@ export const listingsAPI: ListingsAPI = {
       // Mark this as a public request
       queryParams.append("publicAccess", "true");
 
-      const response = await fetch(
-        `${API_URL}/listings?${queryParams}`,
-        {
-          method: "GET",
-          signal,
-        }
-      );
+      const response = await fetch(`${API_URL}/listings?${queryParams}`, {
+        method: "GET",
+        signal,
+      });
 
       // Check if response is ok
       if (!response.ok) {
@@ -577,22 +573,23 @@ export const listingsAPI: ListingsAPI = {
 
       // Get the raw response text
       const responseText = await response.text();
-      
+
       // Log response details for debugging
       console.log({
         status: response.status,
         statusText: response.statusText,
-        contentType: response.headers.get('content-type'),
-        contentLength: response.headers.get('content-length'),
+        contentType: response.headers.get("content-type"),
+        contentLength: response.headers.get("content-length"),
         responseTextLength: responseText.length,
-        responseTextPreview: responseText.length > 200 
-          ? `${responseText.substring(0, 200)}...` 
-          : responseText
+        responseTextPreview:
+          responseText.length > 200
+            ? `${responseText.substring(0, 200)}...`
+            : responseText,
       });
 
       // Check for empty response
       if (!responseText.trim()) {
-        const error = new Error('Server returned empty response');
+        const error = new Error("Server returned empty response");
         console.error(error.message, { status: response.status });
         throw error;
       }
@@ -603,21 +600,22 @@ export const listingsAPI: ListingsAPI = {
         data = JSON.parse(responseText);
       } catch (error: unknown) {
         const err = error as Error;
-        console.error('Failed to parse JSON response:', {
+        console.error("Failed to parse JSON response:", {
           error: err.message,
-          responsePreview: responseText.length > 200 
-            ? `${responseText.substring(0, 200)}...` 
-            : responseText
+          responsePreview:
+            responseText.length > 200
+              ? `${responseText.substring(0, 200)}...`
+              : responseText,
         });
         throw new Error(`Invalid JSON response: ${err.message}`);
       }
 
       // Log parsed data structure for debugging
-      console.log('Parsed response data:', {
+      console.log("Parsed response data:", {
         hasData: !!data,
         hasDataProperty: !!(data && data.data !== undefined),
-        dataType: data ? typeof data : 'null',
-        dataKeys: data ? Object.keys(data) : []
+        dataType: data ? typeof data : "null",
+        dataKeys: data ? Object.keys(data) : [],
       });
 
       // Continue with your existing logic...
@@ -1666,6 +1664,7 @@ export const listingsAPI: ListingsAPI = {
         headers: {
           // Don't set Content-Type for FormData - browser will set it with boundary
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          // "Content-Type": "multipart/form-data",
         },
         body: formData,
       });
