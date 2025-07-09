@@ -11,7 +11,7 @@ import { SEO } from "@/utils/seo";
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
 import { SettingsAPI } from "@/api";
-import { LanguageCode } from "@/types/enums";
+import { LanguageCode, ThemeType } from "@/types/enums";
 import type {
   PreferenceSettings as PreferenceSettingsType,
   Settings as AppSettings,
@@ -65,7 +65,30 @@ function Settings() {
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
-  const [localSettings, setLocalSettings] = useState(settings);
+  const [localSettings, setLocalSettings] = useState<AppSettings>({
+    ...settings,
+    preferences: settings?.preferences || {
+      language: LanguageCode.AR,
+      theme: ThemeType.LIGHT,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    },
+    security: settings?.security || {
+      loginNotifications: true,
+      securityQuestions: false
+    },
+    notifications: settings?.notifications || {
+      newInboxMessages: true,
+      listingUpdates: true,
+      loginNotifications: true
+    },
+    privacy: settings?.privacy || {
+      showPhone: true,
+      showEmail: true,
+      showOnlineStatus: true,
+      allowMessaging: true,
+      profileVisibility: 'public' as const
+    }
+  });
   const isRTL = i18n.language === "ar";
 
   const tabListRef = useRef<HTMLDivElement>(null);
@@ -98,8 +121,15 @@ function Settings() {
                   : ("public" as const),
               },
               // Add default values for any required fields in Settings type
-              preferences: localSettings?.preferences || {},
-              security: localSettings?.security || {},
+              preferences: localSettings?.preferences || {
+                language: LanguageCode.AR, // Default to Arabic
+                theme: ThemeType.LIGHT,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+              },
+              security: localSettings?.security || {
+                loginNotifications: true,
+                securityQuestions: false
+              },
             };
             setLocalSettings(newSettings);
             updateSettings(newSettings);
@@ -145,8 +175,17 @@ function Settings() {
           loginNotifications:
             localSettings.notifications?.loginNotifications ?? false,
         },
-        preferences: localSettings.preferences || {},
-        security: localSettings.security || {},
+        preferences: {
+          language: localSettings.preferences?.language || LanguageCode.AR,
+          theme: localSettings.preferences?.theme || ThemeType.LIGHT,
+          timezone: localSettings.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        security: {
+          loginNotifications: localSettings.security?.loginNotifications ?? true,
+          securityQuestions: localSettings.security?.securityQuestions ?? false,
+          twoFactorEnabled: localSettings.security?.twoFactorEnabled ?? false,
+          autoLogoutTime: localSettings.security?.autoLogoutTime
+        },
       };
 
       const response = await SettingsAPI.updatePrivacySettings(settingsToSave);
@@ -155,7 +194,19 @@ function Settings() {
       }
 
       // Update the settings in the context with the complete settings object
-      updateSettings(settingsToSave);
+      updateSettings({
+        ...settingsToSave,
+        preferences: {
+          language: settingsToSave.preferences.language,
+          theme: settingsToSave.preferences.theme || ThemeType.LIGHT,
+          timezone: settingsToSave.preferences.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        security: {
+          loginNotifications: settingsToSave.security?.loginNotifications ?? true,
+          securityQuestions: settingsToSave.security?.securityQuestions ?? false,
+          ...settingsToSave.security
+        }
+      });
 
       // Apply language change after successful save
       if (localSettings.preferences?.language) {
@@ -200,7 +251,12 @@ function Settings() {
         newInboxMessages: false,
         loginNotifications: false,
       },
-      security: localSettings.security || {},
+      security: localSettings.security || {
+        loginNotifications: true,
+        securityQuestions: false,
+        twoFactorEnabled: false,
+        autoLogoutTime: 30
+      },
     };
     setLocalSettings(newSettings);
   };
@@ -208,29 +264,20 @@ function Settings() {
   // Security settings functionality can be implemented here when needed
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
-    if (!localSettings) return;
-
-    // Start with existing settings or empty object
-    const currentSettings = localSettings.privacy || {};
-
-    // Merge updates with current settings
-    const updatedSettings = {
-      ...currentSettings,
-      ...updates,
-      // Ensure profileVisibility is always either 'public' or 'private'
-      profileVisibility: updates.profileVisibility
-        ? updates.profileVisibility === "private"
-          ? "private"
-          : "public"
-        : currentSettings.profileVisibility || "public",
-    };
-
-    const newSettings: AppSettings = {
-      ...localSettings,
-      privacy: updatedSettings,
-    };
-
-    setLocalSettings(newSettings);
+    setLocalSettings((prev) => ({
+      ...prev,
+      privacy: {
+        profileVisibility: updates.profileVisibility
+          ? updates.profileVisibility === "private"
+            ? "private"
+            : "public"
+          : prev.privacy?.profileVisibility || 'public',
+        showOnlineStatus: updates.showOnlineStatus ?? prev.privacy?.showOnlineStatus ?? true,
+        showPhone: updates.showPhone ?? prev.privacy?.showPhone ?? false,
+        showEmail: updates.showEmail ?? prev.privacy?.showEmail ?? false,
+        allowMessaging: updates.allowMessaging ?? prev.privacy?.allowMessaging ?? true,
+      },
+    }));
   };
 
   // Define the tabs for the settings page
@@ -304,7 +351,11 @@ function Settings() {
               {/* Preferences Panel */}
               <Tab.Panel className="p-6">
                 <PreferenceSettings
-                  settings={localSettings?.preferences || {}}
+                  settings={localSettings?.preferences || {
+                    language: LanguageCode.AR,
+                    theme: ThemeType.LIGHT,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                  }}
                   onUpdate={handlePreferenceUpdate}
                   isRTL={isRTL}
                 />
@@ -334,7 +385,18 @@ function Settings() {
               {/* Notifications Panel */}
               <Tab.Panel className="p-6">
                 <NotificationSettings
-                  notifications={localSettings?.notifications || {}}
+                  notifications={localSettings?.notifications || {
+                    newInboxMessages: true,
+                    listingUpdates: true,
+                    loginNotifications: true,
+                    newsletterSubscribed: false,
+                    email: true,
+                    push: true,
+                    message: true,
+                    generalUpdates: true,
+                    orderUpdates: true,
+                    enabledTypes: ['message', 'listing']
+                  }}
                   onUpdate={(notifications) => {
                     const newSettings = { ...localSettings, notifications };
                     setLocalSettings(newSettings);

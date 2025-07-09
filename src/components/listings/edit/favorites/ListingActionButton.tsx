@@ -1,8 +1,7 @@
 import React from "react";
 import { useFavorites } from "@/hooks";
 import { useSavedListings } from "@/contexts/SavedListingsContext";
-import { HeartIcon, HeartFilledIcon } from "@/components/ui";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 interface ListingActionButtonProps {
   itemId: string;
@@ -16,18 +15,19 @@ export const ListingActionButton: React.FC<ListingActionButtonProps> = ({
   className,
 }) => {
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-  const { addToSaved, removeFromSaved, savedListings } = useSavedListings();
+  const { addToSaved, removeFromSaved, isSaved } = useSavedListings();
   const isItemFavorited = isFavorite(itemId);
-  const isItemSaved = savedListings.some((listing) => listing._id === itemId);
+  const isItemSaved = isSaved(itemId);
 
-  const handleToggle = async () => {
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       if (type === "favorite") {
         isItemFavorited
           ? await removeFavorite(itemId)
           : await addFavorite(itemId);
       } else {
-        isItemSaved ? removeFromSaved(itemId) : addToSaved({ _id: itemId });
+        isItemSaved ? removeFromSaved(itemId) : addToSaved(itemId);
       }
     } catch (error) {
       console.error("Error toggling listing action:", error);
@@ -43,10 +43,10 @@ export const ListingActionButton: React.FC<ListingActionButtonProps> = ({
       }
     >
       {type === "favorite" ? (
-        isItemFavorited ? (
-          <HeartFilledIcon className="w-6 h-6 text-red-500" />
+        isItemFavorited || isItemSaved ? (
+          <FaHeart className="h-5 w-5 text-red-500" />
         ) : (
-          <HeartIcon className="w-6 h-6 text-gray-500 hover:text-red-500" />
+          <FaRegHeart className="h-5 w-5 text-gray-400 hover:text-red-500" />
         )
       ) : (
         <FaHeart

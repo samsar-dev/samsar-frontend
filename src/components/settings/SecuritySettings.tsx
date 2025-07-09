@@ -15,7 +15,6 @@ const defaultSettings: SecuritySettingsType = {
   securityQuestions: false,
   twoFactorMethod: "email",
   autoLogoutTime: 1440, // 24 hours instead of 24 minutes
-  connectedAccounts: [],
   loginActivity: [],
 };
 
@@ -35,19 +34,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
     [mergedSettings, onUpdate],
   );
 
-  const handleConnectedAccountToggle = useCallback(
-    (accountId: string) => {
-      // Ensure connectedAccounts exists before using includes
-      const connectedAccounts = mergedSettings.connectedAccounts || [];
-      const isConnected = connectedAccounts.includes(accountId);
-      const updatedAccounts = isConnected
-        ? connectedAccounts.filter((id) => id !== accountId)
-        : [...connectedAccounts, accountId];
 
-      handleSecurityChange("connectedAccounts", updatedAccounts);
-    },
-    [mergedSettings, handleSecurityChange],
-  );
 
   return (
     <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`}>
@@ -163,40 +150,7 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
         </div>
       </div>
 
-      <div>
-        <h3 className="text-lg font-medium">
-          {t("security.connectedAccounts")}
-        </h3>
-        <div className="mt-4 space-y-4">
-          {["google", "facebook", "twitter"].map((provider) => (
-            <div key={provider} className="flex items-start">
-              <div className="flex h-5 items-center">
-                <input
-                  id={`connected-${provider}`}
-                  type="checkbox"
-                  checked={
-                    mergedSettings.connectedAccounts?.includes(provider) ||
-                    false
-                  }
-                  onChange={() => handleConnectedAccountToggle(provider)}
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-              </div>
-              <div className={`${isRTL ? "mr-3" : "ml-3"} text-sm`}>
-                <label
-                  htmlFor={`connected-${provider}`}
-                  className="font-medium text-gray-700"
-                >
-                  {provider.charAt(0).toUpperCase() + provider.slice(1)}
-                </label>
-                <p className="text-gray-500">
-                  {t("security.connectAccount", { provider })}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
 
       {/* Only render login activity if there's data */}
       {mergedSettings.loginActivity &&

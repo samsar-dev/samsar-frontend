@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useSavedListings } from "@/contexts/SavedListingsContext";
 import ListingCard from "@/components/listings/details/ListingCard";
-import { Listing, PaginatedListingResponse } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
 import { toast } from "@/components/common/toast";
 
@@ -14,30 +14,28 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
   const { favorites, isLoading: favoritesLoading } = useFavorites();
-  const { savedListings, isLoading: savedListingsLoading } = useSavedListings();
+  const { savedListings, isLoading: savedListingsLoading, isSaved } = useSavedListings();
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
         setLoadingListings(true);
-        let listingIds: string[];
-        if (type === "favorites") {
-          listingIds = favorites;
+        const listingIds = type === "favorites" ? [...favorites] : [...savedListings];
+        
+        if (listingIds.length > 0) {
+          const response = await listingsAPI.getListingsByIds(listingIds);
+          if (response.success && response.data) {
+            const listingsData = Array.isArray(response.data) ? response.data : [response.data];
+            // Filter out any null/undefined listings and ensure they match the Listing type
+            const validListings = listingsData.filter((listing): listing is Listing => Boolean(listing));
+            setListings(validListings);
+          }
         } else {
-          listingIds = savedListings.map((listing: Listing) => listing.id);
-        }
-        const response: PaginatedListingResponse =
-          await listingsAPI.getListingsByIds(listingIds);
-        if (response.data?.items) {
-          setListings(response.data.items);
+          setListings([]);
         }
       } catch (error) {
         console.error(`Error fetching ${type} listings:`, error);
-        toast({
-          title: "Error",
-          description: `Failed to fetch ${type} listings`,
-          variant: "destructive",
-        });
+        toast.error(`Failed to load ${type} listings`);
       } finally {
         setLoadingListings(false);
       }
@@ -55,12 +53,14 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   }, [type, favorites, savedListings]);
 
   if (favoritesLoading || savedListingsLoading || loadingListings) {
-    return <div>Loading...</div>;
+    return <div className="p-4 text-center text-gray-500">Loading {type}...</div>;
   }
 
   if (listings.length === 0) {
     return (
-      <div className="text-center text-gray-500">No {type} listings found</div>
+      <div className="p-8 text-center text-gray-500">
+        No {type} listings found. {type === 'saved' ? 'Save listings to see them here!' : 'Add listings to your favorites to see them here!'}
+      </div>
     );
   }
 

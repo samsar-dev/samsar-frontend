@@ -2,6 +2,9 @@ import apiClient from "./apiClient";
 import type {
   SearchQuery,
   SearchResponse,
+  SearchResult
+} from "@/types/search";
+import type {
   APIResponse,
   Listing,
   User,

@@ -351,7 +351,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         const response = await createListing(formData);
         if (response.success) {
           toast.success("Listing created successfully!");
-          return response;
+          return response.data;
         } else {
           throw new Error(response.error || "Failed to create listing");
         }
@@ -360,7 +360,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         const response = await createListing(data);
         if (response.success) {
           toast.success("Listing created successfully!");
-          return response;
+          return response.data;
         } else {
           throw new Error(response.error || "Failed to create listing");
         }

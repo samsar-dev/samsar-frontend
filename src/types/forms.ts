@@ -1,4 +1,5 @@
 import type { Listing } from "./listings";
+import type { ListingStatus, ListingAction, ListingCategory, VehicleType, PropertyType } from "./enums";
 
 export type FormState = Omit<
   Listing,

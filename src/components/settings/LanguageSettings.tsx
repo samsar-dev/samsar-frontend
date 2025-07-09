@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { LanguageCode } from "@/types/settings";
+import { LanguageCode } from "@/types/enums";
 
 const LanguageSettings: React.FC = () => {
   const { t, i18n } = useTranslation();

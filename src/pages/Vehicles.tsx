@@ -150,7 +150,7 @@ const VehiclesPage: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-            selectedLocation={selectedLocation}
+
             setSelectedLocation={setSelectedLocation}
             selectedRadius={selectedRadius}
             setSelectedRadius={setSelectedRadius}

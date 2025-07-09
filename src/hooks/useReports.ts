@@ -1,6 +1,13 @@
 import { useCallback, useState } from "react";
 import { reportsAPI } from "@/api";
-import type { Report, ReportStatus, ReportType, ReportReason } from "@/types";
+import type { APIResponse } from "@/types/api";
+import type { 
+  Report, 
+  ReportStatus, 
+  ReportType, 
+  ReportReason,
+  ReportCreateInput
+} from "@/types/reports";
 
 export interface UseReportsReturn {
   reports: Report[];
@@ -22,15 +29,16 @@ export function useReports(): UseReportsReturn {
 
   const fetchReports = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await reportsAPI.getReports();
-      if (response.success && response.data) {
-        setReports(response.data.items);
+      const { data: response } = await reportsAPI.getReports();
+      if (response?.success && response.data) {
+        setReports(response.data.items || []);
       } else {
-        setError(response.error || "Failed to fetch reports");
+        setError(response?.error || 'Failed to fetch reports');
       }
     } catch (err) {
-      setError("An error occurred while fetching reports");
+      setError('An error occurred while fetching reports');
     } finally {
       setLoading(false);
     }
@@ -38,19 +46,24 @@ export function useReports(): UseReportsReturn {
 
   const createReport = useCallback(
     async (type: ReportType, targetId: string, reason: ReportReason) => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await reportsAPI.createReport({
+        const reportData: ReportCreateInput = {
           type,
           targetId,
           reason,
-        });
-        if (response.success) {
+        };
+        const { data: response } = await reportsAPI.createReport(reportData);
+        if (response?.success) {
           await fetchReports();
         } else {
-          setError(response.error || "Failed to create report");
+          setError(response?.error || 'Failed to create report');
         }
       } catch (err) {
-        setError("An error occurred while creating report");
+        setError('An error occurred while creating report');
+      } finally {
+        setLoading(false);
       }
     },
     [fetchReports],
@@ -58,15 +71,23 @@ export function useReports(): UseReportsReturn {
 
   const updateReportStatus = useCallback(
     async (id: string, status: ReportStatus) => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await reportsAPI.updateReport(id, { status });
-        if (response.success) {
-          await fetchReports();
+        const { data: response } = await reportsAPI.updateReport(id, { status });
+        if (response?.success) {
+          setReports(prev => 
+            prev.map(report => 
+              report.id === id ? { ...report, status } : report
+            )
+          );
         } else {
-          setError(response.error || "Failed to update report status");
+          setError(response?.error || 'Failed to update report status');
         }
       } catch (err) {
-        setError("An error occurred while updating report status");
+        setError('An error occurred while updating report status');
+      } finally {
+        setLoading(false);
       }
     },
     [fetchReports],

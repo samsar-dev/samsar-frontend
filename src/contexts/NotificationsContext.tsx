@@ -47,7 +47,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         const response = await NotificationsAPI.getNotifications({
           page,
           limit: params?.limit || 20,
-          type: params?.type,
+          unreadOnly: params?.read === false, // Convert to unreadOnly filter
         });
 
         if (page === 1) {
@@ -62,11 +62,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         setError(
           err instanceof Error ? err.message : "Failed to fetch notifications",
         );
-        toast({
-          title: "Error",
-          description: "Failed to fetch notifications",
-          variant: "destructive",
-        });
+        toast.error("Failed to fetch notifications");
       } finally {
         setLoading(false);
       }
@@ -85,11 +81,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         ),
       );
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to mark notification as read",
-        variant: "destructive",
-      });
+      toast.error("Failed to mark notification as read");
       throw err;
     }
   }, []);
@@ -101,11 +93,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         prev.map((notification) => ({ ...notification, read: true })),
       );
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to mark all notifications as read",
-        variant: "destructive",
-      });
+      toast.error("Failed to mark all notifications as read");
       throw err;
     }
   }, []);
@@ -117,11 +105,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         prev.filter((notification) => notification.id !== notificationId),
       );
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to delete notification",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete notification");
       throw err;
     }
   }, []);
@@ -133,11 +117,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
       setHasMore(false);
       setCurrentPage(1);
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to clear notifications",
-        variant: "destructive",
-      });
+      toast.error("Failed to clear notifications");
       throw err;
     }
   }, []);
