@@ -30,7 +30,7 @@ import {
 } from "react-icons/fa";
 
 // Define section configuration type
-export type SectionId = "essential" | "advanced";
+export type SectionId = "essential" | "advanced" | "images";
 
 export interface SectionConfig {
   order: number;
