@@ -203,7 +203,7 @@ const CreateListing = () => {
     if (!canCreate && userRole === "FREE_USER") {
       toast.error(
         permissionError ||
-          "You need to upgrade your account to create more listings"
+          "You need to upgrade your account to create more listings",
       );
       setShowUpgradePrompt(true);
     } else {
@@ -239,7 +239,7 @@ const CreateListing = () => {
     const handlePopState = (event: PopStateEvent) => {
       if (hasUnsavedChanges && location.pathname === "/listings/create") {
         const confirmLeave = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave?"
+          "You have unsaved changes. Are you sure you want to leave?",
         );
         if (!confirmLeave) {
           // Push them back to where they were
@@ -260,7 +260,7 @@ const CreateListing = () => {
       hasUnsavedChanges &&
       location.pathname === "/listings/create" &&
       !window.confirm(
-        "You have unsaved changes. Are you sure you want to leave?"
+        "You have unsaved changes. Are you sure you want to leave?",
       )
     ) {
       return;
@@ -296,7 +296,7 @@ const CreateListing = () => {
 
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(dataToSave)
+          JSON.stringify(dataToSave),
         );
         console.log("Form data saved to session storage");
       } catch (error) {
@@ -353,7 +353,7 @@ const CreateListing = () => {
         // Ensure listingAction is properly set and uppercase
         formData.append(
           "listingAction",
-          (data.listingAction || "SALE").toUpperCase()
+          (data.listingAction || "SALE").toUpperCase(),
         );
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
@@ -416,7 +416,7 @@ const CreateListing = () => {
         if (data.images && data.images.length > 0) {
           // Filter to only include valid File objects
           const fileImages = data.images.filter(
-            (image): image is File => image instanceof File
+            (image): image is File => image instanceof File,
           );
 
           if (fileImages.length === 0) {
@@ -427,7 +427,7 @@ const CreateListing = () => {
           console.log(`Submitting ${fileImages.length} images:`);
           fileImages.forEach((image, index) => {
             console.log(
-              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`
+              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
             );
             formData.append("images", image);
           });
@@ -441,7 +441,7 @@ const CreateListing = () => {
           console.log(
             pair[0],
             ":",
-            typeof pair[1] === "string" ? pair[1] : "File object"
+            typeof pair[1] === "string" ? pair[1] : "File object",
           );
         }
 
@@ -476,7 +476,7 @@ const CreateListing = () => {
         setIsSubmitting(false);
       }
     },
-    [submitListing, clearSavedFormData, navigate, t]
+    [submitListing, clearSavedFormData, navigate, t],
   );
 
   const handleEditSection = useCallback(
@@ -498,7 +498,7 @@ const CreateListing = () => {
         }, 100);
       }
     },
-    [formData]
+    [formData],
   );
 
   const renderStep = useCallback(() => {
@@ -531,7 +531,7 @@ const CreateListing = () => {
                   isValid,
                   setFormData,
                   setStep,
-                  t
+                  t,
                 )
               }
               onBack={handleBack}
@@ -563,7 +563,7 @@ const CreateListing = () => {
       { icon: FaCog, label: t("steps.advancedDetails") },
       { icon: FaCheckCircle, label: t("steps.review") },
     ],
-    [t]
+    [t],
   );
 
   // Pre-compute main content based on state to avoid conditional early returns that break hook order

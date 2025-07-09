@@ -35,7 +35,7 @@ const ConversationsList = memo(function ConversationsList({
   }, [conversations]);
 
   const toggleSelectMode = useCallback(() => {
-    setIsSelectMode(prev => !prev);
+    setIsSelectMode((prev) => !prev);
     if (isSelectMode) {
       setSelectedChats(new Set());
     }
@@ -43,8 +43,8 @@ const ConversationsList = memo(function ConversationsList({
 
   const toggleChatSelection = useCallback((chatId: string | undefined) => {
     if (!chatId) return;
-    
-    setSelectedChats(prev => {
+
+    setSelectedChats((prev) => {
       const newSelection = new Set(prev);
       if (newSelection.has(chatId)) {
         newSelection.delete(chatId);
@@ -57,16 +57,18 @@ const ConversationsList = memo(function ConversationsList({
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedChats.size === 0) return;
-    
+
     try {
-      const validIds = Array.from(selectedChats).filter((id): id is string => Boolean(id));
+      const validIds = Array.from(selectedChats).filter((id): id is string =>
+        Boolean(id),
+      );
       if (validIds.length === 0) return;
-      
+
       await deleteConversations(validIds);
       setSelectedChats(new Set());
       setIsSelectMode(false);
     } catch (error) {
-      console.error('Failed to delete conversations:', error);
+      console.error("Failed to delete conversations:", error);
     }
   }, [deleteConversations, selectedChats]);
 
@@ -87,9 +89,9 @@ const ConversationsList = memo(function ConversationsList({
             {isSelectMode ? (
               <>
                 {selectedChats.size > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={handleDeleteSelected}
                     className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   >
@@ -123,7 +125,10 @@ const ConversationsList = memo(function ConversationsList({
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 pr-3" style={{ height: 'calc(100vh - 12rem)' }}>
+        <ScrollArea
+          className="flex-1 pr-3"
+          style={{ height: "calc(100vh - 12rem)" }}
+        >
           <div className="">
             {chats.length === 0 ? (
               <div className="flex items-center justify-center h-full">
@@ -134,19 +139,19 @@ const ConversationsList = memo(function ConversationsList({
             ) : (
               chats.map((chat) => {
                 const participants = chat.participants.find(
-                  (p) => p.id !== user?.id
+                  (p) => p.id !== user?.id,
                 );
-                
+
                 if (!participants) return null;
-                
+
                 const lastMessageDate = chat.lastMessageAt
                   ? new Date(chat.lastMessageAt)
                   : null;
-                  
+
                 return (
                   <div
                     key={chat.id}
-                    className={`relative ${isSelectMode ? 'cursor-pointer' : ''}`}
+                    className={`relative ${isSelectMode ? "cursor-pointer" : ""}`}
                     onClick={(e) => {
                       if (isSelectMode) {
                         e.stopPropagation();
@@ -161,18 +166,20 @@ const ConversationsList = memo(function ConversationsList({
                   >
                     {isSelectMode && (
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            (chat.id && selectedChats.has(chat.id))
-                              ? 'bg-blue-500 border-blue-500' 
-                              : 'border-gray-300 bg-white'
-                        }`}>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            chat.id && selectedChats.has(chat.id)
+                              ? "bg-blue-500 border-blue-500"
+                              : "border-gray-300 bg-white"
+                          }`}
+                        >
                           {chat.id && selectedChats.has(chat.id) && (
                             <Check className="h-3 w-3 text-white" />
                           )}
                         </div>
                       </div>
                     )}
-                    <div className={isSelectMode ? 'pl-10' : ''}>
+                    <div className={isSelectMode ? "pl-10" : ""}>
                       <ChatItem
                         chatId={chatId || ""}
                         chat={chat}

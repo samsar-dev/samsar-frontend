@@ -13,11 +13,11 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActionPaths: ['payload.timestamp'],
-        ignoredPaths: ['items.dates'],
+        ignoredActionPaths: ["payload.timestamp"],
+        ignoredPaths: ["items.dates"],
       },
     }),
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: process.env.NODE_ENV !== "production",
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

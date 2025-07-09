@@ -71,34 +71,32 @@ interface IFormData {
 interface EditListingReduxProps {}
 
 const EditListingRedux: React.FC<EditListingReduxProps> = () => {
-
   interface ExtendedFieldProps {
-  name: string;
-  label: string;
-  type: SupportedFieldType;
-  value: any;
-  options?: FieldOption[];
-  required?: boolean;
-  placeholder?: string;
-  description?: string;
-  section?: string;
-  featureGroups?: Record<
-    string,
-    {
-      label: string;
-      features: Array<{
-        name: string;
+    name: string;
+    label: string;
+    type: SupportedFieldType;
+    value: any;
+    options?: FieldOption[];
+    required?: boolean;
+    placeholder?: string;
+    description?: string;
+    section?: string;
+    featureGroups?: Record<
+      string,
+      {
         label: string;
-        type: string;
-        options?: Array<{ value: string; label: string }>;
-        required?: boolean;
-        description?: string;
-      }>;
-    }
-  >;
-  onChange: typeof createFieldChangeHandler,
-}
-
+        features: Array<{
+          name: string;
+          label: string;
+          type: string;
+          options?: Array<{ value: string; label: string }>;
+          required?: boolean;
+          description?: string;
+        }>;
+      }
+    >;
+    onChange: typeof createFieldChangeHandler;
+  }
 
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -205,7 +203,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         return setNestedValue(prev, name, value);
       });
     },
-    [setFormDataAction]
+    [setFormDataAction],
   );
 
   // Enhanced mapFieldType with support for more field types and validation
@@ -265,7 +263,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         : activeTab === "advanced"
           ? "advanced"
           : "essential",
-    [activeTab]
+    [activeTab],
   );
 
   const sectionFields = useMemo(() => {
@@ -283,7 +281,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         setFieldValue(fieldName, finalValue);
       };
     },
-    [setFieldValue]
+    [setFieldValue],
   );
 
   // Process field value based on its type
@@ -348,14 +346,14 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
                   });
                 });
               }
-            }
+            },
           );
         }
       });
 
       return result;
     },
-    []
+    [],
   );
 
   // Get all fields for the current section
@@ -394,7 +392,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
       let featureOptions;
       if (field.isFeature && field.parentGroup) {
         const parentField = sectionFields.find(
-          (f) => f.name === field.parentGroup
+          (f) => f.name === field.parentGroup,
         );
         if (parentField?.featureGroups?.[field.groupName]?.features) {
           featureOptions = parentField.featureGroups[
@@ -586,7 +584,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
 
         // Submit the data
         const result = await dispatch(
-          updateListingAction(currentListing.id, formDataToSubmit)
+          updateListingAction(currentListing.id, formDataToSubmit),
         );
 
         console.log(
@@ -595,7 +593,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
             success: result?.success,
             hasError: !!result?.error,
             error: result?.error,
-          }
+          },
         );
 
         if (result?.success) {
@@ -621,7 +619,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
       navigate,
       sectionFields,
       getAllNestedFields,
-    ]
+    ],
   );
 
   // Get the current loading state from Redux
@@ -644,12 +642,12 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
     } finally {
       console.log("[handleFormSubmit] Entering finally block");
       console.log(
-        `[handleFormSubmit] Current loading state: ${currentLoadingState}`
+        `[handleFormSubmit] Current loading state: ${currentLoadingState}`,
       );
 
       if (currentLoadingState) {
         console.log(
-          "[handleFormSubmit] Loading state is still true, resetting it"
+          "[handleFormSubmit] Loading state is still true, resetting it",
         );
         try {
           dispatch(setLoading(false));
@@ -657,7 +655,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         } catch (dispatchError) {
           console.error(
             "[handleFormSubmit] Error resetting loading state:",
-            dispatchError
+            dispatchError,
           );
         }
       } else {
@@ -688,7 +686,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
           type: file.type,
           lastModified: file.lastModified,
           isNew: true, // Mark as new file that needs upload
-        })
+        }),
       );
 
       // Get existing images, keeping both string URLs and metadata objects
@@ -703,9 +701,9 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
           const size = isFile ? img.size : (img as FileMetadata).size;
 
           return !newImages.some(
-            (newImg) => newImg.name === name && newImg.size === size
+            (newImg) => newImg.name === name && newImg.size === size,
           );
-        }
+        },
       ) as (string | FileMetadata)[];
 
       // Combine existing images with new metadata
@@ -716,7 +714,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
 
       setFormDataAction(updatedFormData);
     },
-    [formData, setFormDataAction]
+    [formData, setFormDataAction],
   );
 
   const handleDeleteExistingImage = useCallback(
@@ -750,7 +748,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ imageUrl }),
-          }
+          },
         );
 
         if (!response.ok) {
@@ -770,7 +768,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         }
       }
     },
-    [id, fetchListingAction]
+    [id, fetchListingAction],
   );
 
   const renderField = useCallback((field: ExtendedFieldProps) => {
@@ -781,7 +779,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
       onChange: (
         e: React.ChangeEvent<
           HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >
+        >,
       ) => {
         let value: any = e.target.value;
 
@@ -862,7 +860,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         images: newImages,
       }));
     },
-    [currentListing?.images, setFormDataAction]
+    [currentListing?.images, setFormDataAction],
   );
 
   const renderImagesTab = useCallback((): JSX.Element => {
@@ -880,7 +878,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
 
     // Get uploaded files
     const uploadedFiles = (formData.images || []).filter(
-      (img: unknown): img is File => img instanceof File
+      (img: unknown): img is File => img instanceof File,
     );
 
     console.log("Rendering ImageManager with:", {
@@ -946,7 +944,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
         setLoading(false);
       }
     },
-    [fetchListingAction, setLoading, loading, currentListing?.id]
+    [fetchListingAction, setLoading, loading, currentListing?.id],
   );
 
   // Fetch listing on mount or when ID changes
@@ -1092,7 +1090,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
                 .filter(
                   (field) =>
                     (field.type as string) === "feature-group" ||
-                    field.type === "featureGroup"
+                    field.type === "featureGroup",
                 )
                 .map((group) => (
                   <div key={group.name} className="col-span-full mt-6">
@@ -1111,7 +1109,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
                                 {groupData.features?.map((feature: any) => {
                                   const fieldName = `${group.name}.${groupName}.${feature.name}`;
                                   const field = currentFields.find(
-                                    (f) => f.name === fieldName
+                                    (f) => f.name === fieldName,
                                   );
 
                                   if (!field) return null;
@@ -1144,7 +1142,7 @@ const EditListingRedux: React.FC<EditListingReduxProps> = () => {
                                 })}
                               </div>
                             </div>
-                          )
+                          ),
                         )}
                     </div>
                   </div>

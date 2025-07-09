@@ -48,7 +48,9 @@ interface FormData {
   bio?: string;
 }
 
-const PublicProfileInfo = ({ showListings = false }: PublicProfileInfoProps) => {
+const PublicProfileInfo = ({
+  showListings = false,
+}: PublicProfileInfoProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { userId } = useParams();
@@ -168,17 +170,20 @@ const PublicProfileInfo = ({ showListings = false }: PublicProfileInfoProps) => 
   // Render listings if showListings is true and there are listings
   const renderListings = () => {
     if (!showListings || !profile?.listings?.length) return null;
-    
+
     return (
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">{t('listings')}</h3>
+        <h3 className="text-xl font-semibold mb-4">{t("listings")}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {profile.listings.map((listing) => (
-            <div key={listing.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div
+              key={listing.id}
+              className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+            >
               {listing.images?.[0] && (
-                <img 
-                  src={listing.images[0]} 
-                  alt={listing.title} 
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
                   className="w-full h-40 object-cover rounded-t-lg"
                 />
               )}
@@ -350,7 +355,7 @@ const PublicProfileInfo = ({ showListings = false }: PublicProfileInfoProps) => 
               </div>
             )}
           </div>
-          
+
           {/* Display listings if showListings is true */}
           {showListings && renderListings()}
         </div>

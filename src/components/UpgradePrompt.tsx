@@ -1,5 +1,12 @@
-import { Box, Button, Card, CardContent, Typography, Container } from '@mui/material';
-import { Download, Upgrade } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Container,
+} from "@mui/material";
+import { Download, Upgrade } from "@mui/icons-material";
 
 interface UpgradePromptProps {
   maxListings: number;
@@ -10,7 +17,7 @@ interface UpgradePromptProps {
 export const UpgradePrompt = ({
   maxListings,
   currentListings,
-  onUpgrade
+  onUpgrade,
 }: UpgradePromptProps) => {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -19,23 +26,26 @@ export const UpgradePrompt = ({
           <Box textAlign="center" py={4}>
             <Upgrade color="primary" sx={{ fontSize: 60, mb: 2 }} />
             <Typography variant="h5" gutterBottom>
-              {currentListings >= maxListings 
-                ? 'You\'ve Reached Your Listing Limit!'
-                : 'Upgrade Your Account'}
+              {currentListings >= maxListings
+                ? "You've Reached Your Listing Limit!"
+                : "Upgrade Your Account"}
             </Typography>
-            
+
             <Typography color="textSecondary" paragraph>
-              {currentListings >= maxListings 
+              {currentListings >= maxListings
                 ? `You've used all ${maxListings} of your available listings.`
                 : `You've used ${currentListings} of ${maxListings} available listings.`}
             </Typography>
 
             <Box mt={4} mb={3}>
-              <Typography variant="h6" gutterBottom>Get More Listings</Typography>
-              <Typography color="textSecondary" paragraph>
-                Upgrade to a premium or business account to create more listings and unlock additional features.
+              <Typography variant="h6" gutterBottom>
+                Get More Listings
               </Typography>
-              
+              <Typography color="textSecondary" paragraph>
+                Upgrade to a premium or business account to create more listings
+                and unlock additional features.
+              </Typography>
+
               <Button
                 variant="contained"
                 color="primary"
@@ -49,17 +59,22 @@ export const UpgradePrompt = ({
             </Box>
 
             <Box mt={4} pt={3} borderTop={1} borderColor="divider">
-              <Typography variant="h6" gutterBottom>Or Use Our Mobile App</Typography>
-              <Typography color="textSecondary" paragraph>
-                Download our mobile app to manage your listings on the go and get exclusive mobile-only features.
+              <Typography variant="h6" gutterBottom>
+                Or Use Our Mobile App
               </Typography>
-              
+              <Typography color="textSecondary" paragraph>
+                Download our mobile app to manage your listings on the go and
+                get exclusive mobile-only features.
+              </Typography>
+
               <Box display="flex" justifyContent="center" gap={2} mt={2}>
                 <Button
                   variant="outlined"
                   size="large"
                   startIcon={<Download />}
-                  onClick={() => window.open('https://play.google.com/store/apps', '_blank')}
+                  onClick={() =>
+                    window.open("https://play.google.com/store/apps", "_blank")
+                  }
                 >
                   Google Play
                 </Button>
@@ -67,7 +82,9 @@ export const UpgradePrompt = ({
                   variant="outlined"
                   size="large"
                   startIcon={<Download />}
-                  onClick={() => window.open('https://apps.apple.com', '_blank')}
+                  onClick={() =>
+                    window.open("https://apps.apple.com", "_blank")
+                  }
                 >
                   App Store
                 </Button>

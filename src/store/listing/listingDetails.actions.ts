@@ -10,7 +10,7 @@ export const LISTING_DETAILS_TYPES = {
   SET_LOADING: "listingDetails/SET_LOADING",
   SET_ERROR: "listingDetails/SET_ERROR",
   RESET_STATE: "listingDetails/RESET_STATE",
-  
+
   // Message handling
   SEND_MESSAGE: "listingDetails/SEND_MESSAGE",
   SET_MESSAGE_FORM_VISIBILITY: "listingDetails/SET_MESSAGE_FORM_VISIBILITY",
@@ -47,7 +47,7 @@ type SetMessageAction = {
 
 type SetMessageTypeAction = {
   type: typeof LISTING_DETAILS_TYPES.SET_MESSAGE_TYPE;
-  payload: 'question' | 'offer' | 'meeting';
+  payload: "question" | "offer" | "meeting";
 };
 
 type SetMessageSuccessAction = {
@@ -80,20 +80,26 @@ export const fetchListingDetails = (id: string) => {
       // Fetch the listing using getById which matches the original component's behavior
       const response = await listingsAPI.getById(id);
       const listing = response.success ? response.data : null;
-      
+
       if (listing) {
         dispatch({
           type: LISTING_DETAILS_TYPES.SET_LISTING_DETAILS,
           payload: listing,
         });
       } else {
-        throw new Error('Listing not found');
+        throw new Error("Listing not found");
       }
-      
+
       return listing;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch listing details';
-      dispatch({ type: LISTING_DETAILS_TYPES.SET_ERROR, payload: errorMessage });
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch listing details";
+      dispatch({
+        type: LISTING_DETAILS_TYPES.SET_ERROR,
+        payload: errorMessage,
+      });
       throw error;
     } finally {
       dispatch({ type: LISTING_DETAILS_TYPES.SET_LOADING, payload: false });
@@ -101,25 +107,29 @@ export const fetchListingDetails = (id: string) => {
   };
 };
 
-export const sendMessage = (_listingId: string, _message: string, _messageType: 'question' | 'offer' | 'meeting') => {
+export const sendMessage = (
+  _listingId: string,
+  _message: string,
+  _messageType: "question" | "offer" | "meeting",
+) => {
   // The actual implementation would use these parameters when the API is ready
   return async (dispatch: AppDispatch) => {
     try {
       dispatch({ type: LISTING_DETAILS_TYPES.SET_LOADING, payload: true });
-      
+
       // Replace with actual API call when available
       // Implementation example when API is ready:
-      // await messagesAPI.sendMessage({ 
-      //   listingId, 
-      //   message, 
-      //   type: messageType 
+      // await messagesAPI.sendMessage({
+      //   listingId,
+      //   message,
+      //   type: messageType
       // });
-      
+
       dispatch({
         type: LISTING_DETAILS_TYPES.SET_MESSAGE_SUCCESS,
         payload: true,
       });
-      
+
       // Reset success message after 3 seconds
       setTimeout(() => {
         dispatch({
@@ -127,11 +137,15 @@ export const sendMessage = (_listingId: string, _message: string, _messageType: 
           payload: false,
         });
       }, 3000);
-      
+
       return true;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
-      dispatch({ type: LISTING_DETAILS_TYPES.SET_ERROR, payload: errorMessage });
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send message";
+      dispatch({
+        type: LISTING_DETAILS_TYPES.SET_ERROR,
+        payload: errorMessage,
+      });
       throw error;
     } finally {
       dispatch({ type: LISTING_DETAILS_TYPES.SET_LOADING, payload: false });
@@ -150,7 +164,9 @@ export const setMessage = (message: string) => ({
   payload: message,
 });
 
-export const setMessageType = (messageType: 'question' | 'offer' | 'meeting') => ({
+export const setMessageType = (
+  messageType: "question" | "offer" | "meeting",
+) => ({
   type: LISTING_DETAILS_TYPES.SET_MESSAGE_TYPE,
   payload: messageType,
 });

@@ -70,9 +70,10 @@ const Login = () => {
       // The navigation now only happens if login is successful
       if (success) {
         // Get the return URL from location state or default to home
-        const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname;
-        const returnTo = fromPath && fromPath !== '/login' ? fromPath : "/";
-        
+        const fromPath = (location.state as { from?: { pathname: string } })
+          ?.from?.pathname;
+        const returnTo = fromPath && fromPath !== "/login" ? fromPath : "/";
+
         // Use React Router's navigate for client-side navigation
         navigate(returnTo, { replace: true });
       } else {

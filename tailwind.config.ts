@@ -96,10 +96,10 @@ const config: Config = {
     "./node_modules/flowbite/**/*.js",
     "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
-    "./public/**/*.html"
+    "./public/**/*.html",
   ],
-  darkMode: 'class',
-  mode: 'jit',
+  darkMode: "class",
+  mode: "jit",
   future: {
     hoverOnlyWhenSupported: true,
   },
@@ -112,108 +112,111 @@ const config: Config = {
         brand: colors.primary,
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Poppins', 'sans-serif'],
-        mono: ['Fira Code', 'monospace'],
+        sans: ["Inter", "sans-serif"],
+        display: ["Poppins", "sans-serif"],
+        mono: ["Fira Code", "monospace"],
       },
       spacing: {
-        '128': '32rem',
-        '144': '36rem',
+        "128": "32rem",
+        "144": "36rem",
       },
       borderRadius: {
-        '4xl': '2rem',
+        "4xl": "2rem",
       },
       boxShadow: {
-        'elevation-1': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'elevation-2': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'elevation-3': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'elevation-4': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        'elevation-5': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        "elevation-1": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "elevation-2":
+          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "elevation-3":
+          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        "elevation-4":
+          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        "elevation-5": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
       },
       zIndex: {
-        '60': '60',
-        '70': '70',
-        '80': '80',
-        '90': '90',
-        '100': '100',
+        "60": "60",
+        "70": "70",
+        "80": "80",
+        "90": "90",
+        "100": "100",
       },
       keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
   variants: {
     extend: {
-      opacity: ['disabled'],
-      cursor: ['disabled'],
-      backgroundColor: ['active', 'disabled'],
-      textColor: ['active', 'disabled'],
-      borderColor: ['active', 'disabled'],
+      opacity: ["disabled"],
+      cursor: ["disabled"],
+      backgroundColor: ["active", "disabled"],
+      textColor: ["active", "disabled"],
+      borderColor: ["active", "disabled"],
     },
   },
   plugins: [
     plugin,
     aspectRatio,
     typography,
-    require('@tailwindcss/forms')({
-      strategy: 'class',
+    require("@tailwindcss/forms")({
+      strategy: "class",
     }),
-    require('flowbite/plugin'),
+    require("flowbite/plugin"),
     // Custom plugins
-    function({ addBase, addComponents, theme }) {
+    function ({ addBase, addComponents, theme }) {
       addBase({
-        ':root': {
-          '--color-primary': 'hsla(210, 100%, 50%, 1)',
-          '--color-secondary': 'hsla(210, 100%, 60%, 1)',
-          '--color-accent': 'hsla(330, 100%, 50%, 1)',
-          '--color-text': theme('colors.gray.900'),
-          '--color-text-muted': theme('colors.gray.600'),
-          '--color-bg': theme('colors.white'),
-          '--color-bg-muted': theme('colors.gray.50'),
+        ":root": {
+          "--color-primary": "hsla(210, 100%, 50%, 1)",
+          "--color-secondary": "hsla(210, 100%, 60%, 1)",
+          "--color-accent": "hsla(330, 100%, 50%, 1)",
+          "--color-text": theme("colors.gray.900"),
+          "--color-text-muted": theme("colors.gray.600"),
+          "--color-bg": theme("colors.white"),
+          "--color-bg-muted": theme("colors.gray.50"),
         },
-        '.dark': {
-          '--color-primary': 'hsla(210, 100%, 60%, 1)',
-          '--color-secondary': 'hsla(210, 100%, 70%, 1)',
-          '--color-accent': 'hsla(330, 100%, 60%, 1)',
-          '--color-text': theme('colors.gray.100'),
-          '--color-text-muted': theme('colors.gray.400'),
-          '--color-bg': theme('colors.gray.900'),
-          '--color-bg-muted': theme('colors.gray.800'),
+        ".dark": {
+          "--color-primary": "hsla(210, 100%, 60%, 1)",
+          "--color-secondary": "hsla(210, 100%, 70%, 1)",
+          "--color-accent": "hsla(330, 100%, 60%, 1)",
+          "--color-text": theme("colors.gray.100"),
+          "--color-text-muted": theme("colors.gray.400"),
+          "--color-bg": theme("colors.gray.900"),
+          "--color-bg-muted": theme("colors.gray.800"),
         },
       });
 
       addComponents({
-        '.container': {
-          width: '100%',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          paddingLeft: theme('spacing.4'),
-          paddingRight: theme('spacing.4'),
-          '@screen sm': {
-            maxWidth: '640px',
+        ".container": {
+          width: "100%",
+          marginLeft: "auto",
+          marginRight: "auto",
+          paddingLeft: theme("spacing.4"),
+          paddingRight: theme("spacing.4"),
+          "@screen sm": {
+            maxWidth: "640px",
           },
-          '@screen md': {
-            maxWidth: '768px',
+          "@screen md": {
+            maxWidth: "768px",
           },
-          '@screen lg': {
-            maxWidth: '1024px',
+          "@screen lg": {
+            maxWidth: "1024px",
           },
-          '@screen xl': {
-            maxWidth: '1280px',
+          "@screen xl": {
+            maxWidth: "1280px",
           },
-          '@screen 2xl': {
-            maxWidth: '1536px',
+          "@screen 2xl": {
+            maxWidth: "1536px",
           },
         },
       });

@@ -52,7 +52,8 @@ const UsersList: FC = () => {
         const list: UserRow[] = res.data?.data || res.data;
         setData(list);
       } catch (err: any) {
-        const maybe = err.response?.data?.error ?? err.message ?? err.toString();
+        const maybe =
+          err.response?.data?.error ?? err.message ?? err.toString();
         setError(typeof maybe === "string" ? maybe : JSON.stringify(maybe));
       } finally {
         setIsLoading(false);
@@ -70,9 +71,7 @@ const UsersList: FC = () => {
     setPage(newPage);
   };
 
-  const handleRowsPerPageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
@@ -90,7 +89,7 @@ const UsersList: FC = () => {
   if (error) {
     return (
       <Box p={3}>
-        <Alert severity="error" onClose={() => setError("")}> 
+        <Alert severity="error" onClose={() => setError("")}>
           <AlertTitle>Error</AlertTitle>
           {error}
         </Alert>
@@ -131,13 +130,18 @@ const UsersList: FC = () => {
                         width={10}
                         height={10}
                         borderRadius="50%"
-                        bgcolor={u.isOnline ? 'success.main' : 'grey.500'}
+                        bgcolor={u.isOnline ? "success.main" : "grey.500"}
                         mr={1}
                       />
-                      {u.isOnline ? 'Online' : 'Offline'}
+                      {u.isOnline ? "Online" : "Offline"}
                       {!u.isOnline && u.lastActiveAt && (
-                        <Typography variant="caption" color="text.secondary" ml={1}>
-                          (Last seen: {new Date(u.lastActiveAt).toLocaleString()})
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          ml={1}
+                        >
+                          (Last seen:{" "}
+                          {new Date(u.lastActiveAt).toLocaleString()})
                         </Typography>
                       )}
                     </Box>
@@ -158,7 +162,9 @@ const UsersList: FC = () => {
                           // optimistic update
                           setData((prevData) =>
                             prevData.map((item) =>
-                              item.id === u.id ? { ...item, role: newRole } : item,
+                              item.id === u.id
+                                ? { ...item, role: newRole }
+                                : item,
                             ),
                           );
                           try {
@@ -169,10 +175,13 @@ const UsersList: FC = () => {
                             // revert
                             setData((prevData) =>
                               prevData.map((item) =>
-                                item.id === u.id ? { ...item, role: prev } : item,
+                                item.id === u.id
+                                  ? { ...item, role: prev }
+                                  : item,
                               ),
                             );
-                            const maybe = err.response?.data?.error ?? err.message;
+                            const maybe =
+                              err.response?.data?.error ?? err.message;
                             setError(
                               typeof maybe === "string"
                                 ? maybe

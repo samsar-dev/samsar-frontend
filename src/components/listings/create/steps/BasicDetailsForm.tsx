@@ -191,7 +191,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Generate model options based on selected make
   const getModelOptions = (
-    make: string
+    make: string,
   ): { value: string; label: string }[] => {
     if (
       !make ||
@@ -206,7 +206,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     if (!models || models.length === 0) {
       console.warn(
-        `No models found for make: ${make} and type: ${vehicleType}`
+        `No models found for make: ${make} and type: ${vehicleType}`,
       );
       return [];
     }
@@ -291,7 +291,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleInputChange = (
     path: keyof ExtendedFormState | string,
-    value: string | number
+    value: string | number,
   ) => {
     setFormData((prev) => {
       const newState = { ...prev };
@@ -345,7 +345,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleCategoryChange = (
     mainCategory: ListingCategory,
-    subCategory: VehicleType | PropertyType
+    subCategory: VehicleType | PropertyType,
   ) => {
     setFormData((prev: ExtendedFormState) => {
       const updatedData: ExtendedFormState = {
@@ -461,7 +461,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       // This is a soft validation that shows a warning but doesn't block submission
       // The message is shown in the UI but doesn't prevent form submission
       console.warn(
-        "Less than 6 images uploaded. Consider adding more for better visibility."
+        "Less than 6 images uploaded. Consider adding more for better visibility.",
       );
     }
 
@@ -471,7 +471,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       if (!vehicles?.vehicleType) {
         newErrors["details.vehicles.vehicleType"] = formT(
-          "validation.required"
+          "validation.required",
         );
       }
 
@@ -525,7 +525,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       // Validate year built (required for all property types)
       if (!realEstate?.yearBuilt) {
         newErrors["details.realEstate.yearBuilt"] = formT(
-          "validation.required"
+          "validation.required",
         );
       } else {
         const year = parseInt(realEstate.yearBuilt.toString());
@@ -544,13 +544,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate bedrooms for house, apartment, and condo
           if (!realEstate?.bedrooms) {
             newErrors["details.realEstate.bedrooms"] = formT(
-              "validation.required"
+              "validation.required",
             );
           } else {
             const bedrooms = parseFloat(realEstate.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
               newErrors["details.realEstate.bedrooms"] = formT(
-                "validBedroomsRequired"
+                "validBedroomsRequired",
               );
             }
           }
@@ -558,13 +558,13 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate bathrooms for house, apartment, and condo
           if (!realEstate?.bathrooms) {
             newErrors["details.realEstate.bathrooms"] = formT(
-              "validation.required"
+              "validation.required",
             );
           } else {
             const bathrooms = parseFloat(realEstate.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
               newErrors["details.realEstate.bathrooms"] = formT(
-                "validBathroomsRequired"
+                "validBathroomsRequired",
               );
             }
           }
@@ -575,7 +575,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate floor for apartment and condo
           if (!realEstate?.floor) {
             newErrors["details.realEstate.floor"] = formT(
-              "validation.required"
+              "validation.required",
             );
           } else {
             const floor = parseInt(realEstate.floor.toString());
@@ -597,7 +597,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           // Validate usage type for commercial
           if (!realEstate?.usageType) {
             newErrors["details.realEstate.usageType"] = formT(
-              "validation.required"
+              "validation.required",
             );
           }
           break;
@@ -778,7 +778,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     const customModelStr = String(value);
                     handleInputChange(
                       "details.vehicles.customModel",
-                      customModelStr
+                      customModelStr,
                     );
 
                     // Update title immediately when custom model changes
@@ -1005,7 +1005,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Helper function for safe translation with debugging
   const safeTranslate = (
     text: string,
-    ns: "common" | "form" = "common"
+    ns: "common" | "form" = "common",
   ): string => {
     if (!text) return "";
     if (/^\d+$/.test(text)) return text; // raw number string like year
@@ -1035,7 +1035,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         if (ns !== "common") {
           const commonResources = i18n.getResourceBundle(
             i18n.language,
-            "common"
+            "common",
           );
           if (commonResources) {
             const commonNestedValue = getNestedValue(commonResources, text);
@@ -1150,7 +1150,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   typeof translatedHelpText === "string"
                     ? translatedHelpText
                     : String(translatedHelpText),
-                  field.type === "select"
+                  field.type === "select",
                 )}
               </div>
             );
@@ -1172,7 +1172,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     step?: number,
     required: boolean = true,
     helpText?: string,
-    isSearchable?: boolean
+    isSearchable?: boolean,
   ) => {
     // Ensure label and placeholder are properly translated
     const displayLabel = safeTranslate(label);
@@ -1199,7 +1199,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           {type === "select" && options ? (
             <Select
               value={options.find(
-                (opt) => opt.value === fieldValue || opt.label === fieldValue
+                (opt) => opt.value === fieldValue || opt.label === fieldValue,
               )}
               onChange={
                 fieldName === "location"
@@ -1233,7 +1233,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   fieldName,
                   type === "number"
                     ? parseFloat(e.target.value)
-                    : e.target.value
+                    : e.target.value,
                 )
               }
               onBlur={() => setTouched({ ...touched, [fieldName]: true })}
@@ -1346,7 +1346,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Function to get city and its areas with translations
   const getCityAreas = (
-    cityKey: string
+    cityKey: string,
   ): { value: string; label: string; isArea?: boolean }[] => {
     try {
       // Get all cities and areas from translations
@@ -1364,12 +1364,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
       // Find the city by normalized key
       const cityEntry = Object.entries(allCities || {}).find(
-        ([key]) => normalizeLocation(key) === normalizedKey
+        ([key]) => normalizeLocation(key) === normalizedKey,
       );
 
       if (!cityEntry) {
         console.warn(
-          `City not found for key: ${cityKey} (normalized: ${normalizedKey})`
+          `City not found for key: ${cityKey} (normalized: ${normalizedKey})`,
         );
         return [];
       }
@@ -1402,7 +1402,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         ns: "locations",
       }) as Record<string, string>;
       return Object.entries(allCities || {}).flatMap(([cityId]) =>
-        getCityAreas(cityId)
+        getCityAreas(cityId),
       );
     } catch (error) {
       console.error("Error loading Syrian cities:", error);
@@ -1415,7 +1415,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
   ): number => {
     const R = 6371; // Earth's radius in km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -1433,12 +1433,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Reverse geocoding function to get location details from coordinates
   const reverseGeocode = async (
     lat: number,
-    lng: number
+    lng: number,
   ): Promise<{ displayName: string; address: any }> => {
     try {
       // First, try with zoom level 18 (most detailed)
       let response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=18`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=18`,
       );
       let data = await response.json();
 
@@ -1448,7 +1448,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         (!data.address.city && !data.address.town && !data.address.village)
       ) {
         response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=14`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=en&zoom=14`,
         );
         data = await response.json();
       }
@@ -1483,7 +1483,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               part.length > 3 && // Reasonable length for a place name
               !part.toLowerCase().includes("unclassified") &&
               !part.toLowerCase().includes("road") &&
-              !part.toLowerCase().includes("street")
+              !part.toLowerCase().includes("street"),
           ) ||
           parts[0] ||
           "Your Location";
@@ -1500,19 +1500,19 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         try {
           // Search for nearby places
           const searchResponse = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=&accept-language=en&countrycodes=sy&viewbox=${lng - 0.1},${lat - 0.1},${lng + 0.1},${lat + 0.1}&bounded=1`
+            `https://nominatim.openstreetmap.org/search?format=json&q=&accept-language=en&countrycodes=sy&viewbox=${lng - 0.1},${lat - 0.1},${lng + 0.1},${lat + 0.1}&bounded=1`,
           );
           const places = await searchResponse.json();
 
           // Find the nearest city/town/village
           const nearestPlace = places
             .filter((place: any) =>
-              ["city", "town", "village", "hamlet"].includes(place.type)
+              ["city", "town", "village", "hamlet"].includes(place.type),
             )
             .sort(
               (a: any, b: any) =>
                 getDistance(lat, lng, parseFloat(a.lat), parseFloat(a.lon)) -
-                getDistance(lat, lng, parseFloat(b.lat), parseFloat(b.lon))
+                getDistance(lat, lng, parseFloat(b.lat), parseFloat(b.lon)),
             )[0];
 
           if (nearestPlace) {
@@ -1575,7 +1575,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           const { latitude, longitude } = position.coords;
           const { displayName, address } = await reverseGeocode(
             latitude,
-            longitude
+            longitude,
           );
 
           // Format the location string based on available address components
@@ -1599,7 +1599,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         } catch (error) {
           console.error("Error getting location:", error);
           setLocationError(
-            "Could not determine your location. Please try again."
+            "Could not determine your location. Please try again.",
           );
         } finally {
           setIsLocating(false);
@@ -1631,12 +1631,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         timeout: 15000,
         maximumAge: 0, // Always get fresh position
         enableHighAccuracy: true,
-      }
+      },
     );
   };
 
   const handleLocationChange = (
-    selected: { value: string; label: string; isArea?: boolean } | null
+    selected: { value: string; label: string; isArea?: boolean } | null,
   ) => {
     // This handler is kept for backward compatibility but is no longer used directly
     // as LocationSearch component now handles the location selection
@@ -1678,7 +1678,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.VEHICLES,
-                    VehicleType.CAR
+                    VehicleType.CAR,
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-l-md focus:outline-none focus:z-10 ${
@@ -1698,7 +1698,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.REAL_ESTATE,
-                    PropertyType.HOUSE
+                    PropertyType.HOUSE,
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-r-md focus:outline-none focus:z-10 ${
@@ -1746,7 +1746,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               formData.details?.vehicles?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
-            undefined
+            undefined,
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}
@@ -1765,7 +1765,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               undefined,
               <FaMoneyBillWave className="w-4 h-4" />,
               commonT("propertyDetails.pricePlaceholder"),
-              0
+              0,
             )}
             <div className="w-full">
               <div className="relative">
@@ -1822,7 +1822,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             "textarea",
             undefined,
             <FaAlignLeft className="w-4 h-4" />,
-            commonT("propertyDetails.descriptionPlaceholder")
+            commonT("propertyDetails.descriptionPlaceholder"),
           )}
         </div>
 
@@ -1861,7 +1861,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   setFormData((prev) => ({
                     ...prev,
                     existingImages: (prev.existingImages || []).filter(
-                      (img) => img !== url
+                      (img) => img !== url,
                     ),
                   }));
                   onImageDelete?.();

@@ -7,27 +7,47 @@ interface FeatureSectionProps {
 }
 
 const FeatureSection = ({ title, features }: FeatureSectionProps) => {
-  const { t } = useTranslation(['features', 'common', 'listings']);
-  
+  const { t } = useTranslation(["features", "common", "listings"]);
+
   // Function to get the translation key for a feature
   const getFeatureTranslationKey = (feature: string) => {
     // First try to find the feature in the features namespace
-    const sections = ['safety', 'airbags', 'security', 'camera', 'technology', 
-                     'lighting', 'comfort', 'convenience', 'exterior', 'property'];
-    
+    const sections = [
+      "safety",
+      "airbags",
+      "security",
+      "camera",
+      "technology",
+      "lighting",
+      "comfort",
+      "convenience",
+      "exterior",
+      "property",
+    ];
+
     for (const section of sections) {
-      const translation = t(`features:${section}.${feature}`, { returnObjects: true });
-      if (typeof translation === 'string' && translation !== `${section}.${feature}`) {
+      const translation = t(`features:${section}.${feature}`, {
+        returnObjects: true,
+      });
+      if (
+        typeof translation === "string" &&
+        translation !== `${section}.${feature}`
+      ) {
         return `features:${section}.${feature}`;
       }
     }
-    
+
     // If not found in features, try in listings namespace
-    const listingTranslation = t(`listings:${feature}`, { returnObjects: true });
-    if (typeof listingTranslation === 'string' && listingTranslation !== feature) {
+    const listingTranslation = t(`listings:${feature}`, {
+      returnObjects: true,
+    });
+    if (
+      typeof listingTranslation === "string" &&
+      listingTranslation !== feature
+    ) {
       return `listings:${feature}`;
     }
-    
+
     // If no translation found, return the original feature name
     return feature;
   };
@@ -43,14 +63,14 @@ const FeatureSection = ({ title, features }: FeatureSectionProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {features.map((feature) => {
           const translationKey = getFeatureTranslationKey(feature);
-          const [ns, key] = translationKey.includes(':') 
-            ? translationKey.split(':') 
+          const [ns, key] = translationKey.includes(":")
+            ? translationKey.split(":")
             : [undefined, translationKey];
-          
-          const translatedFeature = ns 
-            ? t(key, { ns }) 
-            : t(key, { ns: 'features' });
-          
+
+          const translatedFeature = ns
+            ? t(key, { ns })
+            : t(key, { ns: "features" });
+
           return (
             <div key={feature} className="space-y-1">
               <p className="text-xs text-gray-500 dark:text-gray-400">

@@ -84,7 +84,7 @@ const EditListing: React.FC = () => {
       value: getFieldValue(formData, field.name),
       options: Array.isArray(field.options)
         ? field.options.map((opt) =>
-            typeof opt === "string" ? { value: opt, label: opt } : opt
+            typeof opt === "string" ? { value: opt, label: opt } : opt,
           )
         : undefined,
       onChange: (value: any) => {
@@ -98,7 +98,7 @@ const EditListing: React.FC = () => {
     (
       name: string,
       value: any,
-      fieldType?: "vehicles" | "realEstate" | "location"
+      fieldType?: "vehicles" | "realEstate" | "location",
     ) => {
       // Handle location updates
       if (fieldType === "location") {
@@ -153,7 +153,7 @@ const EditListing: React.FC = () => {
         }));
       }
     },
-    []
+    [],
   );
 
   const handleImageChange = useCallback((newImages: (string | File)[]) => {
@@ -203,7 +203,7 @@ const EditListing: React.FC = () => {
     }
 
     const fields = getFieldsBySection(listingType, "essential").concat(
-      getFieldsBySection(listingType, "advanced")
+      getFieldsBySection(listingType, "advanced"),
     );
 
     for (const field of fields) {
@@ -227,7 +227,7 @@ const EditListing: React.FC = () => {
             toast.error(
               t("listings.errors.fieldRequired", {
                 field: field.label || field.name,
-              })
+              }),
             );
             return false;
           }
@@ -237,7 +237,7 @@ const EditListing: React.FC = () => {
             toast.error(
               t("listings.errors.validNumber", {
                 field: field.label || field.name,
-              })
+              }),
             );
             return false;
           }
@@ -245,7 +245,7 @@ const EditListing: React.FC = () => {
           toast.error(
             t("listings.errors.fieldRequired", {
               field: field.label || field.name,
-            })
+            }),
           );
           return false;
         }
@@ -288,7 +288,7 @@ const EditListing: React.FC = () => {
           //   country: formData.location.country,
           //   coordinates: formData.location.coordinates,
           // })
-          formData.location.toString()
+          formData.location.toString(),
         );
 
         // Process and append details based on listing type
@@ -300,7 +300,7 @@ const EditListing: React.FC = () => {
         // Get all fields for the listing type to ensure we include all schema fields
         if (listingType) {
           const allFields = getFieldsBySection(listingType, "essential").concat(
-            getFieldsBySection(listingType, "advanced")
+            getFieldsBySection(listingType, "advanced"),
           );
 
           // Ensure all schema fields are included in the details
@@ -366,8 +366,8 @@ const EditListing: React.FC = () => {
         // Stringify details with proper handling of undefined values
         const cleanDetails = JSON.parse(
           JSON.stringify(details, (_, value) =>
-            value === undefined ? "" : value
-          )
+            value === undefined ? "" : value,
+          ),
         );
 
         formDataToSend.append("details", JSON.stringify(cleanDetails));
@@ -404,13 +404,13 @@ const EditListing: React.FC = () => {
 
         if (response.success) {
           toast.success(
-            id ? t("listing.updateSuccess") : t("listing.createSuccess")
+            id ? t("listing.updateSuccess") : t("listing.createSuccess"),
           );
           navigate(`/listings/${response.data?.id || id}`);
         } else {
           throw new Error(
             response.error ||
-              (id ? "Failed to update listing" : "Failed to create listing")
+              (id ? "Failed to update listing" : "Failed to create listing"),
           );
         }
       } catch (error) {
@@ -420,7 +420,7 @@ const EditListing: React.FC = () => {
         setIsSubmitting(false);
       }
     },
-    [formData, id, isVehicle, navigate, t]
+    [formData, id, isVehicle, navigate, t],
   );
 
   useEffect(() => {
@@ -474,7 +474,7 @@ const EditListing: React.FC = () => {
             images: [],
             existingImages:
               listing.images?.map((img: any) =>
-                typeof img === "string" ? img : img.url
+                typeof img === "string" ? img : img.url,
               ) || [],
             deletedImages: [],
           };
@@ -487,7 +487,7 @@ const EditListing: React.FC = () => {
           if (listingType) {
             const allFields = getFieldsBySection(
               listingType,
-              "essential"
+              "essential",
             ).concat(getFieldsBySection(listingType, "advanced"));
 
             allFields.forEach((field) => {
@@ -529,7 +529,7 @@ const EditListing: React.FC = () => {
                       if (fieldName === "seatingCapacity") {
                         current[fieldName] = Math.max(
                           0,
-                          Number(current[fieldName] || 0)
+                          Number(current[fieldName] || 0),
                         );
                       } else {
                         current[fieldName] = 0;
@@ -665,7 +665,7 @@ const EditListing: React.FC = () => {
         images: newImages,
       }));
     },
-    [formData?.images, setFormData]
+    [formData?.images, setFormData],
   );
 
   const renderImagesTab = useCallback((): JSX.Element => {
@@ -683,7 +683,7 @@ const EditListing: React.FC = () => {
 
     // Get uploaded files
     const uploadedFiles = (formData.images || []).filter(
-      (img: unknown): img is File => img instanceof File
+      (img: unknown): img is File => img instanceof File,
     );
 
     console.log("Rendering ImageManager with:", {
@@ -771,7 +771,7 @@ const EditListing: React.FC = () => {
                       handleInputChange(
                         field.name,
                         e.target.value,
-                        isVehicle ? "vehicles" : "realEstate"
+                        isVehicle ? "vehicles" : "realEstate",
                       )
                     }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
@@ -813,7 +813,7 @@ const EditListing: React.FC = () => {
         handleInputChange(
           field.name,
           value,
-          isVehicle ? "vehicles" : "realEstate"
+          isVehicle ? "vehicles" : "realEstate",
         ),
       error: validationError,
       required: field.required,
@@ -841,7 +841,7 @@ const EditListing: React.FC = () => {
                     handleInputChange(
                       field.name,
                       option.value,
-                      isVehicle ? "vehicles" : "realEstate"
+                      isVehicle ? "vehicles" : "realEstate",
                     )
                   }
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
@@ -981,7 +981,7 @@ const EditListing: React.FC = () => {
                 .filter(
                   (field) =>
                     (field.type as string) === "feature-group" ||
-                    field.type === "featureGroup"
+                    field.type === "featureGroup",
                 )
                 .map((group) => (
                   <div key={group.name} className="col-span-full mt-6">
@@ -1000,10 +1000,10 @@ const EditListing: React.FC = () => {
                                 {groupData.features?.map((feature: any) => {
                                   const fieldName = `${group.name}.${groupName}.${feature.name}`;
                                   const field = currentFields.find(
-                                    (f) => f.name === fieldName
+                                    (f) => f.name === fieldName,
                                   );
                                   const idx = currentFields.indexOf(
-                                    field as ExtendedFieldProps
+                                    field as ExtendedFieldProps,
                                   );
 
                                   if (!field) return null;
@@ -1036,7 +1036,7 @@ const EditListing: React.FC = () => {
                                 })}
                               </div>
                             </div>
-                          )
+                          ),
                         )}
                     </div>
                   </div>

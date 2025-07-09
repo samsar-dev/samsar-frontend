@@ -16,7 +16,7 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   suggestions,
   onClose,
   isLoading = false,
-  searchQuery = '',
+  searchQuery = "",
   onSuggestionClick,
 }) => {
   const { t } = useTranslation();
@@ -25,14 +25,14 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   // Show loading state
   if (isLoading) {
     return (
-      <div 
+      <div
         id="search-suggestions"
         role="status"
         aria-live="polite"
         className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
       >
         <div className="p-3 text-center text-gray-500">
-          {t('search.searching') || 'Searching...'}
+          {t("search.searching") || "Searching..."}
         </div>
       </div>
     );
@@ -41,14 +41,14 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   // Show no results message if we have a query but no suggestions
   if (!suggestions.length && query) {
     return (
-      <div 
+      <div
         id="search-suggestions"
         role="status"
         aria-live="polite"
         className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
       >
         <div className="p-3 text-center text-gray-500">
-          {t('search.noResults') || `No results found for "${query}"`}
+          {t("search.noResults") || `No results found for "${query}"`}
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
   if (!suggestions.length) return null;
 
   return (
-    <div 
+    <div
       id="search-suggestions"
       role="listbox"
       aria-labelledby="search-input"
@@ -85,8 +85,8 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
           }
 
           return (
-            <li 
-              key={listing.id} 
+            <li
+              key={listing.id}
               role="option"
               id={`suggestion-${index}`}
               aria-selected="false"
@@ -104,26 +104,32 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
                   window.location.href = `/listings/${listing.id}`;
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     onClose();
                     if (onSuggestionClick && listing.id) {
                       onSuggestionClick(String(listing.id));
                     }
                     window.location.href = `/listings/${listing.id}`;
-                  } else if (e.key === 'Escape') {
+                  } else if (e.key === "Escape") {
                     e.preventDefault();
                     onClose();
                     // Return focus to the search input
-                    document.getElementById('search-input')?.focus();
+                    document.getElementById("search-input")?.focus();
                   }
                 }}
               >
-                <div className="font-medium text-gray-900" aria-label={`Title: ${listing.title}`}>
+                <div
+                  className="font-medium text-gray-900"
+                  aria-label={`Title: ${listing.title}`}
+                >
                   {listing.title}
                 </div>
                 <div className="flex items-center text-xs text-gray-500">
-                  <span className="truncate" aria-label={`Location: ${listing.location}`}>
+                  <span
+                    className="truncate"
+                    aria-label={`Location: ${listing.location}`}
+                  >
                     {listing.location}
                   </span>
                   {categoryLabel && (

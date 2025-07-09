@@ -26,10 +26,10 @@ export const vanSchema: ListingFieldSchema[] = [
     name: "condition",
     label: "fields.condition",
     type: "select",
-    options: Object.values(Condition).map(value => ({
+    options: Object.values(Condition).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.condition.${value.toUpperCase()}`
+      translationKey: `enums.condition.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -42,17 +42,57 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "select",
     options: [
       { value: "cargo", label: "CARGO", translationKey: "enums.vanType.CARGO" },
-      { value: "passenger", label: "PASSENGER", translationKey: "enums.vanType.PASSENGER" },
-      { value: "minivan", label: "MINIVAN", translationKey: "enums.vanType.MINIVAN" },
-      { value: "camper", label: "CAMPER", translationKey: "enums.vanType.CAMPER" },
-      { value: "shuttle", label: "SHUTTLE", translationKey: "enums.vanType.SHUTTLE" },
-      { value: "cutaway", label: "CUTAWAY", translationKey: "enums.vanType.CUTAWAY" },
+      {
+        value: "passenger",
+        label: "PASSENGER",
+        translationKey: "enums.vanType.PASSENGER",
+      },
+      {
+        value: "minivan",
+        label: "MINIVAN",
+        translationKey: "enums.vanType.MINIVAN",
+      },
+      {
+        value: "camper",
+        label: "CAMPER",
+        translationKey: "enums.vanType.CAMPER",
+      },
+      {
+        value: "shuttle",
+        label: "SHUTTLE",
+        translationKey: "enums.vanType.SHUTTLE",
+      },
+      {
+        value: "cutaway",
+        label: "CUTAWAY",
+        translationKey: "enums.vanType.CUTAWAY",
+      },
       { value: "panel", label: "PANEL", translationKey: "enums.vanType.PANEL" },
-      { value: "refrigerated", label: "REFRIGERATED", translationKey: "enums.vanType.REFRIGERATED" },
-      { value: "stepVan", label: "STEP_VAN", translationKey: "enums.vanType.STEP_VAN" },
-      { value: "highRoof", label: "HIGH_ROOF", translationKey: "enums.vanType.HIGH_ROOF" },
-      { value: "wheelchair", label: "WHEELCHAIR", translationKey: "enums.vanType.WHEELCHAIR" },
-      { value: "conversion", label: "CONVERSION", translationKey: "enums.vanType.CONVERSION" },
+      {
+        value: "refrigerated",
+        label: "REFRIGERATED",
+        translationKey: "enums.vanType.REFRIGERATED",
+      },
+      {
+        value: "stepVan",
+        label: "STEP_VAN",
+        translationKey: "enums.vanType.STEP_VAN",
+      },
+      {
+        value: "highRoof",
+        label: "HIGH_ROOF",
+        translationKey: "enums.vanType.HIGH_ROOF",
+      },
+      {
+        value: "wheelchair",
+        label: "WHEELCHAIR",
+        translationKey: "enums.vanType.WHEELCHAIR",
+      },
+      {
+        value: "conversion",
+        label: "CONVERSION",
+        translationKey: "enums.vanType.CONVERSION",
+      },
     ],
     section: "essential",
     required: true,
@@ -63,10 +103,10 @@ export const vanSchema: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "fields.transmissionType",
     type: "select",
-    options: Object.values(TransmissionType).map(value => ({
+    options: Object.values(TransmissionType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.transmission.${value.toUpperCase()}`
+      translationKey: `enums.transmission.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -92,11 +132,27 @@ export const vanSchema: ListingFieldSchema[] = [
     type: "select",
     options: [
       { value: "", label: "" },
-      { value: "diesel", label: "DIESEL", translationKey: "enums.fuelType.DIESEL" },
-      { value: "gasoline", label: "GASOLINE", translationKey: "enums.fuelType.GASOLINE" },
-      { value: "electric", label: "ELECTRIC", translationKey: "enums.fuelType.ELECTRIC" },
-      { value: "hybrid", label: "HYBRID", translationKey: "enums.fuelType.HYBRID" },
-      { value: "cng", label: "CNG", translationKey: "enums.fuelType.CNG" }
+      {
+        value: "diesel",
+        label: "DIESEL",
+        translationKey: "enums.fuelType.DIESEL",
+      },
+      {
+        value: "gasoline",
+        label: "GASOLINE",
+        translationKey: "enums.fuelType.GASOLINE",
+      },
+      {
+        value: "electric",
+        label: "ELECTRIC",
+        translationKey: "enums.fuelType.ELECTRIC",
+      },
+      {
+        value: "hybrid",
+        label: "HYBRID",
+        translationKey: "enums.fuelType.HYBRID",
+      },
+      { value: "cng", label: "CNG", translationKey: "enums.fuelType.CNG" },
     ],
     section: "essential",
     required: true,
@@ -108,10 +164,10 @@ export const vanSchema: ListingFieldSchema[] = [
     name: "engineType",
     label: "fields.engineType",
     type: "select",
-    options: Object.values(FuelType).map(value => ({
+    options: Object.values(FuelType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.fuelType.${value.toUpperCase()}`
+      translationKey: `enums.fuelType.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,

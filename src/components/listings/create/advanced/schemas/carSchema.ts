@@ -11,8 +11,7 @@ export const carSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) => {
-      if (typeof value !== "string" || !value)
-        return "errors.fieldRequired";
+      if (typeof value !== "string" || !value) return "errors.fieldRequired";
       return null;
     },
     tooltip: "tooltips.exteriorColor",
@@ -24,8 +23,7 @@ export const carSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) => {
-      if (typeof value !== "string" || !value)
-        return "errors.fieldRequired";
+      if (typeof value !== "string" || !value) return "errors.fieldRequired";
       return null;
     },
     tooltip: "tooltips.interiorColor",
@@ -37,7 +35,7 @@ export const carSchema: ListingFieldSchema[] = [
     options: Object.values(Condition).map((value) => ({
       value,
       label: value, // The actual value will be used as the translation key
-      translationKey: `enums.condition.${value}` // Add translation key as a separate property
+      translationKey: `enums.condition.${value}`, // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -51,7 +49,7 @@ export const carSchema: ListingFieldSchema[] = [
     options: Object.values(TransmissionType).map((value) => ({
       value,
       label: value, // The actual value will be used as the translation key
-      translationKey: `enums.transmission.${value}` // Add translation key as a separate property
+      translationKey: `enums.transmission.${value}`, // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -90,7 +88,7 @@ export const carSchema: ListingFieldSchema[] = [
     options: Object.values(FuelType).map((value) => ({
       value,
       label: value, // The actual value will be used as the translation key
-      translationKey: `enums.fuelType.${value}` // Add translation key as a separate property
+      translationKey: `enums.fuelType.${value}`, // Add translation key as a separate property
     })),
     section: "essential",
     required: true,
@@ -123,18 +121,58 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.bodyType",
     type: "select",
     options: [
-      { value: "sedan", label: "SEDAN", translationKey: "enums.bodyStyle.SEDAN" },
+      {
+        value: "sedan",
+        label: "SEDAN",
+        translationKey: "enums.bodyStyle.SEDAN",
+      },
       { value: "suv", label: "SUV", translationKey: "enums.bodyStyle.SUV" },
-      { value: "coupe", label: "COUPE", translationKey: "enums.bodyStyle.COUPE" },
-      { value: "convertible", label: "CONVERTIBLE", translationKey: "enums.bodyStyle.CONVERTIBLE" },
-      { value: "wagon", label: "WAGON", translationKey: "enums.bodyStyle.WAGON" },
-      { value: "hatchback", label: "HATCHBACK", translationKey: "enums.bodyStyle.HATCHBACK" },
-      { value: "pickup", label: "PICKUP", translationKey: "enums.bodyStyle.PICKUP" },
+      {
+        value: "coupe",
+        label: "COUPE",
+        translationKey: "enums.bodyStyle.COUPE",
+      },
+      {
+        value: "convertible",
+        label: "CONVERTIBLE",
+        translationKey: "enums.bodyStyle.CONVERTIBLE",
+      },
+      {
+        value: "wagon",
+        label: "WAGON",
+        translationKey: "enums.bodyStyle.WAGON",
+      },
+      {
+        value: "hatchback",
+        label: "HATCHBACK",
+        translationKey: "enums.bodyStyle.HATCHBACK",
+      },
+      {
+        value: "pickup",
+        label: "PICKUP",
+        translationKey: "enums.bodyStyle.PICKUP",
+      },
       { value: "van", label: "VAN", translationKey: "enums.bodyStyle.VAN" },
-      { value: "minivan", label: "MINIVAN", translationKey: "enums.bodyStyle.MINIVAN" },
-      { value: "crossover", label: "CROSSOVER", translationKey: "enums.bodyStyle.CROSSOVER" },
-      { value: "sportsCar", label: "SPORTS_CAR", translationKey: "enums.bodyStyle.SPORTS_CAR" },
-      { value: "luxury", label: "LUXURY", translationKey: "enums.bodyStyle.LUXURY" },
+      {
+        value: "minivan",
+        label: "MINIVAN",
+        translationKey: "enums.bodyStyle.MINIVAN",
+      },
+      {
+        value: "crossover",
+        label: "CROSSOVER",
+        translationKey: "enums.bodyStyle.CROSSOVER",
+      },
+      {
+        value: "sportsCar",
+        label: "SPORTS_CAR",
+        translationKey: "enums.bodyStyle.SPORTS_CAR",
+      },
+      {
+        value: "luxury",
+        label: "LUXURY",
+        translationKey: "enums.bodyStyle.LUXURY",
+      },
     ],
     section: "advanced",
     required: false,
@@ -148,7 +186,11 @@ export const carSchema: ListingFieldSchema[] = [
       { value: "fwd", label: "FWD", translationKey: "enums.driveType.FWD" },
       { value: "rwd", label: "RWD", translationKey: "enums.driveType.RWD" },
       { value: "awd", label: "AWD", translationKey: "enums.driveType.AWD" },
-      { value: "fourwd", label: "FOUR_WD", translationKey: "enums.driveType.FOUR_WD" }
+      {
+        value: "fourwd",
+        label: "FOUR_WD",
+        translationKey: "enums.driveType.FOUR_WD",
+      },
     ],
     section: "advanced",
     required: false,
@@ -169,9 +211,21 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.serviceHistory",
     type: "multiselect",
     options: [
-      { value: "full", label: "FULL", translationKey: "enums.serviceHistory.FULL" },
-      { value: "partial", label: "PARTIAL", translationKey: "enums.serviceHistory.PARTIAL" },
-      { value: "none", label: "NONE", translationKey: "enums.serviceHistory.NONE" },
+      {
+        value: "full",
+        label: "FULL",
+        translationKey: "enums.serviceHistory.FULL",
+      },
+      {
+        value: "partial",
+        label: "PARTIAL",
+        translationKey: "enums.serviceHistory.PARTIAL",
+      },
+      {
+        value: "none",
+        label: "NONE",
+        translationKey: "enums.serviceHistory.NONE",
+      },
     ],
     section: "advanced",
     required: false,
@@ -190,8 +244,16 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.importStatus",
     type: "select",
     options: [
-      { value: "local", label: "LOCAL", translationKey: "enums.importStatus.LOCAL" },
-      { value: "imported", label: "IMPORTED", translationKey: "enums.importStatus.IMPORTED" },
+      {
+        value: "local",
+        label: "LOCAL",
+        translationKey: "enums.importStatus.LOCAL",
+      },
+      {
+        value: "imported",
+        label: "IMPORTED",
+        translationKey: "enums.importStatus.IMPORTED",
+      },
     ],
     section: "advanced",
     required: false,
@@ -249,10 +311,26 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.roofType",
     type: "select",
     options: [
-      { value: "fixed", label: "FIXED", translationKey: "enums.roofType.FIXED" },
-      { value: "sunroof", label: "SUNROOF", translationKey: "enums.roofType.SUNROOF" },
-      { value: "moonroof", label: "MOONROOF", translationKey: "enums.roofType.MOONROOF" },
-      { value: "convertible", label: "CONVERTIBLE", translationKey: "enums.roofType.CONVERTIBLE" },
+      {
+        value: "fixed",
+        label: "FIXED",
+        translationKey: "enums.roofType.FIXED",
+      },
+      {
+        value: "sunroof",
+        label: "SUNROOF",
+        translationKey: "enums.roofType.SUNROOF",
+      },
+      {
+        value: "moonroof",
+        label: "MOONROOF",
+        translationKey: "enums.roofType.MOONROOF",
+      },
+      {
+        value: "convertible",
+        label: "CONVERTIBLE",
+        translationKey: "enums.roofType.CONVERTIBLE",
+      },
     ],
     section: "advanced",
     required: false,
@@ -277,9 +355,21 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.warrantyPeriod",
     type: "select",
     options: [
-      { value: "3", label: "3_MONTHS", translationKey: "enums.warrantyPeriod.THREE_MONTHS" },
-      { value: "6", label: "6_MONTHS", translationKey: "enums.warrantyPeriod.SIX_MONTHS" },
-      { value: "12", label: "12_MONTHS", translationKey: "enums.warrantyPeriod.TWELVE_MONTHS" },
+      {
+        value: "3",
+        label: "3_MONTHS",
+        translationKey: "enums.warrantyPeriod.THREE_MONTHS",
+      },
+      {
+        value: "6",
+        label: "6_MONTHS",
+        translationKey: "enums.warrantyPeriod.SIX_MONTHS",
+      },
+      {
+        value: "12",
+        label: "12_MONTHS",
+        translationKey: "enums.warrantyPeriod.TWELVE_MONTHS",
+      },
     ],
     section: "advanced",
     required: false,
@@ -290,8 +380,16 @@ export const carSchema: ListingFieldSchema[] = [
     label: "fields.navigationSystem",
     type: "select",
     options: [
-      { value: "built-in", label: "BUILT_IN", translationKey: "enums.navigationSystem.BUILT_IN" },
-      { value: "portable", label: "PORTABLE", translationKey: "enums.navigationSystem.PORTABLE" },
+      {
+        value: "built-in",
+        label: "BUILT_IN",
+        translationKey: "enums.navigationSystem.BUILT_IN",
+      },
+      {
+        value: "portable",
+        label: "PORTABLE",
+        translationKey: "enums.navigationSystem.PORTABLE",
+      },
       { value: "none", label: "NONE", translationKey: "common.none" },
     ],
     section: "advanced",
@@ -308,16 +406,36 @@ export const carSchema: ListingFieldSchema[] = [
       climate: {
         label: "featureCategories.climateFeatures",
         features: [
-          { name: "frontAirbags", label: "features.frontAirbags", type: "toggle" },
-          { name: "sideAirbags", label: "features.sideAirbags", type: "toggle" },
-          { name: "curtainAirbags", label: "features.curtainAirbags", type: "toggle" },
-          { name: "kneeAirbags", label: "features.kneeAirbags", type: "toggle" },
+          {
+            name: "frontAirbags",
+            label: "features.frontAirbags",
+            type: "toggle",
+          },
+          {
+            name: "sideAirbags",
+            label: "features.sideAirbags",
+            type: "toggle",
+          },
+          {
+            name: "curtainAirbags",
+            label: "features.curtainAirbags",
+            type: "toggle",
+          },
+          {
+            name: "kneeAirbags",
+            label: "features.kneeAirbags",
+            type: "toggle",
+          },
         ],
       },
       driverAssistance: {
         label: "featureCategories.driverAssistance",
         features: [
-          { name: "cruiseControl", label: "features.cruiseControl", type: "toggle" },
+          {
+            name: "cruiseControl",
+            label: "features.cruiseControl",
+            type: "toggle",
+          },
           {
             name: "adaptiveCruiseControl",
             label: "features.adaptiveCruiseControl",
@@ -328,7 +446,11 @@ export const carSchema: ListingFieldSchema[] = [
             label: "features.laneDepartureWarning",
             type: "toggle",
           },
-          { name: "laneKeepAssist", label: "features.laneKeepAssist", type: "toggle" },
+          {
+            name: "laneKeepAssist",
+            label: "features.laneKeepAssist",
+            type: "toggle",
+          },
           {
             name: "automaticEmergencyBraking",
             label: "features.automaticEmergencyBraking",
@@ -590,12 +712,12 @@ export const carSchema: ListingFieldSchema[] = [
           {
             name: "lightSensor",
             label: "features.lightSensor",
-            type: "toggle"
+            type: "toggle",
           },
           {
             name: "luggageCompartmentSeparation",
             label: "features.luggageCompartmentSeparation",
-            type: "toggle"
+            type: "toggle",
           },
           {
             name: "summerTires",

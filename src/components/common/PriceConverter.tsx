@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat("en-US", {
@@ -37,20 +37,21 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // Format prices using the original formatting functions
   const formattedUSD = formatPrice(price);
-  const formattedSYP = Math.round(price * exchangeRate).toLocaleString('en-US') + ' SYP';
-  
+  const formattedSYP =
+    Math.round(price * exchangeRate).toLocaleString("en-US") + " SYP";
+
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
   return (
-    <div 
+    <div
       className={`relative inline-flex items-center ${className}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      title={isHovered ? t('common.showInUSD') : t('common.showInSYP')}
+      title={isHovered ? t("common.showInUSD") : t("common.showInSYP")}
     >
       <AnimatePresence mode="wait">
         {isHovered ? (
@@ -63,7 +64,9 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
             className="text-blue-600 dark:text-blue-400"
           >
             {formattedSYP}
-            {showMonthly && <span className="text-gray-500 dark:text-gray-400">/mo</span>}
+            {showMonthly && (
+              <span className="text-gray-500 dark:text-gray-400">/mo</span>
+            )}
           </motion.span>
         ) : (
           <motion.span
@@ -74,7 +77,9 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
             transition={{ duration: 0.2 }}
           >
             {formattedUSD}
-            {showMonthly && <span className="text-gray-500 dark:text-gray-400">/mo</span>}
+            {showMonthly && (
+              <span className="text-gray-500 dark:text-gray-400">/mo</span>
+            )}
           </motion.span>
         )}
       </AnimatePresence>

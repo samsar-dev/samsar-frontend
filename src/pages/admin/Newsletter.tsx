@@ -19,9 +19,7 @@ import {
 } from "@mui/material";
 
 // GridItem component that properly extends MUI Grid item
-const GridItem = (props: any) => (
-  <Grid item {...props} />
-);
+const GridItem = (props: any) => <Grid item {...props} />;
 
 import {
   Send as SendIcon,

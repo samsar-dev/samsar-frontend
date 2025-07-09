@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type {
   Message,
@@ -189,53 +195,60 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const deleteConversations = useCallback(async (conversationIds: string[]) => {
-    try {
-      // Filter out any undefined or invalid IDs and ensure they are strings
-      const validIds = conversationIds
-        .filter((id): id is string => Boolean(id) && typeof id === 'string');
-      
-      if (validIds.length === 0) return;
+  const deleteConversations = useCallback(
+    async (conversationIds: string[]) => {
+      try {
+        // Filter out any undefined or invalid IDs and ensure they are strings
+        const validIds = conversationIds.filter(
+          (id): id is string => Boolean(id) && typeof id === "string",
+        );
 
-      // Optimistically update the UI
-      setConversations(prev => 
-        prev.filter(conv => conv && conv.id && !validIds.includes(conv.id))
-      );
-      
-      // If current conversation is being deleted, clear it
-      if (currentConversation?.id && validIds.includes(currentConversation.id)) {
-        setCurrentConversation(null);
-        setMessages([]);
-      }
+        if (validIds.length === 0) return;
 
-      // Delete each conversation directly using the deleteConversation endpoint
-      await Promise.all(
-        validIds.map(async (id) => {
-          try {
-            await messagesAPI.deleteConversation(id);
-          } catch (error: unknown) {
-            console.error(`Failed to delete conversation ${id}:`, error);
-            // Continue with other deletions even if one fails
-            return null;
-          }
-        })
-      );
-      
-      // Re-fetch conversations to ensure consistency
-      const response = await messagesAPI.getConversations();
-      if (response.data?.data?.items) {
-        setConversations(response.data.data.items);
+        // Optimistically update the UI
+        setConversations((prev) =>
+          prev.filter((conv) => conv && conv.id && !validIds.includes(conv.id)),
+        );
+
+        // If current conversation is being deleted, clear it
+        if (
+          currentConversation?.id &&
+          validIds.includes(currentConversation.id)
+        ) {
+          setCurrentConversation(null);
+          setMessages([]);
+        }
+
+        // Delete each conversation directly using the deleteConversation endpoint
+        await Promise.all(
+          validIds.map(async (id) => {
+            try {
+              await messagesAPI.deleteConversation(id);
+            } catch (error: unknown) {
+              console.error(`Failed to delete conversation ${id}:`, error);
+              // Continue with other deletions even if one fails
+              return null;
+            }
+          }),
+        );
+
+        // Re-fetch conversations to ensure consistency
+        const response = await messagesAPI.getConversations();
+        if (response.data?.data?.items) {
+          setConversations(response.data.data.items);
+        }
+      } catch (error) {
+        console.error("Failed to delete conversations:", error);
+        // Re-fetch conversations to revert optimistic update
+        const response = await messagesAPI.getConversations();
+        if (response.data?.data?.items) {
+          setConversations(response.data.data.items);
+        }
+        throw error;
       }
-    } catch (error) {
-      console.error('Failed to delete conversations:', error);
-      // Re-fetch conversations to revert optimistic update
-      const response = await messagesAPI.getConversations();
-      if (response.data?.data?.items) {
-        setConversations(response.data.data.items);
-      }
-      throw error;
-    }
-  }, [currentConversation]);
+    },
+    [currentConversation],
+  );
 
   return (
     <MessagesContext.Provider

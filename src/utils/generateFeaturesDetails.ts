@@ -16,9 +16,11 @@ export const generateFeaturesDetails = () => {
     if (k.includes("safety")) return "safetyFeatures";
     if (k.includes("camera")) return "cameraFeatures";
     if (k.includes("climate")) return "climateFeatures";
-    if (k.includes("entertainment") || k.includes("infotainment")) return "entertainmentFeatures";
+    if (k.includes("entertainment") || k.includes("infotainment"))
+      return "entertainmentFeatures";
     if (k.includes("light")) return "lightingFeatures";
-    if (k.includes("convenience") || k.includes("comfort")) return "convenienceFeatures";
+    if (k.includes("convenience") || k.includes("comfort"))
+      return "convenienceFeatures";
     return null;
   };
 
@@ -27,20 +29,23 @@ export const generateFeaturesDetails = () => {
     if (!Array.isArray(schema)) return;
     schema.forEach((field: any) => {
       if (field.type === "featureGroup" && field.featureGroups) {
-        Object.entries(field.featureGroups).forEach(([groupKey, groupVal]: any) => {
-          const category = mapToCategory(groupKey) || mapToCategory(groupVal?.label || "");
-          if (!category) return; // skip if we can't classify
-          (groupVal.features || []).forEach((feat: any) => {
-            if (feat?.name) categories[category].add(feat.name);
-          });
-        });
+        Object.entries(field.featureGroups).forEach(
+          ([groupKey, groupVal]: any) => {
+            const category =
+              mapToCategory(groupKey) || mapToCategory(groupVal?.label || "");
+            if (!category) return; // skip if we can't classify
+            (groupVal.features || []).forEach((feat: any) => {
+              if (feat?.name) categories[category].add(feat.name);
+            });
+          },
+        );
       }
     });
   });
 
   // Convert sets to arrays
   return Object.fromEntries(
-    Object.entries(categories).map(([k, v]) => [k, Array.from(v)])
+    Object.entries(categories).map(([k, v]) => [k, Array.from(v)]),
   ) as {
     safetyFeatures: string[];
     cameraFeatures: string[];

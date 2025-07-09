@@ -2,7 +2,11 @@ import { useState, useCallback, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import { MessagesAPI } from "@/api/messaging.api";
-import type { Message, Conversation, ConversationResponse } from "@/types/messaging";
+import type {
+  Message,
+  Conversation,
+  ConversationResponse,
+} from "@/types/messaging";
 import type { APIResponse, PaginatedData } from "@/types/api";
 import type { PaginationParams } from "@/types/common";
 
@@ -27,11 +31,11 @@ interface UseMessagesReturn {
 
 // Convert ConversationResponse data to Conversation
 const convertToConversation = (
-  response: ConversationResponse
+  response: ConversationResponse,
 ): Conversation => ({
   ...response,
-  id: response._id || response.id || '',
-  _id: response._id || response.id || '',
+  id: response._id || response.id || "",
+  _id: response._id || response.id || "",
 });
 
 export function useMessages(): UseMessagesReturn {
@@ -48,9 +52,14 @@ export function useMessages(): UseMessagesReturn {
   const fetchConversations = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await MessagesAPI.getConversations({ page: 1, limit: 20 });
+      const response = await MessagesAPI.getConversations({
+        page: 1,
+        limit: 20,
+      });
       if (response?.data?.items) {
-        const conversationsList = response.data.items.map(convertToConversation);
+        const conversationsList = response.data.items.map(
+          convertToConversation,
+        );
         setConversations(conversationsList);
       }
     } catch (error) {
@@ -86,15 +95,17 @@ export function useMessages(): UseMessagesReturn {
     async (participantIds: string[], initialMessage?: string) => {
       try {
         setIsLoading(true);
-        const response = await MessagesAPI.createConversation({ participantIds });
-        
+        const response = await MessagesAPI.createConversation({
+          participantIds,
+        });
+
         if (response?.data) {
           const newConversation = convertToConversation(response.data);
           setConversations((prev) => [newConversation, ...prev]);
-          return newConversation.id || newConversation._id || '';
+          return newConversation.id || newConversation._id || "";
         }
-        
-        throw new Error('Failed to create conversation');
+
+        throw new Error("Failed to create conversation");
       } catch (error) {
         console.error("Failed to create conversation:", error);
         throw error;
@@ -110,7 +121,9 @@ export function useMessages(): UseMessagesReturn {
       try {
         // Implementation for marking a message as read
         // This would typically be an API call to update the message status
-        console.log(`Marking message ${messageId} in conversation ${conversationId} as read`);
+        console.log(
+          `Marking message ${messageId} in conversation ${conversationId} as read`,
+        );
         // Example API call (uncomment when implemented):
         // await MessagesAPI.updateMessageStatus(conversationId, messageId, 'read');
       } catch (error) {

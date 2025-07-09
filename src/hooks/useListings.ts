@@ -28,7 +28,8 @@ export function useListings(): UseListingsResult {
         throw new Error("No data received from the server");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch listings";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch listings";
       setError(errorMessage);
       console.error("Error fetching listings:", err);
     } finally {

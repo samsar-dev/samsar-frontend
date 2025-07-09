@@ -3,7 +3,12 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
-import { ListingCategory, VehicleType, PropertyType, ListingAction } from "@/types/enums";
+import {
+  ListingCategory,
+  VehicleType,
+  PropertyType,
+  ListingAction,
+} from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 
 import { motion } from "framer-motion";
@@ -47,12 +52,26 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation(["common", "filters", "home", "locations"]);
-  
+  const { t, i18n } = useTranslation([
+    "common",
+    "filters",
+    "home",
+    "locations",
+  ]);
+
   // SEO Meta Tags
-  const pageTitle = t('home.meta_title', 'سمسار | سوق السيارات والعقارات الأول في سوريا');
-  const pageDescription = t('home.meta_description', 'مرحباً بكم في منصة سمسار، الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. تصفح آلاف العروض المميزة للشقق، الفلل، الأراضي، السيارات، والشاحنات. نوفر لك أحدث قوائم العقارات والمركبات مع تفاصيل دقيقة، صور عالية الجودة، وأسعار تنافسية. ابدأ رحلتك اليوم للعثور على ما تبحث عنه!');
-  const pageKeywords = t('home.meta_keywords', 'عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار');
+  const pageTitle = t(
+    "home.meta_title",
+    "سمسار | سوق السيارات والعقارات الأول في سوريا",
+  );
+  const pageDescription = t(
+    "home.meta_description",
+    "مرحباً بكم في منصة سمسار، الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. تصفح آلاف العروض المميزة للشقق، الفلل، الأراضي، السيارات، والشاحنات. نوفر لك أحدث قوائم العقارات والمركبات مع تفاصيل دقيقة، صور عالية الجودة، وأسعار تنافسية. ابدأ رحلتك اليوم للعثور على ما تبحث عنه!",
+  );
+  const pageKeywords = t(
+    "home.meta_keywords",
+    "عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار",
+  );
 
   // Get city and area translations for filtering
   const cities = t("locations:cities", {
@@ -69,12 +88,18 @@ const Home: React.FC = () => {
     useState<ExtendedListing | null>(null);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
-    ListingCategory.VEHICLES
+    ListingCategory.VEHICLES,
   );
   // Price range state
-  const [priceRange, setPriceRange] = useState<{ min: number | ''; max: number | '' }>({ min: '', max: '' });
+  const [priceRange, setPriceRange] = useState<{
+    min: number | "";
+    max: number | "";
+  }>({ min: "", max: "" });
   // Year range state
-  const [yearRange, setYearRange] = useState<{ min: number | ''; max: number | '' }>({ min: '', max: '' });
+  const [yearRange, setYearRange] = useState<{
+    min: number | "";
+    max: number | "";
+  }>({ min: "", max: "" });
   // Selected price for filtering (single price filter)
   const [selectedPrice] = useState<string>("");
   const [listings, setListings] = useState<ListingsState>({
@@ -133,9 +158,11 @@ const Home: React.FC = () => {
   }, [listings.all]);
 
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(null);
+  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(
+    null,
+  );
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
-    null
+    null,
   );
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
@@ -144,11 +171,13 @@ const Home: React.FC = () => {
   const [selectedMileage, setSelectedMileage] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRadius, setSelectedRadius] = useState<number | null>(null);
-  const [selectedBuiltYear, setSelectedBuiltYear] = useState<number | null>(null);
+  const [selectedBuiltYear, setSelectedBuiltYear] = useState<number | null>(
+    null,
+  );
   const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const toggleFilters = useCallback(() => {
-    setIsFilterOpen(prev => !prev);
+    setIsFilterOpen((prev) => !prev);
   }, []);
 
   // Cache for storing initial listings data
@@ -175,12 +204,12 @@ const Home: React.FC = () => {
           break;
         case "locationAsc":
           sortedListings.sort((a, b) =>
-            (a.location || "").localeCompare(b.location || "")
+            (a.location || "").localeCompare(b.location || ""),
           );
           break;
         case "locationDesc":
           sortedListings.sort((a, b) =>
-            (b.location || "").localeCompare(a.location || "")
+            (b.location || "").localeCompare(a.location || ""),
           );
           break;
         case "newestFirst":
@@ -188,7 +217,7 @@ const Home: React.FC = () => {
           sortedListings.sort(
             (a, b) =>
               new Date(b.createdAt || 0).getTime() -
-              new Date(a.createdAt || 0).getTime()
+              new Date(a.createdAt || 0).getTime(),
           );
       }
 
@@ -202,7 +231,9 @@ const Home: React.FC = () => {
             }
           }
           if (selectedSubcategory) {
-            const listingSubCat = listing.category?.subCategory || listing.details?.vehicles?.vehicleType;
+            const listingSubCat =
+              listing.category?.subCategory ||
+              listing.details?.vehicles?.vehicleType;
             if (listingSubCat !== selectedSubcategory) {
               return false;
             }
@@ -215,44 +246,68 @@ const Home: React.FC = () => {
           }
           if (selectedPrice && listing.price) {
             // Compare numeric values for price filtering
-            const listingPrice = typeof listing.price === 'number' ? listing.price : Number(listing.price);
+            const listingPrice =
+              typeof listing.price === "number"
+                ? listing.price
+                : Number(listing.price);
             const filterPrice = Number(selectedPrice);
-            if (isNaN(listingPrice) || isNaN(filterPrice) || listingPrice !== filterPrice) {
+            if (
+              isNaN(listingPrice) ||
+              isNaN(filterPrice) ||
+              listingPrice !== filterPrice
+            ) {
               return false;
             }
           }
-          
+
           // Apply mileage filter for vehicles
           if (selectedMileage !== null && selectedMileage !== undefined) {
             const vehicleMileage = listing.details?.vehicles?.mileage;
-            console.log('Mileage filter - Listing ID:', listing.id, 'Mileage value:', vehicleMileage, 'Type:', typeof vehicleMileage);
-            
+            console.log(
+              "Mileage filter - Listing ID:",
+              listing.id,
+              "Mileage value:",
+              vehicleMileage,
+              "Type:",
+              typeof vehicleMileage,
+            );
+
             if (vehicleMileage !== null && vehicleMileage !== undefined) {
               try {
                 // Convert to number if it's a string
                 let mileageValue: number;
-                if (typeof vehicleMileage === 'string') {
+                if (typeof vehicleMileage === "string") {
                   // Extract numbers from string (handles formats like '100,000 km' or '100k')
-                  const numericValue = vehicleMileage.replace(/[^0-9.]/g, '');
+                  const numericValue = vehicleMileage.replace(/[^0-9.]/g, "");
                   mileageValue = parseFloat(numericValue);
                 } else {
                   // It's already a number
                   mileageValue = Number(vehicleMileage);
                 }
-                
-                console.log('Processed mileage:', mileageValue, 'Selected max:', selectedMileage);
-                
+
+                console.log(
+                  "Processed mileage:",
+                  mileageValue,
+                  "Selected max:",
+                  selectedMileage,
+                );
+
                 // Only filter if we have a valid number
                 if (!isNaN(mileageValue) && mileageValue > selectedMileage) {
-                  console.log('Filtering out - mileage too high');
+                  console.log("Filtering out - mileage too high");
                   return false;
                 }
               } catch (error) {
-                console.warn('Error processing mileage:', error, 'for listing:', listing.id);
+                console.warn(
+                  "Error processing mileage:",
+                  error,
+                  "for listing:",
+                  listing.id,
+                );
                 // If there's an error parsing, don't filter out the listing
               }
             } else {
-              console.log('No mileage data for listing, keeping it');
+              console.log("No mileage data for listing, keeping it");
             }
           }
         } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
@@ -305,18 +360,18 @@ const Home: React.FC = () => {
         const params: ListingParams = {
           limit: 12,
           page: 1,
-          sortBy: sortBy === 'newestFirst' ? 'createdAt' : 'price',
-          sortOrder: sortBy === 'priceDesc' ? 'desc' : 'asc',
+          sortBy: sortBy === "newestFirst" ? "createdAt" : "price",
+          sortOrder: sortBy === "priceDesc" ? "desc" : "asc",
         };
 
         if (selectedAction) {
-          params.listingAction = selectedAction as 'SALE' | 'RENT';
+          params.listingAction = selectedAction as "SALE" | "RENT";
         }
 
         if (selectedCategory === ListingCategory.VEHICLES) {
           params.category = {
             mainCategory: ListingCategory.VEHICLES,
-            subCategory: selectedSubcategory as VehicleType || undefined,
+            subCategory: (selectedSubcategory as VehicleType) || undefined,
           };
 
           // Initialize vehicleDetails with make, model, and mileage if any are selected
@@ -324,21 +379,18 @@ const Home: React.FC = () => {
             params.vehicleDetails = {
               ...(selectedMake && { make: selectedMake }),
               ...(selectedModel && { model: selectedModel }),
-              ...(selectedMileage && { mileage: selectedMileage.toString() })
+              ...(selectedMileage && { mileage: selectedMileage.toString() }),
             };
           }
-
 
           if (selectedYear) {
             params.year = selectedYear;
           }
         }
 
-
         if (selectedLocation) {
           params.location = selectedLocation;
         }
-
 
         // Add sorting
         if (sortBy === "newestFirst") {
@@ -357,7 +409,7 @@ const Home: React.FC = () => {
 
       const response = await listingsAPI.getAll(
         buildQueryParams(),
-        abortControllerRef.current.signal
+        abortControllerRef.current.signal,
       );
 
       if (!response.success || !response.data) {
@@ -460,34 +512,44 @@ const Home: React.FC = () => {
           selectedModel.toLowerCase();
 
       // Year filter
-      const listingYear = listing.details?.vehicles?.year ? 
-        parseInt(listing.details.vehicles.year.toString(), 10) : 
-        new Date(listing.createdAt || '').getFullYear();
-        
+      const listingYear = listing.details?.vehicles?.year
+        ? parseInt(listing.details.vehicles.year.toString(), 10)
+        : new Date(listing.createdAt || "").getFullYear();
+
       // Check if year is within selected range
-      const matchesYearRange = 
-        (yearRange.min === '' || listingYear >= (yearRange.min as number)) &&
-        (yearRange.max === '' || listingYear <= (yearRange.max as number));
-        
+      const matchesYearRange =
+        (yearRange.min === "" || listingYear >= (yearRange.min as number)) &&
+        (yearRange.max === "" || listingYear <= (yearRange.max as number));
+
       // For backward compatibility with single year filter
-      const matchesSingleYear = !selectedYear || listingYear >= (selectedYear || 0);
-      
+      const matchesSingleYear =
+        !selectedYear || listingYear >= (selectedYear || 0);
+
       const matchesYear = matchesYearRange && matchesSingleYear;
 
       // Mileage filter
       let matchesMileage = true;
       if (selectedMileage && selectedCategory === ListingCategory.VEHICLES) {
-        const listingMileage = listing.details?.vehicles?.mileage ? 
-          (typeof listing.details.vehicles.mileage === 'string' ? 
-            parseInt(listing.details.vehicles.mileage.replace(/[^0-9.]/g, ''), 10) : 
-            listing.details.vehicles.mileage) : 0;
+        const listingMileage = listing.details?.vehicles?.mileage
+          ? typeof listing.details.vehicles.mileage === "string"
+            ? parseInt(
+                listing.details.vehicles.mileage.replace(/[^0-9.]/g, ""),
+                10,
+              )
+            : listing.details.vehicles.mileage
+          : 0;
         matchesMileage = listingMileage <= selectedMileage;
       }
 
       // Price filter
-      const listingPrice = typeof listing.price === 'string' ? parseFloat(listing.price) : listing.price || 0;
-      const matchesMinPrice = priceRange.min === '' || listingPrice >= (priceRange.min as number);
-      const matchesMaxPrice = priceRange.max === '' || listingPrice <= (priceRange.max as number);
+      const listingPrice =
+        typeof listing.price === "string"
+          ? parseFloat(listing.price)
+          : listing.price || 0;
+      const matchesMinPrice =
+        priceRange.min === "" || listingPrice >= (priceRange.min as number);
+      const matchesMaxPrice =
+        priceRange.max === "" || listingPrice <= (priceRange.max as number);
       const matchesPrice = matchesMinPrice && matchesMaxPrice;
 
       // Location filter
@@ -495,7 +557,7 @@ const Home: React.FC = () => {
       if (selectedLocation) {
         // Find the correct case-insensitive city key
         const cityKey = Object.keys(cities).find(
-          (key) => key.toLowerCase() === selectedLocation.toLowerCase()
+          (key) => key.toLowerCase() === selectedLocation.toLowerCase(),
         );
 
         if (cityKey) {
@@ -507,7 +569,7 @@ const Home: React.FC = () => {
             matchesLocation = allAreasToMatch.some(
               (area) =>
                 area &&
-                listing.location?.toLowerCase().includes(area.toLowerCase())
+                listing.location?.toLowerCase().includes(area.toLowerCase()),
             );
           } else {
             // Exact match if no radius is selected
@@ -583,8 +645,8 @@ const Home: React.FC = () => {
       new Set(
         listings.all
           .filter((l) => l.category.mainCategory === selectedCategory)
-          .map((l) => l.category.subCategory)
-      )
+          .map((l) => l.category.subCategory),
+      ),
     );
     setAllSubcategories(subcategories);
   }, [listings.all, selectedCategory]);
@@ -690,7 +752,6 @@ const Home: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-          
             setSelectedLocation={setSelectedLocation}
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
@@ -801,16 +862,16 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <SEO 
+      <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
       />
       {/* Preload for LCP Optimization */}
-      <link 
-        rel="preload" 
-        href="/waves-light.svg" 
-        as="image" 
+      <link
+        rel="preload"
+        href="/waves-light.svg"
+        as="image"
         type="image/svg+xml"
         fetchPriority="high"
       />

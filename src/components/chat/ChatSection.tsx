@@ -70,16 +70,22 @@ function ChatSection({
 
   const handleSendMessage = async () => {
     const receiverId = participant?.id;
-    if (!user || !participant || !currentChat?.id || !inputMessage.trim() || !receiverId) {
+    if (
+      !user ||
+      !participant ||
+      !currentChat?.id ||
+      !inputMessage.trim() ||
+      !receiverId
+    ) {
       console.error("Cannot send message: Missing required data");
       return;
     }
-    
+
     if (!socket) {
       console.error("Cannot send message: Socket not initialized");
       return;
     }
-    
+
     const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const messageData: Message = {
       id: tempMessageId,
@@ -88,11 +94,11 @@ function ChatSection({
       recipientId: receiverId,
       conversationId: currentChat.id,
       createdAt: new Date().toISOString(),
-      status: 'sending',
+      status: "sending",
     };
 
     // Optimistically update the UI
-    setMessages(prev => [...prev, messageData]);
+    setMessages((prev) => [...prev, messageData]);
     setInputMessage("");
     scrollBottonFn();
 
@@ -102,37 +108,35 @@ function ChatSection({
         content: messageData.content,
         recipientId: messageData.recipientId,
         // The API expects listingId, not conversationId
-        listingId: currentChat.listingId || '',
+        listingId: currentChat.listingId || "",
       });
 
       // Update the message with the server response
       if (response.data) {
         // The response data is the message itself, not wrapped in a data property
         const sentMessage = response.data as Message;
-        
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === tempMessageId 
-              ? { ...sentMessage, status: 'sent' }
-              : msg
-          )
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempMessageId ? { ...sentMessage, status: "sent" } : msg,
+          ),
         );
-        
+
         // Emit socket event with the sent message
         socket.emit(NEW_MESSAGE, {
           ...sentMessage,
-          status: 'sent',
+          status: "sent",
         });
       }
     } catch (error) {
       console.error("Failed to send message:", error);
       // Update message status to failed
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === tempMessageId 
-            ? { ...msg, status: 'failed' as const }
-            : msg
-        )
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === tempMessageId
+            ? { ...msg, status: "failed" as const }
+            : msg,
+        ),
       );
     }
   };
@@ -168,12 +172,20 @@ function ChatSection({
 
     const handleNewMessage = (message: Message) => {
       console.log("New message received:", message);
-      setMessages(prev => {
+      setMessages((prev) => {
         // Check if message already exists to prevent duplicates
-        if (!prev.some(m => m.id === message.id || 
-            (m.content === message.content && 
-             m.senderId === message.senderId && 
-             Math.abs(new Date(m.createdAt).getTime() - new Date(message.createdAt).getTime()) < 1000))) {
+        if (
+          !prev.some(
+            (m) =>
+              m.id === message.id ||
+              (m.content === message.content &&
+                m.senderId === message.senderId &&
+                Math.abs(
+                  new Date(m.createdAt).getTime() -
+                    new Date(message.createdAt).getTime(),
+                ) < 1000),
+          )
+        ) {
           return [...prev, message];
         }
         return prev;
@@ -188,7 +200,7 @@ function ChatSection({
     // Listen for new messages in this conversation
     const conversationEvent = `conversation:${currentChat.id}`;
     socket.on(conversationEvent, handleNewMessage);
-    
+
     // Also listen to global new message event
     socket.on(NEW_MESSAGE, (message: Message) => {
       // Only process if the message belongs to the current conversation
@@ -196,15 +208,15 @@ function ChatSection({
         handleNewMessage(message);
       }
     });
-    
+
     // Listen for conversation updates
-    socket.on('conversation:updated', (updatedConversation: Conversation) => {
+    socket.on("conversation:updated", (updatedConversation: Conversation) => {
       // Only update if it's the current conversation
       if (updatedConversation.id === currentChat.id) {
         handleConversationUpdate(updatedConversation);
       }
     });
-    socket.on('connect_error', (err: any) => {
+    socket.on("connect_error", (err: any) => {
       console.error("Socket connection error:", err.message);
     });
 
@@ -212,8 +224,8 @@ function ChatSection({
     return () => {
       socket.off(conversationEvent, handleNewMessage);
       socket.off(NEW_MESSAGE, handleNewMessage);
-      socket.off('conversation:updated', handleConversationUpdate);
-      socket.off('connect_error');
+      socket.off("conversation:updated", handleConversationUpdate);
+      socket.off("connect_error");
     };
   }, [socket, currentChat.id]);
 
@@ -222,7 +234,7 @@ function ChatSection({
     const timer = setTimeout(() => {
       scrollBottonFn();
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, [messages, currentChat.id]);
   console.log(messages);
@@ -231,7 +243,10 @@ function ChatSection({
     <div className="flex flex-col h-full">
       {/* Chat header */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-100">
-        <div className="flex items-center cursor-pointer" onClick={() => setInfoOpen(true)}>
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={() => setInfoOpen(true)}
+        >
           <h2 className="text-2xl font-semibold">
             {participant?.name || participant?.username}
           </h2>
@@ -241,10 +256,10 @@ function ChatSection({
             </Badge>
           )}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setInfoOpen(prev => !prev)}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setInfoOpen((prev) => !prev)}
           aria-label="Toggle user details"
         >
           <MoreHorizontal className="h-5 w-5 text-gray-500" />
@@ -258,10 +273,7 @@ function ChatSection({
             {messages?.map((message) => (
               <div key={message.id} className="flex flex-col">
                 {message.senderId === user?.id ? (
-                  <UserMessageBubble
-                    message={message}
-                    user={user}
-                  />
+                  <UserMessageBubble message={message} user={user} />
                 ) : (
                   <ParticipantMessageBubble
                     message={message}
@@ -299,14 +311,35 @@ function ChatSection({
             >
               <Smile className="h-5 w-5 text-gray-500" />
             </Button>
-            
+
             {showEmojiPicker && (
-              <div 
+              <div
                 className="absolute right-0 bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 w-64 z-10"
                 ref={emojiPickerRef}
               >
                 <div className="grid grid-cols-8 gap-1">
-                  {["😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","😋","😎","😍","😘","😗","😙","😚","🙂","🤗","🤔"].map((emoji, index) => (
+                  {[
+                    "😀",
+                    "😁",
+                    "😂",
+                    "🤣",
+                    "😃",
+                    "😄",
+                    "😅",
+                    "😆",
+                    "😉",
+                    "😊",
+                    "😋",
+                    "😎",
+                    "😍",
+                    "😘",
+                    "😗",
+                    "😙",
+                    "😚",
+                    "🙂",
+                    "🤗",
+                    "🤔",
+                  ].map((emoji, index) => (
                     <button
                       key={index}
                       className="p-1 hover:bg-gray-100 rounded text-xl"
@@ -319,7 +352,7 @@ function ChatSection({
               </div>
             )}
           </div>
-          
+
           <Button
             size="icon"
             className="h-12 w-12 rounded-full bg-blue-500 hover:bg-blue-600 flex-shrink-0"
@@ -381,10 +414,7 @@ interface UserMessageBubbleProps {
   user: AuthUser;
 }
 
-const UserMessageBubble = ({
-  message,
-  user,
-}: UserMessageBubbleProps) => {
+const UserMessageBubble = ({ message, user }: UserMessageBubbleProps) => {
   return (
     <div className="flex justify-end space-x-2">
       <div className="flex flex-col items-end">

@@ -32,10 +32,9 @@ function ChatItem({
           </div>
 
           <div className="text-xs text-gray-400">
-            {lastMessageDate ? 
-              `${lastMessageDate.getHours().toString().padStart(2, '0')}:${lastMessageDate.getMinutes().toString().padStart(2, '0')}`
-              : ''
-            }
+            {lastMessageDate
+              ? `${lastMessageDate.getHours().toString().padStart(2, "0")}:${lastMessageDate.getMinutes().toString().padStart(2, "0")}`
+              : ""}
           </div>
         </div>
         {/* ON typing */}

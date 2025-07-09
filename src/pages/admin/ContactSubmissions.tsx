@@ -103,7 +103,7 @@ const ContactSubmissions: FC = () => {
   };
 
   const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setCurrentPage(0);
@@ -139,19 +139,19 @@ const ContactSubmissions: FC = () => {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-        }
+        },
       );
 
       // Update the submissions list
       setSubmissions((prevSubmissions) =>
         prevSubmissions.map((sub) =>
-          sub.id === id ? { ...sub, read: true } : sub
-        )
+          sub.id === id ? { ...sub, read: true } : sub,
+        ),
       );
 
       // Update the selected submission if it's the one being marked as read
       setSelectedSubmission((prev) =>
-        prev?.id === id && prev ? { ...prev, read: true } : prev
+        prev?.id === id && prev ? { ...prev, read: true } : prev,
       );
 
       return true;
@@ -321,7 +321,7 @@ const ContactSubmissions: FC = () => {
                 submissions
                   .slice(
                     currentPage * rowsPerPage,
-                    currentPage * rowsPerPage + rowsPerPage
+                    currentPage * rowsPerPage + rowsPerPage,
                   )
                   .map((submission) => (
                     <TableRow

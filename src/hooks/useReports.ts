@@ -1,12 +1,12 @@
 import { useCallback, useState } from "react";
 import { reportsAPI } from "@/api";
 import type { APIResponse } from "@/types/api";
-import type { 
-  Report, 
-  ReportStatus, 
-  ReportType, 
+import type {
+  Report,
+  ReportStatus,
+  ReportType,
   ReportReason,
-  ReportCreateInput
+  ReportCreateInput,
 } from "@/types/reports";
 
 export interface UseReportsReturn {
@@ -35,10 +35,10 @@ export function useReports(): UseReportsReturn {
       if (response?.success && response.data) {
         setReports(response.data.items || []);
       } else {
-        setError(response?.error || 'Failed to fetch reports');
+        setError(response?.error || "Failed to fetch reports");
       }
     } catch (err) {
-      setError('An error occurred while fetching reports');
+      setError("An error occurred while fetching reports");
     } finally {
       setLoading(false);
     }
@@ -58,10 +58,10 @@ export function useReports(): UseReportsReturn {
         if (response?.success) {
           await fetchReports();
         } else {
-          setError(response?.error || 'Failed to create report');
+          setError(response?.error || "Failed to create report");
         }
       } catch (err) {
-        setError('An error occurred while creating report');
+        setError("An error occurred while creating report");
       } finally {
         setLoading(false);
       }
@@ -74,18 +74,20 @@ export function useReports(): UseReportsReturn {
       setLoading(true);
       setError(null);
       try {
-        const { data: response } = await reportsAPI.updateReport(id, { status });
+        const { data: response } = await reportsAPI.updateReport(id, {
+          status,
+        });
         if (response?.success) {
-          setReports(prev => 
-            prev.map(report => 
-              report.id === id ? { ...report, status } : report
-            )
+          setReports((prev) =>
+            prev.map((report) =>
+              report.id === id ? { ...report, status } : report,
+            ),
           );
         } else {
-          setError(response?.error || 'Failed to update report status');
+          setError(response?.error || "Failed to update report status");
         }
       } catch (err) {
-        setError('An error occurred while updating report status');
+        setError("An error occurred while updating report status");
       } finally {
         setLoading(false);
       }

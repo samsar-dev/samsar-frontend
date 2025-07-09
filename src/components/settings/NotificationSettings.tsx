@@ -65,7 +65,7 @@ const NotificationSettings: FC<Props> = ({ notifications, onUpdate }) => {
                     }
                     onChange={() =>
                       handleNotificationChange(
-                        id as keyof NotificationPreferences
+                        id as keyof NotificationPreferences,
                       )
                     }
                     className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"

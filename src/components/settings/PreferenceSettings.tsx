@@ -44,14 +44,20 @@ function PreferenceSettings({
   const timezones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"];
 
   return (
-    <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"} dark:bg-gray-800 dark:text-white`}>
+    <div
+      className={`space-y-6 ${isRTL ? "rtl" : "ltr"} dark:bg-gray-800 dark:text-white`}
+    >
       <div className="dark">
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           .dark select option {
             background-color: #1f2937 !important;
             color: white !important;
           }
-        ` }} />
+        `,
+          }}
+        />
         <h3 className="text-lg font-medium">{t("language")}</h3>
         <select
           value={currentSettings.language}

@@ -111,10 +111,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           {/* Left section */}
           <div className="flex items-center">
-            <Link
-              to="/"
-              className="flex flex-col items-start group"
-            >
+            <Link to="/" className="flex flex-col items-start group">
               <span className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight">
                 SAMSAR
               </span>
@@ -145,7 +142,7 @@ const Navbar: React.FC = () => {
                 {/* Category Dropdown */}
                 <div className="relative">
                   <label htmlFor="category-select" className="sr-only">
-                    {t('selectCategory')}
+                    {t("selectCategory")}
                   </label>
                   <select
                     id="category-select"
@@ -155,7 +152,7 @@ const Navbar: React.FC = () => {
                       setSelectedCategory(e.target.value);
                       setSelectedSubcategory("");
                     }}
-                    aria-label={t('selectCategory')}
+                    aria-label={t("selectCategory")}
                   >
                     <option value="all">{t("all")}</option>
                     <option value="vehicles">{t("navigation.vehicles")}</option>
@@ -168,15 +165,18 @@ const Navbar: React.FC = () => {
                 {/* Subcategory Dropdown (conditional) */}
                 {selectedCategory === "vehicles" && (
                   <div className="relative">
-                    <label htmlFor="vehicles-subcategory-select" className="sr-only">
-                      {t('selectVehicleType')}
+                    <label
+                      htmlFor="vehicles-subcategory-select"
+                      className="sr-only"
+                    >
+                      {t("selectVehicleType")}
                     </label>
                     <select
                       id="vehicles-subcategory-select"
                       className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       value={selectedSubcategory}
                       onChange={(e) => setSelectedSubcategory(e.target.value)}
-                      aria-label={t('selectVehicleType')}
+                      aria-label={t("selectVehicleType")}
                     >
                       <option value="">All Types</option>
                       <option value="CAR">Car</option>
@@ -193,15 +193,18 @@ const Navbar: React.FC = () => {
                 )}
                 {selectedCategory === "realEstate" && (
                   <div className="relative">
-                    <label htmlFor="realestate-subcategory-select" className="sr-only">
-                      {t('selectPropertyType')}
+                    <label
+                      htmlFor="realestate-subcategory-select"
+                      className="sr-only"
+                    >
+                      {t("selectPropertyType")}
                     </label>
                     <select
                       id="realestate-subcategory-select"
                       className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       value={selectedSubcategory}
                       onChange={(e) => setSelectedSubcategory(e.target.value)}
-                      aria-label={t('selectPropertyType')}
+                      aria-label={t("selectPropertyType")}
                     >
                       <option value="">All Types</option>
                       <option value="HOUSE">House</option>
@@ -242,7 +245,7 @@ const Navbar: React.FC = () => {
                     <button
                       onClick={toggleListingsMenu}
                       className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-                      aria-label={t('listings')}
+                      aria-label={t("listings")}
                       aria-expanded={showListingsMenu}
                       aria-haspopup="true"
                     >
@@ -290,7 +293,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/messages"
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-                    aria-label={t('messages')}
+                    aria-label={t("messages")}
                   >
                     <FaEnvelope className="h-5 w-5" />
                   </Link>
@@ -302,7 +305,7 @@ const Navbar: React.FC = () => {
                     <button
                       onClick={toggleProfileMenu}
                       className="flex items-center focus:outline-none"
-                      aria-label={t('profileMenu')}
+                      aria-label={t("profileMenu")}
                       aria-expanded={showProfileMenu}
                       aria-haspopup="true"
                     >
@@ -377,7 +380,11 @@ const Navbar: React.FC = () => {
             <button
               onClick={toggleTheme}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              aria-label={theme === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')}
+              aria-label={
+                theme === "dark"
+                  ? t("switchToLightMode")
+                  : t("switchToDarkMode")
+              }
             >
               {theme === "dark" ? (
                 <FaSun className="h-5 w-5" />

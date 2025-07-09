@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useMemo, Suspense, lazy, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  Suspense,
+  lazy,
+  useCallback,
+} from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckCircle, Flag } from "lucide-react";
@@ -11,7 +18,7 @@ import { toast } from "sonner";
 const renderTranslatedText = (
   t: (key: string, options?: any) => string,
   key: string,
-  defaultValue: string
+  defaultValue: string,
 ): string => {
   try {
     // Force the return type to be a string by using String()
@@ -49,7 +56,7 @@ import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
 
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery")
+  () => import("@/components/listings/images/ImageGallery"),
 );
 
 interface ExtendedListing {
@@ -106,7 +113,7 @@ const FieldValue = ({
   // Helper function to render translated text
   const renderText = (
     text: string | number | boolean,
-    options?: { capitalize?: boolean }
+    options?: { capitalize?: boolean },
   ): React.ReactNode => {
     if (text === undefined || text === null || text === "") {
       return <span className="text-gray-400">-</span>;
@@ -353,27 +360,22 @@ const ListingDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Get state from Redux store
-  const {
-    loading,
-    error,
-    listing,
-    showMessageForm,
-    messageSuccess
-  } = useSelector((state: RootState) => state.listingDetails);
-  
+  const { loading, error, listing, showMessageForm, messageSuccess } =
+    useSelector((state: RootState) => state.listingDetails);
+
   // Local state for sending message loading state
   const [sendingMessage, setSendingMessage] = useState(false);
 
   // Local state for message form
   const [message, setMessage] = useState<{
     content: string;
-    type: 'question' | 'offer' | 'meeting';
+    type: "question" | "offer" | "meeting";
   }>({ content: "", type: "question" });
 
   // Report state
   const [showReportForm, setShowReportForm] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportType, setReportType] = useState('');
+  const [reportReason, setReportReason] = useState("");
+  const [reportType, setReportType] = useState("");
   const [isReporting, setIsReporting] = useState(false);
 
   // Fetch listing details when component mounts or id changes
@@ -389,58 +391,69 @@ const ListingDetails = () => {
   }, [id, dispatch]);
 
   // Toggle message form visibility
-  const toggleMessageForm = useCallback((isVisible: boolean) => {
-    dispatch(listingDetailsActions.setMessageFormVisibility(isVisible));
-  }, [dispatch]);
+  const toggleMessageForm = useCallback(
+    (isVisible: boolean) => {
+      dispatch(listingDetailsActions.setMessageFormVisibility(isVisible));
+    },
+    [dispatch],
+  );
 
   // Handle message input change
-  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(prev => ({
-      ...prev,
-      content: e.target.value
-    }));
-  }, []);
+  const handleMessageChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setMessage((prev) => ({
+        ...prev,
+        content: e.target.value,
+      }));
+    },
+    [],
+  );
 
   // Handle message type change
-  const handleMessageTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setMessage(prev => ({
-      ...prev,
-      type: e.target.value as 'question' | 'offer' | 'meeting'
-    }));
-  }, []);
-
-
+  const handleMessageTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setMessage((prev) => ({
+        ...prev,
+        type: e.target.value as "question" | "offer" | "meeting",
+      }));
+    },
+    [],
+  );
 
   // Handle send message
-  const handleSendMessage = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!listing?.id || !message.content.trim() || !listing.seller?.id) return;
+  const handleSendMessage = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!listing?.id || !message.content.trim() || !listing.seller?.id)
+        return;
 
-    try {
-      setSendingMessage(true);
-      
-      // Use the Redux thunk action to send the message
-      await dispatch(
-        listingDetailsActions.sendMessage(
-          listing.id,
-          message.content,
-          message.type
-        )
-      );
-      
-      // Reset the form
-      setMessage({ content: "", type: "question" });
-      
-      // Show success message and hide form after delay
-      setTimeout(() => {
-        toggleMessageForm(false);
-      }, 3000);
-    } catch (err) {
-      console.error("Error sending message:", err);
-    } finally {
-      setSendingMessage(false);
-    }
-  }, [listing, message, dispatch, toggleMessageForm]);
+      try {
+        setSendingMessage(true);
+
+        // Use the Redux thunk action to send the message
+        await dispatch(
+          listingDetailsActions.sendMessage(
+            listing.id,
+            message.content,
+            message.type,
+          ),
+        );
+
+        // Reset the form
+        setMessage({ content: "", type: "question" });
+
+        // Show success message and hide form after delay
+        setTimeout(() => {
+          toggleMessageForm(false);
+        }, 3000);
+      } catch (err) {
+        console.error("Error sending message:", err);
+      } finally {
+        setSendingMessage(false);
+      }
+    },
+    [listing, message, dispatch, toggleMessageForm],
+  );
 
   // Handle report submission
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -455,17 +468,17 @@ const ListingDetails = () => {
       //   type: reportType,
       //   reason: reportReason,
       // });
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Report submitted successfully');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      toast.success("Report submitted successfully");
       setShowReportForm(false);
-      setReportReason('');
-      setReportType('');
+      setReportReason("");
+      setReportType("");
     } catch (error) {
-      console.error('Error submitting report:', error);
-      toast.error('Failed to submit report');
+      console.error("Error submitting report:", error);
+      toast.error("Failed to submit report");
     } finally {
       setIsReporting(false);
     }
@@ -550,7 +563,7 @@ const ListingDetails = () => {
 
       // Add common fields that might be at the listing level
       ["price", "title", "description", "location"].forEach((field) =>
-        fields.add(field)
+        fields.add(field),
       );
 
       return Array.from(fields);
@@ -686,7 +699,10 @@ const ListingDetails = () => {
       if (!id) return;
 
       try {
-        dispatch({ type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_LOADING, payload: true });
+        dispatch({
+          type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_LOADING,
+          payload: true,
+        });
         const response = await listingsAPI.getById(id);
 
         if (!response.success || !response.data) {
@@ -695,24 +711,30 @@ const ListingDetails = () => {
 
         dispatch({
           type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_LISTING_DETAILS,
-          payload: response.data
+          payload: response.data,
         });
       } catch (err) {
         console.error("Error fetching listing:", err);
         dispatch({
           type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_ERROR,
-          payload: err instanceof Error ? err.message : "An unknown error occurred"
+          payload:
+            err instanceof Error ? err.message : "An unknown error occurred",
         });
       } finally {
-        dispatch({ type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_LOADING, payload: false });
+        dispatch({
+          type: listingDetailsActions.LISTING_DETAILS_TYPES.SET_LOADING,
+          payload: false,
+        });
       }
     };
 
     fetchListing();
-    
+
     // Cleanup on unmount
     return () => {
-      dispatch({ type: listingDetailsActions.LISTING_DETAILS_TYPES.RESET_STATE });
+      dispatch({
+        type: listingDetailsActions.LISTING_DETAILS_TYPES.RESET_STATE,
+      });
     };
   }, [id, user?.id, dispatch]);
 
@@ -767,7 +789,11 @@ const ListingDetails = () => {
                 {!showMessageForm ? (
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => dispatch(listingDetailsActions.setMessageFormVisibility(true))}
+                      onClick={() =>
+                        dispatch(
+                          listingDetailsActions.setMessageFormVisibility(true),
+                        )
+                      }
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                     >
                       {t("contactSeller", { ns: "listings" })}
@@ -781,160 +807,174 @@ const ListingDetails = () => {
                     </button>
                   </div>
                 ) : (
-                <div className="space-y-4">
-                  <select
-                    value={message.type}
-                    onChange={handleMessageTypeChange}
-                    className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                  >
-                    {Object.entries({
-                      question: t('messageTypes.question', { ns: 'listings' }),
-                      offer: t('messageTypes.offer', { ns: 'listings' }),
-                      meeting: t('messageTypes.meeting', { ns: 'listings' }),
-                    }).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                  <textarea
-                    value={message.content}
-                    onChange={handleMessageChange}
-                    className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                    rows={4}
-                    placeholder={t("typeYourMessage", { ns: "listings" })}
-                  />
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={() => dispatch(listingDetailsActions.setMessageFormVisibility(false))}
-                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  <div className="space-y-4">
+                    <select
+                      value={message.type}
+                      onChange={handleMessageTypeChange}
+                      className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                     >
-                      {t("cancel", { ns: "common" })}
-                    </button>
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={sendingMessage || !message.content.trim()}
-                      className={`px-4 py-2 rounded-lg text-white ${
-                        sendingMessage
-                          ? "bg-blue-400"
-                          : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                    >
-                      {sendingMessage
-                        ? t("sending", { ns: "common" })
-                        : message.type === "question"
-                        ? t("sendQuestion", { ns: "listings" })
-                        : message.type === "offer"
-                        ? t("sendOffer", { ns: "listings" })
-                        : t("requestMeeting", { ns: "listings" })}
-                    </button>
-                    {sendingMessage && (
-                      <span className="ml-2">
-                        <svg
-                          className="animate-spin h-4 w-4 text-white inline-block"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                      </span>
+                      {Object.entries({
+                        question: t("messageTypes.question", {
+                          ns: "listings",
+                        }),
+                        offer: t("messageTypes.offer", { ns: "listings" }),
+                        meeting: t("messageTypes.meeting", { ns: "listings" }),
+                      }).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                    <textarea
+                      value={message.content}
+                      onChange={handleMessageChange}
+                      className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      rows={4}
+                      placeholder={t("typeYourMessage", { ns: "listings" })}
+                    />
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() =>
+                          dispatch(
+                            listingDetailsActions.setMessageFormVisibility(
+                              false,
+                            ),
+                          )
+                        }
+                        className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("cancel", { ns: "common" })}
+                      </button>
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={sendingMessage || !message.content.trim()}
+                        className={`px-4 py-2 rounded-lg text-white ${
+                          sendingMessage
+                            ? "bg-blue-400"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                      >
+                        {sendingMessage
+                          ? t("sending", { ns: "common" })
+                          : message.type === "question"
+                            ? t("sendQuestion", { ns: "listings" })
+                            : message.type === "offer"
+                              ? t("sendOffer", { ns: "listings" })
+                              : t("requestMeeting", { ns: "listings" })}
+                      </button>
+                      {sendingMessage && (
+                        <span className="ml-2">
+                          <svg
+                            className="animate-spin h-4 w-4 text-white inline-block"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        </span>
+                      )}
+                    </div>
+                    {messageSuccess && (
+                      <div className="mt-2 text-green-600 dark:text-green-400 flex items-center">
+                        <CheckCircle className="mr-1" size={16} />
+                        {t("messageSent", { ns: "listings" })}
+                      </div>
                     )}
                   </div>
-                  {messageSuccess && (
-                    <div className="mt-2 text-green-600 dark:text-green-400 flex items-center">
-                      <CheckCircle className="mr-1" size={16} />
-                      {t("messageSent", { ns: "listings" })}
+                )}
+              </div>
+
+              {/* Report Form */}
+              {showReportForm && (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">Report Listing</h2>
+                    <button
+                      onClick={() => {
+                        setShowReportForm(false);
+                        setReportReason("");
+                        setReportType("");
+                      }}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <form onSubmit={handleReportSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Reason for Report
+                      </label>
+                      <select
+                        value={reportType}
+                        onChange={(e) => setReportType(e.target.value)}
+                        className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                        required
+                      >
+                        <option value="">Select a reason</option>
+                        <option value="spam">Spam or Scam</option>
+                        <option value="inappropriate">
+                          Inappropriate Content
+                        </option>
+                        <option value="misleading">
+                          Misleading Information
+                        </option>
+                        <option value="other">Other</option>
+                      </select>
                     </div>
-                  )}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Additional Details
+                      </label>
+                      <textarea
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                        rows={3}
+                        placeholder="Please provide more details about your report"
+                        required
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowReportForm(false);
+                          setReportReason("");
+                          setReportType("");
+                        }}
+                        className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        disabled={isReporting}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg disabled:opacity-50"
+                        disabled={
+                          isReporting || !reportReason.trim() || !reportType
+                        }
+                      >
+                        {isReporting ? "Submitting..." : "Submit Report"}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>
-
-            {/* Report Form */}
-            {showReportForm && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">Report Listing</h2>
-                  <button
-                    onClick={() => {
-                      setShowReportForm(false);
-                      setReportReason('');
-                      setReportType('');
-                    }}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <form onSubmit={handleReportSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Reason for Report
-                    </label>
-                    <select
-                      value={reportType}
-                      onChange={(e) => setReportType(e.target.value)}
-                      className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                      required
-                    >
-                      <option value="">Select a reason</option>
-                      <option value="spam">Spam or Scam</option>
-                      <option value="inappropriate">Inappropriate Content</option>
-                      <option value="misleading">Misleading Information</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Additional Details
-                    </label>
-                    <textarea
-                      value={reportReason}
-                      onChange={(e) => setReportReason(e.target.value)}
-                      className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                      rows={3}
-                      placeholder="Please provide more details about your report"
-                      required
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowReportForm(false);
-                        setReportReason('');
-                        setReportType('');
-                      }}
-                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                      disabled={isReporting}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg disabled:opacity-50"
-                      disabled={isReporting || !reportReason.trim() || !reportType}
-                    >
-                      {isReporting ? 'Submitting...' : 'Submit Report'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-          </div>
           )}
         </div>
       </div>
@@ -968,7 +1008,7 @@ const ListingDetails = () => {
                   : [],
               },
               null,
-              2
+              2,
             )}
           </pre>
         </div>

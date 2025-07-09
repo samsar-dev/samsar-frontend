@@ -1,5 +1,8 @@
 import { LISTING_DETAILS_TYPES } from "./listingDetails.types";
-import { ListingDetailsState, ListingDetailsAction } from "./listingDetails.types";
+import {
+  ListingDetailsState,
+  ListingDetailsAction,
+} from "./listingDetails.types";
 
 const initialState: ListingDetailsState = {
   listing: null,
@@ -13,7 +16,7 @@ const initialState: ListingDetailsState = {
 
 export const listingDetailsReducer = (
   state = initialState,
-  action: ListingDetailsAction
+  action: ListingDetailsAction,
 ): ListingDetailsState => {
   switch (action.type) {
     case LISTING_DETAILS_TYPES.SET_LISTING_DETAILS:

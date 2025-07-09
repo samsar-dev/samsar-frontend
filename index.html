@@ -2,16 +2,16 @@
 <html lang="ar" dir="rtl">
   <head>
     <!-- Preconnect to critical domains -->
-    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
-    
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
+
     <!-- Preload key requests -->
-    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
-    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
-    <link rel="dns-prefetch" href="https://api.samsar.app">
-    
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin />
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.samsar.app" />
+
     <!-- Inline critical CSS -->
     <style id="critical-css">
       /* Critical CSS for above-the-fold content */
@@ -20,13 +20,14 @@
         --background: #ffffff;
         --text: #1f2937;
       }
-      body { 
-        margin: 0; 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         line-height: 1.5;
         color: var(--text);
       }
-      .lcp-element { 
+      .lcp-element {
         will-change: transform;
         font-weight: 700;
       }
@@ -50,23 +51,37 @@
         will-change: transform;
       }
       @media (min-width: 640px) {
-        .lcp-text { font-size: 2.25rem; } /* sm:text-4xl */
+        .lcp-text {
+          font-size: 2.25rem;
+        } /* sm:text-4xl */
       }
       @media (min-width: 768px) {
-        .lcp-text { font-size: 3rem; } /* md:text-5xl */
+        .lcp-text {
+          font-size: 3rem;
+        } /* md:text-5xl */
       }
-      
+
       /* Basic styles to prevent layout shifts */
       :root {
         --background: 0 0% 100%;
         --foreground: 0 0% 3.9%;
       }
-      html, body {
+      html,
+      body {
         height: 100%;
         width: 100%;
         margin: 0;
         padding: 0;
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          "Noto Sans",
+          "Liberation Sans",
+          sans-serif;
       }
       #root {
         height: 100%;
@@ -74,8 +89,7 @@
       }
       /* Add any other critical above-the-fold styles here */
     </style>
-    
-   
+
     <!-- Essential Meta -->
     <meta charset="utf-8" />
     <meta
@@ -88,85 +102,117 @@
     <meta name="language" content="ar" />
     <meta name="geo.region" content="SY" />
     <meta name="geo.placename" content="Syria" />
-    
+
     <!-- Fallback SEO (will be overridden by React SEO component) -->
     <title>سمسار | سوق السيارات والعقارات الأول في سوريا</title>
-    <meta name="description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من الإعلانات في مختلف المدن السورية">
-    
+    <meta
+      name="description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من الإعلانات في مختلف المدن السورية"
+    />
+
     <!-- Essential Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
-    <meta property="og:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا">
-    <meta property="og:image" content="/og-image.jpg">
-    
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="سمسار | سوق السيارات والعقارات الأول في سوريا"
+    />
+    <meta
+      property="og:description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا"
+    />
+    <meta property="og:image" content="/og-image.jpg" />
+
     <!-- Essential Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
-    <meta name="twitter:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا">
-    <meta name="twitter:image" content="/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="سمسار | سوق السيارات والعقارات الأول في سوريا"
+    />
+    <meta
+      name="twitter:description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا"
+    />
+    <meta name="twitter:image" content="/og-image.jpg" />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "RealEstateAgent",
-      "@id": "https://samsar.app",
-      "name": "سمسار",
-      "alternateName": "Samsar",
-      "description": "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا",
-      "url": "https://samsar.app",
-      "logo": "https://samsar.app/logo.png",
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "Syria",
-        "addressRegion": "Damascus"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "33.5138",
-        "longitude": "36.2765"
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "09:00",
-        "closes": "22:00"
+      {
+        "@context": "https://schema.org",
+        "@type": "RealEstateAgent",
+        "@id": "https://samsar.app",
+        "name": "سمسار",
+        "alternateName": "Samsar",
+        "description": "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا",
+        "url": "https://samsar.app",
+        "logo": "https://samsar.app/logo.png",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "Syria",
+          "addressRegion": "Damascus"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "33.5138",
+          "longitude": "36.2765"
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Saturday",
+            "Sunday"
+          ],
+          "opens": "09:00",
+          "closes": "22:00"
+        }
       }
-    }
     </script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#1a56db">
-    <meta name="theme-color" content="#1a56db">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="msapplication-TileColor" content="#1a56db" />
+    <meta name="theme-color" content="#1a56db" />
 
     <!-- Fonts: Optimized for Arabic & English -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"></noscript>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"
+    /></noscript>
 
     <!-- Preload Critical Assets -->
-    <link rel="preload" href="/images/hero.webp" as="image" type="image/webp" fetchpriority="high">
-    <link rel="preload" href="/images/logo.svg" as="image" type="image/svg+xml">
-    
+    <link
+      rel="preload"
+      href="/images/hero.webp"
+      as="image"
+      type="image/webp"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      href="/images/logo.svg"
+      as="image"
+      type="image/svg+xml"
+    />
+
     <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://maps.googleapis.com">
-    <link rel="preconnect" href="https://www.google-analytics.com">
-    
-  
+    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <link rel="preconnect" href="https://www.google-analytics.com" />
 
     <!-- Social: Open Graph -->
     <meta property="og:title" content="Marketplace - Buy and Sell Locally" />
@@ -185,8 +231,7 @@
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    
-  
+
     <!-- Main App Script -->
     <script type="module" src="/src/main.tsx" defer></script>
   </body>

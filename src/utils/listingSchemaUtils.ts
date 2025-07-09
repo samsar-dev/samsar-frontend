@@ -51,14 +51,14 @@ const schemaMap: SchemaMap = {
 };
 
 export const getListingSchema = (
-  listingType: VehicleType | PropertyType
+  listingType: VehicleType | PropertyType,
 ): ListingFieldSchema[] => {
   return schemaMap[listingType] || [];
 };
 
 export const getFieldByName = (
   listingType: VehicleType | PropertyType,
-  fieldName: string
+  fieldName: string,
 ): ListingFieldSchema | undefined => {
   const schema = getListingSchema(listingType);
   return schema.find((field) => field.name === fieldName);
@@ -66,7 +66,7 @@ export const getFieldByName = (
 
 export const getFieldsBySection = (
   listingType: VehicleType | PropertyType,
-  section: "essential" | "advanced"
+  section: "essential" | "advanced",
 ): ListingFieldSchema[] => {
   const schema = getListingSchema(listingType);
   return schema.filter((field) => field.section === section);
@@ -85,17 +85,23 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
   }
 
   // Debug: Log the full listing data structure
-  if (process.env.NODE_ENV === "development" && fieldName === "debug_all_fields") {
-    console.log("Full listing data structure:", JSON.stringify(listing, null, 2));
+  if (
+    process.env.NODE_ENV === "development" &&
+    fieldName === "debug_all_fields"
+  ) {
+    console.log(
+      "Full listing data structure:",
+      JSON.stringify(listing, null, 2),
+    );
   }
 
   // Helper function to safely get value from object path
   const safeGet = (obj: any, path: string) => {
     try {
-      return path.split('.').reduce((o, p) => {
+      return path.split(".").reduce((o, p) => {
         // Skip if object is null or undefined
         if (o == null) return undefined;
-        
+
         // Handle array indices in path (e.g., 'features[0]')
         const arrayMatch = p.match(/(.+?)\[(\d+)\]/);
         if (arrayMatch) {
@@ -103,12 +109,12 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
           const index = parseInt(arrayMatch[2], 10);
           return Array.isArray(o[arrayName]) ? o[arrayName][index] : undefined;
         }
-        
+
         // Handle regular property access
         return o[p];
       }, obj);
     } catch (e) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.error(`Error accessing path '${path}':`, e);
       }
       return undefined;
@@ -124,21 +130,24 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
     // Nested under details.realEstate
     `details.realEstate.${fieldName}`,
     // Try with camelCase if fieldName is in snake_case
-    fieldName.includes('_') 
-      ? fieldName.split('_').reduce((acc, part, index) => 
-          index === 0 ? part : acc + part[0].toUpperCase() + part.slice(1), 
-          ''
-        )
+    fieldName.includes("_")
+      ? fieldName
+          .split("_")
+          .reduce(
+            (acc, part, index) =>
+              index === 0 ? part : acc + part[0].toUpperCase() + part.slice(1),
+            "",
+          )
       : null,
     // Try with snake_case if fieldName is in camelCase
-    fieldName.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`),
+    fieldName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`),
   ].filter(Boolean) as string[];
 
   // Try each path until we find a value
   for (const path of paths) {
     const value = safeGet(listing, path);
     if (value !== undefined && value !== null) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.log(`Found value for ${fieldName} at path ${path}:`, value);
       }
       return value;
@@ -153,10 +162,11 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
       if (vehicleFeatures.includes(fieldName)) {
         return true; // Feature exists in the features array
       }
-      
+
       // Check if any feature object has a 'name' property matching fieldName
       const feature = vehicleFeatures.find(
-        (f: any) => f && typeof f === 'object' && 'name' in f && f.name === fieldName
+        (f: any) =>
+          f && typeof f === "object" && "name" in f && f.name === fieldName,
       );
       if (feature) {
         return feature.value ?? true;
@@ -166,14 +176,17 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
     // Check if field exists directly in vehicles with case-insensitive match
     const vehicleFields = Object.keys(listing.details.vehicles);
     const matchingField = vehicleFields.find(
-      field => field.toLowerCase() === fieldName.toLowerCase()
+      (field) => field.toLowerCase() === fieldName.toLowerCase(),
     );
 
     if (matchingField) {
       const value = listing.details.vehicles[matchingField];
       if (value !== undefined && value !== null) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Found case-insensitive match for ${fieldName} as ${matchingField}:`, value);
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            `Found case-insensitive match for ${fieldName} as ${matchingField}:`,
+            value,
+          );
         }
         return value;
       }
@@ -181,30 +194,30 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
   }
 
   // Handle special boolean fields that might be undefined
-  const booleanFields = ['isActive', 'isFeatured', 'isAvailable'];
+  const booleanFields = ["isActive", "isFeatured", "isAvailable"];
   if (booleanFields.includes(fieldName)) {
     return false; // Default value for boolean fields
   }
 
   // Handle numeric fields that might be undefined
-  const numericFields = ['mileage', 'price', 'year'];
+  const numericFields = ["mileage", "price", "year"];
   if (numericFields.includes(fieldName)) {
     return 0; // Default value for numeric fields
   }
 
   // Return appropriate defaults for different field types
-  if (fieldName.endsWith('Date') || fieldName.endsWith('At')) {
+  if (fieldName.endsWith("Date") || fieldName.endsWith("At")) {
     return null; // Default for date fields
   }
 
-  if (fieldName.endsWith('s') && fieldName !== 'status') {
+  if (fieldName.endsWith("s") && fieldName !== "status") {
     return []; // Default for array fields (plural names)
   }
 
   // Try direct access as a last resort
   const directValue = listing[fieldName];
   if (directValue !== undefined) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log(`Found ${fieldName} as direct property:`, directValue);
     }
     return directValue;
@@ -219,13 +232,13 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
       if (listing.details.vehicles) {
         console.log(
           "Available keys in vehicles:",
-          Object.keys(listing.details.vehicles)
+          Object.keys(listing.details.vehicles),
         );
       }
       if (listing.details.realEstate) {
         console.log(
           "Available keys in realEstate:",
-          Object.keys(listing.details.realEstate)
+          Object.keys(listing.details.realEstate),
         );
       }
     }
@@ -236,7 +249,7 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
 
 export const getFieldOptions = (
   listingType: VehicleType | PropertyType,
-  fieldName: string
+  fieldName: string,
 ): Array<{ value: string; label: string }> => {
   const field = getFieldByName(listingType, fieldName);
   if (!field?.options) return [];
@@ -256,7 +269,7 @@ export const getFieldOptions = (
 export const validateField = (
   listingType: VehicleType | PropertyType,
   fieldName: string,
-  value: any
+  value: any,
 ): string | null => {
   const field = getFieldByName(listingType, fieldName);
   if (!field?.validate) return null;

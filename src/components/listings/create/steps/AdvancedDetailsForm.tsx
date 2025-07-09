@@ -195,7 +195,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
                   {t(cleanLabel(feature.label))}
                 </label>
               </div>
-            )
+            ),
           )}
         </div>
       )}
@@ -246,10 +246,10 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
     // Get unique sections from the schema and sort them according to SECTION_CONFIG
     const sections = Array.from(
-      new Set(currentSchema.map((field: ListingFieldSchema) => field.section))
+      new Set(currentSchema.map((field: ListingFieldSchema) => field.section)),
     )
       .filter(
-        (sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG
+        (sectionId): sectionId is SectionId => sectionId in SECTION_CONFIG,
       )
       .map((sectionId) => ({
         id: sectionId,
@@ -257,7 +257,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         icon: getIconComponent(SECTION_CONFIG[sectionId].icon),
         order: SECTION_CONFIG[sectionId].order,
         fields: currentSchema.filter(
-          (field: ListingFieldSchema) => field.section === sectionId
+          (field: ListingFieldSchema) => field.section === sectionId,
         ),
       }))
       .sort((a, b) => a.order - b.order);
@@ -281,7 +281,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         if (field.required && (!value || value === "" || value === null)) {
           // Use a field-specific required error message
           newErrors[`details.${field.name}`] = t(
-            `errors.${field.name}Required`
+            `errors.${field.name}Required`,
           );
         } else if (field.validate && value !== undefined) {
           const error = field.validate(value);
@@ -297,12 +297,12 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
     const handleInputChange = (
       field: string,
-      value: string | number | boolean | string[]
+      value: string | number | boolean | string[],
     ) => {
       console.log(
         "[AdvancedDetailsForm] handleInputChange event:",
         field,
-        value
+        value,
       );
       setForm((prevForm) => {
         const detailsKey = isVehicle ? "vehicles" : "realEstate";
@@ -353,7 +353,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
       const featureGroups = activeFields.reduce(
         (
           groups: Record<string, ListingFieldSchema[]>,
-          field: ListingFieldSchema
+          field: ListingFieldSchema,
         ) => {
           if (field.featureCategory) {
             if (!groups[field.featureCategory]) {
@@ -363,11 +363,11 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
           }
           return groups;
         },
-        {} as Record<string, ListingFieldSchema[]>
+        {} as Record<string, ListingFieldSchema[]>,
       );
 
       const standardFields = activeFields.filter(
-        (field) => !field.featureCategory
+        (field) => !field.featureCategory,
       );
 
       return (
@@ -394,7 +394,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                           }
                           onChange={handleFeatureChange}
                         />
-                      )
+                      ),
                     )}
                   </React.Fragment>
                 );
@@ -438,7 +438,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                               value: opt.value,
                               label: t(opt.label || `options.${opt.value}`),
                             }
-                          : { value: opt, label: t(`options.${opt}`) }
+                          : { value: opt, label: t(`options.${opt}`) },
                     )}
                     value={
                       isVehicle
@@ -503,13 +503,14 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
         if (!isValid) {
           const missingFields = Object.keys(errors).map(
-            (key) => t(`fields.${key.split(".").pop()}`) || key.split(".").pop()
+            (key) =>
+              t(`fields.${key.split(".").pop()}`) || key.split(".").pop(),
           );
 
           toast.error(
             t("errors.requiredFields", {
               fields: missingFields.join(", "),
-            })
+            }),
           );
 
           setIsSubmitting(false);
@@ -526,7 +527,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
             .filter(
               (field) =>
                 field.type === "date" &&
-                details[field.name as keyof typeof details]
+                details[field.name as keyof typeof details],
             )
             .map((field) => field.name);
 
@@ -544,7 +545,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                         ? new Date(value as string).toISOString().split("T")[0]
                         : "",
                     ];
-                  })
+                  }),
                 ),
               },
             };
@@ -553,7 +554,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
         console.log(
           "[AdvancedDetailsForm] Submitting form data:",
-          formattedForm
+          formattedForm,
         );
         await onSubmit(formattedForm, true);
         toast.success(t("success.detailsSaved"));
@@ -620,7 +621,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         </div>
       </form>
     );
-  }
+  },
 );
 
 export default AdvancedDetailsForm;

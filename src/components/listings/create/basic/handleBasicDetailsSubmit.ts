@@ -33,7 +33,9 @@ export const handleBasicDetailsSubmit = (
           typeof data.price === "string"
             ? parseFloat(data.price) || 0
             : (data.price ?? prev.price),
-        location: data.location ? cleanLocationString(data.location) : prev.location,
+        location: data.location
+          ? cleanLocationString(data.location)
+          : prev.location,
         images: data.images || prev.images,
         category: {
           ...prev.category,

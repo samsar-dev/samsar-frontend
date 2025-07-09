@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getCurrentLocation, calculateDistance } from '@/utils/geolocation';
+import { useState, useEffect, useCallback } from "react";
+import { getCurrentLocation, calculateDistance } from "@/utils/geolocation";
 
 interface Location {
   latitude: number;
@@ -64,7 +64,7 @@ export const useLocation = (props?: UseLocationProps) => {
         setError(`Error watching position: ${err.message}`);
         setLoading(false);
       },
-      watchOptions
+      watchOptions,
     );
 
     setWatchId(id);

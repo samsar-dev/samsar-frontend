@@ -46,10 +46,16 @@ interface FormData {
 
 const ContactUs = () => {
   const { t } = useTranslation("footer");
-  const pageTitle = t('contact_page.meta_title', 'اتصل بنا - سمسار');
-  const pageDescription = t('contact_page.meta_description', 'تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة');
-  const pageKeywords = t('contact_page.meta_keywords', 'اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل');
-  
+  const pageTitle = t("contact_page.meta_title", "اتصل بنا - سمسار");
+  const pageDescription = t(
+    "contact_page.meta_description",
+    "تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة",
+  );
+  const pageKeywords = t(
+    "contact_page.meta_keywords",
+    "اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل",
+  );
+
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -66,7 +72,7 @@ const ContactUs = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -164,7 +170,7 @@ const ContactUs = () => {
 
   return (
     <Box sx={{ py: 8, bgcolor: "background.default" }} dir="rtl">
-      <SEO 
+      <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}

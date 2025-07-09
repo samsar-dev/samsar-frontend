@@ -101,10 +101,22 @@
         "title": "Your Choices",
         "description": "You have the following choices regarding your information:",
         "items": [
-          {"label": "Account Information:", "text": "You may update or correct your account information at any time by logging into your account."},
-          {"label": "Cookies:", "text": "Most web browsers are set to accept cookies by default. You can usually choose to set your browser to remove or reject browser cookies."},
-          {"label": "Promotional Communications:", "text": "You may opt out of receiving promotional emails from us by following the instructions in those emails."},
-          {"label": "Mobile Push Notifications:", "text": "You can opt out of receiving push notifications through your device settings."}
+          {
+            "label": "Account Information:",
+            "text": "You may update or correct your account information at any time by logging into your account."
+          },
+          {
+            "label": "Cookies:",
+            "text": "Most web browsers are set to accept cookies by default. You can usually choose to set your browser to remove or reject browser cookies."
+          },
+          {
+            "label": "Promotional Communications:",
+            "text": "You may opt out of receiving promotional emails from us by following the instructions in those emails."
+          },
+          {
+            "label": "Mobile Push Notifications:",
+            "text": "You can opt out of receiving push notifications through your device settings."
+          }
         ]
       },
       "changes_to_policy": {

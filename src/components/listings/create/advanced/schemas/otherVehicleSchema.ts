@@ -21,10 +21,10 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     name: "condition",
     label: "fields.condition",
     type: "select",
-    options: Object.values(Condition).map(value => ({
+    options: Object.values(Condition).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.condition.${value.toUpperCase()}`
+      translationKey: `enums.condition.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -41,10 +41,26 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     label: "fields.registrationStatus",
     type: "select",
     options: [
-      { value: "valid", label: "VALID", translationKey: "enums.registrationStatus.VALID" },
-      { value: "expired", label: "EXPIRED", translationKey: "enums.registrationStatus.EXPIRED" },
-      { value: "not_registered", label: "NOT_REGISTERED", translationKey: "enums.registrationStatus.NOT_REGISTERED" },
-      { value: "other", label: "OTHER", translationKey: "enums.registrationStatus.OTHER" },
+      {
+        value: "valid",
+        label: "VALID",
+        translationKey: "enums.registrationStatus.VALID",
+      },
+      {
+        value: "expired",
+        label: "EXPIRED",
+        translationKey: "enums.registrationStatus.EXPIRED",
+      },
+      {
+        value: "not_registered",
+        label: "NOT_REGISTERED",
+        translationKey: "enums.registrationStatus.NOT_REGISTERED",
+      },
+      {
+        value: "other",
+        label: "OTHER",
+        translationKey: "enums.registrationStatus.OTHER",
+      },
     ],
     section: "essential",
     required: false,
@@ -60,10 +76,10 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     name: "fuelType",
     label: "fields.fuelType",
     type: "select",
-    options: Object.values(FuelType).map(value => ({
+    options: Object.values(FuelType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.fuelType.${value.toUpperCase()}`
+      translationKey: `enums.fuelType.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: false,
@@ -72,10 +88,10 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "fields.transmissionType",
     type: "select",
-    options: Object.values(TransmissionType).map(value => ({
+    options: Object.values(TransmissionType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.transmission.${value.toUpperCase()}`
+      translationKey: `enums.transmission.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: false,
@@ -85,10 +101,26 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     label: "fields.serviceHistory",
     type: "multiselect",
     options: [
-      { value: "full", label: "FULL", translationKey: "enums.serviceHistory.FULL" },
-      { value: "partial", label: "PARTIAL", translationKey: "enums.serviceHistory.PARTIAL" },
-      { value: "no_history", label: "NO_HISTORY", translationKey: "enums.serviceHistory.NO_HISTORY" },
-      { value: "unknown", label: "UNKNOWN", translationKey: "enums.serviceHistory.UNKNOWN" },
+      {
+        value: "full",
+        label: "FULL",
+        translationKey: "enums.serviceHistory.FULL",
+      },
+      {
+        value: "partial",
+        label: "PARTIAL",
+        translationKey: "enums.serviceHistory.PARTIAL",
+      },
+      {
+        value: "no_history",
+        label: "NO_HISTORY",
+        translationKey: "enums.serviceHistory.NO_HISTORY",
+      },
+      {
+        value: "unknown",
+        label: "UNKNOWN",
+        translationKey: "enums.serviceHistory.UNKNOWN",
+      },
     ],
     section: "essential",
     required: false,
@@ -114,9 +146,17 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     options: [
       { value: "2WD", label: "2WD", translationKey: "enums.driveSystem.2WD" },
       { value: "4WD", label: "4WD", translationKey: "enums.driveSystem.4WD" },
-      { value: "MFWD", label: "MFWD", translationKey: "enums.driveSystem.MFWD" },
+      {
+        value: "MFWD",
+        label: "MFWD",
+        translationKey: "enums.driveSystem.MFWD",
+      },
       { value: "AWD", label: "AWD", translationKey: "enums.driveSystem.AWD" },
-      { value: "tracked", label: "TRACKED", translationKey: "enums.driveSystem.TRACKED" },
+      {
+        value: "tracked",
+        label: "TRACKED",
+        translationKey: "enums.driveSystem.TRACKED",
+      },
     ],
     section: "essential",
     required: false,
@@ -126,12 +166,36 @@ export const commonVehicleFields: ListingFieldSchema[] = [
     label: "fields.emissions",
     type: "select",
     options: [
-      { value: "Euro 6", label: "EURO_6", translationKey: "enums.emissions.EURO_6" },
-      { value: "Euro 5", label: "EURO_5", translationKey: "enums.emissions.EURO_5" },
-      { value: "Euro 4", label: "EURO_4", translationKey: "enums.emissions.EURO_4" },
-      { value: "Euro 3", label: "EURO_3", translationKey: "enums.emissions.EURO_3" },
-      { value: "Other", label: "OTHER", translationKey: "enums.emissions.OTHER" },
-      { value: "Unknown", label: "UNKNOWN", translationKey: "enums.emissions.UNKNOWN" },
+      {
+        value: "Euro 6",
+        label: "EURO_6",
+        translationKey: "enums.emissions.EURO_6",
+      },
+      {
+        value: "Euro 5",
+        label: "EURO_5",
+        translationKey: "enums.emissions.EURO_5",
+      },
+      {
+        value: "Euro 4",
+        label: "EURO_4",
+        translationKey: "enums.emissions.EURO_4",
+      },
+      {
+        value: "Euro 3",
+        label: "EURO_3",
+        translationKey: "enums.emissions.EURO_3",
+      },
+      {
+        value: "Other",
+        label: "OTHER",
+        translationKey: "enums.emissions.OTHER",
+      },
+      {
+        value: "Unknown",
+        label: "UNKNOWN",
+        translationKey: "enums.emissions.UNKNOWN",
+      },
     ],
     section: "advanced",
     required: false,

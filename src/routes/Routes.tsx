@@ -64,7 +64,7 @@ const Login = lazy(importLogin);
 const VerifyCode = lazy(importVerifyCode);
 const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
 const PasswordResetVerification = lazy(
-  () => import("@/pages/PasswordResetVerification")
+  () => import("@/pages/PasswordResetVerification"),
 );
 const Register = lazy(importRegister);
 const VerifyEmail = lazy(importVerifyEmail);

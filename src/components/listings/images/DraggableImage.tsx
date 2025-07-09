@@ -1,5 +1,5 @@
 import React, { useRef, memo, useMemo, useCallback, useId } from "react";
-import type { Identifier } from 'dnd-core';
+import type { Identifier } from "dnd-core";
 import { useDrag, useDrop } from "react-dnd";
 import { motion } from "framer-motion";
 import { FaTrash, FaEdit } from "react-icons/fa";
@@ -42,9 +42,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   const ref = useRef<HTMLDivElement>(null);
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
   const componentId = useId();
-  
+
   // Create a stable identifier that persists across re-renders
-  const stableId = useMemo(() => `${componentId}-${index}`, [componentId, index]);
+  const stableId = useMemo(
+    () => `${componentId}-${index}`,
+    [componentId, index],
+  );
 
   const [{ isDragging }, drag, preview] = useDrag({
     type: "image",
@@ -89,7 +92,8 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       }
 
       // Get vertical middle of the hovered item
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
       // Only perform the move when the mouse has crossed half of the items height
@@ -112,7 +116,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       e.stopPropagation();
       onDelete(index);
     },
-    [onDelete, index]
+    [onDelete, index],
   );
 
   const handleEdit = useCallback(
@@ -120,7 +124,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       e.stopPropagation();
       onEdit(url, index);
     },
-    [onEdit, url, index]
+    [onEdit, url, index],
   );
 
   // Set up refs for drag and drop
@@ -137,7 +141,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         }
       }
     },
-    [drag, drop, preview]
+    [drag, drop, preview],
   );
 
   return (
@@ -149,7 +153,10 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       className={`relative group ${isDragging ? "opacity-40" : "opacity-100"}`}
       ref={setDragRef}
     >
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800" ref={dragPreviewRef}>
+      <div
+        className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
+        ref={dragPreviewRef}
+      >
         <ImageFallback
           src={url}
           alt="Listing image"
@@ -158,7 +165,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
           height={200}
           quality={75}
           priority={index === 0}
-          loading={index < 3 ? 'eager' : 'lazy'}
+          loading={index < 3 ? "eager" : "lazy"}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {/* Image metadata overlay */}

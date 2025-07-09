@@ -1,4 +1,8 @@
-import { LISTING_TYPES, ListingState, ListingAction } from "./listingEdit.types";
+import {
+  LISTING_TYPES,
+  ListingState,
+  ListingAction,
+} from "./listingEdit.types";
 
 const initialState: ListingState = {
   currentListing: null,
@@ -15,7 +19,7 @@ const initialState: ListingState = {
 
 export const listingReducer = (
   state = initialState,
-  action: ListingAction
+  action: ListingAction,
 ): ListingState => {
   switch (action.type) {
     case LISTING_TYPES.SET_CURRENT_LISTING:
@@ -46,11 +50,13 @@ export const listingReducer = (
       const { index, isUrl } = action.payload;
       const newImages = [...state.images];
       const removedImage = newImages.splice(index, 1)[0];
-      
+
       return {
         ...state,
         images: newImages,
-        deletedImages: isUrl ? [...state.deletedImages, removedImage as string] : state.deletedImages,
+        deletedImages: isUrl
+          ? [...state.deletedImages, removedImage as string]
+          : state.deletedImages,
       };
     }
 

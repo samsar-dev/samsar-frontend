@@ -7,7 +7,7 @@ export const LISTING_DETAILS_TYPES = {
   SET_LOADING: "listingDetails/SET_LOADING",
   SET_ERROR: "listingDetails/SET_ERROR",
   RESET_STATE: "listingDetails/RESET_STATE",
-  
+
   // Message handling
   SEND_MESSAGE: "listingDetails/SEND_MESSAGE",
   SET_MESSAGE_FORM_VISIBILITY: "listingDetails/SET_MESSAGE_FORM_VISIBILITY",
@@ -20,11 +20,11 @@ export type ListingDetailsState = {
   listing: Listing | null;
   loading: boolean;
   error: string | null;
-  
+
   // Message form state
   showMessageForm: boolean;
   message: string;
-  messageType: 'question' | 'offer' | 'meeting';
+  messageType: "question" | "offer" | "meeting";
   messageSuccess: boolean;
 };
 
@@ -55,7 +55,7 @@ export type SetMessageAction = {
 
 export type SetMessageTypeAction = {
   type: typeof LISTING_DETAILS_TYPES.SET_MESSAGE_TYPE;
-  payload: 'question' | 'offer' | 'meeting';
+  payload: "question" | "offer" | "meeting";
 };
 
 export type SetMessageSuccessAction = {

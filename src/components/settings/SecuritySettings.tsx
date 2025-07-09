@@ -34,8 +34,6 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
     [mergedSettings, onUpdate],
   );
 
-
-
   return (
     <div className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`}>
       <div>
@@ -149,8 +147,6 @@ function SecuritySettings({ settings = {}, onUpdate, isRTL }: Props) {
           />
         </div>
       </div>
-
-
 
       {/* Only render login activity if there's data */}
       {mergedSettings.loginActivity &&

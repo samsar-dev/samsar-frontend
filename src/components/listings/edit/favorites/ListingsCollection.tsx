@@ -14,20 +14,29 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
   const { favorites, isLoading: favoritesLoading } = useFavorites();
-  const { savedListings, isLoading: savedListingsLoading, isSaved } = useSavedListings();
+  const {
+    savedListings,
+    isLoading: savedListingsLoading,
+    isSaved,
+  } = useSavedListings();
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
         setLoadingListings(true);
-        const listingIds = type === "favorites" ? [...favorites] : [...savedListings];
-        
+        const listingIds =
+          type === "favorites" ? [...favorites] : [...savedListings];
+
         if (listingIds.length > 0) {
           const response = await listingsAPI.getListingsByIds(listingIds);
           if (response.success && response.data) {
-            const listingsData = Array.isArray(response.data) ? response.data : [response.data];
+            const listingsData = Array.isArray(response.data)
+              ? response.data
+              : [response.data];
             // Filter out any null/undefined listings and ensure they match the Listing type
-            const validListings = listingsData.filter((listing): listing is Listing => Boolean(listing));
+            const validListings = listingsData.filter(
+              (listing): listing is Listing => Boolean(listing),
+            );
             setListings(validListings);
           }
         } else {
@@ -53,13 +62,18 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   }, [type, favorites, savedListings]);
 
   if (favoritesLoading || savedListingsLoading || loadingListings) {
-    return <div className="p-4 text-center text-gray-500">Loading {type}...</div>;
+    return (
+      <div className="p-4 text-center text-gray-500">Loading {type}...</div>
+    );
   }
 
   if (listings.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
-        No {type} listings found. {type === 'saved' ? 'Save listings to see them here!' : 'Add listings to your favorites to see them here!'}
+        No {type} listings found.{" "}
+        {type === "saved"
+          ? "Save listings to see them here!"
+          : "Add listings to your favorites to see them here!"}
       </div>
     );
   }

@@ -49,7 +49,7 @@ const i18nConfig: InitOptions = {
   saveMissingTo: "all", // Save missing translations to all languages
   missingKeyHandler: (lng, ns, key) => {
     console.log(
-      `Missing translation: ${key} in namespace ${ns} for language ${lng}`
+      `Missing translation: ${key} in namespace ${ns} for language ${lng}`,
     );
   },
 };

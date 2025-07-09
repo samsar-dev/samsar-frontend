@@ -38,12 +38,12 @@ const VerifyEmail = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            credentials: 'include',
+            credentials: "include",
           },
         );
 
         const data = await response.json();
-        
+
         if (response.status === 200 && data.success) {
           setSuccess(true);
           setError("");
@@ -54,13 +54,17 @@ const VerifyEmail = () => {
           }, 3000);
         } else {
           // Handle specific error messages
-          const errorMessage = data.error?.message || t("auth.verification.failed");
+          const errorMessage =
+            data.error?.message || t("auth.verification.failed");
           setError(errorMessage);
           toast.error(errorMessage);
-          
+
           // If the token is invalid or expired, show the resend form
-          if (data.error?.code === 'INVALID_TOKEN' || data.error?.code === 'TOKEN_EXPIRED') {
-            setEmail('');
+          if (
+            data.error?.code === "INVALID_TOKEN" ||
+            data.error?.code === "TOKEN_EXPIRED"
+          ) {
+            setEmail("");
           }
         }
       } catch (err) {

@@ -93,7 +93,6 @@ npm run dev
 The form system is built with reusability and type safety in mind:
 
 1. `FormField`: A reusable component that handles different types of inputs:
-
    - Text input
    - Number input
    - Select dropdown
@@ -102,7 +101,6 @@ The form system is built with reusability and type safety in mind:
    - File upload
 
 2. `BasicDetailsForm`: Handles the initial category selection and basic details
-
    - Progressive disclosure of form fields
    - Smooth animations for transitions
    - Responsive grid layout

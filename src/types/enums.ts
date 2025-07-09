@@ -85,7 +85,7 @@ export enum ListingStatus {
   RENTED = "rented",
   PENDING = "pending",
   RESERVED = "reserved",
-  PENDING_REVIEW = "pending_review"
+  PENDING_REVIEW = "pending_review",
 }
 
 // 🌟 Listing Action Types

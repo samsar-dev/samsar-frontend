@@ -16,7 +16,11 @@ const cookieOptions = {
 /**
  * Set a cookie with the given name, value, and options
  */
-export const setCookie = (name: string, value: string, options?: Cookies.CookieAttributes): void => {
+export const setCookie = (
+  name: string,
+  value: string,
+  options?: Cookies.CookieAttributes,
+): void => {
   Cookies.set(name, value, { ...cookieOptions, ...options });
 };
 
@@ -30,7 +34,10 @@ export const getCookie = (name: string): string | undefined => {
 /**
  * Remove a cookie by name
  */
-export const removeCookie = (name: string, options?: Cookies.CookieAttributes): void => {
+export const removeCookie = (
+  name: string,
+  options?: Cookies.CookieAttributes,
+): void => {
   Cookies.remove(name, { ...cookieOptions, ...options });
 };
 

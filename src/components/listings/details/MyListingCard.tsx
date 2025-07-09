@@ -22,9 +22,9 @@ export interface MyListingCardProps {
 const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
   const mainImage = listing?.images?.[0];
   const { t } = useTranslation();
-  
+
   const formatViews = (count?: number) => {
-    if (!count) return '0';
+    if (!count) return "0";
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
@@ -106,26 +106,32 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
           </div>
 
           {/* Features */}
-          {vehicleDetails.features && Object.values(vehicleDetails.features).filter(Boolean).length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {Object.entries(vehicleDetails.features)
-                .filter(([_, value]) => value === true)
-                .slice(0, 3)
-                .map(([feature], index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
-                  >
-                    {feature}
+          {vehicleDetails.features &&
+            Object.values(vehicleDetails.features).filter(Boolean).length >
+              0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {Object.entries(vehicleDetails.features)
+                  .filter(([_, value]) => value === true)
+                  .slice(0, 3)
+                  .map(([feature], index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                {Object.values(vehicleDetails.features).filter(Boolean).length >
+                  3 && (
+                  <span className="text-xs text-gray-500">
+                    +
+                    {Object.values(vehicleDetails.features).filter(Boolean)
+                      .length - 3}{" "}
+                    more
                   </span>
-                ))}
-              {Object.values(vehicleDetails.features).filter(Boolean).length > 3 && (
-                <span className="text-xs text-gray-500">
-                  +{Object.values(vehicleDetails.features).filter(Boolean).length - 3} more
-                </span>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
         </div>
       );
     }
@@ -229,7 +235,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
           <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
             <PriceConverter price={price} />
           </p>
-          
+
           {/* Location and Views */}
           <div className="flex items-center justify-between mb-3 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center">
@@ -243,7 +249,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
               </div>
             )}
           </div>
-          
+
           {/* Features */}
           <div className="flex flex-wrap gap-2 mb-3">
             {listing?.vehicleDetails?.features &&
@@ -254,7 +260,7 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
                     key={feature}
                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                   >
-                    {feature.split(/(?=[A-Z])/).join(' ')}
+                    {feature.split(/(?=[A-Z])/).join(" ")}
                   </span>
                 ))}
           </div>

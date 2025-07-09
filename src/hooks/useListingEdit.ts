@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { TypedUseSelectorHook } from 'react-redux';
-import type { RootState, AppDispatch } from '@/store/store';
+import { useDispatch, useSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState, AppDispatch } from "@/store/store";
 import {
   selectCurrentListing,
   selectFormData,
@@ -11,14 +11,11 @@ import {
   selectError,
   selectListingDetails,
   selectDetailsLoading,
-  selectDetailsError
-} from '@/store/listing/listingEdit.selectors';
-import * as listingActions from '@/store/listing/listingEdit.actions';
-import { 
-  getNestedValue,
-  setNestedValue
-} from '@/utils/listingSchemaRedux';
-import { Listing } from '@/types/listings';
+  selectDetailsError,
+} from "@/store/listing/listingEdit.selectors";
+import * as listingActions from "@/store/listing/listingEdit.actions";
+import { getNestedValue, setNestedValue } from "@/utils/listingSchemaRedux";
+import { Listing } from "@/types/listings";
 
 // Action types are now inferred from the actions themselves
 
@@ -29,7 +26,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 // Custom hook for listing-related state and actions
 export const useListingStore = () => {
   const dispatch = useAppDispatch();
-  
+
   // Selectors - using the correct state paths
   const currentListing = useAppSelector(selectCurrentListing);
   const formData = useAppSelector(selectFormData);
@@ -41,33 +38,46 @@ export const useListingStore = () => {
   const listingDetails = useAppSelector(selectListingDetails);
   const detailsLoading = useAppSelector(selectDetailsLoading);
   const detailsError = useAppSelector(selectDetailsError);
-  
+
   // Actions
-  const setCurrentListingAction = (listing: Listing) => dispatch(listingActions.setCurrentListing(listing));
-  const setFormDataAction = (data: any) => dispatch(listingActions.setFormData(data));
-  const setStepAction = (step: number) => dispatch(listingActions.setStep(step));
-  const addImageAction = (image: string | File) => dispatch(listingActions.addImage(image));
-  const removeImageAction = (index: number, isUrl: boolean = false) => 
+  const setCurrentListingAction = (listing: Listing) =>
+    dispatch(listingActions.setCurrentListing(listing));
+  const setFormDataAction = (data: any) =>
+    dispatch(listingActions.setFormData(data));
+  const setStepAction = (step: number) =>
+    dispatch(listingActions.setStep(step));
+  const addImageAction = (image: string | File) =>
+    dispatch(listingActions.addImage(image));
+  const removeImageAction = (index: number, isUrl: boolean = false) =>
     dispatch(listingActions.removeImage(index, isUrl));
-  const setLoadingAction = (isLoading: boolean) => dispatch(listingActions.setLoading(isLoading));
-  const setErrorAction = (error: string | null) => dispatch(listingActions.setError(error));
-  const createListingAction = (formData: FormData) => dispatch(listingActions.createListing(formData));
-  const updateListingAction = (id: string, formData: FormData) => 
+  const setLoadingAction = (isLoading: boolean) =>
+    dispatch(listingActions.setLoading(isLoading));
+  const setErrorAction = (error: string | null) =>
+    dispatch(listingActions.setError(error));
+  const createListingAction = (formData: FormData) =>
+    dispatch(listingActions.createListing(formData));
+  const updateListingAction = (id: string, formData: FormData) =>
     dispatch(listingActions.updateListing(id, formData));
-  const fetchListingAction = (id: string) => dispatch(listingActions.fetchListing(id));
-  const resetListingStateAction = () => dispatch(listingActions.resetListingState());
-  
+  const fetchListingAction = (id: string) =>
+    dispatch(listingActions.fetchListing(id));
+  const resetListingStateAction = () =>
+    dispatch(listingActions.resetListingState());
+
   // Field value and validation handlers
   const handleFieldValue = (field: string, value: any) => {
     dispatch(listingActions.setFieldValue(field, value));
   };
 
-  const handleFieldValidation = (field: string, value: any, listingType: string) => {
+  const handleFieldValidation = (
+    field: string,
+    value: any,
+    listingType: string,
+  ) => {
     return dispatch(listingActions.validateField(field, value, listingType));
   };
 
   // Schema-related functions
-  const getFieldValue = (fieldPath: string) => 
+  const getFieldValue = (fieldPath: string) =>
     getNestedValue(formData, fieldPath);
 
   const setFieldValue = (fieldPath: string, value: any) => {
@@ -89,12 +99,12 @@ export const useListingStore = () => {
     deletedImages,
     loading: loading || detailsLoading,
     error: error || detailsError,
-    
+
     // Form field methods
     getFieldValue,
     setFieldValue,
     validateField,
-    
+
     // Actions
     setCurrentListing: setCurrentListingAction,
     setFormData: setFormDataAction,

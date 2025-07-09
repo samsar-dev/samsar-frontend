@@ -1,5 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation, useParams, Routes, Route } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  useParams,
+  Routes,
+  Route,
+} from "react-router-dom";
 import {
   MyListings,
   ProfileInfo,
@@ -92,7 +98,10 @@ export const Profile = () => {
               <Route path="/listings" element={<MyListings />} />
               <Route path="/password" element={<ChangePassword />} />
               <Route path="/:userId" element={<PublicProfileInfo />} />
-              <Route path="/:userId/listings" element={<PublicProfileInfo showListings />} />
+              <Route
+                path="/:userId/listings"
+                element={<PublicProfileInfo showListings />}
+              />
             </Routes>
           </div>
         </div>

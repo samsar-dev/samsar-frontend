@@ -35,7 +35,7 @@ export interface FormFieldProps {
   max?: number;
   prefix?: string;
   customValidation?: (
-    value: string | string[]
+    value: string | string[],
   ) => string | string[] | undefined | null;
   isSearchable?: boolean;
   tooltip?: string;
@@ -64,7 +64,7 @@ export const FormField = forwardRef<
       isSearchable,
       tooltip,
     },
-    ref
+    ref,
   ) => {
     const { t } = useTranslation();
     const handleChange = (
@@ -73,7 +73,7 @@ export const FormField = forwardRef<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
           >
         | SingleValue<{ value: string; label: string }>,
-      _actionMeta?: ActionMeta<{ value: string; label: string }>
+      _actionMeta?: ActionMeta<{ value: string; label: string }>,
     ) => {
       let newValue: string | boolean | string[];
 
@@ -121,13 +121,13 @@ export const FormField = forwardRef<
 
       onChange(
         type === "number" ? Number(newValue) : newValue,
-        validationError || undefined
+        validationError || undefined,
       );
     };
 
     const handleMultiSelectChange = (
       newValue: MultiValue<unknown>,
-      _actionMeta?: ActionMeta<unknown>
+      _actionMeta?: ActionMeta<unknown>,
     ) => {
       let newValueArr: string[] | null = null;
 
@@ -168,7 +168,7 @@ export const FormField = forwardRef<
         "opacity-50 cursor-not-allowed": disabled,
         "pl-10": prefix,
       },
-      "placeholder-gray-400"
+      "placeholder-gray-400",
     );
 
     const animatedComponents = makeAnimated();
@@ -248,10 +248,10 @@ export const FormField = forwardRef<
               <option value="">{placeholder || "Select an option"}</option>
               {options?.map((option) => {
                 // Use translationKey if available, otherwise use the label
-                const displayLabel = option.translationKey 
-                  ? t(option.translationKey, option.label) 
+                const displayLabel = option.translationKey
+                  ? t(option.translationKey, option.label)
                   : option.label;
-                
+
                 return (
                   <option key={option.value} value={option.value}>
                     {typeof displayLabel === "string"
@@ -402,7 +402,7 @@ export const FormField = forwardRef<
         )}
       </div>
     );
-  }
+  },
 );
 
 FormField.displayName = "FormField";

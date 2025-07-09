@@ -1,9 +1,9 @@
 import React, { createContext, useState, useCallback } from "react";
 import { ReportsAPI } from "@/api/reports.api";
-import type { 
-  Report, 
-  ReportCreateInput, 
-  ReportUpdateInput 
+import type {
+  Report,
+  ReportCreateInput,
+  ReportUpdateInput,
 } from "@/types/reports";
 
 export interface ReportsContextType {

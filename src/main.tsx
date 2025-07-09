@@ -87,7 +87,7 @@ const initializeApp = () => {
           </ErrorBoundary>
         </Provider>
       </BrowserRouter>
-    </HelmetProvider>
+    </HelmetProvider>,
   );
 };
 

@@ -1,8 +1,12 @@
-import apiClient from './apiClient';
-import type { APIResponse, PaginatedData } from '@/types/api';
-import type { Report, ReportCreateInput, ReportUpdateInput } from '@/types/reports';
+import apiClient from "./apiClient";
+import type { APIResponse, PaginatedData } from "@/types/api";
+import type {
+  Report,
+  ReportCreateInput,
+  ReportUpdateInput,
+} from "@/types/reports";
 
-const BASE_URL = '/reports';
+const BASE_URL = "/reports";
 
 interface CreateReportResponse {
   success: boolean;
@@ -11,7 +15,10 @@ interface CreateReportResponse {
   error?: string;
 }
 
-function createErrorResponse<T>(error: any, defaultMessage: string): APIResponse<T> {
+function createErrorResponse<T>(
+  error: any,
+  defaultMessage: string,
+): APIResponse<T> {
   return {
     success: false,
     error: error.response?.data?.error || defaultMessage,
@@ -34,7 +41,10 @@ export const ReportsAPI = {
       );
       return response.data;
     } catch (error: any) {
-      return createErrorResponse<PaginatedData<Report>>(error, "Failed to fetch reports");
+      return createErrorResponse<PaginatedData<Report>>(
+        error,
+        "Failed to fetch reports",
+      );
     }
   },
 
@@ -57,28 +67,30 @@ export const ReportsAPI = {
           type: input.type,
           targetId: input.targetId,
           reason: input.reason,
-          notes: input.notes || null
+          notes: input.notes || null,
         },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+            "Content-Type": "application/json",
+          },
+        },
       );
-      
+
       if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to create report');
+        throw new Error(response.data.error || "Failed to create report");
       }
-      
+
       return {
         success: true,
-        data: response.data.data
+        data: response.data.data,
       };
     } catch (error: any) {
-      console.error('Error in createReport:', error);
+      console.error("Error in createReport:", error);
       return createErrorResponse<Report>(
         error,
-        error.response?.data?.error || error.message || 'Failed to create report'
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to create report",
       );
     }
   },

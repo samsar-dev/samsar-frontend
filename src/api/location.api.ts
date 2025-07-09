@@ -1,19 +1,22 @@
-import api from './apiClient';
+import api from "./apiClient";
 
 export const locationAPI = {
   /**
    * Search for locations by query
    */
-  searchLocations: async (query: string, options: {
-    limit?: number;
-    proximity?: [number, number];
-    country?: string;
-  } = {}) => {
+  searchLocations: async (
+    query: string,
+    options: {
+      limit?: number;
+      proximity?: [number, number];
+      country?: string;
+    } = {},
+  ) => {
     const params = new URLSearchParams({
       q: query,
-      limit: options.limit?.toString() || '5',
-      ...(options.proximity && { 
-        proximity: `${options.proximity[0]},${options.proximity[1]}` 
+      limit: options.limit?.toString() || "5",
+      ...(options.proximity && {
+        proximity: `${options.proximity[0]},${options.proximity[1]}`,
       }),
       ...(options.country && { country: options.country }),
     });
@@ -26,7 +29,9 @@ export const locationAPI = {
    * Reverse geocode coordinates to get address
    */
   reverseGeocode: async (lat: number, lng: number) => {
-    const response = await api.get(`/api/locations/reverse?lat=${lat}&lng=${lng}`);
+    const response = await api.get(
+      `/api/locations/reverse?lat=${lat}&lng=${lng}`,
+    );
     return response.data;
   },
 
@@ -37,7 +42,7 @@ export const locationAPI = {
     lat: number,
     lng: number,
     radius: number,
-    filters: Record<string, any> = {}
+    filters: Record<string, any> = {},
   ) => {
     const params = new URLSearchParams({
       lat: lat.toString(),
@@ -56,7 +61,7 @@ export const locationAPI = {
   getDistance: async (
     origin: { lat: number; lng: number },
     destination: { lat: number; lng: number },
-    unit: 'km' | 'mi' = 'km'
+    unit: "km" | "mi" = "km",
   ) => {
     const params = new URLSearchParams({
       origin: `${origin.lat},${origin.lng}`,

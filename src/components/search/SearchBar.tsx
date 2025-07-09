@@ -47,13 +47,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const loadListings = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/listings?limit=100');
+        const response = await fetch("/api/listings?limit=100");
         const data = await response.json();
         if (data.listings) {
           fuseRef.current = createFuse(data.listings);
         }
       } catch (error) {
-        console.error('Failed to load listings:', error);
+        console.error("Failed to load listings:", error);
       } finally {
         setIsLoading(false);
       }
@@ -70,11 +70,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     }
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    
+
     debounceTimeout.current = setTimeout(async () => {
       try {
         setIsLoading(true);
-        
+
         // First try client-side fuzzy search
         if (fuseRef.current) {
           const results = searchListings(fuseRef.current, searchTerm);
@@ -88,10 +88,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
         if (category && category !== "all") {
           searchParams.category = {
-            mainCategory: category === "vehicles" 
-              ? ListingCategory.VEHICLES 
-              : ListingCategory.REAL_ESTATE,
-            ...(subcategory ? { subCategory: subcategory } : {})
+            mainCategory:
+              category === "vehicles"
+                ? ListingCategory.VEHICLES
+                : ListingCategory.REAL_ESTATE,
+            ...(subcategory ? { subCategory: subcategory } : {}),
           };
         }
 
@@ -235,8 +236,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </button>
         {/* Suggestions Dropdown */}
         {showSuggestions && suggestions.length > 0 && (
-          <div 
-            ref={suggestionsRef} 
+          <div
+            ref={suggestionsRef}
             id="search-suggestions"
             className="w-full"
             role="listbox"
@@ -250,7 +251,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               onSuggestionClick={handleSuggestionClick}
             />
             {/* Click outside to close */}
-            <div 
+            <div
               className="fixed inset-0 bg-black opacity-0 z-40"
               onClick={() => setShowSuggestions(false)}
             />

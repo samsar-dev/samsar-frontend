@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { useTranslation } from "react-i18next";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import ListingFilters from "@/components/filters/ListingFilters";
@@ -9,7 +15,6 @@ import { listingsAPI } from "@/api/listings.api";
 import { debounce } from "lodash-es";
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
- 
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -19,21 +24,30 @@ interface ListingsState {
 
 const VehiclesPage: React.FC = () => {
   const { t } = useTranslation();
-  
+
   // SEO Meta Tags
-  const pageTitle = t('vehicles.meta_title', 'المركبات - سمسار');
-  const pageDescription = t('vehicles.meta_description', 'أكبر سوق لبيع وشراء السيارات والمركبات في سوريا. تصفح آلاف السيارات الجديدة والمستعملة من مختلف الماركات والموديلات. لدينا تشكيلة واسعة تشمل: سيارات سيدان، دفع رباعي، سيارات عائلية، سيارات رياضية، دراجات نارية، شاحنات، باصات، وقطع غيار. خدمة مجانية لبيع وشراء المركبات مع إمكانية المقارنة بين العروض والاتصال بالبائع مباشرة. أسعار تنافسية وضمان حقيقي. ابدأ بحثك الآن عن سيارتك المثالية!');
-  const pageKeywords = t('vehicles.meta_keywords', 'سيارات للبيع, سيارات مستعملة, سيارات جديدة, معارض سيارات, سيارات بالتقسيط, دراجات نارية, شاحنات, باصات, قطع غيار سيارات, بيع سيارات, شراء سيارات, سوق السيارات, اسعار السيارات, سيارات مضمونة, سمسار سيارات, سيارات سوريا, مركبات للايجار');
-  
+  const pageTitle = t("vehicles.meta_title", "المركبات - سمسار");
+  const pageDescription = t(
+    "vehicles.meta_description",
+    "أكبر سوق لبيع وشراء السيارات والمركبات في سوريا. تصفح آلاف السيارات الجديدة والمستعملة من مختلف الماركات والموديلات. لدينا تشكيلة واسعة تشمل: سيارات سيدان، دفع رباعي، سيارات عائلية، سيارات رياضية، دراجات نارية، شاحنات، باصات، وقطع غيار. خدمة مجانية لبيع وشراء المركبات مع إمكانية المقارنة بين العروض والاتصال بالبائع مباشرة. أسعار تنافسية وضمان حقيقي. ابدأ بحثك الآن عن سيارتك المثالية!",
+  );
+  const pageKeywords = t(
+    "vehicles.meta_keywords",
+    "سيارات للبيع, سيارات مستعملة, سيارات جديدة, معارض سيارات, سيارات بالتقسيط, دراجات نارية, شاحنات, باصات, قطع غيار سيارات, بيع سيارات, شراء سيارات, سوق السيارات, اسعار السيارات, سيارات مضمونة, سمسار سيارات, سيارات سوريا, مركبات للايجار",
+  );
+
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     loading: true,
     error: null,
   });
-  
+
   // Filter states
-  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(null);
-  const [selectedVehicleType, setSelectedVehicleType] = useState<VehicleType | null>(null);
+  const [selectedAction, setSelectedAction] = useState<ListingAction | null>(
+    null,
+  );
+  const [selectedVehicleType, setSelectedVehicleType] =
+    useState<VehicleType | null>(null);
   const [selectedMake, setSelectedMake] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -41,9 +55,12 @@ const VehiclesPage: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedRadius, setSelectedRadius] = useState<number | null>(50);
   const [selectedBuiltYear] = useState<number | null>(null);
-  const [priceRange, setPriceRange] = useState<{ min: number | ''; max: number | '' }>({
-    min: '',
-    max: ''
+  const [priceRange, setPriceRange] = useState<{
+    min: number | "";
+    max: number | "";
+  }>({
+    min: "",
+    max: "",
   });
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
@@ -56,7 +73,7 @@ const VehiclesPage: React.FC = () => {
   const fetchVehicleListings = useCallback(async () => {
     try {
       setListings((prev) => ({ ...prev, loading: true, error: null }));
-      
+
       const params: any = {
         category: {
           mainCategory: ListingCategory.VEHICLES,
@@ -69,14 +86,14 @@ const VehiclesPage: React.FC = () => {
         ...(selectedMake && { make: selectedMake }),
         ...(selectedModel && { model: selectedModel }),
       };
-      
+
       if (selectedLocation) {
         params.location = selectedLocation;
         if (selectedRadius) {
           params.radius = selectedRadius;
         }
       }
-      
+
       if (selectedBuiltYear) {
         params.vehicleDetails = {
           ...params.vehicleDetails,
@@ -105,12 +122,22 @@ const VehiclesPage: React.FC = () => {
       toast.error(errorMessage);
       console.error(err);
     }
-  }, [selectedAction, selectedVehicleType, selectedMake, selectedModel, selectedYear, selectedLocation, selectedRadius, priceRange, selectedBuiltYear]);
+  }, [
+    selectedAction,
+    selectedVehicleType,
+    selectedMake,
+    selectedModel,
+    selectedYear,
+    selectedLocation,
+    selectedRadius,
+    priceRange,
+    selectedBuiltYear,
+  ]);
 
   // Debounced filter update
   const debouncedFetch = useMemo(
     () => debounce(fetchVehicleListings, 500),
-    [fetchVehicleListings]
+    [fetchVehicleListings],
   );
 
   useEffect(() => {
@@ -127,7 +154,7 @@ const VehiclesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <SEO 
+      <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
@@ -150,7 +177,6 @@ const VehiclesPage: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-
             setSelectedLocation={setSelectedLocation}
             selectedRadius={selectedRadius}
             setSelectedRadius={setSelectedRadius}

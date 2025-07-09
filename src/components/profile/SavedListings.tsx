@@ -28,9 +28,15 @@ interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
 
 const SavedListings = () => {
   const { t } = useTranslation();
-  const pageTitle = t('saved_listings.meta_title', 'المحفوظات - سمسار');
-  const pageDescription = t('saved_listings.meta_description', 'عرض العقارات والمركبات المحفوظة في حسابك على منصة سمسار');
-  const pageKeywords = t('saved_listings.meta_keywords', 'المحفوظات, العقارات المحفوظة, المركبات المحفوظة, المفضلة, سمسار');
+  const pageTitle = t("saved_listings.meta_title", "المحفوظات - سمسار");
+  const pageDescription = t(
+    "saved_listings.meta_description",
+    "عرض العقارات والمركبات المحفوظة في حسابك على منصة سمسار",
+  );
+  const pageKeywords = t(
+    "saved_listings.meta_keywords",
+    "المحفوظات, العقارات المحفوظة, المركبات المحفوظة, المفضلة, سمسار",
+  );
   const [listings, setListings] = useState<ExtendedListing[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -46,7 +52,7 @@ const SavedListings = () => {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("Failed to remove favorite")
+        error instanceof Error ? error.message : t("Failed to remove favorite"),
       );
     }
   };
@@ -74,10 +80,10 @@ const SavedListings = () => {
       const favoriteItems = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.items)
-        ? response.data.items
-        : Array.isArray(response.data?.favorites)
-        ? response.data.favorites
-        : [];
+          ? response.data.items
+          : Array.isArray(response.data?.favorites)
+            ? response.data.favorites
+            : [];
 
       console.log("Favorite Items:", favoriteItems);
 
@@ -104,7 +110,7 @@ const SavedListings = () => {
     } catch (error) {
       console.error("Error fetching listings:", error);
       toast.error(
-        error instanceof Error ? error.message : t("errors.fetch_failed")
+        error instanceof Error ? error.message : t("errors.fetch_failed"),
       );
     } finally {
       setLoading(false);
@@ -135,7 +141,7 @@ const SavedListings = () => {
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-transparent py-8">
-      <SEO 
+      <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
@@ -273,7 +279,7 @@ const SavedListings = () => {
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {t(
-                    "Browse listings and tap the heart to save your favorites."
+                    "Browse listings and tap the heart to save your favorites.",
                   )}
                 </p>
               </div>

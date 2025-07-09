@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ReportsAPI } from '@/api/reports.api';
-import { Report, ReportStatus, ReportType } from '@/types/reports';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReportsAPI } from "@/api/reports.api";
+import { Report, ReportStatus, ReportType } from "@/types/reports";
+import { Button } from "@/components/ui/button";
 
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 export default function ReportsList() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
-  
+
   const navigate = useNavigate();
 
   const fetchReports = async () => {
     try {
       setLoading(true);
       const params: any = { page, limit };
-      if (statusFilter !== 'all') params.status = statusFilter;
-      if (typeFilter !== 'all') params.type = typeFilter;
-      
+      if (statusFilter !== "all") params.status = statusFilter;
+      if (typeFilter !== "all") params.type = typeFilter;
+
       const response = await ReportsAPI.getReports(params);
       if (response.success && response.data) {
         setReports(response.data.items);
@@ -31,7 +31,7 @@ export default function ReportsList() {
         setTotalPages(Math.ceil(response.data.total / limit));
       }
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error("Error fetching reports:", error);
     } finally {
       setLoading(false);
     }
@@ -41,31 +41,38 @@ export default function ReportsList() {
     fetchReports();
   }, [statusFilter, typeFilter, page]);
 
-  const handleStatusChange = async (reportId: string, newStatus: ReportStatus) => {
+  const handleStatusChange = async (
+    reportId: string,
+    newStatus: ReportStatus,
+  ) => {
     try {
-      const response = await ReportsAPI.updateReport(reportId, { status: newStatus });
+      const response = await ReportsAPI.updateReport(reportId, {
+        status: newStatus,
+      });
       if (response.success) {
-        setReports(reports.map(report => 
-          report.id === reportId ? { ...report, status: newStatus } : report
-        ));
+        setReports(
+          reports.map((report) =>
+            report.id === reportId ? { ...report, status: newStatus } : report,
+          ),
+        );
       }
     } catch (error) {
-      console.error('Error updating report status:', error);
+      console.error("Error updating report status:", error);
     }
   };
 
   const getStatusBadgeVariant = (status: ReportStatus) => {
     switch (status) {
       case ReportStatus.PENDING:
-        return 'bg-yellow-100 text-yellow-800';
+        return "bg-yellow-100 text-yellow-800";
       case ReportStatus.INVESTIGATING:
-        return 'bg-blue-100 text-blue-800';
+        return "bg-blue-100 text-blue-800";
       case ReportStatus.RESOLVED:
-        return 'bg-green-100 text-green-800';
+        return "bg-green-100 text-green-800";
       case ReportStatus.DISMISSED:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -91,7 +98,7 @@ export default function ReportsList() {
             className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Statuses</option>
-            {Object.values(ReportStatus).map(status => (
+            {Object.values(ReportStatus).map((status) => (
               <option key={status} value={status}>
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </option>
@@ -106,7 +113,7 @@ export default function ReportsList() {
             className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Types</option>
-            {Object.values(ReportType).map(type => (
+            {Object.values(ReportType).map((type) => (
               <option key={type} value={type}>
                 {getTypeLabel(type)}
               </option>
@@ -119,18 +126,53 @@ export default function ReportsList() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target ID</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                ID
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Type
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Target ID
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Reason
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Status
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Created At
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {reports.length > 0 ? (
-              reports.map(report => (
+              reports.map((report) => (
                 <tr key={report.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {report.id.substring(0, 8)}...
@@ -140,7 +182,9 @@ export default function ReportsList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-800">
                     <button
-                      onClick={() => navigate(`/admin/${report.type}s/${report.targetId}`)}
+                      onClick={() =>
+                        navigate(`/admin/${report.type}s/${report.targetId}`)
+                      }
                       className="hover:underline focus:outline-none"
                     >
                       {report.targetId.substring(0, 8)}...
@@ -150,25 +194,37 @@ export default function ReportsList() {
                     {report.reason}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeVariant(report.status)}`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeVariant(report.status)}`}
+                    >
                       {report.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(report.createdAt), 'PPpp')}
+                    {format(new Date(report.createdAt), "PPpp")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       {report.status === ReportStatus.PENDING && (
                         <>
                           <button
-                            onClick={() => handleStatusChange(report.id, ReportStatus.INVESTIGATING)}
+                            onClick={() =>
+                              handleStatusChange(
+                                report.id,
+                                ReportStatus.INVESTIGATING,
+                              )
+                            }
                             className="px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           >
                             Investigate
                           </button>
                           <button
-                            onClick={() => handleStatusChange(report.id, ReportStatus.DISMISSED)}
+                            onClick={() =>
+                              handleStatusChange(
+                                report.id,
+                                ReportStatus.DISMISSED,
+                              )
+                            }
                             className="px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                           >
                             Dismiss
@@ -177,7 +233,9 @@ export default function ReportsList() {
                       )}
                       {report.status === ReportStatus.INVESTIGATING && (
                         <button
-                          onClick={() => handleStatusChange(report.id, ReportStatus.RESOLVED)}
+                          onClick={() =>
+                            handleStatusChange(report.id, ReportStatus.RESOLVED)
+                          }
                           className="px-3 py-1 text-xs border border-green-300 rounded-md text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                           Resolve
@@ -189,7 +247,10 @@ export default function ReportsList() {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td
+                  colSpan={7}
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
                   No reports found
                 </td>
               </tr>
@@ -199,18 +260,20 @@ export default function ReportsList() {
       </div>
 
       <div className="flex justify-between items-center mt-4">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           disabled={page <= 1}
-          onClick={() => setPage(p => Math.max(1, p - 1))}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
         >
           Previous
         </Button>
-        <span>Page {page} of {totalPages}</span>
-        <Button 
-          variant="outline" 
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <Button
+          variant="outline"
           disabled={page >= totalPages}
-          onClick={() => setPage(p => p + 1)}
+          onClick={() => setPage((p) => p + 1)}
         >
           Next
         </Button>

@@ -36,7 +36,8 @@ const categoryIcons = {
 // Union type of all possible category enums
 type CategoryType = ListingCategory | VehicleType | PropertyType | string;
 
-interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'fetchPriority'> {
+interface ImageProps
+  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "fetchPriority"> {
   src: string;
   alt: string;
   className?: string;
@@ -69,7 +70,7 @@ const ImageComponent: React.FC<ImageProps> = ({
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
   onLoad,
-  onError
+  onError,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -79,39 +80,39 @@ const ImageComponent: React.FC<ImageProps> = ({
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
   const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
-  
+
   // Generate optimized image URL with WebP format and proper caching
   const getOptimizedImageUrl = (width?: number) => {
     if (!isR2Image || !baseUrl) return src || "";
     const params = new URLSearchParams();
-    params.append('format', 'webp');
-    params.append('quality', imageQuality.toString());
-    if (width) params.append('width', width.toString());
-    
+    params.append("format", "webp");
+    params.append("quality", imageQuality.toString());
+    if (width) params.append("width", width.toString());
+
     // Add cache-busting parameter for non-production environments
-    if (process.env.NODE_ENV !== 'production') {
-      params.append('_t', Date.now().toString());
+    if (process.env.NODE_ENV !== "production") {
+      params.append("_t", Date.now().toString());
     }
-    
+
     return `${baseUrl}?${params.toString()}`;
   };
-  
+
   // Define responsive image sizes based on viewport
   const responsiveSizes = [
-    { media: '(max-width: 640px)', width: 400 },
-    { media: '(max-width: 1024px)', width: 800 },
-    { media: '(min-width: 1025px)', width: 1200 },
+    { media: "(max-width: 640px)", width: 400 },
+    { media: "(max-width: 1024px)", width: 800 },
+    { media: "(min-width: 1025px)", width: 1200 },
   ];
-  
+
   // Preload critical images
   useEffect(() => {
     if (priority && isR2Image && baseUrl) {
-      const preloadLink = document.createElement('link');
-      preloadLink.rel = 'preload';
-      preloadLink.as = 'image';
+      const preloadLink = document.createElement("link");
+      preloadLink.rel = "preload";
+      preloadLink.as = "image";
       preloadLink.href = getOptimizedImageUrl(800); // Preload medium size
       document.head.appendChild(preloadLink);
-      
+
       return () => {
         document.head.removeChild(preloadLink);
       };
@@ -121,18 +122,20 @@ const ImageComponent: React.FC<ImageProps> = ({
   // Helper function to get the most appropriate icon based on category
   const getCategoryIcon = (category?: CategoryType) => {
     if (!category) return categoryIcons.OTHER;
-    
+
     // Check if category exists in our icons
     if (category in categoryIcons) {
       return categoryIcons[category as keyof typeof categoryIcons];
     }
-    
+
     // Handle specific cases or return default
     if (category.toString().toUpperCase() in categoryIcons) {
-      const key = category.toString().toUpperCase() as keyof typeof categoryIcons;
+      const key = category
+        .toString()
+        .toUpperCase() as keyof typeof categoryIcons;
       return categoryIcons[key];
     }
-    
+
     return categoryIcons.OTHER;
   };
 
@@ -150,40 +153,38 @@ const ImageComponent: React.FC<ImageProps> = ({
     if (onError) onError(e);
   };
 
-
-
   // Render fallback UI if image fails to load
   if (hasError || !src) {
     if (placeholder) {
       return (
         <img
           src={placeholder}
-          alt={alt || 'Image not available'}
+          alt={alt || "Image not available"}
           className={className}
           width={width}
           height={height}
-          aria-label={alt || 'Image not available'}
+          aria-label={alt || "Image not available"}
         />
       );
     }
-    
+
     // Get the appropriate icon based on category
     const Icon = getCategoryIcon(category);
     return (
       <div
         className={`relative ${className}`}
         style={{
-          width: width || '100%',
-          height: height || '200px',
-          background: '#e2e8f0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          gap: '8px',
+          width: width || "100%",
+          height: height || "200px",
+          background: "#e2e8f0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: "8px",
         }}
         role="img"
-        aria-label={alt || 'Image not available'}
+        aria-label={alt || "Image not available"}
       >
         <Icon className="text-4xl text-gray-400" />
         <div className="text-gray-500 text-center">
@@ -197,31 +198,32 @@ const ImageComponent: React.FC<ImageProps> = ({
   return (
     <div
       className={`relative overflow-hidden flex items-center justify-center ${className}`}
-      style={{ 
-        width: width || '100%', 
-        height: height || 'auto',
-        minHeight: '40px' // Ensure minimum height for placeholder
+      style={{
+        width: width || "100%",
+        height: height || "auto",
+        minHeight: "40px", // Ensure minimum height for placeholder
       }}
     >
       {/* Loading state */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          {category && React.createElement(getCategoryIcon(category), {
-            className: 'w-1/3 h-1/3 text-gray-400',
-            'aria-hidden': 'true',
-          })}
+          {category &&
+            React.createElement(getCategoryIcon(category), {
+              className: "w-1/3 h-1/3 text-gray-400",
+              "aria-hidden": "true",
+            })}
         </div>
       )}
-      
+
       {/* Error state */}
       {hasError ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
           {React.createElement(getCategoryIcon(category), {
-            className: 'w-1/4 h-1/4 text-gray-400 mb-2',
-            'aria-hidden': 'true'
+            className: "w-1/4 h-1/4 text-gray-400 mb-2",
+            "aria-hidden": "true",
           })}
           <span className="text-sm text-gray-500 text-center">
-            {alt || 'Image not available'}
+            {alt || "Image not available"}
           </span>
         </div>
       ) : (
@@ -232,25 +234,37 @@ const ImageComponent: React.FC<ImageProps> = ({
             <source
               type="image/webp"
               srcSet={responsiveSizes
-                .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
-                .join(', ')}
+                .map(
+                  (size) =>
+                    `${getOptimizedImageUrl(size.width)} ${size.width}w`,
+                )
+                .join(", ")}
               sizes={sizes}
             />
           )}
-          
+
           {/* Fallback image */}
           <img
             ref={imgRef}
             src={isR2Image ? getOptimizedImageUrl(1200) : src}
-            srcSet={isR2Image ? responsiveSizes
-              .map(size => `${getOptimizedImageUrl(size.width)} ${size.width}w`)
-              .join(', ') : undefined}
+            srcSet={
+              isR2Image
+                ? responsiveSizes
+                    .map(
+                      (size) =>
+                        `${getOptimizedImageUrl(size.width)} ${size.width}w`,
+                    )
+                    .join(", ")
+                : undefined
+            }
             alt={alt}
             className={`max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300 ${
-              isLoading ? 'opacity-0' : 'opacity-100'
-            } ${blur ? 'blur-sm' : ''}`}
+              isLoading ? "opacity-0" : "opacity-100"
+            } ${blur ? "blur-sm" : ""}`}
             loading={loading}
-            {...(priority ? { fetchpriority: 'high', decoding: 'sync' as const } : { decoding: 'async' as const })}
+            {...(priority
+              ? { fetchpriority: "high", decoding: "sync" as const }
+              : { decoding: "async" as const })}
             width={width}
             height={height}
             onLoad={handleLoad}

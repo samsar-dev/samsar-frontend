@@ -84,8 +84,19 @@ const PasswordResetVerification = () => {
       <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-white">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-green-100">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -108,7 +119,7 @@ const PasswordResetVerification = () => {
         <div className="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-gray-100">
           <FaLock className="w-12 h-12 text-gray-600" />
         </div>
-        
+
         <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           {t("resetPassword")}
         </h2>
@@ -120,7 +131,10 @@ const PasswordResetVerification = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="verification-code" className="block text-sm font-medium leading-6 text-gray-900">
+            <label
+              htmlFor="verification-code"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
               {t("verificationCode")}
             </label>
             <input
@@ -136,7 +150,10 @@ const PasswordResetVerification = () => {
           </div>
 
           <div>
-            <label htmlFor="new-password" className="block text-sm font-medium leading-6 text-gray-900">
+            <label
+              htmlFor="new-password"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
               {t("newPassword")}
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
@@ -161,7 +178,10 @@ const PasswordResetVerification = () => {
           </div>
 
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium leading-6 text-gray-900">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
               {t("confirmNewPassword")}
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
@@ -191,11 +211,7 @@ const PasswordResetVerification = () => {
               disabled={loading}
               className="flex w-full justify-center rounded-md bg-[#0095F6] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1877F2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0095F6] disabled:opacity-50"
             >
-              {loading ? (
-                <LoadingSpinner />
-              ) : (
-                t("resetPassword")
-              )}
+              {loading ? <LoadingSpinner /> : t("resetPassword")}
             </button>
           </div>
         </form>

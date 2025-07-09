@@ -12,7 +12,9 @@ interface ImageGalleryProps {
 const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [previousImageIndex, setPreviousImageIndex] = useState<number | null>(null);
+  const [previousImageIndex, setPreviousImageIndex] = useState<number | null>(
+    null,
+  );
 
   // Simplified image URL extraction
   const imageUrls = React.useMemo(() => {
@@ -20,7 +22,8 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
       .map((image) => {
         if (typeof image === "string") return image;
         if (image instanceof File) return URL.createObjectURL(image);
-        if (image && typeof image === "object" && "url" in image) return image.url;
+        if (image && typeof image === "object" && "url" in image)
+          return image.url;
         return "";
       })
       .filter(Boolean);
@@ -35,17 +38,22 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
     };
   }, [imageUrls]);
 
-  const navigateImage = (direction: 'prev' | 'next') => {
+  const navigateImage = (direction: "prev" | "next") => {
     if (isLoading || selectedImage === null) return;
-    
+
     setIsLoading(true);
     const current = selectedImage;
-    const newIndex = direction === 'next' 
-      ? (current === imageUrls.length - 1 ? 0 : current + 1)
-      : (current === 0 ? imageUrls.length - 1 : current - 1);
-    
+    const newIndex =
+      direction === "next"
+        ? current === imageUrls.length - 1
+          ? 0
+          : current + 1
+        : current === 0
+          ? imageUrls.length - 1
+          : current - 1;
+
     setPreviousImageIndex(current);
-    
+
     // Preload the next/previous image
     const img = new window.Image();
     img.src = imageUrls[newIndex];
@@ -56,15 +64,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
         setPreviousImageIndex(null);
       }, 200);
     };
-    
+
     img.onerror = () => {
       setIsLoading(false);
       setPreviousImageIndex(null);
     };
   };
 
-  const handlePrevious = () => navigateImage('prev');
-  const handleNext = () => navigateImage('next');
+  const handlePrevious = () => navigateImage("prev");
+  const handleNext = () => navigateImage("next");
   const handleClose = () => setSelectedImage(null);
   const handleThumbnailClick = (index: number) => {
     if (index !== selectedImage) {
@@ -84,7 +92,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
           style={{ minHeight: 300, maxHeight: 400 }}
         >
           <ImageFallback
-            src={imageUrls[0] || ''}
+            src={imageUrls[0] || ""}
             alt="Main Image"
             className="object-contain w-auto max-w-full h-[300px] sm:h-[350px] md:h-[400px] hover:scale-105 transition-transform duration-300 cursor-pointer"
             width={800}
@@ -144,7 +152,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
 
             {/* Navigation buttons */}
             <button
-              className={`absolute left-4 text-white hover:text-gray-300 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
+              className={`absolute left-4 text-white hover:text-gray-300 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all ${isLoading ? "opacity-50 cursor-not-allowed" : "opacity-100"}`}
               onClick={(e) => {
                 e.stopPropagation();
                 handlePrevious();
@@ -155,7 +163,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
             </button>
 
             <button
-              className={`absolute right-4 text-white hover:text-gray-300 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
+              className={`absolute right-4 text-white hover:text-gray-300 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all ${isLoading ? "opacity-50 cursor-not-allowed" : "opacity-100"}`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleNext();
@@ -168,21 +176,22 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
             {/* Image container */}
             <div className="relative w-full h-full max-w-6xl mx-auto flex items-center justify-center">
               {/* Previous image (fading out) */}
-              {previousImageIndex !== null && previousImageIndex !== selectedImage && (
-                <motion.div 
-                  className="absolute inset-0 flex items-center justify-center"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <img
-                    src={imageUrls[previousImageIndex]}
-                    alt="Previous image"
-                    className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
-                  />
-                </motion.div>
-              )}
-              
+              {previousImageIndex !== null &&
+                previousImageIndex !== selectedImage && (
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <img
+                      src={imageUrls[previousImageIndex]}
+                      alt="Previous image"
+                      className="max-h-[90vh] max-w-full w-auto h-auto object-contain"
+                    />
+                  </motion.div>
+                )}
+
               {/* Current image */}
               <div className="relative w-full h-full flex items-center justify-center">
                 <motion.div
@@ -204,7 +213,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images = [] }) => {
                     onLoad={() => setIsLoading(false)}
                   />
                 </motion.div>
-                
+
                 {/* Loading spinner */}
                 {isLoading && (
                   <div className="absolute inset-0 flex items-center justify-center">

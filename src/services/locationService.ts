@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = '/api/locations';
+const API_BASE_URL = "/api/locations";
 
 export interface City {
   name: string;
@@ -33,20 +33,20 @@ export const findNearbyCities = async (
   lat: number,
   lng: number,
   radiusKm: number = 50,
-  limit?: number
+  limit?: number,
 ): Promise<NearbyCitiesResponse> => {
   const params = new URLSearchParams({
     lat: lat.toString(),
     lng: lng.toString(),
     radiusKm: radiusKm.toString(),
-    ...(limit && { limit: limit.toString() })
+    ...(limit && { limit: limit.toString() }),
   });
 
   try {
     const response = await axios.get(`${API_BASE_URL}/nearby-cities?${params}`);
     return response.data;
   } catch (error) {
-    console.error('Error finding nearby cities:', error);
+    console.error("Error finding nearby cities:", error);
     throw error;
   }
 };
@@ -55,12 +55,15 @@ export const findNearbyCities = async (
  * Get all available cities
  * @returns Promise with list of all cities
  */
-export const getAllCities = async (): Promise<{ success: boolean; data: City[] }> => {
+export const getAllCities = async (): Promise<{
+  success: boolean;
+  data: City[];
+}> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/cities`);
     return response.data;
   } catch (error) {
-    console.error('Error getting all cities:', error);
+    console.error("Error getting all cities:", error);
     throw error;
   }
 };
@@ -77,15 +80,17 @@ export const calculateDistance = (
   lat1: number,
   lng1: number,
   lat2: number,
-  lng2: number
+  lng2: number,
 ): number => {
   const R = 6371; // Radius of the Earth in km
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };

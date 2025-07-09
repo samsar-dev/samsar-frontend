@@ -25,10 +25,10 @@ export const busSchema: ListingFieldSchema[] = [
     name: "condition",
     label: "fields.condition",
     type: "select",
-    options: Object.values(Condition).map(value => ({
+    options: Object.values(Condition).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.condition.${value.toUpperCase()}`
+      translationKey: `enums.condition.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -37,10 +37,10 @@ export const busSchema: ListingFieldSchema[] = [
     name: "transmissionType",
     label: "transmissionType",
     type: "select",
-    options: Object.values(TransmissionType).map(value => ({
+    options: Object.values(TransmissionType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.transmission.${value.toUpperCase()}`
+      translationKey: `enums.transmission.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -65,10 +65,10 @@ export const busSchema: ListingFieldSchema[] = [
     name: "fuelType",
     label: "fields.fuelType",
     type: "select",
-    options: Object.values(FuelType).map(value => ({
+    options: Object.values(FuelType).map((value) => ({
       value,
       label: value.toUpperCase(),
-      translationKey: `enums.fuelType.${value.toUpperCase()}`
+      translationKey: `enums.fuelType.${value.toUpperCase()}`,
     })),
     section: "essential",
     required: true,
@@ -94,17 +94,61 @@ export const busSchema: ListingFieldSchema[] = [
     label: "fields.busType",
     type: "select",
     options: [
-      { value: "schoolBus", label: "SCHOOL_BUS", translationKey: "enums.busType.SCHOOL_BUS" },
-      { value: "transitBus", label: "TRANSIT_BUS", translationKey: "enums.busType.TRANSIT_BUS" },
-      { value: "tourBus", label: "TOUR_BUS", translationKey: "enums.busType.TOUR_BUS" },
-      { value: "shuttle", label: "SHUTTLE", translationKey: "enums.busType.SHUTTLE" },
-      { value: "miniBus", label: "MINI_BUS", translationKey: "enums.busType.MINI_BUS" },
-      { value: "coachBus", label: "COACH_BUS", translationKey: "enums.busType.COACH_BUS" },
-      { value: "doubleDeckerBus", label: "DOUBLE_DECKER_BUS", translationKey: "enums.busType.DOUBLE_DECKER_BUS" },
-      { value: "articulatedBus", label: "ARTICULATED_BUS", translationKey: "enums.busType.ARTICULATED_BUS" },
-      { value: "partyBus", label: "PARTY_BUS", translationKey: "enums.busType.PARTY_BUS" },
-      { value: "electricBus", label: "ELECTRIC_BUS", translationKey: "enums.busType.ELECTRIC_BUS" },
-      { value: "hybridBus", label: "HYBRID_BUS", translationKey: "enums.busType.HYBRID_BUS" },
+      {
+        value: "schoolBus",
+        label: "SCHOOL_BUS",
+        translationKey: "enums.busType.SCHOOL_BUS",
+      },
+      {
+        value: "transitBus",
+        label: "TRANSIT_BUS",
+        translationKey: "enums.busType.TRANSIT_BUS",
+      },
+      {
+        value: "tourBus",
+        label: "TOUR_BUS",
+        translationKey: "enums.busType.TOUR_BUS",
+      },
+      {
+        value: "shuttle",
+        label: "SHUTTLE",
+        translationKey: "enums.busType.SHUTTLE",
+      },
+      {
+        value: "miniBus",
+        label: "MINI_BUS",
+        translationKey: "enums.busType.MINI_BUS",
+      },
+      {
+        value: "coachBus",
+        label: "COACH_BUS",
+        translationKey: "enums.busType.COACH_BUS",
+      },
+      {
+        value: "doubleDeckerBus",
+        label: "DOUBLE_DECKER_BUS",
+        translationKey: "enums.busType.DOUBLE_DECKER_BUS",
+      },
+      {
+        value: "articulatedBus",
+        label: "ARTICULATED_BUS",
+        translationKey: "enums.busType.ARTICULATED_BUS",
+      },
+      {
+        value: "partyBus",
+        label: "PARTY_BUS",
+        translationKey: "enums.busType.PARTY_BUS",
+      },
+      {
+        value: "electricBus",
+        label: "ELECTRIC_BUS",
+        translationKey: "enums.busType.ELECTRIC_BUS",
+      },
+      {
+        value: "hybridBus",
+        label: "HYBRID_BUS",
+        translationKey: "enums.busType.HYBRID_BUS",
+      },
     ],
     section: "essential",
     required: true,
@@ -126,7 +170,8 @@ export const busSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
     validate: (value: string | number | boolean) => {
-      if (value === undefined || value === null || value === '') return "Seating capacity is required";
+      if (value === undefined || value === null || value === "")
+        return "Seating capacity is required";
       const numValue = Number(value);
       if (isNaN(numValue) || numValue < 0) {
         return "Seating capacity must be a non-negative number";

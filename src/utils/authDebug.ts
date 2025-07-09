@@ -1,6 +1,6 @@
 /**
  * Auth Debugging Utility
- * 
+ *
  * Debug logging is currently disabled.
  * To enable debugging, uncomment the code in this file.
  */
