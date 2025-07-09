@@ -74,7 +74,8 @@ const EditListing: React.FC = () => {
     if (!listingType) return [];
 
     // Get fields from schema utils
-    const fields = getFieldsBySection(listingType, activeTab);
+    const fields =
+      activeTab === "images" ? [] : getFieldsBySection(listingType, activeTab);
 
     console.log("fields", fields);
 
@@ -326,29 +327,36 @@ const EditListing: React.FC = () => {
             const currentValue = current[fieldName];
 
             // Handle field based on its type
-            if (field.required && (currentValue === undefined || currentValue === null)) {
+            if (
+              field.required &&
+              (currentValue === undefined || currentValue === null)
+            ) {
               // Set default values based on field type
               switch (field.type) {
-                case 'number':
+                case "number":
                   current[fieldName] = 0;
                   break;
-                case 'select':
+                case "select":
                   // For select fields, use the first option if available
-                  if (Array.isArray(field.options) && field.options.length > 0) {
+                  if (
+                    Array.isArray(field.options) &&
+                    field.options.length > 0
+                  ) {
                     const firstOption = field.options[0];
-                    current[fieldName] = typeof firstOption === 'string' 
-                      ? firstOption 
-                      : firstOption.value;
+                    current[fieldName] =
+                      typeof firstOption === "string"
+                        ? firstOption
+                        : firstOption.value;
                   } else {
-                    current[fieldName] = '';
+                    current[fieldName] = "";
                   }
                   break;
-                case 'text':
+                case "text":
                 default:
-                  current[fieldName] = '';
+                  current[fieldName] = "";
                   break;
               }
-            } else if (field.type === 'number' && currentValue !== undefined) {
+            } else if (field.type === "number" && currentValue !== undefined) {
               // Ensure number fields are converted to actual numbers
               current[fieldName] = Number(currentValue);
             }
@@ -493,9 +501,12 @@ const EditListing: React.FC = () => {
               }
 
               // Initialize nested objects if they don't exist
-              let current = initialData.details[fieldType] as Record<string, any>;
+              let current = initialData.details[fieldType] as Record<
+                string,
+                any
+              >;
               const fieldName = fieldPath[fieldPath.length - 1];
-              
+
               // Navigate to the parent object
               for (let i = 0; i < fieldPath.length - 1; i++) {
                 const part = fieldPath[i];
@@ -504,32 +515,44 @@ const EditListing: React.FC = () => {
                 }
                 current = current[part] as Record<string, any>;
               }
-              
+
               // Initialize the field with its current value or a default value
-              if (current[fieldName] === undefined || current[fieldName] === null) {
+              if (
+                current[fieldName] === undefined ||
+                current[fieldName] === null
+              ) {
                 // Set default values for required fields
                 if (field.required) {
                   switch (field.type) {
-                    case 'number':
+                    case "number":
                       // Special handling for seatingCapacity to ensure it's not negative
-                      if (fieldName === 'seatingCapacity') {
-                        current[fieldName] = Math.max(0, Number(current[fieldName] || 0));
+                      if (fieldName === "seatingCapacity") {
+                        current[fieldName] = Math.max(
+                          0,
+                          Number(current[fieldName] || 0)
+                        );
                       } else {
                         current[fieldName] = 0;
                       }
                       break;
-                    case 'select':
+                    case "select":
                       // For select fields, use the first option if available
-                      if (Array.isArray(field.options) && field.options.length > 0) {
+                      if (
+                        Array.isArray(field.options) &&
+                        field.options.length > 0
+                      ) {
                         const firstOption = field.options[0];
-                        current[fieldName] = typeof firstOption === 'string' ? firstOption : firstOption.value;
+                        current[fieldName] =
+                          typeof firstOption === "string"
+                            ? firstOption
+                            : firstOption.value;
                       } else {
-                        current[fieldName] = '';
+                        current[fieldName] = "";
                       }
                       break;
-                    case 'text':
+                    case "text":
                     default:
-                      current[fieldName] = '';
+                      current[fieldName] = "";
                       break;
                   }
                 }
@@ -605,7 +628,108 @@ const EditListing: React.FC = () => {
       | "toggle"
       | "featureGroup";
     options?: SelectOption[];
+    // featureGroups?: FeatureGroups;
+    description?: string;
   };
+
+  // const section = useMemo(
+  //   () =>
+  //     activeTab === "essential"
+  //       ? "essential"
+  //       : activeTab === "advanced"
+  //         ? "advanced"
+  //         : "essential",
+  //   [activeTab]
+  // );
+
+  // const sectionFields = useMemo(
+  //   (listingType: VehicleType | PropertyType) => {
+  //     if (!listingType) return [];
+  //     console.log("Getting fields for:", { listingType, section });
+  //     return getFieldsBySection(listingType, section) || [];
+  //   },
+  //   [listingType, section]
+  // );
+
+  const handleReorderExistingImages = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (!formData?.images) return;
+
+      const newImages = [...formData.images];
+      const [moved] = newImages.splice(fromIndex, 1);
+      newImages.splice(toIndex, 0, moved);
+
+      // Update the current listing with the new order
+      setFormData((prev: EditFormData) => ({
+        ...prev,
+        images: newImages,
+      }));
+    },
+    [formData?.images, setFormData]
+  );
+
+  const renderImagesTab = useCallback((): JSX.Element => {
+    // Handle existing images from the server
+    const existingImages = formData?.images
+      ? (formData.images as Array<unknown>)
+          .filter((img: unknown): img is { url: string } => {
+            if (!img || typeof img !== "object") return false;
+            return (
+              "url" in img && typeof (img as { url: unknown }).url === "string"
+            );
+          })
+          .map((img) => img.url)
+      : [];
+
+    // Get uploaded files
+    const uploadedFiles = (formData.images || []).filter(
+      (img: unknown): img is File => img instanceof File
+    );
+
+    console.log("Rendering ImageManager with:", {
+      uploadedFiles,
+      existingImages,
+      formDataImages: formData.images,
+    });
+
+    return (
+      <div className="mt-4">
+        <div className="mb-4"></div>
+
+        <ImageManager
+          images={uploadedFiles}
+          onChange={handleImageChange}
+          existingImages={existingImages}
+          onDeleteExisting={handleDeleteExisting}
+          onReorderExisting={handleReorderExistingImages}
+          maxImages={10}
+        />
+
+        {/* Hidden file input for direct file selection */}
+        <input
+          type="file"
+          id="file-upload"
+          className="hidden"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            console.log("File input changed, files:", files);
+            if (files.length > 0) {
+              handleImageChange([...uploadedFiles, ...files]);
+            }
+            // Reset the input to allow selecting the same file again
+            e.target.value = "";
+          }}
+        />
+      </div>
+    );
+  }, [
+    formData.images,
+    handleImageChange,
+    handleDeleteExisting,
+    handleReorderExistingImages,
+  ]);
 
   const renderField = (field: ExtendedFieldProps, idx: number) => {
     // Skip rendering if field type is not supported or name is missing
@@ -757,193 +881,380 @@ const EditListing: React.FC = () => {
       </div>
     );
   }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center mb-6">
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="flex items-center mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-blue-600 hover:text-blue-800 mr-4"
+        >
+          <span>← Back to Listings</span>
+        </button>
+        <h1 className="text-2xl font-bold">Edit Listing</h1>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex border-b mb-6">
           <button
-            onClick={() => navigate(-1)}
-            className="mr-4 text-gray-600 hover:text-gray-900"
+            className={`px-4 py-2 font-medium ${
+              activeTab === "essential"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("essential")}
           >
-            <FaArrowLeft className="w-5 h-5" />
+            Basic Information
           </button>
-          <h1 className="text-2xl font-bold">
-            {formData.id
-              ? t("listings.editListing")
-              : t("listings.createListing")}
-          </h1>
+          <button
+            className={`px-4 py-2 font-medium ${
+              activeTab === "advanced"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("advanced")}
+          >
+            Advanced Details
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ml-auto ${
+              activeTab === "images"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("images")}
+          >
+            Images
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              {t("listings.basicInfo")}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                label={t("listings.title")}
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={(value) => handleInputChange("title", value)}
-                required
-              />
-              <FormField
-                label={t("listings.price")}
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={(value) => handleInputChange("price", Number(value))}
-                min={0}
-                required
-              />
-              <div className="md:col-span-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("listings.description")}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    rows={4}
-                    required
-                  />
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {activeTab === "essential" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentFields.map((field, idx) => (
+                  <div key={field.name} className="space-y-1">
+                    {/* <label className="block text-sm font-medium text-gray-700">
+                      {field.label}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </label> */}
+                    {renderField(field, idx)}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Location */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              {t("listings.location")}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                label={t("listings.location")}
-                name="city"
-                type="text"
-                value={formData.location}
-                onChange={(value) => {
-                  handleInputChange("location", value as string);
-                }}
-                required
-              />
-              {/* <FormField
-                label={t("listings.state")}
-                name="state"
-                type="text"
-                value={formData.location.state}
-                onChange={(value) => {
-                  handleInputChange("location", {
-                    ...formData.location,
-                    state: value as string,
-                  });
-                }}
-                required
-              />
-              <FormField
-                label={t("listings.country")}
-                name="country"
-                type="text"
-                value={formData.location.country}
-                onChange={(value) => {
-                  handleInputChange("location", {
-                    ...formData.location,
-                    country: value as string,
-                  });
-                }}
-                required
-              />
-              <FormField
-                label={t("listings.address")}
-                name="address"
-                type="text"
-                value={formData.location.address}
-                onChange={(value) => {
-                  handleInputChange("location", {
-                    ...formData.location,
-                    address: value as string,
-                  });
-                }}
-                required
-              /> */}
-            </div>
-          </div>
+          {activeTab === "advanced" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentFields.map((field, idx) => {
+                  // Skip if this is a basic field
+                  if (
+                    field.section === "basic" ||
+                    field.section === "essential"
+                  ) {
+                    return null;
+                  }
 
-          {/* Dynamic Fields */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex space-x-4 mb-6 border-b">
-              <button
-                type="button"
-                className={`pb-2 px-1 border-b-2 ${
-                  activeTab === "essential"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("essential")}
-              >
-                {t("listings.essentials")}
-              </button>
-              <button
-                type="button"
-                className={`pb-2 px-1 border-b-2 ${
-                  activeTab === "advanced"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setActiveTab("advanced")}
-              >
-                {t("listings.advanced")}
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                {currentFields.map((field, idx) => renderField(field, idx))}
+                  return (
+                    <div key={field.name} className="space-y-1">
+                      {/* <label className="block text-sm font-medium text-gray-700">
+                        {field.required && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label> */}
+                      {renderField(field, idx)}
+                      {field.description && (
+                        <p className="mt-1 text-sm text-gray-500">
+                          {field.description}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
+              {/* Render feature groups */}
+              {currentFields
+                .filter(
+                  (field) =>
+                    (field.type as string) === "feature-group" ||
+                    field.type === "featureGroup"
+                )
+                .map((group) => (
+                  <div key={group.name} className="col-span-full mt-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      {group.label}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg">
+                      {group.featureGroups &&
+                        Object.entries(group.featureGroups).map(
+                          ([groupName, groupData]: [string, any]) => (
+                            <div key={groupName} className="space-y-4">
+                              <h4 className="font-medium text-gray-700">
+                                {groupData.label}
+                              </h4>
+                              <div className="space-y-3">
+                                {groupData.features?.map((feature: any) => {
+                                  const fieldName = `${group.name}.${groupName}.${feature.name}`;
+                                  const field = currentFields.find(
+                                    (f) => f.name === fieldName
+                                  );
+                                  const idx = currentFields.indexOf(
+                                    field as ExtendedFieldProps
+                                  );
+
+                                  if (!field) return null;
+
+                                  return (
+                                    <div
+                                      key={field.name}
+                                      className="flex items-center"
+                                    >
+                                      <div className="flex-1">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                          {field.label}
+                                          {field.required && (
+                                            <span className="text-red-500 ml-1">
+                                              *
+                                            </span>
+                                          )}
+                                        </label>
+                                        {field.description && (
+                                          <p className="text-xs text-gray-500 mt-1">
+                                            {field.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className="ml-4">
+                                        {renderField(field, idx)}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )
+                        )}
+                    </div>
+                  </div>
+                ))}
             </div>
-          </div>
+          )}
 
-          {/* Images */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              {t("listings.images")}
-            </h2>
-            <ImageManager
-              images={formData.images.filter(
-                (img): img is File => img instanceof File
-              )}
-              existingImages={formData.existingImages}
-              onChange={handleImageChange}
-              onDeleteExisting={handleDeleteExisting}
-            />
-          </div>
+          {activeTab === "images" && (
+            <div className="space-y-4">{renderImagesTab()}</div>
+          )}
 
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={isSubmitting}
-              className="flex items-center"
+          <div className="flex justify-end space-x-4 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              <FaSave className="mr-2" />
-              {isSubmitting ? t("common.saving") : t("common.save")}
-            </Button>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
+
+  // return (
+  //   <div className="container mx-auto px-4 py-8">
+  //     <div className="max-w-4xl mx-auto">
+  //       <div className="flex items-center mb-6">
+  //         <button
+  //           onClick={() => navigate(-1)}
+  //           className="mr-4 text-gray-600 hover:text-gray-900"
+  //         >
+  //           <FaArrowLeft className="w-5 h-5" />
+  //         </button>
+  //         <h1 className="text-2xl font-bold">
+  //           {formData.id
+  //             ? t("listings.editListing")
+  //             : t("listings.createListing")}
+  //         </h1>
+  //       </div>
+
+  //       <form onSubmit={handleSubmit} className="space-y-8">
+  //         {/* Basic Information */}
+  //         <div className="bg-white rounded-lg shadow p-6">
+  //           <h2 className="text-xl font-semibold mb-4">
+  //             {t("listings.basicInfo")}
+  //           </h2>
+  //           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  //             <FormField
+  //               label={t("listings.title")}
+  //               name="title"
+  //               type="text"
+  //               value={formData.title}
+  //               onChange={(value) => handleInputChange("title", value)}
+  //               required
+  //             />
+  //             <FormField
+  //               label={t("listings.price")}
+  //               name="price"
+  //               type="number"
+  //               value={formData.price}
+  //               onChange={(value) => handleInputChange("price", Number(value))}
+  //               min={0}
+  //               required
+  //             />
+  //             <div className="md:col-span-2">
+  //               <div className="space-y-2">
+  //                 <label className="block text-sm font-medium text-gray-700">
+  //                   {t("listings.description")}
+  //                   <span className="text-red-500">*</span>
+  //                 </label>
+  //                 <textarea
+  //                   name="description"
+  //                   value={formData.description}
+  //                   onChange={(e) =>
+  //                     handleInputChange("description", e.target.value)
+  //                   }
+  //                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+  //                   rows={4}
+  //                   required
+  //                 />
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+
+  //         {/* Location */}
+  //         <div className="bg-white rounded-lg shadow p-6">
+  //           <h2 className="text-xl font-semibold mb-4">
+  //             {t("listings.location")}
+  //           </h2>
+  //           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  //             <FormField
+  //               label={t("listings.location")}
+  //               name="city"
+  //               type="text"
+  //               value={formData.location}
+  //               onChange={(value) => {
+  //                 handleInputChange("location", value as string);
+  //               }}
+  //               required
+  //             />
+  //             {/* <FormField
+  //               label={t("listings.state")}
+  //               name="state"
+  //               type="text"
+  //               value={formData.location.state}
+  //               onChange={(value) => {
+  //                 handleInputChange("location", {
+  //                   ...formData.location,
+  //                   state: value as string,
+  //                 });
+  //               }}
+  //               required
+  //             />
+  //             <FormField
+  //               label={t("listings.country")}
+  //               name="country"
+  //               type="text"
+  //               value={formData.location.country}
+  //               onChange={(value) => {
+  //                 handleInputChange("location", {
+  //                   ...formData.location,
+  //                   country: value as string,
+  //                 });
+  //               }}
+  //               required
+  //             />
+  //             <FormField
+  //               label={t("listings.address")}
+  //               name="address"
+  //               type="text"
+  //               value={formData.location.address}
+  //               onChange={(value) => {
+  //                 handleInputChange("location", {
+  //                   ...formData.location,
+  //                   address: value as string,
+  //                 });
+  //               }}
+  //               required
+  //             /> */}
+  //           </div>
+  //         </div>
+
+  //         {/* Dynamic Fields */}
+  //         <div className="bg-white rounded-lg shadow p-6">
+  //           <div className="flex space-x-4 mb-6 border-b">
+  //             <button
+  //               type="button"
+  //               className={`pb-2 px-1 border-b-2 ${
+  //                 activeTab === "essential"
+  //                   ? "border-blue-500 text-blue-600"
+  //                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+  //               }`}
+  //               onClick={() => setActiveTab("essential")}
+  //             >
+  //               {t("listings.essentials")}
+  //             </button>
+  //             <button
+  //               type="button"
+  //               className={`pb-2 px-1 border-b-2 ${
+  //                 activeTab === "advanced"
+  //                   ? "border-blue-500 text-blue-600"
+  //                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+  //               }`}
+  //               onClick={() => setActiveTab("advanced")}
+  //             >
+  //               {t("listings.advanced")}
+  //             </button>
+  //           </div>
+
+  //           <div className="space-y-4">
+  //             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+  //               {currentFields.map((field, idx) => renderField(field, idx))}
+  //             </div>
+  //           </div>
+  //         </div>
+
+  //         {/* Images */}
+  //         <div className="bg-white rounded-lg shadow p-6">
+  //           <h2 className="text-xl font-semibold mb-4">
+  //             {t("listings.images")}
+  //           </h2>
+  //           <ImageManager
+  //             images={formData.images.filter(
+  //               (img): img is File => img instanceof File
+  //             )}
+  //             existingImages={formData.existingImages}
+  //             onChange={handleImageChange}
+  //             onDeleteExisting={handleDeleteExisting}
+  //           />
+  //         </div>
+
+  //         {/* Submit Button */}
+  //         <div className="flex justify-end">
+  //           <Button
+  //             type="submit"
+  //             variant="primary"
+  //             size="lg"
+  //             disabled={isSubmitting}
+  //             className="flex items-center"
+  //           >
+  //             <FaSave className="mr-2" />
+  //             {isSubmitting ? t("common.saving") : t("common.save")}
+  //           </Button>
+  //         </div>
+  //       </form>
+  //     </div>
+  //   </div>
+  // );
 };
 
 export default EditListing;

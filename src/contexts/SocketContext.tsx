@@ -8,7 +8,7 @@ import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
 import { getAuthToken } from "@/utils/cookie";
 
 interface SocketContextType {
-  socket: SocketType;
+  socket: Socket | null;
   connected: boolean;
   connectionError: string | null;
 }
@@ -22,7 +22,7 @@ const SocketContext = createContext<SocketContextType>({
 export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const [socket, setSocket] = useState<SocketType>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
