@@ -11,6 +11,7 @@ import { Layout } from "@/components/layout";
 
 // Loading fallback
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import EditListing from "@/components/listings/edit/EditListing";
 
 // Prefetching utility
 const prefetchComponent = (importFn: () => Promise<any>) => {
@@ -51,17 +52,20 @@ const importVehicles = () => import("@/pages/Vehicles");
 const importRealEstate = () => import("@/pages/RealEstate");
 const importListingSuccess = () => import("@/pages/ListingSuccess");
 const importPrivateRoute = () => import("@/components/auth/AuthRoute");
-const importContactSubmissions = () => import("@/pages/admin/ContactSubmissions");
+const importContactSubmissions = () =>
+  import("@/pages/admin/ContactSubmissions");
 const importUsersList = () => import("@/pages/admin/UsersList");
-const importNewsletter = () => import('@/pages/admin/Newsletter');
-const importAdminReports = () => import('@/pages/admin/ReportsPage');
+const importNewsletter = () => import("@/pages/admin/Newsletter");
+const importAdminReports = () => import("@/pages/admin/ReportsPage");
 
 // Lazy load pages
 const Home = lazy(importHome);
 const Login = lazy(importLogin);
 const VerifyCode = lazy(importVerifyCode);
 const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
-const PasswordResetVerification = lazy(() => import("@/pages/PasswordResetVerification"));
+const PasswordResetVerification = lazy(
+  () => import("@/pages/PasswordResetVerification")
+);
 const Register = lazy(importRegister);
 const VerifyEmail = lazy(importVerifyEmail);
 const Profile = lazy(importProfile);
@@ -106,7 +110,7 @@ const AdminRoute = ({ children }: { children: JSX.Element }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (user.role !== 'ADMIN') {
+  if (user.role !== "ADMIN") {
     return <Navigate to="/" replace />;
   }
 
@@ -162,7 +166,10 @@ const Routes = (): JSX.Element => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/password-reset" element={<PasswordReset />} />
-          <Route path="/password-reset-verification" element={<PasswordResetVerification />} />
+          <Route
+            path="/password-reset-verification"
+            element={<PasswordResetVerification />}
+          />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/search" element={<Search />} />
@@ -174,13 +181,13 @@ const Routes = (): JSX.Element => {
           <Route path="/listingsuccess" element={<ListingSuccess />} />
           <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/users/:userId" element={<UserProfile />} />
-          
+
           {/* New static pages */}
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
-          
+
           {/* Admin Routes */}
           <Route
             path="/admin/contact-submissions"
@@ -231,7 +238,7 @@ const Routes = (): JSX.Element => {
 
             <Route path="/settings" element={<Settings />} />
             <Route path="/listings/create" element={<CreateListing />} />
-            <Route path="/listings/:id/edit" element={<EditListingRedux />} />
+            <Route path="/listings/:id/edit" element={<EditListing />} />
             <Route path="/saved-listings" element={<SavedListings />} />
             <Route path="/messages/" element={<Messages />} />
             <Route path="/messages/:chatId" element={<Messages />} />
