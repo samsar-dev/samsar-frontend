@@ -575,29 +575,29 @@ const CreateListing = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
-  // Temporarily disabled free user restrictions
-  // } else if (userRole === "FREE_USER") {
-  //   bodyContent = (
-  //     <div className="flex flex-col items-center justify-center min-h-[300px]">
-  //       <FaMobileAlt className="text-5xl text-blue-500 mb-4" />
-  //       <h2 className="text-xl font-bold mb-2">{t("create.freeUserTitle")}</h2>
-  //       <p className="mb-4 text-gray-600">{t("create.freeUserDescription")}</p>
-  //       <div className="flex gap-4">
-  //         <a
-  //           href="https://your-app-download-link"
-  //           className="btn btn-primary flex items-center gap-2"
-  //         >
-  //           <FaMobileAlt /> {t("create.downloadApp")}
-  //         </a>
-  //         <a
-  //           href="/subscription"
-  //           className="btn btn-warning flex items-center gap-2"
-  //         >
-  //           <FaCrown /> {t("create.subscribePremium")}
-  //         </a>
-  //       </div>
-  //     </div>
-  //   );
+    // Temporarily disabled free user restrictions
+    // } else if (userRole === "FREE_USER") {
+    //   bodyContent = (
+    //     <div className="flex flex-col items-center justify-center min-h-[300px]">
+    //       <FaMobileAlt className="text-5xl text-blue-500 mb-4" />
+    //       <h2 className="text-xl font-bold mb-2">{t("create.freeUserTitle")}</h2>
+    //       <p className="mb-4 text-gray-600">{t("create.freeUserDescription")}</p>
+    //       <div className="flex gap-4">
+    //         <a
+    //           href="https://your-app-download-link"
+    //           className="btn btn-primary flex items-center gap-2"
+    //         >
+    //           <FaMobileAlt /> {t("create.downloadApp")}
+    //         </a>
+    //         <a
+    //           href="/subscription"
+    //           className="btn btn-warning flex items-center gap-2"
+    //         >
+    //           <FaCrown /> {t("create.subscribePremium")}
+    //         </a>
+    //       </div>
+    //     </div>
+    //   );
   } else if (showUpgradePrompt) {
     bodyContent = (
       <UpgradePrompt
