@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { Socket } from "socket.io-client";
 import socketIO from "socket.io-client";
+
+type SocketType = Socket | null;
 import { useAuth } from "@/hooks/useAuth";
 import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
 import { getAuthToken } from "@/utils/cookie";

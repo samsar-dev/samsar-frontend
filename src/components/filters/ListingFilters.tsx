@@ -148,35 +148,47 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     <div className="bg-white rounded-lg shadow-sm p-4 relative z-20 w-full max-w-6xl mx-auto">
       <div className="flex flex-row gap-6 items-start">
         {/* Vehicle Type Selector */}
-        <div className="flex flex-col space-y-2">
-          {vehicleTypes.map((type) => (
-            <button
-              key={type.id}
-              type="button"
-              onClick={() => setSelectedSubcategory(type.id === selectedSubcategory ? null : type.id)}
-              className={`p-2 rounded-lg flex flex-col items-center justify-center h-16 w-16 ${
-                type.id === selectedSubcategory 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-              title={type.name}
-            >
-              {type.icon}
-              <span className="text-xs mt-1">{type.name}</span>
-            </button>
-          ))}
+        <div className="flex flex-col space-y-3">
+          <h2 className="sr-only">{t('vehicle_type')}</h2>
+          <div className="grid grid-cols-3 gap-2">
+            {vehicleTypes.map((type) => (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => setSelectedSubcategory(type.id === selectedSubcategory ? null : type.id)}
+                className={`p-3 rounded-lg flex flex-col items-center justify-center min-h-[5.5rem] min-w-[5.5rem] transition-colors ${
+                  type.id === selectedSubcategory 
+                    ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' 
+                    : 'text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none'
+                }`}
+                aria-pressed={type.id === selectedSubcategory}
+                aria-label={type.name}
+              >
+                {React.cloneElement(type.icon, {
+                  'aria-hidden': 'true',
+                  className: 'w-6 h-6'
+                })}
+                <span className="text-xs mt-1.5 font-medium">{type.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Main Filter Area */}
         <div className="flex-1">
           <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('make')}</label>
+              <label id="make-label" className="block text-sm font-medium text-gray-800 mb-1.5">
+                {t('make')}
+                <span className="sr-only">{t('required')}</span>
+              </label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                aria-labelledby="make-label"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={selectedMake || ''}
                 onChange={(e) => setSelectedMake(e.target.value || null)}
                 disabled={loading}
+                aria-required="true"
               >
                 <option value="">{t('select_make')}</option>
                 {availableMakes.map((make) => (
@@ -189,10 +201,12 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('model')}</label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={selectedModel || ''}
                 onChange={(e) => setSelectedModel(e.target.value || null)}
                 disabled={!selectedMake || loading}
+                aria-disabled={!selectedMake || loading}
+                aria-labelledby="model-label"
               >
                 <option value="">{t('select_model')}</option>
                 {availableModels.map((model) => (
@@ -205,10 +219,11 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('first_registration')}</label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={selectedYear || ''}
                 onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : null)}
                 disabled={loading}
+                aria-labelledby="year-label"
               >
                 <option value="">{t('builtYearOptions.any')}</option>
                 {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map((year) => (
@@ -221,10 +236,11 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('kilometers_up_to')}</label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={selectedMileage || ''}
                 onChange={(e) => setSelectedMileage(e.target.value ? parseInt(e.target.value) : null)}
                 disabled={loading}
+                aria-labelledby="mileage-label"
               >
                 <option value="">{t('no_max')}</option>
                 {[
@@ -240,10 +256,11 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('payment_method')}</label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={selectedAction || ''}
                 onChange={(e) => handleActionChange(e.target.value)}
                 disabled={loading}
+                aria-labelledby="payment-label"
               >
                 <option value="">{t('any')}</option>
                 <option value={ListingAction.SALE}>{tEnums('listingType.FOR_SALE')}</option>
@@ -253,13 +270,14 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('price_up_to')} (€)</label>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                 value={priceRange.max || ''}
                 onChange={(e) => onPriceRangeChange({ 
                   ...priceRange, 
                   max: e.target.value ? parseInt(e.target.value) : '' 
                 })}
                 disabled={loading}
+                aria-labelledby="price-label"
               >
                 <option value="">{t('no_max')}</option>
                 {[
@@ -314,25 +332,24 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
               <div className="flex items-center space-x-3">
                 <button
                   type="button"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                  onClick={() => {
-                    handleReset();
-                  }}
+                  className="px-5 py-2.5 text-sm font-medium text-gray-800 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  onClick={handleReset}
                 >
                   {t('reset')}
                 </button>
                 <button
                   type="button"
-                  className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+                  className="px-5 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   {t('moreFilters')}
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                  className="flex items-center px-6 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 transition-colors"
                 >
-                  <MdSend className="mr-2" />
+                  <MdSend className="mr-2 w-5 h-5" aria-hidden="true" />
                   {t('search')}
+                  <span className="sr-only">{t('search_listings')}</span>
                 </button>
               </div>
             </div>

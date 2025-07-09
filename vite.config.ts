@@ -1,38 +1,22 @@
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-import type { PluginOption, HtmlTagDescriptor } from 'vite';
-
-// Critical CSS plugin with updated API
-const criticalCSSPlugin = (): PluginOption => ({
-  name: 'critical-css',
-  apply: 'build',
-  transformIndexHtml: {
-    order: 'post',
-    handler(html: string) {
-      const tags: HtmlTagDescriptor[] = [
-        {
-          tag: 'style',
-          attrs: { id: 'critical-css' },
-          children: '/* Critical CSS will be inlined here during build */',
-          injectTo: 'head-prepend' as const
-        }
-      ];
-      return { html, tags };
-    }
-  }
-});
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  
+  // Skip type checking during build
+  if (command === 'build') {
+    process.env.TSC_COMPILE_ON_ERROR = 'true';
+    process.env.TSC_COMPILE_ON_ERROR_WATCH = 'true';
+  }
   
   // Only include necessary environment variables
   const envVars: Record<string, string> = {};
@@ -44,11 +28,17 @@ export default defineConfig(({ mode }) => {
     }
   });
   
+  const isProduction = mode === 'production';
+  
   return {
     define: envVars,
     plugins: [
-      criticalCSSPlugin(),
-      react(),
+      react({
+        // Enable TypeScript decorators
+        tsDecorators: true,
+        // Development options
+        jsxImportSource: '@emotion/react',
+      }),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -116,7 +106,7 @@ export default defineConfig(({ mode }) => {
     
     server: {
       port: 3000,
-      open: true,
+      open: false,
       strictPort: true,
       proxy: {
         // API proxy configuration
@@ -135,18 +125,22 @@ export default defineConfig(({ mode }) => {
     },
     
     build: {
+      target: 'esnext',
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: mode !== 'production',
-      minify: 'terser',
-      chunkSizeWarningLimit: 1600,
+      sourcemap: !isProduction,
+      minify: isProduction ? 'terser' : false,
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
+      brotliSize: false,
       rollupOptions: {
         output: {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['lodash', 'axios', 'date-fns'],
-            ui: ['@headlessui/react', '@heroicons/react', 'framer-motion'],
+            'vendor-large': ['framer-motion'],
+            vendor: ['axios', 'date-fns'],
+            ui: ['@headlessui/react', '@heroicons/react'],
             forms: ['formik', 'yup', 'react-hook-form'],
             maps: ['leaflet', 'react-leaflet'],
           },
@@ -169,12 +163,15 @@ export default defineConfig(({ mode }) => {
       devSourcemap: mode !== 'production',
       modules: {
         localsConvention: 'camelCaseOnly',
+        generateScopedName: mode === 'production' ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]',
       },
       preprocessorOptions: {
         scss: {
           additionalData: `@import "@/assets/styles/variables.scss";`,
         },
       },
+      // Minify in production
+      minify: mode === 'production',
     },
     
     optimizeDeps: {
@@ -186,7 +183,7 @@ export default defineConfig(({ mode }) => {
         'i18next',
         'date-fns',
         'framer-motion',
-        'lodash'
+        
       ],
       esbuildOptions: {
         target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge79'],

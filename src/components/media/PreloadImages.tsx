@@ -8,8 +8,8 @@ interface PreloadImagesProps {
 }
 
 /**
- * Preloads images to improve perceived performance
- * Only preloads the first image by default as it's likely the LCP candidate
+ * Preloads the first image for perceived performance.
+ * Mobile-aware. Avoids preloading unused sizes on mobile.
  */
 const PreloadImages: React.FC<PreloadImagesProps> = ({
   imageUrls,
@@ -22,51 +22,37 @@ const PreloadImages: React.FC<PreloadImagesProps> = ({
   ],
 }) => {
   useEffect(() => {
-    if (!imageUrls?.length) return;
-    
-    // Only preload the first image to avoid resource contention
-    const imageUrl = imageUrls[0];
-    if (!imageUrl) return;
+    if (!imageUrls?.length || !imageUrls[0]) return;
 
-    const links: HTMLLinkElement[] = [];
+    const imageUrl = imageUrls[0];
     const isR2Image = imageUrl.includes('r2.dev');
     const baseUrl = imageUrl.split('?')[0];
+    const links: HTMLLinkElement[] = [];
 
-    // Create a single preload for the most likely size (800px)
-    const createPreloadLink = (width: number) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      
-      if (isR2Image) {
-        const params = new URLSearchParams({
+    // Find size based on window width
+    const bestSize = sizes.find(s => {
+      if (!s.media) return false;
+      return window.matchMedia(s.media).matches;
+    }) || sizes[0];
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.setAttribute('fetchpriority', priority ? 'high' : 'low');
+
+    link.href = isR2Image
+      ? `${baseUrl}?${new URLSearchParams({
           format: 'webp',
           quality: quality.toString(),
-          width: width.toString(),
-        });
-        link.href = `${baseUrl}?${params.toString()}`;
-      } else {
-        link.href = imageUrl;
-      }
-      
-      link.setAttribute('fetchpriority', priority ? 'high' : 'low');
-      document.head.appendChild(link);
-      return link;
-    };
+          width: bestSize.width.toString(),
+        })}`
+      : imageUrl;
 
-    // Preload the most common size (800px)
-    const commonSize = sizes.find(s => s.width === 800) || sizes[Math.floor(sizes.length / 2)];
-    if (commonSize) {
-      links.push(createPreloadLink(commonSize.width));
-    }
+    document.head.appendChild(link);
+    links.push(link);
 
     return () => {
-      // Cleanup preload links when component unmounts
-      links.forEach(link => {
-        if (document.head.contains(link)) {
-          document.head.removeChild(link);
-        }
-      });
+      links.forEach(l => document.head.contains(l) && document.head.removeChild(l));
     };
   }, [imageUrls, priority, quality, sizes]);
 

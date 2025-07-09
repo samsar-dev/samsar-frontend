@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaPlus, FaBoxOpen, FaFilter, FaSort } from "react-icons/fa";
+import { FaPlus, FaBoxOpen, FaSort } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MyListingsProps {
@@ -43,7 +43,8 @@ export default function MyListings({ userId }: MyListingsProps) {
 
   // Memoize the fetchListings function to prevent unnecessary re-renders
   const fetchListings = useCallback(async () => {
-    if (!isAuthenticated || !isInitialized) return;
+    if (!isInitialized) return;
+    if (!isAuthenticated && !userId) return;
 
     try {
       // Create a unique request ID to track the latest request

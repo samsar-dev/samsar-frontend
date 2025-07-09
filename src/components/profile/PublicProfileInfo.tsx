@@ -13,13 +13,18 @@ interface PublicUserProfile {
   email: string;
   bio?: string;
   profilePicture?: string;
-  listings?: number;
+  listings?: any[];
+  listingsCount?: number;
   phone?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
   street?: string;
   city?: string;
+}
+
+interface PublicProfileInfoProps {
+  showListings?: boolean;
 }
 
 interface UserProfileResponse {
@@ -43,7 +48,7 @@ interface FormData {
   bio?: string;
 }
 
-const PublicProfileInfo = () => {
+const PublicProfileInfo = ({ showListings = false }: PublicProfileInfoProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { userId } = useParams();
@@ -93,7 +98,8 @@ const PublicProfileInfo = () => {
             email: userData.email,
             bio: userData.bio || "",
             profilePicture: userData.profilePicture,
-            listings: userData.listings?.length || 0,
+            listings: userData.listings || [],
+            listingsCount: userData.listings?.length || 0,
           });
         }
       } catch (err) {
@@ -158,6 +164,39 @@ const PublicProfileInfo = () => {
   if (error || !profile) {
     return <div className="text-red-500">{error}</div>;
   }
+
+  // Render listings if showListings is true and there are listings
+  const renderListings = () => {
+    if (!showListings || !profile?.listings?.length) return null;
+    
+    return (
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">{t('listings')}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {profile.listings.map((listing) => (
+            <div key={listing.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+              {listing.images?.[0] && (
+                <img 
+                  src={listing.images[0]} 
+                  alt={listing.title} 
+                  className="w-full h-40 object-cover rounded-t-lg"
+                />
+              )}
+              <div className="p-2">
+                <h4 className="font-medium text-lg">{listing.title}</h4>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {listing.price} {listing.currency}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {listing.city}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -280,10 +319,10 @@ const PublicProfileInfo = () => {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {profile.username}
               </h2>
-              {profile.listings !== undefined && (
+              {profile.listingsCount !== undefined && (
                 <p className="text-gray-600 dark:text-gray-300">
                   {t("profile.total_listings", {
-                    count: profile.listings,
+                    count: profile.listingsCount,
                   })}
                 </p>
               )}
@@ -311,6 +350,9 @@ const PublicProfileInfo = () => {
               </div>
             )}
           </div>
+          
+          {/* Display listings if showListings is true */}
+          {showListings && renderListings()}
         </div>
       )}
     </div>

@@ -1,11 +1,24 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for https://samsar.app
+# Learn more: https://www.robotstxt.org/robotstxt.html
+
 User-agent: *
 Allow: /
-Disallow: /api/*
-Disallow: /_next/static/*
+
+# Disallow sensitive backend routes and dynamic resources
+Disallow: /api/
+Disallow: /_next/
+Disallow: /server-sitemap.xml
 Disallow: /*.json$
 Disallow: /*?*
 
-# Sitemaps
+# Disallow user-specific pages
+Disallow: /profile
+Disallow: /profile/listings
+Disallow: /profile/password
+Disallow: /saved-listings
+Disallow: /listings/create
+Disallow: /settings
+Disallow: /messages
+
+# Sitemap location
 Sitemap: https://samsar.app/sitemap.xml
-Sitemap: https://samsar.app/server-sitemap.xml

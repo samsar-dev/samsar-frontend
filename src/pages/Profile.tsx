@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, Routes, Route } from "react-router-dom";
 import {
   MyListings,
   ProfileInfo,
@@ -8,10 +8,6 @@ import {
 } from "@/components/profile";
 import { useAuth } from "@/hooks/useAuth";
 
-interface ProfileProps {
-  isRTL?: boolean;
-}
-
 interface TabItem {
   id: string;
   path: string;
@@ -19,7 +15,7 @@ interface TabItem {
   icon: string;
 }
 
-export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
+export const Profile = () => {
   const { t } = useTranslation("profile");
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,7 +87,13 @@ export const Profile: React.FC<ProfileProps> = ({ isRTL = false }) => {
 
           {/* Content Area */}
           <div className="flex-1 p-6 md:p-8">
-            <Outlet />
+            <Routes>
+              <Route path="/" element={<ProfileInfo />} />
+              <Route path="/listings" element={<MyListings />} />
+              <Route path="/password" element={<ChangePassword />} />
+              <Route path="/:userId" element={<PublicProfileInfo />} />
+              <Route path="/:userId/listings" element={<PublicProfileInfo showListings />} />
+            </Routes>
           </div>
         </div>
       </div>

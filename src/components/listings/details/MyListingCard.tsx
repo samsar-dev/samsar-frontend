@@ -246,16 +246,17 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
           
           {/* Features */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {listing?.vehicleDetails?.features?.map(
-              (feature: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                >
-                  {feature}
-                </span>
-              )
-            )}
+            {listing?.vehicleDetails?.features &&
+              Object.entries(listing.vehicleDetails.features)
+                .filter(([_, value]) => value === true)
+                .map(([feature]) => (
+                  <span
+                    key={feature}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                  >
+                    {feature.split(/(?=[A-Z])/).join(' ')}
+                  </span>
+                ))}
           </div>
         </div>
       </Link>

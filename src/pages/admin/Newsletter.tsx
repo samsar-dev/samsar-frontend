@@ -15,13 +15,13 @@ import {
   FormGroup,
   FormHelperText,
   Container,
-  Grid as MuiGrid,
+  Grid,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
-// Move styled components outside the component to prevent re-renders
-const Grid = styled(MuiGrid)({});
-const GridItem = styled(MuiGrid)({});
+// GridItem component that properly extends MUI Grid item
+const GridItem = (props: any) => (
+  <Grid item {...props} />
+);
 
 import {
   Send as SendIcon,

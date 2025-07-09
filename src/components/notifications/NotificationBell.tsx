@@ -13,7 +13,6 @@ import {
   getNotificationColor,
   formatNotificationMessage,
 } from "@/utils/notificationUtils";
-import { set } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -105,8 +104,6 @@ export default function NotificationBell({
             case NotificationType.LISTING_INTEREST:
             case NotificationType.LISTING_CREATED:
               if (notification.listingId) {
-                // Remove 'cma' prefix if it exists
-                const listingId = notification.listingId.replace("cma", "");
                 // Remove '/public' from the path if it exists
                 const path = notification.listingId.includes("/public/")
                   ? notification.listingId.replace("/public/", "/")

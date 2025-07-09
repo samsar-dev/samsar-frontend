@@ -1,18 +1,81 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
-    <!-- Preconnect to external domains -->
+    <!-- Preconnect to critical domains -->
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
+    <!-- Preload key requests -->
+    <link rel="preconnect" href="https://api.samsar.app" crossorigin>
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.samsar.app">
     
-    <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"></noscript>
+    <!-- Inline critical CSS -->
+    <style id="critical-css">
+      /* Critical CSS for above-the-fold content */
+      :root {
+        --primary: #2563eb;
+        --background: #ffffff;
+        --text: #1f2937;
+      }
+      body { 
+        margin: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: var(--text);
+      }
+      .lcp-element { 
+        will-change: transform;
+        font-weight: 700;
+      }
+      /* Critical layout styles */
+      #root {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      /* Critical CSS for LCP element */
+      .lcp-text {
+        font-size: 1.875rem; /* text-3xl */
+        line-height: 2.25rem;
+        font-weight: 800;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        color: white;
+        margin: 0;
+        padding: 0;
+        opacity: 1;
+        transform: translateZ(0);
+        will-change: transform;
+      }
+      @media (min-width: 640px) {
+        .lcp-text { font-size: 2.25rem; } /* sm:text-4xl */
+      }
+      @media (min-width: 768px) {
+        .lcp-text { font-size: 3rem; } /* md:text-5xl */
+      }
+      
+      /* Basic styles to prevent layout shifts */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+      }
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      }
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+      /* Add any other critical above-the-fold styles here */
+    </style>
+    
+   
     <!-- Essential Meta -->
     <meta charset="utf-8" />
     <meta
@@ -20,42 +83,27 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta name="theme-color" content="#1a56db" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Samsar Team" />
+    <meta name="language" content="ar" />
+    <meta name="geo.region" content="SY" />
+    <meta name="geo.placename" content="Syria" />
     
-    <!-- Primary Meta Tags -->
-    <!-- Preload critical scripts -->
-    <link rel="modulepreload" href="/src/main.tsx" as="script">
+    <!-- Fallback SEO (will be overridden by React SEO component) -->
+    <title>سمسار | سوق السيارات والعقارات الأول في سوريا</title>
+    <meta name="description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من الإعلانات في مختلف المدن السورية">
     
-    <title>سمسار | سوق السيارات والعقارات الأول في سوريا | Samsar</title>
-    <meta name="title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
-    <meta name="description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تواصل مع أفضل الوكلاء واعثر على أفضل العروض في جميع المدن السورية">
-    <meta name="keywords" content="سمسار, سيارات سوريا, عقارات سوريا, سيارات للبيع, شقق للايجار, عقارات للبيع, معارض سيارات, مكاتب عقارية, سوريا, دمشق, حلب, حمص, اللاذقية">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="Samsar Team">
-    <meta name="language" content="Arabic">
-    <meta name="geo.region" content="SY">
-    <meta name="geo.placename" content="Syria">
-
-    <!-- Open Graph / Facebook -->
+    <!-- Essential Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://samsar.app/" />
     <meta property="og:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
     <meta property="og:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا">
-    <meta property="og:image" content="https://samsar.app/og-image.jpg" />
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://samsar.app/" />
-    <meta property="twitter:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
-    <meta property="twitter:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا">
-    <meta property="twitter:image" content="https://samsar.app/og-image.jpg" />
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://samsar.app/" />
+    <meta property="og:image" content="/og-image.jpg">
     
-    <!-- Hreflang for multilingual support -->
-    <link rel="alternate" hreflang="ar" href="https://samsar.app/ar" />
-    <link rel="alternate" hreflang="en" href="https://samsar.app/en" />
-    <link rel="alternate" hreflang="x-default" href="https://samsar.app/" />
+    <!-- Essential Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا">
+    <meta name="twitter:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا">
+    <meta name="twitter:image" content="/og-image.jpg">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -106,7 +154,9 @@
     <!-- Fonts: Optimized for Arabic & English -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"></noscript>
+    
 
     <!-- Preload Critical Assets -->
     <link rel="preload" href="/images/hero.webp" as="image" type="image/webp" fetchpriority="high">
@@ -116,9 +166,7 @@
     <link rel="preconnect" href="https://maps.googleapis.com">
     <link rel="preconnect" href="https://www.google-analytics.com">
     
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/css/critical.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/critical.css"></noscript>
+  
 
     <!-- Social: Open Graph -->
     <meta property="og:title" content="Marketplace - Buy and Sell Locally" />
@@ -138,14 +186,8 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <!-- Critical scripts -->
-    <script type="module" src="/src/main.tsx" async></script>
-    
-    <!-- Load non-critical CSS asynchronously -->
-    <link rel="preload" href="/src/App.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/src/App.css"></noscript>
-
+  
     <!-- Main App Script -->
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" defer></script>
   </body>
 </html>

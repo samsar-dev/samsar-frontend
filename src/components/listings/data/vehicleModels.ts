@@ -9,13 +9,13 @@ export type VehicleDataStructure = {
   electric?: ModelData;
 };
 
-import { carModels } from "@/components/listings/data/subcategories/carModels.ts";
-import { trucksModels } from "@/components/listings/data/subcategories/trucksModels.ts";
-import { motorcycleModels } from "@/components/listings/data/subcategories/motorcyclesModels.ts";
-import { busesModels } from "@/components/listings/data/subcategories/busesModels.ts";
-import { vansModels } from "@/components/listings/data/subcategories/vansModels.ts";
-import { tractorsModels } from "@/components/listings/data/subcategories/tractorsModels.ts";
-import { constructionModels } from "@/components/listings/data/subcategories/constructionModels.ts";
+import { carModels } from "@/components/listings/data/subcategories/carModels";
+import { trucksModels } from "@/components/listings/data/subcategories/trucksModels";
+import { motorcycleModels } from "@/components/listings/data/subcategories/motorcyclesModels";
+import { busesModels } from "@/components/listings/data/subcategories/busesModels";
+import { vansModels } from "@/components/listings/data/subcategories/vansModels";
+import { tractorsModels } from "@/components/listings/data/subcategories/tractorsModels";
+import { constructionModels } from "@/components/listings/data/subcategories/constructionModels";
 
 // Define the vehicle models mapping with proper type checking
 const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {

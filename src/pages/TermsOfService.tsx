@@ -1,8 +1,16 @@
 import { Container, Typography, Box, Link, Paper, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Gavel, Description, AccountBalance, Security, Policy, ContactSupport } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+import { SEO } from '@/utils/seo';
 
 const TermsOfService = () => {
+  const { t } = useTranslation();
+  
+  // SEO Meta Tags
+  const pageTitle = t('terms.meta_title', 'شروط وأحكام الاستخدام - سمسار');
+  const pageDescription = t('terms.meta_description', 'تعرف على الشروط والأحكام المنظمة لاستخدام منصة سمسار. يرجى قراءة هذه الشروط بعناية قبل استخدام المنصة.');
+  const pageKeywords = t('terms.meta_keywords', 'شروط الاستخدام, الشروط والأحكام, سياسة الاستخدام, قوانين الموقع, اتفاقية المستخدم, حقوق وواجبات المستخدمين, حماية الخصوصية, سمسار');
   const sections = [
     {
       title: '1. Introduction',
@@ -185,6 +193,11 @@ const TermsOfService = () => {
 
   return (
     <Box sx={{ py: 8, bgcolor: 'background.default' }}>
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
         <Container maxWidth="lg">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

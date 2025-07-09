@@ -6,6 +6,7 @@ import { Tab } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/styles/scrollable-tabs.css";
+import { SEO } from "@/utils/seo";
 
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
@@ -55,6 +56,11 @@ function Settings() {
   const { t, i18n } = useTranslation("settings");
   const { settings, updateSettings } = useSettings();
   const [isSaving, setIsSaving] = useState(false);
+  
+  // SEO Meta Tags
+  const pageTitle = t('settings.meta_title', 'الإعدادات - سمسار');
+  const pageDescription = t('settings.meta_description', 'إدارة إعدادات حسابك الشخصي على منصة سمسار');
+  const pageKeywords = t('settings.meta_keywords', 'الإعدادات, الحساب, التفضيلات, الإشعارات, الأمان, سمسار');
   const [saveStatus, setSaveStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -238,6 +244,12 @@ function Settings() {
   ];
 
   return (
+    <>
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
     <div
       className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isRTL ? "rtl" : "ltr"} bg-gray-50 dark:bg-gray-900`}
     >
@@ -540,6 +552,7 @@ function Settings() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

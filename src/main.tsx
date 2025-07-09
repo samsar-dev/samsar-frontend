@@ -5,7 +5,11 @@ import { HelmetProvider } from "react-helmet-async";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import App from "./App";
+import "react-toastify/dist/ReactToastify.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import "./config/i18n"; // Import i18n configuration
+
+// Import critical styles
 import "./assets/css/index.css";
 
 // Performance monitoring

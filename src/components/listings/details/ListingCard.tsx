@@ -38,6 +38,7 @@ export interface ListingCardProps {
   showSaveButton?: boolean;
   showPrice?: boolean;
   showBadges?: boolean;
+  showLocation?: boolean;
   priority?: boolean;
 }
 
@@ -324,14 +325,23 @@ const ListingCard: React.FC<ListingCardProps> = ({
       )}
       <div className="relative h-full">
         <Link to={`/listings/${listingId}`} className="block h-full">
-          <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/80 dark:to-gray-800/90 flex items-center justify-center relative group">
+          <div 
+            className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative group" 
+            role="img" 
+            aria-label={title ? `${title} - ${t('listingImage')}` : t('listingImage')}
+          >
             {/* Image overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+            
+            {/* Fallback content for when image fails to load */}
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium">
+              {t('imageUnavailable')}
+            </div>
             
             {/* Main image with smooth loading */}
             <ImageFallback
               src={mainImage}
-              alt={title || 'Listing image'}
+              alt={title ? `${title} - ${t('listingImage')}` : t('listingImage')}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               category={category?.subCategory}
               priority={priority}
@@ -340,6 +350,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               loading={priority ? 'eager' : 'lazy'}
               width={480}
               height={360}
+              aria-hidden="false"
             />
           
             {/* Status badge */}
@@ -421,14 +432,18 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <div className="p-5">
           {/* Title and Price Row */}
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
-              <Link to={`/listings/${id}`} className="hover:underline decoration-2 underline-offset-2 decoration-blue-400/50">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200">
+              <Link 
+                to={`/listings/${id}`} 
+                className="hover:underline decoration-2 underline-offset-2 decoration-blue-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                aria-label={`${title} - ${t('viewDetails')}`}
+              >
                 {title}
               </Link>
-            </h3>
+            </h2>
             {showPrice && (
               <div className="flex-shrink-0 ml-3">
-                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
                   <PriceConverter 
                     price={price} 
                     showMonthly={listingAction === ListingAction.RENT}
@@ -436,7 +451,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   />
                 </p>
                 {'originalPrice' in listing && listing.originalPrice && listing.originalPrice > price && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 line-through text-right">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 line-through text-right">
                     <PriceConverter price={listing.originalPrice} className="line-through" />
                   </p>
                 )}
@@ -454,8 +469,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     href={`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude || ''}${!listing.latitude ? encodeURIComponent(location) : ''}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="truncate hover:underline hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="truncate hover:underline hover:text-blue-700 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 -mx-1"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={`${t('viewOnMap')} - ${location}`}
                   >
                     {cleanLocationString(location)}
                   </a>

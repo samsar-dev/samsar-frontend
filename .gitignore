@@ -67,6 +67,4 @@ playwright-report/
 .pnp.*
 node_modules
 
-# Sitemap
-sitemap.xml
-robots-txt/
+

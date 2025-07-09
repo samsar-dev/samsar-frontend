@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import ListingFilters from "@/components/filters/ListingFilters";
 import ListingCard from "@/components/listings/details/ListingCard";
 import { ExtendedListing } from "@/types/listings";
 import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { toast } from "react-toastify";
+import { SEO } from "@/utils/seo";
  
 
 interface ListingsState {
@@ -16,6 +18,13 @@ interface ListingsState {
 }
 
 const VehiclesPage: React.FC = () => {
+  const { t } = useTranslation();
+  
+  // SEO Meta Tags
+  const pageTitle = t('vehicles.meta_title', 'المركبات - سمسار');
+  const pageDescription = t('vehicles.meta_description', 'أكبر سوق لبيع وشراء السيارات والمركبات في سوريا. تصفح آلاف السيارات الجديدة والمستعملة من مختلف الماركات والموديلات. لدينا تشكيلة واسعة تشمل: سيارات سيدان، دفع رباعي، سيارات عائلية، سيارات رياضية، دراجات نارية، شاحنات، باصات، وقطع غيار. خدمة مجانية لبيع وشراء المركبات مع إمكانية المقارنة بين العروض والاتصال بالبائع مباشرة. أسعار تنافسية وضمان حقيقي. ابدأ بحثك الآن عن سيارتك المثالية!');
+  const pageKeywords = t('vehicles.meta_keywords', 'سيارات للبيع, سيارات مستعملة, سيارات جديدة, معارض سيارات, سيارات بالتقسيط, دراجات نارية, شاحنات, باصات, قطع غيار سيارات, بيع سيارات, شراء سيارات, سوق السيارات, اسعار السيارات, سيارات مضمونة, سمسار سيارات, سيارات سوريا, مركبات للايجار');
+  
   const [listings, setListings] = useState<ListingsState>({
     all: [],
     loading: true,
@@ -118,6 +127,11 @@ const VehiclesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">

@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { Send, LocationOn, Phone, Email, Close } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/apiClient";
+import { SEO } from "@/utils/seo";
 
 const FormRow = ({ children }: { children: React.ReactNode }) => (
   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
@@ -45,6 +46,10 @@ interface FormData {
 
 const ContactUs = () => {
   const { t } = useTranslation("footer");
+  const pageTitle = t('contact_page.meta_title', 'اتصل بنا - سمسار');
+  const pageDescription = t('contact_page.meta_description', 'تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة');
+  const pageKeywords = t('contact_page.meta_keywords', 'اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل');
+  
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -155,8 +160,15 @@ const ContactUs = () => {
     setSubmitStatus((prev) => ({ ...prev, open: false }));
   };
 
+  // Form submission handler is defined above in the file
+
   return (
-    <Box sx={{ py: 8, bgcolor: "background.default" }}>
+    <Box sx={{ py: 8, bgcolor: "background.default" }} dir="rtl">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       <Container maxWidth="lg">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

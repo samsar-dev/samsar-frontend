@@ -13,6 +13,7 @@ import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
+import { SEO } from "@/utils/seo";
 
 interface ListingParams {
   category?: {
@@ -46,12 +47,12 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  const { t, i18n } = useTranslation([
-    "common",
-    "filters",
-    "home",
-    "locations",
-  ]);
+  const { t, i18n } = useTranslation(["common", "filters", "home", "locations"]);
+  
+  // SEO Meta Tags
+  const pageTitle = t('home.meta_title', 'سمسار | سوق السيارات والعقارات الأول في سوريا');
+  const pageDescription = t('home.meta_description', 'مرحباً بكم في منصة سمسار، الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. تصفح آلاف العروض المميزة للشقق، الفلل، الأراضي، السيارات، والشاحنات. نوفر لك أحدث قوائم العقارات والمركبات مع تفاصيل دقيقة، صور عالية الجودة، وأسعار تنافسية. ابدأ رحلتك اليوم للعثور على ما تبحث عنه!');
+  const pageKeywords = t('home.meta_keywords', 'عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار');
 
   // Get city and area translations for filtering
   const cities = t("locations:cities", {
@@ -689,7 +690,7 @@ const Home: React.FC = () => {
             setSelectedYear={setSelectedYear}
             selectedMileage={selectedMileage}
             setSelectedMileage={setSelectedMileage}
-            selectedLocation={selectedLocation}
+          
             setSelectedLocation={setSelectedLocation}
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
@@ -799,8 +800,20 @@ const Home: React.FC = () => {
   ]);
 
   return (
-    <div className="min-h-[100svh] bg-gray-50 dark:bg-[#0f172a] transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEO 
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+      />
       {/* Preload for LCP Optimization */}
+      <link 
+        rel="preload" 
+        href="/waves-light.svg" 
+        as="image" 
+        type="image/svg+xml"
+        fetchPriority="high"
+      />
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
@@ -808,14 +821,16 @@ const Home: React.FC = () => {
       {/* Header */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
         {/* Optional Decorative Background Pattern */}
-        <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-no-repeat opacity-5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold drop-shadow-sm">
+          <h1 className="lcp-text">
             {t("home.find_perfect")}{" "}
-            {selectedCategory === ListingCategory.VEHICLES
-              ? t("home.vehicle")
-              : t("home.property")}
+            <span className="inline-block">
+              {selectedCategory === ListingCategory.VEHICLES
+                ? t("home.vehicle")
+                : t("home.property")}
+            </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
             {selectedCategory === ListingCategory.VEHICLES
