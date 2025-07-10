@@ -157,6 +157,7 @@
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-compression2": "^2.2.0",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-pages": "^0.33.1",
     "webpack-bundle-analyzer": "^4.10.2",
