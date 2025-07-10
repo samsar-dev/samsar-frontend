@@ -445,7 +445,7 @@ export const vanSchema: ListingFieldSchema[] = [
     required: false,
     featureGroups: {
       cameras: {
-        label: "Camera Features",
+        label: "featureCategories.cameraFeatures",
         features: [
           { name: "rearCamera", label: "Rear Camera", type: "toggle" },
           { name: "camera360", label: "360° Camera", type: "toggle" },
@@ -458,7 +458,7 @@ export const vanSchema: ListingFieldSchema[] = [
         ],
       },
       entertainment: {
-        label: "Entertainment Features",
+        label: "featureCategories.entertainment",
         features: [
           { name: "bluetooth", label: "Bluetooth", type: "toggle" },
           { name: "appleCarPlay", label: "Apple CarPlay", type: "toggle" },
@@ -479,7 +479,7 @@ export const vanSchema: ListingFieldSchema[] = [
         ],
       },
       lighting: {
-        label: "Lighting Features",
+        label: "featureCategories.lightingFeatures",
         features: [
           { name: "ledLights", label: "LED Lights", type: "toggle" },
           { name: "halogenLights", label: "Halogen Lights", type: "toggle" },
@@ -490,7 +490,7 @@ export const vanSchema: ListingFieldSchema[] = [
         ],
       },
       climate: {
-        label: "Climate Features",
+        label: "featureCategories.climateFeatures",
         features: [
           {
             name: "airConditioning",
@@ -506,7 +506,7 @@ export const vanSchema: ListingFieldSchema[] = [
         ],
       },
       convenience: {
-        label: "Convenience Features",
+        label: "featureCategories.convenienceFeatures",
         features: [
           { name: "powerSteering", label: "Power Steering", type: "toggle" },
           { name: "powerWindows", label: "Power Windows", type: "toggle" },
@@ -516,7 +516,7 @@ export const vanSchema: ListingFieldSchema[] = [
         ],
       },
       cargo: {
-        label: "Cargo Features",
+        label: "featureCategories.cargoFeatures",
         features: [
           { name: "roofRack", label: "Roof Rack", type: "toggle" },
           { name: "cargoTieDowns", label: "Cargo Tie-Downs", type: "toggle" },

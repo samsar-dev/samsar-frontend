@@ -354,22 +354,31 @@ export const FormField = forwardRef<
                   <span className="text-gray-500 sm:text-sm">{prefix}</span>
                 </div>
               )}
-              <input
-                ref={ref as React.Ref<HTMLInputElement>}
-                type={type}
-                id={name}
-                name={name}
-                value={type === "number" ? Number(value) : value.toString()}
-                onChange={handleChange}
-                className={inputClasses}
-                placeholder={placeholder}
-                required={required}
-                disabled={disabled}
-                min={min}
-                max={max}
-                aria-invalid={!!error}
-                aria-describedby={error ? `${name}-error` : undefined}
-              />
+              <div className="relative">
+                <input
+                  ref={ref as React.Ref<HTMLInputElement>}
+                  type={type}
+                  id={name}
+                  name={name}
+                  value={type === "number" ? (value === 0 ? "" : String(value)) : String(value)}
+                  onChange={handleChange}
+                  className={clsx(inputClasses, 'relative z-10 bg-transparent', {
+                    'text-transparent': type === "number" && value === 0
+                  })}
+                  placeholder="0"
+                  required={required}
+                  disabled={disabled}
+                  min={min}
+                  max={max}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? `${name}-error` : undefined}
+                />
+                {type === "number" && value === 0 && (
+                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
+                    {placeholder}
+                  </span>
+                )}
+              </div>
             </div>
           );
       }
