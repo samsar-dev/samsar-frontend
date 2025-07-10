@@ -1,7 +1,7 @@
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useAuth } from "@/hooks/useAuth";
 import { useCreateListing } from "@/hooks/useCreateListing";
 import { useListingPermission } from "@/hooks/useListingPermission";
-import { useAuth } from "@/hooks/useAuth";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
 import {
   Condition,
   FuelType,
@@ -12,25 +12,20 @@ import {
   VehicleType,
 } from "@/types/enums";
 import { AnimatePresence, motion } from "framer-motion";
+import isEqual from "lodash/isEqual";
 import React, {
   Suspense,
   lazy,
+  memo,
   useCallback,
-  useMemo,
   useEffect,
+  useMemo,
   useState,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import isEqual from "lodash/isEqual";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import {
-  FaCarSide,
-  FaCheckCircle,
-  FaCog,
-  FaMobileAlt,
-  FaCrown,
-} from "react-icons/fa";
+import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
@@ -53,9 +48,9 @@ const pageTransition = {
 };
 
 // Memoized step components to prevent unnecessary re-renders
-const MemoizedBasicDetailsForm = React.memo(BasicDetailsForm);
-const MemoizedAdvancedDetailsForm = React.memo(AdvancedDetailsForm);
-const MemoizedReviewSection = React.memo(ReviewSection);
+const MemoizedBasicDetailsForm = memo(BasicDetailsForm);
+const MemoizedAdvancedDetailsForm = memo(AdvancedDetailsForm);
+const MemoizedReviewSection = memo(ReviewSection);
 
 const initialFormState: FormState = {
   title: "",
@@ -69,6 +64,7 @@ const initialFormState: FormState = {
   images: [],
   listingAction: ListingAction.SALE, // Default to SALE
   details: {
+    // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
     vehicles: {
       vehicleType: VehicleType.CAR,
       make: "",
@@ -84,7 +80,7 @@ const initialFormState: FormState = {
       engine: "",
       warranty: "",
       serviceHistory: "",
-      previousOwners: "",
+      previousOwners: 0,
       registrationStatus: "",
       accidentFree: false,
       customsCleared: false,
@@ -139,6 +135,7 @@ const initialFormState: FormState = {
       autoDimmingMirrors: false,
       rainSensingWipers: false,
     },
+    // @ts-expect-error: The 'realEstate' property is not guaranteed to exist in the 'responseData.details' object
     realEstate: {
       propertyType: PropertyType.APARTMENT,
       totalArea: 0,
@@ -203,7 +200,7 @@ const CreateListing = () => {
     if (!canCreate && userRole === "FREE_USER") {
       toast.error(
         permissionError ||
-          "You need to upgrade your account to create more listings",
+          "You need to upgrade your account to create more listings"
       );
       setShowUpgradePrompt(true);
     } else {
@@ -236,10 +233,11 @@ const CreateListing = () => {
 
   // Handle browser back button navigation
   useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
+    // const handlePopState = (event: PopStateEvent) => {
+    const handlePopState = () => {
       if (hasUnsavedChanges && location.pathname === "/listings/create") {
         const confirmLeave = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave?",
+          "You have unsaved changes. Are you sure you want to leave?"
         );
         if (!confirmLeave) {
           // Push them back to where they were
@@ -255,19 +253,19 @@ const CreateListing = () => {
   }, [hasUnsavedChanges, location.pathname]);
 
   // Handle programmatic navigation
-  const handleLeave = (target: string) => {
-    if (
-      hasUnsavedChanges &&
-      location.pathname === "/listings/create" &&
-      !window.confirm(
-        "You have unsaved changes. Are you sure you want to leave?",
-      )
-    ) {
-      return;
-    }
+  // const handleLeave = (target: string) => {
+  //   if (
+  //     hasUnsavedChanges &&
+  //     location.pathname === "/listings/create" &&
+  //     !window.confirm(
+  //       "You have unsaved changes. Are you sure you want to leave?"
+  //     )
+  //   ) {
+  //     return;
+  //   }
 
-    navigate(target);
-  };
+  //   navigate(target);
+  // };
 
   // Use the custom navigation function instead of direct navigate
   const handleBack = useCallback(() => {
@@ -296,7 +294,7 @@ const CreateListing = () => {
 
         sessionStorage.setItem(
           "createListingFormData",
-          JSON.stringify(dataToSave),
+          JSON.stringify(dataToSave)
         );
         console.log("Form data saved to session storage");
       } catch (error) {
@@ -353,7 +351,7 @@ const CreateListing = () => {
         // Ensure listingAction is properly set and uppercase
         formData.append(
           "listingAction",
-          (data.listingAction || "SALE").toUpperCase(),
+          (data.listingAction || "SALE").toUpperCase()
         );
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
@@ -366,7 +364,7 @@ const CreateListing = () => {
           }
 
           // Process vehicle details to ensure serviceHistory is properly formatted
-          let processedDetails: {
+          const processedDetails: {
             vehicles: any | undefined;
             realEstate: any | undefined;
           } = {
@@ -416,7 +414,7 @@ const CreateListing = () => {
         if (data.images && data.images.length > 0) {
           // Filter to only include valid File objects
           const fileImages = data.images.filter(
-            (image): image is File => image instanceof File,
+            (image): image is File => image instanceof File
           );
 
           if (fileImages.length === 0) {
@@ -427,7 +425,7 @@ const CreateListing = () => {
           console.log(`Submitting ${fileImages.length} images:`);
           fileImages.forEach((image, index) => {
             console.log(
-              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`,
+              `Image ${index + 1}: ${image.name}, ${image.type}, ${(image.size / 1024).toFixed(2)}KB`
             );
             formData.append("images", image);
           });
@@ -441,7 +439,7 @@ const CreateListing = () => {
           console.log(
             pair[0],
             ":",
-            typeof pair[1] === "string" ? pair[1] : "File object",
+            typeof pair[1] === "string" ? pair[1] : "File object"
           );
         }
 
@@ -476,7 +474,7 @@ const CreateListing = () => {
         setIsSubmitting(false);
       }
     },
-    [submitListing, clearSavedFormData, navigate, t],
+    [submitListing, clearSavedFormData, navigate, t]
   );
 
   const handleEditSection = useCallback(
@@ -498,7 +496,7 @@ const CreateListing = () => {
         }, 100);
       }
     },
-    [formData],
+    [formData]
   );
 
   const renderStep = useCallback(() => {
@@ -507,8 +505,10 @@ const CreateListing = () => {
         return (
           <Suspense fallback={<div>Loading...</div>}>
             <MemoizedBasicDetailsForm
+              // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
               initialData={formData}
               onSubmit={(data, isValid) =>
+                // @ts-expect-error: The 'vehicles' property is not guaranteed to exist because it's optional
                 handleBasicDetailsSubmit(data, isValid, setFormData, setStep, t)
               }
               onImageDelete={() => {
@@ -531,7 +531,7 @@ const CreateListing = () => {
                   isValid,
                   setFormData,
                   setStep,
-                  t,
+                  t
                 )
               }
               onBack={handleBack}
@@ -542,7 +542,9 @@ const CreateListing = () => {
         return (
           <Suspense fallback={<div>Loading...</div>}>
             <MemoizedReviewSection
+              // @ts-expect-error: may differ type file occure which handle in api controller
               formData={formData}
+              // @ts-expect-error: may differ type file occure which handle in api controller
               onSubmit={(formData: FormState) => {
                 handleFinalSubmit(formData);
               }}
@@ -563,7 +565,7 @@ const CreateListing = () => {
       { icon: FaCog, label: t("steps.advancedDetails") },
       { icon: FaCheckCircle, label: t("steps.review") },
     ],
-    [t],
+    [t]
   );
 
   // Pre-compute main content based on state to avoid conditional early returns that break hook order
@@ -704,9 +706,9 @@ const CreateListing = () => {
 
         <div className={isSubmitting ? "opacity-60 pointer-events-none" : ""}>
           <AnimatePresence mode="wait">
-            <motion.div key={step} {...pageTransition}>
+            <div key={step} {...pageTransition}>
               <div className="pb-10">{bodyContent}</div>
-            </motion.div>
+            </div>
           </AnimatePresence>
         </div>
 

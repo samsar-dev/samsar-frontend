@@ -1,14 +1,13 @@
-import React, { useState, Suspense, lazy, useMemo, useCallback } from "react";
-import {
+import type {
   Condition,
   FuelType,
   ListingAction,
-  ListingCategory,
   TransmissionType,
-  VehicleType,
 } from "@/types/enums";
+import { ListingCategory, VehicleType } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import { motion } from "framer-motion";
+import React, { Suspense, lazy, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCar,
@@ -21,7 +20,6 @@ import {
 } from "react-icons/fa";
 
 const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
-ImageFallback;
 // Example: If you have a heavy component for images or advanced details, lazy load it here
 // const ImageGallery = lazy(() => import("@/components/common/ImageGallery"));
 // const AdvancedDetails = lazy(() => import("@/components/common/AdvancedDetails"));
@@ -147,7 +145,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         const subcategory = formData.category?.subCategory || VehicleType.CAR;
         const vehicleSchema = listingsAdvancedFieldSchema[subcategory] || [];
         const requiredVehicleFields = vehicleSchema.filter(
-          (field: ListingFieldSchema) => field.required,
+          (field: ListingFieldSchema) => field.required
         );
 
         requiredVehicleFields.forEach((field: ListingFieldSchema) => {
@@ -171,7 +169,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         const realEstateSchema =
           listingsAdvancedFieldSchema["realEstate"] || [];
         const requiredRealEstateFields = realEstateSchema.filter(
-          (field: ListingFieldSchema) => field.required,
+          (field: ListingFieldSchema) => field.required
         );
 
         requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
@@ -242,7 +240,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     const renderSection = (
       title: string,
       icon: React.ReactNode,
-      children: React.ReactNode,
+      children: React.ReactNode
     ) => (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 mb-6">
         <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 flex justify-between items-center">
@@ -363,7 +361,9 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 </div>
                 <div className="font-medium">
                   {formData.details?.vehicles?.fuelType
-                    ? formatFuelType(formData.details.vehicles.fuelType)
+                    ? formatFuelType(
+                        formData.details.vehicles.fuelType as FuelType
+                      )
                     : "Select an option"}
                 </div>
               </div>
@@ -374,7 +374,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 <div className="font-medium">
                   {formData.details?.vehicles?.transmissionType
                     ? t(
-                        `listings.transmissionTypes.${formData.details.vehicles.transmissionType}`,
+                        `listings.transmissionTypes.${formData.details.vehicles.transmissionType}`
                       )
                     : t("common.notProvided")}
                 </div>
@@ -508,7 +508,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 <div className="font-medium">
                   {vehicleDetails.serviceHistory
                     ? t(
-                        `listings.serviceHistory.${vehicleDetails.serviceHistory}`,
+                        `listings.serviceHistory.${vehicleDetails.serviceHistory}`
                       )
                     : t("common.notProvided")}
                 </div>
@@ -528,7 +528,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 <div className="font-medium">
                   {vehicleDetails.registrationStatus
                     ? t(
-                        `listings.registrationStatus.${vehicleDetails.registrationStatus}`,
+                        `listings.registrationStatus.${vehicleDetails.registrationStatus}`
                       )
                     : t("common.notProvided")}
                 </div>
@@ -538,13 +538,15 @@ const ReviewSection = React.memo<ReviewSectionProps>(
 
           {/* Features Section */}
           {formData.details?.vehicles?.features &&
-            formData.details?.vehicles?.features.length > 0 && (
+            formData.details?.vehicles?.features &&
+            Object.keys(formData.details?.vehicles?.features).length > 0 && (
               <div className="space-y-2">
                 <h4 className="font-semibold text-gray-700 dark:text-gray-300">
                   {t("listings.features")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {formData.details?.vehicles?.features.map(
+                  {/* {formData.details?.vehicles?.features.map( */}
+                  {Object.keys(formData.details?.vehicles?.features).map(
                     (feature: string, index: number) => (
                       <span
                         key={index}
@@ -552,7 +554,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                       >
                         {feature}
                       </span>
-                    ),
+                    )
                   )}
                 </div>
               </div>
@@ -575,7 +577,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
               <div className="font-medium">
                 {realEstateDetails.propertyType
                   ? t(
-                      `listings.propertyTypes.${realEstateDetails.propertyType}`,
+                      `listings.propertyTypes.${realEstateDetails.propertyType}`
                     )
                   : t("common.notProvided")}
               </div>
@@ -675,7 +677,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
 
     const getCarFieldDisplayValue = (
       field: ListingFieldSchema,
-      vehicleDetails: any,
+      vehicleDetails: any
     ) => {
       const value = vehicleDetails?.[field.name];
       if (field.type === "checkbox" || field.type === "toggle") {
@@ -684,10 +686,12 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       if (field.type === "select" && field.options) {
         const option = Array.isArray(field.options)
           ? field.options.find(
-              (opt: any) => opt.value === value || opt === value,
+              (opt: any) => opt.value === value || opt === value
             )
           : undefined;
-        return option ? option.label || option.value || value : value;
+        return typeof option === "object"
+          ? option.label || option.value || value
+          : value;
       }
       if (field.type === "featureGroup" && field.featureGroups) {
         // Render feature group toggles
@@ -775,7 +779,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         {renderSection(
           t("common.basicDetails"),
           <FaTag className="w-5 h-5 text-blue-500" />,
-          renderBasicDetails(),
+          renderBasicDetails()
         )}
 
         {/* Listing Action */}
@@ -852,7 +856,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                             {getCarFieldDisplayValue(
                               field,
                               formData.details?.vehicles ||
-                                formData.details?.realEstate,
+                                formData.details?.realEstate
                             )}
                           </span>
                         </div>
@@ -860,7 +864,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                     </div>
                   </section>
                 )}
-              </>,
+              </>
             )
           : renderSection(
               t("listings.propertyDetails"),
@@ -883,7 +887,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                             {getCarFieldDisplayValue(
                               field,
                               formData.details?.vehicles ||
-                                formData.details?.realEstate,
+                                formData.details?.realEstate
                             )}
                           </span>
                         </div>
@@ -891,7 +895,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                     </div>
                   </section>
                 )}
-              </>,
+              </>
             )}
 
         {/* Images */}
@@ -900,7 +904,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           <FaImages className="w-5 h-5 text-blue-500" />,
           <Suspense fallback={<div>Loading images...</div>}>
             {renderImages()}
-          </Suspense>,
+          </Suspense>
         )}
 
         {/* Error Messages */}
@@ -948,6 +952,6 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         </form>
       </motion.div>
     );
-  },
+  }
 ); // Close the React.memo wrapper
 export default ReviewSection;

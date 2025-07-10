@@ -68,6 +68,11 @@ export const SECTION_CONFIG: Record<SectionId, SectionConfig> = {
     icon: "FaCog",
     label: "advancedDetails",
   },
+  images: {
+    order: 3,
+    icon: "FaList",
+    label: "listingImages",
+  },
 };
 
 // Common fields
@@ -87,7 +92,7 @@ const colorField: ListingFieldSchema = {
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value,
+        value
       );
     }
     return error;
@@ -110,7 +115,7 @@ const conditionField: ListingFieldSchema = {
         "[listingsAdvancedFieldSchema] Validation error:",
         error,
         "Input value:",
-        value,
+        value
       );
     }
     return error;
@@ -241,7 +246,7 @@ export const propertyAdvancedFieldLists = {
 export const validateAdvancedFields = (values: any) => {
   console.log(
     "[listingsAdvancedFieldSchema] validateAdvancedFields input values:",
-    values,
+    values
   );
   return true;
 };
