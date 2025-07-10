@@ -873,7 +873,6 @@ const Home: React.FC = () => {
         href="/waves-light.svg"
         as="image"
         type="image/svg+xml"
-        fetchPriority="high"
       />
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />

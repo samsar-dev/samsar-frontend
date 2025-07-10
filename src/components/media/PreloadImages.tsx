@@ -1,4 +1,7 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+
+// Global set to track preloaded images
+const preloadedImages = new Set<string>();
 
 interface PreloadImagesProps {
   imageUrls: string[];
@@ -7,10 +10,6 @@ interface PreloadImagesProps {
   sizes?: { width: number; media?: string }[];
 }
 
-/**
- * Preloads the first image for perceived performance.
- * Mobile-aware. Avoids preloading unused sizes on mobile.
- */
 const PreloadImages: React.FC<PreloadImagesProps> = ({
   imageUrls,
   priority = false,
@@ -22,41 +21,45 @@ const PreloadImages: React.FC<PreloadImagesProps> = ({
   ],
 }) => {
   useEffect(() => {
-    if (!imageUrls?.length || !imageUrls[0]) return;
+    if (!imageUrls?.length) return;
 
-    const imageUrl = imageUrls[0];
-    const isR2Image = imageUrl.includes("r2.dev");
-    const baseUrl = imageUrl.split("?")[0];
-    const links: HTMLLinkElement[] = [];
+    const preloadImage = (url: string) => {
+      if (!url || preloadedImages.has(url)) return;
 
-    // Find size based on window width
-    const bestSize =
-      sizes.find((s) => {
-        if (!s.media) return false;
-        return window.matchMedia(s.media).matches;
-      }) || sizes[0];
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = url;
+      link.setAttribute('fetchpriority', priority ? 'high' : 'low');
+      document.head.appendChild(link);
+      preloadedImages.add(url);
+      
+      return () => {
+        document.head.contains(link) && document.head.removeChild(link);
+      };
+    };
 
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.setAttribute("fetchpriority", priority ? "high" : "low");
-
-    link.href = isR2Image
-      ? `${baseUrl}?${new URLSearchParams({
-          format: "webp",
+    // Only preload the first image
+    const mainImage = imageUrls[0];
+    if (mainImage) {
+      if (mainImage.includes('r2.dev')) {
+        const baseUrl = mainImage.split('?')[0];
+        // Find the best size for current viewport
+        const bestSize = sizes.find(size => 
+          !size.media || window.matchMedia(size.media).matches
+        ) || sizes[0];
+        
+        const imgUrl = `${baseUrl}?${new URLSearchParams({
+          format: 'webp',
           quality: quality.toString(),
           width: bestSize.width.toString(),
-        })}`
-      : imageUrl;
-
-    document.head.appendChild(link);
-    links.push(link);
-
-    return () => {
-      links.forEach(
-        (l) => document.head.contains(l) && document.head.removeChild(l),
-      );
-    };
+        })}`;
+        
+        preloadImage(imgUrl);
+      } else {
+        preloadImage(mainImage);
+      }
+    }
   }, [imageUrls, priority, quality, sizes]);
 
   return null;

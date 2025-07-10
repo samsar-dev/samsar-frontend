@@ -233,9 +233,7 @@ export const SEO: React.FC<SEOProps> = ({
           href={`${url}${lang === "ar" ? pathname.replace(/^\/en/, "") : pathname.replace(/^\/ar/, "")}`}
         />
       ))}
-
-      {/* Favicon */}
-      <link rel="icon" href="/favicon.ico" />
+ 
 
       {/* No indexing if specified */}
       {noIndex && <meta name="robots" content="noindex, nofollow" />}

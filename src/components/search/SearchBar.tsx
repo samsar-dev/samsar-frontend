@@ -47,10 +47,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const loadListings = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/listings?limit=100");
-        const data = await response.json();
-        if (data.listings) {
-          fuseRef.current = createFuse(data.listings);
+        const response = await listingsAPI.getAll({ limit: 100 });
+        if (response.success && response.data?.listings) {
+          fuseRef.current = createFuse(response.data.listings);
         }
       } catch (error) {
         console.error("Failed to load listings:", error);

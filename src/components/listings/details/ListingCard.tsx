@@ -450,23 +450,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
             {/* Title and Price Row */}
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200">
-                <Link
-                  to={`/listings/${id}`}
-                  className="hover:underline decoration-2 underline-offset-2 decoration-blue-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                <div
+                  className="hover:underline decoration-2 underline-offset-2 decoration-blue-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded cursor-pointer"
                   aria-label={`${title} - ${t("viewDetails")}`}
                 >
                   {title}
-                </Link>
+                </div>
               </h2>
               {showPrice && (
                 <div className="flex-shrink-0 ml-3">
-                  <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
+                  <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
                     <PriceConverter
                       price={price}
                       showMonthly={listingAction === ListingAction.RENT}
                       className="font-semibold"
                     />
-                  </p>
+                  </div>
                   {"originalPrice" in listing &&
                     listing.originalPrice &&
                     listing.originalPrice > price && (
@@ -487,16 +486,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
                     <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 flex-shrink-0" />
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude || ""}${!listing.latitude ? encodeURIComponent(location) : ""}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="truncate hover:underline hover:text-blue-700 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 -mx-1"
-                      onClick={(e) => e.stopPropagation()}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const query = listing.latitude && listing.longitude 
+                          ? `${listing.latitude},${listing.longitude}`
+                          : encodeURIComponent(location || '');
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="truncate text-left hover:underline hover:text-blue-700 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 -mx-1"
                       aria-label={`${t("viewOnMap")} - ${location}`}
                     >
                       {cleanLocationString(location)}
-                    </a>
+                    </button>
                   </div>
                   <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                     <MdOutlineRemoveRedEye className="mr-1 text-gray-400" />

@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import App from "./App";
 import "react-toastify/dist/ReactToastify.css";
+import { preloadAssets } from "./utils/preload";
 // import "react-loading-skeleton/dist/skeleton.css";
 import "./config/i18n"; // Import i18n configuration
 
@@ -33,23 +34,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Preload critical assets
-const preloadAssets = () => {
-  if (typeof window !== "undefined") {
-    // Preload important routes when idle
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(() => {
-        // Preload common assets like images, fonts, etc.
-        const imagesToPreload = ["/logo.png", "/placeholder.jpg"];
 
-        imagesToPreload.forEach((src) => {
-          const img = new Image();
-          img.src = src;
-        });
-      });
-    }
-  }
-};
 
 // Error boundary component
 const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
@@ -91,6 +76,6 @@ const initializeApp = () => {
   );
 };
 
-// Initialize React after assets are preloaded
+// Initialize the app
 preloadAssets();
 initializeReact();

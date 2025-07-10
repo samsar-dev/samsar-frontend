@@ -118,13 +118,41 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   values,
   onChange,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'features']);
   // Expand by default
   const [isExpanded, setIsExpanded] = useState(true);
 
-  // Helper to clean up labels
-  const cleanLabel = (label: string) =>
-    label.replace(/^features\./, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+  // Helper to clean up and translate labels
+  const cleanLabel = (label: string) => {
+    if (!label) return '';
+    
+    // If it's a translation key, translate it
+    if (label.startsWith('featureCategories.')) {
+      return t(label, { ns: 'features' }) || label;
+    }
+    
+    // Handle features translation keys
+    if (label.startsWith('features.')) {
+      // First try to translate with the full key
+      const translated = t(label, { ns: 'features' });
+      if (translated !== label) return translated;
+      
+      // If no translation found, clean up the label for display
+      return (
+        label
+          .replace(/^features\./, '') // Remove 'features.' prefix
+          .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+          .replace(/\./g, ' ') // Replace dots with spaces
+          .replace(/\b\w/g, (l) => l.toUpperCase()) // Capitalize first letter of each word
+      );
+    }
+    
+    // If it's not a translation key, clean it up for display
+    return label
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+      .replace(/\./g, ' ') // Replace dots with spaces
+      .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
@@ -132,7 +160,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
         <span className="w-1.5 h-8 bg-primary rounded-full mr-4" />
         <Icon className="w-6 h-6 text-primary mr-2" />
         <h3 className="text-xl font-bold tracking-wide text-gray-900 dark:text-white flex-1">
-          {t(title)}
+          {cleanLabel(title)}
         </h3>
         <button
           onClick={() => setIsExpanded(!isExpanded)}

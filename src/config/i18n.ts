@@ -44,14 +44,9 @@ const i18nConfig: InitOptions = {
   },
   returnObjects: true,
   returnEmptyString: false,
-  debug: process.env.NODE_ENV === "development", // Only enable debug in development
-  saveMissing: process.env.NODE_ENV === "development", // Only save missing translations in development
-  saveMissingTo: "all", // Save missing translations to all languages
-  missingKeyHandler: (lng, ns, key) => {
-    console.log(
-      `Missing translation: ${key} in namespace ${ns} for language ${lng}`,
-    );
-  },
+  debug: false, // Disable debug mode
+  saveMissing: false, // Disable saving missing translations
+  saveMissingTo: "all", // Keep for consistency, though not used when saveMissing is false
 };
 
 i18n.use(Backend).use(initReactI18next).init(i18nConfig);
