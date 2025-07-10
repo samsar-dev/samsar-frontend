@@ -873,7 +873,10 @@ const Home: React.FC = () => {
         href="/waves-light.svg"
         as="image"
         type="image/svg+xml"
+        fetchPriority="high"
+        crossOrigin="anonymous"
       />
+      <link rel="preconnect" href="/" crossOrigin="anonymous" />
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
@@ -881,7 +884,16 @@ const Home: React.FC = () => {
       {/* Header */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
         {/* Optional Decorative Background Pattern */}
-        <div className="absolute inset-0 bg-[url('/waves-light.svg')] bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none" />
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none">
+          <img 
+            src="/waves-light.svg" 
+            alt="" 
+            className="w-full h-full object-cover" 
+            loading="eager"
+            fetchPriority="high"
+            aria-hidden="true"
+          />
+        </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="lcp-text">
