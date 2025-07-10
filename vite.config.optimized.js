@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
 import { splitVendorChunkPlugin } from "vite";
-import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,22 +11,20 @@ export default defineConfig({
       tsDecorators: true,
     }),
     splitVendorChunkPlugin(),
-    // Only enable visualizer in development mode
-    process.env.NODE_ENV === 'development' && visualizer({
+    visualizer({
       filename: "bundle-analyzer.html",
-      open: false, // Don't open automatically
+      open: true,
       gzipSize: true,
       brotliSize: true,
     }),
-  ].filter(Boolean),
+  ],
   build: {
-    target: "es2022",
+    target: "es2020",
     sourcemap: false,
     minify: "terser",
     cssCodeSplit: true,
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
-    treeshake: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -71,13 +68,7 @@ export default defineConfig({
       "@emotion/styled",
     ],
     esbuildOptions: {
-      // Use modern syntax for browsers that support ES modules (most mobile browsers today)
-     target: "es2022",
-    },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+      target: "es2020",
     },
   },
   css: {
