@@ -23,21 +23,12 @@ export const preloadAssets = (): void => {
     preloadRoute(() => import('@/pages/Search'));         // Search results - high priority
     
     // User account pages
-    preloadRoute(() => import('@/pages/Profile'));        // User profile - high priority
-    preloadRoute(() => import('@/pages/Login'));          // Login page - high priority
-    preloadRoute(() => import('@/pages/Register'));       // Registration page - high priority
-    preloadRoute(() => import('@/pages/Settings'));       // User settings - high priority
-    preloadRoute(() => import('@/pages/Messages'));       // User messages - high priority
-    
+
     // Listing related
     preloadRoute(() => import('@/pages/Vehicles'));       // Vehicles listing - medium priority
     preloadRoute(() => import('@/pages/RealEstate'));     // Real estate listing - medium priority
-    preloadRoute(() => import('@/pages/ListingSuccess')); // After listing creation - medium priority
-    preloadRoute(() => import('@/components/listings/create/CreateListing')); // Create listing - medium priority
-    
+
     // User management
-    preloadRoute(() => import('@/components/profile/ChangePassword')); // Password change - medium priority
-    preloadRoute(() => import('@/components/profile/MyListings'));     // User's listings - medium priority
     
     // Preload critical components used in multiple places
     // Note: Removed LoadingSpinner and toast as they are statically imported elsewhere

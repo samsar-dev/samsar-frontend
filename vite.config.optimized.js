@@ -19,12 +19,13 @@ export default defineConfig({
     }),
   ],
   build: {
-    target: "es2020",
+    target: "es2022",
     sourcemap: false,
     minify: "terser",
     cssCodeSplit: true,
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
+    treeShake: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
