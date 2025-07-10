@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
 import { splitVendorChunkPlugin } from "vite";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -71,6 +72,11 @@ export default defineConfig({
     esbuildOptions: {
       // Use modern syntax for browsers that support ES modules (most mobile browsers today)
      target: "es2022",
+    },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   css: {
