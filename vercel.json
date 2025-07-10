@@ -199,17 +199,15 @@
       "dest": "/403.txt"
     },
     {
-      "src": "^.*$",
-      "dest": "/index.html"
+      "src": "/50x.html",
+      "status": 500
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/index.html",
+      "status": 200
     }
   ],
-  "errorPages": {
-    "404": "/index.html",
-    "500": "/50x.html",
-    "502": "/50x.html",
-    "503": "/50x.html",
-    "504": "/50x.html"
-  },
   "env": {
     "NODE_ENV": "production"
   },
