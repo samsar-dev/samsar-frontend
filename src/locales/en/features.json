@@ -129,5 +129,28 @@
     "terrace": "Terrace",
     "view": "View",
     "waterfront": "Waterfront"
+  },
+  "featureCategories": {
+    "cabFeatures": "Cab Features",
+    "seatingFeatures": "Seating Features",
+    "steeringFeatures": "Steering Features",
+    "technologyFeatures": "Technology Features",
+    "lightingFeatures": "Lighting Features",
+    "climateFeatures": "Climate Features",
+    "driverAssistance": "Driver Assistance",
+    "safety": "Safety Features",
+    "cameraFeatures": "Camera Features",
+    "entertainment": "Entertainment",
+    "convenienceFeatures": "Convenience Features",
+    "cargoFeatures": "Cargo Features",
+    "comfortFeatures": "Comfort Features",
+    "accessibilityFeatures": "Accessibility Features",
+    "protectionFeatures": "Protection Systems",
+    "monitoringFeatures": "Monitoring Systems",
+    "attachmentFeatures": "Equipment Attachments",
+    "brakingSystems": "Braking Systems",
+    "emergencyEquipment": "Emergency Equipment",
+    "infotainment": "Infotainment Systems",
+    "cargoCapacity": "Cargo Capacity"
   }
 }

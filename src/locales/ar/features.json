@@ -134,5 +134,28 @@
     "terrace": "تراس",
     "view": "إطلالة",
     "waterfront": "واجهة مائية"
+  },
+  "featureCategories": {
+    "cabFeatures": "ميزات الكابينة",
+    "seatingFeatures": "ميزات المقاعد",
+    "steeringFeatures": "ميزات التوجيه",
+    "technologyFeatures": "الميزات التقنية",
+    "lightingFeatures": "ميزات الإضاءة",
+    "climateFeatures": "ميزات المناخ",
+    "driverAssistance": "أنظمة مساعدة السائق",
+    "safety": "ميزات الأمان",
+    "cameraFeatures": "ميزات الكاميرات",
+    "entertainment": "الترفيه",
+    "convenienceFeatures": "ميزات الراحة",
+    "cargoFeatures": "ميزات التحميل",
+    "comfortFeatures": "ميزات الراحة والأمان",
+    "accessibilityFeatures": "ميزات إمكانية الوصول",
+    "protectionFeatures": "أنظمة الحماية",
+    "monitoringFeatures": "أنظمة المراقبة",
+    "attachmentFeatures": "الملحقات والمعدات",
+    "brakingSystems": "أنظمة الفرامل",
+    "emergencyEquipment": "معدات الطوارئ",
+    "infotainment": "أنظمة الترفيه",
+    "cargoCapacity": "سعة التحميل"
   }
 }
