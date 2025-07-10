@@ -949,7 +949,7 @@ export interface LocationMeta {
 }
 
 export interface Listing {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -1101,6 +1101,8 @@ export interface RealEstateDetails {
   balcony?: boolean;
   buildingAmenities: string[];
   cooling?: string;
+  stories?: string;
+  halfBathrooms?: string;
   elevator?: boolean;
   energyRating?: string;
   exposureDirection: string[];
@@ -1109,6 +1111,7 @@ export interface RealEstateDetails {
   flooringType?: string;
   furnished?: string;
   livingArea?: number;
+  totalArea?: number;
   heating?: string;
   internetIncluded?: boolean;
   parkingType?: string;

@@ -60,6 +60,7 @@ export interface LocationData {
 export interface SelectedLocation {
   address: string;
   coordinates: [number, number];
+  boundingBox?: [number, number, number, number];
   rawResult?: any;
   latitude: number;
   longitude: number;
@@ -215,7 +216,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     // Combine with API results and remove duplicates
     const allResults = [...matchedAreas, ...apiResults];
     const uniqueResults = Array.from(
-      new Map(allResults.map((item) => [item.display_name, item])).values(),
+      new Map(allResults.map((item) => [item.display_name, item])).values()
     );
 
     return uniqueResults;
@@ -248,7 +249,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       }
     },
     300,
-    [query],
+    [query]
   );
 
   const searchLocations = async (searchQuery: string) => {
@@ -281,11 +282,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       params.append("viewbox", "35.5,37.3,42.4,32.3");
       params.append(
         "accept-language",
-        `${lang},${lang === "ar" ? "en" : "ar"}`,
+        `${lang},${lang === "ar" ? "en" : "ar"}`
       );
       params.append(
         "featureType",
-        "city,town,village,suburb,quarter,neighborhood",
+        "city,town,village,suburb,quarter,neighborhood"
       );
       params.append("extratags", "1");
 
