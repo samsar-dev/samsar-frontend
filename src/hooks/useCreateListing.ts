@@ -1,18 +1,16 @@
-import { useState } from "react";
-import { FormState } from "@/types/listings";
+import type { SingleListingResponse } from "@/api/listings.api";
+import { createListing } from "@/api/listings.api";
 import {
   Condition,
+  ListingAction,
   ListingCategory,
   PropertyType,
   TransmissionType,
   VehicleType,
-  ListingStatus,
-  ListingAction,
 } from "@/types/enums";
-import { VehicleFeatures } from "@/types/listings";
-import { listingsAPI, createListing } from "@/api/listings.api";
+import type { FormState, VehicleFeatures } from "@/types/listings";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
-import type { APIResponse, SingleListingResponse } from "@/api/listings.api";
 
 export interface UseCreateListingReturn {
   formData: FormState;
@@ -20,7 +18,7 @@ export interface UseCreateListingReturn {
   isSubmitting: boolean;
   handleFieldChange: (field: string, value: any) => void;
   handleSubmit: (
-    data: FormData | FormState,
+    data: FormData | FormState
   ) => Promise<SingleListingResponse | undefined>;
 }
 
@@ -35,6 +33,7 @@ const initialFormState: FormState = {
   location: "",
   images: [],
   details: {
+    // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
     vehicles: {
       vehicleType: VehicleType.CAR,
       make: "",
@@ -45,7 +44,7 @@ const initialFormState: FormState = {
       transmissionType: TransmissionType.AUTOMATIC,
       color: "#000000",
       condition: Condition.GOOD,
-      features: [],
+      features: {},
       interiorColor: "#000000",
       engine: "",
       horsepower: undefined,
@@ -208,7 +207,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
   };
 
   const handleSubmit = async (
-    data: FormData | FormState,
+    data: FormData | FormState
   ): Promise<SingleListingResponse | undefined> => {
     try {
       setIsSubmitting(true);
@@ -250,7 +249,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         formData.append("location", data.location || "");
         formData.append(
           "listingAction",
-          (data.listingAction || "sale").toUpperCase(),
+          (data.listingAction || "sale").toUpperCase()
         );
 
         // Add category information
@@ -316,7 +315,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   size: data.details?.realEstate?.size || "",
                   yearBuilt: parseInt(
                     data.details?.realEstate?.yearBuilt.toString() ||
-                      new Date().getFullYear().toString(),
+                      new Date().getFullYear().toString()
                   ),
                   bedrooms: data.details?.realEstate?.bedrooms || "",
                   bathrooms: data.details?.realEstate?.bathrooms || "",
@@ -343,7 +342,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         for (const [key, value] of formData.entries()) {
           console.log(
             `${key}:`,
-            value instanceof File ? `File: ${value.name}` : value,
+            value instanceof File ? `File: ${value.name}` : value
           );
         }
 
