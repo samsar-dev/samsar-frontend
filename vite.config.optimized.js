@@ -12,13 +12,14 @@ export default defineConfig({
       tsDecorators: true,
     }),
     splitVendorChunkPlugin(),
-    visualizer({
+    // Only enable visualizer in development mode
+    process.env.NODE_ENV === 'development' && visualizer({
       filename: "bundle-analyzer.html",
-      open: true,
+      open: false, // Don't open automatically
       gzipSize: true,
       brotliSize: true,
     }),
-  ],
+  ].filter(Boolean),
   build: {
     target: "es2022",
     sourcemap: false,
