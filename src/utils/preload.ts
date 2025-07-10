@@ -17,30 +17,32 @@ export const preloadAssets = (): void => {
   };
 
   try {
-    /**
-     * Preload strategy:
-     * 1. Respect user/network preferences – do **not** preload on slow connections or when the user has enabled
-     *    `Save-Data`.
-     * 2. Only preload the absolutely critical, lightweight routes required for the initial user journey
-     *    (home → search → listing card hover/open).
-     */
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-    const saveData = connection?.saveData;
-    const effectiveType = connection?.effectiveType as string | undefined;
-
-    // Abort preloading on slow networks (2G / 3G) or when the user requests reduced data usage
-    if (saveData || (effectiveType && /2g|3g/.test(effectiveType))) {
-      return;
-    }
-
-    // Preload **only** the most frequently visited, lightweight routes/components
-    preloadRoute(() => import('@/pages/Home'));   // Entry point
-    preloadRoute(() => import('@/pages/Search')); // Next common action
-
-    // Shared component that is visible above-the-fold in both pages
-    preloadRoute(() => import('@/components/listings/details/ListingCard'));
+    // Preload critical routes - ordered by importance and likelihood of visit
+    // Core pages
+    preloadRoute(() => import('@/pages/Home'));           // Homepage - highest priority
+    preloadRoute(() => import('@/pages/Search'));         // Search results - high priority
     
-    // ListingCard already preloaded above – no need for duplicate call
+    // User account pages
+    preloadRoute(() => import('@/pages/Profile'));        // User profile - high priority
+    preloadRoute(() => import('@/pages/Login'));          // Login page - high priority
+    preloadRoute(() => import('@/pages/Register'));       // Registration page - high priority
+    preloadRoute(() => import('@/pages/Settings'));       // User settings - high priority
+    preloadRoute(() => import('@/pages/Messages'));       // User messages - high priority
+    
+    // Listing related
+    preloadRoute(() => import('@/pages/Vehicles'));       // Vehicles listing - medium priority
+    preloadRoute(() => import('@/pages/RealEstate'));     // Real estate listing - medium priority
+    preloadRoute(() => import('@/pages/ListingSuccess')); // After listing creation - medium priority
+    preloadRoute(() => import('@/components/listings/create/CreateListing')); // Create listing - medium priority
+    
+    // User management
+    preloadRoute(() => import('@/components/profile/ChangePassword')); // Password change - medium priority
+    preloadRoute(() => import('@/components/profile/MyListings'));     // User's listings - medium priority
+    
+    // Preload critical components used in multiple places
+    // Note: Removed LoadingSpinner and toast as they are statically imported elsewhere
+    // Removed SearchBar as it's statically imported in Navbar
+    preloadRoute(() => import('@/components/listings/details/ListingCard')); // Used in search and listings
 
     // Preload critical images
     const preloadImage = (src: string): void => {
