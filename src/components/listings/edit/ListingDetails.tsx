@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo, Suspense, lazy } from "react";
-import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { CheckCircle } from "lucide-react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 // Helper function to safely render translated text as string
 const renderTranslatedText = (
   t: (key: string, options?: any) => string,
   key: string,
-  defaultValue: string,
+  defaultValue: string
 ): string => {
   try {
     // Force the return type to be a string by using String()
@@ -39,16 +39,16 @@ const renderTranslatedText = (
 import { listingsAPI } from "@/api/listings.api";
 import { MessagesAPI } from "@/api/messaging.api";
 import { useAuth } from "@/hooks/useAuth";
-import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import type { ListingCategory, PropertyType, VehicleType } from "@/types/enums";
 import type { Listing } from "@/types/listings";
+import { formatCurrency } from "@/utils/formatUtils";
+import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
+import { normalizeLocation } from "@/utils/locationUtils";
 
 type SchemaType = VehicleType | PropertyType;
-import { formatCurrency } from "@/utils/formatUtils";
-import { normalizeLocation } from "@/utils/locationUtils";
-import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
 
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery"),
+  () => import("@/components/listings/images/ImageGallery")
 );
 
 interface ExtendedListing
@@ -106,7 +106,7 @@ const FieldValue = ({
   // Helper function to render translated text
   const renderText = (
     text: string | number | boolean,
-    options?: { capitalize?: boolean },
+    options?: { capitalize?: boolean }
   ): React.ReactNode => {
     if (text === undefined || text === null || text === "") {
       return <span className="text-gray-400">-</span>;
@@ -349,7 +349,7 @@ const Field = ({
 const ListingDetails = () => {
   const { t } = useTranslation(["listings", "common"]);
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth(); // Removed unused navigate
+  const { user, isAuthenticated } = useAuth(); // Removed unused navigate
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -453,7 +453,7 @@ const ListingDetails = () => {
 
       // Add common fields that might be at the listing level
       ["price", "title", "description", "location"].forEach((field) =>
-        fields.add(field),
+        fields.add(field)
       );
 
       return Array.from(fields);
@@ -600,15 +600,15 @@ const ListingDetails = () => {
       } catch (err) {
         console.error("Error fetching listing:", err);
         setError(
-          err instanceof Error ? err.message : "An unknown error occurred",
+          err instanceof Error ? err.message : "An unknown error occurred"
         );
       } finally {
         setLoading(false);
       }
     };
-
+    
     fetchListing();
-  }, [id, user?.id]);
+  }, [id, user?.id, isAuthenticated]);
 
   // Handle send message
   const handleSendMessage = async () => {
@@ -794,7 +794,7 @@ const ListingDetails = () => {
                   : [],
               },
               null,
-              2,
+              2
             )}
           </pre>
         </div>
