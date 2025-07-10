@@ -62,6 +62,11 @@ interface FavoriteResponse {
   favorite: FavoriteItem;
 }
 
+interface ViewCountResponse {
+  message: string;
+  views: number;
+}
+
 // Define response types
 export interface SingleListingResponse {
   id: string;
@@ -385,6 +390,7 @@ interface ListingsAPI {
   ): Promise<APIResponse<ListingsResponse>>;
   getListing(id: string): Promise<APIResponse<Listing>>;
   updateListing(id: string, formData: FormData): Promise<APIResponse<Listing>>;
+  increaseViewCount(id: string): Promise<APIResponse<ViewCountResponse>>;
   deleteListing(id: string): Promise<APIResponse<Listing>>;
   saveListing(listingId: string): Promise<APIResponse<Listing>>;
   addFavorite(listingId: string): Promise<APIResponse<FavoriteResponse>>;
@@ -1153,6 +1159,34 @@ export const listingsAPI: ListingsAPI = {
       const errorMessage = error.message || "Failed to update listing";
       throw new Error(errorMessage);
     }
+  },
+
+  // View count increatement
+  async increaseViewCount(id: string): Promise<APIResponse<ViewCountResponse>> {
+    const token = TokenManager.getAccessToken();
+    console.log(">>>>>>>>>>>>>>>>>>");
+    const response = await fetch(`${API_URL}/listings/views/?id=${id}`, {
+      method: "PUT",
+      headers: {
+        // Don't set Content-Type for FormData - browser will set it with boundary
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "Failed to update view listing:",
+        response.status,
+        errorText
+      );
+      throw new Error(errorText || `Failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Successfully updated view listing:", data);
+    return data;
   },
 
   // Delete a listing
