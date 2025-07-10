@@ -19,12 +19,13 @@ export default defineConfig({
     }),
   ],
   build: {
-    target: "es2020",
+    target: "es2022",
     sourcemap: false,
     minify: "terser",
     cssCodeSplit: true,
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
+    treeshake: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -68,7 +69,8 @@ export default defineConfig({
       "@emotion/styled",
     ],
     esbuildOptions: {
-      target: "es2020",
+      // Use modern syntax for browsers that support ES modules (most mobile browsers today)
+     target: "es2022",
     },
   },
   css: {
