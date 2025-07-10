@@ -36,10 +36,45 @@ if (process.env.NODE_ENV === "production") {
 
 
 
-// Error boundary component
-const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+// Error boundary component with error reporting
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    if (process.env.NODE_ENV === 'production') {
+      // In production, report errors to your error tracking service
+      console.error('Application error:', { error, errorInfo });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+            <p className="text-gray-600 mb-4">We're working on fixing this issue.</p>
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => window.location.reload()}
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // Ensure React is properly initialized
 const initializeReact = () => {
@@ -76,6 +111,33 @@ const initializeApp = () => {
   );
 };
 
-// Initialize the app
-preloadAssets();
-initializeReact();
+// Initialize the app with error handling
+const startApp = () => {
+  try {
+    preloadAssets();
+    initializeReact();
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+    // Show error UI or redirect to error page
+    const root = document.getElementById('root');
+    if (root) {
+      root.innerHTML = `
+        <div class="min-h-screen flex items-center justify-center p-4">
+          <div class="text-center">
+            <h2 class="text-xl font-semibold mb-2">Application Error</h2>
+            <p class="text-gray-600 mb-4">Failed to load the application. Please try again later.</p>
+            <button 
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onclick="window.location.reload()"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+};
+
+// Start the application
+startApp();

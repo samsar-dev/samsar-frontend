@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { visualizer } from "rollup-plugin-visualizer";
 import { splitVendorChunkPlugin } from "vite";
+import obfuscator from "vite-plugin-obfuscator";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,35 @@ export default defineConfig({
       tsDecorators: true,
     }),
     splitVendorChunkPlugin(),
+    // Obfuscation plugin with aggressive settings
+    obfuscator({
+      // Basic options
+      compact: true,
+      controlFlowFlattening: true,
+      controlFlowFlatteningThreshold: 0.75,
+      deadCodeInjection: true,
+      deadCodeInjectionThreshold: 0.4,
+      debugProtection: true,
+      debugProtectionInterval: 4000,
+      disableConsoleOutput: false,
+      
+      // String and identifier obfuscation
+      identifierNamesGenerator: 'hexadecimal',
+      renameGlobals: true,
+      rotateStringArray: true,
+      selfDefending: true,
+      shuffleStringArray: true,
+      splitStrings: true,
+      stringArray: true,
+      stringArrayEncoding: ['rc4'],
+      stringArrayThreshold: 0.75,
+      transformObjectKeys: true,
+      unicodeEscapeSequence: true,
+      
+      // Optimization
+      target: 'browser',
+    }),
+    // Visualizer should be last to analyze the final output
     visualizer({
       filename: "bundle-analyzer.html",
       open: true,

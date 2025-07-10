@@ -94,10 +94,22 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0"
     />
     <meta name="theme-color" content="#1a56db" />
     <meta name="robots" content="index, follow" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/src/assets/fonts/your-main-font.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="author" content="Samsar Team" />
     <meta name="language" content="ar" />
     <meta name="geo.region" content="SY" />
@@ -229,10 +241,59 @@
   </head>
 
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="position: fixed; top: 0; left: 0; right: 0; background: #f8d7da; color: #721c24; text-align: center; padding: 1rem; z-index: 1000;">
+        JavaScript is required to run this application. Please enable JavaScript to continue.
+      </div>
+    </noscript>
     <div id="root"></div>
 
-    <!-- Main App Script -->
-    <script type="module" src="/src/main.tsx" defer></script>
+    <!-- Main App Script with error handling -->
+    <script type="module">
+      // Add global error handler
+      window.addEventListener('error', function(event) {
+        console.error('Global error:', event.error);
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 2rem; text-align: center;">
+              <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Application Error</h2>
+              <p style="margin-bottom: 1rem;">Sorry, something went wrong. Our team has been notified.</p>
+              <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Reload Application
+              </button>
+            </div>
+          `;
+        }
+      });
+
+      // Load the main app
+      import('/src/main.tsx').catch(error => {
+        console.error('Failed to load application:', error);
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 2rem; text-align: center;">
+              <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Failed to Load Application</h2>
+              <p style="margin-bottom: 1rem;">Please check your internet connection and try again.</p>
+              <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Try Again
+              </button>
+            </div>
+          `;
+        }
+      });
+    </script>
+    
+    <!-- Preload critical assets -->
+    <link 
+      rel="preload" 
+      href="/src/index.css" 
+      as="style" 
+      onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+      <link rel="stylesheet" href="/src/index.css">
+    </noscript>
   </body>
 </html>

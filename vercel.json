@@ -5,11 +5,60 @@
       "destination": "/sitemap.xml"
     },
     { 
+      "source": "/api/(.*)",
+      "destination": "https://api.example.com/api/$1"
+    },
+    { 
       "source": "/(.*)", 
       "destination": "/" 
     }
   ],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self'; form-action 'self'; base-uri 'self';"
+        },
+        {
+          "key": "X-Permitted-Cross-Domain-Policies",
+          "value": "none"
+        },
+        {
+          "key": "X-Download-Options",
+          "value": "noopen"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        }
+      ]
+    },
     {
       "source": "/sitemap.xml",
       "headers": [
@@ -22,6 +71,151 @@
           "value": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=300"
         }
       ]
+    },
+    {
+      "source": "/*.(js|css|png|jpe?g|gif|ico|svg|webp|avif|mp4|webm|ogv|mp3|wav|ogg)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable, no-transform"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/*.(eot|ttf|woff|woff2)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable, no-transform"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/*.wasm",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/wasm"
+        }
+      ]
+    },
+    {
+      "source": "/*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "$http_origin"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+        },
+        {
+          "key": "Access-Control-Expose-Headers",
+          "value": "Content-Length,Content-Range"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "^/api/(.*)",
+      "dest": "https://api.example.com/api/$1",
+      "headers": {
+        "X-Forwarded-For": "$remote_addr",
+        "X-Forwarded-Proto": "$scheme",
+        "X-Forwarded-Host": "$host"
+      }
+    },
+    {
+      "src": "^/static/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "^/node_modules/.*",
+      "status": 403,
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "dest": "/403.txt"
+    },
+    {
+      "src": "^/\\.(?!well-known).*",
+      "status": 403,
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "dest": "/403.txt"
+    },
+    {
+      "src": "^.*$",
+      "dest": "/index.html"
+    }
+  ],
+  "errorPages": {
+    "404": "/index.html",
+    "500": "/50x.html",
+    "502": "/50x.html",
+    "503": "/50x.html",
+    "504": "/50x.html"
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
 }

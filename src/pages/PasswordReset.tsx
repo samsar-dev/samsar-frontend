@@ -44,7 +44,7 @@ export default function PasswordReset() {
         toast.error(data.error?.message || t("resetLinkError"));
       }
     } catch (error) {
-      console.error("Password reset error:", error);
+      console.error(t("passwordResetError"), error);
       toast.error(t("resetLinkError"));
     } finally {
       setLoading(false);

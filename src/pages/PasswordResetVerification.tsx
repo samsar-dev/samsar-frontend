@@ -141,11 +141,14 @@ const PasswordResetVerification = () => {
               id="verification-code"
               name="verification-code"
               type="text"
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              placeholder={t("enter6DigitCode")}
+              placeholder={t("enterVerificationCode")}
             />
           </div>
 
@@ -161,7 +164,9 @@ const PasswordResetVerification = () => {
                 id="new-password"
                 name="new-password"
                 type={showNewPassword ? "text" : "password"}
+                autoComplete="new-password"
                 required
+                minLength={8}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -189,7 +194,9 @@ const PasswordResetVerification = () => {
                 id="confirm-password"
                 name="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 required
+                minLength={8}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

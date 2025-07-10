@@ -867,16 +867,10 @@ const Home: React.FC = () => {
         description={pageDescription}
         keywords={pageKeywords}
       />
-      {/* Preload for LCP Optimization */}
-      <link
-        rel="preload"
-        href="/waves-light.svg"
-        as="image"
-        type="image/svg+xml"
-        fetchPriority="high"
-        crossOrigin="anonymous"
-      />
+      {/* Preconnect to origin for performance */}
       <link rel="preconnect" href="/" crossOrigin="anonymous" />
+      
+      {/* Preload first listing image if it exists */}
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
       )}
@@ -889,8 +883,7 @@ const Home: React.FC = () => {
             src="/waves-light.svg" 
             alt="" 
             className="w-full h-full object-cover" 
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
             aria-hidden="true"
           />
         </div>
