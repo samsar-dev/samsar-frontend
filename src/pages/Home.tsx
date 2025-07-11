@@ -867,8 +867,9 @@ const Home: React.FC = () => {
         description={pageDescription}
         keywords={pageKeywords}
       />
-      {/* Preconnect to origin for performance */}
+      {/* Preconnect and preload waves-light.svg */}
       <link rel="preconnect" href="/" crossOrigin="anonymous" />
+      <link rel="preload" href="/waves-light.svg" as="image" crossOrigin="anonymous" />
       
       {/* Preload first listing image if it exists */}
       {firstVisibleListing?.images?.[0] && (
