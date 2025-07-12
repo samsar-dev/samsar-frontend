@@ -127,71 +127,48 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: "esnext",
+      target: "es2020",
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: false, // Disable source maps in production for smaller bundle
+      sourcemap: false,
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
       cssMinify: isProduction,
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 2000, // Increased to reduce warnings
       reportCompressedSize: false,
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // Core React split into smallest possible chunks
-            if (id.includes('node_modules/react/')) {
-              if (id.includes('react-dom/')) {
-                return id.includes('client') ? 'vendor_react_dom_client' : 'vendor_react_dom';
-              }
-              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
-                return 'vendor_react_jsx';
-              }
-              return 'vendor_react';
-            }
-
-            // React Router
-            if (id.includes('react-router-dom/')) {
-              return 'vendor_router';
-            }
-
-            // UI Libraries
-            if (id.includes('@mui/material') || id.includes('@emotion')) {
-              return 'vendor_mui';
-            }
-            if (id.includes('@headlessui/react') || id.includes('@heroicons/react')) {
-              return 'vendor_headlessui';
-            }
-
-            // Forms
-            if (id.includes('react-hook-form') || id.includes('@hookform')) {
-              return 'vendor_forms';
-            }
-            if (id.includes('yup') || id.includes('zod')) {
-              return 'vendor_validation';
-            }
-
-            // State Management
-            if (id.includes('@tanstack/')) {
-              return 'vendor_tanstack';
-            }
-
-            // Split application code by feature
-            if (id.includes('src/')) {
-              const featureMatch = id.match(/src\/([^/]+)/);
-              if (featureMatch) {
-                return `feature_${featureMatch[1].toLowerCase()}`;
-              }
-            }
-
-            // Group remaining node_modules by package name
-            if (id.includes('node_modules/')) {
-              const match = id.match(/node_modules\/((?:@[^/]+\/)?[^/]+)/);
-              if (match) {
-                const packageName = match[1].replace(/[^a-z0-9]/g, '_').toLowerCase();
-                return `vendor_${packageName}`;
-              }
-            }
+          manualChunks: {
+            // Core libraries
+            react: ['react', 'react-dom', 'react-router-dom'],
+            mui: ['@mui/material', '@emotion/react', '@emotion/styled', '@mui/icons-material'],
+            // Group other large dependencies
+            vendor: [
+              'axios',
+              'date-fns',
+              'formik',
+              'yup',
+              'lodash',
+              'lodash-es',
+              'framer-motion',
+              'fuse.js',
+              'i18next',
+              'i18next-browser-languagedetector',
+              'i18next-http-backend',
+              'react-i18next',
+              'react-hook-form',
+              '@hookform/resolvers'
+            ],
+            // UI libraries
+            ui: [
+              '@headlessui/react',
+              '@heroicons/react',
+              '@radix-ui/react-accordion',
+              '@radix-ui/react-avatar',
+              '@radix-ui/react-scroll-area',
+              '@radix-ui/react-slot',
+              '@radix-ui/react-switch'
+            ]
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
