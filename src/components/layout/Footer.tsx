@@ -21,6 +21,8 @@ const Footer: React.FC = () => {
                 <Link
                   to="/about"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                  aria-label={t("footer.about_marketplace", "About Marketplace")}
+                  tabIndex={0}
                 >
                   {t("footer.about_marketplace", "About Marketplace")}
                 </Link>
@@ -29,6 +31,8 @@ const Footer: React.FC = () => {
                 <Link
                   to="/contact"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                  aria-label={t("footer.contact_us", "Contact Us")}
+                  tabIndex={0}
                 >
                   {t("footer.contact_us", "Contact Us")}
                 </Link>
@@ -46,6 +50,8 @@ const Footer: React.FC = () => {
                 <Link
                   to="/privacy-policy"
                   className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                  aria-label={t("footer.privacy_policy.title", "Privacy Policy")}
+                  tabIndex={0}
                 >
                   {t("footer.privacy_policy.title", "Privacy Policy")}
                 </Link>

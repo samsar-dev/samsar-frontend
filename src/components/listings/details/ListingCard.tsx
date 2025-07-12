@@ -389,11 +389,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
             {/* Map has been moved to ListingDetails component */}
             <div className="absolute inset-0 flex flex-col justify-between p-4 z-20 pointer-events-none">
               {showBadges && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-4 justify-center">
                   {/* Category badge */}
                   <span
-                    className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-200 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto 
-                  hover:bg-white hover:shadow-md transition-all duration-200"
+                    className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-200 text-xs font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto 
+                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[100px]"
+                    role="button"
+                    tabIndex={0}
                   >
                     {t(
                       `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
@@ -403,12 +405,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
                   {/* Action badge */}
                   <span
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm pointer-events-auto
+                    className={`text-xs font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto
                   transition-all duration-200 hover:shadow-md ${
                     listingAction === ListingAction.SALE
                       ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
                       : "bg-gradient-to-r from-emerald-600 to-teal-500 text-white"
                   }`}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${listingAction === ListingAction.SALE ? t('common.forSale') : t('common.forRent')}`}
                   >
                     {listingAction === ListingAction.SALE
                       ? t("common.forSale")

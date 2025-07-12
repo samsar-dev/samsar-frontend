@@ -278,7 +278,12 @@ export default function NotificationBell({
         <button
           onClick={() => setShowNotifications(!showNotifications)}
           className="p-2 rounded-lg text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
-          aria-label={t("notifications.toggle")}
+          aria-label={t("notifications.toggle", "Toggle Notifications")}
+          aria-expanded={showNotifications}
+          aria-haspopup="true"
+          aria-controls="notifications-dropdown"
+          id="notifications-button"
+          tabIndex={0}
         >
           <FaBell className="w-5 h-5" />
         </button>
