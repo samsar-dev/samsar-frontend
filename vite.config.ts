@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
-import { obfuscator } from "vite-plugin-obfuscator";
+import vitePluginObfuscator from "vite-plugin-obfuscator";
 import { splitVendorChunkPlugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -43,7 +43,7 @@ export default defineConfig(({ mode, command }) => {
       }),
       splitVendorChunkPlugin(),
       // Obfuscation in production only
-      isProduction && obfuscator({
+      isProduction && vitePluginObfuscator({
         compact: true,
         controlFlowFlattening: true,
         controlFlowFlatteningThreshold: 0.75,
