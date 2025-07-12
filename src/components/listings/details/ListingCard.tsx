@@ -345,7 +345,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
             {/* Fallback content for when image fails to load */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-base font-medium p-4">
               {t("imageUnavailable")}
             </div>
 
@@ -364,6 +364,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
               width={480}
               height={360}
               aria-hidden="false"
+              role="img"
+              aria-label={title ? `${title} - ${t("listingImage")}` : t("listingImage")}
             />
 
             {/* Status badge */}
@@ -392,10 +394,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 <div className="flex flex-wrap gap-4 justify-center">
                   {/* Category badge */}
                   <span
-                    className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-800 dark:text-gray-200 text-xs font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto 
-                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[100px]"
+                    className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-900 dark:text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto 
+                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[120px]"
                     role="button"
                     tabIndex={0}
+                    aria-label={t("category", category?.subCategory)}
                   >
                     {t(
                       `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
