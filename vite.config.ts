@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
-import vitePluginObfuscator from "vite-plugin-obfuscator";
 import { splitVendorChunkPlugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,29 +41,6 @@ export default defineConfig(({ mode, command }) => {
         jsxImportSource: "@emotion/react",
       }),
       splitVendorChunkPlugin(),
-      // Obfuscation in production only
-      isProduction && vitePluginObfuscator({
-        compact: true,
-        controlFlowFlattening: true,
-        controlFlowFlatteningThreshold: 0.75,
-        deadCodeInjection: true,
-        deadCodeInjectionThreshold: 0.4,
-        debugProtection: false, // Disable in development
-        debugProtectionInterval: 4000,
-        disableConsoleOutput: isProduction,
-        identifierNamesGenerator: 'hexadecimal',
-        renameGlobals: true,
-        rotateStringArray: true,
-        selfDefending: true,
-        shuffleStringArray: true,
-        splitStrings: true,
-        stringArray: true,
-        stringArrayEncoding: ['rc4'],
-        stringArrayThreshold: 0.75,
-        transformObjectKeys: true,
-        unicodeEscapeSequence: true,
-        target: 'browser',
-      }),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
