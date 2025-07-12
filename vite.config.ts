@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
-import obfuscator from "vite-plugin-obfuscator";
+import { obfuscator } from "vite-plugin-obfuscator";
 import { splitVendorChunkPlugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
