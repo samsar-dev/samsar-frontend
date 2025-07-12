@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
-import { splitVendorChunkPlugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,10 +36,11 @@ export default defineConfig(({ mode, command }) => {
     define: envVars,
     plugins: [
       react({
+        // Enable TypeScript decorators
         tsDecorators: true,
+        // Development options
         jsxImportSource: "@emotion/react",
       }),
-      splitVendorChunkPlugin(),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -75,12 +75,13 @@ export default defineConfig(({ mode, command }) => {
       }),
 
       // Bundle analyzer (only in analyze mode)
-      mode === "analyze" && visualizer({
-        open: true,
-        filename: "bundle-analyzer-report.html",
-        gzipSize: true,
-        brotliSize: true,
-      }),
+      mode === "analyze" &&
+        visualizer({
+          open: true,
+          filename: "bundle-analyzer-report.html",
+          gzipSize: true,
+          brotliSize: true,
+        }),
     ].filter(Boolean),
 
     // Configure static asset handling
@@ -127,71 +128,35 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: "es2020",
+      target: "esnext",
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: false,
+      sourcemap: !isProduction,
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      cssMinify: isProduction,
-      chunkSizeWarningLimit: 2000, // Increased to reduce warnings
+      chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
+      brotliSize: false,
       rollupOptions: {
         output: {
           manualChunks: {
-            // Core libraries
-            react: ['react', 'react-dom', 'react-router-dom'],
-            mui: ['@mui/material', '@emotion/react', '@emotion/styled', '@mui/icons-material'],
-            // Group other large dependencies
-            vendor: [
-              'axios',
-              'date-fns',
-              'formik',
-              'yup',
-              'lodash',
-              'lodash-es',
-              'framer-motion',
-              'fuse.js',
-              'i18next',
-              'i18next-browser-languagedetector',
-              'i18next-http-backend',
-              'react-i18next',
-              'react-hook-form',
-              '@hookform/resolvers'
-            ],
-            // UI libraries
-            ui: [
-              '@headlessui/react',
-              '@heroicons/react',
-              '@radix-ui/react-accordion',
-              '@radix-ui/react-avatar',
-              '@radix-ui/react-scroll-area',
-              '@radix-ui/react-slot',
-              '@radix-ui/react-switch'
-            ]
+            react: ["react", "react-dom", "react-router-dom"],
+            "vendor-large": ["framer-motion"],
+            vendor: ["axios", "date-fns"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["formik", "yup", "react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
           },
-          chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
       terserOptions: {
         compress: {
-          drop_console: isProduction,
-          drop_debugger: isProduction,
-          pure_funcs: ['console.log', 'console.info', 'console.debug'],
-          passes: 3,
-          ecma: 2020,
-          toplevel: true,
+          drop_console: mode === "production",
+          drop_debugger: mode === "production",
+          pure_funcs: ["console.log"],
         },
         format: {
           comments: false,
-          ecma: 2020,
-        },
-        mangle: {
-          properties: {
-            regex: /^_/,
-          },
         },
       },
     },
