@@ -284,7 +284,7 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ["es2022", "chrome58", "firefox57", "safari11", "edge79"],
+      target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
     },
   };
 });
