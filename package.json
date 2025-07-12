@@ -27,6 +27,7 @@
     "@types/react-lazy-load-image-component": "^1.6.4",
     "@types/react-window": "^1.8.8",
     "@types/yup": "^0.29.14",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.10.0",
     "browser-image-compression": "^2.0.2",

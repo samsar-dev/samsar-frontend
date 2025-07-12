@@ -19,6 +19,7 @@ import Routes from "./routes/Routes";
 import { SocketProvider } from "./contexts/SocketContext";
 import { API_URL_PRIMARY, API_URL_FALLBACK } from "@/config";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 // Add resource hints for external resources
 if (typeof document !== "undefined") {
@@ -150,6 +151,7 @@ const App: () => ReactElement = () => {
                 theme="light"
               />
               <SpeedInsights />
+              <Analytics mode={process.env.NODE_ENV === 'production' ? 'production' : 'development'} />
             </CommunicationProviders>
           </CombinedDataProvider>
         </UIProviders>
