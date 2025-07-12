@@ -2,13 +2,26 @@
   "rewrites": [
     { 
       "source": "/api/(.*)",
-      "destination": "https://api.example.com/api/$1"
+      "destination": "https://api.example.com/api/$1",
+      "has": [
+        {
+          "type": "header",
+          "key": "X-Requested-With",
+          "value": "XMLHttpRequest"
+        }
+      ]
+    },
+    { 
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
     },
     { 
       "source": "/(.*)", 
-      "destination": "/" 
+      "destination": "/index.html" 
     }
   ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/sitemap.xml",
@@ -159,50 +172,47 @@
         {
           "key": "Cache-Control",
           "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        },
+        {
+          "key": "X-Forwarded-For",
+          "value": "$remote_addr"
+        },
+        {
+          "key": "X-Forwarded-Proto",
+          "value": "$scheme"
+        },
+        {
+          "key": "X-Forwarded-Host",
+          "value": "$host"
         }
       ]
-    }
-  ],
-  "routes": [
-    {
-      "src": "^/api/(.*)",
-      "dest": "https://api.example.com/api/$1",
-      "headers": {
-        "X-Forwarded-For": "$remote_addr",
-        "X-Forwarded-Proto": "$scheme",
-        "X-Forwarded-Host": "$host"
-      }
     },
     {
-      "src": "^/static/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
-      "src": "^/node_modules/.*",
-      "status": 403,
-      "headers": {
-        "Content-Type": "text/plain"
-      },
-      "dest": "/403.txt"
+      "source": "/node_modules/.*",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        }
+      ]
     },
     {
-      "src": "^/\\.(?!well-known).*",
-      "status": 403,
-      "headers": {
-        "Content-Type": "text/plain"
-      },
-      "dest": "/403.txt"
-    },
-    {
-      "src": "/50x.html",
-      "status": 500
-    },
-    {
-      "src": "^/(.*)$",
-      "dest": "/index.html",
-      "status": 200
+      "source": "^/\\.(?!well-known).*",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        }
+      ]
     }
   ],
   "env": {
@@ -212,5 +222,18 @@
     "env": {
       "NODE_ENV": "production"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?example\\.com"
+        }
+      ],
+      "destination": "https://samsar.app/:path*",
+      "permanent": true
+    }
+  ]
 }
