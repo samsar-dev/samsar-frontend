@@ -809,7 +809,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
             <button
               onClick={handleFavoriteClick}
-              className={`p-2 rounded-full transition-all duration-200 ${
+              className={`p-3 rounded-full transition-all duration-200 min-w-[50px] min-h-[50px] ${
                 isFavorite
                   ? "text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40"
                   : "text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700/50"
@@ -817,6 +817,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
               aria-label={
                 isFavorite ? "Remove from favorites" : "Add to favorites"
               }
+              role="button"
+              tabIndex={0}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -836,8 +838,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
             <Link
               to={`/listings/${listingId}`}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-base font-medium rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-sm hover:shadow-md min-w-[120px]"
               onClick={(e) => e.stopPropagation()}
+              aria-label={t("common.viewDetails")}
+              role="link"
+              tabIndex={0}
             >
               {listingAction === ListingAction.SALE
                 ? t("common.viewDetails")

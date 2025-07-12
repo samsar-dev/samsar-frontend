@@ -101,24 +101,36 @@ const Footer: React.FC = () => {
               <a
                 href="#"
                 className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                aria-label="Facebook"
+                role="link"
+                tabIndex={0}
               >
                 <FaFacebook className="w-6 h-6" />
               </a>
               <a
                 href="#"
                 className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                aria-label="Twitter"
+                role="link"
+                tabIndex={0}
               >
                 <FaTwitter className="w-6 h-6" />
               </a>
               <a
                 href="#"
                 className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                aria-label="Instagram"
+                role="link"
+                tabIndex={0}
               >
                 <FaInstagram className="w-6 h-6" />
               </a>
               <a
                 href="#"
                 className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
+                aria-label="LinkedIn"
+                role="link"
+                tabIndex={0}
               >
                 <FaLinkedin className="w-6 h-6" />
               </a>
