@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { preloadAssets } from "./utils/preload";
 // import "react-loading-skeleton/dist/skeleton.css";
 import "./config/i18n"; // Import i18n configuration
+import { MuiProvider } from "./providers/MuiProvider";
 
 // Import critical styles
 import "./assets/css/index.css";
@@ -97,17 +98,19 @@ const initializeApp = () => {
 
   // Use concurrent mode features
   root.render(
-    <HelmetProvider>
-      <BrowserRouter>
+    <React.StrictMode>
+      <HelmetProvider>
         <Provider store={store}>
-          <ErrorBoundary>
-            <HelmetProvider>
-              <App />
-            </HelmetProvider>
-          </ErrorBoundary>
+          <MuiProvider>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
+            </BrowserRouter>
+          </MuiProvider>
         </Provider>
-      </BrowserRouter>
-    </HelmetProvider>,
+      </HelmetProvider>
+    </React.StrictMode>
   );
 };
 
