@@ -86,7 +86,6 @@
     "dev": "vite",
     "type-check": "tsc --noEmit",
     "build": "vite build",
-    "build:optimized": "vite build --config vite.config.optimized.js",
     "build:analyze": "vite build --mode analyze && npm run analyze",
     "analyze": "vite-bundle-visualizer",
     "preview": "vite preview",

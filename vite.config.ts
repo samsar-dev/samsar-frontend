@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
+import obfuscator from "vite-plugin-obfuscator";
+import { splitVendorChunkPlugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -36,10 +38,32 @@ export default defineConfig(({ mode, command }) => {
     define: envVars,
     plugins: [
       react({
-        // Enable TypeScript decorators
         tsDecorators: true,
-        // Development options
         jsxImportSource: "@emotion/react",
+      }),
+      splitVendorChunkPlugin(),
+      // Obfuscation in production only
+      isProduction && obfuscator({
+        compact: true,
+        controlFlowFlattening: true,
+        controlFlowFlatteningThreshold: 0.75,
+        deadCodeInjection: true,
+        deadCodeInjectionThreshold: 0.4,
+        debugProtection: false, // Disable in development
+        debugProtectionInterval: 4000,
+        disableConsoleOutput: isProduction,
+        identifierNamesGenerator: 'hexadecimal',
+        renameGlobals: true,
+        rotateStringArray: true,
+        selfDefending: true,
+        shuffleStringArray: true,
+        splitStrings: true,
+        stringArray: true,
+        stringArrayEncoding: ['rc4'],
+        stringArrayThreshold: 0.75,
+        transformObjectKeys: true,
+        unicodeEscapeSequence: true,
+        target: 'browser',
       }),
       createHtmlPlugin({
         minify: {
@@ -75,13 +99,12 @@ export default defineConfig(({ mode, command }) => {
       }),
 
       // Bundle analyzer (only in analyze mode)
-      mode === "analyze" &&
-        visualizer({
-          open: true,
-          filename: "bundle-analyzer-report.html",
-          gzipSize: true,
-          brotliSize: true,
-        }),
+      mode === "analyze" && visualizer({
+        open: true,
+        filename: "bundle-analyzer-report.html",
+        gzipSize: true,
+        brotliSize: true,
+      }),
     ].filter(Boolean),
 
     // Configure static asset handling
@@ -131,32 +154,91 @@ export default defineConfig(({ mode, command }) => {
       target: "esnext",
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: !isProduction,
+      sourcemap: false, // Disable source maps in production for smaller bundle
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 1000,
+      cssMinify: isProduction,
+      chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
-      brotliSize: false,
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            "vendor-large": ["framer-motion"],
-            vendor: ["axios", "date-fns"],
-            ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["formik", "yup", "react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
+          manualChunks: (id) => {
+            // Core React split into smallest possible chunks
+            if (id.includes('node_modules/react/')) {
+              if (id.includes('react-dom/')) {
+                return id.includes('client') ? 'vendor_react_dom_client' : 'vendor_react_dom';
+              }
+              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
+                return 'vendor_react_jsx';
+              }
+              return 'vendor_react';
+            }
+
+            // React Router
+            if (id.includes('react-router-dom/')) {
+              return 'vendor_router';
+            }
+
+            // UI Libraries
+            if (id.includes('@mui/material') || id.includes('@emotion')) {
+              return 'vendor_mui';
+            }
+            if (id.includes('@headlessui/react') || id.includes('@heroicons/react')) {
+              return 'vendor_headlessui';
+            }
+
+            // Forms
+            if (id.includes('react-hook-form') || id.includes('@hookform')) {
+              return 'vendor_forms';
+            }
+            if (id.includes('yup') || id.includes('zod')) {
+              return 'vendor_validation';
+            }
+
+            // State Management
+            if (id.includes('@tanstack/')) {
+              return 'vendor_tanstack';
+            }
+
+            // Split application code by feature
+            if (id.includes('src/')) {
+              const featureMatch = id.match(/src\/([^/]+)/);
+              if (featureMatch) {
+                return `feature_${featureMatch[1].toLowerCase()}`;
+              }
+            }
+
+            // Group remaining node_modules by package name
+            if (id.includes('node_modules/')) {
+              const match = id.match(/node_modules\/((?:@[^/]+\/)?[^/]+)/);
+              if (match) {
+                const packageName = match[1].replace(/[^a-z0-9]/g, '_').toLowerCase();
+                return `vendor_${packageName}`;
+              }
+            }
           },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
       terserOptions: {
         compress: {
-          drop_console: mode === "production",
-          drop_debugger: mode === "production",
-          pure_funcs: ["console.log"],
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
+          passes: 3,
+          ecma: 2020,
+          toplevel: true,
         },
         format: {
           comments: false,
+          ecma: 2020,
+        },
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
         },
       },
     },
