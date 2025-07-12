@@ -34,15 +34,6 @@ export default defineConfig(({ mode, command }) => {
 
   return {
     define: envVars,
-    build: {
-      rollupOptions: {
-        output: {
-          sourcemap: true, // Enable source maps for all outputs
-          sourcemapExcludeSources: false, // Include source files in source maps
-          compact: true, // Optimize source maps for size
-        },
-      },
-    },
     plugins: [
       react({
         // Enable TypeScript decorators

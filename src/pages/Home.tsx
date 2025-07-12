@@ -686,7 +686,14 @@ const Home: React.FC = () => {
 
   const renderContent = useCallback(() => {
     if (listings.loading) {
-      return <SkeletonListingGrid />;
+      return (
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            {t("home.loading_listings", "جاري تحميل العروض...")}
+          </h2>
+          <SkeletonListingGrid />
+        </div>
+      );
     }
 
     return (
@@ -867,7 +874,6 @@ const Home: React.FC = () => {
         description={pageDescription}
         keywords={pageKeywords}
       />
-      {/* Preconnect and preload waves-light.svg */}
       <link rel="preconnect" href="/" crossOrigin="anonymous" />
       <link rel="preload" href="/waves-light.svg" as="image" crossOrigin="anonymous" />
       
@@ -878,7 +884,7 @@ const Home: React.FC = () => {
 
       {/* Header */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
-        {/* Optional Decorative Background Pattern */}
+        {/* Decorative Background Pattern */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none">
           <img 
             src="/waves-light.svg" 
@@ -890,15 +896,15 @@ const Home: React.FC = () => {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="lcp-text">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" id="main-heading">
             {t("home.find_perfect")}{" "}
-            <span className="inline-block">
+            <span className="text-blue-200">
               {selectedCategory === ListingCategory.VEHICLES
                 ? t("home.vehicle")
                 : t("home.property")}
             </span>
           </h1>
-          <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90">
+          <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto">
             {selectedCategory === ListingCategory.VEHICLES
               ? t("find_dream_vehicle", { ns: "home" })
               : t("discover_property", { ns: "home" })}
@@ -933,9 +939,34 @@ const Home: React.FC = () => {
         </div>
       </header>
 
-      {/* Listings Section */}
+      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {renderContent()}
+        <section aria-labelledby="featured-listings-heading">
+          <h2 id="featured-listings-heading" className="sr-only">
+            {t("home.featured_listings", "العروض المميزة")}
+          </h2>
+          {renderContent()}
+        </section>
+        
+        {/* Additional SEO Content */}
+        <section className="mt-16 prose prose-blue dark:prose-invert max-w-none">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {t("home.about_section_title", "عن منصة سمسار")}
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            {t("home.about_section_text", "منصة سمسار هي الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. نوفر لك أحدث العروض مع تفاصيل دقيقة وصور عالية الجودة.")}
+          </p>
+          
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-3">
+            {t("home.why_choose_us", "لماذا تختار منصة سمسار؟")}
+          </h3>
+          <ul className="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+            <li>{t("home.feature_1", "آلاف العروض المميزة")}</li>
+            <li>{t("home.feature_2", "أسعار تنافسية")}</li>
+            <li>{t("home.feature_3", "واجهة سهلة الاستخدام")}</li>
+            <li>{t("home.feature_4", "خدمة عملاء على مدار الساعة")}</li>
+          </ul>
+        </section>
       </main>
     </div>
   );
