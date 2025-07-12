@@ -83,7 +83,7 @@
     },
 
     {
-      "source": "/(.*\\.(js|css|png|jpe?g|gif|ico|svg|webp|avif|mp4|webm|ogv|mp3|wav|ogg))$",
+      "source": "/:path*.(js|css|png|jpg|jpeg|gif|ico|svg|webp|avif|mp4|webm|ogv|mp3|wav|ogg)",
       "headers": [
         {
           "key": "Cache-Control",
