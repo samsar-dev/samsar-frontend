@@ -15,10 +15,17 @@ const resources = {
 
 const i18nConfig: InitOptions = {
   resources,
-  lng: localStorage.getItem("language") || "en",
-  fallbackLng: "en",
+  // Load language from localStorage if available, otherwise use Arabic
+  lng: localStorage.getItem('language') || "ar",
+  fallbackLng: "ar",
   supportedLngs: ["en", "ar"],
   load: "languageOnly",
+  detection: {
+    // Disable all detection methods
+    order: [],
+    caches: [],
+  },
+  // Language will be set explicitly by the SettingsContext
   ns: [
     "common",
     "auth",
@@ -51,8 +58,9 @@ const i18nConfig: InitOptions = {
 
 i18n.use(Backend).use(initReactI18next).init(i18nConfig);
 
-// Set document direction based on language
-const currentLanguage = localStorage.getItem("language") || "en";
-document.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+// Language direction will be set by the SettingsContext
+if (localStorage.getItem("language")) {
+  document.dir = localStorage.getItem("language") === "ar" ? "rtl" : "ltr";
+}
 
 export default i18n;

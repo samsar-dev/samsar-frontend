@@ -17,6 +17,8 @@ import {
   Security,
   Policy,
   ContactSupport,
+  Star,
+  Info as InfoIcon,
 } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
@@ -135,6 +137,11 @@ const TermsOfService = () => {
           </Typography>
         </>
       ),
+    },
+    {
+      title: "5. Featured Offers Service (Coming Soon)",
+      icon: <Star sx={{ color: "primary.main", mr: 2 }} />,
+     
     },
     {
       title: "5. Privacy and Security",

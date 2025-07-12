@@ -307,8 +307,112 @@ const ListingCard: React.FC<ListingCardProps> = ({
     return null;
   };
 
+  // Generate structured data for the listing
+  const generateStructuredData = () => {
+    const baseUrl = window.location.origin;
+    const listingUrl = `${baseUrl}/listings/${listingId}`;
+    const imageUrl = mainImage || '';
+    const price = typeof listing.price === 'number' ? listing.price : 0;
+    const priceCurrency = 'SYP'; // Syrian Pound
+    
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": title || '',
+      "description": t('listingDescription', {
+        category: category.subCategory,
+        make: vehicleDetails?.make || '',
+        model: vehicleDetails?.model || '',
+        year: vehicleDetails?.year || '',
+        location: location || ''
+      }),
+      "image": imageUrl,
+      "url": listingUrl,
+      "offers": {
+        "@type": "Offer",
+        "url": listingUrl,
+        "priceCurrency": priceCurrency,
+        "price": price,
+        "availability": listing.status === ListingStatus.ACTIVE 
+          ? "https://schema.org/InStock" 
+          : "https://schema.org/OutOfStock",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      },
+      "brand": category.mainCategory === ListingCategory.VEHICLES ? {
+        "@type": "Brand",
+        "name": vehicleDetails?.make || ''
+      } : undefined,
+      "itemCondition": "https://schema.org/UsedCondition",
+      "additionalProperty": []
+    };
+
+    // Add vehicle-specific properties
+    if (category.mainCategory === ListingCategory.VEHICLES && vehicleDetails) {
+      structuredData.additionalProperty = [
+        {
+          "@type": "PropertyValue",
+          "name": "mileage",
+          "value": vehicleDetails.mileage ? `${vehicleDetails.mileage} km` : '',
+          "valueReference": "QuantitativeValue"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "year",
+          "value": vehicleDetails.year || '',
+          "valueReference": "QuantitativeValue"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "transmission",
+          "value": vehicleDetails.transmission || vehicleDetails.transmissionType || ''
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "fuelType",
+          "value": vehicleDetails.fuelType || ''
+        }
+      ];
+    }
+
+    // Add real estate specific properties
+    if (category.mainCategory === ListingCategory.REAL_ESTATE && realEstateDetails) {
+      structuredData.additionalProperty = [
+        {
+          "@type": "PropertyValue",
+          "name": "propertyType",
+          "value": realEstateDetails.propertyType || ''
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "size",
+          "value": realEstateDetails.size ? `${realEstateDetails.size} m²` : '',
+          "valueReference": "QuantitativeValue"
+        },
+        ...(realEstateDetails.bedrooms ? [{
+          "@type": "PropertyValue",
+          "name": "bedrooms",
+          "value": realEstateDetails.bedrooms.toString(),
+          "valueReference": "QuantitativeValue"
+        }] : []),
+        ...(realEstateDetails.bathrooms ? [{
+          "@type": "PropertyValue",
+          "name": "bathrooms",
+          "value": realEstateDetails.bathrooms.toString(),
+          "valueReference": "QuantitativeValue"
+        }] : [])
+      ];
+    }
+
+    return structuredData;
+  };
+
+  const structuredData = generateStructuredData();
+
   return (
     <motion.article
+      itemScope
+      itemType="https://schema.org/Product"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{
@@ -324,6 +428,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
       }}
       className="bg-white dark:bg-gray-825 rounded-2xl shadow-sm hover:shadow-xl overflow-hidden group relative transition-all duration-300 border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
     >
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Preload the main image for LCP optimization */}
       {mainImage && typeof mainImage === "string" && (
         <PreloadImages
@@ -457,17 +566,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <div className="p-5">
             {/* Title and Price Row */}
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200">
+              <h2 
+                itemProp="name" 
+                className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200"
+              >
                 <div
                   className="hover:underline decoration-2 underline-offset-2 decoration-blue-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded cursor-pointer"
                   aria-label={`${title} - ${t("viewDetails")}`}
                 >
-                  {title}
+                  <span itemProp="name">{title}</span>
                 </div>
               </h2>
               {showPrice && (
                 <div className="flex-shrink-0 ml-3">
-                  <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
+                  <div 
+                    itemProp="offers" 
+                    itemScope 
+                    itemType="https://schema.org/Offer"
+                    className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap"
+                  >
+                    <meta itemProp="price" content={price?.toString() || '0'} />
+                    <meta itemProp="priceCurrency" content="SYP" />
+                    <meta 
+                      itemProp="availability" 
+                      content={listing.status === ListingStatus.ACTIVE 
+                        ? 'https://schema.org/InStock' 
+                        : 'https://schema.org/OutOfStock'} 
+                    />
                     <PriceConverter
                       price={price}
                       showMonthly={listingAction === ListingAction.RENT}

@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation("common");
+  const { t, i18n } = useTranslation();
 
   // Detect RTL based on language
   const isRTL = i18n.language === "ar" || i18n.language.startsWith("ar-");
@@ -264,7 +264,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaPlus />
-                      Create Listing
+                      {t('navigation.create_listing')}
                     </Link>
 
                     <Link
@@ -272,7 +272,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt />
-                      My Listings
+                      {t('navigation.my_listings')}
                     </Link>
 
                     <Link
@@ -280,16 +280,20 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaHeart className="text-red-500" />
-                      Saved Listings
+                      {t('navigation.saved_listings')}
                     </Link>
                   </div>
                 </div>
 
                 {/* Notifications */}
-                <NotificationBell />
+                <Tooltip content={t('navigation.notifications')} position="bottom">
+                  <div>
+                    <NotificationBell />
+                  </div>
+                </Tooltip>
 
                 {/* Messages */}
-                <Tooltip content="Messages" position="bottom">
+                <Tooltip content={t('navigation.messages')} position="bottom">
                   <Link
                     to="/messages"
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
@@ -335,14 +339,14 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaUser />
-                      Profile
+                      {t('navigation.profile')}
                     </Link>
                     <Link
                       to="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaCog />
-                      Settings
+                      {t('navigation.settings')}
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -364,14 +368,16 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  dir={isRTL ? "rtl" : "ltr"}
                 >
-                  Login
+                  {t("auth.login")}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                  dir={isRTL ? "rtl" : "ltr"}
                 >
-                  Register
+                  {t("auth.register")}
                 </Link>
               </div>
             )}

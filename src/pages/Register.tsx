@@ -1,9 +1,10 @@
-import type { FormEvent, ChangeEvent } from "react";
+import { FormEvent, ChangeEvent } from "react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface RegisterFormData {
   name: string;
@@ -15,6 +16,7 @@ interface RegisterFormData {
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { register, error: authError, clearError } = useAuth();
+  const { t } = useTranslation("auth");
 
   const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
@@ -37,7 +39,7 @@ const Register: React.FC = () => {
 
     // Validate name
     if (!formData.name || formData.name.trim().length < 2) {
-      toast.error("Name must be at least 2 characters long");
+      toast.error(t('errors.nameTooShort'));
       setLoading(false);
       return;
     }
@@ -45,14 +47,14 @@ const Register: React.FC = () => {
     // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast.error(t('errors.invalidEmail'));
       setLoading(false);
       return;
     }
 
     // Check password match
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match. Please try again.");
+      toast.error(t('errors.passwordMismatch'));
       setLoading(false);
       return;
     }
@@ -77,7 +79,7 @@ const Register: React.FC = () => {
     try {
       // Call register with the individual parameters
       await register(formData.email, formData.password, formData.name);
-      toast.success("Registration successful! Please verify your email.");
+      toast.success(t('registrationSuccessful'));
       // Redirect to verification code page with email in state
       navigate("/verify-code", { state: { email: formData.email } });
     } catch (error: any) {
@@ -109,14 +111,14 @@ const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            {t('createYourAccount')}
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="name" className="sr-only">
-                Name
+                {t('name')}
               </label>
               <input
                 id="name"
@@ -126,7 +128,7 @@ const Register: React.FC = () => {
                 required
                 minLength={2}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Your Name"
+                placeholder={t('yourName')}
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading}
@@ -134,7 +136,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                {t('email')}
               </label>
               <input
                 id="email"
@@ -143,7 +145,7 @@ const Register: React.FC = () => {
                 autoComplete="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder={t('email')}
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
@@ -151,7 +153,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                {t('password')}
               </label>
               <div className="relative">
                 <input
@@ -161,7 +163,7 @@ const Register: React.FC = () => {
                   autoComplete="new-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
-                  placeholder="Password"
+                  placeholder={t('password')}
                   value={formData.password}
                   onChange={handleChange}
                   disabled={loading}
@@ -184,7 +186,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="confirmPassword" className="sr-only">
-                Confirm Password
+                {t('confirmPassword')}
               </label>
               <div className="relative">
                 <input
@@ -194,7 +196,7 @@ const Register: React.FC = () => {
                   autoComplete="new-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
-                  placeholder="Confirm Password"
+                  placeholder={t('confirmPassword')}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={loading}
@@ -231,7 +233,7 @@ const Register: React.FC = () => {
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? t('buttons.creatingAccount') : t('createAccount')}
             </button>
           </div>
 
@@ -241,7 +243,7 @@ const Register: React.FC = () => {
                 to="/login"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
-                Already have an account? Sign in
+                {t('alreadyHaveAccount')} {t('signIn')}
               </Link>
             </div>
           </div>

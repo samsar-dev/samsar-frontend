@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
 
 const PrivacyPolicy = () => {
-  const { t } = useTranslation("footer");
+  const { t } = useTranslation("privacy_policy");
   const pageTitle = t("privacy_policy.meta_title", "سياسة الخصوصية - سمسار");
   const pageDescription = t(
     "privacy_policy.meta_description",

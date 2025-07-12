@@ -230,10 +230,10 @@ const Login = () => {
               }`}
             >
               {cooldown
-                ? `Please wait ${cooldown}s`
+                ? t('form.cooldownMessage', { seconds: cooldown })
                 : loading
-                  ? "Signing in..."
-                  : "Sign in"}
+                  ? t('buttons.signingIn')
+                  : t('signIn')}
             </button>
           </div>
 
@@ -255,7 +255,7 @@ const Login = () => {
                 to="/register"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
-                Don't have an account? Sign up
+                {t('dontHaveAccount')} {t('signUp')}
               </Link>
             </div>
           </div>

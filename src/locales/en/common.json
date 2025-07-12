@@ -22,15 +22,12 @@
   "notProvided": "Not Provided",
   "beds": "beds",
   "baths": "baths",
-  "showInUSD": "Show in USD",
-  "showInSYP": "Show in SYP",
   "deleteConfirmation": "Are you sure you want to delete this listing? This action cannot be undone.",
   "title": "Title",
   "titlePlaceholder": "Enter a title for your listing",
   "loading": "Loading...",
   "saving": "Saving...",
   "continue": "Continue",
-  "reset": "Reset",
   "sort": {
     "newest": "Newest First",
     "oldest": "Oldest First",
@@ -97,7 +94,14 @@
   "navigation": {
     "home": "Home",
     "vehicles": "Vehicles",
-    "real_estate": "Real Estate"
+    "real_estate": "Real Estate",
+      "profile": "Profile",
+      "settings": "Settings",
+      "messages": "Messages",
+      "notifications": "Notifications",
+      "create_listing": "Create Listing",
+      "my_listings": "My Listings",
+      "saved_listings": "Saved Listings"
   },
   "createListing": "Create Listing",
   "myListings": "My Listings",
@@ -241,6 +245,12 @@
     "quick_links": "Quick Links",
     "about_marketplace": "About Marketplace",
     "contact_us": "Contact Us",
+    "seo_title": "Samsar Platform | First Car and Real Estate Market in Syria",
+    "seo_description": "Buy and sell cars, real estate, motorcycles, and commercial properties in Syria | Free and verified ads",
+    "copyright": "Samsar Platform. All rights reserved.",
+ 
+   
+    "seo_text": "Samsar Platform - Buy and sell cars, real estate, motorcycles, and commercial properties in Syria | Free and verified ads",
     "careers": {
       "title": "Careers"
     },
@@ -278,5 +288,12 @@
     "syp": "SYP"
   },
   "showInUSD": "Show price in USD",
-  "showInSYP": "Show price in SYP"
+  "showInSYP": "Show price in SYP",
+  "privacy_policy": {
+    "meta_title": "Privacy Policy - Samsar",
+    "meta_description": "Learn about Samsar's Privacy Policy and how we protect your personal data when using our real estate and vehicles platform in Syria",
+    "meta_keywords": "Privacy Policy, Data Protection, Privacy & Security, Personal Information, User Protection, Terms of Use"
+  
+
+  }
 }

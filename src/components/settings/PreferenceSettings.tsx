@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+import i18n from "i18next";
 import { LanguageCode, ThemeType } from "@/types/enums";
 import type { PreferenceSettings as PreferenceSettingsType } from "@/types/settings";
 
@@ -19,27 +21,48 @@ interface Props {
   isRTL?: boolean;
 }
 
-const defaultSettings: PreferenceSettingsType = {
-  language: LanguageCode.EN,
-  theme: ThemeType.SYSTEM,
-  timezone: "UTC",
-};
-
 function PreferenceSettings({
-  settings = defaultSettings,
+  settings,
   onUpdate,
   isRTL = false,
 }: Props) {
   const { t } = useTranslation("settings");
-  const currentSettings = { ...defaultSettings, ...settings };
+  
+  // Use the settings language directly
+  const currentSettings = settings || {
+    language: LanguageCode.AR,
+    theme: ThemeType.SYSTEM,
+    timezone: "UTC"
+  };
+
+  // Local state to track pending language change
+  const [pendingLanguage, setPendingLanguage] = useState<LanguageCode | null>(null);
 
   const handleChange = (key: keyof PreferenceSettingsType, value: any) => {
     const newSettings = {
       ...currentSettings,
       [key]: value,
     };
+    
+    // Store pending language change but don't apply it yet
+    if (key === 'language') {
+      setPendingLanguage(value);
+    }
+    
+    // Only update settings state, don't apply language change
     onUpdate(newSettings);
   };
+
+  // Remove the language change effect since we'll handle it in Settings component
+  const applyLanguageChange = (langCode: string) => {
+    // This function is now just a placeholder since language change is handled by Settings
+    console.log('Language change will be handled by Settings component');
+  };
+
+  // Remove the useEffect since language change is now handled by Settings component
+  useEffect(() => {
+    // No-op since language change is handled by Settings component
+  }, [currentSettings.language, pendingLanguage]);
 
   const timezones = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"];
 

@@ -4,13 +4,15 @@ import { createContext, useCallback, useContext, useState } from "react";
 
 export interface SettingsContextType {
   settings: Settings;
+  pendingChanges: Partial<Settings>;
   updateSettings: (update: SettingsUpdate) => void;
+  applySettings: () => void;
   resetSettings: () => void;
 }
 
 const defaultSettings: Settings = {
   preferences: {
-    language: LanguageCode.EN,
+    language: LanguageCode.AR,
     theme: ThemeType.LIGHT,
     timezone: "UTC",
   },
@@ -40,10 +42,15 @@ export const SettingsContext = createContext<SettingsContextType | undefined>(
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  // Load settings from localStorage if available
+  const savedSettings = localStorage.getItem('settings');
+  const initialSettings = savedSettings ? JSON.parse(savedSettings) : defaultSettings;
+  
+  const [settings, setSettings] = useState<Settings>(initialSettings);
+  const [pendingChanges, setPendingChanges] = useState<Partial<Settings>>({});
 
   const updateSettings = useCallback((update: SettingsUpdate) => {
-    setSettings((prev) => ({
+    setPendingChanges(prev => ({
       ...prev,
       ...update,
       preferences: {
@@ -65,13 +72,55 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   }, []);
 
+  const applySettings = useCallback(() => {
+    // Get the current language from settings
+    const currentLanguage = settings.preferences.language;
+    
+    // Apply the pending changes
+    const newSettings = {
+      ...settings,
+      ...pendingChanges,
+      preferences: {
+        ...settings.preferences,
+        ...pendingChanges.preferences,
+      },
+      security: {
+        ...settings.security,
+        ...pendingChanges.security,
+      },
+      notifications: {
+        ...settings.notifications,
+        ...pendingChanges.notifications,
+      },
+      privacy: {
+        ...settings.privacy,
+        ...pendingChanges.privacy,
+      },
+    };
+    
+    // Save settings to localStorage
+    localStorage.setItem('settings', JSON.stringify(newSettings));
+    
+    setSettings(newSettings);
+    
+    // Update language if it changed
+    const newLanguage = newSettings.preferences.language;
+    if (currentLanguage !== newLanguage) {
+      const langCode = newLanguage === LanguageCode.AR ? 'ar' : 'en';
+      localStorage.setItem('language', langCode);
+      document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+    }
+    
+    setPendingChanges({});
+  }, [pendingChanges]);
+
   const resetSettings = useCallback(() => {
     setSettings(defaultSettings);
   }, []);
 
   return (
     <SettingsContext.Provider
-      value={{ settings, updateSettings, resetSettings }}
+      value={{ settings, pendingChanges, updateSettings, applySettings, resetSettings }}
     >
       {children}
     </SettingsContext.Provider>

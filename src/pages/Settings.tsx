@@ -54,7 +54,7 @@ interface SettingsState {
 
 function Settings() {
   const { t, i18n } = useTranslation("settings");
-  const { settings, updateSettings } = useSettings();
+  const { settings, pendingChanges, updateSettings, applySettings } = useSettings();
   const [isSaving, setIsSaving] = useState(false);
 
   // SEO Meta Tags
@@ -73,8 +73,11 @@ function Settings() {
   }>({ type: null, message: "" });
   const [localSettings, setLocalSettings] = useState<AppSettings>({
     ...settings,
-    preferences: settings?.preferences || {
-      language: LanguageCode.AR,
+    ...pendingChanges,
+    preferences: {
+      ...settings?.preferences,
+      ...pendingChanges?.preferences,
+      language: localStorage.getItem('language') === 'en' ? LanguageCode.EN : LanguageCode.AR,
       theme: ThemeType.LIGHT,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
@@ -128,7 +131,7 @@ function Settings() {
               },
               // Add default values for any required fields in Settings type
               preferences: localSettings?.preferences || {
-                language: LanguageCode.AR, // Default to Arabic
+                language: localStorage.getItem('language') === 'en' ? LanguageCode.EN : LanguageCode.AR,
                 theme: ThemeType.LIGHT,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
               },
@@ -152,6 +155,9 @@ function Settings() {
   // Handle saving settings
   const handleSaveSettings = async () => {
     if (!localSettings) return;
+
+    // Apply pending changes to settings before saving
+    applySettings();
 
     setIsSaving(true);
     setSaveStatus({ type: null, message: "" });
@@ -222,13 +228,14 @@ function Settings() {
       });
 
       // Apply language change after successful save
-      if (localSettings.preferences?.language) {
-        const langCode =
-          localSettings.preferences.language === LanguageCode.AR ? "ar" : "en";
+      if (settingsToSave.preferences?.language) {
+        const langCode = settingsToSave.preferences.language === LanguageCode.AR ? 'ar' : 'en';
         i18n.changeLanguage(langCode);
-        localStorage.setItem("language", langCode);
-        document.dir = langCode === "ar" ? "rtl" : "ltr";
+        localStorage.setItem('language', langCode);
+        document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
       }
+
+
 
       setSaveStatus({ type: "success", message: t("saveSuccess") });
     } catch (error) {
@@ -271,6 +278,7 @@ function Settings() {
         autoLogoutTime: 30,
       },
     };
+    // Only update local state, don't apply language change yet
     setLocalSettings(newSettings);
   };
 
