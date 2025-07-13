@@ -989,7 +989,6 @@ const Home: React.FC = () => {
         }}
       />
       <link rel="preconnect" href="/" crossOrigin="anonymous" />
-      <link rel="preload" href="/waves-light.svg" as="image" crossOrigin="anonymous" />
       
       {/* Canonical URL */}
       <link 
@@ -1021,24 +1020,7 @@ const Home: React.FC = () => {
 
       {/* Header */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
-        {/* Decorative Background Pattern */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none">
-          <img 
-            src="/waves-light.svg?cache=1694575451" 
-            alt="" 
-            className="w-full h-full object-cover" 
-            aria-hidden="true" 
-            fetchPriority="high"
-            decoding="async"
-            loading="eager"
-            width="1920"
-            height="1080"
-            style={{
-              willChange: 'transform',
-              contain: 'paint layout'
-            }}
-          />
-        </div>
+
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" id="main-heading">

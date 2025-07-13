@@ -136,12 +136,11 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: "esnext",
+      target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
-      // Generate source maps for production with proper configuration
       sourcemap: true,
-      sourcemapFileNames: '[file].map',
+      sourcemapFileNames: '[name]-[hash].map',
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
       minify: isProduction ? "terser" : false,
