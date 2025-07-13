@@ -139,8 +139,7 @@ export default defineConfig(({ mode, command }) => {
       target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: true,
-      sourcemapFileNames: '[name]-[hash].map',
+      sourcemap: isProduction ? true : 'inline',
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
       minify: isProduction ? "terser" : false,
@@ -151,9 +150,7 @@ export default defineConfig(({ mode, command }) => {
       
       rollupOptions: {
         output: {
-          sourcemap: true,
           sourcemapExcludeSources: false,
-          sourcemapFileNames: '[name]-[hash].map',
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
             "vendor-large": ["framer-motion"],
