@@ -159,7 +159,7 @@ export default defineConfig(({ mode, command }) => {
             "vendor-large": ["framer-motion"],
             vendor: ["axios", "date-fns", "react-i18next"],
             ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["formik", "yup", "react-hook-form"],
+            forms: ["react-hook-form"],
             maps: ["leaflet", "react-leaflet"],
           },
           sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
