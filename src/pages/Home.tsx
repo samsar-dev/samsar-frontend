@@ -14,11 +14,12 @@ import { type ExtendedListing } from "@/types/listings";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
-import { SEO } from "@/utils/seo";
+
 
 interface ListingParams {
   category?: {
@@ -63,10 +64,6 @@ const Home: React.FC = () => {
   const pageTitle = t(
     "meta_title",
     "سمسار | سوق السيارات والعقارات الأول في سوريا",
-  );
-  const pageDescription = t(
-    "meta_description",
-    "مرحباً بكم في منصة سمسار، الوجهة الأولى لبيع وشراء العقارات والمركبات في سوريا. تصفح آلاف العروض المميزة للشقق، الفلل، الأراضي، السيارات، والشاحنات. نوفر لك أحدث قوائم العقارات والمركبات مع تفاصيل دقيقة، صور عالية الجودة، وأسعار تنافسية. ابدأ رحلتك اليوم للعثور على ما تبحث عنه!",
   );
   const pageKeywords = t(
     "meta_keywords",
@@ -870,13 +867,52 @@ const Home: React.FC = () => {
     allSubcategories,
   ]);
 
+  // Generate dynamic title and description based on category
+  const getPageMetadata = () => {
+    if (selectedCategory === ListingCategory.VEHICLES) {
+      return {
+        title: t("home:meta.vehicles.title", "أفضل السيارات للبيع في سوريا | سمسار"),
+        description: t(
+          "home:meta.vehicles.description",
+          "تصفح أحدث إعلانات السيارات المستعملة والجديدة في سوريا. سيارات للبيع من مالكين مباشرة أو معارض موثوقة. أسعار تنافسية وضمان الجودة"
+        ),
+      };
+    } else {
+      return {
+        title: t("home:meta.properties.title", "أفضل العقارات للبيع في سوريا | سمسار"),
+        description: t(
+          "home:meta.properties.description",
+          "تصفح أفضل العروض العقارية في سوريا. شقق، فلل، محلات تجارية، وأراضي للبيع أو الإيجار. أسعار منافسة ومواقع مميزة"
+        ),
+      };
+    }
+  };
+
+  const { title, description } = getPageMetadata();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <SEO
-        title={pageTitle}
-        description={pageDescription}
-        keywords={pageKeywords}
-      />
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        
+        {/* Twitter */}
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={window.location.href} />
+        
+        {/* Alternate Language Versions */}
+        <link rel="alternate" hrefLang="ar" href={`${window.location.origin}/ar`} />
+        <link rel="alternate" hrefLang="en" href={`${window.location.origin}/en`} />
+        <link rel="alternate" hrefLang="x-default" href={window.location.origin} />
+      </Helmet>
+
       
       {/* Structured Data for SEO */}
       <script
@@ -885,15 +921,15 @@ const Home: React.FC = () => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebSite",
-            "name": "Samsar",
-            "url": window.location.origin,
+            "name": "سمسار",
+            "url": "https://samsar.app",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": `${window.location.origin}/search?q={search_term_string}`,
+              "target": "https://samsar.app/search?q={search_term_string}",
               "query-input": "required name=search_term_string"
             },
-            "inLanguage": i18n.language === 'ar' ? 'ar' : 'en',
-            "description": pageDescription
+            "inLanguage": "ar_AR",
+            "description": "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
           })
         }}
       />

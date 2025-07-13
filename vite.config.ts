@@ -41,6 +41,13 @@ export default defineConfig(({ mode, command }) => {
         // Development options
         jsxImportSource: "@emotion/react",
       }),
+      viteCompression({
+        verbose: true,
+        disable: false,
+        threshold: 10240,
+        algorithm: 'gzip',
+        ext: '.gz',
+      }),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,

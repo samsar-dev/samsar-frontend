@@ -498,13 +498,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </div>
 
             {/* Map has been moved to ListingDetails component */}
-            <div className="absolute inset-0 flex flex-col justify-between p-4 z-20 pointer-events-none">
+            <div className="absolute inset-0 flex flex-col justify-between p-3 z-20 pointer-events-none">
               {showBadges && (
                 <div className="flex flex-wrap gap-4 justify-center">
                   {/* Category badge */}
                   <span
-                    className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-900 dark:text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto 
-                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[120px]"
+                    className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm text-gray-900 dark:text-white text-sm font-semibold px-5 py-3 rounded-full shadow-sm pointer-events-auto
+                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[120px] inline-flex items-center justify-center h-[44px]"
                     role="button"
                     tabIndex={0}
                     aria-label={t("category", category?.subCategory)}
@@ -517,11 +517,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
                   {/* Action badge */}
                   <span
-                    className={`text-xs font-semibold px-4 py-2 rounded-full shadow-sm pointer-events-auto
-                  transition-all duration-200 hover:shadow-md ${
+                    className={`text-sm font-semibold px-5 py-3 rounded-full shadow-sm pointer-events-auto
+                  transition-all duration-200 hover:shadow-md min-h-[44px] inline-flex items-center ${
                     listingAction === ListingAction.SALE
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-                      : "bg-gradient-to-r from-emerald-600 to-teal-500 text-white"
+                      ? "bg-gradient-to-r from-blue-700 to-blue-600 text-white"
+                      : "bg-gradient-to-r from-emerald-700 to-teal-600 text-white"
                   }`}
                     role="button"
                     tabIndex={0}
@@ -542,10 +542,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
                       e.stopPropagation();
                       handleFavoriteClick(e);
                     }}
-                    className={`p-2 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110 shadow-md pointer-events-auto ${
+                    className={`p-3 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110 shadow-md pointer-events-auto w-11 h-11 ${
                       isFavorite
-                        ? "bg-red-500 text-white hover:bg-red-600"
-                        : "bg-white/90 dark:bg-gray-800/90 text-gray-600 hover:text-red-500 hover:bg-white dark:hover:bg-gray-700"
+                        ? "bg-red-600 text-white hover:bg-red-700"
+                        : "bg-white/95 dark:bg-gray-800/95 text-gray-700 hover:text-red-600 hover:bg-white dark:hover:bg-gray-700"
                     }`}
                     aria-label={
                       isFavorite
@@ -628,13 +628,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
                           : encodeURIComponent(location || '');
                         window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener,noreferrer');
                       }}
-                      className="truncate text-left hover:underline hover:text-blue-700 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 -mx-1"
+                      className="truncate text-left hover:underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded px-2 py-1.5 -mx-1 text-[15px] font-medium"
                       aria-label={`${t("viewOnMap")} - ${location}`}
                     >
                       {cleanLocationString(location)}
                     </button>
                   </div>
-                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                     <MdOutlineRemoveRedEye className="mr-1 text-gray-400" />
                     <span>{formatViews(listing.views)}</span>
                   </div>

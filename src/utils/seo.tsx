@@ -83,7 +83,7 @@ const generateKeywords = (
 };
 
 // Default SEO configuration
-const defaultSEO = {
+export const SEO_CONFIG = {
   title: "سمسار | سوق السيارات والعقارات الأول في سوريا",
   description:
     "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا",
@@ -137,7 +137,7 @@ export const SEO: React.FC<SEOProps> = ({
   title: propTitle,
   description: propDescription,
   keywords: propKeywords,
-  image = defaultSEO.image,
+  image = SEO_CONFIG.image,
   type = "website",
   noIndex = false,
   listingType,
@@ -186,11 +186,11 @@ export const SEO: React.FC<SEOProps> = ({
 
   const dynamicMetadata = getDynamicMetadata();
 
-  const title = propTitle || dynamicMetadata.title || defaultSEO.title;
+  const title = propTitle || dynamicMetadata.title || SEO_CONFIG.title;
   const description =
-    propDescription || dynamicMetadata.description || defaultSEO.description;
+    propDescription || dynamicMetadata.description || SEO_CONFIG.description;
   const keywords =
-    propKeywords || dynamicMetadata.keywords || defaultSEO.keywords;
+    propKeywords || dynamicMetadata.keywords || SEO_CONFIG.keywords;
   const ogImage = props.openGraph?.images?.[0]?.url || image;
 
   return (
@@ -199,7 +199,7 @@ export const SEO: React.FC<SEOProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
-      <meta name="author" content={defaultSEO.author} />
+      <meta name="author" content={SEO_CONFIG.author} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -207,7 +207,7 @@ export const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
-      <meta property="og:site_name" content={defaultSEO.siteName} />
+      <meta property="og:site_name" content={SEO_CONFIG.siteName} />
       <meta
         property="og:locale"
         content={currentLanguage === "en" ? "en_US" : "ar_AR"}
@@ -219,13 +219,13 @@ export const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
-      <meta name="twitter:creator" content={defaultSEO.twitter} />
+      <meta name="twitter:creator" content={SEO_CONFIG.twitter} />
 
       {/* Canonical URL */}
       <link rel="canonical" href={currentUrl} />
 
       {/* Multilingual Alternate URLs */}
-      {Object.entries(defaultSEO.alternateUrls).map(([lang, url]) => (
+      {Object.entries(SEO_CONFIG.alternateUrls).map(([lang, url]) => (
         <link
           key={lang}
           rel="alternate"
@@ -253,4 +253,4 @@ export const SEO: React.FC<SEOProps> = ({
 /**
  * Default SEO configuration for the app
  */
-export const DefaultSEO = () => <SEO />;
+export const DefaultSEO = () => <SEO {...SEO_CONFIG} />;
