@@ -48,49 +48,7 @@ export default defineConfig(({ mode, command }) => {
         algorithm: 'gzip',
         ext: '.gz',
       }),
-      {
-        name: 'image-optimizer',
-        async generateBundle() {
-          if (this.meta.watchMode) return;
 
-          // Optimize SVG files
-          const optimizeSvg = async (file: string) => {
-            const fs = require('fs');
-            const svgo = require('svgo');
-            const path = require('path');
-
-            const svgContent = fs.readFileSync(file, 'utf8');
-            const result = await svgo.optimize(svgContent, {
-              path: file,
-              plugins: [
-                {
-                  name: 'preset-default',
-                  params: {
-                    overrides: {
-                      removeViewBox: false,
-                      removeDimensions: true,
-                    },
-                  },
-                },
-                {
-                  name: 'removeAttrs',
-                  params: {
-                    attrs: ['fill', 'stroke'],
-                  },
-                },
-              ],
-            });
-
-            fs.writeFileSync(file, result.data);
-          };
-
-          // Find and optimize SVG files
-          const svgFiles = this.getModuleInfo('waves-light.svg');
-          if (svgFiles) {
-            await optimizeSvg(svgFiles.file);
-          }
-        },
-      },
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -220,8 +178,8 @@ export default defineConfig(({ mode, command }) => {
         },
         format: {
           comments: false,
-          sourceMap: true,
         },
+        sourceMap: true,
       },
     },
 
