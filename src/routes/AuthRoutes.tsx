@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { RouteObject } from "react-router-dom";
+import { Layout } from "@/components/layout";
 
 // Lazy load auth components
 const Login = lazy(() => import("@/pages/Login"));
@@ -9,30 +10,39 @@ const VerifyCode = lazy(() => import("@/pages/VerifyCode"));
 const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
 const PasswordResetVerification = lazy(() => import("@/pages/PasswordResetVerification"));
 
+// Layout wrapper for auth routes
+const withLayout = (Component: React.ComponentType) => {
+  return (
+    <Layout>
+      <Component />
+    </Layout>
+  );
+};
+
 const authRoutes: RouteObject[] = [
   {
     path: "/login",
-    element: <Login />,
+    element: withLayout(Login),
   },
   {
     path: "/register",
-    element: <Register />,
+    element: withLayout(Register),
   },
   {
     path: "/verify-email",
-    element: <VerifyEmail />,
+    element: withLayout(VerifyEmail),
   },
   {
     path: "/verify-code",
-    element: <VerifyCode />,
+    element: withLayout(VerifyCode),
   },
   {
     path: "/reset-password",
-    element: <PasswordReset />,
+    element: withLayout(PasswordReset),
   },
   {
     path: "/reset-password-verification",
-    element: <PasswordResetVerification />,
+    element: withLayout(PasswordResetVerification),
   },
 ];
 

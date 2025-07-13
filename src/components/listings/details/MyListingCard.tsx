@@ -232,9 +232,9 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
         </div>
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
-          <p className="text-green-600 dark:text-green-400 font-semibold mb-2">
+          <div className="text-green-600 dark:text-green-400 font-semibold mb-2">
             <PriceConverter price={price} />
-          </p>
+          </div>
 
           {/* Location and Views */}
           <div className="flex items-center justify-between mb-3 text-sm text-gray-600 dark:text-gray-400">

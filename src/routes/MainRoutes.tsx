@@ -1,6 +1,7 @@
 import { lazy } from "react";
-import { RouteObject } from "react-router-dom";
+import { RouteObject, Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/AuthRoute";
+import { Layout } from "@/components/layout";
 
 // Lazy load main components
 const Home = lazy(() => import("@/pages/Home"));
@@ -16,28 +17,38 @@ const ContactUs = lazy(() => import("@/pages/ContactUs"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
+// Layout wrapper component for routes that need the main layout
+const withLayout = (Component: React.ComponentType) => {
+  return <Layout><Component /></Layout>;
+};
+
 const mainRoutes: RouteObject[] = [
+  // Redirect from /realestate to /real-estate for backward compatibility
+  {
+    path: "/realestate",
+    element: <Navigate to="/real-estate" replace />,
+  },
   {
     path: "/",
-    element: <Home />,
+    element: withLayout(Home),
   },
   {
     path: "/search",
-    element: <Search />,
+    element: withLayout(Search),
   },
   {
     path: "/vehicles",
-    element: <Vehicles />,
+    element: withLayout(Vehicles),
   },
   {
     path: "/real-estate",
-    element: <RealEstate />,
+    element: withLayout(RealEstate),
   },
   {
     path: "/listings/create",
     element: (
       <PrivateRoute>
-        <CreateListing />
+        {withLayout(CreateListing)}
       </PrivateRoute>
     ),
   },
@@ -45,37 +56,37 @@ const mainRoutes: RouteObject[] = [
     path: "/listings/edit/:id",
     element: (
       <PrivateRoute>
-        <EditListing />
+        {withLayout(EditListing)}
       </PrivateRoute>
     ),
   },
   {
     path: "/listings/:id",
-    element: <ListingDetailsRedux />,
+    element: withLayout(ListingDetailsRedux),
   },
   {
     path: "/listing-success",
     element: (
       <PrivateRoute>
-        <ListingSuccess />
+        {withLayout(ListingSuccess)}
       </PrivateRoute>
     ),
   },
   {
     path: "/about",
-    element: <About />,
+    element: withLayout(About),
   },
   {
     path: "/contact",
-    element: <ContactUs />,
+    element: withLayout(ContactUs),
   },
   {
-    path: "/privacy",
-    element: <PrivacyPolicy />,
+    path: "/privacy-policy",
+    element: withLayout(PrivacyPolicy),
   },
   {
     path: "/terms",
-    element: <TermsOfService />,
+    element: withLayout(TermsOfService),
   },
 ];
 

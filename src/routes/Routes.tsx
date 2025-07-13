@@ -1,47 +1,69 @@
 import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useMemo, useState, useEffect } from "react";
 import type { RouteObject } from "react-router-dom";
 
-import { Layout as LayoutComponent } from "@/components/layout";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
-import mainRoutes from "./MainRoutes";
-import authRoutes from "./AuthRoutes";
-import adminRoutes from "./AdminRoutes";
-import profileRoutes from "./ProfileRoutes";
-
+// Lazy load the 404 page
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <LayoutComponent>{children}</LayoutComponent>
-);
-
+// Optimized route renderer that doesn't wrap in Layout
 const renderRoutes = (routes: RouteObject[]) => {
-  return routes.map((route, index) => {
-    const element = route.element ? (
-      <Layout>{route.element}</Layout>
-    ) : undefined;
-
-    return (
-      <Route key={route.path || index} path={route.path} element={element}>
-        {route.children && renderRoutes(route.children)}
-      </Route>
-    );
-  });
+  return routes.map((route, index) => (
+    <Route 
+      key={route.path || index} 
+      path={route.path} 
+      element={route.element}
+    >
+      {route.children && renderRoutes(route.children)}
+    </Route>
+  ));
 };
 
 const Routes = () => {
-  const allRoutes: RouteObject[] = [
-    ...mainRoutes,
-    ...authRoutes,
-    ...adminRoutes,
-    ...profileRoutes,
-    { path: "*", element: <Layout><NotFound /></Layout> }
-  ];
+  const [routes, setRoutes] = useState<RouteObject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRoutes = async () => {
+      try {
+        // Import all route modules in parallel
+        const [
+          { default: mainRoutes },
+          { default: authRoutes },
+          { default: adminRoutes },
+          { default: profileRoutes }
+        ] = await Promise.all([
+          import("./MainRoutes"),
+          import("./AuthRoutes"),
+          import("./AdminRoutes"),
+          import("./ProfileRoutes")
+        ]);
+
+        setRoutes([
+          ...mainRoutes,
+          ...authRoutes,
+          ...adminRoutes,
+          ...profileRoutes,
+          { path: "*", element: <NotFound /> }
+        ]);
+      } catch (error) {
+        console.error("Failed to load routes:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRoutes();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <RouterRoutes>{renderRoutes(allRoutes)}</RouterRoutes>
+      <RouterRoutes>{renderRoutes(routes)}</RouterRoutes>
     </Suspense>
   );
 };

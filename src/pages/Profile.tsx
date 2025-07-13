@@ -71,36 +71,42 @@ export const Profile = () => {
           {/* Sidebar Navigation */}
           <div className="md:w-64 bg-gray-50 dark:bg-gray-900 p-6">
             <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-              {t("title")}
+              {t("profile")}
             </h2>
             <nav className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabClick(tab.path)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    currentPath === tab.path
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <span className="text-xl">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+              {tabs.map((tab) => {
+                const isActive = 
+                  currentPath === tab.path || 
+                  (tab.path !== '/profile' && currentPath.startsWith(tab.path));
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabClick(tab.path)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <span className="text-xl">{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </nav>
           </div>
 
           {/* Content Area */}
           <div className="flex-1 p-6 md:p-8">
             <Routes>
-              <Route path="/" element={<ProfileInfo />} />
-              <Route path="/listings" element={<MyListings />} />
-              <Route path="/password" element={<ChangePassword />} />
-              <Route path="/:userId" element={<PublicProfileInfo />} />
-              <Route
-                path="/:userId/listings"
-                element={<PublicProfileInfo showListings />}
+              <Route index element={<ProfileInfo />} />
+              <Route path="listings" element={<MyListings />} />
+              <Route path="password" element={<ChangePassword />} />
+              <Route path=":userId" element={<PublicProfileInfo />} />
+              <Route 
+                path=":userId/listings" 
+                element={<PublicProfileInfo showListings />} 
               />
             </Routes>
           </div>

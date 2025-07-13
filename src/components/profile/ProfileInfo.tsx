@@ -258,7 +258,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaPhone className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("Phone Number")}
+              {t("phone_number")}
             </label>
             <input
               type="text"
@@ -275,7 +275,7 @@ const ProfileInfo = () => {
               className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               <FaCalendarAlt className="mr-2 text-gray-500 dark:text-gray-400" />
-              {t("date of birth")}
+              {t("date_of_birth")}
             </label>
             <input
               type="date"
