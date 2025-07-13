@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, memo } from "react";
-import { useTranslation } from "react-i18next";
 import {
   FaCar,
   FaHome,
@@ -39,7 +38,6 @@ type CategoryType = ListingCategory | VehicleType | PropertyType | string;
 
 interface ImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "fetchPriority"> {
-  t?: (key: string, fallback: string) => string; // Add t function to props
   src: string;
   alt: string;
   className?: string;
@@ -52,7 +50,6 @@ interface ImageProps
   category?: CategoryType;
   placeholder?: string;
   blur?: boolean;
-  fallbackText?: string; // Text to show when image fails to load
   onLoad?: () => void;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
@@ -60,8 +57,6 @@ interface ImageProps
 const DEFAULT_PLACEHOLDER = "";
 
 const ImageComponent: React.FC<ImageProps> = ({
-  // Get translation function
-  t: propT,
   src,
   alt,
   className = "",
@@ -74,16 +69,9 @@ const ImageComponent: React.FC<ImageProps> = ({
   category,
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
-  fallbackText,
   onLoad,
   onError,
 }) => {
-  // Use propT if provided, otherwise get from useTranslation
-  const { t: hookT } = useTranslation();
-  const t = propT || ((key: string, fallback: string) => {
-    const translation = hookT(key);
-    return translation !== key ? translation : fallback;
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -169,60 +157,38 @@ const ImageComponent: React.FC<ImageProps> = ({
   if (hasError || !src) {
     if (placeholder) {
       return (
-        <div 
-          className={`relative ${className}`}
-          style={{
-            width: width || "100%",
-            height: height || "200px",
-            backgroundColor: "#f1f5f9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          role="img"
-          aria-label={alt || fallbackText || "Image not available"}
-        >
-          <img
-            src={placeholder}
-            alt=""
-            className="w-full h-full object-cover"
-            width={width}
-            height={height}
-            aria-hidden="true"
-          />
-          <span className="sr-only">{fallbackText || alt || "Image not available"}</span>
-        </div>
+        <img
+          src={placeholder}
+          alt={alt || "Image not available"}
+          className={className}
+          width={width}
+          height={height}
+          aria-label={alt || "Image not available"}
+        />
       );
     }
 
     // Get the appropriate icon based on category
     const Icon = getCategoryIcon(category);
-    const displayText = fallbackText || alt;
     return (
       <div
-        className={`relative ${className} bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900`}
+        className={`relative ${className}`}
         style={{
           width: width || "100%",
           height: height || "200px",
+          background: "#e2e8f0",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexDirection: "column",
-          gap: "0.75rem",
+          gap: "8px",
         }}
         role="img"
-        aria-label={displayText ? `${displayText} - Image not available` : "Image not available"}
+        aria-label={alt || "Image not available"}
       >
-        <Icon className="w-12 h-12 text-gray-400 dark:text-gray-600" aria-hidden="true" />
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-            {t("imageUnavailable", "Image not available")}
-          </p>
-          {displayText && (
-            <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
-              {displayText}
-            </p>
-          )}
+        <Icon className="text-4xl text-gray-400" />
+        <div className="text-gray-500 text-center">
+          <p className="mt-2">Image Unavailable</p>
         </div>
       </div>
     );
@@ -240,60 +206,27 @@ const ImageComponent: React.FC<ImageProps> = ({
     >
       {/* Loading state */}
       {isLoading && (
-        <div 
-          className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800"
-          aria-live="polite"
-          aria-busy={isLoading}
-        >
-          {category ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+          {category &&
             React.createElement(getCategoryIcon(category), {
-              className: "w-10 h-10 text-gray-300 dark:text-gray-600 animate-pulse",
+              className: "w-1/3 h-1/3 text-gray-400",
               "aria-hidden": "true",
-            })
-          ) : (
-            <div className="w-12 h-12 rounded-full border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 animate-spin">
-              <span className="sr-only">Loading image...</span>
-            </div>
-          )}
+            })}
         </div>
       )}
 
-      {/* Error state - only show if not loading and has error */}
-      {!isLoading && hasError && (
-        <div 
-          className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/80 dark:bg-gray-800/80 p-4 backdrop-blur-sm"
-          role="alert"
-          aria-live="assertive"
-        >
-          <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center mb-3">
-            <svg 
-              className="w-6 h-6 text-red-500 dark:text-red-400" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
-              />
-            </svg>
-          </div>
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
-            {t("failedToLoadImage", "Failed to load image")}
-          </p>
-          {alt && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
-              {alt}
-            </p>
-          )}
+      {/* Error state */}
+      {hasError ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
+          {React.createElement(getCategoryIcon(category), {
+            className: "w-1/4 h-1/4 text-gray-400 mb-2",
+            "aria-hidden": "true",
+          })}
+          <span className="text-sm text-gray-500 text-center">
+            {alt || "Image not available"}
+          </span>
         </div>
-      )}
-
-      {/* Show image content if not loading and no error */}
-      {!isLoading && !hasError && (
+      ) : (
         /* Image content */
         <picture>
           {/* WebP sources for modern browsers */}
@@ -358,8 +291,7 @@ const areEqual = (prevProps: ImageProps, nextProps: ImageProps) => {
     prevProps.quality === nextProps.quality &&
     prevProps.category === nextProps.category &&
     prevProps.placeholder === nextProps.placeholder &&
-    prevProps.blur === nextProps.blur &&
-    prevProps.fallbackText === nextProps.fallbackText
+    prevProps.blur === nextProps.blur
   );
 };
 
