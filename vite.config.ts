@@ -196,7 +196,7 @@ export default defineConfig(({ mode, command }) => {
         output: {
           sourcemap: true,
           sourcemapExcludeSources: false,
-          sourcemapFileNames: '[file].map',
+          sourcemapFileNames: '[name]-[hash].map',
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
             "vendor-large": ["framer-motion"],
