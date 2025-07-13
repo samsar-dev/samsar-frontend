@@ -1,33 +1,55 @@
 import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy, useMemo, useState, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState, useCallback } from "react";
 import type { RouteObject } from "react-router-dom";
-
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
-// Lazy load the 404 page
+// Preload function for critical routes
+const preloadComponent = (importFn: () => Promise<{ default: React.ComponentType }>) => {
+  const Component = lazy(importFn);
+  // Start preloading
+  importFn();
+  return Component;
+};
+
+// Critical routes (preloaded)
+const Home = preloadComponent(() => import("@/pages/Home"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-// Optimized route renderer that doesn't wrap in Layout
-const renderRoutes = (routes: RouteObject[]) => {
-  return routes.map((route, index) => (
-    <Route 
-      key={route.path || index} 
-      path={route.path} 
-      element={route.element}
-    >
-      {route.children && renderRoutes(route.children)}
-    </Route>
-  ));
+// Route-based code splitting with preloading
+const lazyWithPreload = (importFn: () => Promise<{ default: React.ComponentType }>) => {
+  const Component = lazy(importFn);
+  // Add preload method to component
+  (Component as any).preload = importFn;
+  return Component;
 };
 
 const Routes = () => {
   const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Preload non-critical routes when app starts
+  useEffect(() => {
+    const preloadRoutes = async () => {
+      try {
+        await Promise.all([
+          import("@/routes/MainRoutes"),
+          import("@/routes/AuthRoutes"),
+          import("@/routes/ProfileRoutes"),
+          import("@/routes/AdminRoutes"),
+        ]);
+      } catch (error) {
+        console.error("Failed to preload routes:", error);
+      }
+    };
+    
+    preloadRoutes();
+  }, []);
+
+  // Load routes with proper error boundaries
   useEffect(() => {
     const loadRoutes = async () => {
       try {
-        // Import all route modules in parallel
+        // Use dynamic imports for better code splitting
         const [
           { default: mainRoutes },
           { default: authRoutes },
@@ -45,10 +67,36 @@ const Routes = () => {
           ...authRoutes,
           ...adminRoutes,
           ...profileRoutes,
-          { path: "*", element: <NotFound /> }
+          { 
+            path: "*", 
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <NotFound />
+              </Suspense>
+            ) 
+          }
         ]);
       } catch (error) {
         console.error("Failed to load routes:", error);
+        // Fallback to basic routes if dynamic loading fails
+        setRoutes([
+          { 
+            path: "/", 
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <Home />
+              </Suspense>
+            ) 
+          },
+          { 
+            path: "*", 
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <NotFound />
+              </Suspense>
+            ) 
+          }
+        ]);
       } finally {
         setIsLoading(false);
       }
@@ -57,15 +105,31 @@ const Routes = () => {
     loadRoutes();
   }, []);
 
+  const renderRoutes = useCallback((routesToRender: RouteObject[]) => {
+    return routesToRender.map((route, index) => (
+      <Route 
+        key={route.path || index} 
+        path={route.path} 
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            {route.element}
+          </Suspense>
+        }
+      >
+        {route.children && renderRoutes(route.children)}
+      </Route>
+    ));
+  }, []);
+
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <RouterRoutes>{renderRoutes(routes)}</RouterRoutes>
-    </Suspense>
-  );
+  return <RouterRoutes>{renderRoutes(routes)}</RouterRoutes>;
 };
 
 export default Routes;
