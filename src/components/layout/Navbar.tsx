@@ -231,7 +231,7 @@ const Navbar: React.FC = () => {
 
           {/* Right section */}
           <div
-            className={`flex items-center ${isRTL ? "flex-row-reverse" : "flex-row"} gap-4`}
+            className={`flex items-center ${isRTL ? "flex-row-reverse" : "flex-row"} space-x-4 sm:space-x-4`}
           >
             {isLoading ? (
               <div className="flex items-center justify-center w-8 h-8">
@@ -249,7 +249,7 @@ const Navbar: React.FC = () => {
                       aria-expanded={showListingsMenu}
                       aria-haspopup="true"
                     >
-                      <FaList className="h-5 w-5" />
+                      <FaList className="h-5 w-5 mx-1 sm:mx-0" />
                     </button>
                   </Tooltip>
                   <div
@@ -299,7 +299,7 @@ const Navbar: React.FC = () => {
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
                     aria-label={t("messages")}
                   >
-                    <FaEnvelope className="h-5 w-5" />
+                    <FaEnvelope className="h-5 w-5 mx-1 sm:mx-0" />
                   </Link>
                 </Tooltip>
 

@@ -1019,10 +1019,8 @@ const Home: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500">
-
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500 w-full">
+        <div className="relative z-10 w-full max-w-none lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" id="main-heading">
             {selectedCategory === ListingCategory.VEHICLES 
               ? t("home:vehicle_section.title", "أفضل السيارات")
@@ -1067,25 +1065,28 @@ const Home: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <section aria-labelledby="featured-listings-heading">
-          <h2 id="featured-listings-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            {t("home:featured_listings", "تصفح أحدث العروض المميزة")}
+      <main className="w-full py-12 px-0">
+  <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto">
+    <section aria-labelledby="featured-listings-heading" className="w-full">
+      <h2 id="featured-listings-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        {t("home:featured_listings", "تصفح أحدث العروض المميزة")}
+      </h2>
+      {renderContent()}
+    </section>
+  </div>
+</main>
+
+
+      {/* Popular Categories Section with Images */}
+        <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 w-full">
+        <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 px-4 sm:px-0">
+            <span className="hidden" aria-hidden="true">تصفح الفئات الأكثر طلباً</span>
+            <span>{t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}</span>
           </h2>
-          {renderContent()}
-        </section>
-        
-     
-        
-        {/* Popular Categories Section with Images */}
-        <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 px-4">
-          <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-  <span className="hidden" aria-hidden="true">تصفح الفئات الأكثر طلباً</span>
-  <span>{t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}</span>
-</h2>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-4 sm:px-0">
+
               {/* Category 1 - Cars */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48">
@@ -1235,20 +1236,23 @@ const Home: React.FC = () => {
           </div>
         </section>
            {/* Additional SEO Content */}
-           <section className="mt-16 max-w-4xl mx-auto px-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+           <section className="w-full bg-white dark:bg-gray-800 py-8">
+  <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
+
             <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
               <span className="hidden" aria-hidden="true">منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا</span>
                     {t("home:about_section_title", "منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا")}
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+
+
               <div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
                   <span className="hidden" aria-hidden="true">تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة المثالية التي تناسب احتياجاتك وميزانيتك.</span>
                   {t("home:about_section_text_1", "تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة المثالية التي تناسب احتياجاتك وميزانيتك.")}
                 </p>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
                   <span className="hidden" aria-hidden="true">بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل. نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.</span>
                   <span>{t("home:about_section_text_2", "بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل. نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.")}</span>
                 </p>
@@ -1259,7 +1263,7 @@ const Home: React.FC = () => {
                   <span className="hidden" aria-hidden="true">لماذا تختار منصة سمسار؟</span>
                   <span>{t("home:why_choose_us", "لماذا تختار منصة سمسار؟")}</span>
                 </h3>
-                <ul className="space-y-3 mt-6">
+                <ul className="space-y-3 mt-6 w-full">
                   <li className="flex items-start">
                     <span className="text-green-500 mr-2 mt-1">✓</span>
                     <span className="text-gray-700 dark:text-gray-300">
@@ -1299,13 +1303,14 @@ const Home: React.FC = () => {
                 <span className="hidden" aria-hidden="true">خدماتنا الإضافية</span>
                 <span>{t("home:our_services", "خدماتنا الإضافية")}</span>
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+
                 <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
                   <h4 className="font-medium text-blue-800 dark:text-blue-300">
                     <span className="hidden" aria-hidden="true">تقييم عقاري</span>
                     <span>{t("home:service_1", "تقييم عقاري")}</span>
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
                     <span className="hidden" aria-hidden="true">تقييم دقيق للعقارات</span>
                     <span>{t("home:service_1_desc", "تقييم دقيق للعقارات")}</span>
                   </p>
@@ -1315,7 +1320,7 @@ const Home: React.FC = () => {
                     <span className="hidden" aria-hidden="true">تسويق عقاري</span>
                     <span>{t("home:service_2", "تسويق عقاري")}</span>
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
                     <span className="hidden" aria-hidden="true">تسويق متكامل للعقارات</span>
                     <span>{t("home:service_2_desc", "تسويق متكامل للعقارات")}</span>
                   </p>
@@ -1325,7 +1330,7 @@ const Home: React.FC = () => {
                     <span className="hidden" aria-hidden="true">خدمات قانونية</span>
                     <span>{t("home:service_3", "خدمات قانونية")}</span>
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
                     <span className="hidden" aria-hidden="true">استشارات قانونية متخصصة</span>
                     <span>{t("home:service_3_desc", "استشارات قانونية متخصصة")}</span>
                   </p>
@@ -1335,7 +1340,7 @@ const Home: React.FC = () => {
                     <span className="hidden" aria-hidden="true">خدمات التمويل</span>
                     <span>{t("home:service_4", "خدمات التمويل")}</span>
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
                     <span className="hidden" aria-hidden="true">حلول تمويلية ميسرة</span>
                     <span>{t("home:service_4_desc", "حلول تمويلية ميسرة")}</span>
                   </p>
@@ -1349,8 +1354,11 @@ const Home: React.FC = () => {
         </section>
 
         {/* Samsar Advantage Section */}
-        <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 w-full">
+        <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
+
+
+
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
                 <span className="hidden" aria-hidden="true">ميزات سمسار الفريدة</span>
@@ -1362,7 +1370,9 @@ const Home: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+
+
               {/* Left Column - Interactive Cards */}
               <div className="space-y-6">
                 {[
@@ -1487,8 +1497,7 @@ const Home: React.FC = () => {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
   );
 };
 

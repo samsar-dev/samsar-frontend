@@ -426,7 +426,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         stiffness: 400,
         damping: 25,
       }}
-      className="bg-white dark:bg-gray-825 rounded-2xl shadow-sm hover:shadow-xl overflow-hidden group relative transition-all duration-300 border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
+      className="w-full bg-white dark:bg-gray-825 rounded-none sm:rounded-2xl shadow-sm hover:shadow-xl overflow-hidden group relative transition-all duration-300 border-0 sm:border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
     >
       {/* Structured Data */}
       <script
