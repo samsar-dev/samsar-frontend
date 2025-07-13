@@ -48,6 +48,7 @@ interface ImageProps
   height?: number | string;
   quality?: number;
   category?: CategoryType;
+  fallbackText?: string;
   placeholder?: string;
   blur?: boolean;
   onLoad?: () => void;
