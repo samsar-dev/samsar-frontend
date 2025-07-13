@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
 
 // Loading fallback
@@ -59,79 +58,40 @@ const importUsersList = () => import("@/pages/admin/UsersList");
 const importNewsletter = () => import("@/pages/admin/Newsletter");
 const importAdminReports = () => import("@/pages/admin/ReportsPage");
 
-// Role-based access control types
-type UserRole = 'user' | 'admin' | 'moderator';
-
-// Role-based route guard
-const withRole = (Component: React.ComponentType, allowedRoles: UserRole[]) => {
-  return function WithRoleWrapper(props: any) {
-    const { user } = useAuth();
-    const location = useLocation();
-
-    if (!user) {
-      return <Navigate to="/login" state={{ from: location }} replace />;
-    }
-
-    if (!allowedRoles.includes(user.role as UserRole)) {
-      return <Navigate to="/unauthorized" replace />;
-    }
-
-    return <Component {...props} />;
-  };
-};
-
-// Lazy load pages with better chunk naming
-const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.default })));
-const Login = lazy(() => import("@/pages/Login").then(m => ({ default: m.default })));
-const VerifyCode = lazy(() => import("@/pages/VerifyCode").then(m => ({ default: m.default })));
-const PasswordReset = lazy(() => import("@/pages/PasswordReset").then(m => ({ default: m.default })));
-const PasswordResetVerification = lazy(() => 
-  import("@/pages/PasswordResetVerification").then(m => ({ default: m.default }))
+// Lazy load pages
+const Home = lazy(importHome);
+const Login = lazy(importLogin);
+const VerifyCode = lazy(importVerifyCode);
+const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
+const PasswordResetVerification = lazy(
+  () => import("@/pages/PasswordResetVerification"),
 );
-const Register = lazy(() => import("@/pages/Register").then(m => ({ default: m.default })));
-const VerifyEmail = lazy(() => import("@/pages/VerifyEmail").then(m => ({ default: m.default })));
-const Profile = lazy(() => import("@/pages/Profile").then(m => ({ default: m.default })));
-const UserProfile = lazy(() => import("@/pages/UserProfile").then(m => ({ default: m.default })));
-const Search = lazy(() => import("@/pages/Search").then(m => ({ default: m.default })));
-const ListingDetailsRedux = lazy(() => 
-  import("@/components/listings/edit/ListingDetailsRedux").then(m => ({ default: m.default }))
-);
-const CreateListing = lazy(() => 
-  import("@/components/listings/create/CreateListing").then(m => ({ default: m.default }))
-);
-const EditListingRedux = lazy(() => 
-  import("@/components/listings/edit/EditListingRedux").then(m => ({ default: m.default }))
-);
-const Messages = lazy(() => import("@/pages/Messages").then(m => ({ default: m.default })));
-const Settings = lazy(() => import("@/pages/Settings").then(m => ({ default: m.default })));
-const ChangePassword = lazy(() => 
-  import("@/components/profile/ChangePassword").then(m => ({ default: m.default }))
-);
-const MyListings = lazy(() => import("@/components/profile/MyListings").then(m => ({ default: m.default })));
-const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo").then(m => ({ default: m.default })));
-const SavedListings = lazy(() => 
-  import("@/components/profile/SavedListings").then(m => ({ default: m.default }))
-);
-const Vehicles = lazy(() => import("@/pages/Vehicles").then(m => ({ default: m.default })));
-const RealEstate = lazy(() => import("@/pages/RealEstate").then(m => ({ default: m.default })));
-const Newsletter = lazy(() => import("@/pages/admin/Newsletter").then(m => ({ default: m.default })));
-const AdminReports = lazy(() => import("@/pages/admin/ReportsPage").then(m => ({ default: m.default })));
-const ListingSuccess = lazy(() => import("@/pages/ListingSuccess").then(m => ({ default: m.default })));
-const PrivateRoute = lazy(() => import("@/components/auth/AuthRoute").then(m => ({ default: m.default })));
-const About = lazy(() => import("@/pages/About").then(m => ({ default: m.default })));
-const ContactUs = lazy(() => import("@/pages/ContactUs").then(m => ({ default: m.default })));
-const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy").then(m => ({ default: m.default })));
-const TermsOfService = lazy(() => import("@/pages/TermsOfService").then(m => ({ default: m.default })));
-const ContactSubmissions = lazy(() => 
-  import("@/pages/admin/ContactSubmissions").then(m => ({ default: m.default }))
-);
-const UsersList = lazy(() => import("@/pages/admin/UsersList").then(m => ({ default: m.default })));
-
-// Create admin-wrapped components
-const AdminContactSubmissions = withRole(ContactSubmissions, ['admin']);
-const AdminUsersList = withRole(UsersList, ['admin']);
-const AdminNewsletter = withRole(Newsletter, ['admin']);
-const AdminReportsPage = withRole(AdminReports, ['admin']);
+const Register = lazy(importRegister);
+const VerifyEmail = lazy(importVerifyEmail);
+const Profile = lazy(importProfile);
+const UserProfile = lazy(importUserProfile);
+const Search = lazy(importSearch);
+const ListingDetailsRedux = lazy(importListingDetails);
+const CreateListing = lazy(importCreateListing);
+const EditListingRedux = lazy(importEditListing);
+const Messages = lazy(importMessages);
+const Settings = lazy(importSettings);
+const ChangePassword = lazy(importChangePassword);
+const MyListings = lazy(importMyListings);
+const ProfileInfo = lazy(importProfileInfo);
+const SavedListings = lazy(importSavedListings);
+const Vehicles = lazy(importVehicles);
+const RealEstate = lazy(importRealEstate);
+const Newsletter = lazy(importNewsletter);
+const AdminReports = lazy(importAdminReports);
+const ListingSuccess = lazy(importListingSuccess);
+const PrivateRoute = lazy(importPrivateRoute);
+const About = lazy(() => import("@/pages/About"));
+const ContactUs = lazy(() => import("@/pages/ContactUs"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const ContactSubmissions = lazy(importContactSubmissions);
+const UsersList = lazy(importUsersList);
 
 // Create a skeleton component for listings
 const ListingSkeleton = () => (
@@ -228,57 +188,38 @@ const Routes = (): JSX.Element => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
 
-          {/* Admin Routes with role-based access */}
+          {/* Admin Routes */}
           <Route
             path="/admin/contact-submissions"
             element={
-              <Suspense fallback={<LoadingSpinner size="lg" />}>
-                <AdminContactSubmissions />
-              </Suspense>
+              <AdminRoute>
+                <ContactSubmissions />
+              </AdminRoute>
             }
           />
           <Route
             path="/admin/users"
             element={
-              <Suspense fallback={<LoadingSpinner size="lg" />}>
-                <AdminUsersList />
-              </Suspense>
+              <AdminRoute>
+                <UsersList />
+              </AdminRoute>
             }
           />
           <Route
             path="/admin/newsletter"
             element={
-              <Suspense fallback={<LoadingSpinner size="lg" />}>
-                <AdminNewsletter />
-              </Suspense>
+              <AdminRoute>
+                <Newsletter />
+              </AdminRoute>
             }
           />
           <Route
             path="/admin/reports"
             element={
-              <Suspense fallback={<LoadingSpinner size="lg" />}>
-                <AdminReportsPage />
-              </Suspense>
+              <AdminRoute>
+                <AdminReports />
+              </AdminRoute>
             }
-          />
-          <Route 
-            path="/unauthorized" 
-            element={
-              <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center p-6 max-w-md">
-                  <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-                  <p className="text-gray-600 mb-6">
-                    You don't have permission to access this page.
-                  </p>
-                  <Link 
-                    to="/" 
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Return Home
-                  </Link>
-                </div>
-              </div>
-            } 
           />
 
           {/* Protected routes */}

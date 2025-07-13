@@ -139,107 +139,32 @@ export default defineConfig(({ mode, command }) => {
       target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: isProduction ? true : 'inline',
+      sourcemap: true,
+      sourcemapFileNames: '[name]-[hash].map',
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
-      minify: isProduction ? 'esbuild' : false,
+      minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
       
-      // Enable better tree shaking
-      treeShaking: true,
-      
-      // Optimize dependencies
-      optimizeDeps: {
-        include: [
-          'react',
-          'react-dom',
-          'react-router-dom',
-          'react-hook-form',
-          '@headlessui/react',
-          '@heroicons/react',
-          'axios',
-          'date-fns',
-          'react-i18next',
-          'framer-motion',
-          'leaflet',
-          'react-leaflet'
-        ],
-        esbuildOptions: {
-          target: 'es2020',
-          treeShaking: true,
-        },
-      },
-      
-      // Optimized chunking strategy
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              // Core React and its ecosystem
-              if (id.includes('react-dom') || id.includes('scheduler') || id.includes('scheduler/')) {
-                return 'vendor-react-core';
-              }
-              // React Router
-              if (id.includes('react-router-dom') || id.includes('@remix-run/')) {
-                return 'vendor-router';
-              }
-              // State management and forms
-              if (id.includes('@reduxjs/') || id.includes('react-hook-form')) {
-                return 'vendor-state';
-              }
-              // UI libraries
-              if (id.includes('@headlessui') || id.includes('@heroicons') || id.includes('@radix-ui')) {
-                return 'vendor-ui';
-              }
-              // Data fetching and utilities
-              if (id.includes('axios') || id.includes('lodash') || id.includes('date-fns')) {
-                return 'vendor-utils';
-              }
-              // Mapping libraries
-              if (id.includes('leaflet') || id.includes('react-leaflet')) {
-                return 'vendor-maps';
-              }
-              // Large UI libraries
-              if (id.includes('framer-motion') || id.includes('react-icons')) {
-                return 'vendor-large';
-              }
-              // i18n
-              if (id.includes('i18next') || id.includes('react-i18next')) {
-                return 'vendor-i18n';
-              }
-              // Default vendor chunk for everything else
-              return 'vendor';
-            }
-            // Group routes by feature
-            if (id.includes('src/pages/') || id.includes('src/components/')) {
-              const match = id.match(/src\/(pages|components)\/([^/]+)/);
-              if (match) {
-                const [, type, name] = match;
-                return `${type}-${name.toLowerCase()}`;
-              }
-            }
-          },
-          chunkFileNames: (chunkInfo) => {
-            // Group chunks by type
-            if (chunkInfo.name.startsWith('pages-')) {
-              return 'assets/pages/[name]-[hash].js';
-            }
-            if (chunkInfo.name.startsWith('components-')) {
-              return 'assets/components/[name]-[hash].js';
-            }
-            if (chunkInfo.name.startsWith('vendor-')) {
-              return 'assets/vendor/[name]-[hash].js';
-            }
-            return 'assets/[name]-[hash].js';
-          },
-          entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
+          sourcemap: true,
           sourcemapExcludeSources: false,
-          sourcemapPathTransform: (relativeSourcePath) => {
+          sourcemapFileNames: '[name]-[hash].map',
+          manualChunks: {
+            react: ["react", "react-dom", "react-router-dom"],
+            "vendor-large": ["framer-motion"],
+            vendor: ["axios", "date-fns", "react-i18next"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
+          },
+          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
             const relativePath = path.relative(process.cwd(), relativeSourcePath);
+            // Ensure source maps point to the correct CDN location
             return `https://samsar.app/assets/${relativePath}`;
           },
         },
