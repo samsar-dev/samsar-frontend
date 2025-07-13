@@ -5,7 +5,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { lazy, Suspense, useEffect, ComponentType, PropsWithChildren, LazyExoticComponent } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout";
@@ -80,83 +80,52 @@ const withRole = (Component: React.ComponentType, allowedRoles: UserRole[]) => {
   };
 };
 
-// Lazy load pages with explicit chunk names and preloading
-const lazyWithPreload = <P extends object>(
-  factory: () => Promise<{ default: ComponentType<P> }>,
-  name: string
-) => {
-  const LazyComponent = lazy(factory);
-  // Add preload method to the component
-  (LazyComponent as any).preload = factory;
-  return LazyComponent;
-};
-
-// Lazy load pages with explicit chunk names
-const Home = lazyWithPreload(() => import("@/pages/Home").then(m => ({ default: m.default })), 'Home');
-const Login = lazyWithPreload(() => import("@/pages/Login").then(m => ({ default: m.default })), 'Login');
-const VerifyCode = lazyWithPreload(() => import("@/pages/VerifyCode").then(m => ({ default: m.default })), 'VerifyCode');
-const PasswordReset = lazyWithPreload(() => import("@/pages/PasswordReset").then(m => ({ default: m.default })), 'PasswordReset');
-const PasswordResetVerification = lazyWithPreload(() => 
-  import("@/pages/PasswordResetVerification").then(m => ({ default: m.default })), 'PasswordResetVerification'
+// Lazy load pages with better chunk naming
+const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.default })));
+const Login = lazy(() => import("@/pages/Login").then(m => ({ default: m.default })));
+const VerifyCode = lazy(() => import("@/pages/VerifyCode").then(m => ({ default: m.default })));
+const PasswordReset = lazy(() => import("@/pages/PasswordReset").then(m => ({ default: m.default })));
+const PasswordResetVerification = lazy(() => 
+  import("@/pages/PasswordResetVerification").then(m => ({ default: m.default }))
 );
-const Register = lazyWithPreload(() => import("@/pages/Register").then(m => ({ default: m.default })), 'Register');
-const VerifyEmail = lazyWithPreload(() => import("@/pages/VerifyEmail").then(m => ({ default: m.default })), 'VerifyEmail');
-const Profile = lazyWithPreload(() => import("@/pages/Profile").then(m => ({ default: m.default })), 'Profile');
-const UserProfile = lazyWithPreload(() => import("@/pages/UserProfile").then(m => ({ default: m.default })), 'UserProfile');
-const Search = lazyWithPreload(() => import("@/pages/Search").then(m => {
-  // Remove debug info from Search component as per user's request
-  if (m.default) {
-    const SearchComponent = m.default as any;
-    if (SearchComponent.preload) {
-      SearchComponent.preload = () => Promise.resolve();
-    }
-  }
-  return { default: m.default };
-}), 'Search');
-
-const ListingDetailsRedux = lazyWithPreload(() => 
+const Register = lazy(() => import("@/pages/Register").then(m => ({ default: m.default })));
+const VerifyEmail = lazy(() => import("@/pages/VerifyEmail").then(m => ({ default: m.default })));
+const Profile = lazy(() => import("@/pages/Profile").then(m => ({ default: m.default })));
+const UserProfile = lazy(() => import("@/pages/UserProfile").then(m => ({ default: m.default })));
+const Search = lazy(() => import("@/pages/Search").then(m => ({ default: m.default })));
+const ListingDetailsRedux = lazy(() => 
   import("@/components/listings/edit/ListingDetailsRedux").then(m => ({ default: m.default }))
-, 'ListingDetailsRedux');
-const CreateListing = lazyWithPreload(() => 
+);
+const CreateListing = lazy(() => 
   import("@/components/listings/create/CreateListing").then(m => ({ default: m.default }))
-, 'CreateListing');
-const EditListingRedux = lazyWithPreload(() => 
+);
+const EditListingRedux = lazy(() => 
   import("@/components/listings/edit/EditListingRedux").then(m => ({ default: m.default }))
-, 'EditListingRedux');
-const Messages = lazyWithPreload(() => import("@/pages/Messages").then(m => ({ default: m.default })), 'Messages');
-const Settings = lazyWithPreload(() => import("@/pages/Settings").then(m => ({ default: m.default })), 'Settings');
-const ChangePassword = lazyWithPreload(() => 
+);
+const Messages = lazy(() => import("@/pages/Messages").then(m => ({ default: m.default })));
+const Settings = lazy(() => import("@/pages/Settings").then(m => ({ default: m.default })));
+const ChangePassword = lazy(() => 
   import("@/components/profile/ChangePassword").then(m => ({ default: m.default }))
-, 'ChangePassword');
-const MyListings = lazyWithPreload(() => import("@/components/profile/MyListings").then(m => ({ default: m.default })), 'MyListings');
-const ProfileInfo = lazyWithPreload(() => import("@/components/profile/ProfileInfo").then(m => ({ default: m.default })), 'ProfileInfo');
-const SavedListings = lazyWithPreload(() => 
+);
+const MyListings = lazy(() => import("@/components/profile/MyListings").then(m => ({ default: m.default })));
+const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo").then(m => ({ default: m.default })));
+const SavedListings = lazy(() => 
   import("@/components/profile/SavedListings").then(m => ({ default: m.default }))
-, 'SavedListings');
-const Vehicles = lazyWithPreload(() => import("@/pages/Vehicles").then(m => ({ default: m.default })), 'Vehicles');
-const RealEstate = lazyWithPreload(() => import("@/pages/RealEstate").then(m => ({ default: m.default })), 'RealEstate');
-const Newsletter = lazyWithPreload(() => import("@/pages/admin/Newsletter").then(m => ({ default: m.default })), 'admin/Newsletter');
-const AdminReports = lazyWithPreload(() => import("@/pages/admin/ReportsPage").then(m => ({ default: m.default })), 'admin/ReportsPage');
-const ListingSuccess = lazyWithPreload(() => import("@/pages/ListingSuccess").then(m => ({ default: m.default })), 'ListingSuccess');
-// Define AuthRoute props type
-interface AuthRouteProps {
-  children: React.ReactNode;
-  roles?: string[];
-  redirectTo?: string;
-}
-
-const LazyAuthRoute = lazyWithPreload<AuthRouteProps>(
-  () => import("@/components/auth/AuthRoute").then(m => ({ default: m.default })),
-  'AuthRoute'
-) as React.LazyExoticComponent<React.FC<AuthRouteProps>> & { preload: () => Promise<{ default: React.FC<AuthRouteProps> }> };
-const About = lazyWithPreload(() => import("@/pages/About").then(m => ({ default: m.default })), 'About');
-const ContactUs = lazyWithPreload(() => import("@/pages/ContactUs").then(m => ({ default: m.default })), 'ContactUs');
-const PrivacyPolicy = lazyWithPreload(() => import("@/pages/PrivacyPolicy").then(m => ({ default: m.default })), 'PrivacyPolicy');
-const TermsOfService = lazyWithPreload(() => import("@/pages/TermsOfService").then(m => ({ default: m.default })), 'TermsOfService');
-const ContactSubmissions = lazyWithPreload(() => 
+);
+const Vehicles = lazy(() => import("@/pages/Vehicles").then(m => ({ default: m.default })));
+const RealEstate = lazy(() => import("@/pages/RealEstate").then(m => ({ default: m.default })));
+const Newsletter = lazy(() => import("@/pages/admin/Newsletter").then(m => ({ default: m.default })));
+const AdminReports = lazy(() => import("@/pages/admin/ReportsPage").then(m => ({ default: m.default })));
+const ListingSuccess = lazy(() => import("@/pages/ListingSuccess").then(m => ({ default: m.default })));
+const PrivateRoute = lazy(() => import("@/components/auth/AuthRoute").then(m => ({ default: m.default })));
+const About = lazy(() => import("@/pages/About").then(m => ({ default: m.default })));
+const ContactUs = lazy(() => import("@/pages/ContactUs").then(m => ({ default: m.default })));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy").then(m => ({ default: m.default })));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService").then(m => ({ default: m.default })));
+const ContactSubmissions = lazy(() => 
   import("@/pages/admin/ContactSubmissions").then(m => ({ default: m.default }))
-, 'admin/ContactSubmissions');
-const UsersList = lazyWithPreload(() => import("@/pages/admin/UsersList").then(m => ({ default: m.default })), 'admin/UsersList');
+);
+const UsersList = lazy(() => import("@/pages/admin/UsersList").then(m => ({ default: m.default })));
 
 // Create admin-wrapped components
 const AdminContactSubmissions = withRole(ContactSubmissions, ['admin']);
@@ -315,11 +284,9 @@ const Routes = (): JSX.Element => {
           {/* Protected routes */}
           <Route
             element={
-              <Suspense fallback={<LoadingSpinner fullScreen />}>
-                <LazyAuthRoute>
-                  <Outlet />
-                </LazyAuthRoute>
-              </Suspense>
+              <PrivateRoute>
+                <Outlet />
+              </PrivateRoute>
             }
           >
             <Route path="/profile" element={<Profile />}>
