@@ -11,6 +11,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  
+  // Set base URL for assets
+  const base = process.env.NODE_ENV === 'production' ? '/' : '/';
 
   // Skip type checking during build
   if (command === "build") {
@@ -33,6 +36,7 @@ export default defineConfig(({ mode, command }) => {
   const isProduction = mode === "production";
 
   return {
+    base: base,
     define: envVars,
     plugins: [
       react({
@@ -139,6 +143,8 @@ export default defineConfig(({ mode, command }) => {
       target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
+      assetsInlineLimit: 4096, // 4kb
+      emptyOutDir: true,
       sourcemap: true,
       sourcemapFileNames: '[name]-[hash].map',
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
@@ -161,11 +167,12 @@ export default defineConfig(({ mode, command }) => {
             ui: ["@headlessui/react", "@heroicons/react"],
             forms: ["react-hook-form"],
             maps: ["leaflet", "react-leaflet"],
+            
           },
           sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
             const relativePath = path.relative(process.cwd(), relativeSourcePath);
-            // Ensure source maps point to the correct CDN location
-            return `https://samsar.app/assets/${relativePath}`;
+            // Use relative path for source maps
+            return `/${relativePath}`;
           },
         },
       },
