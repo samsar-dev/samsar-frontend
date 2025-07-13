@@ -1,4 +1,28 @@
 {
+  "redirects": [
+    { 
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.samsar.app"
+        }
+      ],
+      "destination": "https://samsar.app/",
+      "permanent": true
+    },
+    { 
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.samsar.app"
+        }
+      ],
+      "destination": "https://samsar.app/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { 
       "source": "/sitemap.xml",
@@ -10,6 +34,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://samsar.app/>; rel=\"canonical\""
+        }
+      ]
+    },
     {
       "source": "/sitemap.xml",
       "headers": [

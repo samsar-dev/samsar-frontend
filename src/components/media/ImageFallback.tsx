@@ -52,6 +52,7 @@ interface ImageProps
   category?: CategoryType;
   placeholder?: string;
   blur?: boolean;
+  fallbackText?: string; // Text to show when image fails to load
   onLoad?: () => void;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
@@ -73,6 +74,7 @@ const ImageComponent: React.FC<ImageProps> = ({
   category,
   placeholder = DEFAULT_PLACEHOLDER,
   blur = false,
+  fallbackText,
   onLoad,
   onError,
 }) => {
@@ -178,7 +180,7 @@ const ImageComponent: React.FC<ImageProps> = ({
             justifyContent: "center",
           }}
           role="img"
-          aria-label={alt || "Image not available"}
+          aria-label={alt || fallbackText || "Image not available"}
         >
           <img
             src={placeholder}
@@ -188,13 +190,14 @@ const ImageComponent: React.FC<ImageProps> = ({
             height={height}
             aria-hidden="true"
           />
-          <span className="sr-only">{alt || "Image not available"}</span>
+          <span className="sr-only">{fallbackText || alt || "Image not available"}</span>
         </div>
       );
     }
 
     // Get the appropriate icon based on category
     const Icon = getCategoryIcon(category);
+    const displayText = fallbackText || alt;
     return (
       <div
         className={`relative ${className} bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900`}
@@ -208,16 +211,16 @@ const ImageComponent: React.FC<ImageProps> = ({
           gap: "0.75rem",
         }}
         role="img"
-        aria-label={alt ? `${alt} - Image not available` : "Image not available"}
+        aria-label={displayText ? `${displayText} - Image not available` : "Image not available"}
       >
         <Icon className="w-12 h-12 text-gray-400 dark:text-gray-600" aria-hidden="true" />
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-400 font-medium text-sm">
             {t("imageUnavailable", "Image not available")}
           </p>
-          {alt && (
+          {displayText && (
             <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
-              {alt}
+              {displayText}
             </p>
           )}
         </div>
@@ -355,7 +358,8 @@ const areEqual = (prevProps: ImageProps, nextProps: ImageProps) => {
     prevProps.quality === nextProps.quality &&
     prevProps.category === nextProps.category &&
     prevProps.placeholder === nextProps.placeholder &&
-    prevProps.blur === nextProps.blur
+    prevProps.blur === nextProps.blur &&
+    prevProps.fallbackText === nextProps.fallbackText
   );
 };
 

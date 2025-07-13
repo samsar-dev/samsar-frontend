@@ -138,21 +138,32 @@ export default defineConfig(({ mode, command }) => {
       target: "esnext",
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: !isProduction,
+      // Generate source maps for production but don't include them in the bundle
+      sourcemap: isProduction ? 'hidden' : true,
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
       brotliSize: false,
+      // Generate separate .map files for better caching
+      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+        // Point to the correct source map location on your CDN or server
+        return `https://samsar.app/assets/${path.basename(relativeSourcePath)}`;
+      },
       rollupOptions: {
         output: {
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
             "vendor-large": ["framer-motion"],
-            vendor: ["axios", "date-fns"],
+            vendor: ["axios", "date-fns", "react-i18next"],
             ui: ["@headlessui/react", "@heroicons/react"],
             forms: ["formik", "yup", "react-hook-form"],
             maps: ["leaflet", "react-leaflet"],
+          },
+          // Generate source map files with proper source file paths
+          sourcemapPathTransform: (relativeSourcePath) => {
+            // This ensures source maps point to the correct source files
+            return path.relative(process.cwd(), relativeSourcePath);
           },
         },
       },

@@ -19,6 +19,7 @@ import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
+import ImageFallback from "@/components/media/ImageFallback";
 
 
 interface ListingParams {
@@ -899,18 +900,26 @@ const Home: React.FC = () => {
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
+        <meta property="og:url" content={`https://samsar.app${window.location.pathname}`} />
         
         {/* Twitter */}
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         
-        {/* Canonical URL */}
-        <link rel="canonical" href={window.location.href} />
+        {/* Canonical URL - Always use non-www version */}
+        <link 
+          rel="canonical" 
+          href={`https://samsar.app${window.location.pathname}${window.location.search}`} 
+        />
         
         {/* Alternate Language Versions */}
-        <link rel="alternate" hrefLang="ar" href={`${window.location.origin}/ar`} />
-        <link rel="alternate" hrefLang="en" href={`${window.location.origin}/en`} />
-        <link rel="alternate" hrefLang="x-default" href={window.location.origin} />
+        <link rel="alternate" hrefLang="ar" href="https://samsar.app/ar" />
+        <link rel="alternate" hrefLang="en" href="https://samsar.app/en" />
+        <link rel="alternate" hrefLang="x-default" href="https://samsar.app/" />
+        
+        {/* Ensure search engines know about our preferred domain */}
+        <link rel="preconnect" href="https://samsar.app" />
+        <meta name="hostname" content="samsar.app" />
       </Helmet>
 
       
@@ -1016,10 +1025,11 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none">
           <img 
             src="/waves-light.svg" 
-            alt={t("decorative_wave_pattern")} 
+            alt="" 
             className="w-full h-full object-cover" 
-            loading="lazy"
-            aria-hidden="true"
+            aria-hidden="true" 
+            fetchPriority="high"
+            decoding="async"
           />
         </div>
 
@@ -1090,11 +1100,14 @@ const Home: React.FC = () => {
               {/* Category 1 - Cars */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48">
-                  <img
-                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg"
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=75"
                     alt={t("home:categories.cars", "سيارات")}
                     className="w-full h-full object-cover"
+                    width={800}
+                    height={600}
                     loading="lazy"
+                    fallbackText={t("home:categories.cars", "سيارات")}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 </div>
@@ -1118,11 +1131,14 @@ const Home: React.FC = () => {
               {/* Category 2 - Real Estate */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48">
-                  <img
-                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg"
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=75"
                     alt={t("home:categories.real_estate", "عقارات")}
                     className="w-full h-full object-cover"
+                    width={800}
+                    height={600}
                     loading="lazy"
+                    fallbackText={t("home:categories.real_estate", "عقارات")}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 </div>
@@ -1142,11 +1158,14 @@ const Home: React.FC = () => {
               {/* Category 3 - Motorcycles */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48">
-                  <img
-                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png"
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=75&format=webp"
                     alt={t("home:categories.motorcycles", "دراجات نارية")}
                     className="w-full h-full object-cover"
+                    width={800}
+                    height={600}
                     loading="lazy"
+                    fallbackText={t("home:categories.motorcycles", "دراجات نارية")}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 </div>
@@ -1166,11 +1185,14 @@ const Home: React.FC = () => {
               {/* Category 4 - Commercial */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48">
-                  <img
-                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg"
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800&quality=75"
                     alt={t("home:categories.commercial", "تجاري")}
                     className="w-full h-full object-cover"
+                    width={800}
+                    height={600}
                     loading="lazy"
+                    fallbackText={t("home:categories.commercial", "تجاري")}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 </div>
