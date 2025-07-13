@@ -139,28 +139,62 @@ export default defineConfig(({ mode, command }) => {
       target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: true,
-      sourcemapFileNames: '[name]-[hash].map',
-      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
+      sourcemap: isProduction ? 'hidden' : false,
+      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+        const relativePath = path.relative(process.cwd(), relativeSourcePath);
+        return `https://samsar.app/assets/${relativePath}`;
+      },
       
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 300,
       reportCompressedSize: false,
       brotliSize: false,
       
+      // Enable tree shaking for all dependencies
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+        ignoreTryCatch: false,
+      },
+      
+      // Better module splitting
+      modulePreload: {
+        polyfill: false,
+      },
+      
+      // Better code splitting
       rollupOptions: {
         output: {
-          sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: '[name]-[hash].map',
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            "vendor-large": ["framer-motion"],
-            vendor: ["axios", "date-fns", "react-i18next"],
-            ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["formik", "yup", "react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              // Split node_modules into smaller chunks
+              if (id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@mui') || id.includes('@emotion')) {
+                return 'vendor-mui';
+              }
+              if (id.includes('framer-motion')) {
+                return 'vendor-framer';
+              }
+              if (id.includes('date-fns') || id.includes('lodash') || id.includes('axios')) {
+                return 'vendor-utils';
+              }
+              if (id.includes('i18next') || id.includes('i18n')) {
+                return 'vendor-i18n';
+              }
+              if (id.includes('@headlessui') || id.includes('@heroicons')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('formik') || id.includes('yup') || id.includes('react-hook-form')) {
+                return 'vendor-forms';
+              }
+              if (id.includes('leaflet')) {
+                return 'vendor-maps';
+              }
+              return 'vendor';
+            }
           },
           sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
             const relativePath = path.relative(process.cwd(), relativeSourcePath);
