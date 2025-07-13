@@ -102,17 +102,21 @@ export default defineConfig(({ mode, command }) => {
     },
 
     resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-        "@components": path.resolve(__dirname, "src/components"),
-        "@pages": path.resolve(__dirname, "src/pages"),
-        "@assets": path.resolve(__dirname, "src/assets"),
-        "@hooks": path.resolve(__dirname, "src/hooks"),
-        "@services": path.resolve(__dirname, "src/services"),
-        "@store": path.resolve(__dirname, "src/store"),
-        "@types": path.resolve(__dirname, "src/types"),
-        "@utils": path.resolve(__dirname, "src/utils"),
-      },
+      alias: [
+        // Ensure only one version of React is used
+        { find: 'react', replacement: path.resolve(__dirname, './node_modules/react') },
+        { find: 'react-dom', replacement: path.resolve(__dirname, './node_modules/react-dom') },
+        // Path aliases
+        { find: '@', replacement: path.resolve(__dirname, './src') },
+        { find: '@components', replacement: path.resolve(__dirname, 'src/components') },
+        { find: '@pages', replacement: path.resolve(__dirname, 'src/pages') },
+        { find: '@assets', replacement: path.resolve(__dirname, 'src/assets') },
+        { find: '@hooks', replacement: path.resolve(__dirname, 'src/hooks') },
+        { find: '@services', replacement: path.resolve(__dirname, 'src/services') },
+        { find: '@store', replacement: path.resolve(__dirname, 'src/store') },
+        { find: '@types', replacement: path.resolve(__dirname, 'src/types') },
+        { find: '@utils', replacement: path.resolve(__dirname, 'src/utils') },
+      ],
     },
 
     server: {
