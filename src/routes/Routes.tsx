@@ -1,108 +1,105 @@
 import {
   Routes as RouterRoutes,
   Route,
-  Outlet,
   Navigate,
   useLocation,
+  Outlet
 } from "react-router-dom";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, memo } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Layout } from "@/components/layout";
-
-// Loading fallback
+import { Layout as LayoutComponent } from "@/components/layout";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import EditListing from "@/components/listings/edit/EditListing";
 
-// Prefetching utility
-const prefetchComponent = (importFn: () => Promise<any>) => {
-  if (typeof window !== "undefined") {
-    // Use requestIdleCallback for non-critical preloading when browser is idle
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(() => importFn());
-    } else {
-      // Fallback for browsers without requestIdleCallback
-      setTimeout(() => importFn(), 1000);
+// Memoized Layout component
+const Layout = memo(({ children }: { children: React.ReactNode }) => (
+  <LayoutComponent>{children}</LayoutComponent>
+));
+
+// Route-based code splitting with chunk names
+const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
+const Login = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/Login"));
+const Register = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/Register"));
+const VerifyEmail = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/VerifyEmail"));
+const VerifyCode = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/VerifyCode"));
+const PasswordReset = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/PasswordReset"));
+const PasswordResetVerification = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/PasswordResetVerification"));
+
+// Profile routes
+const Profile = lazy(() => import(/* webpackChunkName: "profile" */ "@/pages/Profile"));
+const UserProfile = lazy(() => import(/* webpackChunkName: "profile" */ "@/pages/UserProfile"));
+const ProfileInfo = lazy(() => import(/* webpackChunkName: "profile" */ "@/components/profile/ProfileInfo"));
+const SavedListings = lazy(() => import(/* webpackChunkName: "profile" */ "@/components/profile/SavedListings"));
+const MyListings = lazy(() => import(/* webpackChunkName: "profile" */ "@/components/profile/MyListings"));
+const ChangePassword = lazy(() => import(/* webpackChunkName: "profile" */ "@/components/profile/ChangePassword"));
+
+// Listing routes
+const Search = lazy(() => import(/* webpackChunkName: "listings" */ "@/pages/Search"));
+const Vehicles = lazy(() => import(/* webpackChunkName: "listings" */ "@/pages/Vehicles"));
+const RealEstate = lazy(() => import(/* webpackChunkName: "listings" */ "@/pages/RealEstate"));
+const ListingDetailsRedux = lazy(() => import(/* webpackChunkName: "listings" */ "@/components/listings/edit/ListingDetailsRedux"));
+const CreateListing = lazy(() => import(/* webpackChunkName: "listings" */ "@/components/listings/create/CreateListing"));
+const EditListing = lazy(() => import(/* webpackChunkName: "listings" */ "@/components/listings/edit/EditListingRedux"));
+const ListingSuccess = lazy(() => import(/* webpackChunkName: "listings" */ "@/pages/ListingSuccess"));
+
+// Admin routes
+const ContactSubmissions = lazy(() => import(/* webpackChunkName: "admin" */ "@/pages/admin/ContactSubmissions"));
+const UsersList = lazy(() => import(/* webpackChunkName: "admin" */ "@/pages/admin/UsersList"));
+const Newsletter = lazy(() => import(/* webpackChunkName: "admin" */ "@/pages/admin/Newsletter"));
+const AdminReports = lazy(() => import(/* webpackChunkName: "admin" */ "@/pages/admin/ReportsPage"));
+
+// Static pages
+const About = lazy(() => import(/* webpackChunkName: "static" */ "@/pages/About"));
+const ContactUs = lazy(() => import(/* webpackChunkName: "static" */ "@/pages/ContactUs"));
+const PrivacyPolicy = lazy(() => import(/* webpackChunkName: "static" */ "@/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import(/* webpackChunkName: "static" */ "@/pages/TermsOfService"));
+
+// Other routes
+const Messages = lazy(() => import(/* webpackChunkName: "misc" */ "@/pages/Messages"));
+const Settings = lazy(() => import(/* webpackChunkName: "misc" */ "@/pages/Settings"));
+const PrivateRoute = lazy(() => import(/* webpackChunkName: "auth" */ "@/components/auth/AuthRoute"));
+
+// Vite's import.meta.glob for prefetching
+const pages = import.meta.glob([
+  '@/pages/**/*.tsx',
+  '@/components/**/*.tsx'
+]);
+
+// Prefetch routes based on current path
+const usePrefetching = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        switch (location.pathname) {
+          case '/':
+            pages['/src/pages/Search.tsx']?.();
+            pages['/src/pages/Vehicles.tsx']?.();
+            pages['/src/pages/RealEstate.tsx']?.();
+            break;
+          case '/search':
+            pages['/src/components/listings/edit/ListingDetailsRedux.tsx']?.();
+            break;
+          case '/profile':
+            pages['/src/components/profile/MyListings.tsx']?.();
+            pages['/src/components/profile/ChangePassword.tsx']?.();
+            break;
+        }
+      });
     }
-  }
+  }, [location.pathname]);
 };
 
-// Define import functions for each component
-const importHome = () => import("@/pages/Home");
-const importLogin = () => import("@/pages/Login");
-const importRegister = () => import("@/pages/Register");
-const importVerifyEmail = () => import("@/pages/VerifyEmail");
-const importVerifyCode = () => import("@/pages/VerifyCode");
-const importProfile = () => import("@/pages/Profile");
-const importUserProfile = () => import("@/pages/UserProfile");
-const importSearch = () => import("@/pages/Search");
-const importListingDetails = () =>
-  import("@/components/listings/edit/ListingDetailsRedux");
-const importCreateListing = () =>
-  import("@/components/listings/create/CreateListing");
-const importEditListing = () =>
-  import("@/components/listings/edit/EditListingRedux");
-const importMessages = () => import("@/pages/Messages");
-const importSettings = () => import("@/pages/Settings");
-const importChangePassword = () =>
-  import("@/components/profile/ChangePassword");
-const importMyListings = () => import("@/components/profile/MyListings");
-const importProfileInfo = () => import("@/components/profile/ProfileInfo");
-const importSavedListings = () => import("@/components/profile/SavedListings");
-const importVehicles = () => import("@/pages/Vehicles");
-const importRealEstate = () => import("@/pages/RealEstate");
-const importListingSuccess = () => import("@/pages/ListingSuccess");
-const importPrivateRoute = () => import("@/components/auth/AuthRoute");
-const importContactSubmissions = () =>
-  import("@/pages/admin/ContactSubmissions");
-const importUsersList = () => import("@/pages/admin/UsersList");
-const importNewsletter = () => import("@/pages/admin/Newsletter");
-const importAdminReports = () => import("@/pages/admin/ReportsPage");
-
-// Lazy load pages
-const Home = lazy(importHome);
-const Login = lazy(importLogin);
-const VerifyCode = lazy(importVerifyCode);
-const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
-const PasswordResetVerification = lazy(
-  () => import("@/pages/PasswordResetVerification"),
-);
-const Register = lazy(importRegister);
-const VerifyEmail = lazy(importVerifyEmail);
-const Profile = lazy(importProfile);
-const UserProfile = lazy(importUserProfile);
-const Search = lazy(importSearch);
-const ListingDetailsRedux = lazy(importListingDetails);
-const CreateListing = lazy(importCreateListing);
-const EditListingRedux = lazy(importEditListing);
-const Messages = lazy(importMessages);
-const Settings = lazy(importSettings);
-const ChangePassword = lazy(importChangePassword);
-const MyListings = lazy(importMyListings);
-const ProfileInfo = lazy(importProfileInfo);
-const SavedListings = lazy(importSavedListings);
-const Vehicles = lazy(importVehicles);
-const RealEstate = lazy(importRealEstate);
-const Newsletter = lazy(importNewsletter);
-const AdminReports = lazy(importAdminReports);
-const ListingSuccess = lazy(importListingSuccess);
-const PrivateRoute = lazy(importPrivateRoute);
-const About = lazy(() => import("@/pages/About"));
-const ContactUs = lazy(() => import("@/pages/ContactUs"));
-const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
-const ContactSubmissions = lazy(importContactSubmissions);
-const UsersList = lazy(importUsersList);
-
-// Create a skeleton component for listings
-const ListingSkeleton = () => (
+// Skeleton component for listings
+const ListingSkeleton = memo(() => (
   <div className="animate-pulse">
     <div className="h-48 bg-gray-200 rounded-md mb-4"></div>
     <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
   </div>
-);
+));
 
-const AdminRoute = ({ children }: { children: JSX.Element }) => {
+const AdminRoute = memo(({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -114,51 +111,32 @@ const AdminRoute = ({ children }: { children: JSX.Element }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
-};
+  return <>{children}</>;
+});
 
 const Routes = (): JSX.Element => {
+  usePrefetching();
   const location = useLocation();
 
-  // Intelligent prefetching based on current route
-  useEffect(() => {
-    // Prefetch related routes when on certain pages
-    if (location.pathname === "/") {
-      // When on homepage, prefetch search and popular listing pages
-      prefetchComponent(importSearch);
-      prefetchComponent(importVehicles);
-      prefetchComponent(importRealEstate);
-    } else if (location.pathname.includes("/listings/")) {
-      // When viewing a listing, prefetch edit listing component
-      prefetchComponent(importEditListing);
-    } else if (location.pathname === "/search") {
-      // When on search page, prefetch listing details
-      prefetchComponent(importListingDetails);
-    } else if (location.pathname === "/profile") {
-      // When on profile, prefetch related components
-      prefetchComponent(importMyListings);
-      prefetchComponent(importChangePassword);
-    }
-  }, [location.pathname]);
-  return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto p-4">
-          {location.pathname.includes("/search") ||
-          location.pathname === "/" ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <ListingSkeleton key={i} />
-              ))}
-            </div>
-          ) : (
-            <div className="min-h-screen flex items-center justify-center">
-              <LoadingSpinner size="lg" />
-            </div>
-          )}
+  const getFallback = () => {
+    if (location.pathname.includes("/search") || location.pathname === "/") {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <ListingSkeleton key={i} />
+          ))}
         </div>
-      }
-    >
+      );
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  };
+
+  return (
+    <Suspense fallback={getFallback()}>
       <Layout>
         <RouterRoutes>
           {/* Public routes */}
@@ -174,79 +152,91 @@ const Routes = (): JSX.Element => {
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/search" element={<Search />} />
 
-          <Route path="/listings/:id" element={<ListingDetailsRedux />} />
-          <Route path="/listings" element={<Navigate to="/" replace />} />
+          {/* Listing routes */}
+          <Route path="/listings">
+            <Route index element={<Navigate to="/" replace />} />
+            <Route path=":id" element={<ListingDetailsRedux />} />
+            <Route 
+              path="create" 
+              element={
+                <PrivateRoute>
+                  <CreateListing />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="edit/:id" 
+              element={
+                <PrivateRoute>
+                  <EditListing />
+                </PrivateRoute>
+              } 
+            />
+          </Route>
+
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/realestate" element={<RealEstate />} />
           <Route path="/listingsuccess" element={<ListingSuccess />} />
+          
+          {/* Profile routes */}
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <ProfileRoutes />
+            </PrivateRoute>
+          }>
+            <Route index element={<ProfileInfo />} />
+            <Route path="saved" element={<SavedListings />} />
+            <Route path="listings" element={<MyListings />} />
+            <Route path="change-password" element={<ChangePassword />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="messages" element={<Messages />} />
+          </Route>
+          
           <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/users/:userId" element={<UserProfile />} />
 
-          {/* New static pages */}
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminRoutes />
+            </AdminRoute>
+          }>
+            <Route path="contact-submissions" element={<ContactSubmissions />} />
+            <Route path="users" element={<UsersList />} />
+            <Route path="newsletter" element={<Newsletter />} />
+            <Route path="reports" element={<AdminReports />} />
+          </Route>
+
+          {/* Static pages */}
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
 
-          {/* Admin Routes */}
-          <Route
-            path="/admin/contact-submissions"
-            element={
-              <AdminRoute>
-                <ContactSubmissions />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <AdminRoute>
-                <UsersList />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/newsletter"
-            element={
-              <AdminRoute>
-                <Newsletter />
-              </AdminRoute>
-            }
-          />
-          <Route
-            path="/admin/reports"
-            element={
-              <AdminRoute>
-                <AdminReports />
-              </AdminRoute>
-            }
-          />
-
-          {/* Protected routes */}
-          <Route
-            element={
-              <PrivateRoute>
-                <Outlet />
-              </PrivateRoute>
-            }
-          >
-            <Route path="/profile" element={<Profile />}>
-              <Route index element={<ProfileInfo />} />
-              <Route path="listings" element={<MyListings />} />
-              <Route path="password" element={<ChangePassword />} />
-            </Route>
-
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/listings/create" element={<CreateListing />} />
-            <Route path="/listings/:id/edit" element={<EditListing />} />
-            <Route path="/saved-listings" element={<SavedListings />} />
-            <Route path="/messages/" element={<Messages />} />
-            <Route path="/messages/:chatId" element={<Messages />} />
-          </Route>
+          {/* 404 route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </RouterRoutes>
       </Layout>
     </Suspense>
   );
 };
 
-export default Routes;
+// Profile routes component
+const ProfileRoutes = memo(() => {
+  return (
+    <Suspense fallback={<LoadingSpinner size="lg" />}>
+      <Outlet />
+    </Suspense>
+  );
+});
+
+// Admin routes component
+const AdminRoutes = memo(() => {
+  return (
+    <Suspense fallback={<LoadingSpinner size="lg" />}>
+      <Outlet />
+    </Suspense>
+  );
+});
+
+export default memo(Routes);
