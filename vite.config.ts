@@ -145,7 +145,7 @@ export default defineConfig(({ mode, command }) => {
       
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
       
