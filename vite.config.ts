@@ -48,6 +48,49 @@ export default defineConfig(({ mode, command }) => {
         algorithm: 'gzip',
         ext: '.gz',
       }),
+      {
+        name: 'image-optimizer',
+        async generateBundle() {
+          if (this.meta.watchMode) return;
+
+          // Optimize SVG files
+          const optimizeSvg = async (file: string) => {
+            const fs = require('fs');
+            const svgo = require('svgo');
+            const path = require('path');
+
+            const svgContent = fs.readFileSync(file, 'utf8');
+            const result = await svgo.optimize(svgContent, {
+              path: file,
+              plugins: [
+                {
+                  name: 'preset-default',
+                  params: {
+                    overrides: {
+                      removeViewBox: false,
+                      removeDimensions: true,
+                    },
+                  },
+                },
+                {
+                  name: 'removeAttrs',
+                  params: {
+                    attrs: ['fill', 'stroke'],
+                  },
+                },
+              ],
+            });
+
+            fs.writeFileSync(file, result.data);
+          };
+
+          // Find and optimize SVG files
+          const svgFiles = this.getModuleInfo('waves-light.svg');
+          if (svgFiles) {
+            await optimizeSvg(svgFiles.file);
+          }
+        },
+      },
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -138,20 +181,22 @@ export default defineConfig(({ mode, command }) => {
       target: "esnext",
       outDir: "dist",
       assetsDir: "assets",
-      // Generate source maps for production but don't include them in the bundle
-      sourcemap: isProduction ? 'hidden' : true,
+      // Generate source maps for production with proper configuration
+      sourcemap: true,
+      sourcemapFileNames: '[file].map',
+      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
+      
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
       brotliSize: false,
-      // Generate separate .map files for better caching
-      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-        // Point to the correct source map location on your CDN or server
-        return `https://samsar.app/assets/${path.basename(relativeSourcePath)}`;
-      },
+      
       rollupOptions: {
         output: {
+          sourcemap: true,
+          sourcemapExcludeSources: false,
+          sourcemapFileNames: '[file].map',
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
             "vendor-large": ["framer-motion"],
@@ -160,10 +205,10 @@ export default defineConfig(({ mode, command }) => {
             forms: ["formik", "yup", "react-hook-form"],
             maps: ["leaflet", "react-leaflet"],
           },
-          // Generate source map files with proper source file paths
-          sourcemapPathTransform: (relativeSourcePath) => {
-            // This ensures source maps point to the correct source files
-            return path.relative(process.cwd(), relativeSourcePath);
+          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+            const relativePath = path.relative(process.cwd(), relativeSourcePath);
+            // Ensure source maps point to the correct CDN location
+            return `https://samsar.app/assets/${relativePath}`;
           },
         },
       },
@@ -175,6 +220,7 @@ export default defineConfig(({ mode, command }) => {
         },
         format: {
           comments: false,
+          sourceMap: true,
         },
       },
     },

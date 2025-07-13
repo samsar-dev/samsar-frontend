@@ -1024,12 +1024,19 @@ const Home: React.FC = () => {
         {/* Decorative Background Pattern */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5 pointer-events-none">
           <img 
-            src="/waves-light.svg" 
+            src="/waves-light.svg?cache=1694575451" 
             alt="" 
             className="w-full h-full object-cover" 
             aria-hidden="true" 
             fetchPriority="high"
             decoding="async"
+            loading="eager"
+            width="1920"
+            height="1080"
+            style={{
+              willChange: 'transform',
+              contain: 'paint layout'
+            }}
           />
         </div>
 
