@@ -1,17 +1,22 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
-import { Provider } from "react-redux";
-import { store } from "./store/store";
-import App from "./App";
-import "react-toastify/dist/ReactToastify.css";
-import { preloadAssets } from "./utils/preload";
-// import "react-loading-skeleton/dist/skeleton.css";
-import "./config/i18n"; // Import i18n configuration
+// Import React and its types first
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import App from './App';
+import 'react-toastify/dist/ReactToastify.css';
+import { preloadAssets } from './utils/preload';
+import './config/i18n'; // Import i18n configuration
 
 // Import critical styles
-import "./assets/css/index.css";
+import './assets/css/index.css';
+
+// Ensure React is available globally for third-party libraries that might need it
+if (!window.React) {
+  window.React = React;
+}
 
 // Performance monitoring
 if (process.env.NODE_ENV === "production") {
@@ -76,68 +81,63 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Ensure React is properly initialized
-const initializeReact = () => {
-  // Wait for DOM to be fully loaded
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeApp);
-  } else {
-    initializeApp();
-  }
-};
+// Create root element
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error('Failed to find the root element');
+}
 
-const initializeApp = () => {
-  const container = document.getElementById("root");
-  if (!container) {
-    throw new Error("Failed to find the root element");
-  }
+// Create root
+const root = createRoot(container);
 
-  // Create root with error boundary
-  const root = createRoot(container);
-
-  // Use concurrent mode features
-  root.render(
-    <HelmetProvider>
-      <BrowserRouter>
-        <Provider store={store}>
-          <ErrorBoundary>
-            <HelmetProvider>
-              <App />
-            </HelmetProvider>
-          </ErrorBoundary>
-        </Provider>
-      </BrowserRouter>
-    </HelmetProvider>,
-  );
-};
-
-// Initialize the app with error handling
-const startApp = () => {
+// Initialize and render the app
+const renderApp = () => {
   try {
+    // Preload critical assets
     preloadAssets();
-    initializeReact();
+    
+    // Render the app
+    root.render(
+      <React.StrictMode>
+        <HelmetProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
+            </BrowserRouter>
+          </Provider>
+        </HelmetProvider>
+      </React.StrictMode>
+    );
   } catch (error) {
-    console.error('Failed to initialize application:', error);
-    // Show error UI or redirect to error page
-    const root = document.getElementById('root');
-    if (root) {
-      root.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center p-4">
-          <div class="text-center">
-            <h2 class="text-xl font-semibold mb-2">Application Error</h2>
-            <p class="text-gray-600 mb-4">Failed to load the application. Please try again later.</p>
-            <button 
-              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onclick="window.location.reload()"
-            >
-              Retry
-            </button>
-          </div>
+    console.error('Failed to render application:', error);
+    
+    // Fallback error UI
+    root.render(
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+        <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Application Error</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            We're sorry, but something went wrong. The application failed to load properly.
+          </p>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            onClick={() => window.location.reload()}
+          >
+            Reload Page
+          </button>
         </div>
-      `;
-    }
+      </div>
+    );
   }
 };
 
-// Start the application
-startApp();
+// Start the app
+if (document.readyState === 'loading') {
+  // Loading hasn't finished yet
+  document.addEventListener('DOMContentLoaded', renderApp);
+} else {
+  // `DOMContentLoaded` has already fired
+  renderApp();
+}
