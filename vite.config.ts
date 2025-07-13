@@ -102,21 +102,17 @@ export default defineConfig(({ mode, command }) => {
     },
 
     resolve: {
-      alias: [
-        // Ensure only one version of React is used
-        { find: 'react', replacement: path.resolve(__dirname, './node_modules/react') },
-        { find: 'react-dom', replacement: path.resolve(__dirname, './node_modules/react-dom') },
-        // Path aliases
-        { find: '@', replacement: path.resolve(__dirname, './src') },
-        { find: '@components', replacement: path.resolve(__dirname, 'src/components') },
-        { find: '@pages', replacement: path.resolve(__dirname, 'src/pages') },
-        { find: '@assets', replacement: path.resolve(__dirname, 'src/assets') },
-        { find: '@hooks', replacement: path.resolve(__dirname, 'src/hooks') },
-        { find: '@services', replacement: path.resolve(__dirname, 'src/services') },
-        { find: '@store', replacement: path.resolve(__dirname, 'src/store') },
-        { find: '@types', replacement: path.resolve(__dirname, 'src/types') },
-        { find: '@utils', replacement: path.resolve(__dirname, 'src/utils') },
-      ],
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "@components": path.resolve(__dirname, "src/components"),
+        "@pages": path.resolve(__dirname, "src/pages"),
+        "@assets": path.resolve(__dirname, "src/assets"),
+        "@hooks": path.resolve(__dirname, "src/hooks"),
+        "@services": path.resolve(__dirname, "src/services"),
+        "@store": path.resolve(__dirname, "src/store"),
+        "@types": path.resolve(__dirname, "src/types"),
+        "@utils": path.resolve(__dirname, "src/utils"),
+      },
     },
 
     server: {
@@ -143,15 +139,13 @@ export default defineConfig(({ mode, command }) => {
       target: 'es2020',
       outDir: "dist",
       assetsDir: "assets",
-      sourcemap: isProduction ? 'hidden' : false,
-      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-        const relativePath = path.relative(process.cwd(), relativeSourcePath);
-        return `https://samsar.app/assets/${relativePath}`;
-      },
+      sourcemap: isProduction,
+      sourcemapFileNames: 'assets/[name]-[hash].map',
+      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 300,
+      chunkSizeWarningLimit: 300, // Reduced to catch large chunks earlier
       reportCompressedSize: false,
       brotliSize: false,
       
@@ -170,6 +164,9 @@ export default defineConfig(({ mode, command }) => {
       // Better code splitting
       rollupOptions: {
         output: {
+          sourcemap: true,
+          sourcemapExcludeSources: false,
+          sourcemapFileNames: 'assets/[name]-[hash].map',
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
               // Split node_modules into smaller chunks
