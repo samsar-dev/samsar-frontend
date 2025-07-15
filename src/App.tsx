@@ -9,7 +9,6 @@ import {
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { setupAuthDebugger } from "@/utils/authDebug";
-import { TokenManager } from "@/utils/tokenManager";
 import { type ReactElement, useEffect, useState, memo } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -78,27 +77,26 @@ const CommunicationProviders = memo(
 );
 
 const App: () => ReactElement = () => {
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initializeApp = () => {
       try {
-        await TokenManager.initialize();
+        setupAuthDebugger();
+        setIsInitialized(true);
       } catch (error) {
-        console.error("Failed to initialize auth:", error);
-      } finally {
-        setIsInitializing(false);
+        console.error("Failed to initialize app:", error);
+        setIsInitialized(true); // Still show app even if initialization fails
       }
     };
 
-    initializeAuth();
-    setupAuthDebugger();
+    initializeApp();
   }, []);
 
-  if (isInitializing) {
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }

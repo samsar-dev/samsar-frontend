@@ -5,7 +5,7 @@ import axios, {
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from "axios";
-import TokenManager from "../utils/tokenManager";
+
 import { API_URL as ACTIVE_API_URL } from "../config";
 
 // Fallback API URL from environment variables
@@ -67,14 +67,14 @@ const defaultHeaders = {
   Accept: "application/json",
 };
 
-// Create axios instance with default config
+// Create axios instance with default config for cookie-based auth
 const apiClient: AxiosInstance = axios.create({
   baseURL: ACTIVE_API_URL,
   timeout: 30000, // 30 seconds
   withCredentials: true,
-  headers: defaultHeaders,
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
+  headers: {
+    ...defaultHeaders,
+  },
 });
 
 // Function to update axios instance with new base URL
@@ -206,26 +206,8 @@ apiClient.interceptors.request.use(
         console.log("Using primary API URL:", ACTIVE_API_URL);
       }
 
-      // Handle public endpoints (no auth required)
-      const isPublicEndpoint =
-        requestConfig.headers?.requiresAuth === false ||
-        requestConfig.requiresAuth === false;
-
-      if (isPublicEndpoint) {
-        requestConfig.headers = requestConfig.headers || {};
-        requestConfig.headers.Authorization = undefined;
-        requestConfig.withCredentials = false;
-      } else {
-        // Add auth header for protected endpoints
-        const token = TokenManager.getAccessToken();
-        if (token) {
-          requestConfig.headers = requestConfig.headers || {};
-          requestConfig.headers.Authorization = `Bearer ${token}`;
-          requestConfig.withCredentials = true;
-        } else if (requestConfig.requiresAuth !== false) {
-          console.warn("No access token available for authenticated request");
-        }
-      }
+      // Configure credentials for protected endpoints
+      requestConfig.withCredentials = requestConfig.requiresAuth !== false;
 
       // Ensure we have proper headers
       requestConfig.headers = {
@@ -254,27 +236,43 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const originalRequest = error.config as RequestConfig;
+    // Handle rate limiting (429 Too Many Requests)
+    if (error.response?.status === 429) {
+      console.log("Rate limit hit - waiting before retry");
+      // Calculate retry delay based on Retry-After header if available
+      let retryAfter = INITIAL_RETRY_DELAY;
+      const retryAfterHeader = error.response?.headers?.["retry-after"];
 
-    // Check if this is a CORS error or network error
-    const isNetworkError = !error.response;
-    const isCorsError =
-      isNetworkError ||
-      error.code === "ERR_NETWORK" ||
-      error.message?.includes("Network Error") ||
-      error.message?.includes("Failed to fetch");
+      if (retryAfterHeader) {
+        // Parse retry-after header (can be seconds or date)
+        if (!isNaN(Number(retryAfterHeader))) {
+          // If it's a number, interpret as seconds
+          retryAfter = parseInt(retryAfterHeader, 10) * 1000;
+        } else {
+          // If it's a date string, calculate milliseconds until that time
+          const retryDate = new Date(retryAfterHeader).getTime();
+          retryAfter = Math.max(0, retryDate - Date.now()); // Ensure non-negative
+        }
+      }
+
+      // Wait for the calculated time before retrying
+      await new Promise((resolve) => setTimeout(resolve, retryAfter));
+
+      // Retry with exponential backoff
+      return apiClient.request(error.config);
+    }
 
     // Handle network/CORS errors by trying the fallback
-    if ((isNetworkError || isCorsError) && !originalRequest._useFallback) {
-      console.warn("Network/CORS error detected, trying fallback endpoint...");
-
+    if (!error.response) {
+      console.warn("Network error detected, trying fallback endpoint...");
+      
       // Create a clean config without axios internals
       const fallbackConfig: RequestConfig = {
-        url: originalRequest.url,
-        method: originalRequest.method,
-        data: originalRequest.data,
-        params: originalRequest.params,
-        headers: { ...originalRequest.headers },
+        url: error.config.url,
+        method: error.config.method,
+        data: error.config.data,
+        params: error.config.params,
+        headers: { ...error.config.headers },
         _useFallback: true,
         _retry: false,
         _retryCount: 0,
@@ -285,44 +283,7 @@ apiClient.interceptors.response.use(
       return apiClient.request(fallbackConfig);
     }
 
-    // Only process 401 errors for authenticated requests that haven't been retried
-    if (
-      error.response?.status === 401 &&
-      originalRequest.requiresAuth !== false &&
-      !originalRequest._retry
-    ) {
-      console.log("Unauthorized request detected, attempting token refresh...");
-      originalRequest._retry = true;
-
-      try {
-        const newToken = TokenManager.getAccessToken();
-        if (!newToken) {
-          console.error("No access token available");
-          TokenManager.clearTokens();
-          window.location.href = "/login?expired=true";
-          return Promise.reject(error);
-        }
-
-        // Update the Authorization header with the new token
-        const retryConfig: RequestConfig = {
-          ...originalRequest,
-          headers: {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${newToken}`,
-          },
-        };
-
-        // Retry the original request with the new token
-        return apiClient.request(retryConfig);
-      } catch (refreshError) {
-        console.error("Token refresh error:", refreshError);
-        TokenManager.clearTokens();
-        window.location.href = "/login?expired=true";
-        return Promise.reject(refreshError);
-      }
-    }
-
-    // For public endpoints or other errors, just reject
+    // For all other errors, just reject
     return Promise.reject(error);
   },
 );

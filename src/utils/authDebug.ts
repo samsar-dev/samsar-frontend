@@ -6,15 +6,33 @@
  */
 
 // Import statements are kept but not used when debugging is disabled
-import TokenManager from "./tokenManager";
-import { getAuthToken, getRefreshToken } from "./cookie";
-import { getItem } from "./storage";
+ 
+import { toast } from "react-toastify";
+import { AuthAPI } from "../api/auth.api";
+import type {
+  AuthContextType,
+  AuthError,
+  AuthState,
+} from "../types/auth.types";
+import { AuthContext } from "../contexts/AuthContext";
 
 /**
  * No-op function - Debug logging is disabled
  */
 export function logAuthState(): void {
-  // Debug logging is disabled
+  if (process.env.NODE_ENV !== "production") {
+    // Get the current auth state from the context
+    const auth = (AuthContext as any)._currentValue;
+    if (auth) {
+      console.group("Auth State -", new Date().toISOString());
+      console.log("User:", auth.user);
+      console.log("Is Authenticated:", auth.isAuthenticated);
+      console.log("Is Loading:", auth.isLoading);
+      console.log("Error:", auth.error);
+      console.log("Is Initialized:", auth.isInitialized);
+      console.groupEnd();
+    }
+  }
 }
 
 /**
@@ -27,7 +45,11 @@ export function setupAuthDebugger(): (() => void) | undefined {
 
     // Setup interval to check auth state every 30 seconds
     const intervalId = setInterval(() => {
-      logAuthState();
+      try {
+        logAuthState();
+      } catch (error) {
+        console.error("Error in auth state logging:", error);
+      }
     }, 30000);
 
     // Return cleanup function
@@ -42,13 +64,8 @@ export function setupAuthDebugger(): (() => void) | undefined {
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
   (window as any).authDebug = {
     logAuthState,
-    refreshTokens: TokenManager.refreshTokens.bind(TokenManager),
-    clearTokens: TokenManager.clearTokens.bind(TokenManager),
-    getAccessToken: TokenManager.getAccessToken.bind(TokenManager),
-    initialize: TokenManager.initialize.bind(TokenManager),
+   
   };
 
-  console.info(
-    "Auth debugging tools available. Type authDebug.logAuthState() in console to debug.",
-  );
+
 }

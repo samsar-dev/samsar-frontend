@@ -5,7 +5,7 @@ import socketIO from "socket.io-client";
 type SocketType = Socket | null;
 import { useAuth } from "@/hooks/useAuth";
 import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
-import { getAuthToken } from "@/utils/cookie";
+
 
 interface SocketContextType {
   socket: Socket | null;
@@ -43,28 +43,18 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
       try {
         console.log("Initializing socket connection to:", SOCKET_URL);
 
-        const token = getAuthToken();
-        console.log("Token from localStorage:", token);
-
-        if (!token) {
-          console.error("No token found in localStorage");
-          return;
-        }
-
         // Create new socket connection
         newSocket = socketIO(SOCKET_URL, {
           auth: {
-            token: "Bearer " + token,
+            token: "Bearer " + "cookie-auth",
           },
           transportOptions: {
             polling: {
-              extraHeaders: {
-                authorization: "Bearer " + localStorage.getItem("token"),
-              },
+              credentials: "include",
             },
           },
           query: {
-            token: "Bearer " + localStorage.getItem("token"),
+            auth: "cookie-auth",
           },
           transports: ["websocket", "polling"],
           reconnection: true,

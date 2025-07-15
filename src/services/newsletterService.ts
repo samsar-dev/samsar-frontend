@@ -4,6 +4,7 @@ import type {
   NewsletterResponse,
 } from "@/types/newsletter";
 
+
 // Using Vite's environment variables
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -19,8 +20,8 @@ export const sendNewsletter = async (
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        withCredentials: true,
       },
     );
     return response.data;
@@ -38,9 +39,7 @@ export const getNewsletterStats = async (): Promise<{
 }> => {
   try {
     const response = await axios.get(`${API_URL}/admin/newsletter/stats`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+      withCredentials: true,
     });
     return response.data.data;
   } catch (error) {

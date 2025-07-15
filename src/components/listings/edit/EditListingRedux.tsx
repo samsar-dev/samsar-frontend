@@ -513,11 +513,10 @@ const EditListingRedux = () => {
         const formData = new FormData();
         formData.append("file", file);
 
+        // Let the backend handle authentication via cookies
         const response = await fetch(`${ACTIVE_API_URL}/uploads/upload`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          credentials: "include",
           body: formData,
         });
 
@@ -725,12 +724,6 @@ const EditListingRedux = () => {
       if (!id) return;
 
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("Please log in to delete images");
-          return;
-        }
-
         // Optimistically update the UI
         setFormDataAction((prev: IFormData) => ({
           ...prev,
@@ -742,14 +735,15 @@ const EditListingRedux = () => {
           }),
         }));
 
+        // Let the backend handle authentication via cookies
         const response = await fetch(
           `${process.env.REACT_APP_API_URL || "/api"}/listings/${id}/images`,
           {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
+            credentials: "include",
             body: JSON.stringify({ imageUrl }),
           }
         );

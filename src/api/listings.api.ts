@@ -43,7 +43,7 @@ interface ListingParams {
 }
 import { AxiosError } from "axios";
 import type { RequestConfig } from "./apiClient";
-import TokenManager from "../utils/tokenManager";
+ 
 
 interface FavoriteItem {
   id: string;
@@ -430,21 +430,12 @@ export const listingsAPI: ListingsAPI = {
     signal?: AbortSignal
   ): Promise<APIResponse<any>> {
     try {
-      // Check if user is authenticated
-      const token = localStorage.getItem("token");
-      if (!token) {
-        // Return empty array if not authenticated instead of making the request
-        return {
-          success: true,
-          data: { items: [] },
-        };
-      }
-
+      // Let the backend handle authentication via cookies
       const response = await apiClient.get(
         `/listings/save${userId ? `?userId=${userId}` : ""}`,
         {
           signal,
-          headers: { Authorization: `Bearer ${token}` },
+          // No need for headers since we're using cookies
         }
       );
 
@@ -837,28 +828,17 @@ export const listingsAPI: ListingsAPI = {
     signal?: AbortSignal
   ): Promise<APIResponse<UserListingsResponse>> {
     try {
-      // Check if user is authenticated
-      const token = TokenManager.getAccessToken();
-      if (!token) {
-        // Return empty array if not authenticated instead of making the request
-        return {
-          success: true,
-          data: null, // Return null for unauthenticated users
-        };
-      }
-
+      // Let the backend handle authentication via cookies
       const queryString = params
         ? new URLSearchParams(params as any).toString()
         : "";
 
-      // Create request config with proper typing
-      const requestConfig: any = signal ? { signal } : {};
-      requestConfig.headers = { Authorization: `Bearer ${token}` };
-      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
-
-      const response = await apiClient.get<APIResponse<UserListingsResponse>>(
+      const response = await apiClient.get(
         `/listings/user${queryString ? `?${queryString}` : ""}`,
-        requestConfig
+        {
+          signal,
+          // No need for headers since we're using cookies
+        }
       );
 
       // Debug the response
@@ -1125,13 +1105,12 @@ export const listingsAPI: ListingsAPI = {
           newImagesCount: newImages?.length || 0,
         });
 
-        const token = TokenManager.getAccessToken();
+        // Let the backend handle authentication via cookies
         const response = await fetch(`${API_URL}/listings/${id}`, {
           method: "PUT",
           body: formData,
           headers: {
             // Don't set Content-Type for FormData - browser will set it with boundary
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           credentials: "include",
         });
@@ -1163,13 +1142,11 @@ export const listingsAPI: ListingsAPI = {
 
   // View count increatement
   async increaseViewCount(id: string): Promise<APIResponse<ViewCountResponse>> {
-    const token = TokenManager.getAccessToken();
     console.log(">>>>>>>>>>>>>>>>>>");
     const response = await fetch(`${API_URL}/listings/views/?id=${id}`, {
       method: "PUT",
       headers: {
         // Don't set Content-Type for FormData - browser will set it with boundary
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       credentials: "include",
     });
@@ -1692,13 +1669,12 @@ export const listingsAPI: ListingsAPI = {
           );
         }
       }
-      const token = TokenManager.getAccessToken();
+      // Let the backend handle authentication via cookies
       const response = await fetch(`${API_URL}/listings/${id}`, {
         method: "PUT",
         credentials: "include",
         headers: {
           // Don't set Content-Type for FormData - browser will set it with boundary
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           // "Content-Type": "multipart/form-data",
         },
         body: formData,
@@ -2097,20 +2073,11 @@ export const listingsAPI: ListingsAPI = {
   // Get user's favorite listings
   async getFavorites(userId?: string): Promise<APIResponse<FavoritesResponse>> {
     try {
-      const token = TokenManager.getAccessToken();
-      if (!token) {
-        // Return empty array if not authenticated instead of making the request
-        return {
-          success: true,
-          data: null, // Return null for unauthenticated users
-        };
-      }
+      // Let the backend handle authentication via cookies
       const queryParams = new URLSearchParams();
       if (userId) queryParams.append("userId", userId);
 
       const requestConfig: any = {};
-      requestConfig.headers = { Authorization: `Bearer ${token}` };
-      requestConfig.requiresAuth = true; // Explicitly mark this as an authenticated request
 
       // const response = await apiClient.get<APIResponse<UserListingsResponse>>(
       //   `/listings/user${queryString ? `?${queryString}` : ""}`,

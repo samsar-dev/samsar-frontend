@@ -1,12 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
+import { apiClient } from "../api/apiClient";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type {
   AuthContextType,
   AuthError,
   AuthState,
+  AuthErrorCode,
 } from "../types/auth.types";
-import TokenManager from "../utils/tokenManager";
+
 
 const initialState: AuthState = {
   user: null,
@@ -22,8 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, setState] = useState<AuthState>(initialState);
+  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  // const [refersh]
 
   const clearError = () => {
     setState((prev) => ({ ...prev, error: null, retryAfter: null }));
@@ -54,104 +57,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      setState((prev) => ({ ...prev, isLoading: true }));
-
-      // Initialize token manager
-      const initialized = await TokenManager.initialize();
-
-      if (!initialized) {
-        // Try to refresh tokens before giving up
-        const refreshed = await TokenManager.refreshTokensWithFallback();
-        if (refreshed) {
-          return checkAuth();
+      // Only check auth if not already initialized and not loading
+      if (!isInitialized && !isLoading) {
+        const response = await AuthAPI.getMe();
+        
+        // For 401, just treat it as not authenticated
+        if (response?.success && response?.data?.user) {
+          const user = response.data.user;
+          setState((prev) => ({
+            ...prev,
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            retryAfter: null,
+          }));
+        } else {
+          // No error handling needed for 401 - just set not authenticated
+          setState((prev) => ({
+            ...prev,
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+            retryAfter: null,
+          }));
         }
-
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          isAuthenticated: false,
-          user: null,
-        }));
-        setIsInitialized(true);
-        return;
       }
-
-      // Try to get user info
-      const response = await AuthAPI.getMe();
-      console.log("Auth Response >>>>>>>>>>>>>>>>>>>>>", response);
-      if (!response?.success || !response?.data) {
-        // Try to refresh tokens before failing
-        const refreshed = await TokenManager.refreshTokensWithFallback();
-        if (refreshed) {
-          return checkAuth();
-        }
-
-        setState((prev) => ({
-          ...prev,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: response?.error || null,
-        }));
-        setIsInitialized(true);
-        return;
-      }
-
-      const user = response.data as AuthState["user"];
-      console.log("Authenticated user:>>>>>>>>>>>>>>>>>>>>", user);
-
-      setState((prev) => ({
-        ...prev,
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        retryAfter: null,
-      }));
-      setIsInitialized(true);
     } catch (error) {
-      // Try to refresh tokens before failing
-      // const refreshed = await TokenManager.refreshTokensWithFallback();
-      // if (refreshed) {
-      //   return checkAuth();
-      // }
-
+      // Log error but don't show toast
+      console.error("Auth check error:", error);
       setState((prev) => ({
         ...prev,
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: {
-          code: "NETWORK_ERROR",
-          message:
-            error instanceof Error ? error.message : "Failed to authenticate",
-        },
+        error: null,
+        retryAfter: null,
       }));
+    } finally {
+      setIsLoading(false);
       setIsInitialized(true);
     }
   };
 
-  // Initialize auth state when component mounts
+  // Initialize auth state once on mount
   useEffect(() => {
-    console.log("AuthContext mounted, initializing auth state...");
-    checkAuth();
-
-    // Add event listener for storage changes to handle login/logout in other tabs
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === "authTokens") {
-        console.log(
-          "Auth tokens changed in another tab, refreshing auth state...",
-        );
-        checkAuth();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+    if (!isInitialized && !isLoading) {
+      checkAuth();
+    }
+  }, [isInitialized, isLoading]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -200,8 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return false;
       }
 
-      // Store tokens
-      TokenManager.setTokens(tokens);
+
 
       setState((prev) => ({
         ...prev,
@@ -213,6 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }));
       return true;
     } catch (error) {
+      // Clear any existing session
+      await AuthAPI.logout();
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -275,8 +231,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return false;
       }
 
-      // Store tokens
-      TokenManager.setTokens(tokens);
+
 
       setState((prev) => ({
         ...prev,
@@ -288,6 +243,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }));
       return true;
     } catch (error) {
+      // Clear any existing session
+      await AuthAPI.logout();
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -307,13 +264,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Logout API failed:", error); // Log or handle if needed
     } finally {
-      TokenManager.clearTokens();
       setState({
         ...initialState,
         isLoading: false, // explicitly reset loading
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/90">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const value: AuthContextType = {
     ...state,
@@ -325,10 +289,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isInitialized,
   };
 
-  // Don't render children until auth is initialized
-  if (!isInitialized) {
-    return null;
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

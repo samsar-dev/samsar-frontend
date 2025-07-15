@@ -3,7 +3,7 @@ import { FaExclamationTriangle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
-import { getAuthToken } from "@/utils/cookie";
+
 import { ACTIVE_API_URL } from "@/config";
 
 const DeleteAccount = () => {
@@ -27,17 +27,11 @@ const DeleteAccount = () => {
         throw new Error("Not authenticated");
       }
 
-      // Get token from cookie first, fallback to localStorage
-      const token = getAuthToken() || localStorage.getItem("accessToken");
-      if (!token) {
-        throw new Error("Access token is missing");
-      }
-
+      // Let the backend handle authentication via cookies
       const response = await fetch(`${ACTIVE_API_URL}/users/account`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ password }),
@@ -50,13 +44,11 @@ const DeleteAccount = () => {
         );
       }
 
-      // Clear all auth tokens and session data
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      document.cookie =
-        "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie =
-        "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // Clear session via backend endpoint
+      await fetch(`${ACTIVE_API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
 
       await logout();
       navigate("/", { replace: true });

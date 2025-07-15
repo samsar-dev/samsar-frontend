@@ -6,10 +6,11 @@ import type {
   AuthUser,
 } from "../types/auth.types";
 
-import TokenManager from "../utils/tokenManager";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import cookie from "../utils/cookie";
 import { ACTIVE_API_URL } from "@/config";
+
+// Configure axios to include credentials
+axios.defaults.withCredentials = true;
 
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
@@ -36,6 +37,8 @@ class AuthAPI {
     skip429Retry = false,
     skip401Retry = false,
   ): Promise<AxiosResponse<T>> {
+    // Create request with credentials
+    const requestWithCredentials = requestFn;
     try {
       // Attempt the request
       return await requestFn();
@@ -51,39 +54,21 @@ class AuthAPI {
       // Handle 401 Unauthorized with token refresh
       if (status === 401 && retries > 0 && !skip401Retry) {
         try {
-          // Clear any existing tokens to prevent infinite loops
-          cookie.remove("jwt");
-          cookie.remove("refresh_token");
-
-          // Try to refresh the token
-          const refreshToken = cookie.get("refresh_token");
-          if (refreshToken) {
-            // Store the refresh token in the expected format
-            const refreshResponse = await AuthAPI.refreshTokens();
-            if (refreshResponse.success && refreshResponse.data?.tokens) {
-              // Set the new tokens
-              TokenManager.setTokens(refreshResponse.data.tokens);
-              // Retry the original request with new token
-              return AuthAPI.retryRequest(
-                requestFn,
-                retries - 1,
-                delay,
-                skip429Retry,
-                true, // Skip 401 retry to prevent infinite loops
-              );
-            }
+          // Try to refresh the token via backend
+          const refreshResponse = await apiClient.post('/auth/refresh');
+          if (refreshResponse.data?.success) {
+            // Retry the original request
+            return AuthAPI.retryRequest(
+              requestWithCredentials,
+              retries - 1,
+              delay,
+              skip429Retry,
+              true, // Skip 401 retry to prevent infinite loops
+            );
           }
-          // If refresh didn't work but didn't throw, clear auth and throw original error
-          TokenManager.clearTokens();
-          localStorage.clear();
-          cookie.remove("token");
           throw axiosError;
         } catch (refreshError) {
-          // If refresh fails, clear auth state
-          TokenManager.clearTokens();
-          localStorage.clear();
-          cookie.remove("token");
-          throw refreshError; // Throw the refresh error for better debugging
+          throw refreshError;
         }
       }
 
@@ -135,21 +120,51 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
+
+      
       const response = await apiClient.post<AuthResponse>("/auth/login", {
         email,
         password,
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+      
+      console.log("Login response:", {
+        status: response.status,
+        data: response.data,
+        headers: response.headers,
+        config: response.config,
       });
 
-      console.log(response);
+      // Server returns success; no need to validate httpOnly cookie on the client.
+      // The presence of the cookie cannot be verified from JavaScript when it is httpOnly, so we trust the server response.
 
-      if (response.data.success && response.data.data?.tokens) {
-        TokenManager.setTokens(response.data.data.tokens);
-      }
 
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error("Login error:", axiosError.response?.data || axiosError);
+      console.error("Login error:", {
+        status: axiosError.response?.status,
+        data: axiosError.response?.data,
+        config: axiosError.config,
+        headers: axiosError.response?.headers,
+        message: axiosError.message,
+        request: {
+          url: axiosError.config?.url,
+          method: axiosError.config?.method,
+          headers: axiosError.config?.headers,
+        },
+        response: {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          headers: axiosError.response?.headers,
+        }
+      });
 
       if (axiosError.response?.data) {
         return axiosError.response.data as AuthResponse;
@@ -193,8 +208,9 @@ class AuthAPI {
         }),
       );
 
-      if (response.data.success && response.data.data?.tokens) {
-        TokenManager.setTokens(response.data.data.tokens);
+      if (response.data.success) {
+        // Cookies are handled automatically by the browser
+        console.log("Authentication successful");
       }
 
       return response.data;
@@ -239,25 +255,19 @@ class AuthAPI {
    * @param token JWT token to verify
    * @returns Promise with success status and optional error
    */
-  static async verifyToken(
-    token: string,
-  ): Promise<{ success: boolean; error?: AuthError }> {
+  static async verifyToken(): Promise<{ success: boolean; error?: AuthError }> {
     try {
-      await apiClient.get("/auth/verify-token", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await apiClient.get("/auth/verify-token");
       return { success: true };
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorMessage =
         (axiosError.response?.data as any)?.message ||
-        "Token verification failed";
+        "Authentication verification failed";
       return {
         success: false,
         error: {
-          code: "TOKEN_EXPIRED" as AuthErrorCode,
+          code: "AUTH_ERROR" as AuthErrorCode,
           message: errorMessage,
         },
       };
@@ -270,27 +280,10 @@ class AuthAPI {
    */
   static async refreshTokens(): Promise<AuthResponse> {
     try {
-      // Get the current refresh token from storage
-      const tokens = TokenManager.getTokens();
-      if (!tokens?.refreshToken || !tokens?.accessToken || !tokens) {
-        TokenManager.clearTokens();
-        localStorage.clear();
-        cookie.remove("token");
-        return {
-          success: false,
-          error: {
-            code: "NO_REFRESH_TOKEN" as AuthErrorCode,
-            message: "No refresh token available",
-          },
-        };
-      }
-
-      // Attempt to refresh with the token
+      // Refresh tokens
       const response = await apiClient.post<AuthResponse>(
         "/auth/refresh",
-        {
-          refreshToken: tokens.refreshToken,
-        },
+        {},
         {
           // Don't retry this request if it fails with 401
           withCredentials: true,
@@ -298,22 +291,19 @@ class AuthAPI {
       );
 
       if (!response.data.success) {
-        TokenManager.clearTokens();
-        localStorage.clear();
-        cookie.remove("token");
         throw Error("Failed to refresh token");
       }
 
-      if (response.data.success && response.data.data?.tokens) {
-        TokenManager.setTokens(response.data.data.tokens);
+      if (response.data.success) {
+        // Cookies are handled automatically by the browser
+        console.log("Authentication successful");
       }
 
       return response.data;
     } catch (error) {
       const axiosError = error as Error;
-      TokenManager.clearTokens();
-      localStorage.clear();
-      cookie.remove("token");
+      // Clear session by making a request to the logout endpoint
+      await apiClient.post('/auth/logout');
       console.error("Token refresh error:", axiosError);
       return {
         success: false,
@@ -340,9 +330,8 @@ class AuthAPI {
       );
 
       // Clear tokens regardless of response
-      TokenManager.clearTokens();
-      localStorage.clear();
-      cookie.remove("token");
+      // Clear session by making a request to the logout endpoint
+      await apiClient.post('/auth/logout');
 
       return (
         response.data || {
@@ -355,9 +344,8 @@ class AuthAPI {
       console.error("Logout error:", axiosError.response?.data || axiosError);
 
       // Clear tokens even if the request fails
-      TokenManager.clearTokens();
-      localStorage.clear();
-      cookie.remove("token");
+      // Clear session by making a request to the logout endpoint
+      await apiClient.post('/auth/logout');
 
       return {
         success: true, // Always return success for logout
@@ -367,71 +355,39 @@ class AuthAPI {
   }
 
   /**
-   * Gets the current user's profile
+   * Gets the current user's profile using cookie-based authentication
    * @returns Authentication response
    */
   static async getMe(): Promise<AuthResponse> {
     try {
-      const response = await AuthAPI.retryRequest(() =>
-        apiClient.get<AuthResponse>("/auth/me", {
-          withCredentials: true,
-        }),
-      );
+      const response = await apiClient.get<AuthResponse>('/auth/me', {
+        withCredentials: true,
+      });
 
       if (!response.data) {
-        throw new Error("No response data received");
+        throw new Error('No response data received');
       }
 
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error(
-        "Get profile error:",
-        axiosError.response?.data || axiosError,
-      );
-
-      // Check if we need to refresh token
+      
       if (axiosError.response?.status === 401) {
-        try {
-          // Try to refresh tokens
-          const refreshResult = await AuthAPI.refreshTokens();
-          if (refreshResult.success) {
-            // Retry the request
-            return await AuthAPI.getMe();
-          }
-
-          // If refresh failed, return the error without clearing tokens immediately
-          return {
-            success: false,
-            error: {
-              code: "REFRESH_FAILED" as AuthErrorCode,
-              message: "Failed to refresh token. Please try again.",
-            },
-          };
-        } catch (refreshError) {
-          console.error("Error refreshing tokens during getMe:", refreshError);
-          return {
-            success: false,
-            error: {
-              code: "REFRESH_FAILED" as AuthErrorCode,
-              message: "Failed to refresh token. Please try again.",
-            },
-          };
-        }
+        // For 401, return success with null data
+        return {
+          success: true,
+          data: null,
+        };
       }
 
-      // Handle non-401 errors
+      // For other errors, return the error details
       return {
         success: false,
         error: {
-          code:
-            ((error as AxiosError).response?.data as any)?.error?.code ||
-            ("UNKNOWN_ERROR" as AuthErrorCode),
-          message:
-            ((error as AxiosError).response?.data as any)?.error?.message ||
-            (error instanceof Error
-              ? error.message
-              : "Failed to get user profile"),
+          code: ((error as AxiosError).response?.data as any)?.error?.code || 
+                 ("NETWORK_ERROR" as AuthErrorCode),
+          message: ((error as AxiosError).response?.data as any)?.error?.message ||
+                   (error instanceof Error ? error.message : "Failed to get user profile"),
         },
       };
     }
@@ -442,6 +398,7 @@ class AuthAPI {
  * Handles user-related API requests
  */
 class UserAPI extends AuthAPI {
+  // ... (rest of the code remains the same)
   /**
    * Requests a verification code for password change
    * @returns Promise with success status
