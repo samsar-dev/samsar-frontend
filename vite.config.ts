@@ -174,6 +174,10 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: true,
       sourcemapFileNames: '[name]-[hash].map',
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+      },
       
       minify: isProduction ? "terser" : false,
       cssCodeSplit: false,
