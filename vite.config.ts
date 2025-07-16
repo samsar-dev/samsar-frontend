@@ -58,7 +58,7 @@ export default defineConfig(({ mode, command }) => {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
-          removeScriptTypeAttributes: false, // Keep type="text/css" for CSS files
+          removeScriptTypeAttributes: false,
           useShortDoctype: true,
           minifyCSS: true,
           minifyJS: true,
@@ -90,7 +90,7 @@ export default defineConfig(({ mode, command }) => {
               tag: 'link',
               attrs: {
                 rel: 'stylesheet',
-                href: '/src/index.css',
+                href: '/assets/main.css',
                 type: 'text/css'
               },
               injectTo: 'head-prepend'
