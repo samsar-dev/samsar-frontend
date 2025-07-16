@@ -80,13 +80,14 @@ const App: () => ReactElement = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeApp = () => {
+    const initializeApp = async () => {
       try {
         setupAuthDebugger();
         setIsInitialized(true);
       } catch (error) {
         console.error("Failed to initialize app:", error);
-        setIsInitialized(true); // Still show app even if initialization fails
+        // Still show app even if initialization fails
+        setIsInitialized(true);
       }
     };
 
@@ -95,8 +96,11 @@ const App: () => ReactElement = () => {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading application...</p>
+        </div>
       </div>
     );
   }

@@ -8,6 +8,7 @@ import type {
   AuthError,
   AuthState,
   AuthErrorCode,
+  AuthUser,
 } from "../types/auth.types";
 
 
@@ -57,32 +58,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      // Only check auth if not already initialized and not loading
-      if (!isInitialized && !isLoading) {
-        const response = await AuthAPI.getMe();
-        
-        // For 401, just treat it as not authenticated
-        if (response?.success && response?.data?.user) {
-          const user = response.data.user;
-          setState((prev) => ({
-            ...prev,
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-            retryAfter: null,
-          }));
-        } else {
-          // No error handling needed for 401 - just set not authenticated
-          setState((prev) => ({
-            ...prev,
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error: null,
-            retryAfter: null,
-          }));
-        }
+      setState(prev => ({ ...prev, isLoading: true }));
+      const response = await AuthAPI.getMe();
+      
+      if (response?.success && response?.data) {
+        // The response.data should be of type AuthUser
+        const userData = response.data as AuthUser;
+        setState({
+          user: userData,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          retryAfter: null,
+        });
+      } else {
+        // Not authenticated or invalid response
+        setState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: response?.error || {
+            code: 'UNAUTHORIZED',
+            message: 'Not authenticated'
+          },
+          retryAfter: null,
+        });
       }
     } catch (error) {
       // Log error but don't show toast
@@ -103,10 +103,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Initialize auth state once on mount
   useEffect(() => {
-    if (!isInitialized && !isLoading) {
-      checkAuth();
-    }
-  }, [isInitialized, isLoading]);
+    checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
