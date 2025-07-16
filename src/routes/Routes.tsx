@@ -188,7 +188,13 @@ const Routes = () => {
       
       // Preload route component when it's about to be rendered
       if (elementWithPreload?.type?.preload && !elementWithPreload.type._preloaded) {
-        elementWithPreload.type.preload().catch(console.error);
+        try {
+          elementWithPreload.type.preload().catch(err => {
+            console.error(`Failed to preload route component:`, err);
+          });
+        } catch (err) {
+          console.error(`Error during route preload:`, err);
+        }
       }
       
       return (

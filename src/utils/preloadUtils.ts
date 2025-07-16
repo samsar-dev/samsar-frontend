@@ -59,20 +59,40 @@ export const preloadCriticalAssets = () => {
 
   // Only preload critical CSS if not already inlined
   if (!document.querySelector('style#critical-css')) {
-    const cssLink = createPreloadLink(
-      '/assets/main-BYW6yWLQ.css',
-      'style',
-      'text/css',
-      false
-    );
-    cssLink.onload = () => {
-      cssLink.rel = 'stylesheet';
-      onResourceLoaded('Critical CSS');
-    };
-    cssLink.onerror = () => onResourceLoaded('Critical CSS (failed)');
-    document.head.appendChild(cssLink);
+    try {
+      const cssLink = createPreloadLink(
+        '/assets/main-BYW6yWLQ.css',
+        'style',
+        'text/css',
+        false
+      );
+      
+      if (!cssLink) {
+        throw new Error('Failed to create CSS preload link');
+      }
+      
+      cssLink.onload = () => {
+        cssLink.rel = 'stylesheet';
+        onResourceLoaded('Critical CSS');
+      };
+      
+      cssLink.onerror = () => {
+        onResourceLoaded('Critical CSS (failed)');
+      };
+      
+      document.head.appendChild(cssLink);
+    } catch (error) {
+      console.error('Error preloading critical CSS:', error);
+      onResourceLoaded('Critical CSS (failed)');
+    }
   } else {
     onResourceLoaded('Critical CSS (inlined)');
+  }
+  
+  // Remove any duplicate preload attempts
+  const existingLink = document.querySelector('link[href="/assets/main-BYW6yWLQ.css"]');
+  if (existingLink) {
+    existingLink.remove();
   }
 
   // Preload critical fonts with font-display: swap
@@ -87,11 +107,16 @@ export const preloadCriticalAssets = () => {
       type: 'font/woff2',
       name: 'Material Icons'
     },
-  ];
+  ].filter(font => font.href && typeof font.href === 'string');
 
   // Check if fonts are already loaded
   const fontFaceSet = document.fonts as any;
   const loadedFonts = new Set<string>();
+  
+  if (!fontFaceSet) {
+    console.warn('FontFaceSet API not available');
+    return;
+  }
   
   const checkFontsLoaded = () => {
     criticalFonts.forEach(({ name }) => {
@@ -118,6 +143,8 @@ export const preloadCriticalAssets = () => {
 
   // Preload fonts that aren't already loaded
   criticalFonts.forEach(({ href, type, name }) => {
+    if (!href || typeof href !== 'string') return;
+    
     if (!preloadedResources.has(href)) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';

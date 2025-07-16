@@ -31,8 +31,13 @@ export const preloadAssets = (): void => {
 
     // Preload critical images
     const preloadImage = (src: string): void => {
+      if (!src || typeof src !== 'string') return;
+      
       const img = new Image();
       img.src = src;
+      img.onerror = () => {
+        console.warn(`Failed to preload image: ${src}`);
+      };
     };
 
     // Add any critical images that should be preloaded
@@ -47,5 +52,11 @@ export const preloadAssets = (): void => {
     criticalImages.forEach(preloadImage);
   } catch (error) {
     console.error('Error preloading assets:', error);
+    // Fallback - preload at least the most critical routes
+    try {
+      preloadRoute(() => import('@/pages/Search'));
+    } catch (fallbackError) {
+      console.error('Fallback preload failed:', fallbackError);
+    }
   }
 };
