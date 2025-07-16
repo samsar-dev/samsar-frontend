@@ -85,15 +85,6 @@ export default defineConfig(({ mode, command }) => {
                 content: '#1a56db'
               },
               injectTo: 'head-prepend'
-            },
-            {
-              tag: 'link',
-              attrs: {
-                rel: 'stylesheet',
-                href: '/assets/main.css',
-                type: 'text/css'
-              },
-              injectTo: 'head-prepend'
             }
           ]
         }
