@@ -8,19 +8,15 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Export the configuration
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const isProduction = mode === 'production';
 
-  // Include only env variables with VITE_ prefix
   const envVars = Object.fromEntries(
     Object.entries(env)
       .filter(([key]) => key.startsWith('VITE_'))
       .map(([key, val]) => [[`import.meta.env.${key}`], JSON.stringify(val)])
   );
-
-  // PostCSS is configured in postcss.config.js
 
   return {
     base: '/',
@@ -31,35 +27,27 @@ export default defineConfig(({ mode }) => {
         'react-router-dom',
         '@emotion/react',
         '@emotion/styled',
-        '@emotion/babel-plugin',
         '@mui/material/Unstable_Grid2',
         '@headlessui/react',
         'axios'
       ],
       esbuildOptions: {
-        // Node.js global to browser globalThis
         define: {
           global: 'globalThis',
         },
         target: 'es2020',
-        // Enable esbuild's tree shaking
         treeShaking: true,
-        // Enable esbuild's minification
         minify: true,
-        // Keep names to avoid breaking some libraries
         keepNames: true
       },
     },
     define: envVars,
     plugins: [
-      react({
-        jsxImportSource: '@emotion/react',
-        tsDecorators: true,
-        // Emotion configuration is handled through tsconfig.json and package.json
-      }),
+      // Use default SWC configuration from .swcrc
+      // No additional configuration needed here as .swcrc is automatically picked up
+      react(),
       viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
       viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
-
       createHtmlPlugin({
         minify: isProduction,
         inject: {
@@ -82,15 +70,14 @@ export default defineConfig(({ mode }) => {
           ]
         }
       }),
-
-      isProduction && visualizer({
-        open: true,
-        filename: 'bundle-analyzer.html',
-        gzipSize: true,
-        brotliSize: true
-      })
+      isProduction &&
+        visualizer({
+          open: true,
+          filename: 'bundle-analyzer.html',
+          gzipSize: true,
+          brotliSize: true
+        })
     ].filter(Boolean),
-
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -104,7 +91,6 @@ export default defineConfig(({ mode }) => {
         '@utils': path.resolve(__dirname, 'src/utils')
       }
     },
-
     server: {
       port: 3000,
       open: false,
@@ -123,14 +109,12 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-
     css: {
       modules: {
         localsConvention: 'camelCaseOnly',
         generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
       }
     },
-
     build: {
       target: 'es2020',
       outDir: 'dist',

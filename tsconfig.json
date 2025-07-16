@@ -13,6 +13,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
+    "allowJs": true,
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,

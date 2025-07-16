@@ -1,0 +1,28 @@
+{
+    "jsc": {
+      "parser": {
+        "syntax": "typescript",
+        "tsx": true,
+        "decorators": true
+      },
+      "transform": {
+        "react": {
+          "runtime": "automatic",
+          "importSource": "@emotion/react"
+        }
+      },
+      "experimental": {
+        "plugins": [
+          ["@swc/plugin-emotion", {
+            "sourceMap": true,
+            "autoLabel": "dev-only",
+            "labelFormat": "[local]"
+          }]
+        ]
+      }
+    },
+    "module": {
+      "type": "es6"
+    }
+  }
+  
