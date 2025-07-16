@@ -26,12 +26,13 @@ export default defineConfig(({ mode }) => {
     base: '/',
     optimizeDeps: {
       include: [
-        '@emotion/react',
-        '@emotion/styled',
-        '@mui/material/Unstable_Grid2',
         'react',
         'react-dom',
         'react-router-dom',
+        '@emotion/react',
+        '@emotion/styled',
+        '@emotion/babel-plugin',
+        '@mui/material/Unstable_Grid2',
         '@headlessui/react',
         'axios'
       ],
@@ -54,8 +55,7 @@ export default defineConfig(({ mode }) => {
       react({
         jsxImportSource: '@emotion/react',
         tsDecorators: true,
-        // SWC will automatically pick up the jsxImportSource from tsconfig.json
-        // No need for Babel plugins or compilerOptions with SWC
+        // Emotion configuration is handled through tsconfig.json and package.json
       }),
       viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
       viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
