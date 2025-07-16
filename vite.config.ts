@@ -97,8 +97,14 @@ export default defineConfig(({ mode, command }) => {
     ].filter(Boolean),
 
     // Configure static asset handling
-    publicDir: "public",
-    assetsInclude: ["**/*.woff2", "**/*.svg"],
+    // Configure assets
+    assetsInclude: ["**/*.woff2", "**/*.svg", "**/*.css"],
+    assetsDir: "static/assets",
+    
+    // Configure public directory
+    publicDir: false, // Disable public directory since we're using assetsDir
+    
+ 
 
     preview: {
       port: 5000,
@@ -142,63 +148,18 @@ export default defineConfig(({ mode, command }) => {
     build: {
       target: 'es2020',
       outDir: "dist",
-      assetsDir: "assets",
+      assetsDir: "static/assets",
       assetsInlineLimit: 4096, // 4kb
-      emptyOutDir: true,
-      sourcemap: true,
-      sourcemapFileNames: '[name]-[hash].map',
-      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
-      minify: isProduction ? "terser" : false,
-      cssCodeSplit: true,
-      chunkSizeWarningLimit: 500,
-      reportCompressedSize: true,
-      brotliSize: true,
-      
-      // Additional optimizations
-      commonjsOptions: {
-        include: [/node_modules/],
-        transformMixedEsModules: true,
-        ignoreGlobal: true,
-      },
-      
-      // Dynamic imports optimization
-      dynamicImportVarsOptions: {
-        warnOnError: true,
-        exclude: [/node_modules/],
-      },
-      
-      // Optimize imports
-      optimizeDeps: {
-        include: [
-          'react',
-          'react-dom',
-          'react-router-dom',
-          '@emotion/react'
-        ],
-        esbuildOptions: {
-          target: 'es2020',
-          define: {
-            'process.env.NODE_ENV': JSON.stringify(mode),
-          },
-          plugins: [
-            {
-              name: 'optimize-imports',
-              setup(build) {
-                build.onResolve({ filter: /node_modules/ }, (args) => {
-                  const id = args.path;
-                  if (id.startsWith('react')) {
-                    return { path: id, external: true };
-                  }
-                });
-              },
-            },
-          ],
-        },
-      },
-      
+      // Configure asset handling
       rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+        },
         output: {
+          entryFileNames: `static/js/[name]-[hash].js`,
+          chunkFileNames: `static/js/[name]-[hash].js`,
+          assetFileNames: `static/assets/[name]-[hash].[ext]`,
           sourcemap: true,
           sourcemapExcludeSources: false,
           sourcemapFileNames: '[name]-[hash].map',
@@ -254,6 +215,60 @@ export default defineConfig(({ mode, command }) => {
           },
         ],
       },
+      
+      emptyOutDir: true,
+      sourcemap: true,
+      sourcemapFileNames: '[name]-[hash].map',
+      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
+      
+      minify: isProduction ? "terser" : false,
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 500,
+      reportCompressedSize: true,
+      brotliSize: true,
+      
+      // Additional optimizations
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+        ignoreGlobal: true,
+      },
+      
+      // Dynamic imports optimization
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+        exclude: [/node_modules/],
+      },
+      
+      // Optimize imports
+      optimizeDeps: {
+        include: [
+          'react',
+          'react-dom',
+          'react-router-dom',
+          '@emotion/react'
+        ],
+        esbuildOptions: {
+          target: 'es2020',
+          define: {
+            'process.env.NODE_ENV': JSON.stringify(mode),
+          },
+          plugins: [
+            {
+              name: 'optimize-imports',
+              setup(build) {
+                build.onResolve({ filter: /node_modules/ }, (args) => {
+                  const id = args.path;
+                  if (id.startsWith('react')) {
+                    return { path: id, external: true };
+                  }
+                });
+              },
+            },
+          ],
+        },
+      },
+      
       terserOptions: {
         compress: {
           drop_console: mode === "production",
