@@ -192,83 +192,74 @@ export default defineConfig(({ mode, command }) => {
           sourcemap: true,
           sourcemapExcludeSources: false,
           sourcemapFileNames: '[name]-[hash].map',
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('framer-motion')) return 'framer-motion';
-              if (id.includes('@headlessui')) return 'headless-ui';
-              if (id.includes('@heroicons')) return 'heroicons';
-              if (id.includes('react-router-dom')) return 'react-router';
-              if (id.includes('react')) return 'react';
-              if (id.includes('date-fns')) return 'date-fns';
-              if (id.includes('axios')) return 'axios';
-              if (id.includes('i18next')) return 'i18next';
-              if (id.includes('leaflet')) return 'leaflet';
-              if (id.includes('react-leaflet')) return 'leaflet';
-              if (id.includes('react-hook-form')) return 'forms';
-              
-              // Group core React and emotion dependencies together
-              if (id.includes('react') || id.includes('emotion')) return 'react-core';
-              
-              // Handle other common packages
-              if (id.includes('react-query')) return 'react-query';
-              if (id.includes('zustand')) return 'zustand';
-              if (id.includes('tailwindcss')) return 'tailwind';
-              if (id.includes('clsx')) return 'clsx';
-              if (id.includes('react-hot-toast')) return 'toast';
-              if (id.includes('socket.io-client')) return 'socket';
-              
-              // Handle smaller packages together
-              if (id.includes('yup') || id.includes('formik')) return 'forms';
-              if (id.includes('date-fns-tz')) return 'date-fns';
-              if (id.includes('chart.js')) return 'charts';
-              if (id.includes('react-chartjs-2')) return 'charts';
-              
-              // Handle utility libraries
-              if (id.includes('lodash')) return 'lodash';
-              if (id.includes('clsx')) return 'clsx';
-              if (id.includes('nanoid')) return 'nanoid';
-              
-              // Handle image and media packages
-              if (id.includes('sharp')) return 'sharp';
-              if (id.includes('image-js')) return 'image';
-              
-              // Handle other UI components
-              if (id.includes('@radix-ui')) return 'radix';
-              if (id.includes('react-select')) return 'select';
-              if (id.includes('react-table')) return 'table';
-              
-              // Handle other common utilities
-              if (id.includes('axios')) return 'axios';
-              if (id.includes('qs')) return 'axios';
-              if (id.includes('jwt-decode')) return 'auth';
-              
-              // Handle analytics and tracking
-              if (id.includes('@vercel/analytics')) return 'analytics';
-              if (id.includes('react-ga4')) return 'analytics';
-              
-              // Handle other common utilities
-              if (id.includes('uuid')) return 'uuid';
-              if (id.includes('date-fns')) return 'date';
-              if (id.includes('yup')) return 'validation';
-              if (id.includes('formik')) return 'validation';
-              
-              // Handle other UI components
-              if (id.includes('react-modal')) return 'modal';
-              if (id.includes('react-datepicker')) return 'datepicker';
-              
-              // Handle other common utilities
-              if (id.includes('classnames')) return 'classnames';
-              if (id.includes('prop-types')) return 'react';
-              
-              // Default vendor chunk for other node_modules
-              return 'vendor';
-            }
+          rollupOptions: {
+            output: {
+              sourcemap: true,
+              sourcemapExcludeSources: false,
+              sourcemapFileNames: '[name]-[hash].map',
+              manualChunks(id) {
+                if (!id.includes('node_modules')) return;
+          
+                // React ecosystem
+                if (id.includes('react-router-dom')) return 'vendor-react-router';
+                if (id.includes('react')) return 'vendor-react'; // Includes react, react-dom, etc.
+                if (id.includes('@emotion')) return 'vendor-emotion';
+          
+                // UI libraries
+                if (id.includes('@headlessui')) return 'vendor-headlessui';
+                if (id.includes('@heroicons')) return 'vendor-heroicons';
+                if (id.includes('@radix-ui')) return 'vendor-radix';
+                if (id.includes('react-modal')) return 'vendor-modal';
+                if (id.includes('react-datepicker')) return 'vendor-datepicker';
+                if (id.includes('react-select')) return 'vendor-select';
+                if (id.includes('react-table')) return 'vendor-table';
+          
+                // Forms
+                if (id.includes('react-hook-form')) return 'vendor-forms';
+                if (id.includes('yup')) return 'vendor-forms';
+                if (id.includes('formik')) return 'vendor-forms';
+          
+                // Styling & helpers
+                if (id.includes('tailwindcss')) return 'vendor-tailwind';
+                if (id.includes('clsx')) return 'vendor-clsx';
+                if (id.includes('classnames')) return 'vendor-clsx';
+                if (id.includes('prop-types')) return 'vendor-proptypes';
+          
+                // Maps
+                if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-maps';
+          
+                // Animations
+                if (id.includes('framer-motion')) return 'vendor-framer';
+          
+                // Date
+                if (id.includes('date-fns')) return 'vendor-date';
+          
+                // State management & utils
+                if (id.includes('zustand')) return 'vendor-zustand';
+                if (id.includes('nanoid')) return 'vendor-utils';
+                if (id.includes('lodash')) return 'vendor-utils';
+                if (id.includes('uuid')) return 'vendor-utils';
+          
+                // Charts
+                if (id.includes('chart.js') || id.includes('react-chartjs-2')) return 'vendor-charts';
+          
+                // Network
+                if (id.includes('axios') || id.includes('qs')) return 'vendor-network';
+                if (id.includes('jwt-decode')) return 'vendor-auth';
+          
+                // Realtime & analytics
+                if (id.includes('socket.io-client')) return 'vendor-realtime';
+                if (id.includes('@vercel/analytics') || id.includes('react-ga4')) return 'vendor-analytics';
+          
+                // Fallback: everything else from node_modules
+                return 'vendor';
+              },
+              sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+                const relativePath = path.relative(process.cwd(), relativeSourcePath);
+                return `/${relativePath}`;
+              },
+            },
           },
-          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-            const relativePath = path.relative(process.cwd(), relativeSourcePath);
-            // Use relative path for source maps
-            return `/${relativePath}`;
-          }
         },
       },
       terserOptions: {
