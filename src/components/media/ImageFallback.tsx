@@ -90,6 +90,9 @@ const ImageComponent: React.FC<ImageProps> = ({
     params.append("quality", imageQuality.toString());
     if (width) params.append("width", width.toString());
 
+    // Set long cache TTL (30 days) for optimized images to leverage browser cache
+    params.append("cache", (60 * 60 * 24 * 30).toString()); // 30 days in seconds
+
     // Add cache-busting parameter for non-production environments
     if (process.env.NODE_ENV !== "production") {
       params.append("_t", Date.now().toString());
@@ -99,10 +102,11 @@ const ImageComponent: React.FC<ImageProps> = ({
   };
 
   // Define responsive image sizes based on viewport
+  // Use narrower responsive widths to reduce transfer size
   const responsiveSizes = [
-    { media: "(max-width: 640px)", width: 400 },
-    { media: "(max-width: 1024px)", width: 800 },
-    { media: "(min-width: 1025px)", width: 1200 },
+    { media: "(max-width: 640px)", width: 300 },
+    { media: "(max-width: 1024px)", width: 600 },
+    { media: "(min-width: 1025px)", width: 900 },
   ];
 
   // Preload critical images
@@ -111,7 +115,7 @@ const ImageComponent: React.FC<ImageProps> = ({
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
       preloadLink.as = "image";
-      preloadLink.href = getOptimizedImageUrl(800); // Preload medium size
+      preloadLink.href = getOptimizedImageUrl(600); // Preload medium size (reduced)
       document.head.appendChild(preloadLink);
 
       return () => {
