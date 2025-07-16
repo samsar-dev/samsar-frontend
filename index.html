@@ -288,8 +288,10 @@
     </noscript>
     <div id="root"></div>
 
-    <!-- Main App Script with error handling -->
-    <script type="module">
+    <!-- Main App Script -->
+    <script type="module" src="/src/main.tsx"></script>
+
+    <script>
       // Add global error handler
       window.addEventListener('error', function(event) {
         console.error('Global error:', event.error);
