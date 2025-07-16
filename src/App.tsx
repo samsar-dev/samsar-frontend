@@ -1,5 +1,4 @@
 import ErrorBoundary from "@/components/common/ErrorBoundary";
- 
 import {
   AuthProvider,
   FavoritesProvider,
@@ -9,7 +8,7 @@ import {
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { setupAuthDebugger } from "@/utils/authDebug";
-import { type ReactElement, useEffect, useState, memo } from "react";
+import { type ReactElement, useEffect, useState, memo, Suspense } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MessagesProvider } from "./contexts/MessagesContext";
@@ -19,42 +18,67 @@ import { SocketProvider } from "./contexts/SocketContext";
 import { API_URL_PRIMARY, API_URL_FALLBACK } from "@/config";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
+import { Helmet } from 'react-helmet-async';
 
-// Add resource hints for external resources
+
+// Optimize font loading and preload critical resources
 if (typeof document !== 'undefined') {
-  // Preconnect to critical domains
-  const criticalDomains = [
-    new URL(API_URL_PRIMARY).origin,
-    new URL(API_URL_FALLBACK).origin,
-    'https://samsar-backend-production.up.railway.app',
-    'https://maps.googleapis.com',
-    'https://fonts.googleapis.com',
-    'https://fonts.gstatic.com',
+  // Preconnect to critical domains with resource hints
+  const resourceHints = [
+    { rel: 'preconnect', href: new URL(API_URL_PRIMARY).origin, crossOrigin: 'anonymous' },
+    { rel: 'preconnect', href: new URL(API_URL_FALLBACK).origin, crossOrigin: 'anonymous' },
+    { rel: 'preconnect', href: 'https://samsar-backend-production.up.railway.app', crossOrigin: 'anonymous' },
+    { rel: 'preconnect', href: 'https://maps.googleapis.com', crossOrigin: 'anonymous' },
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com', crossOrigin: 'anonymous' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+    { rel: 'dns-prefetch', href: 'https://maps.googleapis.com' },
+    { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' },
+    { rel: 'preload', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style' },
+    { rel: 'preload', href: 'https://fonts.googleapis.com/icon?family=Material+Icons', as: 'style' },
   ];
 
-  // Use Set to avoid duplicates
-  new Set(criticalDomains).forEach(domain => {
-    // Preconnect with both preconnect and dns-prefetch for better browser support
-    const preconnect = document.createElement('link');
-    preconnect.rel = 'preconnect';
-    preconnect.href = domain;
-    preconnect.crossOrigin = 'anonymous';
-    document.head.appendChild(preconnect);
-
-    // Add dns-prefetch as fallback
-    if (domain.startsWith('http')) {
-      const dnsPrefetch = document.createElement('link');
-      dnsPrefetch.rel = 'dns-prefetch';
-      dnsPrefetch.href = domain;
-      document.head.appendChild(dnsPrefetch);
-    }
+  // Add all resource hints in a single batch
+  resourceHints.forEach(({ rel, href, crossOrigin, as }) => {
+    const link = document.createElement('link');
+    link.rel = rel;
+    if (href) link.href = href;
+    if (crossOrigin) link.crossOrigin = crossOrigin;
+    if (as) link.as = as;
+    document.head.appendChild(link);
   });
+
+  // Load non-critical CSS asynchronously
+  const loadNonCriticalCSS = () => {
+    const links = [
+      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+      'https://fonts.googleapis.com/icon?family=Material+Icons',
+    ];
+    
+    links.forEach(href => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.media = 'print';
+      link.onload = () => { link.media = 'all'; };
+      document.head.appendChild(link);
+    });
+  };
+
+  // Load non-critical resources after the initial render
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadNonCriticalCSS);
+  } else {
+    loadNonCriticalCSS();
+  }
 
   // Preload critical assets
-  import('@/utils/preloadUtils').then(({ preloadCriticalAssets }) => {
-    preloadCriticalAssets();
-  });
+  import('@/utils/preloadUtils')
+    .then(({ preloadCriticalAssets }) => preloadCriticalAssets())
+    .catch(console.error);
 }
+
+// Simple loading component
+
 
 // Optimize context providers by combining related ones
 const CombinedDataProvider = memo(
@@ -92,12 +116,19 @@ const CommunicationProviders = memo(
 );
 
 const App: () => ReactElement = () => {
-  // Initialize immediately without any loading state
+  // Initialize app
   useEffect(() => {
-    setupAuthDebugger();
+    const init = async () => {
+      try {
+        await setupAuthDebugger();
+      } catch (error) {
+        console.error('Failed to initialize auth debugger:', error);
+      }
+    };
+    
+    init();
   }, []);
 
-  // Always render the app, let individual components handle their loading states
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
@@ -110,6 +141,7 @@ const App: () => ReactElement = () => {
         <UIProviders>
           <CombinedDataProvider>
             <CommunicationProviders>
+              <Suspense fallback={null}>
               <ErrorBoundary
                 fallback={
                   <div className="min-h-screen bg-white p-4">
@@ -119,6 +151,12 @@ const App: () => ReactElement = () => {
                         <p className="mt-2 text-sm text-red-700">
                           We're having trouble loading the application. Please try refreshing the page.
                         </p>
+                        <button
+                          onClick={() => window.location.reload()}
+                          className="mt-4 rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200"
+                        >
+                          Refresh Page
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -126,6 +164,7 @@ const App: () => ReactElement = () => {
               >
                 <Routes />
               </ErrorBoundary>
+            </Suspense>
               <ToastContainer
                 position="top-right"
                 autoClose={5000}
@@ -137,9 +176,22 @@ const App: () => ReactElement = () => {
                 draggable
                 pauseOnHover
                 theme="light"
+                style={{ zIndex: 100000 }}
               />
-              <SpeedInsights />
-              <Analytics mode={process.env.NODE_ENV === 'production' ? 'production' : 'development'} />
+              <Helmet>
+                <meta name="theme-color" content="#ffffff" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+                <link rel="manifest" href="/manifest.json" />
+                <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+              </Helmet>
+              {process.env.NODE_ENV === 'production' && (
+                <>
+                  <SpeedInsights />
+                  <Analytics />
+                </>
+              )}
             </CommunicationProviders>
           </CombinedDataProvider>
         </UIProviders>
