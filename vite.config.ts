@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv, type ConfigEnv, type UserConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,8 +10,8 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Use a synchronous config wrapper for async operations
-const config = async ({ mode, command }: ConfigEnv): Promise<UserConfig> => {
+// Export the configuration directly
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const isProduction = mode === 'production';
 
@@ -22,14 +22,22 @@ const config = async ({ mode, command }: ConfigEnv): Promise<UserConfig> => {
       .map(([key, val]) => [[`import.meta.env.${key}`], JSON.stringify(val)])
   );
 
-  // Load the PurgeCSS plugin only in production
-  const purgeCSS = mode === 'production' 
-    ? (await import('@fullhuman/postcss-purgecss')).default({
+  // PostCSS plugins
+  const postcssPlugins = [
+    tailwindcss,
+    autoprefixer,
+  ];
+
+  // Only add PurgeCSS in production
+  if (mode === 'production') {
+    postcssPlugins.push(
+      require('@fullhuman/postcss-purgecss')({
         content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
         defaultExtractor: (content: string) => content.match(/[\w-/:]+(?<!:)/g) || [],
         safelist: [/bg-/, /text-/, /border-/, /rounded-/, /shadow-/]
       })
-    : null;
+    );
+  }
 
   return {
     base: '/',
@@ -113,11 +121,7 @@ const config = async ({ mode, command }: ConfigEnv): Promise<UserConfig> => {
         generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
       },
       postcss: {
-        plugins: [
-          tailwindcss,
-          autoprefixer,
-          ...(purgeCSS ? [purgeCSS] : [])
-        ].filter(Boolean)
+        plugins: postcssPlugins
       }
     },
 
@@ -163,7 +167,4 @@ const config = async ({ mode, command }: ConfigEnv): Promise<UserConfig> => {
       }
     }
   };
-};
-
-// Export the configuration using defineConfig with the async function
-export default defineConfig(config);
+});
