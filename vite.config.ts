@@ -183,15 +183,16 @@ export default defineConfig(({ mode, command }) => {
       
       css: {
         modules: {
-          localsConvention: 'camelCaseOnly',
-          generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
+          localsConvention: "camelCaseOnly",
+          generateScopedName:
+            mode === "production"
+              ? "[hash:base64:5]"
+              : "[name]__[local]__[hash:base64:5]",
         },
-        postcss: {
-          plugins: [
-            require('tailwindcss'),
-            require('autoprefixer'),
-            require('postcss-import')
-          ]
+        preprocessorOptions: {
+          scss: {
+            additionalData: `@import "@/assets/styles/variables.scss";`
+          }
         }
       },
       
