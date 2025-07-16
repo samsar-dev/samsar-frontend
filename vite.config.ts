@@ -97,14 +97,8 @@ export default defineConfig(({ mode, command }) => {
     ].filter(Boolean),
 
     // Configure static asset handling
-    // Configure assets
-    assetsInclude: ["**/*.woff2", "**/*.svg", "**/*.css"],
-    assetsDir: "static/assets",
-    
-    // Configure public directory
-    publicDir: false, // Disable public directory since we're using assetsDir
-    
- 
+    publicDir: "public",
+    assetsInclude: ["**/*.woff2", "**/*.svg"],
 
     preview: {
       port: 5000,
@@ -148,74 +142,8 @@ export default defineConfig(({ mode, command }) => {
     build: {
       target: 'es2020',
       outDir: "dist",
-      assetsDir: "static/assets",
+      assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
-      
-      // Configure asset handling
-      rollupOptions: {
-        input: {
-          main: path.resolve(__dirname, 'index.html'),
-        },
-        output: {
-          entryFileNames: `static/js/[name]-[hash].js`,
-          chunkFileNames: `static/js/[name]-[hash].js`,
-          assetFileNames: `static/assets/[name]-[hash].[ext]`,
-          sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: '[name]-[hash].map',
-          manualChunks: {
-            // Core React and routing
-            react: ["react", "react-dom", "react-router-dom"],
-            
-            // Large vendor libraries
-            "vendor-large": ["framer-motion", "@vercel/speed-insights/react"],
-            
-            // Common utilities
-            vendor: ["axios", "date-fns", "react-i18next"],
-            
-            // UI components
-            ui: ["@headlessui/react", "@heroicons/react", "@emotion/react"],
-            
-            // Forms and validation
-            forms: ["react-hook-form"],
-            
-            // Maps and location
-            maps: ["leaflet", "react-leaflet"],
-            
-            // Additional optimizations
-            lodash: ["lodash"],
-            moment: ["moment"],
-            
-            // Split out analytics
-            analytics: ["@vercel/analytics/react"],
-          },
-          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-            const relativePath = path.relative(process.cwd(), relativeSourcePath);
-            return `/${relativePath}`;
-          },
-        },
-        treeshake: {
-          moduleSideEffects: true,
-          propertyReadSideEffects: true,
-          tryCatch: true,
-        },
-        plugins: [
-          // Remove unused exports
-          {
-            name: 'remove-unused-exports',
-            generateBundle(_, bundle) {
-              Object.entries(bundle).forEach(([fileName, chunk]) => {
-                if (chunk.type === 'asset') return;
-                
-                // Remove unused exports
-                chunk.code = chunk.code.replace(/export\s+default\s+\{[^}]*\};?/g, '');
-                chunk.code = chunk.code.replace(/export\s+\{[^}]*\};?/g, '');
-              });
-            },
-          },
-        ],
-      },
-      
       emptyOutDir: true,
       sourcemap: true,
       sourcemapFileNames: '[name]-[hash].map',
@@ -224,84 +152,101 @@ export default defineConfig(({ mode, command }) => {
       minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
-      reportCompressedSize: true,
-      brotliSize: true,
+      reportCompressedSize: false,
+      brotliSize: false,
       
-      // Additional optimizations
-      commonjsOptions: {
-        include: [/node_modules/],
-        transformMixedEsModules: true,
-        ignoreGlobal: true,
-      },
-      
-      // Dynamic imports optimization
-      dynamicImportVarsOptions: {
-        warnOnError: true,
-        exclude: [/node_modules/],
-      },
-      
-      // Optimize imports
-      optimizeDeps: {
-        include: [
-          'react',
-          'react-dom',
-          'react-router-dom',
-          '@emotion/react'
-        ],
-        esbuildOptions: {
-          target: 'es2020',
-          define: {
-            'process.env.NODE_ENV': JSON.stringify(mode),
+      rollupOptions: {
+        output: {
+          sourcemap: true,
+          sourcemapExcludeSources: false,
+          sourcemapFileNames: '[name]-[hash].map',
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('framer-motion')) return 'framer-motion';
+              if (id.includes('@headlessui')) return 'headless-ui';
+              if (id.includes('@heroicons')) return 'heroicons';
+              if (id.includes('react-router-dom')) return 'react-router';
+              if (id.includes('react')) return 'react';
+              if (id.includes('date-fns')) return 'date-fns';
+              if (id.includes('axios')) return 'axios';
+              if (id.includes('i18next')) return 'i18next';
+              if (id.includes('leaflet')) return 'leaflet';
+              if (id.includes('react-leaflet')) return 'leaflet';
+              if (id.includes('react-hook-form')) return 'forms';
+              
+              // Handle other common packages
+              if (id.includes('react-query')) return 'react-query';
+              if (id.includes('zustand')) return 'zustand';
+              if (id.includes('emotion')) return 'emotion';
+              if (id.includes('tailwindcss')) return 'tailwind';
+              if (id.includes('clsx')) return 'clsx';
+              if (id.includes('react-hot-toast')) return 'toast';
+              if (id.includes('socket.io-client')) return 'socket';
+              
+              // Handle smaller packages together
+              if (id.includes('yup') || id.includes('formik')) return 'forms';
+              if (id.includes('date-fns-tz')) return 'date-fns';
+              if (id.includes('chart.js')) return 'charts';
+              if (id.includes('react-chartjs-2')) return 'charts';
+              
+              // Handle utility libraries
+              if (id.includes('lodash')) return 'lodash';
+              if (id.includes('clsx')) return 'clsx';
+              if (id.includes('nanoid')) return 'nanoid';
+              
+              // Handle image and media packages
+              if (id.includes('sharp')) return 'sharp';
+              if (id.includes('image-js')) return 'image';
+              
+              // Handle other UI components
+              if (id.includes('@radix-ui')) return 'radix';
+              if (id.includes('react-select')) return 'select';
+              if (id.includes('react-table')) return 'table';
+              
+              // Handle other common utilities
+              if (id.includes('axios')) return 'axios';
+              if (id.includes('qs')) return 'axios';
+              if (id.includes('jwt-decode')) return 'auth';
+              
+              // Handle analytics and tracking
+              if (id.includes('@vercel/analytics')) return 'analytics';
+              if (id.includes('react-ga4')) return 'analytics';
+              
+              // Handle other common utilities
+              if (id.includes('uuid')) return 'uuid';
+              if (id.includes('date-fns')) return 'date';
+              if (id.includes('yup')) return 'validation';
+              if (id.includes('formik')) return 'validation';
+              
+              // Handle other UI components
+              if (id.includes('react-modal')) return 'modal';
+              if (id.includes('react-datepicker')) return 'datepicker';
+              
+              // Handle other common utilities
+              if (id.includes('classnames')) return 'classnames';
+              if (id.includes('prop-types')) return 'react';
+              
+              // Default vendor chunk for other node_modules
+              return 'vendor';
+            }
           },
-          plugins: [
-            {
-              name: 'optimize-imports',
-              setup(build) {
-                build.onResolve({ filter: /node_modules/ }, (args) => {
-                  const id = args.path;
-                  if (id.startsWith('react')) {
-                    return { path: id, external: true };
-                  }
-                });
-              },
-            },
-          ],
+          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+            const relativePath = path.relative(process.cwd(), relativeSourcePath);
+            // Use relative path for source maps
+            return `/${relativePath}`;
+          }
         },
       },
-      
       terserOptions: {
         compress: {
           drop_console: mode === "production",
           drop_debugger: mode === "production",
           pure_funcs: ["console.log"],
-          passes: 3,
-          booleans_as_integers: true,
-          collapse_vars: true,
-          ecma: 2020,
-          sequences: true,
-          toplevel: true,
-          unsafe: true,
-          unsafe_arrows: true,
-          unsafe_comps: true,
-          unsafe_Function: true,
-          unsafe_math: true,
-          unsafe_proto: true,
-          unsafe_regexp: true,
-          unsafe_undefined: true,
-          unused: true,
         },
         format: {
           comments: false,
-          ascii_only: true,
         },
         sourceMap: true,
-        mangle: {
-          reserved: ['__webpack_public_path__', '__webpack_require__'],
-          properties: {
-            regex: /^__/,
-          },
-        },
-        module: true,
       },
     },
 
