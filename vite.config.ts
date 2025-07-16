@@ -206,10 +206,12 @@ export default defineConfig(({ mode, command }) => {
               if (id.includes('react-leaflet')) return 'leaflet';
               if (id.includes('react-hook-form')) return 'forms';
               
+              // Group core React and emotion dependencies together
+              if (id.includes('react') || id.includes('emotion')) return 'react-core';
+              
               // Handle other common packages
               if (id.includes('react-query')) return 'react-query';
               if (id.includes('zustand')) return 'zustand';
-
               if (id.includes('tailwindcss')) return 'tailwind';
               if (id.includes('clsx')) return 'clsx';
               if (id.includes('react-hot-toast')) return 'toast';
