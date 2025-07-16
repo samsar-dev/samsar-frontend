@@ -181,6 +181,20 @@ export default defineConfig(({ mode, command }) => {
       reportCompressedSize: false,
       brotliSize: false,
       
+      css: {
+        modules: {
+          localsConvention: 'camelCaseOnly',
+          generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
+        },
+        postcss: {
+          plugins: [
+            require('tailwindcss'),
+            require('autoprefixer'),
+            require('postcss-import')
+          ]
+        }
+      },
+      
       rollupOptions: {
         output: {
           sourcemap: true,
@@ -272,27 +286,7 @@ export default defineConfig(({ mode, command }) => {
         format: {
           comments: false,
         },
-        sourceMap: true,
       },
-    },
-
-    css: {
-      postcss: "./postcss.config.js",
-      devSourcemap: mode !== "production",
-      modules: {
-        localsConvention: "camelCaseOnly",
-        generateScopedName:
-          mode === "production"
-            ? "[hash:base64:5]"
-            : "[name]__[local]__[hash:base64:5]",
-      },
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/assets/styles/variables.scss";`,
-        },
-      },
-      // Minify in production
-      minify: mode === "production",
     },
 
     optimizeDeps: {
