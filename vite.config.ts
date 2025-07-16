@@ -176,7 +176,7 @@ export default defineConfig(({ mode, command }) => {
       sourcemapIgnoreList: (file) => !file.endsWith('.js'),
       
       minify: isProduction ? "terser" : false,
-      cssCodeSplit: true,
+      cssCodeSplit: false,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
