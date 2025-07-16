@@ -1,6 +1,6 @@
 "use client";
 
-import { LoadingSpinner } from "@/api";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ChatSection from "@/components/chat/ChatSection";
 import ConversationsList from "@/components/chat/ConversationsList";
 import UserDetails from "@/components/chat/UserDetails";
