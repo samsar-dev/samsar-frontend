@@ -24,13 +24,36 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '/',
+    optimizeDeps: {
+      include: [
+        '@emotion/react',
+        '@emotion/styled',
+        '@mui/material/Unstable_Grid2',
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@headlessui/react',
+        'axios'
+      ],
+      esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis',
+        },
+        target: 'es2020',
+        // Enable esbuild's tree shaking
+        treeShaking: true,
+        // Enable esbuild's minification
+        minify: true,
+        // Keep names to avoid breaking some libraries
+        keepNames: true
+      },
+    },
     define: envVars,
     plugins: [
       react({
         jsxImportSource: '@emotion/react',
-        tsDecorators: true
       }),
-
       viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
       viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
 
@@ -137,13 +160,6 @@ export default defineConfig(({ mode }) => {
             return 'vendor';
           }
         }
-      }
-    },
-
-    optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom'],
-      esbuildOptions: {
-        target: ['es2020']
       }
     }
   };
