@@ -1,150 +1,91 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type ConfigEnv, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import viteCompression from "vite-plugin-compression";
 import tailwindcss from 'tailwindcss';
-import postcss from 'postcss';
+import autoprefixer from 'autoprefixer';
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Add esbuild configuration
-export const esbuild = {
-  minify: true,
-  target: 'es2020',
-  legalComments: 'none',
-  treeShaking: true,
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-  }
-};
-
-// https://vitejs.dev/config/
-export default defineConfig(({ mode, command }) => {
+// Use a synchronous config wrapper for async operations
+const config = async ({ mode, command }: ConfigEnv): Promise<UserConfig> => {
   const env = loadEnv(mode, process.cwd(), "");
-  
-  // Set base URL for assets
-  const base = process.env.NODE_ENV === 'production' ? '/' : '/';
+  const isProduction = mode === 'production';
 
-  // Skip type checking during build
-  if (command === "build") {
-    process.env.TSC_COMPILE_ON_ERROR = "true";
-    process.env.TSC_COMPILE_ON_ERROR_WATCH = "true";
-  }
+  // Include only env variables with VITE_ prefix
+  const envVars = Object.fromEntries(
+    Object.entries(env)
+      .filter(([key]) => key.startsWith('VITE_'))
+      .map(([key, val]) => [[`import.meta.env.${key}`], JSON.stringify(val)])
+  );
 
-  // Only include necessary environment variables
-  const envVars: Record<string, string> = {};
-  const allowedVars = ["NODE_ENV", "VITE_"];
-
-  Object.entries(env).forEach(([key, value]) => {
-    if (
-      allowedVars.some((prefix) => key === prefix || key.startsWith(prefix))
-    ) {
-      envVars[`import.meta.env.${key}`] = JSON.stringify(value);
-    }
-  });
-
-  const isProduction = mode === "production";
+  // Load the PurgeCSS plugin only in production
+  const purgeCSS = mode === 'production' 
+    ? (await import('@fullhuman/postcss-purgecss')).default({
+        content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+        defaultExtractor: (content: string) => content.match(/[\w-/:]+(?<!:)/g) || [],
+        safelist: [/bg-/, /text-/, /border-/, /rounded-/, /shadow-/]
+      })
+    : null;
 
   return {
-    base: base,
+    base: '/',
     define: envVars,
     plugins: [
       react({
-        jsxImportSource: "@emotion/react",
+        jsxImportSource: '@emotion/react',
         tsDecorators: true
       }),
-      viteCompression({
-        verbose: true,
-        disable: false,
-        threshold: 10240,
-        algorithm: 'gzip',
-        ext: '.gz',
-      }),
+
+      viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
+      viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
 
       createHtmlPlugin({
-        minify: {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: false,
-          useShortDoctype: true,
-          minifyCSS: true,
-          minifyJS: true,
-        },
+        minify: isProduction,
         inject: {
           data: {
-            title: "Samsar - سمسار",
-            description: "سوق السيارات والعقارات الأول في سوريا",
-            themeColor: "#1a56db",
+            title: 'Samsar - سمسار',
+            description: 'سوق السيارات والعقارات الأول في سوريا',
+            themeColor: '#1a56db'
           },
           tags: [
             {
               tag: 'meta',
-              attrs: {
-                name: 'viewport',
-                content: 'width=device-width, initial-scale=1'
-              },
+              attrs: { name: 'viewport', content: 'width=device-width, initial-scale=1' },
               injectTo: 'head-prepend'
             },
             {
               tag: 'meta',
-              attrs: {
-                name: 'theme-color',
-                content: '#1a56db'
-              },
+              attrs: { name: 'theme-color', content: '#1a56db' },
               injectTo: 'head-prepend'
             }
           ]
         }
       }),
-      // Image optimization will be handled by the build script
 
-      // Compression
-      viteCompression({
-        threshold: 1024, // Compress files >1KB
-        algorithm: "brotliCompress",
-        ext: ".br",
-      }),
-      viteCompression({
-        threshold: 1024, // Compress files >1KB
-        algorithm: "gzip",
-        ext: ".gz",
-      }),
-
-      // Bundle analyzer (only in analyze mode)
-      mode === "analyze" &&
-        visualizer({
-          open: true,
-          filename: "bundle-analyzer-report.html",
-          gzipSize: true,
-          brotliSize: true,
-        }),
+      isProduction && visualizer({
+        open: true,
+        filename: 'bundle-analyzer.html',
+        gzipSize: true,
+        brotliSize: true
+      })
     ].filter(Boolean),
-
-    // Configure static asset handling
-    publicDir: "public",
-    assetsInclude: ["**/*.woff2", "**/*.svg"],
-
-    preview: {
-      port: 5000,
-      strictPort: true,
-    },
 
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
-        "@components": path.resolve(__dirname, "src/components"),
-        "@pages": path.resolve(__dirname, "src/pages"),
-        "@assets": path.resolve(__dirname, "src/assets"),
-        "@hooks": path.resolve(__dirname, "src/hooks"),
-        "@services": path.resolve(__dirname, "src/services"),
-        "@store": path.resolve(__dirname, "src/store"),
-        "@types": path.resolve(__dirname, "src/types"),
-        "@utils": path.resolve(__dirname, "src/utils"),
-      },
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, 'src/components'),
+        '@pages': path.resolve(__dirname, 'src/pages'),
+        '@assets': path.resolve(__dirname, 'src/assets'),
+        '@hooks': path.resolve(__dirname, 'src/hooks'),
+        '@services': path.resolve(__dirname, 'src/services'),
+        '@store': path.resolve(__dirname, 'src/store'),
+        '@types': path.resolve(__dirname, 'src/types'),
+        '@utils': path.resolve(__dirname, 'src/utils')
+      }
     },
 
     server: {
@@ -152,203 +93,77 @@ export default defineConfig(({ mode, command }) => {
       open: false,
       strictPort: true,
       proxy: {
-        // API proxy configuration
-        "/api": {
-          target: process.env.VITE_API_URL || "http://localhost:3000",
+        '/api': {
+          target: process.env.VITE_API_URL || 'http://localhost:3000',
           changeOrigin: true,
           secure: false,
-          rewrite: (path) => path.replace(/^\/api/, ""),
+          rewrite: path => path.replace(/^\/api/, '')
         },
-        "/socket.io": {
-          target: "http://localhost:5000",
+        '/socket.io': {
+          target: 'http://localhost:5000',
           changeOrigin: true,
-          ws: true,
-        },
+          ws: true
+        }
+      }
+    },
+
+    css: {
+      modules: {
+        localsConvention: 'camelCaseOnly',
+        generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
       },
+      postcss: {
+        plugins: [
+          tailwindcss,
+          autoprefixer,
+          ...(purgeCSS ? [purgeCSS] : [])
+        ].filter(Boolean)
+      }
     },
 
     build: {
       target: 'es2020',
-      
-      // CSS optimization
-      css: {
-        modules: {
-          localsConvention: "camelCaseOnly",
-          generateScopedName: mode === "production"
-            ? "[hash:base64:5]"
-            : "[name]__[local]__[hash:base64:5]"
-        },
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@import "@/assets/styles/variables.scss";`
-          }
-        },
-        postcss: {
-          plugins: [
-            require('tailwindcss'),
-            require('autoprefixer'),
-            process.env.NODE_ENV === 'production' && require('@fullhuman/postcss-purgecss')({
-              content: [
-                './index.html',
-                './src/**/*.{js,ts,jsx,tsx}'
-              ],
-              defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
-              safelist: {
-                standard: [
-                  'loading-spinner',
-                  'toast',
-                  'modal',
-                  'navbar',
-                  'footer',
-                  'react-select__',
-                  'react-datepicker__',
-                ],
-                deep: [
-                  'bg-',
-                  'text-',
-                  'border-',
-                  'rounded-',
-                  'shadow-',
-                  'react-select-',
-                  'react-datepicker-',
-                ],
-              },
-            })
-          ].filter(Boolean),
-        },
-      },
-      outDir: "dist",
-      assetsDir: "assets",
-      assetsInlineLimit: 4096, // 4kb
+      outDir: 'dist',
+      assetsDir: 'assets',
       emptyOutDir: true,
       sourcemap: true,
-      sourcemapFileNames: '[name]-[hash].map',
-      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-      },
-      
-      minify: isProduction ? "terser" : false,
+      minify: 'terser',
       cssCodeSplit: false,
+      assetsInlineLimit: 4096,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
-      brotliSize: false,
-      
-      
-       
-      
-      
-      rollupOptions: {
-        output: {
-          sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: '[name]-[hash].map',
-          rollupOptions: {
-            output: {
-              sourcemap: true,
-              sourcemapExcludeSources: false,
-              sourcemapFileNames: '[name]-[hash].map',
-              manualChunks(id) {
-                if (!id.includes('node_modules')) return;
-          
-                // React ecosystem
-                if (id.includes('react-router-dom')) return 'vendor-react-router';
-                if (id.includes('react')) return 'vendor-react'; // Includes react, react-dom, etc.
-                if (id.includes('@emotion')) return 'vendor-emotion';
-          
-                // UI libraries
-                if (id.includes('@headlessui')) return 'vendor-headlessui';
-                if (id.includes('@heroicons')) return 'vendor-heroicons';
-                if (id.includes('@radix-ui')) return 'vendor-radix';
-                if (id.includes('react-modal')) return 'vendor-modal';
-                if (id.includes('react-datepicker')) return 'vendor-datepicker';
-                if (id.includes('react-select')) return 'vendor-select';
-                if (id.includes('react-table')) return 'vendor-table';
-          
-                // Forms
-                if (id.includes('react-hook-form')) return 'vendor-forms';
-                if (id.includes('yup')) return 'vendor-forms';
-                if (id.includes('formik')) return 'vendor-forms';
-          
-                // Styling & helpers
-                if (id.includes('tailwindcss')) return 'vendor-tailwind';
-                if (id.includes('clsx')) return 'vendor-clsx';
-                if (id.includes('classnames')) return 'vendor-clsx';
-                if (id.includes('prop-types')) return 'vendor-proptypes';
-          
-                // Maps
-                if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-maps';
-          
-                // Animations
-                if (id.includes('framer-motion')) return 'vendor-framer';
-          
-                // Date
-                if (id.includes('date-fns')) return 'vendor-date';
-          
-                // State management & utils
-                if (id.includes('zustand')) return 'vendor-zustand';
-                if (id.includes('nanoid')) return 'vendor-utils';
-                if (id.includes('lodash')) return 'vendor-utils';
-                if (id.includes('uuid')) return 'vendor-utils';
-          
-                // Charts
-                if (id.includes('chart.js') || id.includes('react-chartjs-2')) return 'vendor-charts';
-          
-                // Network
-                if (id.includes('axios') || id.includes('qs')) return 'vendor-network';
-                if (id.includes('jwt-decode')) return 'vendor-auth';
-          
-                // Realtime & analytics
-                if (id.includes('socket.io-client')) return 'vendor-realtime';
-                if (id.includes('@vercel/analytics') || id.includes('react-ga4')) return 'vendor-analytics';
-          
-                // Fallback: everything else from node_modules
-                return 'vendor';
-              },
-              sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-                const relativePath = path.relative(process.cwd(), relativeSourcePath);
-                return `/${relativePath}`;
-              },
-            },
-          },
-        },
-      },
       terserOptions: {
         compress: {
-          drop_console: mode === "production",
-          drop_debugger: mode === "production",
-          pure_funcs: ["console.log"],
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: ['console.log']
         },
         format: {
-          comments: false,
-        },
+          comments: false
+        }
       },
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('react-router-dom')) return 'vendor-router';
+            if (id.includes('@headlessui')) return 'vendor-headlessui';
+            if (id.includes('axios')) return 'vendor-axios';
+            return 'vendor';
+          }
+        }
+      }
     },
 
     optimizeDeps: {
-      include: [
-        "react",
-        "react-dom",
-        "react-router-dom",
-        "react-i18next",
-        "i18next",
-        "date-fns",
-        "framer-motion",
-      ],
+      include: ['react', 'react-dom', 'react-router-dom'],
       esbuildOptions: {
-        target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
-        define: {
-          "process.env.NODE_ENV": JSON.stringify(
-            process.env.NODE_ENV || "development",
-          ),
-        },
-      },
-    },
-
-    esbuild: {
-      logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
-    },
+        target: ['es2020']
+      }
+    }
   };
-});
+};
+
+// Export the configuration using defineConfig with the async function
+export default defineConfig(config);
