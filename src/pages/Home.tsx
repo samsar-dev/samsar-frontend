@@ -1201,6 +1201,11 @@ const Home: React.FC = () => {
                       priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.cars", "سيارات")}
+                      sizes="(max-width: 640px) 300px, (max-width: 1024px) 600px, 800px"
+                      srcSet="
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=300 300w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=600 600w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800 800w"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1233,6 +1238,11 @@ const Home: React.FC = () => {
                       priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.real_estate", "عقارات")}
+                      sizes="(max-width: 640px) 300px, (max-width: 1024px) 600px, 800px"
+                      srcSet="
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=300 300w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=600 600w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800 800w"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1261,6 +1271,11 @@ const Home: React.FC = () => {
                       priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.motorcycles", "دراجات نارية")}
+                      sizes="(max-width: 640px) 300px, (max-width: 1024px) 600px, 800px"
+                      srcSet="
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=300 300w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=600 600w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800 800w"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1289,6 +1304,11 @@ const Home: React.FC = () => {
                       priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.commercial", "تجاري")}
+                      sizes="(max-width: 640px) 300px, (max-width: 1024px) 600px, 800px"
+                      srcSet="
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=300 300w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=600 600w,
+                        https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800 800w"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

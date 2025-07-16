@@ -82,32 +82,58 @@ const ImageComponent: React.FC<ImageProps> = ({
   const baseUrl = src?.split("?")[0] || "";
   // Calculate optimal quality and width based on viewport and priority
   const calculateOptimalQuality = () => {
-    if (priority) return 90; // High quality for priority images
-    if (window.innerWidth < 640) return 60; // Lower quality for mobile
-    return 75; // Medium quality for desktop
+    // Use more aggressive compression
+    if (priority) return 75; // High quality for priority images
+    if (window.innerWidth < 640) return 40; // Lower quality for mobile
+    return 55; // Medium quality for desktop
   };
 
   const calculateOptimalWidth = () => {
-    if (priority) return 1200; // Full width for priority images
-    if (window.innerWidth < 640) return 300; // Mobile optimized
-    if (window.innerWidth < 1024) return 600; // Tablet optimized
-    return 900; // Desktop optimized
+    // Use smaller dimensions based on container size
+    const containerWidth = window.innerWidth;
+    const containerHeight = 192; // 48 * 4 (from h-48)
+    
+    // Calculate aspect ratio based on container
+    const aspectRatio = containerWidth / containerHeight;
+    
+    // Adjust width based on aspect ratio and viewport
+    if (priority) {
+      return Math.min(800, Math.round(containerWidth * 0.8)); // Max 800px for priority
+    }
+    
+    if (window.innerWidth < 640) {
+      return Math.min(400, Math.round(containerWidth * 0.6)); // Mobile optimized
+    }
+    
+    if (window.innerWidth < 1024) {
+      return Math.min(600, Math.round(containerWidth * 0.7)); // Tablet optimized
+    }
+    
+    return Math.min(800, Math.round(containerWidth * 0.6)); // Desktop optimized
   };
 
   const imageQuality = calculateOptimalQuality();
   const optimalWidth = calculateOptimalWidth();
 
-  // Generate optimized image URL with WebP format and proper caching
+  // Generate optimized image URL with AVIF/WebP format and proper caching
   const getOptimizedImageUrl = (width?: number) => {
     if (!isR2Image || !baseUrl) return src || "";
     const params = new URLSearchParams();
-    params.append("format", "webp");
-    params.append("quality", imageQuality.toString());
+    
+    // Use AVIF format if supported
+    const supportsAVIF = 'image/avif' in window.Image.prototype.decode;
+    params.append("format", supportsAVIF ? "avif" : "webp");
+    
+    // More aggressive compression
+    params.append("quality", Math.max(30, imageQuality - 20).toString());
     params.append("width", (width || optimalWidth).toString());
-
-    // Set long cache TTL (30 days) for optimized images to leverage browser cache
-    params.append("cache", (60 * 60 * 24 * 30).toString()); // 30 days in seconds
-
+    
+    // Add progressive loading for better UX
+    params.append("progressive", "true");
+    
+    // Set long cache TTL (1 year for maximum benefit)
+    params.append("cache", (60 * 60 * 24 * 365).toString()); // 1 year in seconds
+    
     // Add cache-busting parameter for non-production environments
     if (process.env.NODE_ENV !== "production") {
       params.append("_t", Date.now().toString());
