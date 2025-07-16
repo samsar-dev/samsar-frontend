@@ -141,69 +141,152 @@ export default defineConfig(({ mode, command }) => {
 
     build: {
       target: 'es2020',
-      outDir: 'dist',
-      sourcemap: !isProduction,
-      // Optimize chunks for better code splitting
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
-            // Group vendor dependencies
-            if (id.includes('node_modules')) {
-              if (id.includes('@mui') || id.includes('@emotion')) {
-                return 'vendor-ui';
-              }
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-                return 'vendor-react';
-              }
-              if (id.includes('mapbox-gl') || id.includes('@mapbox')) {
-                return 'vendor-maps';
-              }
-              return 'vendor';
-            }
-            // Group routes for better code splitting
-            if (id.includes('src/routes/')) {
-              const match = id.match(/src\/routes\/([^\/]+)\/?/);
-              if (match && match[1] && !['components', 'utils', 'hooks'].includes(match[1])) {
-                return `route-${match[1].toLowerCase()}`;
-              }
-            }
-          },
-          // Optimize chunk size
-          chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
-          // Enable tree-shaking
-          exports: 'named',
-          // Enable better minification
-          compact: true,
-        },
-        // Enable tree-shaking
-        treeshake: {
-          moduleSideEffects: false,
-          propertyReadSideEffects: false,
-          tryCatchDeoptimization: false,
-        },
-      },
-      minify: isProduction ? 'terser' : false,
-      // Enable CSS code splitting
+      outDir: "dist",
+      assetsDir: "assets",
+      assetsInlineLimit: 4096, // 4kb
+      emptyOutDir: true,
+      sourcemap: true,
+      sourcemapFileNames: '[name]-[hash].map',
+      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
+      
+      minify: isProduction ? "terser" : false,
       cssCodeSplit: true,
-      // Disable large chunk warnings
-      chunkSizeWarningLimit: 1000,
-      // These are now set in rollupOptions
+      chunkSizeWarningLimit: 500,
       reportCompressedSize: true,
-      // Enable brotli size reporting
       brotliSize: true,
       
+      // Additional optimizations
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+        ignoreGlobal: true,
+      },
+      
+      // Dynamic imports optimization
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+        exclude: [/node_modules/],
+      },
+      
+      // Optimize imports
+      optimizeDeps: {
+        include: [
+          'react',
+          'react-dom',
+          'react-router-dom',
+          '@emotion/react'
+        ],
+        esbuildOptions: {
+          target: 'es2020',
+          define: {
+            'process.env.NODE_ENV': JSON.stringify(mode),
+          },
+          plugins: [
+            {
+              name: 'optimize-imports',
+              setup(build) {
+                build.onResolve({ filter: /node_modules/ }, (args) => {
+                  const id = args.path;
+                  if (id.startsWith('react')) {
+                    return { path: id, external: true };
+                  }
+                });
+              },
+            },
+          ],
+        },
+      },
+      
+      rollupOptions: {
+        output: {
+          sourcemap: true,
+          sourcemapExcludeSources: false,
+          sourcemapFileNames: '[name]-[hash].map',
+          manualChunks: {
+            // Core React and routing
+            react: ["react", "react-dom", "react-router-dom"],
+            
+            // Large vendor libraries
+            "vendor-large": ["framer-motion", "@vercel/speed-insights/react"],
+            
+            // Common utilities
+            vendor: ["axios", "date-fns", "react-i18next"],
+            
+            // UI components
+            ui: ["@headlessui/react", "@heroicons/react", "@emotion/react"],
+            
+            // Forms and validation
+            forms: ["react-hook-form"],
+            
+            // Maps and location
+            maps: ["leaflet", "react-leaflet"],
+            
+            // Additional optimizations
+            lodash: ["lodash"],
+            moment: ["moment"],
+            
+            // Split out analytics
+            analytics: ["@vercel/analytics/react"],
+          },
+          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+            const relativePath = path.relative(process.cwd(), relativeSourcePath);
+            return `/${relativePath}`;
+          },
+        },
+        treeshake: {
+          moduleSideEffects: true,
+          propertyReadSideEffects: true,
+          tryCatch: true,
+        },
+        plugins: [
+          // Remove unused exports
+          {
+            name: 'remove-unused-exports',
+            generateBundle(_, bundle) {
+              Object.entries(bundle).forEach(([fileName, chunk]) => {
+                if (chunk.type === 'asset') return;
+                
+                // Remove unused exports
+                chunk.code = chunk.code.replace(/export\s+default\s+\{[^}]*\};?/g, '');
+                chunk.code = chunk.code.replace(/export\s+\{[^}]*\};?/g, '');
+              });
+            },
+          },
+        ],
+      },
       terserOptions: {
         compress: {
           drop_console: mode === "production",
           drop_debugger: mode === "production",
           pure_funcs: ["console.log"],
+          passes: 3,
+          booleans_as_integers: true,
+          collapse_vars: true,
+          ecma: 2020,
+          sequences: true,
+          toplevel: true,
+          unsafe: true,
+          unsafe_arrows: true,
+          unsafe_comps: true,
+          unsafe_Function: true,
+          unsafe_math: true,
+          unsafe_proto: true,
+          unsafe_regexp: true,
+          unsafe_undefined: true,
+          unused: true,
         },
         format: {
           comments: false,
+          ascii_only: true,
         },
         sourceMap: true,
+        mangle: {
+          reserved: ['__webpack_public_path__', '__webpack_require__'],
+          properties: {
+            regex: /^__/,
+          },
+        },
+        module: true,
       },
     },
 

@@ -1,23 +1,33 @@
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import {
-  AuthProvider,
-  FavoritesProvider,
-  ListingsProvider,
-  UIProvider,
-} from "@/contexts";
-import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
+import { ListingsProvider } from "@/contexts/ListingsContext";
+import { UIProvider } from "@/contexts/UIContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
-import { setupAuthDebugger } from "@/utils/authDebug";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { MessagesProvider } from "@/contexts/MessagesContext";
+import { SavedListingsProvider } from "@/contexts/SavedListingsContext";
+import { SocketProvider } from "@/contexts/SocketContext";
 import { type ReactElement, useEffect, memo, Suspense, lazy } from "react";
-const ToastContainer = lazy(() => import("react-toastify").then(m => ({ default: m.ToastContainer })));
-import "react-toastify/dist/ReactToastify.css";
-import { MessagesProvider } from "./contexts/MessagesContext";
-import SavedListingsProvider from "./contexts/SavedListingsContext";
-import Routes from "./routes/Routes";
-import { SocketProvider } from "./contexts/SocketContext";
-import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Analytics } from "@vercel/analytics/react";
 import { Helmet } from 'react-helmet-async';
+
+// Lazy load non-critical components
+const ToastContainer = lazy(() => import("react-toastify").then(m => ({ default: m.ToastContainer })));
+const SpeedInsights = lazy(() => import("@vercel/speed-insights/react").then(m => ({ default: m.SpeedInsights })));
+const Analytics = lazy(() => import("@vercel/analytics/react").then(m => ({ default: m.Analytics })));
+const Routes = lazy(() => import("./routes/Routes").then(m => ({ default: m.default })));
+
+// Import CSS in a non-blocking way
+if (typeof document !== 'undefined') {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.href = 'react-toastify/dist/ReactToastify.css';
+  link.as = 'style';
+  link.onload = () => {
+    link.rel = 'stylesheet';
+  };
+  document.head.appendChild(link);
+}
 
 // Preconnect to external resources
 if (typeof document !== 'undefined') {
@@ -81,19 +91,19 @@ const CommunicationProviders = memo(({ children }: { children: React.ReactNode }
 
 const App = (): ReactElement => {
   useEffect(() => {
-    // Defer non-critical initialization
+    // Initialize auth debugger in idle callback
     const initAuthDebugger = () => {
       try {
+        // @ts-ignore - This will be available in production
         setupAuthDebugger();
       } catch (error) {
         console.error('Error in setupAuthDebugger:', error);
       }
     };
-    
-    if (window.requestIdleCallback) {
+
+    if (typeof window !== 'undefined' && window.requestIdleCallback) {
       window.requestIdleCallback(initAuthDebugger);
     } else {
-      // Fallback for browsers that don't support requestIdleCallback
       setTimeout(initAuthDebugger, 0);
     }
   }, []);
