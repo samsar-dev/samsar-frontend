@@ -53,6 +53,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react({
         jsxImportSource: '@emotion/react',
+        tsDecorators: true,
+        // SWC will automatically pick up the jsxImportSource from tsconfig.json
+        // No need for Babel plugins or compilerOptions with SWC
       }),
       viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
       viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
