@@ -58,8 +58,7 @@ export default defineConfig(({ mode, command }) => {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
+          removeScriptTypeAttributes: false, // Keep type="text/css" for CSS files
           useShortDoctype: true,
           minifyCSS: true,
           minifyJS: true,
@@ -70,7 +69,34 @@ export default defineConfig(({ mode, command }) => {
             description: "سوق السيارات والعقارات الأول في سوريا",
             themeColor: "#1a56db",
           },
-        },
+          tags: [
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'viewport',
+                content: 'width=device-width, initial-scale=1'
+              },
+              injectTo: 'head-prepend'
+            },
+            {
+              tag: 'meta',
+              attrs: {
+                name: 'theme-color',
+                content: '#1a56db'
+              },
+              injectTo: 'head-prepend'
+            },
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'stylesheet',
+                href: '/src/index.css',
+                type: 'text/css'
+              },
+              injectTo: 'head-prepend'
+            }
+          ]
+        }
       }),
       // Image optimization will be handled by the build script
 
