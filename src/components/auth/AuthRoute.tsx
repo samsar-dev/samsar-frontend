@@ -20,8 +20,13 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   // Show loading spinner while auth is initializing
   if (isLoading || !isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
+        <LoadingSpinner 
+          size="lg" 
+          label="Loading authentication..."
+          ariaLive="polite"
+          ariaAtomic={true}
+        />
       </div>
     );
   }

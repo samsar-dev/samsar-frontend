@@ -3,6 +3,18 @@ import { Suspense, lazy, useEffect, useState, useCallback, useMemo, memo } from 
 import type { RouteObject } from "react-router-dom";
 import type { ErrorInfo } from 'react';
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+
+// Reusable loading component with consistent styling
+const RouteLoading = () => (
+  <div className="flex min-h-screen items-center justify-center bg-gray-50" role="status" aria-live="polite">
+    <LoadingSpinner 
+      size="lg"
+      label="Loading page..."
+      ariaLive="polite"
+      ariaAtomic={true}
+    />
+  </div>
+);
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
@@ -180,7 +192,7 @@ const Routes = () => {
         { 
           path: "*", 
           element: <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<RouteLoading />}>
               <NotFound />
             </Suspense>
           </ErrorBoundary>
@@ -197,7 +209,7 @@ const Routes = () => {
           path: "/", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={<RouteLoading />}>
                 <Home />
               </Suspense>
             </ErrorBoundary>
@@ -207,7 +219,7 @@ const Routes = () => {
           path: "*", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={<RouteLoading />}>
                 <NotFound />
               </Suspense>
             </ErrorBoundary>
@@ -255,7 +267,7 @@ const Routes = () => {
     return routes.map((route, index) => {
       const routeElement = route.element ? (
         <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<RouteLoading />}>
             {route.element}
           </Suspense>
         </ErrorBoundary>
@@ -270,7 +282,7 @@ const Routes = () => {
           {route.children?.map((child, childIndex) => {
             const childElement = child.element ? (
               <ErrorBoundary>
-                <Suspense fallback={<LoadingSpinner />}>
+                <Suspense fallback={<RouteLoading />}>
                   {child.element}
                 </Suspense>
               </ErrorBoundary>
@@ -301,7 +313,7 @@ const Routes = () => {
   );
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <RouteLoading />;
   }
 
   return (

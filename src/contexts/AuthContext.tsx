@@ -2,7 +2,6 @@ import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import { apiClient } from "../api/apiClient";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type {
   AuthContextType,
   AuthError,
@@ -10,6 +9,8 @@ import type {
   AuthErrorCode,
   AuthUser,
 } from "../types/auth.types";
+
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 
 const initialState: AuthState = {
@@ -22,11 +23,12 @@ const initialState: AuthState = {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>(initialState);
-  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const clearError = () => {
@@ -58,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      setState((prev) => ({ ...prev, isLoading: true }));
       const response = await AuthAPI.getMe();
       
       if (response?.success && response?.data) {
@@ -71,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           error: null,
           retryAfter: null,
         });
+        setIsInitialized(true);
       } else {
         // Not authenticated or invalid response
         setState({
@@ -83,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           },
           retryAfter: null,
         });
+        setIsInitialized(true);
       }
     } catch (error) {
       // Log error but don't show toast
@@ -96,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         retryAfter: null,
       }));
     } finally {
-      setIsLoading(false);
+      setState(prev => ({ ...prev, isLoading: false }));
       setIsInitialized(true);
     }
   };
@@ -265,18 +269,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setState({
         ...initialState,
-        isLoading: false, // explicitly reset loading
       });
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/90">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   const value: AuthContextType = {
     ...state,
@@ -290,7 +285,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {state.isLoading ? (
+        <div 
+          className="flex h-screen w-full items-center justify-center bg-gray-50"
+          role="status"
+          aria-live="polite"
+        >
+          <LoadingSpinner 
+            size="lg" 
+            label="Initializing authentication..."
+            ariaLive="polite"
+            ariaAtomic={true}
+          />
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
