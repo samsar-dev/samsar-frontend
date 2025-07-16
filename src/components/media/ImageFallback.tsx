@@ -37,7 +37,7 @@ const categoryIcons = {
 type CategoryType = ListingCategory | VehicleType | PropertyType | string;
 
 interface ImageProps
-  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "fetchPriority"> {
+  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "fetchPriority" | "srcSet"> {
   src: string;
   alt: string;
   className?: string;
@@ -53,6 +53,7 @@ interface ImageProps
   blur?: boolean;
   onLoad?: () => void;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  srcSet?: string;
 }
 
 const DEFAULT_PLACEHOLDER = "";
@@ -83,7 +84,7 @@ const ImageComponent: React.FC<ImageProps> = ({
   const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
 
   // Generate optimized image URL with Cloudflare best practices
-  const getOptimizedImageUrl = (width?: number) => {
+  const getOptimizedImageUrl = (width?: number, dpr: number = 1) => {
     if (!isR2Image || !baseUrl) return src || "";
     const params = new URLSearchParams();
     
@@ -100,7 +101,10 @@ const ImageComponent: React.FC<ImageProps> = ({
       params.append("quality", "75");
     }
     
-    if (width) params.append("width", width.toString());
+    if (width) {
+      const finalWidth = Math.round(width * dpr);
+      params.append("width", finalWidth.toString());
+    }
 
     // Add cache-busting parameter for non-production environments
     if (process.env.NODE_ENV !== "production") {
@@ -110,24 +114,57 @@ const ImageComponent: React.FC<ImageProps> = ({
     return `${baseUrl}?${params.toString()}`;
   };
 
+  // Generate srcSet for responsive images
+  const generateSrcSet = (widths: number[]) => {
+    if (!isR2Image || !baseUrl) return undefined;
+    
+    return widths
+      .map(width => {
+        const url1x = getOptimizedImageUrl(width, 1);
+        const url2x = getOptimizedImageUrl(width, 2);
+        return `${url1x} 1x, ${url2x} 2x`;
+      })
+      .join(', ');
+  };
+
   // Define responsive image sizes with proper aspect ratio
   const responsiveSizes = [
-    { media: "(max-width: 640px)", width: 400 },
-    { media: "(max-width: 1024px)", width: 800 },
-    { media: "(min-width: 1025px)", width: 1200 },
+    { media: "(max-width: 640px)", width: 300 },
+    { media: "(max-width: 1024px)", width: 500 },
+    { media: "(min-width: 1025px)", width: 300 },
   ];
+  
+  // Default sizes attribute for responsive images
+  const defaultSizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
   // Preload critical images
   useEffect(() => {
     if (priority && isR2Image && baseUrl) {
+      // Preconnect to R2 domain
+      const preconnect = document.createElement('link');
+      preconnect.rel = 'preconnect';
+      preconnect.href = 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev';
+      preconnect.crossOrigin = 'anonymous';
+      document.head.appendChild(preconnect);
+
+      // Preload critical image
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
       preloadLink.as = "image";
-      preloadLink.href = getOptimizedImageUrl(600); // Preload medium size (reduced)
+      preloadLink.href = getOptimizedImageUrl(300, 1);
+      
+      // Add srcSet for preloading
+      const srcSet = [
+        `${getOptimizedImageUrl(300, 1)} 1x`,
+        `${getOptimizedImageUrl(300, 2)} 2x`
+      ].join(', ');
+      
+      preloadLink.setAttribute('imagesrcset', srcSet);
       document.head.appendChild(preloadLink);
 
       return () => {
         document.head.removeChild(preloadLink);
+        document.head.removeChild(preconnect);
       };
     }
   }, [priority, isR2Image, baseUrl, imageQuality]);
@@ -259,17 +296,8 @@ const ImageComponent: React.FC<ImageProps> = ({
           {/* Fallback image */}
           <img
             ref={imgRef}
-            src={isR2Image ? getOptimizedImageUrl(1200) : src}
-            srcSet={
-              isR2Image
-                ? responsiveSizes
-                    .map(
-                      (size) =>
-                        `${getOptimizedImageUrl(size.width)} ${size.width}w`,
-                    )
-                    .join(", ")
-                : undefined
-            }
+            src={isR2Image ? getOptimizedImageUrl(300, 1) : src}
+            srcSet={isR2Image ? generateSrcSet([300, 500]) : undefined}
             alt={alt}
             className={`w-full h-full object-cover transition-opacity duration-300 ${
               isLoading ? "opacity-0" : "opacity-100"
@@ -282,7 +310,7 @@ const ImageComponent: React.FC<ImageProps> = ({
             height={height}
             onLoad={handleLoad}
             onError={handleError}
-            sizes={sizes}
+            sizes={sizes || defaultSizes}
           />
         </picture>
       )}

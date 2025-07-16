@@ -1195,13 +1195,14 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=70&format=auto&fit=cover"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw.jpg"
                       alt={t("home:categories.cars", "سيارات")}
                       className="w-full h-full object-cover"
-                      width={800}
-                      height={600}
+                      width={300}
+                      height={200}
                       loading="lazy"
                       fallbackText={t("home:categories.cars", "سيارات")}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1228,13 +1229,14 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=70&format=auto&fit=cover"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building.jpg"
                       alt={t("home:categories.real_estate", "عقارات")}
                       className="w-full h-full object-cover"
-                      width={800}
-                      height={600}
+                      width={300}
+                      height={200}
                       loading="lazy"
                       fallbackText={t("home:categories.real_estate", "عقارات")}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1257,13 +1259,14 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=70&format=auto&fit=cover&dpr=2"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png"
                       alt={t("home:categories.motorcycles", "دراجات نارية")}
                       className="w-full h-full object-cover"
-                      width={800}
-                      height={600}
+                      width={300}
+                      height={200}
                       loading="lazy"
                       fallbackText={t("home:categories.motorcycles", "دراجات نارية")}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -1286,13 +1289,14 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800&quality=70&format=auto&fit=cover&dpr=2"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office.jpg"
                       alt={t("home:categories.commercial", "محلات ومكاتب تجارية")}
                       className="w-full h-full object-cover"
-                      width={800}
-                      height={600}
+                      width={300}
+                      height={200}
                       loading="lazy"
                       fallbackText={t("home:categories.commercial", "محلات ومكاتب تجارية")}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
