@@ -1,5 +1,5 @@
+import { memo, useMemo } from "react";
 import type { PropsWithChildren } from "react";
-import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -9,7 +9,7 @@ interface AuthRouteProps {
   redirectTo?: string;
 }
 
-const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
+const AuthRouteComponent: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   roles = [],
   redirectTo = "/login",
   children,
@@ -17,18 +17,21 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   const { user, isAuthenticated, isLoading, isInitialized } = useAuth();
   const location = useLocation();
 
+  // Memoize the loading component to prevent unnecessary re-renders
+  const loadingComponent = useMemo(() => (
+    <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
+      <LoadingSpinner 
+        size="lg" 
+        label="Loading authentication..."
+        ariaLive="polite"
+        ariaAtomic={true}
+      />
+    </div>
+  ), []);
+
   // Show loading spinner while auth is initializing
   if (isLoading || !isInitialized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
-        <LoadingSpinner 
-          size="lg" 
-          label="Loading authentication..."
-          ariaLive="polite"
-          ariaAtomic={true}
-        />
-      </div>
-    );
+    return loadingComponent;
   }
 
   // Redirect to login if not authenticated
@@ -45,5 +48,8 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
 
   return <>{children}</>;
 };
+
+// Memoize the component to prevent unnecessary re-renders
+export const AuthRoute = memo(AuthRouteComponent);
 
 export default AuthRoute;

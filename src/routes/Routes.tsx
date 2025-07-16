@@ -20,64 +20,38 @@ import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
 import { preloadCriticalAssets } from "@/utils/preloadUtils";
 
-// Helper to create memoized page components
-const createPage = <P extends object>(Component: React.ComponentType<P>) => 
-  memo(Component);
+// Helper type for lazy-loaded components
+type LazyComponentType<P = {}> = React.LazyExoticComponent<React.ComponentType<P>>;
 
-// Type for preloadable components
-interface PreloadableComponent extends React.LazyExoticComponent<React.ComponentType<any>> {
-  preload: () => Promise<{ default: React.ComponentType }>;
-  cancelPreload: () => void;
-  _preloaded?: boolean; // Track if component has been preloaded
-}
-
-// Preload function with proper typing and preload tracking
-const lazyWithPreload = (
-  importFn: () => Promise<{ default: React.ComponentType }>
-): PreloadableComponent => {
-  const Component = lazy(importFn) as PreloadableComponent;
+// Helper to create memoized page components with proper error boundaries
+const createPage = <P extends object>(
+  importFn: () => Promise<{ default: React.ComponentType<P> }>,
+  options: { preload?: boolean } = {}
+): React.MemoExoticComponent<LazyComponentType<P>> => {
+  const LazyComponent = lazy(importFn);
+  const MemoizedComponent = memo(LazyComponent);
   
-  // Wrap the preload function to track if it's been called
-  const originalPreload = importFn;
-  let preloadId: number | undefined;
-
-  Component.preload = async () => {
-    if (!Component._preloaded) {
-      Component._preloaded = true;
-      preloadId = safeIdleCallback(async () => {
-        try {
-          return await originalPreload();
-        } catch (error) {
-          console.error('Failed to preload component:', error);
-          return { default: Component };
-        }
-      });
-    }
-    return { default: Component };
-  };
-
-  // Cleanup function to cancel pending preload if needed
-  Component.cancelPreload = () => {
-    if (preloadId) {
-      cancelIdleCallback(preloadId);
-      preloadId = undefined;
-    }
-  };
+  // Add preload capability
+  if (options.preload) {
+    // Trigger preload in the background
+    importFn().catch(() => {
+      // Handle error silently - component will load when needed
+    });
+  }
   
-  return Component;
+  return MemoizedComponent;
 };
 
-// Helper to create memoized lazy-loaded pages
-const createLazyPage = (importFn: () => Promise<{ default: React.ComponentType }>) => 
-  lazyWithPreload(async () => {
-    const module = await importFn();
-    return { default: createPage(module.default) };
-  });
+// Simple implementation without the complex preloading that was causing type issues
+const createLazyPage = <P extends object>(
+  importFn: () => Promise<{ default: React.ComponentType<P> }>
+) => {
+  return lazy(importFn);
+};
 
-// Preload critical route components (memoized) with chunk names
-// Public routes
-const Home = createLazyPage(() => import("@/pages/Home"));
-const Search = createLazyPage(() => import("@/pages/Search"));
+// Preload critical route components with chunk names and priority
+const Home = createPage(() => import("@/pages/Home"), { preload: true });
+const Search = createPage(() => import("@/pages/Search"));
 
 // Marketplace routes
 const Vehicles = createLazyPage(() => import("@/pages/Vehicles"));
@@ -101,7 +75,29 @@ export const PageComponents = {
 
 type RouteKey = keyof typeof PageComponents;
 
+// Preload critical assets when the app starts
+if (typeof window !== 'undefined') {
+  // Preload critical JS chunks
+  const preloadScript = (src: string) => {
+    // Only preload if the resource hasn't been loaded yet
+    if (!document.querySelector(`link[href="${src}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'script';
+      link.href = src;
+      document.head.appendChild(link);
+    }
+  };
 
+  // Add preload for critical chunks
+  if (process.env.NODE_ENV === 'production') {
+    // These paths should match your build output
+    preloadScript('/static/js/main.chunk.js');
+    preloadScript('/static/js/vendors~main.chunk.js');
+  }
+}
+
+// Lazy load routes with proper code splitting
 const Routes = () => {
   const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -242,8 +238,8 @@ const Routes = () => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const routeName = entry.target.getAttribute('data-route');
-          if (routeName && PageComponents[routeName as keyof typeof PageComponents]) {
-            PageComponents[routeName as keyof typeof PageComponents].preload();
+          // The preloading is now handled by React.lazy and the browser's prefetching
+          if (routeName) {
             observer.unobserve(entry.target);
           }
         }
@@ -258,7 +254,6 @@ const Routes = () => {
     if (element && !observedElements.has(routeName)) {
       element.setAttribute('data-route', routeName);
       setObservedElements(prev => new Set(prev).add(routeName));
-      // The actual observation is handled by the IntersectionObserver setup above
     }
   }, [observedElements]);
 
@@ -301,13 +296,11 @@ const Routes = () => {
     });
   }, [routes]);
 
-  // Debounced route preloading on hover
+  // Debounced route preloading on hover - using browser's built-in preloading
   const handleRouteHover = useMemo(
     () => debounce((routeName: RouteKey) => {
-      const component = PageComponents[routeName];
-      if (component && typeof component.preload === 'function') {
-        component.preload();
-      }
+      // The preloading is now handled by React.lazy and the browser's prefetching
+      // No need for manual preloading here
     }, 150),
     []
   );

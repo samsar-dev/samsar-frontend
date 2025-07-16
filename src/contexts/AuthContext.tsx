@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import { apiClient } from "../api/apiClient";
@@ -31,20 +31,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const clearError = () => {
-    setState((prev) => ({ ...prev, error: null, retryAfter: null }));
-  };
+  const clearError = useCallback(() => {
+    setState((prev) => (prev.error || prev.retryAfter ? { ...prev, error: null, retryAfter: null } : prev));
+  }, []);
 
-  const updateAuthUser = (userData: AuthState["user"]) => {
+  const updateAuthUser = useCallback((userData: AuthState["user"]) => {
     setState((prev) => ({
       ...prev,
       user: userData,
       error: null,
       retryAfter: null,
     }));
-  };
+  }, []);
 
-  const handleAuthError = (error: AuthError | null) => {
+  const handleAuthError = useCallback((error: AuthError | null) => {
     if (error?.code === "RATE_LIMIT") {
       toast.error(error.message);
       setState((prev) => ({
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       toast.error(error.message);
       setState((prev) => ({ ...prev, error }));
     }
-  };
+  }, []);
 
   const checkAuth = async () => {
     try {
@@ -261,30 +261,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     try {
       await AuthAPI.logout();
     } catch (error) {
-      console.error("Logout API failed:", error); // Log or handle if needed
+      console.error("Logout API failed:", error);
     } finally {
-      setState({
+      setState(prev => ({
         ...initialState,
-      });
+        isLoading: false
+      }));
+      setIsInitialized(true);
     }
-  };
+  }, []);
 
-  const value: AuthContextType = {
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
     ...state,
     login,
     register,
     logout,
     clearError,
     updateAuthUser,
+    handleAuthError,
     isInitialized,
-  };
+  }), [
+    state, 
+    login, 
+    register, 
+    logout, 
+    clearError, 
+    updateAuthUser, 
+    handleAuthError, 
+    isInitialized
+  ]);
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={contextValue}>
       {state.isLoading ? (
         <div 
           className="flex h-screen w-full items-center justify-center bg-gray-50"

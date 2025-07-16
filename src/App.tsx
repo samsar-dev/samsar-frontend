@@ -1,8 +1,8 @@
-import { type ReactElement, useEffect, useState, memo, Suspense, lazy } from "react";
+import { useEffect, memo, Suspense, lazy, useMemo, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Import providers directly since they're lightweight
+// Import only necessary providers directly
 import { AuthProvider, ListingsProvider, FavoritesProvider, UIProvider } from "@/contexts";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -10,29 +10,47 @@ import { MessagesProvider } from "./contexts/MessagesContext";
 import SavedListingsProvider from "./contexts/SavedListingsContext";
 import { SocketProvider } from "./contexts/SocketContext";
 
-// Lazy load heavy components with proper type annotations
+// Lazy load heavy components with proper type annotations and preloading
 const ErrorBoundary = lazy(() => 
   import("@/components/common/ErrorBoundary")
     .then(module => ({ default: module.default }))
 );
 
-const SpeedInsights = lazy(() => 
-  import("@vercel/speed-insights/react")
-    .then(module => ({ default: () => <module.SpeedInsights /> }))
+// Only load analytics in production
+const LazyAnalytics = lazy(() => 
+  import("@vercel/analytics/react").then(module => ({
+    default: () => (process.env.NODE_ENV === 'production' ? <module.Analytics /> : null)
+  }))
 );
 
-const Analytics = lazy(() => 
-  import("@vercel/analytics/react")
-    .then(module => ({ 
-      default: () => {
-        const isProd = process.env.NODE_ENV === 'production';
-        return isProd ? <module.Analytics /> : null;
-      }
-    }))
-);
-
-// Lazy load routes
+// Lazy load routes with preloading
 const Routes = lazy(() => import("./routes/Routes"));
+
+// Preload critical components after initial render
+const preloadNonCriticalComponents = () => {
+  if (typeof window !== 'undefined') {
+    // Preload analytics in the background
+    import("@vercel/analytics/react").catch(() => {});
+    
+    // Preload other non-critical components
+    const componentsToPreload = [
+      import("@vercel/speed-insights/react"),
+      // Add other non-critical components here
+    ];
+    
+    // Use requestIdleCallback to avoid blocking the main thread
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        Promise.allSettled(componentsToPreload);
+      });
+    } else {
+      // Fallback for browsers that don't support requestIdleCallback
+      setTimeout(() => {
+        Promise.allSettled(componentsToPreload);
+      }, 5000);
+    }
+  }
+};
 
 // Import utilities
 import { setupAuthDebugger } from "@/utils/authDebug";
@@ -59,77 +77,109 @@ if (typeof document !== "undefined") {
   document.head.appendChild(dnsPrefetchLink);
 }
 
+// Optimized provider components with memo and proper typing
+type ProviderProps = { children: React.ReactNode };
+
 // Memoized provider components to prevent unnecessary re-renders
-const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={null}>
+const CombinedDataProvider = memo(({ children }: ProviderProps) => {
+  return (
     <ListingsProvider>
       <FavoritesProvider>
         <SavedListingsProvider>{children}</SavedListingsProvider>
       </FavoritesProvider>
     </ListingsProvider>
-  </Suspense>
+  );
+});
+
+const UIProviders = memo(({ children }: ProviderProps) => (
+  <UIProvider>
+    <SettingsProvider>{children}</SettingsProvider>
+  </UIProvider>
 ));
 
-const UIProviders = memo(({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={null}>
-    <UIProvider>
-      <SettingsProvider>{children}</SettingsProvider>
-    </UIProvider>
-  </Suspense>
-));
-
-const CommunicationProviders = memo(({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={null}>
-    <SocketProvider>
-      <MessagesProvider>
-        <NotificationsProvider>{children}</NotificationsProvider>
-      </MessagesProvider>
-    </SocketProvider>
-  </Suspense>
+const CommunicationProviders = memo(({ children }: ProviderProps) => (
+  <SocketProvider>
+    <MessagesProvider>
+      <NotificationsProvider>{children}</NotificationsProvider>
+    </MessagesProvider>
+  </SocketProvider>
 ));
 
 // Preload critical resources
-const preloadResources = () => {
-  if (typeof document !== 'undefined') {
-    // Preload critical CSS
-    const preloadLink = document.createElement('link');
-    preloadLink.rel = 'preload';
-    preloadLink.as = 'style';
-    preloadLink.href = '/path/to/critical.css';
-    document.head.appendChild(preloadLink);
-  }
+const preloadCriticalResources = () => {
+  if (typeof document === 'undefined') return;
+  
+  // Preload critical CSS
+  const preloadCriticalCSS = () => {
+    const criticalCSS = document.querySelector('style[data-critical-css]');
+    if (!criticalCSS) return;
+    
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'style';
+    link.href = '/path/to/critical.css';
+    link.onload = () => link.onload = null;
+    document.head.appendChild(link);
+  };
+  
+  // Preload web fonts
+  const preloadFonts = () => {
+    const fontFiles = [
+      '/fonts/your-font.woff2',
+      // Add other critical font files
+    ];
+    
+    fontFiles.forEach(font => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'font';
+      link.href = font;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    });
+  };
+  
+  // Run preload functions
+  preloadCriticalCSS();
+  preloadFonts();
 };
 
-const App: () => ReactElement = () => {
+const App: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Initialize critical resources first
-        preloadResources();
-        
-        // Non-critical initialization can happen after first paint
-        requestIdleCallback(() => {
-          setupAuthDebugger();
-        });
-        
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-        // Still show app even if initialization fails
-        setIsInitialized(true);
-      }
-    };
-
-    // Use requestIdleCallback to avoid blocking the main thread
-    if (window.requestIdleCallback) {
-      requestIdleCallback(initializeApp);
-    } else {
-      // Fallback for browsers that don't support requestIdleCallback
-      setTimeout(initializeApp, 0);
+    // Initialize debug tools in development
+    if (process.env.NODE_ENV === 'development') {
+      setupAuthDebugger();
     }
+    
+    // Preload critical resources after initial render
+    preloadCriticalResources();
+    
+    // Mark app as initialized
+    setIsInitialized(true);
+    
+    // Preload non-critical components after a delay
+    const preloadTimer = setTimeout(preloadNonCriticalComponents, 2000);
+    
+    return () => clearTimeout(preloadTimer);
   }, []);
+  
+  // Memoize the toast container config to prevent unnecessary re-renders
+  const toastContainer = useMemo(() => (
+    <ToastContainer
+      position="bottom-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
+  ), []);
 
   if (!isInitialized) {
     return (
@@ -143,73 +193,44 @@ const App: () => ReactElement = () => {
   }
 
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    }>
-      <ErrorBoundary
-        onError={(error, errorInfo) => {
-          // Log errors to your monitoring service
-          console.error("Application error:", error);
-          console.error("Component stack:", errorInfo.componentStack);
-        }}
-      >
-        <AuthProvider>
-          <UIProviders>
+    <ErrorBoundary
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-white p-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-6">We're sorry, but an unexpected error occurred.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      }
+    >
+      <AuthProvider>
+        <UIProviders>
+          <CommunicationProviders>
             <CombinedDataProvider>
-              <CommunicationProviders>
-                <ErrorBoundary
-                  fallback={
-                    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-                      <div className="max-w-md w-full space-y-4 text-center">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          Something went wrong with this view
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          We've encountered an error rendering this page. Please
-                          try refreshing.
-                        </p>
-                        <button
-                          onClick={() => window.location.reload()}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                          Refresh Page
-                        </button>
-                      </div>
-                    </div>
-                  }
-                >
-                  <Suspense fallback={
-                    <div className="min-h-screen flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                    </div>
-                  }>
-                    <Routes />
-                  </Suspense>
-                </ErrorBoundary>
-                <ToastContainer
-                  position="top-right"
-                  autoClose={5000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick
-                  rtl={false}
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  theme="light"
-                />
+              <Suspense
+                fallback={
+                  <div className="min-h-screen flex items-center justify-center">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                  </div>
+                }
+              >
+                <Routes />
+                {toastContainer}
                 <Suspense fallback={null}>
-                  <SpeedInsights />
-                  <Analytics />
+                  <LazyAnalytics />
                 </Suspense>
-              </CommunicationProviders>
+              </Suspense>
             </CombinedDataProvider>
-          </UIProviders>
-        </AuthProvider>
-      </ErrorBoundary>
-    </Suspense>
+          </CommunicationProviders>
+        </UIProviders>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 
