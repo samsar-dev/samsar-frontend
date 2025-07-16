@@ -80,7 +80,22 @@ const ImageComponent: React.FC<ImageProps> = ({
   // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
-  const imageQuality = priority ? Math.min(90, quality) : Math.max(60, quality);
+  // Calculate optimal quality and width based on viewport and priority
+  const calculateOptimalQuality = () => {
+    if (priority) return 90; // High quality for priority images
+    if (window.innerWidth < 640) return 60; // Lower quality for mobile
+    return 75; // Medium quality for desktop
+  };
+
+  const calculateOptimalWidth = () => {
+    if (priority) return 1200; // Full width for priority images
+    if (window.innerWidth < 640) return 300; // Mobile optimized
+    if (window.innerWidth < 1024) return 600; // Tablet optimized
+    return 900; // Desktop optimized
+  };
+
+  const imageQuality = calculateOptimalQuality();
+  const optimalWidth = calculateOptimalWidth();
 
   // Generate optimized image URL with WebP format and proper caching
   const getOptimizedImageUrl = (width?: number) => {
@@ -88,7 +103,7 @@ const ImageComponent: React.FC<ImageProps> = ({
     const params = new URLSearchParams();
     params.append("format", "webp");
     params.append("quality", imageQuality.toString());
-    if (width) params.append("width", width.toString());
+    params.append("width", (width || optimalWidth).toString());
 
     // Set long cache TTL (30 days) for optimized images to leverage browser cache
     params.append("cache", (60 * 60 * 24 * 30).toString()); // 30 days in seconds

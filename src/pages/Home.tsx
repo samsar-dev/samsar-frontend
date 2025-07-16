@@ -1195,11 +1195,10 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=75"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg"
                       alt={t("home:categories.cars", "سيارات")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
+                      className="min-w-full min-h-full object-cover"
+                      priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.cars", "سيارات")}
                     />
@@ -1228,11 +1227,10 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=75"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg"
                       alt={t("home:categories.real_estate", "عقارات")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
+                      className="min-w-full min-h-full object-cover"
+                      priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.real_estate", "عقارات")}
                     />
@@ -1257,11 +1255,10 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=75&format=webp"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png"
                       alt={t("home:categories.motorcycles", "دراجات نارية")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
+                      className="min-w-full min-h-full object-cover"
+                      priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.motorcycles", "دراجات نارية")}
                     />
@@ -1286,11 +1283,10 @@ const Home: React.FC = () => {
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800&quality=75"
+                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg"
                       alt={t("home:categories.commercial", "تجاري")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
+                      className="min-w-full min-h-full object-cover"
+                      priority={true}
                       loading="lazy"
                       fallbackText={t("home:categories.commercial", "تجاري")}
                     />
