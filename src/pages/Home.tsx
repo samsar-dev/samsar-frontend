@@ -1102,30 +1102,80 @@ const Home: React.FC = () => {
           <p 
             className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto"
             style={{
+              // Inline critical CSS for LCP text
+              fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+              fontWeight: 400,
+              lineHeight: '1.5',
               fontKerning: 'normal',
               textRendering: 'optimizeSpeed',
-              willChange: 'transform',
               fontOpticalSizing: 'auto',
               fontFeatureSettings: '"kern" 1',
               WebkitFontSmoothing: 'antialiased',
-              MozOsxFontSmoothing: 'grayscale'
+              MozOsxFontSmoothing: 'grayscale',
+              // Optimize for LCP
+              contentVisibility: 'auto',
+              content: ' ',
+              // Force GPU acceleration
+              backfaceVisibility: 'hidden',
+              // Prevent layout shifts
+              minHeight: '1.5em',
+              // Initial opacity for fade-in
+              opacity: 0,
+              // Animation
+              animation: 'fadeInText 0.3s ease-out 0.1s forwards',
+              // Ensure animation runs on GPU
+              willChange: 'opacity',
+              // Optimize for performance
+              transform: 'translateZ(0)'
+            }}
+            // Add preload hints for fonts
+            data-preload-fonts="Inter:wght@400;500;600;700"
+          >
+            {selectedCategory === ListingCategory.VEHICLES
+              ? t(
+                "home:hero_subtitle",
+                "اكتشف مجموعة واسعة من السيارات المستعملة والجديدة بأفضل الأسعار في سوريا"
+              )
+              : t("home:property_section.subtitle", "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار")}
+          </p>
+          
+          {/* Inline critical animation */}
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes fadeInText {
+                from { opacity: 0; transform: translateY(5px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              
+              @media (prefers-reduced-motion: reduce) {
+                [style*="animation:"] {
+                  animation-duration: 0.01ms !important;
+                  animation-iteration-count: 1 !important;
+                  transition-duration: 0.01ms !important;
+                  scroll-behavior: auto !important;
+                }
+              }
+            `
+          }} />
+
+          {/* Category Buttons - Defer non-critical UI */}
+          <div 
+            className="mt-8 flex flex-wrap justify-center gap-4"
+            style={{
+              // Defer rendering slightly to prioritize LCP
+              contentVisibility: 'auto',
+              // Prevent layout shifts
+              minHeight: '3.5rem',
+              // Initial state for fade-in
+              opacity: 0,
+              // Animate in after LCP
+              animation: 'fadeIn 0.3s ease-out 0.2s forwards',
+              // Optimize for performance
+              willChange: 'opacity',
+              backfaceVisibility: 'hidden',
+              transform: 'translateZ(0)'
             }}
           >
-            <span className="inline-block" style={{
-              animation: 'fadeIn 0.3s ease-out',
-              animationFillMode: 'both'
-            }}>
-              {selectedCategory === ListingCategory.VEHICLES
-                ? t(
-                  "home:hero_subtitle",
-                  "اكتشف مجموعة واسعة من السيارات المستعملة والجديدة بأفضل الأسعار في سوريا"
-                )
-                : t("home:property_section.subtitle", "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار")}
-            </span>
-          </p>
-
-          {/* Category Buttons */}
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button
               onClick={() => setSelectedCategory(ListingCategory.VEHICLES)}
               className={`px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 ${

@@ -141,41 +141,59 @@ export default defineConfig(({ mode, command }) => {
 
     build: {
       target: 'es2020',
-      outDir: "dist",
-      assetsDir: "assets",
-      assetsInlineLimit: 4096, // 4kb
-      emptyOutDir: true,
-      sourcemap: true,
-      sourcemapFileNames: '[name]-[hash].map',
-      sourcemapIgnoreList: (file) => !file.endsWith('.js'),
-      
-      minify: isProduction ? "terser" : false,
-      cssCodeSplit: true,
-      chunkSizeWarningLimit: 500,
-      reportCompressedSize: false,
-      brotliSize: false,
-      
+      outDir: 'dist',
+      sourcemap: !isProduction,
+      // Optimize chunks for better code splitting
       rollupOptions: {
         output: {
-          sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: '[name]-[hash].map',
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            "vendor-large": ["framer-motion"],
-            vendor: ["axios", "date-fns", "react-i18next"],
-            ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
-            
+          manualChunks: (id) => {
+            // Group vendor dependencies
+            if (id.includes('node_modules')) {
+              if (id.includes('@mui') || id.includes('@emotion')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                return 'vendor-react';
+              }
+              if (id.includes('mapbox-gl') || id.includes('@mapbox')) {
+                return 'vendor-maps';
+              }
+              return 'vendor';
+            }
+            // Group routes for better code splitting
+            if (id.includes('src/routes/')) {
+              const match = id.match(/src\/routes\/([^\/]+)\/?/);
+              if (match && match[1] && !['components', 'utils', 'hooks'].includes(match[1])) {
+                return `route-${match[1].toLowerCase()}`;
+              }
+            }
           },
-          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-            const relativePath = path.relative(process.cwd(), relativeSourcePath);
-            // Use relative path for source maps
-            return `/${relativePath}`;
-          },
+          // Optimize chunk size
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          // Enable tree-shaking
+          exports: 'named',
+          // Enable better minification
+          compact: true,
+        },
+        // Enable tree-shaking
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
         },
       },
+      minify: isProduction ? 'terser' : false,
+      // Enable CSS code splitting
+      cssCodeSplit: true,
+      // Disable large chunk warnings
+      chunkSizeWarningLimit: 1000,
+      // These are now set in rollupOptions
+      reportCompressedSize: true,
+      // Enable brotli size reporting
+      brotliSize: true,
+      
       terserOptions: {
         compress: {
           drop_console: mode === "production",
