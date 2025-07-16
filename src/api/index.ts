@@ -5,7 +5,6 @@ import { API_URL, SOCKET_URL } from "@/config";
 // Export all API modules
 export * from "./auth.api";
 export * from "./common.api";
-export * from "./components.api";
 export * from "./listings.api";
 export * from "./messaging.api";
 export * from "./notifications.api";

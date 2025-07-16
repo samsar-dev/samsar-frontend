@@ -16,7 +16,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   error: null,
   retryAfter: null,
 };
@@ -30,6 +30,12 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize auth state as soon as possible
+  useEffect(() => {
+    setState(prev => ({ ...prev, isLoading: true }));
+    checkAuth();
+  }, []);
 
   const clearError = useCallback(() => {
     setState((prev) => (prev.error || prev.retryAfter ? { ...prev, error: null, retryAfter: null } : prev));
