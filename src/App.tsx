@@ -21,24 +21,40 @@ import { Helmet } from 'react-helmet-async';
 
 // Preconnect to external resources
 if (typeof document !== 'undefined') {
-  const links = [
+  // Preconnect to Google Fonts
+  const preconnectGoogle = document.createElement('link');
+  preconnectGoogle.rel = 'preconnect';
+  preconnectGoogle.href = 'https://fonts.googleapis.com';
+  preconnectGoogle.crossOrigin = 'anonymous';
+  document.head.appendChild(preconnectGoogle);
+  
+  const preconnectGStatic = document.createElement('link');
+  preconnectGStatic.rel = 'preconnect';
+  preconnectGStatic.href = 'https://fonts.gstatic.com';
+  preconnectGStatic.crossOrigin = 'anonymous';
+  document.head.appendChild(preconnectGStatic);
+
+  // Load fonts with display=swap
+  const fontLinks = [
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
-    'https://fonts.googleapis.com/icon?family=Material+Icons',
+    'https://fonts.googleapis.com/icon?family=Material+Icons&display=swap',
   ];
-  links.forEach(href => {
-    const preload = document.createElement('link');
-    preload.rel = 'preload';
-    preload.href = href;
-    preload.as = 'style';
-    document.head.appendChild(preload);
-    const stylesheet = document.createElement('link');
-    stylesheet.rel = 'stylesheet';
-    stylesheet.href = href;
-    stylesheet.media = 'print';
-    stylesheet.onload = () => { stylesheet.media = 'all'; };
-    document.head.appendChild(stylesheet);
+  
+  fontLinks.forEach(href => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.media = 'print';
+    link.onload = () => { link.media = 'all'; };
+    document.head.appendChild(link);
   });
-  import('@/utils/preloadUtils').then(m => m.preloadCriticalAssets()).catch(console.error);
+
+  // Load critical assets with lower priority
+  requestIdleCallback(() => {
+    import('@/utils/preloadUtils')
+      .then(m => m.preloadCriticalAssets())
+      .catch(console.error);
+  });
 }
 
 const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) => (
@@ -65,10 +81,20 @@ const CommunicationProviders = memo(({ children }: { children: React.ReactNode }
 
 const App = (): ReactElement => {
   useEffect(() => {
-    try {
-      setupAuthDebugger();
-    } catch (error) {
-      console.error('Error in setupAuthDebugger:', error);
+    // Defer non-critical initialization
+    const initAuthDebugger = () => {
+      try {
+        setupAuthDebugger();
+      } catch (error) {
+        console.error('Error in setupAuthDebugger:', error);
+      }
+    };
+    
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(initAuthDebugger);
+    } else {
+      // Fallback for browsers that don't support requestIdleCallback
+      setTimeout(initAuthDebugger, 0);
     }
   }, []);
 

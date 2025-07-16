@@ -7,8 +7,23 @@ import {
   useCallback,
   useMemo,
   memo,
+  ReactNode,
+  LazyExoticComponent,
+  ComponentType,
+  ReactElement
 } from "react";
 import type { RouteObject } from "react-router-dom";
+
+// Extend RouteObject to include preloadable components
+interface PreloadableRouteObject extends Omit<RouteObject, 'element' | 'children'> {
+  element?: ReactNode & {
+    type?: LazyExoticComponent<ComponentType<any>> & {
+      _preloaded?: boolean;
+      preload?: () => Promise<{ default: ComponentType }>;
+    };
+  };
+  children?: PreloadableRouteObject[];
+}
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
@@ -76,31 +91,52 @@ export const PageComponents = {
 type RouteKey = keyof typeof PageComponents;
 
 const Routes = () => {
-  const [routes, setRoutes] = useState<RouteObject[]>([]);
+  const [routes, setRoutes] = useState<PreloadableRouteObject[]>([]);
   const [observedElements, setObservedElements] = useState<Set<string>>(new Set());
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const preload = async () => {
-      preloadCriticalAssets();
-      const [mainRoutes, authRoutes] = await Promise.all([
-        import("@/routes/MainRoutes").then(m => m.default).catch(() => []),
-        import("@/routes/AuthRoutes").then(m => m.default).catch(() => []),
-      ]);
-      setRoutes([...mainRoutes, ...authRoutes]);
-      setIsInitialized(true);
-      Promise.all([
-        import("@/routes/ProfileRoutes").catch(() => null),
-        import("@/routes/AdminRoutes").catch(() => null),
-      ]).then(([profileRoutes, adminRoutes]) => {
-        setRoutes(prev => [
-          ...prev,
-          ...(profileRoutes?.default || []),
-          ...(adminRoutes?.default || []),
+    let mounted = true;
+    
+    const loadCriticalRoutes = async () => {
+      try {
+        // Load critical routes first
+        const [mainRoutes, authRoutes] = await Promise.all([
+          import("@/routes/MainRoutes").then(m => m.default).catch(() => []),
+          import("@/routes/AuthRoutes").then(m => m.default).catch(() => []),
         ]);
-      });
+        
+        if (mounted) {
+          setRoutes(prev => [...prev, ...mainRoutes, ...authRoutes]);
+          setIsInitialized(true);
+        }
+        
+        // Preload other routes in the background
+        requestIdleCallback(() => {
+          Promise.all([
+            import("@/routes/ProfileRoutes").catch(() => null),
+            import("@/routes/AdminRoutes").catch(() => null),
+          ]).then(([profileRoutes, adminRoutes]) => {
+            if (mounted) {
+              setRoutes(prev => [
+                ...prev,
+                ...(profileRoutes?.default || []),
+                ...(adminRoutes?.default || []),
+              ]);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error loading routes:', error);
+        if (mounted) setIsInitialized(true);
+      }
     };
-    preload();
+
+    loadCriticalRoutes();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const observeRoute = useCallback((routeName: string, el: HTMLElement | null) => {
@@ -111,32 +147,85 @@ const Routes = () => {
   }, [observedElements]);
 
   const renderRoutes = useCallback(() => {
-    if (!isInitialized) return null;
-    if (!routes.length) {
-      return <Route path="*" element={<ErrorBoundary><Suspense fallback={null}><NotFound /></Suspense></ErrorBoundary>} />;
+    if (!isInitialized) {
+      // Show a minimal loading state or null to avoid layout shifts
+      return null;
     }
-    return routes.map((route, i) => (
-      <Route
-        key={route.path || i}
-        path={route.path}
-        element={<ErrorBoundary><Suspense fallback={null}>{route.element}</Suspense></ErrorBoundary>}
-      >
-        {route.children?.map((child, j) => (
-          <Route
-            key={child.path || j}
-            path={child.path}
-            element={<ErrorBoundary><Suspense fallback={null}>{child.element}</Suspense></ErrorBoundary>}
-          />
-        ))}
-      </Route>
-    ));
+    
+    if (!routes.length) {
+      return (
+        <Route 
+          path="*" 
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <NotFound />
+              </Suspense>
+            </ErrorBoundary>
+          } 
+        />
+      );
+    }
+    
+    return routes.map((route, i) => {
+      // Type guard to check if the element has preload capability
+      const elementWithPreload = route.element as ReactElement & {
+        type?: LazyExoticComponent<ComponentType> & {
+          _preloaded?: boolean;
+          preload?: () => Promise<{ default: ComponentType }>;
+        };
+      };
+      
+      // Preload route component when it's about to be rendered
+      if (elementWithPreload?.type?.preload && !elementWithPreload.type._preloaded) {
+        elementWithPreload.type.preload().catch(console.error);
+      }
+      
+      return (
+        <Route
+          key={route.path || i}
+          path={route.path}
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                {route.element}
+              </Suspense>
+            </ErrorBoundary>
+          }
+        >
+          {route.children?.map((child, j) => (
+            <Route
+              key={child.path || j}
+              path={child.path}
+              element={
+                <ErrorBoundary>
+                  <Suspense fallback={null}>
+                    {child.element}
+                  </Suspense>
+                </ErrorBoundary>
+              }
+            />
+          ))}
+        </Route>
+      );
+    });
   }, [routes, isInitialized]);
 
   const handleRouteHover = useMemo(
     () => debounce((routeName: RouteKey) => {
-      const component = PageComponents[routeName];
-      if (component?.preload) component.preload();
-    }, 150),
+      // Use requestIdleCallback to preload on hover without blocking main thread
+      requestIdleCallback(() => {
+        const component = PageComponents[routeName];
+        if (component?.preload) {
+          // Add a small delay to avoid preloading if the user just hovers briefly
+          setTimeout(() => {
+            if (component.preload) {
+              component.preload().catch(console.error);
+            }
+          }, 100);
+        }
+      });
+    }, 200), // Slightly increased debounce time
     []
   );
 

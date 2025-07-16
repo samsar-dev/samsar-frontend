@@ -32,8 +32,30 @@ const createPreloadLink = (
 /**
  * Preloads critical assets that are needed immediately
  */
+// Performance monitoring
+const measureResourceTiming = (resourceName: string, startTime: number) => {
+  if (window.performance) {
+    const timing = performance.now() - startTime;
+    console.debug(`[Perf] ${resourceName} loaded in ${timing.toFixed(2)}ms`);
+  }
+};
+
 export const preloadCriticalAssets = () => {
   if (typeof window === 'undefined') return;
+  
+  const startTime = performance.now();
+  let loadedResources = 0;
+  const totalResources = 2; // CSS + Fonts
+
+  const onResourceLoaded = (resourceName: string) => {
+    loadedResources++;
+    measureResourceTiming(resourceName, startTime);
+    
+    if (loadedResources >= totalResources) {
+      const totalTime = performance.now() - startTime;
+      console.debug(`[Perf] All critical assets loaded in ${totalTime.toFixed(2)}ms`);
+    }
+  };
 
   // Only preload critical CSS if not already inlined
   if (!document.querySelector('style#critical-css')) {
@@ -43,21 +65,68 @@ export const preloadCriticalAssets = () => {
       'text/css',
       false
     );
-    cssLink.onload = () => cssLink.rel = 'stylesheet';
+    cssLink.onload = () => {
+      cssLink.rel = 'stylesheet';
+      onResourceLoaded('Critical CSS');
+    };
+    cssLink.onerror = () => onResourceLoaded('Critical CSS (failed)');
     document.head.appendChild(cssLink);
+  } else {
+    onResourceLoaded('Critical CSS (inlined)');
   }
 
-  // Preload critical fonts
+  // Preload critical fonts with font-display: swap
   const criticalFonts = [
-    { href: '/fonts/inter.woff2', type: 'font/woff2' },
-    { href: '/fonts/roboto.woff2', type: 'font/woff2' },
+    { 
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+      type: 'font/woff2',
+      name: 'Inter Font'
+    },
+    { 
+      href: 'https://fonts.googleapis.com/icon?family=Material+Icons&display=swap',
+      type: 'font/woff2',
+      name: 'Material Icons'
+    },
   ];
 
-  criticalFonts.forEach(({ href, type }) => {
+  // Check if fonts are already loaded
+  const fontFaceSet = document.fonts as any;
+  const loadedFonts = new Set<string>();
+  
+  const checkFontsLoaded = () => {
+    criticalFonts.forEach(({ name }) => {
+      if (!loadedFonts.has(name)) {
+        // Check if the font is already in the document
+        const isFontLoaded = Array.from(document.fonts).some(font => 
+          font.family.includes(name.split(' ')[0])
+        );
+        
+        if (isFontLoaded) {
+          loadedFonts.add(name);
+          onResourceLoaded(`${name} (cached)`);
+        }
+      }
+    });
+    
+    if (loadedFonts.size < criticalFonts.length) {
+      requestAnimationFrame(checkFontsLoaded);
+    }
+  };
+  
+  // Start checking for loaded fonts
+  requestAnimationFrame(checkFontsLoaded);
+
+  // Preload fonts that aren't already loaded
+  criticalFonts.forEach(({ href, type, name }) => {
     if (!preloadedResources.has(href)) {
-      const link = createPreloadLink(href, 'font', type);
-      link.onload = () => preloadedResources.add(href);
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.crossOrigin = 'anonymous';
+      link.onload = () => onResourceLoaded(`${name} (loaded)`);
+      link.onerror = () => onResourceLoaded(`${name} (failed)`);
       document.head.appendChild(link);
+      preloadedResources.add(href);
     }
   });
 };
