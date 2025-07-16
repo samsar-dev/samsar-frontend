@@ -43,9 +43,13 @@ export default defineConfig(({ mode }) => {
     },
     define: envVars,
     plugins: [
-      // Use default SWC configuration from .swcrc
-      // No additional configuration needed here as .swcrc is automatically picked up
-      react(),
+      react({
+        // Use SWC for faster builds
+        // The .swcrc file contains all necessary configuration
+        // for TypeScript, JSX, and Emotion
+        tsDecorators: true,
+        jsxImportSource: '@emotion/react'
+      }),
       viteCompression({ threshold: 1024, algorithm: 'brotliCompress', ext: '.br' }),
       viteCompression({ threshold: 1024, algorithm: 'gzip', ext: '.gz' }),
       createHtmlPlugin({
