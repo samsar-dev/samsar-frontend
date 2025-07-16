@@ -177,9 +177,21 @@ export default defineConfig(({ mode, command }) => {
       treeshake: {
         moduleSideEffects: false,
         propertyReadSideEffects: false,
+        tryCatchDeoptimization: true,
+        unknownGlobalSideEffects: true,
       },
-      
       minify: isProduction ? "terser" : false,
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'debugger'],
+          keep_fnames: false,
+          keep_classnames: false,
+          keep_names: false,
+          ecma: 2020,
+        },
+      },
       cssCodeSplit: false,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
@@ -273,16 +285,6 @@ export default defineConfig(({ mode, command }) => {
               },
             },
           },
-        },
-      },
-      terserOptions: {
-        compress: {
-          drop_console: mode === "production",
-          drop_debugger: mode === "production",
-          pure_funcs: ["console.log"],
-        },
-        format: {
-          comments: false,
         },
       },
     },

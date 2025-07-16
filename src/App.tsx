@@ -1,23 +1,25 @@
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-import {
-  AuthProvider,
-  FavoritesProvider,
-  ListingsProvider,
-  UIProvider,
-} from "@/contexts";
-import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import { SettingsProvider } from "@/contexts/SettingsContext";
-import { setupAuthDebugger } from "@/utils/authDebug";
 import { type ReactElement, useEffect, memo, Suspense, lazy } from "react";
-const ToastContainer = lazy(() => import("react-toastify").then(m => ({ default: m.ToastContainer })));
+import { setupAuthDebugger } from "@/utils/authDebug";
+import { ToastContainer } from "react-toastify";
+import { ListingsProvider } from "@/contexts/ListingsContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
+
+// Lazy load non-critical components
+const ErrorBoundary = lazy(() => import("@/components/common/ErrorBoundary").then(m => ({ default: m.default })));
+const AuthProvider = lazy(() => import("@/contexts/AuthContext").then(m => ({ default: m.AuthProvider })));
+const UIProvider = lazy(() => import("@/contexts/UIContext").then(m => ({ default: m.UIProvider })));
+const NotificationsProvider = lazy(() => import("@/contexts/NotificationsContext").then(m => ({ default: m.NotificationsProvider })));
+const SettingsProvider = lazy(() => import("@/contexts/SettingsContext").then(m => ({ default: m.SettingsProvider })));
+const MessagesProvider = lazy(() => import("./contexts/MessagesContext").then(m => ({ default: m.MessagesProvider })));
+const SavedListingsProvider = lazy(() => import("./contexts/SavedListingsContext").then(m => ({ default: m.SavedListingsProvider })));
+const Routes = lazy(() => import("./routes/Routes").then(m => ({ default: m.default })));
+const SocketProvider = lazy(() => import("./contexts/SocketContext").then(m => ({ default: m.SocketProvider })));
+const SpeedInsights = lazy(() => import("@vercel/speed-insights/react").then(m => ({ default: m.SpeedInsights })));
+const Analytics = lazy(() => import("@vercel/analytics/react").then(m => ({ default: m.Analytics })));
+const Helmet = lazy(() => import('react-helmet-async').then(m => ({ default: m.Helmet })));
+
+// Import toastify CSS only once
 import "react-toastify/dist/ReactToastify.css";
-import { MessagesProvider } from "./contexts/MessagesContext";
-import SavedListingsProvider from "./contexts/SavedListingsContext";
-import Routes from "./routes/Routes";
-import { SocketProvider } from "./contexts/SocketContext";
-import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Analytics } from "@vercel/analytics/react";
-import { Helmet } from 'react-helmet-async';
 
 // Preconnect to external resources
 if (typeof document !== 'undefined') {

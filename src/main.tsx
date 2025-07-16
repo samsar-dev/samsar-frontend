@@ -5,9 +5,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import App from "./App";
-import "react-toastify/dist/ReactToastify.css";
-import { preloadAssets } from "./utils/preload";
-// import "react-loading-skeleton/dist/skeleton.css";
 import "./config/i18n"; // Import i18n configuration
 
 // Import critical styles
@@ -33,8 +30,6 @@ if (process.env.NODE_ENV === "production") {
     onLCP(reportMetric, { reportAllChanges: true });
   });
 }
-
-
 
 // Error boundary component with error reporting
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
@@ -114,7 +109,6 @@ const initializeApp = () => {
 // Initialize the app with error handling
 const startApp = () => {
   try {
-    preloadAssets();
     initializeReact();
   } catch (error) {
     console.error('Failed to initialize application:', error);
