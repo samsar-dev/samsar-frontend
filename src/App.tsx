@@ -16,12 +16,27 @@ const ErrorBoundary = lazy(() =>
     .then(module => ({ default: module.default }))
 );
 
-// Only load analytics in production
-const LazyAnalytics = lazy(() => 
-  import("@vercel/analytics/react").then(module => ({
-    default: () => (process.env.NODE_ENV === 'production' ? <module.Analytics /> : null)
-  }))
-);
+// Analytics will be loaded dynamically after idle time
+const useAnalytics = () => {
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          import('@vercel/analytics/react').then(({ Analytics }) => {
+            // Analytics will initialize itself when imported
+          }).catch(() => {
+            // Silently fail if analytics fails to load
+          });
+        });
+      } else {
+        // Fallback for browsers that don't support requestIdleCallback
+        setTimeout(() => {
+          import('@vercel/analytics/react').catch(() => {});
+        }, 2000);
+      }
+    }
+  }, []);
+};
 
 // Lazy load routes with preloading
 const Routes = lazy(() => import("./routes/Routes"));
@@ -144,20 +159,24 @@ const preloadCriticalResources = () => {
   preloadFonts();
 };
 
+const AnalyticsInitializer = () => {
+  useAnalytics();
+  return null;
+};
+
 const App: React.FC = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Initialize debug tools in development
-    if (process.env.NODE_ENV === 'development') {
-      setupAuthDebugger();
+    if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+      requestIdleCallback(() => setupAuthDebugger());
     }
+    
     
     // Preload critical resources after initial render
     preloadCriticalResources();
     
-    // Mark app as initialized
-    setIsInitialized(true);
+    
     
     // Preload non-critical components after a delay
     const preloadTimer = setTimeout(preloadNonCriticalComponents, 2000);
@@ -181,9 +200,7 @@ const App: React.FC = () => {
     />
   ), []);
 
-  if (!isInitialized) {
-     
-  }
+ 
 
   return (
     <ErrorBoundary
@@ -206,19 +223,9 @@ const App: React.FC = () => {
         <UIProviders>
           <CommunicationProviders>
             <CombinedDataProvider>
-              <Suspense
-                fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-                  </div>
-                }
-              >
-                <Routes />
-                {toastContainer}
-                <Suspense fallback={null}>
-                  <LazyAnalytics />
-                </Suspense>
-              </Suspense>
+              <Routes />
+              {toastContainer}
+              <AnalyticsInitializer />
             </CombinedDataProvider>
           </CommunicationProviders>
         </UIProviders>
