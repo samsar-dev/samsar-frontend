@@ -2,7 +2,6 @@ import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import { apiClient } from "../api/apiClient";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type {
   AuthContextType,
   AuthError,

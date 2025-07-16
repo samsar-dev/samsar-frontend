@@ -1,5 +1,5 @@
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+ 
 import {
   AuthProvider,
   FavoritesProvider,
@@ -21,24 +21,39 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 
 // Add resource hints for external resources
-if (typeof document !== "undefined") {
-  // Preconnect to primary API server
-  const preconnectPrimary = document.createElement("link");
-  preconnectPrimary.rel = "preconnect";
-  preconnectPrimary.href = new URL(API_URL_PRIMARY).origin;
-  document.head.appendChild(preconnectPrimary);
+if (typeof document !== 'undefined') {
+  // Preconnect to critical domains
+  const criticalDomains = [
+    new URL(API_URL_PRIMARY).origin,
+    new URL(API_URL_FALLBACK).origin,
+    'https://samsar-backend-production.up.railway.app',
+    'https://maps.googleapis.com',
+    'https://fonts.googleapis.com',
+    'https://fonts.gstatic.com',
+  ];
 
-  // Preconnect to fallback API server
-  const preconnectFallback = document.createElement("link");
-  preconnectFallback.rel = "preconnect";
-  preconnectFallback.href = new URL(API_URL_FALLBACK).origin;
-  document.head.appendChild(preconnectFallback);
+  // Use Set to avoid duplicates
+  new Set(criticalDomains).forEach(domain => {
+    // Preconnect with both preconnect and dns-prefetch for better browser support
+    const preconnect = document.createElement('link');
+    preconnect.rel = 'preconnect';
+    preconnect.href = domain;
+    preconnect.crossOrigin = 'anonymous';
+    document.head.appendChild(preconnect);
 
-  // DNS prefetch for API domains
-  const dnsPrefetchLink = document.createElement("link");
-  dnsPrefetchLink.rel = "dns-prefetch";
-  dnsPrefetchLink.href = "https://samsar-backend-production.up.railway.app";
-  document.head.appendChild(dnsPrefetchLink);
+    // Add dns-prefetch as fallback
+    if (domain.startsWith('http')) {
+      const dnsPrefetch = document.createElement('link');
+      dnsPrefetch.rel = 'dns-prefetch';
+      dnsPrefetch.href = domain;
+      document.head.appendChild(dnsPrefetch);
+    }
+  });
+
+  // Preload critical assets
+  import('@/utils/preloadUtils').then(({ preloadCriticalAssets }) => {
+    preloadCriticalAssets();
+  });
 }
 
 // Optimize context providers by combining related ones
@@ -77,34 +92,12 @@ const CommunicationProviders = memo(
 );
 
 const App: () => ReactElement = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
-
+  // Initialize immediately without any loading state
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        setupAuthDebugger();
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-        // Still show app even if initialization fails
-        setIsInitialized(true);
-      }
-    };
-
-    initializeApp();
+    setupAuthDebugger();
   }, []);
 
-  if (!isInitialized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading application...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Always render the app, let individual components handle their loading states
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
@@ -119,21 +112,14 @@ const App: () => ReactElement = () => {
             <CommunicationProviders>
               <ErrorBoundary
                 fallback={
-                  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-                    <div className="max-w-md w-full space-y-4 text-center">
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        Something went wrong with this view
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        We've encountered an error rendering this page. Please
-                        try refreshing.
-                      </p>
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Refresh Page
-                      </button>
+                  <div className="min-h-screen bg-white p-4">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                      <div className="rounded-lg bg-red-50 p-4">
+                        <h2 className="text-lg font-medium text-red-800">Something went wrong</h2>
+                        <p className="mt-2 text-sm text-red-700">
+                          We're having trouble loading the application. Please try refreshing the page.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 }

@@ -2,7 +2,6 @@ import { Routes as RouterRoutes, Route } from "react-router-dom";
 import { Suspense, lazy, useEffect, useState, useCallback, useMemo, memo } from "react";
 import type { RouteObject } from "react-router-dom";
 import type { ErrorInfo } from 'react';
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
@@ -92,8 +91,8 @@ type RouteKey = keyof typeof PageComponents;
 
 const Routes = () => {
   const [routes, setRoutes] = useState<RouteObject[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [observedElements, setObservedElements] = useState<Set<string>>(new Set());
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Preload non-critical routes when app starts
   useEffect(() => {
@@ -102,10 +101,23 @@ const Routes = () => {
         // Preload critical assets first
         preloadCriticalAssets();
         
-        // Then preload route chunks
-        await Promise.all([
+        // Load main routes immediately
+        const [mainRoutes, authRoutes] = await Promise.all([
           import("@/routes/MainRoutes"),
           import("@/routes/AuthRoutes"),
+        ]);
+
+        // Set up initial routes
+        setRoutes([
+          ...(mainRoutes?.default || []),
+          ...(authRoutes?.default || [])
+        ]);
+        
+        // Mark as initialized
+        setIsInitialized(true);
+        
+        // Then preload other route chunks in the background
+        Promise.all([
           import("@/routes/ProfileRoutes").catch(e => {
             console.warn("Profile routes failed to preload, will retry on navigation");
             return null;
@@ -114,25 +126,37 @@ const Routes = () => {
             console.warn("Admin routes failed to preload, will retry on navigation");
             return null;
           }),
-        ]);
+        ]).then(([profileRoutes, adminRoutes]) => {
+          // Update routes with additional loaded routes
+          setRoutes(prev => [
+            ...prev,
+            ...(profileRoutes?.default || []),
+            ...(adminRoutes?.default || [])
+          ]);
+        });
       } catch (error) {
-        console.error("Failed to preload routes:", error);
+        console.error("Failed to load routes:", error);
+        // Set up minimal fallback routes
+        setRoutes([
+          {
+            path: "/",
+            element: <Home />
+          },
+          {
+            path: "*",
+            element: <NotFound />
+          }
+        ]);
+        setIsInitialized(true);
       }
     };
     
     preloadRoutes();
     
-    // Preload other critical routes after initial render
-    const preloadTimer = setTimeout(() => {
-      // Preload main content that's likely to be visited next
-      Promise.all([
-        import("@/pages/Search"),
-        import("@/pages/Vehicles"),
-        import("@/pages/RealEstate")
-      ]).catch(() => null);
-    }, 2000);
-    
-    return () => clearTimeout(preloadTimer);
+    // Cleanup function
+    return () => {
+      // Cleanup any pending operations if needed
+    };
   }, []);
 
   // Memoize route loading to prevent unnecessary re-renders
@@ -146,12 +170,10 @@ const Routes = () => {
   };
 
   const loadRoutes = useCallback(async () => {
+    // Define default empty routes for error cases
+    const defaultRoutes: RouteObject[] = [];
+    
     try {
-      setIsLoading(true);
-      
-      // Define default empty routes for error cases
-      const defaultRoutes: RouteObject[] = [];
-      
       // Load route modules in parallel with error handling for each
       const [
         mainModule,
@@ -180,7 +202,7 @@ const Routes = () => {
         { 
           path: "*", 
           element: <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={null}>
               <NotFound />
             </Suspense>
           </ErrorBoundary>
@@ -197,7 +219,7 @@ const Routes = () => {
           path: "/", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={null}>
                 <Home />
               </Suspense>
             </ErrorBoundary>
@@ -207,15 +229,13 @@ const Routes = () => {
           path: "*", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={null}>
                 <NotFound />
               </Suspense>
             </ErrorBoundary>
           ) 
         }
       ]);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
@@ -252,10 +272,31 @@ const Routes = () => {
 
   // Memoize route rendering
   const renderRoutes = useCallback(() => {
+    if (!isInitialized) {
+      // Show minimal loading state or null if you want no flash
+      return null;
+    }
+    
+    // If no routes were loaded, show a fallback
+    if (!routes.length) {
+      return (
+        <Route 
+          path="*" 
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <NotFound />
+              </Suspense>
+            </ErrorBoundary>
+          } 
+        />
+      );
+    }
+    
     return routes.map((route, index) => {
       const routeElement = route.element ? (
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
+        <ErrorBoundary key={`error-boundary-${route.path || index}`}>
+          <Suspense fallback={null}>
             {route.element}
           </Suspense>
         </ErrorBoundary>
@@ -269,8 +310,8 @@ const Routes = () => {
         >
           {route.children?.map((child, childIndex) => {
             const childElement = child.element ? (
-              <ErrorBoundary>
-                <Suspense fallback={<LoadingSpinner />}>
+              <ErrorBoundary key={`child-error-${child.path || childIndex}`}>
+                <Suspense fallback={null}>
                   {child.element}
                 </Suspense>
               </ErrorBoundary>
@@ -287,7 +328,7 @@ const Routes = () => {
         </Route>
       );
     });
-  }, [routes]);
+  }, [routes, isInitialized]);
 
   // Debounced route preloading on hover
   const handleRouteHover = useMemo(
@@ -300,9 +341,7 @@ const Routes = () => {
     []
   );
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  
 
   return (
     <div className="route-container">
@@ -327,4 +366,5 @@ const Routes = () => {
   );
 };
 
-export default Routes;
+// Export as default to match import in App.tsx
+export default memo(Routes);
