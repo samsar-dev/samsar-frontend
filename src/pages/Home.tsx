@@ -61,6 +61,50 @@ const Home: React.FC = () => {
     "locations",
   ]);
 
+  // Preload critical resources
+  useEffect(() => {
+    // Preload hero image if it exists
+    const heroImage = document.querySelector('img[alt="hero"]') as HTMLImageElement | null;
+    if (heroImage?.src) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = heroImage.src;
+      // @ts-ignore - fetchPriority is valid but TypeScript might not know it
+      link.fetchPriority = 'high';
+      document.head.appendChild(link);
+    }
+
+    // Preload critical fonts
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'preload';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap';
+    fontLink.as = 'style';
+    document.head.appendChild(fontLink);
+
+    // Add font-display: swap for better text rendering
+    const style = document.createElement('style');
+    style.textContent = `
+      @font-face {
+        font-family: 'Tajawal';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        font-display: fallback;
+        src: url(https://fonts.gstatic.com/s/tajawal/v8/Iura6YBj3Cadl0nT9YrJTDQ.woff2) format('woff2');
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   // SEO Meta Tags
   const pageTitle = t(
     "meta_title",
@@ -70,6 +114,12 @@ const Home: React.FC = () => {
     "meta_keywords",
     "عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار",
   );
+
+  // Accessibility Meta Tags
+  const viewportMeta = {
+    name: "viewport",
+    content: "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
+  };
 
   // Get city and area translations for filtering
   const cities = t("locations:cities", {
@@ -84,6 +134,24 @@ const Home: React.FC = () => {
   // Track first visible listing for LCP optimization
   const [firstVisibleListing, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);
+
+  // Mark LCP element for performance monitoring
+  useEffect(() => {
+    // Mark the hero section as LCP candidate
+    const heroElement = document.querySelector('.hero-section') as HTMLElement | null;
+    if (heroElement) {
+      // Add data attribute for LCP monitoring
+      heroElement.setAttribute('data-lcp-candidate', 'true');
+      
+      // Add fetchpriority to hero image if it exists
+      const heroImage = heroElement.querySelector('img[alt="hero"]') as HTMLImageElement | null;
+      if (heroImage) {
+        heroImage.loading = 'eager';
+        heroImage.decoding = 'async';
+        heroImage.fetchPriority = 'high';
+      }
+    }
+  }, []);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES,
@@ -834,9 +902,11 @@ const Home: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              role="list"
+              aria-label="Popular listing cards"
             >
               {listings.popular.map((listing, index) => (
-                <div itemScope itemType="https://schema.org/Product" itemProp="itemListElement">
+                <div itemScope itemType="https://schema.org/Product" itemProp="itemListElement" role="listitem" aria-label={`Popular listing ${listing.id}`}>
                   <ListingCard
                     key={listing.id}
                     listing={listing}
@@ -1029,10 +1099,29 @@ const Home: React.FC = () => {
               ? t("home:vehicle_section.title", "أفضل السيارات في سوريا")
               : t("home:property_section.title", "أفضل العقارات في سوريا")}
           </h1>
-          <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto">
-            {selectedCategory === ListingCategory.VEHICLES
-              ? t("home:vehicle_section.subtitle", "اكتشف أحدث السيارات الجديدة والمستعملة بأسعار تنافسية من مالكين موثوقين")
-              : t("home:property_section.subtitle", "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار")}
+          <p 
+            className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto"
+            style={{
+              fontKerning: 'normal',
+              textRendering: 'optimizeSpeed',
+              willChange: 'transform',
+              fontOpticalSizing: 'auto',
+              fontFeatureSettings: '"kern" 1',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale'
+            }}
+          >
+            <span className="inline-block" style={{
+              animation: 'fadeIn 0.3s ease-out',
+              animationFillMode: 'both'
+            }}>
+              {selectedCategory === ListingCategory.VEHICLES
+                ? t(
+                  "home:hero_subtitle",
+                  "اكتشف مجموعة واسعة من السيارات المستعملة والجديدة بأفضل الأسعار في سوريا"
+                )
+                : t("home:property_section.subtitle", "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار")}
+            </span>
           </p>
 
           {/* Category Buttons */}
@@ -1093,12 +1182,13 @@ const Home: React.FC = () => {
       {/* Popular Categories Section with Images */}
         <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 w-full">
         <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 px-4 sm:px-0">
-            <span className="hidden" aria-hidden="true">تصفح الفئات الأكثر طلباً</span>
-            <span>{t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}</span>
-          </h2>
+
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 px-4 sm:px-0">
+              <span className="hidden" aria-hidden="true">تصفح الفئات الأكثر طلباً</span>
+              <span>{t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}</span>
+            </h2>
             
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-4 sm:px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-4 sm:px-0">
 
               {/* Category 1 - Cars */}
               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
