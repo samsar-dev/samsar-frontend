@@ -19,14 +19,8 @@ export const preloadAssets = (): void => {
   try {
     // Preload critical routes - ordered by importance and likelihood of visit
     // Core pages
-    preloadRoute(() => import('@/pages/Home'));           // Homepage - highest priority
-    preloadRoute(() => import('@/pages/Search'));         // Search results - high priority
-    
-    // User account pages
-
-    // Listing related
-    preloadRoute(() => import('@/pages/Vehicles'));       // Vehicles listing - medium priority
-    preloadRoute(() => import('@/pages/RealEstate'));     // Real estate listing - medium priority
+    // Preload only Search which is most likely next navigation; defer others.
+    preloadRoute(() => import('@/pages/Search'));         // Search results - likely next step
 
     // User management
     
