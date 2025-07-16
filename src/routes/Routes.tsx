@@ -42,10 +42,12 @@ const lazyWithPreload = (
 ): PreloadableComponent => {
   const Component = lazy(importFn) as PreloadableComponent;
   let preloadId: number | undefined;
+  let loadingPromise: Promise<{ default: React.ComponentType }> | undefined;
 
   Component.preload = async () => {
-    if (!Component._preloaded) {
+    if (!Component._preloaded && !loadingPromise) {
       Component._preloaded = true;
+      loadingPromise = importFn();
       preloadId = safeIdleCallback(async () => {
         try {
           return await importFn();
@@ -91,51 +93,59 @@ export const PageComponents = {
 type RouteKey = keyof typeof PageComponents;
 
 const Routes = () => {
-  const [routes, setRoutes] = useState<PreloadableRouteObject[]>([]);
+  const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [observedElements, setObservedElements] = useState<Set<string>>(new Set());
   const [isInitialized, setIsInitialized] = useState(false);
+  const [preloadedRoutes, setPreloadedRoutes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let mounted = true;
-    
-    const loadCriticalRoutes = async () => {
+    let routePreloadId: number | undefined;
+
+    const preloadRoutes = async () => {
       try {
         // Load critical routes first
         const [mainRoutes, authRoutes] = await Promise.all([
           import("@/routes/MainRoutes").then(m => m.default).catch(() => []),
           import("@/routes/AuthRoutes").then(m => m.default).catch(() => []),
         ]);
-        
+
         if (mounted) {
           setRoutes(prev => [...prev, ...mainRoutes, ...authRoutes]);
           setIsInitialized(true);
         }
-        
-        // Preload other routes in the background
-        requestIdleCallback(() => {
-          Promise.all([
+
+        // Preload additional routes with debounced loading
+        const preloadAdditionalRoutes = debounce(async () => {
+          const [profileRoutes, adminRoutes] = await Promise.all([
             import("@/routes/ProfileRoutes").catch(() => null),
             import("@/routes/AdminRoutes").catch(() => null),
-          ]).then(([profileRoutes, adminRoutes]) => {
-            if (mounted) {
-              setRoutes(prev => [
-                ...prev,
-                ...(profileRoutes?.default || []),
-                ...(adminRoutes?.default || []),
-              ]);
-            }
-          });
-        });
+          ]);
+          if (mounted) {
+            setRoutes(prev => [
+              ...prev,
+              ...(profileRoutes?.default || []),
+              ...(adminRoutes?.default || []),
+            ]);
+          }
+        }, 2000);
+
+        // Start preloading additional routes after main routes are loaded
+        preloadAdditionalRoutes();
       } catch (error) {
         console.error('Error loading routes:', error);
         if (mounted) setIsInitialized(true);
       }
     };
 
-    loadCriticalRoutes();
-    
+    preloadRoutes();
+
     return () => {
       mounted = false;
+      // Cleanup preload callbacks
+      if (routePreloadId) {
+        cancelIdleCallback(routePreloadId);
+      }
     };
   }, []);
 

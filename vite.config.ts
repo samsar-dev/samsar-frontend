@@ -1,12 +1,23 @@
-import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { fileURLToPath } from "url";
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Add esbuild configuration
+export const esbuild = {
+  minify: true,
+  target: 'es2020',
+  legalComments: 'none',
+  treeShaking: true,
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  }
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -40,10 +51,8 @@ export default defineConfig(({ mode, command }) => {
     define: envVars,
     plugins: [
       react({
-        // Enable TypeScript decorators
-        tsDecorators: true,
-        // Development options
         jsxImportSource: "@emotion/react",
+        tsDecorators: true
       }),
       viteCompression({
         verbose: true,
