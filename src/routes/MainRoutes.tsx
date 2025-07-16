@@ -19,6 +19,7 @@ const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 // Layout wrapper component for routes that need the main layout
 const withLayout = (Component: React.ComponentType) => {
+  if (!Component) return <Layout />;
   return <Layout><Component /></Layout>;
 };
 

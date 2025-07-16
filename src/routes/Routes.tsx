@@ -27,7 +27,6 @@ interface PreloadableRouteObject extends Omit<RouteObject, 'element' | 'children
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
-import { preloadCriticalAssets } from "@/utils/preloadUtils";
 
 const createPage = <P extends object>(Component: React.ComponentType<P>) => memo(Component);
 
@@ -178,6 +177,12 @@ const Routes = () => {
     }
     
     return routes.map((route, i) => {
+      // Skip undefined routes
+      if (!route.path) {
+        console.warn('Skipping route with undefined path:', route);
+        return null;
+      }
+
       // Type guard to check if the element has preload capability
       const elementWithPreload = route.element as ReactElement & {
         type?: LazyExoticComponent<ComponentType> & {

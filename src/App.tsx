@@ -51,12 +51,7 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(link);
   });
 
-  // Load critical assets with lower priority
-  requestIdleCallback(() => {
-    import('@/utils/preloadUtils')
-      .then(m => m.preloadCriticalAssets())
-      .catch(console.error);
-  });
+
 }
 
 const CombinedDataProvider = memo(({ children }: { children: React.ReactNode }) => (

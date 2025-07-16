@@ -3,10 +3,13 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  if (children === undefined) {
+    return null;
+  }
   const location = useLocation();
   const isMessagesPage = location.pathname.includes("messages");
   return (
