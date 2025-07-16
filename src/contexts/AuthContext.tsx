@@ -25,8 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, setState] = useState<AuthState>(initialState);
-  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Set initial loading to false to prevent flash of loading state
+  const isLoading = false;
 
   const clearError = () => {
     setState((prev) => ({ ...prev, error: null, retryAfter: null }));
@@ -57,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      // Skip showing loading state
       const response = await AuthAPI.getMe();
       
       if (response?.success && response?.data) {
@@ -71,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           retryAfter: null,
         });
       } else {
-        // Not authenticated or invalid response
+        // Not authenticated or invalid response - no loading state
         setState({
           user: null,
           isAuthenticated: false,
@@ -84,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
     } catch (error) {
-      // Log error but don't show toast
+      // Log error but don't show toast or loading state
       console.error("Auth check error:", error);
       setState((prev) => ({
         ...prev,
@@ -95,7 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         retryAfter: null,
       }));
     } finally {
-      setIsLoading(false);
       setIsInitialized(true);
     }
   };
