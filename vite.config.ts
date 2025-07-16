@@ -3,14 +3,12 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import viteCompression from "vite-plugin-compression";
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Export the configuration directly
+// Export the configuration
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const isProduction = mode === 'production';
@@ -22,22 +20,7 @@ export default defineConfig(({ mode }) => {
       .map(([key, val]) => [[`import.meta.env.${key}`], JSON.stringify(val)])
   );
 
-  // PostCSS plugins
-  const postcssPlugins = [
-    tailwindcss,
-    autoprefixer,
-  ];
-
-  // Only add PurgeCSS in production
-  if (mode === 'production') {
-    postcssPlugins.push(
-      require('@fullhuman/postcss-purgecss')({
-        content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-        defaultExtractor: (content: string) => content.match(/[\w-/:]+(?<!:)/g) || [],
-        safelist: [/bg-/, /text-/, /border-/, /rounded-/, /shadow-/]
-      })
-    );
-  }
+  // PostCSS is configured in postcss.config.js
 
   return {
     base: '/',
@@ -119,9 +102,6 @@ export default defineConfig(({ mode }) => {
       modules: {
         localsConvention: 'camelCaseOnly',
         generateScopedName: isProduction ? '[hash:base64:5]' : '[name]__[local]__[hash:base64:5]'
-      },
-      postcss: {
-        plugins: postcssPlugins
       }
     },
 
