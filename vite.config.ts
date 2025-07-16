@@ -209,7 +209,7 @@ export default defineConfig(({ mode, command }) => {
               // Handle other common packages
               if (id.includes('react-query')) return 'react-query';
               if (id.includes('zustand')) return 'zustand';
-              if (id.includes('emotion')) return 'emotion';
+
               if (id.includes('tailwindcss')) return 'tailwind';
               if (id.includes('clsx')) return 'clsx';
               if (id.includes('react-hot-toast')) return 'toast';
