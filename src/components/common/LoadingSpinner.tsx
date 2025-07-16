@@ -18,9 +18,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(({
 }) => {
   // Memoize the size classes to prevent recalculation on every render
   const sizeClasses = useMemo(() => ({
-    sm: "w-4 h-4 border-2",
-    md: "w-8 h-8 border-3",
-    lg: "w-12 h-12 border-4",
+    sm: { container: "w-4 h-4", border: "border-2" },
+    md: { container: "w-8 h-8", border: "border-3" },
+    lg: { container: "w-12 h-12", border: "border-4" },
   }), []);
 
   // Memoize the spinner style to prevent unnecessary recalculations
@@ -74,24 +74,19 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(({
       {...rest}
     >
       <div 
-        className={`relative ${sizeClasses[size]}`}
+        className={`relative ${sizeClasses[size].container} flex items-center justify-center`}
         style={spinnerStyle}
       >
         {/* Background track */}
         <div 
-          className="absolute inset-0 rounded-full border-solid border-transparent"
-          style={{
-            borderColor: 'var(--spinner-track-color, rgba(229, 231, 235, 0.8))',
-            borderWidth: 'inherit',
-          }}
+          className={`absolute inset-0 rounded-full border-solid ${sizeClasses[size].border} border-[var(--spinner-track-color,rgba(229,231,235,0.8))]`}
           aria-hidden="true"
         />
         
         {/* Animated spinner */}
         <div 
-          className="absolute inset-0 rounded-full border-solid border-t-[color:var(--spinner-active-color)] border-transparent spinner-animate"
+          className={`absolute inset-0 rounded-full border-solid ${sizeClasses[size].border} border-t-[color:var(--spinner-active-color)] border-transparent spinner-animate`}
           style={{
-            borderWidth: 'inherit',
             willChange: 'transform',
           }}
           aria-hidden="true"
