@@ -1190,8 +1190,8 @@ const Home: React.FC = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-4 sm:px-0">
 
-              {/* Category 1 - Cars */}
-              <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+               {/* Category 1 - Cars */}
+               <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
                 <div className="relative h-48 w-full overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <ImageFallback
@@ -1310,6 +1310,7 @@ const Home: React.FC = () => {
                 <a href="/listings?category=real_estate&subCategory=COMMERCIAL" className="absolute inset-0 z-10" aria-label="{t('browse_commercial', 'تصفح العقارات التجارية')}" />
               </div>
             </div>
+          
             
             {/* Structured Data for SEO */}
             <script type="application/ld+json">
