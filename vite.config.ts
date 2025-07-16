@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import viteCompression from "vite-plugin-compression";
+import tailwindcss from 'tailwindcss';
+import postcss from 'postcss';
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 
@@ -167,6 +169,54 @@ export default defineConfig(({ mode, command }) => {
 
     build: {
       target: 'es2020',
+      
+      // CSS optimization
+      css: {
+        modules: {
+          localsConvention: "camelCaseOnly",
+          generateScopedName: mode === "production"
+            ? "[hash:base64:5]"
+            : "[name]__[local]__[hash:base64:5]"
+        },
+        preprocessorOptions: {
+          scss: {
+            additionalData: `@import "@/assets/styles/variables.scss";`
+          }
+        },
+        postcss: {
+          plugins: [
+            require('tailwindcss'),
+            require('autoprefixer'),
+            process.env.NODE_ENV === 'production' && require('@fullhuman/postcss-purgecss')({
+              content: [
+                './index.html',
+                './src/**/*.{js,ts,jsx,tsx}'
+              ],
+              defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
+              safelist: {
+                standard: [
+                  'loading-spinner',
+                  'toast',
+                  'modal',
+                  'navbar',
+                  'footer',
+                  'react-select__',
+                  'react-datepicker__',
+                ],
+                deep: [
+                  'bg-',
+                  'text-',
+                  'border-',
+                  'rounded-',
+                  'shadow-',
+                  'react-select-',
+                  'react-datepicker-',
+                ],
+              },
+            })
+          ].filter(Boolean),
+        },
+      },
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -185,20 +235,9 @@ export default defineConfig(({ mode, command }) => {
       reportCompressedSize: false,
       brotliSize: false,
       
-      css: {
-        modules: {
-          localsConvention: "camelCaseOnly",
-          generateScopedName:
-            mode === "production"
-              ? "[hash:base64:5]"
-              : "[name]__[local]__[hash:base64:5]",
-        },
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@import "@/assets/styles/variables.scss";`
-          }
-        }
-      },
+      
+       
+      
       
       rollupOptions: {
         output: {
