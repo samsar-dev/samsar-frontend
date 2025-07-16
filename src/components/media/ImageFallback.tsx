@@ -80,6 +80,7 @@ const ImageComponent: React.FC<ImageProps> = ({
   // Handle R2 image optimization with responsive sizes and caching
   const isR2Image = src?.includes("r2.dev");
   const baseUrl = src?.split("?")[0] || "";
+
   // Calculate optimal quality and width based on viewport and priority
   const calculateOptimalQuality = () => {
     // Use more aggressive compression
@@ -92,47 +93,75 @@ const ImageComponent: React.FC<ImageProps> = ({
     // Use smaller dimensions based on container size
     const containerWidth = window.innerWidth;
     const containerHeight = 192; // 48 * 4 (from h-48)
-    
+
     // Calculate aspect ratio based on container
     const aspectRatio = containerWidth / containerHeight;
-    
+
     // Adjust width based on aspect ratio and viewport
     if (priority) {
-      return Math.min(800, Math.round(containerWidth * 0.8)); // Max 800px for priority
+      return Math.min(1200, Math.round(containerWidth * 0.9)); // Max 1200px for priority
     }
-    
-    if (window.innerWidth < 640) {
-      return Math.min(400, Math.round(containerWidth * 0.6)); // Mobile optimized
+
+    if (containerWidth < 640) {
+      return Math.min(400, Math.round(containerWidth * 0.7)); // Mobile optimized
     }
-    
-    if (window.innerWidth < 1024) {
-      return Math.min(600, Math.round(containerWidth * 0.7)); // Tablet optimized
+
+    if (containerWidth < 1024) {
+      return Math.min(800, Math.round(containerWidth * 0.8)); // Tablet optimized
     }
-    
-    return Math.min(800, Math.round(containerWidth * 0.6)); // Desktop optimized
+
+    return Math.min(1200, Math.round(containerWidth * 0.8)); // Desktop optimized
   };
 
   const imageQuality = calculateOptimalQuality();
   const optimalWidth = calculateOptimalWidth();
 
-  // Generate optimized image URL with AVIF/WebP format and proper caching
-  const getOptimizedImageUrl = (width?: number) => {
+  // State for image loading and error handling
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+  const [srcSet, setSrcSet] = useState<string | undefined>();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  // Update image URL when optimalWidth changes
+  useEffect(() => {
+    // Generate srcSet with multiple sizes
+    const sizes = [200, 400, 600, 800, 1000, 1200];
+    const srcSet = sizes
+      .map((size) => `${getOptimizedImageUrl(size)} ${size}w`)
+      .join(", ");
+
+    setImageUrl(getOptimizedImageUrl(optimalWidth));
+    setSrcSet(srcSet);
+  }, [optimalWidth]);
+
+  // Generate optimized image URL with proper caching headers
+  const getOptimizedImageUrl = (width: number) => {
     if (!isR2Image || !baseUrl) return src || "";
     const params = new URLSearchParams();
-    
+
     // Use AVIF format if supported
     const supportsAVIF = 'image/avif' in window.Image.prototype.decode;
     params.append("format", supportsAVIF ? "avif" : "webp");
     
-    // More aggressive compression
-    params.append("quality", Math.max(30, imageQuality - 20).toString());
-    params.append("width", (width || optimalWidth).toString());
+    // Use more aggressive compression
+    params.append("quality", "30"); // Very low quality for faster loading
+    params.append("width", width.toString());
     
-    // Add progressive loading for better UX
+    // Add progressive loading
     params.append("progressive", "true");
     
-    // Set long cache TTL (1 year for maximum benefit)
-    params.append("cache", (60 * 60 * 24 * 365).toString()); // 1 year in seconds
+    // Add proper caching headers
+    const cacheControl = process.env.NODE_ENV === "production" 
+      ? "public, max-age=31536000, immutable" // 1 year in production
+      : "public, max-age=3600"; // 1 hour in development
+    
+    params.append("cache-control", cacheControl);
+    params.append("expires", new Date(Date.now() + (cacheControl === "public, max-age=31536000, immutable" ? 31536000000 : 3600000)).toUTCString());
+    
+    // Add proper response headers
+    params.append("vary", "Accept, Accept-Encoding");
+    params.append("content-type", supportsAVIF ? "image/avif" : "image/webp");
+    params.append("content-disposition", "inline");
     
     // Add cache-busting parameter for non-production environments
     if (process.env.NODE_ENV !== "production") {
@@ -220,22 +249,49 @@ const ImageComponent: React.FC<ImageProps> = ({
       <div
         className={`relative ${className}`}
         style={{
-          width: width || "100%",
-          height: height || "200px",
-          background: "#e2e8f0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: "8px",
+          width: width,
+          height: height,
         }}
-        role="img"
-        aria-label={alt || "Image not available"}
       >
-        <Icon className="text-4xl text-gray-400" />
-        <div className="text-gray-500 text-center">
-          <p className="mt-2">Image Unavailable</p>
-        </div>
+        {error ? (
+          <div className="absolute inset-0 bg-red-100 flex items-center justify-center">
+            <span className="text-red-600">Error loading image</span>
+          </div>
+        ) : (
+          <img
+            src={imageUrl}
+            srcSet={srcSet}
+            sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
+            alt={alt}
+            className={`absolute inset-0 object-cover transition-opacity duration-300 ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => {
+              setImageLoaded(true);
+              if (onLoad) onLoad();
+            }}
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              setError(true);
+              if (onError) onError(e);
+            }}
+            loading={loading}
+            decoding="async"
+          />
+        )}
+
+        {!imageLoaded && !error && (
+          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+            {placeholder ? (
+              <img
+                src={placeholder}
+                alt="Placeholder"
+                className="w-1/3 h-1/3 object-contain"
+              />
+            ) : (
+              <span className="text-gray-600">Loading...</span>
+            )}
+          </div>
+        )}
       </div>
     );
   }
