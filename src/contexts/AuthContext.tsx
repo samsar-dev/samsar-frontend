@@ -1,7 +1,8 @@
-import { createContext, useEffect, useState, useCallback, useMemo } from "react";
+import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import { apiClient } from "../api/apiClient";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type {
   AuthContextType,
   AuthError,
@@ -10,47 +11,38 @@ import type {
   AuthUser,
 } from "../types/auth.types";
 
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
   retryAfter: null,
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, setState] = useState<AuthState>(initialState);
+  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize auth state as soon as possible
-  useEffect(() => {
-    setState(prev => ({ ...prev, isLoading: true }));
-    checkAuth();
-  }, []);
+  const clearError = () => {
+    setState((prev) => ({ ...prev, error: null, retryAfter: null }));
+  };
 
-  const clearError = useCallback(() => {
-    setState((prev) => (prev.error || prev.retryAfter ? { ...prev, error: null, retryAfter: null } : prev));
-  }, []);
-
-  const updateAuthUser = useCallback((userData: AuthState["user"]) => {
+  const updateAuthUser = (userData: AuthState["user"]) => {
     setState((prev) => ({
       ...prev,
       user: userData,
       error: null,
       retryAfter: null,
     }));
-  }, []);
+  };
 
-  const handleAuthError = useCallback((error: AuthError | null) => {
+  const handleAuthError = (error: AuthError | null) => {
     if (error?.code === "RATE_LIMIT") {
       toast.error(error.message);
       setState((prev) => ({
@@ -62,11 +54,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       toast.error(error.message);
       setState((prev) => ({ ...prev, error }));
     }
-  }, []);
+  };
 
   const checkAuth = async () => {
     try {
-      setState((prev) => ({ ...prev, isLoading: true }));
+      setState(prev => ({ ...prev, isLoading: true }));
       const response = await AuthAPI.getMe();
       
       if (response?.success && response?.data) {
@@ -79,7 +71,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           error: null,
           retryAfter: null,
         });
-        setIsInitialized(true);
       } else {
         // Not authenticated or invalid response
         setState({
@@ -92,7 +83,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           },
           retryAfter: null,
         });
-        setIsInitialized(true);
       }
     } catch (error) {
       // Log error but don't show toast
@@ -106,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         retryAfter: null,
       }));
     } finally {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setIsLoading(false);
       setIsInitialized(true);
     }
   };
@@ -267,59 +257,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = useCallback(async (): Promise<void> => {
+  const logout = async (): Promise<void> => {
     try {
       await AuthAPI.logout();
     } catch (error) {
-      console.error("Logout API failed:", error);
+      console.error("Logout API failed:", error); // Log or handle if needed
     } finally {
-      setState(prev => ({
+      setState({
         ...initialState,
-        isLoading: false
-      }));
-      setIsInitialized(true);
+        isLoading: false, // explicitly reset loading
+      });
     }
-  }, []);
+  };
 
-  // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/90">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  const value: AuthContextType = {
     ...state,
     login,
     register,
     logout,
     clearError,
     updateAuthUser,
-    handleAuthError,
     isInitialized,
-  }), [
-    state, 
-    login, 
-    register, 
-    logout, 
-    clearError, 
-    updateAuthUser, 
-    handleAuthError, 
-    isInitialized
-  ]);
+  };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {state.isLoading ? (
-        <div 
-          className="flex h-screen w-full items-center justify-center bg-gray-50"
-          role="status"
-          aria-live="polite"
-        >
-          <LoadingSpinner 
-            size="lg" 
-            label="Initializing authentication..."
-            ariaLive="polite"
-            ariaAtomic={true}
-          />
-        </div>
-      ) : (
-        children
-      )}
+    <AuthContext.Provider value={value}>
+      {children}
     </AuthContext.Provider>
   );
 };

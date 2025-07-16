@@ -18,7 +18,6 @@ const Search: React.FC = () => {
   const query = searchParams.get("q") || "";
 
   const fetchListings = useCallback(async () => {
-    console.log("fetchListings called with query:", query);
     setLoading(true);
     setError(null);
 
@@ -55,14 +54,7 @@ const Search: React.FC = () => {
     }
 
     try {
-      console.log(
-        "Search component - Searching with query:",
-        query,
-        "and params:",
-        params,
-      );
       const response = await listingsAPI.search(query, params);
-      console.log("Search component - Response received:", response);
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch listings");
@@ -78,39 +70,20 @@ const Search: React.FC = () => {
           ? response.data
           : [];
 
-      console.log(
-        "Search component - Normalized listings:",
-        normalizedListings.length > 0
-          ? `Found ${normalizedListings.length} listings`
-          : "No listings found",
-      );
-
-      if (normalizedListings.length > 0) {
-        console.log("Search component - First listing:", normalizedListings[0]);
-      }
-
       if (normalizedListings.length === 0) {
         setError("No listings found matching your search");
         setListings([]);
 
         // If no results, try manually filtering all listings as fallback
         try {
-          console.log(
-            "Search component - No results from API, trying to fetch all listings",
-          );
           const allResponse = await listingsAPI.getAll({ limit: 100 });
 
           if (
             allResponse.success &&
-            allResponse.data &&
-            allResponse.data.listings &&
-            allResponse.data.listings.length > 0
+            allResponse.data?.listings?.length > 0
           ) {
             const allListings = allResponse.data.listings;
-            console.log(
-              `Search component - Got ${allListings.length} total listings, filtering client-side`,
-            );
-
+            
             // Filter listings by search term - case insensitive
             const lowerQuery = query.toLowerCase();
             const matchedListings = allListings.filter((listing) => {
@@ -128,9 +101,6 @@ const Search: React.FC = () => {
             });
 
             if (matchedListings.length > 0) {
-              console.log(
-                `Search component - Found ${matchedListings.length} listings by client-side filtering`,
-              );
               setListings(matchedListings);
               setError(null);
               setLoading(false);
@@ -138,13 +108,12 @@ const Search: React.FC = () => {
             }
           }
         } catch (fallbackError) {
-          console.error("Error in fallback search:", fallbackError);
+          // Silently handle fallback error
         }
       } else {
         setListings(normalizedListings);
       }
     } catch (err) {
-      console.error("Search error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
       setListings([]);
     } finally {

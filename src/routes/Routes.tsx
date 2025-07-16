@@ -1,41 +1,71 @@
 import { Routes as RouterRoutes, Route } from "react-router-dom";
-import { Suspense, lazy, useEffect, useState, useCallback, memo } from "react";
+import { Suspense, lazy, useEffect, useState, useCallback, useMemo, memo } from "react";
 import type { RouteObject } from "react-router-dom";
+import type { ErrorInfo } from 'react';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { debounce } from "@/utils/debounce";
+import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
 import { preloadCriticalAssets } from "@/utils/preloadUtils";
 
-// Helper type for lazy-loaded components
-type LazyComponentType<P = {}> = React.LazyExoticComponent<React.ComponentType<P>>;
+// Helper to create memoized page components
+const createPage = <P extends object>(Component: React.ComponentType<P>) => 
+  memo(Component);
 
-// Helper to create memoized page components with proper error boundaries
-const createPage = <P extends object>(
-  importFn: () => Promise<{ default: React.ComponentType<P> }>,
-  options: { preload?: boolean } = {}
-): React.MemoExoticComponent<LazyComponentType<P>> => {
-  const LazyComponent = lazy(importFn);
-  const MemoizedComponent = memo(LazyComponent);
+// Type for preloadable components
+interface PreloadableComponent extends React.LazyExoticComponent<React.ComponentType<any>> {
+  preload: () => Promise<{ default: React.ComponentType }>;
+  cancelPreload: () => void;
+  _preloaded?: boolean; // Track if component has been preloaded
+}
+
+// Preload function with proper typing and preload tracking
+const lazyWithPreload = (
+  importFn: () => Promise<{ default: React.ComponentType }>
+): PreloadableComponent => {
+  const Component = lazy(importFn) as PreloadableComponent;
   
-  // Add preload capability
-  if (options.preload) {
-    // Trigger preload in the background
-    importFn().catch(() => {
-      // Handle error silently - component will load when needed
-    });
-  }
+  // Wrap the preload function to track if it's been called
+  const originalPreload = importFn;
+  let preloadId: number | undefined;
+
+  Component.preload = async () => {
+    if (!Component._preloaded) {
+      Component._preloaded = true;
+      preloadId = safeIdleCallback(async () => {
+        try {
+          return await originalPreload();
+        } catch (error) {
+          console.error('Failed to preload component:', error);
+          return { default: Component };
+        }
+      });
+    }
+    return { default: Component };
+  };
+
+  // Cleanup function to cancel pending preload if needed
+  Component.cancelPreload = () => {
+    if (preloadId) {
+      cancelIdleCallback(preloadId);
+      preloadId = undefined;
+    }
+  };
   
-  return MemoizedComponent;
+  return Component;
 };
 
-// Simple implementation without the complex preloading that was causing type issues
-const createLazyPage = <P extends object>(
-  importFn: () => Promise<{ default: React.ComponentType<P> }>
-) => {
-  return lazy(importFn);
-};
+// Helper to create memoized lazy-loaded pages
+const createLazyPage = (importFn: () => Promise<{ default: React.ComponentType }>) => 
+  lazyWithPreload(async () => {
+    const module = await importFn();
+    return { default: createPage(module.default) };
+  });
 
-// Preload critical route components with chunk names and priority
-const Home = createPage(() => import("@/pages/Home"), { preload: true });
-const Search = createPage(() => import("@/pages/Search"));
+// Preload critical route components (memoized) with chunk names
+// Public routes
+const Home = createLazyPage(() => import("@/pages/Home"));
+const Search = createLazyPage(() => import("@/pages/Search"));
 
 // Marketplace routes
 const Vehicles = createLazyPage(() => import("@/pages/Vehicles"));
@@ -59,32 +89,11 @@ export const PageComponents = {
 
 type RouteKey = keyof typeof PageComponents;
 
-// Preload critical assets when the app starts
-if (typeof window !== 'undefined') {
-  // Preload critical JS chunks
-  const preloadScript = (src: string) => {
-    // Only preload if the resource hasn't been loaded yet
-    if (!document.querySelector(`link[href="${src}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'script';
-      link.href = src;
-      document.head.appendChild(link);
-    }
-  };
 
-  // Add preload for critical chunks
-  if (process.env.NODE_ENV === 'production') {
-    // These paths should match your build output
-    preloadScript('/static/js/main.chunk.js');
-    preloadScript('/static/js/vendors~main.chunk.js');
-  }
-}
-
-// Lazy load routes with proper code splitting
 const Routes = () => {
   const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [observedElements, setObservedElements] = useState<Set<string>>(new Set());
 
   // Preload non-critical routes when app starts
   useEffect(() => {
@@ -97,26 +106,36 @@ const Routes = () => {
         await Promise.all([
           import("@/routes/MainRoutes"),
           import("@/routes/AuthRoutes"),
-          import("@/routes/ProfileRoutes").catch(() => null),
-          import("@/routes/AdminRoutes").catch(() => null),
+          import("@/routes/ProfileRoutes").catch(e => {
+            console.warn("Profile routes failed to preload, will retry on navigation");
+            return null;
+          }),
+          import("@/routes/AdminRoutes").catch(e => {
+            console.warn("Admin routes failed to preload, will retry on navigation");
+            return null;
+          }),
         ]);
-        
-        // Preload main content that's likely to be visited next
-        setTimeout(() => {
-          Promise.all([
-            import("@/pages/Search"),
-            import("@/pages/Vehicles"),
-            import("@/pages/RealEstate")
-          ]).catch(() => null);
-        }, 1000);
       } catch (error) {
         console.error("Failed to preload routes:", error);
       }
     };
     
     preloadRoutes();
+    
+    // Preload other critical routes after initial render
+    const preloadTimer = setTimeout(() => {
+      // Preload main content that's likely to be visited next
+      Promise.all([
+        import("@/pages/Search"),
+        import("@/pages/Vehicles"),
+        import("@/pages/RealEstate")
+      ]).catch(() => null);
+    }, 2000);
+    
+    return () => clearTimeout(preloadTimer);
   }, []);
 
+  // Memoize route loading to prevent unnecessary re-renders
   // Helper function to flatten route tree
   const flattenRoutes = (routes: RouteObject[], parentPath = ""): RouteObject[] => {
     return routes.flatMap(route => {
@@ -161,7 +180,7 @@ const Routes = () => {
         { 
           path: "*", 
           element: <ErrorBoundary>
-            <Suspense fallback={<div className="min-h-screen" />}>
+            <Suspense fallback={<LoadingSpinner />}>
               <NotFound />
             </Suspense>
           </ErrorBoundary>
@@ -178,7 +197,7 @@ const Routes = () => {
           path: "/", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<div className="min-h-screen" />}>
+              <Suspense fallback={<LoadingSpinner />}>
                 <Home />
               </Suspense>
             </ErrorBoundary>
@@ -188,7 +207,7 @@ const Routes = () => {
           path: "*", 
           element: (
             <ErrorBoundary>
-              <Suspense fallback={<div className="min-h-screen" />}>
+              <Suspense fallback={<LoadingSpinner />}>
                 <NotFound />
               </Suspense>
             </ErrorBoundary>
@@ -205,49 +224,106 @@ const Routes = () => {
     loadRoutes();
   }, [loadRoutes]);
 
-  // Simple route rendering without animations
-  const renderRoutes = useCallback(() => {
-    return routes.map((route, index) => (
-      <Route 
-        key={`${route.path || 'route'}-${index}`} 
-        path={route.path} 
-        element={
-          route.element ? (
-            <ErrorBoundary>
-              <Suspense fallback={null}>
-                {route.element}
-              </Suspense>
-            </ErrorBoundary>
-          ) : null
+  // Set up intersection observer for route preloading
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const routeName = entry.target.getAttribute('data-route');
+          if (routeName && PageComponents[routeName as keyof typeof PageComponents]) {
+            PageComponents[routeName as keyof typeof PageComponents].preload();
+            observer.unobserve(entry.target);
+          }
         }
-      >
-        {route.children?.map((child, childIndex) => (
-          <Route
-            key={`${child.path || 'child'}-${childIndex}`}
-            path={child.path}
-            element={
-              child.element ? (
-                <ErrorBoundary>
-                  <Suspense fallback={null}>
-                    {child.element}
-                  </Suspense>
-                </ErrorBoundary>
-              ) : null
-            }
-          />
-        ))}
-      </Route>
-    ));
+      });
+    }, { rootMargin: '200px' });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Add route to intersection observer
+  const observeRoute = useCallback((routeName: string, element: HTMLElement | null) => {
+    if (element && !observedElements.has(routeName)) {
+      element.setAttribute('data-route', routeName);
+      setObservedElements(prev => new Set(prev).add(routeName));
+      // The actual observation is handled by the IntersectionObserver setup above
+    }
+  }, [observedElements]);
+
+  // Memoize route rendering
+  const renderRoutes = useCallback(() => {
+    return routes.map((route, index) => {
+      const routeElement = route.element ? (
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            {route.element}
+          </Suspense>
+        </ErrorBoundary>
+      ) : null;
+
+      return (
+        <Route 
+          key={`${route.path || 'route'}-${index}`} 
+          path={route.path} 
+          element={routeElement}
+        >
+          {route.children?.map((child, childIndex) => {
+            const childElement = child.element ? (
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingSpinner />}>
+                  {child.element}
+                </Suspense>
+              </ErrorBoundary>
+            ) : null;
+
+            return (
+              <Route
+                key={`${child.path || 'child'}-${childIndex}`}
+                path={child.path}
+                element={childElement}
+              />
+            );
+          })}
+        </Route>
+      );
+    });
   }, [routes]);
 
+  // Debounced route preloading on hover
+  const handleRouteHover = useMemo(
+    () => debounce((routeName: RouteKey) => {
+      const component = PageComponents[routeName];
+      if (component && typeof component.preload === 'function') {
+        component.preload();
+      }
+    }, 150),
+    []
+  );
+
   if (isLoading) {
-    return null; // Or a minimal loading state if needed
+    return <LoadingSpinner />;
   }
 
   return (
-    <RouterRoutes>
-      {renderRoutes()}
-    </RouterRoutes>
+    <div className="route-container">
+      <RouterRoutes>
+        {renderRoutes()}
+      </RouterRoutes>
+      {/* Add invisible elements for intersection observation */}
+      {/* Intersection observers for route preloading */}
+      {(['Search', 'Vehicles', 'RealEstate'] as const).map((route, index) => (
+        <div 
+          key={route}
+          ref={(el) => observeRoute(route, el)} 
+          style={{ 
+            position: 'absolute', 
+            top: `${100 + (index * 50)}vh`, 
+            height: '1px',
+            pointerEvents: 'none' 
+          }} 
+        />
+      ))}
+    </div>
   );
 };
 
