@@ -42,8 +42,6 @@ export default defineConfig(({ mode, command }) => {
       react({
         // Enable TypeScript decorators
         tsDecorators: true,
-        // Development options
-        jsxImportSource: "@emotion/react",
       }),
       viteCompression({
         verbose: true,
