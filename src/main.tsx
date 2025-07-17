@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from 'react';
+import { Component, ReactNode } from 'react';
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -32,20 +33,30 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Error boundary component with error reporting
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError() {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    console.error('Error caught by ErrorBoundary:', error);
     return { hasError: true };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by ErrorBoundary:', { error, errorInfo });
     if (process.env.NODE_ENV === 'production') {
       // In production, report errors to your error tracking service
-      console.error('Application error:', { error, errorInfo });
+      // Example: logErrorToService(error, errorInfo);
     }
   }
 
