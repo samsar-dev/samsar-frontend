@@ -1,49 +1,23 @@
-import { lazy, memo, Suspense } from "react";
+import { lazy } from "react";
 import { RouteObject } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
 
-// Optimized loading component for auth pages
-const AuthLoading = memo(() => (
-  <div className="flex min-h-screen items-center justify-center bg-gray-50">
-    <LoadingSpinner size="lg" label="Loading..." />
-  </div>
-));
-AuthLoading.displayName = 'AuthLoading';
+// Lazy load auth components
+const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
+const VerifyEmail = lazy(() => import("@/pages/VerifyEmail"));
+const VerifyCode = lazy(() => import("@/pages/VerifyCode"));
+const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
+const PasswordResetVerification = lazy(() => import("@/pages/PasswordResetVerification"));
 
-// Enhanced lazy loading for auth components
-const createAuthComponent = (importFn: () => Promise<{ default: React.ComponentType<any> }>, chunkName?: string) => {
-  const LazyComponent = lazy(importFn);
-  
-  // Add preload method
-  (LazyComponent as any).preload = importFn;
-  
-  return LazyComponent;
+// Layout wrapper for auth routes
+const withLayout = (Component: React.ComponentType) => {
+  return (
+    <Layout>
+      <Component />
+    </Layout>
+  );
 };
-
-// Auth components with priority-based loading
-const Login = createAuthComponent(() => import("@/pages/Login"), "login");
-const Register = createAuthComponent(() => import("@/pages/Register"), "register");
-const VerifyEmail = createAuthComponent(() => import("@/pages/VerifyEmail"), "verify-email");
-const VerifyCode = createAuthComponent(() => import("@/pages/VerifyCode"), "verify-code");
-const PasswordReset = createAuthComponent(() => import("@/pages/PasswordReset"), "password-reset");
-const PasswordResetVerification = createAuthComponent(() => import("@/pages/PasswordResetVerification"), "password-reset-verification");
-
-// Memoized layout wrapper for auth routes
-const withLayout = memo((Component: React.ComponentType) => {
-  const WrappedComponent = memo(() => (
-    <ErrorBoundary>
-      <Layout>
-        <Suspense fallback={<AuthLoading />}>
-          <Component />
-        </Suspense>
-      </Layout>
-    </ErrorBoundary>
-  ));
-  WrappedComponent.displayName = `withAuthLayout(${Component.displayName || Component.name})`;
-  return <WrappedComponent />;
-});
 
 const authRoutes: RouteObject[] = [
   {

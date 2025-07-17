@@ -189,39 +189,34 @@ const Routes = () => {
     try {
       setIsLoading(true);
       
-      // Use a Map for better performance with large route sets
-      const routeModules = new Map<string, Promise<any>>();
+      // Define default empty routes for error cases
+      const defaultRoutes: RouteObject[] = [];
       
-      // Batch load route modules with priority
-      routeModules.set('main', import("./MainRoutes"));
-      routeModules.set('auth', import("./AuthRoutes"));
-      routeModules.set('profile', import("./ProfileRoutes"));
-      routeModules.set('admin', import("./AdminRoutes"));
+      // Load route modules in parallel with error handling for each
+      const [
+        mainModule,
+        authModule,
+        adminModule,
+        profileModule
+      ] = await Promise.allSettled([
+        import("./MainRoutes"),
+        import("./AuthRoutes"),
+        import("./AdminRoutes"),
+        import("./ProfileRoutes")
+      ]);
       
-      const results = await Promise.allSettled(Array.from(routeModules.values()));
-      
-      // Process results with fallbacks
-      const [mainModule, authModule, profileModule, adminModule] = results;
-      
-      const getRoutes = (module: PromiseSettledResult<any>, fallback: RouteObject[] = []) => {
-        if (module.status === 'fulfilled' && module.value?.default) {
-          return Array.isArray(module.value.default) ? module.value.default : [module.value.default];
-        }
-        return fallback;
-      };
-      
-      // Extract routes with type safety
-      const mainRoutes = getRoutes(mainModule);
-      const authRoutes = getRoutes(authModule);
-      const profileRoutes = getRoutes(profileModule);
-      const adminRoutes = getRoutes(adminModule);
+      // Extract routes with proper error handling
+      const mainRoutes = mainModule.status === 'fulfilled' ? mainModule.value.default : defaultRoutes;
+      const authRoutes = authModule.status === 'fulfilled' ? authModule.value.default : defaultRoutes;
+      const adminRoutes = adminModule.status === 'fulfilled' ? adminModule.value.default : defaultRoutes;
+      const profileRoutes = profileModule.status === 'fulfilled' ? profileModule.value.default : defaultRoutes;
 
-      // Combine routes with optimized spread
-      const allRoutes: RouteObject[] = [
+      // Combine all routes with not found fallback
+      const allRoutes = [
         ...mainRoutes,
         ...authRoutes,
-        ...profileRoutes,
         ...adminRoutes,
+        ...profileRoutes,
         { 
           path: "*", 
           element: <ErrorBoundary>
