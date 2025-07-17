@@ -1,4 +1,4 @@
-import React from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -92,44 +92,67 @@ const initializeApp = () => {
     throw new Error("Failed to find the root element");
   }
 
-  // Create root with error boundary
-  const root = createRoot(container);
+  // Create root with concurrent features enabled
+  const root = createRoot(container, {
+    // Enable concurrent features for better performance
+    identifierPrefix: 'samsar-',
+  });
 
-  // Use concurrent mode features
+  // Optimize rendering with StrictMode and proper provider nesting
   root.render(
-    <HelmetProvider>
-      <BrowserRouter>
-        <Provider store={store}>
-          <ErrorBoundary>
-            <HelmetProvider>
+    <StrictMode>
+      <ErrorBoundary>
+        <HelmetProvider>
+          <Provider store={store}>
+            <BrowserRouter>
               <App />
-            </HelmetProvider>
-          </ErrorBoundary>
-        </Provider>
-      </BrowserRouter>
-    </HelmetProvider>,
+            </BrowserRouter>
+          </Provider>
+        </HelmetProvider>
+      </ErrorBoundary>
+    </StrictMode>
   );
 };
 
-// Initialize the app with error handling
-const startApp = () => {
+// Optimized app startup with performance monitoring
+const startApp = async () => {
   try {
-    preloadAssets();
+    // Start preloading assets immediately
+    const preloadPromise = preloadAssets();
+    
+    // Initialize React while assets are preloading
     initializeReact();
+    
+    // Wait for critical assets to finish preloading
+    await preloadPromise;
+    
+    // Report successful initialization
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Application initialized successfully');
+    }
   } catch (error) {
-    console.error('Failed to initialize application:', error);
-    // Show error UI or redirect to error page
+    console.error('❌ Failed to initialize application:', error);
+    
+    // Show optimized error UI
     const root = document.getElementById('root');
     if (root) {
       root.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center p-4">
-          <div class="text-center">
-            <h2 class="text-xl font-semibold mb-2">Application Error</h2>
-            <p class="text-gray-600 mb-4">Failed to load the application. Please try again later.</p>
+        <div class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+          <div class="text-center max-w-md">
+            <div class="mb-4">
+              <svg class="mx-auto h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">Application Error</h2>
+            <p class="text-gray-600 mb-6">Failed to load the application. Please try refreshing the page.</p>
             <button 
-              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
               onclick="window.location.reload()"
             >
+              <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               Retry
             </button>
           </div>
@@ -139,5 +162,13 @@ const startApp = () => {
   }
 };
 
-// Start the application
-startApp();
+// Start the application with performance timing
+if (process.env.NODE_ENV === 'development') {
+  console.time('⚡ App Startup Time');
+}
+
+startApp().finally(() => {
+  if (process.env.NODE_ENV === 'development') {
+    console.timeEnd('⚡ App Startup Time');
+  }
+});

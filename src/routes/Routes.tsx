@@ -1,11 +1,15 @@
-import { Routes as RouterRoutes, Route } from "react-router-dom";
-import { Suspense, lazy, useEffect, useState, useCallback, useMemo, memo } from "react";
+import { Routes as RouterRoutes, Route, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Suspense, lazy, useEffect, useState, useCallback, useMemo, memo, startTransition } from "react";
 import type { RouteObject } from "react-router-dom";
 import type { ErrorInfo } from 'react';
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { debounce } from "@/utils/debounce";
+import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
+import { preloadCriticalAssets } from "@/utils/preloadUtils";
 
-// Reusable loading component with consistent styling
-const RouteLoading = () => (
+// Optimized loading component with memoization
+const RouteLoading = memo(() => (
   <div className="flex min-h-screen items-center justify-center bg-gray-50" role="status" aria-live="polite">
     <LoadingSpinner 
       size="lg"
@@ -14,11 +18,8 @@ const RouteLoading = () => (
       ariaAtomic={true}
     />
   </div>
-);
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-import { debounce } from "@/utils/debounce";
-import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
-import { preloadCriticalAssets } from "@/utils/preloadUtils";
+));
+RouteLoading.displayName = 'RouteLoading';
 
 // Helper to create memoized page components
 const createPage = <P extends object>(Component: React.ComponentType<P>) => 
@@ -107,44 +108,71 @@ const Routes = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [observedElements, setObservedElements] = useState<Set<string>>(new Set());
 
-  // Preload non-critical routes when app starts
+  // Optimized preloading with priority-based loading
   useEffect(() => {
+    let preloadController: AbortController | null = null;
+    
     const preloadRoutes = async () => {
       try {
-        // Preload critical assets first
-        preloadCriticalAssets();
+        preloadController = new AbortController();
+        const { signal } = preloadController;
         
-        // Then preload route chunks
-        await Promise.all([
-          import("@/routes/MainRoutes"),
-          import("@/routes/AuthRoutes"),
-          import("@/routes/ProfileRoutes").catch(e => {
-            console.warn("Profile routes failed to preload, will retry on navigation");
-            return null;
-          }),
-          import("@/routes/AdminRoutes").catch(e => {
-            console.warn("Admin routes failed to preload, will retry on navigation");
-            return null;
-          }),
-        ]);
+        // Preload critical assets first
+        await preloadCriticalAssets();
+        
+        if (signal.aborted) return;
+        
+        // Priority 1: Main routes (most likely to be visited)
+        const mainRoutesPromise = import("@/routes/MainRoutes");
+        
+        // Priority 2: Auth routes (common user flow)
+        const authRoutesPromise = import("@/routes/AuthRoutes");
+        
+        // Wait for high priority routes
+        await Promise.allSettled([mainRoutesPromise, authRoutesPromise]);
+        
+        if (signal.aborted) return;
+        
+        // Priority 3: Profile and Admin routes (lower priority)
+        const lowPriorityPromises = [
+          import("@/routes/ProfileRoutes").catch(() => null),
+          import("@/routes/AdminRoutes").catch(() => null),
+        ];
+        
+        // Use requestIdleCallback for low priority preloading
+        safeIdleCallback(async () => {
+          if (!signal.aborted) {
+            await Promise.allSettled(lowPriorityPromises);
+          }
+        });
+        
       } catch (error) {
         console.error("Failed to preload routes:", error);
       }
     };
     
-    preloadRoutes();
+    // Start preloading immediately
+    startTransition(() => {
+      preloadRoutes();
+    });
     
-    // Preload other critical routes after initial render
-    const preloadTimer = setTimeout(() => {
-      // Preload main content that's likely to be visited next
-      Promise.all([
-        import("@/pages/Search"),
-        import("@/pages/Vehicles"),
-        import("@/pages/RealEstate")
-      ]).catch(() => null);
-    }, 2000);
+    // Preload critical pages after a short delay
+    const criticalPagesTimer = setTimeout(() => {
+      safeIdleCallback(() => {
+        Promise.allSettled([
+          import("@/pages/Search"),
+          import("@/pages/Vehicles"),
+          import("@/pages/RealEstate")
+        ]);
+      });
+    }, 1000);
     
-    return () => clearTimeout(preloadTimer);
+    return () => {
+      clearTimeout(criticalPagesTimer);
+      if (preloadController) {
+        preloadController.abort();
+      }
+    };
   }, []);
 
   // Memoize route loading to prevent unnecessary re-renders
@@ -161,34 +189,39 @@ const Routes = () => {
     try {
       setIsLoading(true);
       
-      // Define default empty routes for error cases
-      const defaultRoutes: RouteObject[] = [];
+      // Use a Map for better performance with large route sets
+      const routeModules = new Map<string, Promise<any>>();
       
-      // Load route modules in parallel with error handling for each
-      const [
-        mainModule,
-        authModule,
-        adminModule,
-        profileModule
-      ] = await Promise.allSettled([
-        import("./MainRoutes"),
-        import("./AuthRoutes"),
-        import("./AdminRoutes"),
-        import("./ProfileRoutes")
-      ]);
+      // Batch load route modules with priority
+      routeModules.set('main', import("./MainRoutes"));
+      routeModules.set('auth', import("./AuthRoutes"));
+      routeModules.set('profile', import("./ProfileRoutes"));
+      routeModules.set('admin', import("./AdminRoutes"));
       
-      // Extract routes with proper error handling
-      const mainRoutes = mainModule.status === 'fulfilled' ? mainModule.value.default : defaultRoutes;
-      const authRoutes = authModule.status === 'fulfilled' ? authModule.value.default : defaultRoutes;
-      const adminRoutes = adminModule.status === 'fulfilled' ? adminModule.value.default : defaultRoutes;
-      const profileRoutes = profileModule.status === 'fulfilled' ? profileModule.value.default : defaultRoutes;
+      const results = await Promise.allSettled(Array.from(routeModules.values()));
+      
+      // Process results with fallbacks
+      const [mainModule, authModule, profileModule, adminModule] = results;
+      
+      const getRoutes = (module: PromiseSettledResult<any>, fallback: RouteObject[] = []) => {
+        if (module.status === 'fulfilled' && module.value?.default) {
+          return Array.isArray(module.value.default) ? module.value.default : [module.value.default];
+        }
+        return fallback;
+      };
+      
+      // Extract routes with type safety
+      const mainRoutes = getRoutes(mainModule);
+      const authRoutes = getRoutes(authModule);
+      const profileRoutes = getRoutes(profileModule);
+      const adminRoutes = getRoutes(adminModule);
 
-      // Combine all routes with not found fallback
-      const allRoutes = [
+      // Combine routes with optimized spread
+      const allRoutes: RouteObject[] = [
         ...mainRoutes,
         ...authRoutes,
-        ...adminRoutes,
         ...profileRoutes,
+        ...adminRoutes,
         { 
           path: "*", 
           element: <ErrorBoundary>
