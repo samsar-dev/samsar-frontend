@@ -32,9 +32,14 @@ const profileRoutes: RouteObject[] = [
     path: "/messages",
     element: <Navigate to="/profile/messages" replace />,
   },
+  // Settings route
   {
     path: "/settings",
-    element: <Navigate to="/profile/settings" replace />,
+    element: (
+      <ProfileLayout>
+        <Settings />
+      </ProfileLayout>
+    ),
   },
   {
     path: "/profile/*", // Use wildcard to allow nested routes in Profile component
