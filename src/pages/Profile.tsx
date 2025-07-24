@@ -6,12 +6,12 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import {
-  MyListings,
-  ProfileInfo,
-  ChangePassword,
-  PublicProfileInfo,
-} from "@/components/profile";
+import { PublicProfileInfo } from "@/components/profile";
+import { lazy, Suspense } from "react";
+
+const MyListings = lazy(() => import("@/components/profile/MyListings"));
+const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo"));
+const ChangePassword = lazy(() => import("@/components/profile/ChangePassword"));
 import { useAuth } from "@/hooks/useAuth";
 
 interface TabItem {
@@ -99,16 +99,24 @@ export const Profile = () => {
 
           {/* Content Area */}
           <div className="flex-1 p-6 md:p-8">
-            <Routes>
-              <Route index element={<ProfileInfo />} />
-              <Route path="listings" element={<MyListings />} />
-              <Route path="password" element={<ChangePassword />} />
-              <Route path=":userId" element={<PublicProfileInfo />} />
-              <Route
-                path=":userId/listings"
-                element={<PublicProfileInfo showListings />}
-              />
-            </Routes>
+                        <Suspense
+              fallback={
+                <div className="flex justify-center items-center h-full">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              }
+            >
+              <Routes>
+                <Route index element={<ProfileInfo />} />
+                <Route path="listings" element={<MyListings />} />
+                <Route path="password" element={<ChangePassword />} />
+                <Route path=":userId" element={<PublicProfileInfo />} />
+                <Route
+                  path=":userId/listings"
+                  element={<PublicProfileInfo showListings />}
+                />
+              </Routes>
+            </Suspense>
           </div>
         </div>
       </div>

@@ -1,12 +1,14 @@
-import DeleteAccount from "@/components/settings/DeleteAccount";
-import NotificationSettings from "@/components/settings/NotificationSettings";
-import PreferenceSettings from "@/components/settings/PreferenceSettings";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import "@/styles/scrollable-tabs.css";
 import { SEO } from "@/utils/seo";
+
+const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
+const NotificationSettings = lazy(() => import("@/components/settings/NotificationSettings"));
+const PreferenceSettings = lazy(() => import("@/components/settings/PreferenceSettings"));
+const SecuritySettings = lazy(() => import("@/components/settings/SecuritySettings"));
 
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
@@ -53,6 +55,22 @@ interface SettingsState {
 }
 
 function Settings() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }
+    >
+      <div>
+        <SettingsContent />
+      </div>
+    </Suspense>
+  );
+}
+
+function SettingsContent() {
   const { t, i18n } = useTranslation("settings");
   const { settings, pendingChanges, updateSettings, applySettings } =
     useSettings();
@@ -379,273 +397,269 @@ function Settings() {
               <Tab.Panels>
                 {/* Preferences Panel */}
                 <Tab.Panel className="p-6">
-                  <PreferenceSettings
-                    settings={
-                      localSettings?.preferences || {
-                        language: LanguageCode.AR,
-                        theme: ThemeType.LIGHT,
-                        timezone:
-                          Intl.DateTimeFormat().resolvedOptions().timeZone,
-                      }
-                    }
-                    onUpdate={handlePreferenceUpdate}
-                    isRTL={isRTL}
-                  />
-                  <div className="mt-6 flex justify-between items-center">
-                    {saveStatus.type && (
-                      <div
-                        className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
-                      >
-                        {saveStatus.message}
+                  {localSettings && (
+                    <>
+                      <PreferenceSettings
+                        settings={
+                          localSettings?.preferences || {
+                            language: LanguageCode.AR,
+                            theme: ThemeType.LIGHT,
+                            timezone:
+                              Intl.DateTimeFormat().resolvedOptions().timeZone,
+                          }
+                        }
+                        onUpdate={handlePreferenceUpdate}
+                        isRTL={isRTL}
+                      />
+                      <div className="mt-6 flex justify-between items-center">
+                        {saveStatus.type && (
+                          <div
+                            className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                          >
+                            {saveStatus.message}
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSaveSettings}
+                          disabled={isSaving}
+                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                            isSaving
+                              ? "bg-green-400"
+                              : "bg-green-600 hover:bg-green-700"
+                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                        >
+                          {isSaving ? t("saving") : t("save")}
+                        </button>
                       </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleSaveSettings}
-                      disabled={isSaving}
-                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                        isSaving
-                          ? "bg-green-400"
-                          : "bg-green-600 hover:bg-green-700"
-                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-                    >
-                      {isSaving ? t("saving") : t("save")}
-                    </button>
-                  </div>
+                    </>
+                  )}
                 </Tab.Panel>
 
                 {/* Notifications Panel */}
                 <Tab.Panel className="p-6">
-                  <NotificationSettings
-                    notifications={
-                      localSettings?.notifications || {
-                        newInboxMessages: true,
-                        listingUpdates: true,
-                        loginNotifications: true,
-                        newsletterSubscribed: false,
-                        email: true,
-                        push: true,
-                        message: true,
-                        generalUpdates: true,
-                        orderUpdates: true,
-                        enabledTypes: ["message", "listing"],
-                      }
-                    }
-                    onUpdate={(notifications) => {
-                      const newSettings = { ...localSettings, notifications };
-                      setLocalSettings(newSettings);
-                    }}
-                  />
-                  <div className="mt-6 flex justify-between items-center">
-                    {saveStatus.type && (
-                      <div
-                        className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
-                      >
-                        {saveStatus.message}
+                  <Suspense
+                    fallback={
+                      <div className="flex justify-center items-center h-full">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                       </div>
+                    }
+                  >
+                    {localSettings && (
+                      <NotificationSettings
+                        notifications={
+                          localSettings?.notifications || {
+                            newInboxMessages: true,
+                            listingUpdates: true,
+                            loginNotifications: true,
+                            newsletterSubscribed: false,
+                            email: true,
+                            push: true,
+                            message: true,
+                            generalUpdates: true,
+                            orderUpdates: true,
+                            enabledTypes: ["message", "listing"],
+                          }
+                        }
+                        onUpdate={(notifications) => {
+                          const newSettings = { ...localSettings, notifications };
+                          setLocalSettings(newSettings);
+                        }}
+                      />
                     )}
-                    <button
-                      type="button"
-                      onClick={handleSaveSettings}
-                      disabled={isSaving}
-                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                        isSaving
-                          ? "bg-green-400"
-                          : "bg-green-600 hover:bg-green-700"
-                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-                    >
-                      {isSaving ? t("saving") : t("save")}
-                    </button>
-                  </div>
+                  </Suspense>
                 </Tab.Panel>
-
-                {/* Security Panel */}
-                {/* <Tab.Panel className="p-6">
-                <SecuritySettings
-                  settings={settings?.security || {}}
-                  onUpdate={handleSecurityUpdate}
-                  isRTL={isRTL}
-                />
-              </Tab.Panel> */}
 
                 {/* Privacy Panel */}
                 <Tab.Panel className="p-6">
-                  <div className="space-y-6">
-                    {/* Profile Visibility */}
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-medium">
-                        {t("privacy.profileVisibility")}
-                      </h3>
-                      <div className="pl-4">
-                        <div className="flex items-center space-x-4">
-                          <select
-                            value={
-                              settings?.privacy?.profileVisibility ?? "public"
+                  {localSettings && (
+                    <div className="space-y-6">
+                      {/* Profile Visibility */}
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-medium">
+                          {t("privacy.profileVisibility")}
+                        </h3>
+                        <div className="pl-4">
+                          <div className="flex items-center space-x-4">
+                            <select
+                              value={
+                                settings?.privacy?.profileVisibility ?? "public"
+                              }
+                              onChange={(e) =>
+                                handlePrivacyUpdate({
+                                  profileVisibility: e.target.value as
+                                    | "public"
+                                    | "private",
+                                })
+                              }
+                              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            >
+                              <option value="public">
+                                {t("privacy.public")}
+                              </option>
+                              <option value="private">
+                                {t("privacy.private")}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Show Online Status */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between pl-4">
+                          <span className="text-gray-600">
+                            {t("privacy.showOnlineStatus")}
+                          </span>
+                          <Toggle
+                            checked={
+                              localSettings?.privacy?.showOnlineStatus ?? true
                             }
-                            onChange={(e) =>
-                              handlePrivacyUpdate({
-                                profileVisibility: e.target.value as
-                                  | "public"
-                                  | "private",
-                              })
+                            onChange={(checked: boolean) =>
+                              handlePrivacyUpdate({ showOnlineStatus: checked })
                             }
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            label=""
+                          />
+                        </div>
+                      </div>
+
+                      {/* Show Phone Number */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between pl-4">
+                          <span className="text-gray-600">
+                            {t("privacy.showPhoneNumber")}
+                          </span>
+                          <Toggle
+                            checked={localSettings?.privacy?.showPhone ?? false}
+                            onChange={(checked: boolean) =>
+                              handlePrivacyUpdate({ showPhone: checked })
+                            }
+                            label=""
+                          />
+                        </div>
+                      </div>
+
+                      {/* Show Email */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between pl-4">
+                          <span className="text-gray-600">
+                            {t("privacy.showEmail")}
+                          </span>
+                          <Toggle
+                            checked={localSettings?.privacy?.showEmail ?? false}
+                            onChange={(checked: boolean) =>
+                              handlePrivacyUpdate({ showEmail: checked })
+                            }
+                            label=""
+                          />
+                        </div>
+                      </div>
+
+                      {/* Allow Direct Messaging */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between pl-4">
+                          <span className="text-gray-600">
+                            {t("privacy.allowDirectMessaging")}
+                          </span>
+                          <Toggle
+                            checked={
+                              localSettings?.privacy?.allowMessaging ?? true
+                            }
+                            onChange={(checked: boolean) =>
+                              handlePrivacyUpdate({ allowMessaging: checked })
+                            }
+                            label=""
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-6 flex justify-between items-center">
+                        {saveStatus.type && (
+                          <div
+                            className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
                           >
-                            <option value="public">
-                              {t("privacy.public")}
-                            </option>
-                            <option value="private">
-                              {t("privacy.private")}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Show Online Status */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showOnlineStatus")}
-                        </span>
-                        <Toggle
-                          checked={
-                            localSettings?.privacy?.showOnlineStatus ?? true
-                          }
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showOnlineStatus: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Show Phone Number */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showPhoneNumber")}
-                        </span>
-                        <Toggle
-                          checked={localSettings?.privacy?.showPhone ?? false}
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showPhone: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Show Email */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showEmail")}
-                        </span>
-                        <Toggle
-                          checked={localSettings?.privacy?.showEmail ?? false}
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showEmail: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Allow Direct Messaging */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.allowDirectMessaging")}
-                        </span>
-                        <Toggle
-                          checked={
-                            localSettings?.privacy?.allowMessaging ?? true
-                          }
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ allowMessaging: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-6 flex justify-between items-center">
-                      {saveStatus.type && (
-                        <div
-                          className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                            {saveStatus.message}
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSaveSettings}
+                          disabled={isSaving}
+                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                            isSaving
+                              ? "bg-green-400"
+                              : "bg-green-600 hover:bg-green-700"
+                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                         >
-                          {saveStatus.message}
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleSaveSettings}
-                        disabled={isSaving}
-                        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                          isSaving
-                            ? "bg-green-400"
-                            : "bg-green-600 hover:bg-green-700"
-                        } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-                      >
-                        {isSaving ? t("saving") : t("save")}
-                      </button>
+                          {isSaving ? t("saving") : t("save")}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </Tab.Panel>
 
                 {/* Connected Accounts Panel */}
                 <Tab.Panel className="p-6">
-                  <div className="space-y-4">
-                    {/* Google */}
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white">
-                          G
+                  {localSettings && (
+                    <div className="space-y-4">
+                      {/* Google */}
+                      <div className="flex items-center justify-between border-b pb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white">
+                            G
+                          </div>
+                          <span className="font-medium">
+                            {t("connectedAccounts.google")}
+                          </span>
                         </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.google")}
-                        </span>
+                        <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                          {t("connectedAccounts.connect")}
+                        </button>
                       </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
-                    </div>
 
-                    {/* Facebook */}
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                          f
+                      {/* Facebook */}
+                      <div className="flex items-center justify-between border-b pb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                            f
+                          </div>
+                          <span className="font-medium">
+                            {t("connectedAccounts.facebook")}
+                          </span>
                         </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.facebook")}
-                        </span>
+                        <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                          {t("connectedAccounts.connect")}
+                        </button>
                       </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
-                    </div>
 
-                    {/* Twitter */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white">
-                          t
+                      {/* Twitter */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white">
+                            t
+                          </div>
+                          <span className="font-medium">
+                            {t("connectedAccounts.twitter")}
+                          </span>
                         </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.twitter")}
-                        </span>
+                        <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                          {t("connectedAccounts.connect")}
+                        </button>
                       </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
                     </div>
-                  </div>
+                  )}
                 </Tab.Panel>
 
                 {/* Account Panel */}
                 <Tab.Panel className="p-6">
-                  <DeleteAccount />
+                  <Suspense
+                    fallback={
+                      <div className="flex justify-center items-center h-full">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                      </div>
+                    }
+                  >
+                    {localSettings && <DeleteAccount />}
+                  </Suspense>
                 </Tab.Panel>
               </Tab.Panels>
             </Tab.Group>

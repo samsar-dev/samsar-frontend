@@ -1,13 +1,15 @@
 "use client";
 
 import { LoadingSpinner } from "@/api";
-import ChatSection from "@/components/chat/ChatSection";
+
 import ConversationsList from "@/components/chat/ConversationsList";
 import UserDetails from "@/components/chat/UserDetails";
 import { useContextMessages } from "@/contexts/MessagesContext";
 import { useAuth } from "@/hooks";
 import type { Conversation, User } from "@/types";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+
+const ChatSection = lazy(() => import("@/components/chat/ChatSection"));
 import { useParams } from "react-router-dom";
 import { useSocket } from "@/contexts/SocketContext";
 import { NEW_MESSAGE } from "@/constants/socketEvents";
@@ -116,12 +118,20 @@ export default function ChatInterface() {
             <div
               className={`${infoOpen ? "hidden md:block" : "w-full"} flex-1 overflow-hidden`}
             >
-              <ChatSection
-                participant={participant}
-                user={user}
-                currentChat={currentChat}
-                setInfoOpen={setInfoOpen}
-              />
+                            <Suspense
+                fallback={
+                  <div className="flex-1 flex items-center justify-center">
+                    <LoadingSpinner />
+                  </div>
+                }
+              >
+                <ChatSection
+                  participant={participant}
+                  user={user}
+                  currentChat={currentChat}
+                  setInfoOpen={setInfoOpen}
+                />
+              </Suspense>
             </div>
 
             {/* Right sidebar - group info */}
