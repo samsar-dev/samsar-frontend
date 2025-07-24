@@ -236,18 +236,18 @@ const App: () => ReactElement = () => {
 };
 
 // Lazy load all major components
-const HomePage = lazy(() => import("./pages/HomePage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const MessagesPage = lazy(() => import("./pages/MessagesPage"));
-const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
-const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
-const EditListingPage = lazy(() => import("./pages/EditListingPage"));
-const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
-const CategoryPage = lazy(() => import("./pages/CategoryPage"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const HomePage = lazy(() => import("./pages/Home"));
+const LoginPage = lazy(() => import("./pages/Login"));
+const RegisterPage = lazy(() => import("./pages/Register"));
+const ProfilePage = lazy(() => import("./pages/Profile"));
+const SettingsPage = lazy(() => import("./pages/Settings"));
+const MessagesPage = lazy(() => import("./pages/Messages"));
+const ListingDetailPage = lazy(() => import("./pages/ListingSuccess"));
+const CreateListingPage = lazy(() => import("./pages/RealEstate"));
+const EditListingPage = lazy(() => import("./pages/Vehicles"));
+const SearchResultsPage = lazy(() => import("./pages/Search"));
+const CategoryPage = lazy(() => import("./pages/RealEstate"));
+const NotFoundPage = lazy(() => import("./pages/NotFound"));
 
 // Loading component
 const LoadingSpinner = () => (

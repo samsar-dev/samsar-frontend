@@ -156,21 +156,21 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            'react-core': ["react", "react-dom"],
-            'react-router': ["react-router-dom"],
-            'vendor-essential': ["axios"],
-            'vendor-ui': ["@headlessui/react", "@heroicons/react"],
-            'vendor-forms': ["react-hook-form"],
-            'vendor-maps': ["leaflet", "react-leaflet"],
-            'vendor-motion': ["framer-motion"],
-            'vendor-i18n': ["react-i18next"],
-            'vendor-dates': ["date-fns"],
-            'vendor-toast': ["react-toastify"],
-            'vendor-helmet': ["react-helmet-async"],
-            'vendor-floating': ["@floating-ui/react", "@floating-ui/dom"],
-            'vendor-engine': ["engine.io-client"],
+            react: ["react", "react-dom", "react-router-dom"],
+            vendor: ["axios", "date-fns", "react-i18next", "framer-motion"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
           },
-          chunkFileNames: "[name]-[hash].js",
+          chunkFileNames: (chunkInfo) => {
+            const name = chunkInfo.name.toString();
+            if (name.includes('vendor')) return 'vendor.[hash].js';
+            return '[name]-[hash].js';
+          },
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
+            return 'assets/[name]-[hash][extname]';
+          },
         },
         sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
           const relativePath = path.relative(
@@ -185,14 +185,8 @@ export default defineConfig(({ mode, command }) => {
         compress: {
           drop_console: isProduction,
           drop_debugger: isProduction,
-          pure_funcs: isProduction ? [
-            "console.log", "console.info", "console.debug", "console.warn", "console.trace",
-            "console.error", "console.table", "console.group", "console.groupEnd", "console.time",
-            "console.timeEnd", "console.assert", "console.clear", "console.count", "console.dir",
-            "console.dirxml", "console.groupCollapsed", "console.profile", "console.profileEnd",
-            "console.timeStamp", "console.context", "console.memory"
-          ] : [],
-          passes: 5,
+          pure_funcs: isProduction ? ["console.log", "console.info", "console.debug", "console.warn", "console.trace"] : [],
+          passes: 3,
           dead_code: true,
           unused: true,
           reduce_funcs: true,
@@ -207,13 +201,6 @@ export default defineConfig(({ mode, command }) => {
           sequences: true,
           properties: true,
           evaluate: true,
-          unsafe: false,
-          unsafe_arrows: false,
-          unsafe_comps: false,
-          unsafe_math: false,
-          unsafe_proto: false,
-          unsafe_regexp: false,
-          unsafe_undefined: false,
         },
         mangle: {
           toplevel: isProduction,
