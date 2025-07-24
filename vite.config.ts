@@ -155,57 +155,18 @@ export default defineConfig(({ mode, command }) => {
 
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // Preserve i18n bundles as requested
-            if (id.includes('react-i18next') || id.includes('i18next')) {
-              return 'vendor-i18n';
-            }
-            
-            // Core React libraries
-            if (id.includes('react') && !id.includes('react-router') && !id.includes('react-i18next')) {
-              return 'react-core';
-            }
-            if (id.includes('react-router')) {
-              return 'react-router';
-            }
-            
-            // Heavy libraries that need aggressive optimization
-            if (id.includes('framer-motion')) {
-              // Split framer-motion into smaller chunks
-              if (id.includes('projection') || id.includes('gestures') || id.includes('drag')) {
-                return 'motion-heavy'; // Defer loading of heavy animation features
-              }
-              return 'motion-core';
-            }
-            
-            if (id.includes('date-fns')) {
-              // Split date-fns formatters into separate chunk
-              if (id.includes('format') || id.includes('formatters')) {
-                return 'dates-formatters'; // Defer loading of formatters
-              }
-              return 'dates-core';
-            }
-            
-            // UI libraries
-            if (id.includes('@headlessui') || id.includes('@heroicons')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('@floating-ui')) {
-              return 'vendor-floating';
-            }
-            
-            // Other vendor libraries
-            if (id.includes('axios')) return 'vendor-essential';
-            if (id.includes('react-hook-form')) return 'vendor-forms';
-            if (id.includes('leaflet')) return 'vendor-maps';
-            if (id.includes('react-toastify')) return 'vendor-toast';
-            if (id.includes('react-helmet')) return 'vendor-helmet';
-            if (id.includes('engine.io')) return 'vendor-engine';
-            
-            // Group other node_modules
-            if (id.includes('node_modules')) {
-              return 'vendor-misc';
-            }
+          manualChunks: {
+            react: ["react", "react-dom", "react-router-dom"],
+            'vendor-i18n': ["i18next", "react-i18next"],
+            vendor: ["axios", "date-fns", "framer-motion"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
+          },
+          chunkFileNames: (chunkInfo) => {
+            const name = chunkInfo.name.toString();
+            if (name.includes('vendor')) return 'vendor.[hash].js';
+            return '[name]-[hash].js';
           },
           assetFileNames: (assetInfo) => {
             if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
@@ -219,6 +180,10 @@ export default defineConfig(({ mode, command }) => {
           );
           // Use relative path for source maps
           return `/${relativePath}`;
+        },
+        treeshake: {
+          preset: 'smallest',
+          moduleSideEffects: false,
         },
       },
       terserOptions: {
@@ -242,23 +207,11 @@ export default defineConfig(({ mode, command }) => {
           properties: true,
           evaluate: true,
         },
-        treeshake: {
-          preset: 'smallest',
-          moduleSideEffects: {
-            'react-i18next': true,
-            'i18next': true,
-            '**/*.css': true,
-            '**/*.scss': true,
-          },
-          propertyReadSideEffects: false,
-          unknownGlobalSideEffects: false,
-        },
-        external: (id) => {
-          // Keep i18n bundles internal for proper functionality
-          if (id.includes('i18next') || id.includes('react-i18next')) {
-            return false;
-          }
-          return false;
+        mangle: {
+          toplevel: isProduction,
+          safari10: true,
+          keep_classnames: false,
+          keep_fnames: false,
         },
         format: {
           comments: false,
