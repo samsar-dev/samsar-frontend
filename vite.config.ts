@@ -157,16 +157,7 @@ export default defineConfig(({ mode, command }) => {
               return 'react-router';
             }
             if (id.includes('node_modules/axios/')) {
-              return 'vendor-essential';
-            }
-            if (id.includes('node_modules/@headlessui/') || id.includes('node_modules/@heroicons/')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('node_modules/react-hook-form/')) {
-              return 'vendor-forms';
-            }
-            if (id.includes('node_modules/leaflet/') || id.includes('node_modules/react-leaflet/')) {
-              return 'vendor-maps';
+              return 'vendor-axios';
             }
             if (id.includes('node_modules/framer-motion/')) {
               return 'vendor-motion';
@@ -174,8 +165,17 @@ export default defineConfig(({ mode, command }) => {
             if (id.includes('node_modules/i18next/') || id.includes('node_modules/react-i18next/')) {
               return 'vendor-i18n';
             }
-            if (id.includes('node_modules/date-fns/')) {
-              return 'vendor-dates';
+            if (id.includes('node_modules/react-hook-form/')) {
+              return 'vendor-forms';
+            }
+            if (id.includes('node_modules/@headlessui/react/')) {
+              return 'vendor-headless';
+            }
+            if (id.includes('node_modules/@heroicons/react/')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('node_modules/@floating-ui/')) {
+              return 'vendor-floating';
             }
             if (id.includes('node_modules/react-toastify/')) {
               return 'vendor-toast';
@@ -183,11 +183,11 @@ export default defineConfig(({ mode, command }) => {
             if (id.includes('node_modules/react-helmet-async/')) {
               return 'vendor-helmet';
             }
-            if (id.includes('node_modules/@floating-ui/')) {
-              return 'vendor-floating';
-            }
             if (id.includes('node_modules/engine.io-client/')) {
               return 'vendor-engine';
+            }
+            if (id.includes('/locales/') || id.includes('.json')) {
+              return 'translations';
             }
           },
           chunkFileNames: "[name]-[hash].js",
@@ -200,7 +200,7 @@ export default defineConfig(({ mode, command }) => {
         },
         treeshake: {
           preset: 'smallest',
-          moduleSideEffects: ['i18next', 'react-i18next', 'i18next-http-backend', '@/locales/**'],
+          moduleSideEffects: ['i18next', 'react-i18next', 'i18next-http-backend', '@/locales/**', '**/locales/**', '**/*.json'],
           propertyReadSideEffects: false,
           unknownGlobalSideEffects: false,
         },
