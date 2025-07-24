@@ -1,49 +1,43 @@
 /**
- * Tailwind CSS Imports
+ * Tailwind CSS Imports - Optimized for minimal bundle size
  */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Ultra-minimal reset */
+/* Critical reset styles only */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
   background-color: #fff;
   color: #1f2937;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.dark body {
-  background-color: #111827;
-  color: #f9fafb;
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111827;
+    color: #f9fafb;
+  }
 }
 
-/* Essential utilities only */
+/* Essential layout utilities - these will be purged if unused */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.min-h-screen { min-height: 100vh; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
-.p-6 { padding: 1.5rem; }
-.p-0 { padding: 0; }
-.m-0 { margin: 0; }
-.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-.rounded-lg { border-radius: 0.5rem; }
-.flex-grow { flex-grow: 1; }
-.bg-white { background-color: #fff; }
-.bg-gray-50 { background-color: #f9fafb; }
-.bg-gray-800 { background-color: #1f2937; }
-.bg-gray-900 { background-color: #111827; }
-.text-gray-900 { color: #111827; }
-.text-gray-100 { color: #f3f4f6; }
+/* Critical responsive utilities */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+}

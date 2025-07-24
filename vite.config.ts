@@ -216,6 +216,13 @@ export default defineConfig(({ mode, command }) => {
           safari: 15 * 65536,
           edge: 92 * 65536,
         },
+        // Optimize CSS for production
+        unusedSymbols: mode === "production",
+        minify: mode === "production",
+        drafts: {
+          nesting: true,
+          customMedia: true,
+        },
       },
     },
 

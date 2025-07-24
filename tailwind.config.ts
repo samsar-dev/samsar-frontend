@@ -22,8 +22,17 @@ const config: Config = {
           900: '#111827',
         },
       },
+      // Disable unused features to reduce bundle size
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
     },
   },
+  // Optimize CSS generation - JIT mode is enabled by default in Tailwind 3.x
+  // Enable JIT mode for better performance
+  mode: 'jit',
+  // Disable dark mode variants if not used extensively
+  darkMode: 'class',
   plugins: [],
 };
 
