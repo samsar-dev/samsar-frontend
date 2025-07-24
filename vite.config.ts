@@ -138,7 +138,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: "es2020",
+      target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -219,7 +219,7 @@ export default defineConfig(({ mode, command }) => {
         "framer-motion",
       ],
       esbuildOptions: {
-        target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
+        target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
         define: {
           "process.env.NODE_ENV": JSON.stringify(
             process.env.NODE_ENV || "development",
@@ -230,7 +230,7 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ["es2020", "chrome58", "firefox57", "safari11", "edge79"],
+      target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
     },
   };
 });
