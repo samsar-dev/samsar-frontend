@@ -142,7 +142,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      target: 'es2022', // Modern target to avoid legacy transforms
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -150,22 +150,12 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: true,
       sourcemapIgnoreList: (file) => !file.endsWith(".js"),
 
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production',
-          drop_debugger: mode === 'production',
-          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        },
-        format: {
-          comments: false,
-        },
-      },
+      minify: 'esbuild', // Faster than terser and produces modern output
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
-      cssTarget: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      cssTarget: 'es2022',
 
       rollupOptions: {
         output: {
