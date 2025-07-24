@@ -460,8 +460,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
       {mainImage && typeof mainImage === "string" && (
         <PreloadImages
           imageUrls={[mainImage]}
-          priority={priority}
-          quality={85}
         />
       )}
       <div className="relative h-full">
