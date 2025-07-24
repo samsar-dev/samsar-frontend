@@ -42,7 +42,12 @@ export default defineConfig(({ mode, command }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
     },
     plugins: [
-      react(),
+      react({
+        // Use modern browser targets
+        jsxImportSource: 'react',
+        // Enable fast refresh
+        plugins: [],
+      }),
       viteCompression({
         algorithm: 'brotliCompress',
         ext: '.br',
@@ -137,7 +142,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: 'esnext', // Target modern browsers for minimal transpilation
+      target: 'es2022', // Modern target to avoid legacy transforms
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -155,13 +160,17 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'ui-vendor': ['framer-motion', '@headlessui/react', '@heroicons/react'],
+            'react-vendor': ['react', 'react-dom'],
+            'ui-vendor': ['framer-motion', '@headlessui/react'],
             'i18n-vendor': ['i18next', 'react-i18next', 'i18next-http-backend'],
-            'utils-vendor': ['lodash', 'axios', 'date-fns'],
-            'forms-vendor': ['react-hook-form'],
-            'maps-vendor': ['leaflet', 'react-leaflet'],
             'icons-vendor': ['react-icons'],
+            'utils-vendor': ['lodash', 'axios'],
+            react: ["react", "react-dom", "react-router-dom"],
+            'vendor-i18n': ["i18next", "react-i18next"],
+            vendor: ["axios", "date-fns", "framer-motion"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
           },
           chunkFileNames: (chunkInfo) => {
             const name = chunkInfo.name.toString();
@@ -232,7 +241,7 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: 'esnext',
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
     },
   };
 });
