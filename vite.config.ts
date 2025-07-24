@@ -42,12 +42,7 @@ export default defineConfig(({ mode, command }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
     },
     plugins: [
-      react({
-        // Use modern browser targets
-        jsxImportSource: 'react',
-        // Enable fast refresh
-        plugins: [],
-      }),
+      react(),
       viteCompression({
         algorithm: 'brotliCompress',
         ext: '.br',
@@ -142,7 +137,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: 'es2022', // Modern target to avoid legacy transforms
+      target: 'esnext', // Target modern browsers for minimal transpilation
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -241,7 +236,7 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      target: 'esnext',
     },
   };
 });
