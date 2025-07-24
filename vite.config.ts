@@ -181,6 +181,16 @@ export default defineConfig(({ mode, command }) => {
           // Use relative path for source maps
           return `/${relativePath}`;
         },
+        treeshake: {
+          preset: 'smallest',
+          moduleSideEffects: (id, external) => {
+            // Protect translation files from being tree-shaken
+            if (id.includes('/src/locales/')) {
+              return true;
+            }
+            return false;
+          },
+        },
       },
       terserOptions: {
         compress: {
