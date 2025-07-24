@@ -155,38 +155,89 @@ export default defineConfig(({ mode, command }) => {
 
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            vendor: ["axios", "date-fns", "react-i18next", "framer-motion"],
-            ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
+          manualChunks: (id) => {
+            // Preserve i18n bundle
+            if (id.includes('react-i18next') || id.includes('i18next')) {
+              return 'i18n-core';
+            }
+            // Aggressive tree-shaking for large dependencies
+            if (id.includes('framer-motion') && id.includes('drag')) {
+              return 'motion-drag';
+            }
+            if (id.includes('framer-motion') && id.includes('gestures')) {
+              return 'motion-gestures';
+            }
+            if (id.includes('framer-motion') && id.includes('projection')) {
+              return 'motion-projection';
+            }
+            if (id.includes('date-fns') && id.includes('format')) {
+              return 'date-format';
+            }
+            if (id.includes('date-fns') && id.includes('locale')) {
+              return 'date-locale';
+            }
+            if (id.includes('react-dom')) {
+              return 'react-core';
+            }
+            if (id.includes('react-router')) {
+              return 'react-router';
+            }
+            if (id.includes('axios')) {
+              return 'vendor-essential';
+            }
+            if (id.includes('@headlessui') || id.includes('@heroicons')) {
+              return 'vendor-ui';
+            }
+            if (id.includes('react-hook-form')) {
+              return 'vendor-forms';
+            }
+            if (id.includes('leaflet') || id.includes('react-leaflet')) {
+              return 'vendor-maps';
+            }
+            if (id.includes('framer-motion')) {
+              return 'motion-core';
+            }
+            if (id.includes('react-toastify')) {
+              return 'vendor-toast';
+            }
+            if (id.includes('react-helmet-async')) {
+              return 'vendor-helmet';
+            }
+            if (id.includes('@floating-ui')) {
+              return 'vendor-floating';
+            }
+            if (id.includes('engine.io-client')) {
+              return 'vendor-engine';
+            }
+            return null;
           },
-          chunkFileNames: (chunkInfo) => {
-            const name = chunkInfo.name.toString();
-            if (name.includes('vendor')) return 'vendor.[hash].js';
-            return '[name]-[hash].js';
-          },
-          assetFileNames: (assetInfo) => {
-            if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
-            return 'assets/[name]-[hash][extname]';
-          },
+          chunkFileNames: "[name]-[hash].js",
+          entryFileNames: "[name]-[hash].js",
+          assetFileNames: "[name]-[hash].[ext]",
+          hoistTransitiveImports: false,
+          minifyInternalExports: true,
+          compact: true,
         },
-        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-          const relativePath = path.relative(
-            process.cwd(),
-            relativeSourcePath,
-          );
-          // Use relative path for source maps
-          return `/${relativePath}`;
+        treeshake: {
+          preset: 'smallest',
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          unknownGlobalSideEffects: false,
         },
       },
+    
       terserOptions: {
         compress: {
           drop_console: isProduction,
           drop_debugger: isProduction,
-          pure_funcs: isProduction ? ["console.log", "console.info", "console.debug", "console.warn", "console.trace"] : [],
-          passes: 3,
+          pure_funcs: isProduction ? [
+            "console.log", "console.info", "console.debug", "console.warn", "console.trace",
+            "console.error", "console.table", "console.group", "console.groupEnd", "console.time",
+            "console.timeEnd", "console.assert", "console.clear", "console.count", "console.dir",
+            "console.dirxml", "console.groupCollapsed", "console.profile", "console.profileEnd",
+            "console.timeStamp", "console.context", "console.memory"
+          ] : [],
+          passes: 5,
           dead_code: true,
           unused: true,
           reduce_funcs: true,
@@ -201,6 +252,12 @@ export default defineConfig(({ mode, command }) => {
           sequences: true,
           properties: true,
           evaluate: true,
+          unsafe: false,
+          unsafe_arrows: false,
+          unsafe_comps: false,
+          unsafe_math: false,
+          unsafe_proto: false,
+          unsafe_regexp: false,
         },
         mangle: {
           toplevel: isProduction,
@@ -230,7 +287,51 @@ export default defineConfig(({ mode, command }) => {
           additionalData: `@import "@/assets/styles/variables.scss";`,
         },
       },
-      minify: mode === "production",
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: isProduction ? [
+            "console.log", "console.info", "console.debug", "console.warn", "console.trace",
+            "console.error", "console.table", "console.group", "console.groupEnd", "console.time",
+            "console.timeEnd", "console.assert", "console.clear", "console.count", "console.dir",
+            "console.dirxml", "console.groupCollapsed", "console.profile", "console.profileEnd",
+            "console.timeStamp", "console.context", "console.memory"
+          ] : [],
+          passes: 5,
+          dead_code: true,
+          unused: true,
+          reduce_funcs: true,
+          reduce_vars: true,
+          hoist_funs: true,
+          hoist_vars: true,
+          if_return: true,
+          join_vars: true,
+          collapse_vars: true,
+          pure_getters: true,
+          side_effects: true,
+          sequences: true,
+          properties: true,
+          evaluate: true,
+          unsafe: false,
+          unsafe_arrows: false,
+          unsafe_comps: false,
+          unsafe_math: false,
+          unsafe_proto: false,
+          unsafe_regexp: false,
+        },
+        mangle: {
+          toplevel: isProduction,
+          safari10: true,
+          keep_classnames: false,
+          keep_fnames: false,
+        },
+        format: {
+          comments: false,
+          beautify: false,
+        },
+      },
       lightningcss: {
         targets: {
           chrome: 90 * 65536,
