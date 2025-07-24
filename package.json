@@ -109,5 +109,23 @@
     "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-html": "^3.2.2"
+  },
+  "browserslist": {
+    "production": [
+      "defaults and supports es6-module",
+      "maintained node versions",
+      "not dead",
+      "not ie 11",
+      "not op_mini all",
+      "not samsung 4",
+      "not android 4.4",
+      "not and_uc 11.8"
+    ],
+    "development": [
+      "last 2 chrome versions",
+      "last 2 firefox versions",
+      "last 2 safari versions",
+      "last 2 edge versions"
+    ]
   }
 }

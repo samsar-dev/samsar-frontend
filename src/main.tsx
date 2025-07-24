@@ -163,6 +163,45 @@ const startApp = async () => {
   }
 };
 
+// Add modern browser detection
+const checkModernBrowser = () => {
+  // Check for modern browser features
+  const features = {
+    es6: typeof Symbol !== 'undefined' && Symbol.iterator,
+    es2017: typeof Object.entries !== 'undefined',
+    es2018: typeof Promise.prototype.finally !== 'undefined',
+    fetch: typeof fetch !== 'undefined',
+    intersectionObserver: typeof IntersectionObserver !== 'undefined',
+  };
+  
+  return Object.values(features).every(Boolean);
+};
+
+// Modern browser detection script
+const browserSupportScript = `
+  <script>
+    (function() {
+      var modernBrowser = 
+        'fetch' in window && 
+        'IntersectionObserver' in window &&
+        'Promise' in window &&
+        'assign' in Object &&
+        'from' in Array &&
+        'entries' in Object;
+      
+      if (!modernBrowser) {
+        var script = document.createElement('script');
+        script.src = '/legacy-polyfills.js';
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    })();
+  </script>
+`;
+
+// Add to your HTML template or use in your build process
+document.head.innerHTML += browserSupportScript;
+
 // Start the application with performance timing
 if (process.env.NODE_ENV === "development") {
   console.time("⚡ App Startup Time");

@@ -37,20 +37,22 @@ export default defineConfig(({ mode, command }) => {
 
   return {
     base: base,
-    define: envVars,
+    define: {
+      ...envVars,
+      'process.env.NODE_ENV': JSON.stringify(mode),
+    },
     plugins: [
       react({
-        // Enable TypeScript decorators
-        tsDecorators: true,
+        // Use modern browser targets
+        jsxImportSource: 'react',
+        // Enable fast refresh
+        plugins: [],
       }),
       viteCompression({
-        verbose: true,
-        disable: false,
-        threshold: 10240,
-        algorithm: "gzip",
-        ext: ".gz",
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024,
       }),
-
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -60,7 +62,9 @@ export default defineConfig(({ mode, command }) => {
           removeStyleLinkTypeAttributes: true,
           useShortDoctype: true,
           minifyCSS: true,
-          minifyJS: true,
+          minifyJS: {
+            ecma: 2020,
+          },
         },
         inject: {
           data: {
@@ -105,15 +109,15 @@ export default defineConfig(({ mode, command }) => {
 
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
-        "@components": path.resolve(__dirname, "src/components"),
-        "@pages": path.resolve(__dirname, "src/pages"),
-        "@assets": path.resolve(__dirname, "src/assets"),
-        "@hooks": path.resolve(__dirname, "src/hooks"),
-        "@services": path.resolve(__dirname, "src/services"),
-        "@store": path.resolve(__dirname, "src/store"),
-        "@types": path.resolve(__dirname, "src/types"),
-        "@utils": path.resolve(__dirname, "src/utils"),
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, "src/components"),
+        '@pages': path.resolve(__dirname, "src/pages"),
+        '@assets': path.resolve(__dirname, "src/assets"),
+        '@hooks': path.resolve(__dirname, "src/hooks"),
+        '@services': path.resolve(__dirname, "src/services"),
+        '@store': path.resolve(__dirname, "src/store"),
+        '@types': path.resolve(__dirname, "src/types"),
+        '@utils': path.resolve(__dirname, "src/utils"),
       },
     },
 
@@ -138,7 +142,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
       outDir: "dist",
       assetsDir: "assets",
       assetsInlineLimit: 4096, // 4kb
@@ -146,16 +150,31 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: true,
       sourcemapIgnoreList: (file) => !file.endsWith(".js"),
 
-      minify: isProduction ? "terser" : false,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production',
+          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+        },
+        format: {
+          comments: false,
+        },
+      },
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
-      cssTarget: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
+      cssTarget: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
 
       rollupOptions: {
         output: {
           manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'ui-vendor': ['framer-motion', '@headlessui/react'],
+            'i18n-vendor': ['i18next', 'react-i18next', 'i18next-http-backend'],
+            'icons-vendor': ['react-icons'],
+            'utils-vendor': ['lodash', 'axios'],
             react: ["react", "react-dom", "react-router-dom"],
             'vendor-i18n': ["i18next", "react-i18next"],
             vendor: ["axios", "date-fns", "framer-motion"],
@@ -180,38 +199,6 @@ export default defineConfig(({ mode, command }) => {
           );
           // Use relative path for source maps
           return `/${relativePath}`;
-        },
-      },
-      terserOptions: {
-        compress: {
-          drop_console: isProduction,
-          drop_debugger: isProduction,
-          pure_funcs: isProduction ? ["console.log", "console.info", "console.debug", "console.warn", "console.trace"] : [],
-          passes: 3,
-          dead_code: true,
-          unused: true,
-          reduce_funcs: true,
-          reduce_vars: true,
-          hoist_funs: true,
-          hoist_vars: true,
-          if_return: true,
-          join_vars: true,
-          collapse_vars: true,
-          pure_getters: true,
-          side_effects: true,
-          sequences: true,
-          properties: true,
-          evaluate: true,
-        },
-        mangle: {
-          toplevel: isProduction,
-          safari10: true,
-          keep_classnames: false,
-          keep_fnames: false,
-        },
-        format: {
-          comments: false,
-          beautify: false,
         },
       },
     },
@@ -253,7 +240,7 @@ export default defineConfig(({ mode, command }) => {
         "framer-motion",
       ],
       esbuildOptions: {
-        target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
+        target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
         define: {
           "process.env.NODE_ENV": JSON.stringify(
             process.env.NODE_ENV || "development",
@@ -264,7 +251,7 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
     },
   };
 });
