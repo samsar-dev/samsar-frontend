@@ -181,10 +181,6 @@ export default defineConfig(({ mode, command }) => {
           // Use relative path for source maps
           return `/${relativePath}`;
         },
-        treeshake: {
-          preset: 'smallest',
-          moduleSideEffects: false,
-        },
       },
       terserOptions: {
         compress: {
