@@ -160,17 +160,13 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            'react-vendor': ['react', 'react-dom'],
-            'ui-vendor': ['framer-motion', '@headlessui/react'],
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['framer-motion', '@headlessui/react', '@heroicons/react'],
             'i18n-vendor': ['i18next', 'react-i18next', 'i18next-http-backend'],
+            'utils-vendor': ['axios', 'date-fns', 'lodash'],
+            'forms-vendor': ['react-hook-form'],
+            'maps-vendor': ['leaflet', 'react-leaflet'],
             'icons-vendor': ['react-icons'],
-            'utils-vendor': ['lodash', 'axios'],
-            react: ["react", "react-dom", "react-router-dom"],
-            'vendor-i18n': ["i18next", "react-i18next"],
-            vendor: ["axios", "date-fns", "framer-motion"],
-            ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
           },
           chunkFileNames: (chunkInfo) => {
             const name = chunkInfo.name.toString();
@@ -209,8 +205,6 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       minify: mode === "production",
-      // Use lightningcss for advanced CSS optimization
-      transformer: mode === "production" ? "lightningcss" : undefined,
       lightningcss: {
         targets: {
           chrome: 90 * 65536,
@@ -218,17 +212,6 @@ export default defineConfig(({ mode, command }) => {
           safari: 15 * 65536,
           edge: 92 * 65536,
         },
-        // Advanced CSS optimization settings
-        unusedSymbols: true,
-        minify: true,
-        drafts: {
-          nesting: true,
-          customMedia: true,
-        },
-        nonStandard: {
-          deepSelector: true,
-        },
-        include: 0b1111, // Include all features
       },
     },
 

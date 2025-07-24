@@ -1,43 +1,31 @@
 /**
- * Tailwind CSS Imports - Optimized for minimal bundle size
+ * Tailwind CSS Imports
  */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Critical reset styles only */
+/* Custom base styles */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: Inter, sans-serif;
   background-color: #fff;
   color: #1f2937;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #111827;
-    color: #f9fafb;
-  }
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
-/* Essential layout utilities - these will be purged if unused */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* Critical responsive utilities */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-}
+
