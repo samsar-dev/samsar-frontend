@@ -2,7 +2,6 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import "@/styles/scrollable-tabs.css";
 import { SEO } from "@/utils/seo";
 
 const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
