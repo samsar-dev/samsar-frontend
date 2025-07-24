@@ -144,7 +144,6 @@ export default defineConfig(({ mode, command }) => {
       assetsInlineLimit: 4096, // 4kb
       emptyOutDir: true,
       sourcemap: true,
-      sourcemapFileNames: "[name]-[hash].map",
       sourcemapIgnoreList: (file) => !file.endsWith(".js"),
 
       minify: isProduction ? "terser" : false,
@@ -156,9 +155,6 @@ export default defineConfig(({ mode, command }) => {
 
       rollupOptions: {
         output: {
-          sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: "[name]-[hash].map",
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
             vendor: ["axios", "date-fns", "react-i18next", "framer-motion"],
@@ -199,17 +195,12 @@ export default defineConfig(({ mode, command }) => {
           hoist_vars: true,
           if_return: true,
           join_vars: true,
-          cascade: true,
           collapse_vars: true,
           pure_getters: true,
           side_effects: true,
           sequences: true,
           properties: true,
           evaluate: true,
-          unsafe: false,
-          unsafe_comps: false,
-          unsafe_math: false,
-          unsafe_proto: false,
         },
         mangle: {
           toplevel: isProduction,
