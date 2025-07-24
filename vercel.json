@@ -3,10 +3,7 @@
     {
       "source": "/",
       "has": [
-        {
-          "type": "host",
-          "value": "www.samsar.app"
-        }
+        { "type": "host", "value": "www.samsar.app" }
       ],
       "destination": "https://samsar.app/",
       "permanent": true
@@ -14,10 +11,7 @@
     {
       "source": "/:path*",
       "has": [
-        {
-          "type": "host",
-          "value": "www.samsar.app"
-        }
+        { "type": "host", "value": "www.samsar.app" }
       ],
       "destination": "https://samsar.app/:path*",
       "permanent": true
@@ -30,19 +24,10 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ],
   "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Link",
-          "value": "<https://samsar.app/>; rel=\"canonical\""
-        }
-      ]
-    },
     {
       "source": "/sitemap.xml",
       "headers": [

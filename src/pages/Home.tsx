@@ -1,6 +1,7 @@
 import { listingsAPI } from "@/api/listings.api";
-import ListingCard from "@/components/listings/details/ListingCard";
-import ListingFilters from "@/components/filters/ListingFilters";
+import React, { Suspense, lazy } from "react";
+const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
+const ListingFilters = lazy(() => import("@/components/filters/ListingFilters"));
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
 import ImageFallback from "@/components/media/ImageFallback";
@@ -18,7 +19,7 @@ import { Helmet } from "react-helmet-async";
 import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
-import { HiSelector, HiCheck } from "react-icons/hi";
+import { HiSelector, HiCheck } from "react-icons/hi"; // Only keep if both are actually used; otherwise remove unused ones.
 
 interface ListingParams {
   category?: {
@@ -54,33 +55,12 @@ interface ListingsState {
 const Home: React.FC = () => {
   // ... existing code ...
 
-  const LazyListingFiltersWithSuspense = (props: {
-    selectedAction: ListingAction | null;
-    setSelectedAction: (action: ListingAction | null) => void;
-    selectedMake: string | null;
-    setSelectedMake: (make: string | null) => void;
-    selectedModel: string | null;
-    setSelectedModel: (model: string | null) => void;
-    selectedYear: number | null;
-    setSelectedYear: (year: number | null) => void;
-    selectedMileage: number | null;
-    setSelectedMileage: (mileage: number | null) => void;
-    setSelectedLocation: (location: string | null) => void;
-    selectedSubcategory: string | null;
-    setSelectedSubcategory: (subcategory: string | null) => void;
-    onSearch: () => void;
-    loading: boolean;
-    priceRange: { min: number | ""; max: number | "" };
-    onPriceRangeChange: (range: { min: number | ""; max: number | "" }) => void;
-    onLocationChange: (location: { address: string }) => void;
-    selectedRadius?: number | null;
-    setSelectedRadius?: (radius: number | null) => void;
-    selectedBuiltYear?: number | null;
-    setSelectedBuiltYear?: (year: number | null) => void;
-    yearRange?: { min: number | ""; max: number | "" };
-    onYearRangeChange?: (range: { min: number | ""; max: number | "" }) => void;
-    onRadiusChange?: (radius: number | null) => void;
-  }) => <ListingFilters {...props} />;
+  // Use Suspense and lazy for ListingFilters
+  const LazyListingFiltersWithSuspense = (props: any) => (
+    <Suspense fallback={<div className="p-8 text-center">Loading filters…</div>}>
+      <ListingFilters {...props} />
+    </Suspense>
+  );
 
   const { t, i18n } = useTranslation([
     "common",
