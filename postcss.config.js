@@ -1,3 +1,5 @@
+import purgecss from '@fullhuman/postcss-purgecss';
+
 export default {
   plugins: {
     tailwindcss: {},
@@ -12,7 +14,11 @@ export default {
           reduceIdents: false,
           zindex: false,
         }]
-      }
+      },
+      purgecss: purgecss({
+        content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+        safelist: { standard: [/^Toastify/, /^leaflet/] },
+      })
     } : {}),
   },
 };

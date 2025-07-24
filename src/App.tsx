@@ -7,7 +7,7 @@ import {
   lazy,
 } from "react";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 
 // Import providers directly since they're lightweight
 import {
@@ -122,6 +122,11 @@ const preloadResources = () => {
 // Optimized: Show app immediately while initializing in the background
 const App: () => ReactElement = () => {
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Lazy-load Toastify styles only when the app mounts (code-split)
+  useEffect(() => {
+    import('react-toastify/dist/ReactToastify.css');
+  }, []);
 
   useEffect(() => {
     // Start with a minimal timeout to ensure first paint happens quickly

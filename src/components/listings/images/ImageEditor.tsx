@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaTimes,
@@ -41,6 +41,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
   const [mode, setMode] = useState<"crop" | "blur">("crop");
   const [blurIntensity, setBlurIntensity] = useState(10);
+
+  // Lazy-load ReactCrop styles only when ImageEditor mounts (code-split)
+  useEffect(() => {
+    import('react-image-crop/dist/ReactCrop.css');
+  }, []);
   const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(
     null,
   );

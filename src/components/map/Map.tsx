@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+
 import type { Map as LeafletMap } from "leaflet";
 import type { Listing } from "@/types/listings";
 import { locationAPI } from "@/api/location.api";
@@ -103,6 +103,11 @@ const Map: React.FC<MapProps> = ({
     );
   };
   const mapRef = useRef<LeafletMap | null>(null);
+
+  // Lazy-load Leaflet styles only when Map component is rendered (code-split)
+  useEffect(() => {
+    import('leaflet/dist/leaflet.css');
+  }, []);
   const [mapReady, setMapReady] = useState(false);
   const [geocodedCenter, setGeocodedCenter] = useState<[number, number] | null>(
     null,
