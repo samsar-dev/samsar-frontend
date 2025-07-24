@@ -200,7 +200,7 @@ export default defineConfig(({ mode, command }) => {
         },
         treeshake: {
           preset: 'smallest',
-          moduleSideEffects: false,
+          moduleSideEffects: ['i18next', 'react-i18next', 'i18next-http-backend', '@/locales/**'],
           propertyReadSideEffects: false,
           unknownGlobalSideEffects: false,
         },
