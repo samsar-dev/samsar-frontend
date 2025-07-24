@@ -235,4 +235,25 @@ const App: () => ReactElement = () => {
   );
 };
 
+// Lazy load all major components
+const HomePage = lazy(() => import("./pages/HomePage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const MessagesPage = lazy(() => import("./pages/MessagesPage"));
+const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
+const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
+const EditListingPage = lazy(() => import("./pages/EditListingPage"));
+const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
+
 export default App;
