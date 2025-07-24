@@ -95,13 +95,13 @@
     "home": "Home",
     "vehicles": "Vehicles",
     "real_estate": "Real Estate",
-      "profile": "Profile",
-      "settings": "Settings",
-      "messages": "Messages",
-      "notifications": "Notifications",
-      "create_listing": "Create Listing",
-      "my_listings": "My Listings",
-      "saved_listings": "Saved Listings"
+    "profile": "Profile",
+    "settings": "Settings",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "create_listing": "Create Listing",
+    "my_listings": "My Listings",
+    "saved_listings": "Saved Listings"
   },
   "createListing": "Create Listing",
   "myListings": "My Listings",
@@ -248,8 +248,7 @@
     "seo_title": "Samsar Platform | First Car and Real Estate Market in Syria",
     "seo_description": "Buy and sell cars, real estate, motorcycles, and commercial properties in Syria | Free and verified ads",
     "copyright": "Samsar Platform. All rights reserved.",
- 
-   
+
     "seo_text": "Samsar Platform - Buy and sell cars, real estate, motorcycles, and commercial properties in Syria | Free and verified ads",
     "careers": {
       "title": "Careers"
@@ -293,7 +292,5 @@
     "meta_title": "Privacy Policy - Samsar",
     "meta_description": "Learn about Samsar's Privacy Policy and how we protect your personal data when using our real estate and vehicles platform in Syria",
     "meta_keywords": "Privacy Policy, Data Protection, Privacy & Security, Personal Information, User Protection, Terms of Use"
-  
-
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { FaCar, FaMotorcycle, FaTruck, FaCaravan, FaBus } from "react-icons/fa";
 import { MdSend } from "react-icons/md";
 import { useTranslation } from "react-i18next";
@@ -41,7 +41,7 @@ interface ListingFiltersProps {
   onRadiusChange?: (radius: number | null) => void;
 }
 
-const ListingFilters: React.FC<ListingFiltersProps> = ({
+const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
   selectedAction,
   setSelectedAction,
   selectedMake,
@@ -62,6 +62,61 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
   onLocationChange,
   onRadiusChange = () => {},
 }) => {
+  // Memoize translations and vehicle types at the top level
+  const { t: tEnums } = useTranslation("enums");
+  const { t } = useTranslation("filters");
+
+  // Memoize vehicle types using translations
+  const vehicleTypes = useMemo(() => {
+    return [
+      {
+        id: VehicleType.CAR,
+        name: tEnums("vehicleType.CAR"),
+        icon: <FaCar className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.MOTORCYCLE,
+        name: tEnums("vehicleType.MOTORCYCLE"),
+        icon: <FaMotorcycle className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.TRUCK,
+        name: tEnums("vehicleType.TRUCK"),
+        icon: <FaTruck className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.VAN,
+        name: tEnums("vehicleType.VAN"),
+        icon: <FaTruck className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.RV,
+        name: tEnums("vehicleType.RV"),
+        icon: <FaCaravan className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.BUS,
+        name: tEnums("vehicleType.BUS"),
+        icon: <FaBus className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.CONSTRUCTION,
+        name: tEnums("vehicleType.CONSTRUCTION"),
+        icon: <FaTruck className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.TRACTOR,
+        name: tEnums("vehicleType.TRACTOR"),
+        icon: <FaTruck className="w-6 h-6" />,
+      },
+      {
+        id: VehicleType.OTHER,
+        name: tEnums("vehicleType.OTHER"),
+        icon: <FaTruck className="w-6 h-6" />,
+      },
+    ];
+  }, []);
+
   // Local UI state
   const [availableMakes, setAvailableMakes] = useState<string[]>([]);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -69,119 +124,77 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     null,
   );
 
-  const { t } = useTranslation("filters");
-  const { t: tEnums } = useTranslation("enums");
+  // Memoize make/model fetching functions
+  const fetchMakes = useCallback((type: VehicleType) => {
+    try {
+      return getMakesForType(type);
+    } catch (error) {
+      console.error("Error loading makes:", error);
+      return [];
+    }
+  }, []);
 
-  const vehicleTypes = [
-    {
-      id: VehicleType.CAR,
-      name: tEnums("vehicleType.CAR"),
-      icon: <FaCar className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.MOTORCYCLE,
-      name: tEnums("vehicleType.MOTORCYCLE"),
-      icon: <FaMotorcycle className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.TRUCK,
-      name: tEnums("vehicleType.TRUCK"),
-      icon: <FaTruck className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.VAN,
-      name: tEnums("vehicleType.VAN"),
-      icon: <FaTruck className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.RV,
-      name: tEnums("vehicleType.RV"),
-      icon: <FaCaravan className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.BUS,
-      name: tEnums("vehicleType.BUS"),
-      icon: <FaBus className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.CONSTRUCTION,
-      name: tEnums("vehicleType.CONSTRUCTION"),
-      icon: <FaTruck className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.TRACTOR,
-      name: tEnums("vehicleType.TRACTOR"),
-      icon: <FaTruck className="w-6 h-6" />,
-    },
-    {
-      id: VehicleType.OTHER,
-      name: tEnums("vehicleType.OTHER"),
-      icon: <FaTruck className="w-6 h-6" />,
-    },
-  ];
+  const fetchModels = useCallback((make: string, type: VehicleType) => {
+    try {
+      return getModelsForMakeAndType(make, type);
+    } catch (error) {
+      console.error("Error loading models:", error);
+      return [];
+    }
+  }, []);
 
   // Update available makes when vehicle type changes
   useEffect(() => {
     if (selectedSubcategory) {
-      try {
-        const makes = getMakesForType(selectedSubcategory as VehicleType);
-        setAvailableMakes(makes);
-      } catch (error) {
-        console.error("Error loading makes:", error);
-        setAvailableMakes([]);
-      }
+      const makes = fetchMakes(selectedSubcategory as VehicleType);
+      setAvailableMakes(makes);
       setAvailableModels([]);
       setSelectedMake(null);
       setSelectedModel(null);
     }
-  }, [selectedSubcategory]);
+  }, [selectedSubcategory, fetchMakes]);
 
   // Update available models when make changes
   useEffect(() => {
     if (selectedSubcategory && selectedMake) {
-      try {
-        const models = getModelsForMakeAndType(
-          selectedMake,
-          selectedSubcategory as VehicleType,
-        );
-        setAvailableModels(models);
-      } catch (error) {
-        console.error("Error loading models:", error);
-        setAvailableModels([]);
-      }
+      const models = fetchModels(
+        selectedMake,
+        selectedSubcategory as VehicleType,
+      );
+      setAvailableModels(models);
       setSelectedModel(null);
     } else {
       setAvailableModels([]);
     }
-  }, [selectedMake, selectedSubcategory]);
+  }, [selectedMake, selectedSubcategory, fetchModels]);
 
-  const handleActionChange = (value: string) => {
-    setSelectedAction((value as ListingAction) || null);
-  };
+  // Memoize handlers
+  const handleActionChange = useCallback(
+    (value: string) => {
+      setSelectedAction((value as ListingAction) || null);
+    },
+    [setSelectedAction],
+  );
 
   const handleLocationSelect = useCallback(
     (location: SelectedLocation) => {
       setLocationData(location);
       setSelectedLocation(location.address);
       onLocationChange?.({ address: location.address });
-      if (onRadiusChange && location.radius) {
-        onRadiusChange(location.radius);
-      }
+      onRadiusChange?.(location.radius);
     },
     [onLocationChange, onRadiusChange],
   );
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    try {
+  const handleSearch = useCallback(
+    (e: React.FormEvent<HTMLFormElement>): void => {
+      e.preventDefault();
       onSearch();
-    } catch (error) {
-      console.error("Search failed:", error);
-      // Optionally show error to user via toast or other UI feedback
-    }
-  };
+    },
+    [onSearch],
+  );
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSelectedMake(null);
     setSelectedModel(null);
     setSelectedYear(null);
@@ -191,7 +204,16 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     setSelectedSubcategory(null);
     onPriceRangeChange({ min: "", max: "" });
     onRadiusChange?.(null);
-  };
+  }, [
+    setSelectedMake,
+    setSelectedModel,
+    setSelectedYear,
+    setSelectedMileage,
+    setSelectedLocation,
+    setSelectedSubcategory,
+    onPriceRangeChange,
+    onRadiusChange,
+  ]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 relative z-20 w-full max-w-6xl mx-auto">
@@ -448,5 +470,22 @@ const ListingFilters: React.FC<ListingFiltersProps> = ({
     </div>
   );
 };
+
+export const ListingFilters = memo(
+  ListingFiltersComponent,
+  (prevProps, nextProps) => {
+    // Only re-render if actual filter values change, not loading state
+    return (
+      prevProps.selectedAction === nextProps.selectedAction &&
+      prevProps.selectedMake === nextProps.selectedMake &&
+      prevProps.selectedModel === nextProps.selectedModel &&
+      prevProps.selectedYear === nextProps.selectedYear &&
+      prevProps.selectedMileage === nextProps.selectedMileage &&
+      prevProps.selectedSubcategory === nextProps.selectedSubcategory &&
+      prevProps.priceRange.min === nextProps.priceRange.min &&
+      prevProps.priceRange.max === nextProps.priceRange.max
+    );
+  },
+);
 
 export default ListingFilters;

@@ -99,25 +99,25 @@ export interface ProfileCardProps extends BaseProps {
 export interface LoadingSpinnerProps extends BaseProps {
   /** Size of the spinner */
   size?: "sm" | "md" | "lg";
-  
+
   /** Custom class name for the spinner container */
   className?: string;
-  
+
   /** Accessible label for screen readers (default: "Loading...") */
   label?: string;
-  
+
   /** ARIA live region politeness setting (default: "polite") */
-  ariaLive?: 'off' | 'polite' | 'assertive';
-  
+  ariaLive?: "off" | "polite" | "assertive";
+
   /** Whether the live region should be atomic (default: true) */
   ariaAtomic?: boolean;
-  
+
   /** Custom color for the spinner track */
   trackColor?: string;
-  
+
   /** Custom color for the active spinner part */
   activeColor?: string;
-  
+
   /** Animation speed in seconds (default: 1) */
   speed?: number;
 }

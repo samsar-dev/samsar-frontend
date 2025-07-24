@@ -10,7 +10,7 @@ interface UseAutoLogoutOptions {
 }
 
 const DEFAULT_INACTIVITY_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
-const TOKEN_REFRESH_INTERVAL = 1 * 60 * 60 * 1000; // 1 hour
+const TOKEN_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes (refresh before 15-minute session expires)
 
 export const useAutoLogout = ({
   autoLogoutTime = DEFAULT_INACTIVITY_TIMEOUT,

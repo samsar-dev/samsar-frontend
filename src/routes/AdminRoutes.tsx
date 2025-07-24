@@ -3,7 +3,9 @@ import { RouteObject } from "react-router-dom";
 import PrivateRoute from "@/components/auth/AuthRoute";
 
 // Lazy load admin components
-const ContactSubmissions = lazy(() => import("@/pages/admin/ContactSubmissions"));
+const ContactSubmissions = lazy(
+  () => import("@/pages/admin/ContactSubmissions"),
+);
 const UsersList = lazy(() => import("@/pages/admin/UsersList"));
 const Newsletter = lazy(() => import("@/pages/admin/Newsletter"));
 const AdminReports = lazy(() => import("@/pages/admin/ReportsPage"));

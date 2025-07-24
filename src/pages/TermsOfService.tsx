@@ -141,7 +141,6 @@ const TermsOfService = () => {
     {
       title: "5. Featured Offers Service (Coming Soon)",
       icon: <Star sx={{ color: "primary.main", mr: 2 }} />,
-     
     },
     {
       title: "5. Privacy and Security",

@@ -1,5 +1,10 @@
 import { FILTERS_TYPES } from "./filters.types";
-import { ListingAction, VehicleType, PropertyType, Condition } from "@/types/enums";
+import {
+  ListingAction,
+  VehicleType,
+  PropertyType,
+  Condition,
+} from "@/types/enums";
 
 export const setAction = (action: ListingAction | null) => ({
   type: FILTERS_TYPES.SET_ACTION,
@@ -39,7 +44,7 @@ export const setPriceRange = (min: number | null, max: number | null) => ({
 export const setLocation = (
   address: string,
   lat: number | null = null,
-  lng: number | null = null
+  lng: number | null = null,
 ) => ({
   type: FILTERS_TYPES.SET_LOCATION,
   payload: { address, lat, lng },

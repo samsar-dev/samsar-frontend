@@ -75,10 +75,10 @@ export const Profile = () => {
             </h2>
             <nav className="space-y-2">
               {tabs.map((tab) => {
-                const isActive = 
-                  currentPath === tab.path || 
-                  (tab.path !== '/profile' && currentPath.startsWith(tab.path));
-                
+                const isActive =
+                  currentPath === tab.path ||
+                  (tab.path !== "/profile" && currentPath.startsWith(tab.path));
+
                 return (
                   <button
                     key={tab.id}
@@ -104,9 +104,9 @@ export const Profile = () => {
               <Route path="listings" element={<MyListings />} />
               <Route path="password" element={<ChangePassword />} />
               <Route path=":userId" element={<PublicProfileInfo />} />
-              <Route 
-                path=":userId/listings" 
-                element={<PublicProfileInfo showListings />} 
+              <Route
+                path=":userId/listings"
+                element={<PublicProfileInfo showListings />}
               />
             </Routes>
           </div>

@@ -3,7 +3,8 @@ import { AuthAPI } from "@/api/auth.api";
 /**
  * Utility to delay execution
  */
-const wait = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 export class SecureAuth {
   private static refreshPromise: Promise<boolean> | null = null;
@@ -19,7 +20,7 @@ export class SecureAuth {
       try {
         // Check if we have a session cookie
         const cookies = document.cookie;
-        if (!cookies.includes('session=')) {
+        if (!cookies.includes("session=")) {
           return false;
         }
 
@@ -64,7 +65,7 @@ export class SecureAuth {
     this.refreshPromise = (async () => {
       try {
         const res = await AuthAPI.refreshTokens();
-        return !!(res?.success);
+        return !!res?.success;
       } catch (e) {
         console.error("refreshToken error:", e);
         return false;

@@ -3,6 +3,7 @@ import ListingCard from "@/components/listings/details/ListingCard";
 import ListingFilters from "@/components/filters/ListingFilters";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
+import ImageFallback from "@/components/media/ImageFallback";
 import {
   ListingCategory,
   VehicleType,
@@ -10,17 +11,14 @@ import {
   ListingAction,
 } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
-
-import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { MdFilterList } from "react-icons/md";
 import { FaCar, FaHome } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 import { HiSelector, HiCheck } from "react-icons/hi";
-import ImageFallback from "@/components/media/ImageFallback";
-
 
 interface ListingParams {
   category?: {
@@ -54,6 +52,36 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
+  // ... existing code ...
+
+  const LazyListingFiltersWithSuspense = (props: {
+    selectedAction: ListingAction | null;
+    setSelectedAction: (action: ListingAction | null) => void;
+    selectedMake: string | null;
+    setSelectedMake: (make: string | null) => void;
+    selectedModel: string | null;
+    setSelectedModel: (model: string | null) => void;
+    selectedYear: number | null;
+    setSelectedYear: (year: number | null) => void;
+    selectedMileage: number | null;
+    setSelectedMileage: (mileage: number | null) => void;
+    setSelectedLocation: (location: string | null) => void;
+    selectedSubcategory: string | null;
+    setSelectedSubcategory: (subcategory: string | null) => void;
+    onSearch: () => void;
+    loading: boolean;
+    priceRange: { min: number | ""; max: number | "" };
+    onPriceRangeChange: (range: { min: number | ""; max: number | "" }) => void;
+    onLocationChange: (location: { address: string }) => void;
+    selectedRadius?: number | null;
+    setSelectedRadius?: (radius: number | null) => void;
+    selectedBuiltYear?: number | null;
+    setSelectedBuiltYear?: (year: number | null) => void;
+    yearRange?: { min: number | ""; max: number | "" };
+    onYearRangeChange?: (range: { min: number | ""; max: number | "" }) => void;
+    onRadiusChange?: (radius: number | null) => void;
+  }) => <ListingFilters {...props} />;
+
   const { t, i18n } = useTranslation([
     "common",
     "filters",
@@ -110,13 +138,16 @@ const Home: React.FC = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [forceRefresh, setForceRefresh] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
-  // Removed unused filter visibility state
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [filterData, setFilterData] = useState({
+    makes: [] as string[],
+    models: [] as string[],
+  });
   const abortControllerRef = useRef<AbortController>(new AbortController());
 
   useEffect(() => {
     // Listen for cache-cleared events from the API
     const handleCacheCleared = () => {
-      console.log("Cache cleared event received, forcing refresh");
       // Clear the local cache
       listingsCache.current = {};
       // Force a refresh of the listings
@@ -159,6 +190,7 @@ const Home: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<ListingAction | null>(
     null,
   );
+
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null,
   );
@@ -261,14 +293,6 @@ const Home: React.FC = () => {
           // Apply mileage filter for vehicles
           if (selectedMileage !== null && selectedMileage !== undefined) {
             const vehicleMileage = listing.details?.vehicles?.mileage;
-            console.log(
-              "Mileage filter - Listing ID:",
-              listing.id,
-              "Mileage value:",
-              vehicleMileage,
-              "Type:",
-              typeof vehicleMileage,
-            );
 
             if (vehicleMileage !== null && vehicleMileage !== undefined) {
               try {
@@ -283,29 +307,14 @@ const Home: React.FC = () => {
                   mileageValue = Number(vehicleMileage);
                 }
 
-                console.log(
-                  "Processed mileage:",
-                  mileageValue,
-                  "Selected max:",
-                  selectedMileage,
-                );
-
                 // Only filter if we have a valid number
                 if (!isNaN(mileageValue) && mileageValue > selectedMileage) {
-                  console.log("Filtering out - mileage too high");
                   return false;
                 }
               } catch (error) {
-                console.warn(
-                  "Error processing mileage:",
-                  error,
-                  "for listing:",
-                  listing.id,
-                );
                 // If there's an error parsing, don't filter out the listing
               }
             } else {
-              console.log("No mileage data for listing, keeping it");
             }
           }
         } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
@@ -652,9 +661,6 @@ const Home: React.FC = () => {
   // Location and radius changes are handled directly by setSelectedLocation and setSelectedRadius
 
   // Debug logging for i18n
-  console.log("i18n instance:", i18n);
-  console.log("Current Language:", i18n.language);
-  console.log("Namespaces:", i18n.options.ns);
 
   // Define sort options with translations from the filters namespace
   const sortOptions = [
@@ -747,40 +753,53 @@ const Home: React.FC = () => {
         </div>
 
         {isFilterOpen && (
-          <ListingFilters
-            selectedAction={selectedAction}
-            setSelectedAction={setSelectedAction}
-            selectedMake={selectedMake}
-            setSelectedMake={setSelectedMake}
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            selectedYear={selectedYear}
-            setSelectedYear={setSelectedYear}
-            selectedMileage={selectedMileage}
-            setSelectedMileage={setSelectedMileage}
-            setSelectedLocation={setSelectedLocation}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            selectedRadius={selectedRadius}
-            setSelectedRadius={setSelectedRadius}
-            selectedBuiltYear={selectedBuiltYear}
-            setSelectedBuiltYear={setSelectedBuiltYear}
-            loading={listings.loading}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
-            yearRange={yearRange}
-            onYearRangeChange={setYearRange}
-            onLocationChange={(location) => {
-              setSelectedLocation(location.address);
-            }}
-            onRadiusChange={(radius) => {
-              setSelectedRadius(radius);
-            }}
-            onSearch={fetchListings}
-          />
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <ListingFilters
+              selectedAction={selectedAction}
+              setSelectedAction={setSelectedAction}
+              selectedMake={selectedMake}
+              setSelectedMake={setSelectedMake}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              selectedMileage={selectedMileage}
+              setSelectedMileage={setSelectedMileage}
+              setSelectedLocation={setSelectedLocation}
+              selectedSubcategory={selectedSubcategory}
+              setSelectedSubcategory={setSelectedSubcategory}
+              selectedRadius={selectedRadius}
+              setSelectedRadius={setSelectedRadius}
+              selectedBuiltYear={selectedBuiltYear}
+              setSelectedBuiltYear={setSelectedBuiltYear}
+              loading={listings.loading}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              yearRange={yearRange}
+              onYearRangeChange={setYearRange}
+              onLocationChange={(location) => {
+                setSelectedLocation(location.address);
+              }}
+              onRadiusChange={(radius) => {
+                setSelectedRadius(radius);
+              }}
+              onSearch={fetchListings}
+            />
+          </motion.div>
         )}
 
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" itemScope itemType="https://schema.org/ItemList">
+        <div
+          className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          itemScope
+          itemType="https://schema.org/ItemList"
+        >
+          {listings.loading && <SkeletonListingGrid count={8} />}
           {filteredListings.map((listing, index) => (
             <ListingCard
               key={listing.id}
@@ -836,7 +855,11 @@ const Home: React.FC = () => {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
               {listings.popular.map((listing, index) => (
-                <div itemScope itemType="https://schema.org/Product" itemProp="itemListElement">
+                <div
+                  itemScope
+                  itemType="https://schema.org/Product"
+                  itemProp="itemListElement"
+                >
                   <ListingCard
                     key={listing.id}
                     listing={listing}
@@ -872,18 +895,24 @@ const Home: React.FC = () => {
   const getPageMetadata = () => {
     if (selectedCategory === ListingCategory.VEHICLES) {
       return {
-        title: t("home:meta.vehicles.title", "أفضل السيارات للبيع في سوريا | سمسار"),
+        title: t(
+          "home:meta.vehicles.title",
+          "أفضل السيارات للبيع في سوريا | سمسار",
+        ),
         description: t(
           "home:meta.vehicles.description",
-          "تصفح أحدث إعلانات السيارات المستعملة والجديدة في سوريا. سيارات للبيع من مالكين مباشرة أو معارض موثوقة. أسعار تنافسية وضمان الجودة"
+          "تصفح أحدث إعلانات السيارات المستعملة والجديدة في سوريا. سيارات للبيع من مالكين مباشرة أو معارض موثوقة. أسعار تنافسية وضمان الجودة",
         ),
       };
     } else {
       return {
-        title: t("home:meta.properties.title", "أفضل العقارات للبيع في سوريا | سمسار"),
+        title: t(
+          "home:meta.properties.title",
+          "أفضل العقارات للبيع في سوريا | سمسار",
+        ),
         description: t(
           "home:meta.properties.description",
-          "تصفح أفضل العروض العقارية في سوريا. شقق، فلل، محلات تجارية، وأراضي للبيع أو الإيجار. أسعار منافسة ومواقع مميزة"
+          "تصفح أفضل العروض العقارية في سوريا. شقق، فلل، محلات تجارية، وأراضي للبيع أو الإيجار. أسعار منافسة ومواقع مميزة",
         ),
       };
     }
@@ -891,41 +920,99 @@ const Home: React.FC = () => {
 
   const { title, description } = getPageMetadata();
 
+  useEffect(() => {
+    // Prioritize loading of header text
+    const headerText = document.querySelector("[data-lcp-text]") as HTMLElement;
+    if (headerText) {
+      headerText.style.visibility = "visible";
+      headerText.style.opacity = "1";
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Helmet>
-        <title>{t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}</title>
-        <meta name="description" content={t("meta_description", "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.")} />
-        <meta name="keywords" content={t("meta_keywords", "سيارات للبيع، عقارات للبيع، سمسار، سوريا، سيارات مستعملة، عقارات جديدة، أسعار تنافسية، ضمان الجودة")} />
-        
+        <title>
+          {t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
+        </title>
+        <meta
+          name="description"
+          content={t(
+            "meta_description",
+            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
+          )}
+        />
+        <meta
+          name="keywords"
+          content={t(
+            "meta_keywords",
+            "سيارات للبيع، عقارات للبيع، سمسار، سوريا، سيارات مستعملة، عقارات جديدة، أسعار تنافسية، ضمان الجودة",
+          )}
+        />
+
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:title" content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")} />
-        <meta property="og:description" content={t("meta_description", "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.")} />
-        <meta property="og:image" content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg" />
-        
+        <meta
+          property="og:title"
+          content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
+        />
+        <meta
+          property="og:description"
+          content={t(
+            "meta_description",
+            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
+          )}
+        />
+        <meta
+          property="og:image"
+          content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg"
+        />
+
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={window.location.href} />
-        <meta name="twitter:title" content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")} />
-        <meta name="twitter:description" content={t("meta_description", "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.")} />
-        <meta name="twitter:image" content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg" />
-        
+        <meta
+          name="twitter:title"
+          content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
+        />
+        <meta
+          name="twitter:description"
+          content={t(
+            "meta_description",
+            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
+          )}
+        />
+        <meta
+          name="twitter:image"
+          content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg"
+        />
+
         {/* Language Alternates */}
-        <link rel="alternate" hrefLang="ar" href={`${window.location.origin}/ar`} />
-        <link rel="alternate" hrefLang="en" href={`${window.location.origin}/en`} />
-        <link rel="alternate" hrefLang="x-default" href={window.location.origin} />
-        
+        <link
+          rel="alternate"
+          hrefLang="ar"
+          href={`${window.location.origin}/ar`}
+        />
+        <link
+          rel="alternate"
+          hrefLang="en"
+          href={`${window.location.origin}/en`}
+        />
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={window.location.origin}
+        />
+
         {/* Canonical URL */}
         <link rel="canonical" href={window.location.href} />
-        
+
         {/* Ensure search engines know about our preferred domain */}
         <link rel="preconnect" href="https://samsar.app" />
         <meta name="hostname" content="samsar.app" />
       </Helmet>
 
-      
       {/* Structured Data for SEO */}
       <script
         type="application/ld+json"
@@ -933,89 +1020,90 @@ const Home: React.FC = () => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebSite",
-            "name": "سمسار",
-            "url": "https://samsar.app",
-            "potentialAction": {
+            name: "سمسار",
+            url: "https://samsar.app",
+            potentialAction: {
               "@type": "SearchAction",
-              "target": "https://samsar.app/search?q={search_term_string}",
-              "query-input": "required name=search_term_string"
+              target: "https://samsar.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string",
             },
-            "inLanguage": "ar_AR",
-            "description": "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
-          })
+            inLanguage: "ar_AR",
+            description:
+              "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا",
+          }),
         }}
       />
-      
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
-            "name": "Samsar",
-            "image": "https://samsar.sa/logo.png",
+            name: "Samsar",
+            image: "https://samsar.sa/logo.png",
             "@id": "",
-            "url": window.location.origin,
-            "telephone": "+963 11 123 4567",
-            "address": {
+            url: window.location.origin,
+            telephone: "+963 11 123 4567",
+            address: {
               "@type": "PostalAddress",
-              "streetAddress": "Damascus, Syria",
-              "addressLocality": "Damascus",
-              "addressRegion": "Damascus",
-              "postalCode": "",
-              "addressCountry": "SY"
+              streetAddress: "Damascus, Syria",
+              addressLocality: "Damascus",
+              addressRegion: "Damascus",
+              postalCode: "",
+              addressCountry: "SY",
             },
-            "geo": {
+            geo: {
               "@type": "GeoCoordinates",
-              "latitude": 33.5138,
-              "longitude": 36.2765
+              latitude: 33.5138,
+              longitude: 36.2765,
             },
-            "openingHoursSpecification": {
+            openingHoursSpecification: {
               "@type": "OpeningHoursSpecification",
-              "dayOfWeek": [
+              dayOfWeek: [
                 "Monday",
                 "Tuesday",
                 "Wednesday",
                 "Thursday",
                 "Friday",
-                "Saturday"
+                "Saturday",
               ],
-              "opens": "09:00",
-              "closes": "18:00"
+              opens: "09:00",
+              closes: "18:00",
             },
-            "sameAs": [
+            sameAs: [
               "https://www.facebook.com/samsarsyria",
               "https://www.instagram.com/samsarsyria",
-              "https://twitter.com/samsarsyria"
-            ]
-          })
+              "https://twitter.com/samsarsyria",
+            ],
+          }),
         }}
       />
       <link rel="preconnect" href="/" crossOrigin="anonymous" />
-      
+
       {/* Canonical URL */}
-      <link 
-        rel="canonical" 
-        href={`${window.location.origin}${i18n.language === 'ar' ? '/ar' : '/en'}`} 
+      <link
+        rel="canonical"
+        href={`${window.location.origin}${i18n.language === "ar" ? "/ar" : "/en"}`}
       />
-      
+
       {/* Hreflang for Arabic and English versions */}
-      <link 
-        rel="alternate" 
-        hrefLang="ar" 
-        href={`${window.location.origin}/ar`} 
+      <link
+        rel="alternate"
+        hrefLang="ar"
+        href={`${window.location.origin}/ar`}
       />
-      <link 
-        rel="alternate" 
-        hrefLang="en" 
-        href={`${window.location.origin}/en`} 
+      <link
+        rel="alternate"
+        hrefLang="en"
+        href={`${window.location.origin}/en`}
       />
-      <link 
-        rel="alternate" 
-        hrefLang="x-default" 
-        href={window.location.origin} 
+      <link
+        rel="alternate"
+        hrefLang="x-default"
+        href={window.location.origin}
       />
-      
+
       {/* Preload first listing image if it exists */}
       {firstVisibleListing?.images?.[0] && (
         <PreloadImages imageUrls={[String(firstVisibleListing.images[0])]} />
@@ -1024,15 +1112,21 @@ const Home: React.FC = () => {
       {/* Header with H1 */}
       <header className="relative bg-blue-800/90 backdrop-blur-sm text-white py-10 sm:py-14 md:py-20 transition-all duration-500 w-full">
         <div className="relative z-10 w-full max-w-none lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" id="main-heading">
-            {selectedCategory === ListingCategory.VEHICLES 
-              ? t("home:vehicle_section.title", "أفضل السيارات في سوريا")
-              : t("home:property_section.title", "أفضل العقارات في سوريا")}
-          </h1>
-          <p className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto">
+          <h1
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4"
+            id="main-heading"
+          >
             {selectedCategory === ListingCategory.VEHICLES
-              ? t("home:vehicle_section.subtitle", "اكتشف أحدث السيارات الجديدة والمستعملة بأسعار تنافسية من مالكين موثوقين")
-              : t("home:property_section.subtitle", "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار")}
+              ? "أفضل السيارات في سوريا"
+              : "أفضل العقارات في سوريا"}
+          </h1>
+          <p
+            className="mt-4 text-base sm:text-lg md:text-xl text-blue-100/90 max-w-3xl mx-auto"
+            data-lcp-text
+          >
+            {selectedCategory === ListingCategory.VEHICLES
+              ? "اكتشف أحدث السيارات الجديدة والمستعملة بأسعار تنافسية من مالكين موثوقين"
+              : "اكتشف أفضل العروض العقارية من شقق، فلل، وأراضي للبيع أو الإيجار"}
           </p>
 
           {/* Category Buttons */}
@@ -1071,497 +1165,672 @@ const Home: React.FC = () => {
       <main className="w-full py-12 px-0">
         <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4">
           {/* Featured Listings Section */}
-          <section aria-labelledby="featured-listings-heading" className="w-full mb-16">
+          <section
+            aria-labelledby="featured-listings-heading"
+            className="w-full mb-16"
+          >
             <div className="flex justify-between items-center mb-6">
-              <h2 id="featured-listings-heading" className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2
+                id="featured-listings-heading"
+                className="text-2xl font-bold text-gray-900 dark:text-white"
+              >
                 {t("home:featured_listings", "أحدث العروض المميزة")}
               </h2>
-              <div className="flex space-x-2 rtl:space-x-reverse">
-              
-               
-              </div>
+              <div className="flex space-x-2 rtl:space-x-reverse"></div>
             </div>
-            
-           
-            
+
             {renderContent()}
           </section>
         </div>
       </main>
 
-
       {/* Popular Categories Section with Images */}
-        <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 w-full">
+      <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 w-full">
         <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 px-4 sm:px-0">
-            <span className="hidden" aria-hidden="true">تصفح الفئات الأكثر طلباً</span>
-            <span>{t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}</span>
+            <span className="hidden" aria-hidden="true">
+              تصفح الفئات الأكثر طلباً
+            </span>
+            <span>
+              {t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}
+            </span>
           </h2>
-            
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-4 sm:px-0">
-
-              {/* Category 1 - Cars */}
-              <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=75"
-                      alt={t("home:categories.cars", "سيارات")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      fallbackText={t("home:categories.cars", "سيارات")}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            {/* Category 1 - Cars */}
+            <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+              <div className="relative h-48 w-full overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=75"
+                    alt={t("home:categories.cars", "سيارات")}
+                    className="min-w-full min-h-full object-contain"
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    fallbackText={t("home:categories.cars", "سيارات")}
+                  />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-xl font-bold">
-                    <span className="hidden" aria-hidden="true">سيارات</span>
-                    <span>{t("home:categories.cars", "سيارات")}</span>
-                  </h3>
-                  <p className="text-sm opacity-90">
-                    <span className="hidden" aria-hidden="true">أحدث الموديلات والماركات</span>
-                    <span>{t("home:categories.cars_desc", "أحدث الموديلات والماركات")}</span>
-                  </p>
-                </div>
-                <a 
-                  href="/listings?category=vehicles&subCategory=CAR" 
-                  className="absolute inset-0 z-10" 
-                  aria-label={t("home:categories.browse_cars", "تصفح السيارات")} 
-                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               </div>
-              
-              {/* Category 2 - Real Estate */}
-              <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=75"
-                      alt={t("home:categories.real_estate", "عقارات")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      fallbackText={t("home:categories.real_estate", "عقارات")}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-xl font-bold">
-                    <span className="hidden" aria-hidden="true">عقارات</span>
-                    <span>{t("home:categories.real_estate", "عقارات")}</span>
-                  </h3>
-                  <p className="text-sm opacity-90">
-                    <span className="hidden" aria-hidden="true">شقق، فلل، محلات تجارية</span>
-                    <span>{t("home:categories.real_estate_desc", "شقق، فلل، محلات تجارية")}</span>
-                  </p>
-                </div>
-                <a href="/listings?category=real_estate" className="absolute inset-0 z-10" aria-label="{t('browse_real_estate', 'تصفح العقارات')}" />
-              </div>
-              
-              {/* Category 3 - Motorcycles */}
-              <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=75&format=webp"
-                      alt={t("home:categories.motorcycles", "دراجات نارية")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      fallbackText={t("home:categories.motorcycles", "دراجات نارية")}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-xl font-bold">
-                    <span className="hidden" aria-hidden="true">دراجات نارية</span>
-                    <span>{t("home:categories.motorcycles", "دراجات نارية")}</span>
-                  </h3>
-                  <p className="text-sm opacity-90">
-                    <span className="hidden" aria-hidden="true">أحدث الموديلات بأسعار منافسة</span>
-                    <span>{t("home:categories.motorcycles_desc", "أحدث الموديلات بأسعار منافسة")}</span>
-                  </p>
-                </div>
-                <a href="/listings?category=vehicles&subCategory=MOTORCYCLE" className="absolute inset-0 z-10" aria-label="{t('browse_motorcycles', 'تصفح الدراجات النارية')}" />
-              </div>
-              
-              {/* Category 4 - Commercial */}
-              <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
-                <div className="relative h-48 w-full overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageFallback
-                      src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800&quality=75"
-                      alt={t("home:categories.commercial", "تجاري")}
-                      className="min-w-full min-h-full object-contain"
-                      width={800}
-                      height={600}
-                      loading="lazy"
-                      fallbackText={t("home:categories.commercial", "تجاري")}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-xl font-bold">
-                    <span className="hidden" aria-hidden="true">تجاري</span>
-                    <span>{t("home:categories.commercial", "تجاري")}</span>
-                  </h3>
-                  <p className="text-sm opacity-90">
-                    <span className="hidden" aria-hidden="true">محلات ومكاتب تجارية</span>
-                    <span>{t("home:categories.commercial_desc", "محلات ومكاتب تجارية")}</span>
-                  </p>
-                </div>
-                <a href="/listings?category=real_estate&subCategory=COMMERCIAL" className="absolute inset-0 z-10" aria-label="{t('browse_commercial', 'تصفح العقارات التجارية')}" />
-              </div>
-            </div>
-            
-            {/* Structured Data for SEO */}
-            <script type="application/ld+json">
-              {JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "ItemList",
-                "itemListElement": [
-                  {
-                    "@type": "CategoryCode",
-                    "position": 1,
-                    "name": t("categories.cars", "سيارات"),
-                    "url": window.location.origin + "/listings?category=vehicles&subCategory=CAR"
-                  },
-                  {
-                    "@type": "CategoryCode",
-                    "position": 2,
-                    "name": t("categories.real_estate", "عقارات"),
-                    "url": window.location.origin + "/listings?category=real_estate"
-                  },
-                  {
-                    "@type": "CategoryCode",
-                    "position": 3,
-                    "name": t("categories.motorcycles", "دراجات نارية"),
-                    "url": window.location.origin + "/listings?category=vehicles&subCategory=MOTORCYCLE"
-                  },
-                  {
-                    "@type": "CategoryCode",
-                    "position": 4,
-                    "name": t("categories.commercial", "تجاري"),
-                    "url": window.location.origin + "/listings?category=real_estate&subCategory=COMMERCIAL"
-                  }
-                ]
-              })}
-            </script>
-          </div>
-        </section>
-           {/* Additional SEO Content */}
-           <section className="w-full bg-white dark:bg-gray-800 py-8">
-  <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
-
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
-              <span className="hidden" aria-hidden="true">منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا</span>
-                    {t("home:about_section_title", "منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا")}
-            </h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
-
-
-              <div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
-                  <span className="hidden" aria-hidden="true">تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة المثالية التي تناسب احتياجاتك وميزانيتك.</span>
-                  {t("home:about_section_text_1", "تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة المثالية التي تناسب احتياجاتك وميزانيتك.")}
-                </p>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
-                  <span className="hidden" aria-hidden="true">بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل. نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.</span>
-                  <span>{t("home:about_section_text_2", "بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل. نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.")}</span>
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  <span className="hidden" aria-hidden="true">لماذا تختار منصة سمسار؟</span>
-                  <span>{t("home:why_choose_us", "لماذا تختار منصة سمسار؟")}</span>
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <h3 className="text-xl font-bold">
+                  <span className="hidden" aria-hidden="true">
+                    سيارات
+                  </span>
+                  <span>{t("home:categories.cars", "سيارات")}</span>
                 </h3>
-                <ul className="space-y-3 mt-6 w-full">
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">✓</span>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {t("home:features.thousands_listings", "آلاف العروض المميزة من العقارات والمركبات")}
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">✓</span>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {t("home:features.competitive_prices", "أسعار تنافسية تناسب جميع الميزانيات")}
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">✓</span>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {t("home:features.user_friendly", "واجهة سهلة الاستخدام مع خيارات بحث متقدمة")}
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">✓</span>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {t("home:features.support", "خدمة عملاء على مدار الساعة")}
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2 mt-1">✓</span>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {t("home:features.free_evaluation", "تقييم مجاني للعقارات والمركبات")}
-                    </span>
-                  </li>
-                </ul>
+                <p className="text-sm opacity-90">
+                  <span className="hidden" aria-hidden="true">
+                    أحدث الموديلات والماركات
+                  </span>
+                  <span>
+                    {t("home:categories.cars_desc", "أحدث الموديلات والماركات")}
+                  </span>
+                </p>
               </div>
+              <a
+                href="/listings?category=vehicles&subCategory=CAR"
+                className="absolute inset-0 z-10"
+                aria-label={t("home:categories.browse_cars", "تصفح السيارات")}
+              />
             </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                <span className="hidden" aria-hidden="true">خدماتنا الإضافية</span>
-                <span>{t("home:our_services", "خدماتنا الإضافية")}</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
 
-                <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-800 dark:text-blue-300">
-                    <span className="hidden" aria-hidden="true">تقييم عقاري</span>
-                    <span>{t("home:service_1", "تقييم عقاري")}</span>
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
-                    <span className="hidden" aria-hidden="true">تقييم دقيق للعقارات</span>
-                    <span>{t("home:service_1_desc", "تقييم دقيق للعقارات")}</span>
-                  </p>
+            {/* Category 2 - Real Estate */}
+            <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+              <div className="relative h-48 w-full overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=75"
+                    alt={t("home:categories.real_estate", "عقارات")}
+                    className="min-w-full min-h-full object-contain"
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    fallbackText={t("home:categories.real_estate", "عقارات")}
+                  />
                 </div>
-                <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
-                  <h4 className="font-medium text-green-800 dark:text-green-300">
-                    <span className="hidden" aria-hidden="true">تسويق عقاري</span>
-                    <span>{t("home:service_2", "تسويق عقاري")}</span>
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
-                    <span className="hidden" aria-hidden="true">تسويق متكامل للعقارات</span>
-                    <span>{t("home:service_2_desc", "تسويق متكامل للعقارات")}</span>
-                  </p>
-                </div>
-                <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-800 dark:text-purple-300">
-                    <span className="hidden" aria-hidden="true">خدمات قانونية</span>
-                    <span>{t("home:service_3", "خدمات قانونية")}</span>
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
-                    <span className="hidden" aria-hidden="true">استشارات قانونية متخصصة</span>
-                    <span>{t("home:service_3_desc", "استشارات قانونية متخصصة")}</span>
-                  </p>
-                </div>
-                <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
-                  <h4 className="font-medium text-yellow-800 dark:text-yellow-300">
-                    <span className="hidden" aria-hidden="true">خدمات التمويل</span>
-                    <span>{t("home:service_4", "خدمات التمويل")}</span>
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
-                    <span className="hidden" aria-hidden="true">حلول تمويلية ميسرة</span>
-                    <span>{t("home:service_4_desc", "حلول تمويلية ميسرة")}</span>
-                  </p>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               </div>
-              
-              
-             
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <h3 className="text-xl font-bold">
+                  <span className="hidden" aria-hidden="true">
+                    عقارات
+                  </span>
+                  <span>{t("home:categories.real_estate", "عقارات")}</span>
+                </h3>
+                <p className="text-sm opacity-90">
+                  <span className="hidden" aria-hidden="true">
+                    شقق، فلل، محلات تجارية
+                  </span>
+                  <span>
+                    {t(
+                      "home:categories.real_estate_desc",
+                      "شقق، فلل، محلات تجارية",
+                    )}
+                  </span>
+                </p>
+              </div>
+              <a
+                href="/listings?category=real_estate"
+                className="absolute inset-0 z-10"
+                aria-label="{t('browse_real_estate', 'تصفح العقارات')}"
+              />
+            </div>
+
+            {/* Category 3 - Motorcycles */}
+            <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+              <div className="relative h-48 w-full overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=75&format=webp"
+                    alt={t("home:categories.motorcycles", "دراجات نارية")}
+                    className="min-w-full min-h-full object-contain"
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    fallbackText={t(
+                      "home:categories.motorcycles",
+                      "دراجات نارية",
+                    )}
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <h3 className="text-xl font-bold">
+                  <span className="hidden" aria-hidden="true">
+                    دراجات نارية
+                  </span>
+                  <span>
+                    {t("home:categories.motorcycles", "دراجات نارية")}
+                  </span>
+                </h3>
+                <p className="text-sm opacity-90">
+                  <span className="hidden" aria-hidden="true">
+                    أحدث الموديلات بأسعار منافسة
+                  </span>
+                  <span>
+                    {t(
+                      "home:categories.motorcycles_desc",
+                      "أحدث الموديلات بأسعار منافسة",
+                    )}
+                  </span>
+                </p>
+              </div>
+              <a
+                href="/listings?category=vehicles&subCategory=MOTORCYCLE"
+                className="absolute inset-0 z-10"
+                aria-label="{t('browse_motorcycles', 'تصفح الدراجات النارية')}"
+              />
+            </div>
+
+            {/* Category 4 - Commercial */}
+            <div className="group relative overflow-hidden rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+              <div className="relative h-48 w-full overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageFallback
+                    src="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/office-1094826_1920.jpg?width=800&quality=75"
+                    alt={t("home:categories.commercial", "تجاري")}
+                    className="min-w-full min-h-full object-contain"
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    fallbackText={t("home:categories.commercial", "تجاري")}
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <h3 className="text-xl font-bold">
+                  <span className="hidden" aria-hidden="true">
+                    تجاري
+                  </span>
+                  <span>{t("home:categories.commercial", "تجاري")}</span>
+                </h3>
+                <p className="text-sm opacity-90">
+                  <span className="hidden" aria-hidden="true">
+                    محلات ومكاتب تجارية
+                  </span>
+                  <span>
+                    {t(
+                      "home:categories.commercial_desc",
+                      "محلات ومكاتب تجارية",
+                    )}
+                  </span>
+                </p>
+              </div>
+              <a
+                href="/listings?category=real_estate&subCategory=COMMERCIAL"
+                className="absolute inset-0 z-10"
+                aria-label="{t('browse_commercial', 'تصفح العقارات التجارية')}"
+              />
             </div>
           </div>
-        </section>
 
-        {/* Samsar Advantage Section */}
-        <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 w-full">
+          {/* Structured Data for SEO */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              itemListElement: [
+                {
+                  "@type": "CategoryCode",
+                  position: 1,
+                  name: t("categories.cars", "سيارات"),
+                  url:
+                    window.location.origin +
+                    "/listings?category=vehicles&subCategory=CAR",
+                },
+                {
+                  "@type": "CategoryCode",
+                  position: 2,
+                  name: t("categories.real_estate", "عقارات"),
+                  url:
+                    window.location.origin + "/listings?category=real_estate",
+                },
+                {
+                  "@type": "CategoryCode",
+                  position: 3,
+                  name: t("categories.motorcycles", "دراجات نارية"),
+                  url:
+                    window.location.origin +
+                    "/listings?category=vehicles&subCategory=MOTORCYCLE",
+                },
+                {
+                  "@type": "CategoryCode",
+                  position: 4,
+                  name: t("categories.commercial", "تجاري"),
+                  url:
+                    window.location.origin +
+                    "/listings?category=real_estate&subCategory=COMMERCIAL",
+                },
+              ],
+            })}
+          </script>
+        </div>
+      </section>
+      {/* Additional SEO Content */}
+      <section className="w-full bg-white dark:bg-gray-800 py-8">
         <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
+            <span className="hidden" aria-hidden="true">
+              منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا
+            </span>
+            {t(
+              "home:about_section_title",
+              "منصة سمسار - الوجهة الأولى للعقارات والمركبات في سوريا",
+            )}
+          </h2>
 
-
-
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-                <span className="hidden" aria-hidden="true">ميزات سمسار الفريدة</span>
-                {t("home:advantage.title", "ميزات سمسار الفريدة")}
-              </h2>
-              <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                <span className="hidden" aria-hidden="true">اكتشف لماذا يختار آلاف العملاء منصة سمسار</span>
-                {t("home:advantage.subtitle", "اكتشف لماذا يختار آلاف العملاء منصة سمسار")}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+            <div>
+              <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
+                <span className="hidden" aria-hidden="true">
+                  تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن
+                  أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة
+                  متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة
+                  المثالية التي تناسب احتياجاتك وميزانيتك.
+                </span>
+                {t(
+                  "home:about_section_text_1",
+                  "تأسست منصة سمسار بهدف توفير تجربة فريدة للعملاء الباحثين عن أفضل العروض العقارية والمركبات في سوريا. نفتخر بتقديم خدمة متكاملة تشمل كل ما تحتاجه للعثور على العقار أو السيارة المثالية التي تناسب احتياجاتك وميزانيتك.",
+                )}
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed max-w-full">
+                <span className="hidden" aria-hidden="true">
+                  بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات
+                  دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل.
+                  نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.
+                </span>
+                <span>
+                  {t(
+                    "home:about_section_text_2",
+                    "بفضل فريقنا من الخبراء والمختصين، نضمن لك الحصول على معلومات دقيقة وموثوقة عن كل عرض، مع صور عالية الجودة ووصف تفصيلي شامل. نسعى دائماً لتقديم أحدث العروض وأفضلها في السوق السوري.",
+                  )}
+                </span>
               </p>
             </div>
 
+            <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                <span className="hidden" aria-hidden="true">
+                  لماذا تختار منصة سمسار؟
+                </span>
+                <span>
+                  {t("home:why_choose_us", "لماذا تختار منصة سمسار؟")}
+                </span>
+              </h3>
+              <ul className="space-y-3 mt-6 w-full">
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 mt-1">✓</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t(
+                      "home:features.thousands_listings",
+                      "آلاف العروض المميزة من العقارات والمركبات",
+                    )}
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 mt-1">✓</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t(
+                      "home:features.competitive_prices",
+                      "أسعار تنافسية تناسب جميع الميزانيات",
+                    )}
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 mt-1">✓</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t(
+                      "home:features.user_friendly",
+                      "واجهة سهلة الاستخدام مع خيارات بحث متقدمة",
+                    )}
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 mt-1">✓</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t("home:features.support", "خدمة عملاء على مدار الساعة")}
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 mt-1">✓</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t(
+                      "home:features.free_evaluation",
+                      "تقييم مجاني للعقارات والمركبات",
+                    )}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              <span className="hidden" aria-hidden="true">
+                خدماتنا الإضافية
+              </span>
+              <span>{t("home:our_services", "خدماتنا الإضافية")}</span>
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-800 dark:text-blue-300">
+                  <span className="hidden" aria-hidden="true">
+                    تقييم عقاري
+                  </span>
+                  <span>{t("home:service_1", "تقييم عقاري")}</span>
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
+                  <span className="hidden" aria-hidden="true">
+                    تقييم دقيق للعقارات
+                  </span>
+                  <span>{t("home:service_1_desc", "تقييم دقيق للعقارات")}</span>
+                </p>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
+                <h4 className="font-medium text-green-800 dark:text-green-300">
+                  <span className="hidden" aria-hidden="true">
+                    تسويق عقاري
+                  </span>
+                  <span>{t("home:service_2", "تسويق عقاري")}</span>
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
+                  <span className="hidden" aria-hidden="true">
+                    تسويق متكامل للعقارات
+                  </span>
+                  <span>
+                    {t("home:service_2_desc", "تسويق متكامل للعقارات")}
+                  </span>
+                </p>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg">
+                <h4 className="font-medium text-purple-800 dark:text-purple-300">
+                  <span className="hidden" aria-hidden="true">
+                    خدمات قانونية
+                  </span>
+                  <span>{t("home:service_3", "خدمات قانونية")}</span>
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
+                  <span className="hidden" aria-hidden="true">
+                    استشارات قانونية متخصصة
+                  </span>
+                  <span>
+                    {t("home:service_3_desc", "استشارات قانونية متخصصة")}
+                  </span>
+                </p>
+              </div>
+              <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
+                <h4 className="font-medium text-yellow-800 dark:text-yellow-300">
+                  <span className="hidden" aria-hidden="true">
+                    خدمات التمويل
+                  </span>
+                  <span>{t("home:service_4", "خدمات التمويل")}</span>
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-full">
+                  <span className="hidden" aria-hidden="true">
+                    حلول تمويلية ميسرة
+                  </span>
+                  <span>{t("home:service_4_desc", "حلول تمويلية ميسرة")}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      {/* Samsar Advantage Section */}
+      <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 w-full">
+        <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+              <span className="hidden" aria-hidden="true">
+                ميزات سمسار الفريدة
+              </span>
+              {t("home:advantage.title", "ميزات سمسار الفريدة")}
+            </h2>
+            <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <span className="hidden" aria-hidden="true">
+                اكتشف لماذا يختار آلاف العملاء منصة سمسار
+              </span>
+              {t(
+                "home:advantage.subtitle",
+                "اكتشف لماذا يختار آلاف العملاء منصة سمسار",
+              )}
+            </p>
+          </div>
 
-              {/* Left Column - Interactive Cards */}
-              <div className="space-y-6">
-                {[
-                  {
-                    icon: "🔍",
-                    title: "home:advantage.real_time.title",
-                    titleAr: "عروض حصرية",
-                    description: "home:advantage.real_time.description",
-                    descriptionAr: "وصول حصري لأحدث العروض قبل غيرك مع تحديثات فورية",
-                    color: "from-blue-500 to-indigo-600"
-                  },
-                  {
-                    icon: "🛡️",
-                    title: "home:advantage.verified.title",
-                    titleAr: "عروض موثقة",
-                    description: "home:advantage.verified.description",
-                    descriptionAr: "جميع الإعلانات خاضعة للتدقيق والتحقق من صحتها",
-                    color: "from-green-500 to-emerald-600"
-                  },
-                  {
-                    icon: "🚀",
-                    title: "home:advantage.fast.title",
-                    titleAr: "تجربة سلسة",
-                    description: "home:advantage.fast.description",
-                    descriptionAr: "تصفح سريع وسهل مع واجهة بسيطة وبديهية",
-                    color: "from-purple-500 to-fuchsia-600"
-                  }
-                ].map((item, index) => (
-                  <div key={index} className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${item.color} rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-300`}></div>
-                    <div className="relative flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-2xl">
-                        {item.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                          <span className="hidden" aria-hidden="true">{item.titleAr}</span>
-                          {t(item.title, item.titleAr)}
-                        </h3>
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">
-                          <span className="hidden" aria-hidden="true">{item.descriptionAr}</span>
-                          {t(item.description, item.descriptionAr)}
-                        </p>
-                      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+            {/* Left Column - Interactive Cards */}
+            <div className="space-y-6">
+              {[
+                {
+                  icon: "🔍",
+                  title: "home:advantage.real_time.title",
+                  titleAr: "عروض حصرية",
+                  description: "home:advantage.real_time.description",
+                  descriptionAr:
+                    "وصول حصري لأحدث العروض قبل غيرك مع تحديثات فورية",
+                  color: "from-blue-500 to-indigo-600",
+                },
+                {
+                  icon: "🛡️",
+                  title: "home:advantage.verified.title",
+                  titleAr: "عروض موثقة",
+                  description: "home:advantage.verified.description",
+                  descriptionAr:
+                    "جميع الإعلانات خاضعة للتدقيق والتحقق من صحتها",
+                  color: "from-green-500 to-emerald-600",
+                },
+                {
+                  icon: "🚀",
+                  title: "home:advantage.fast.title",
+                  titleAr: "تجربة سلسة",
+                  description: "home:advantage.fast.description",
+                  descriptionAr: "تصفح سريع وسهل مع واجهة بسيطة وبديهية",
+                  color: "from-purple-500 to-fuchsia-600",
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div
+                    className={`absolute -inset-0.5 bg-gradient-to-r ${item.color} rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-300`}
+                  ></div>
+                  <div className="relative flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-2xl">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        <span className="hidden" aria-hidden="true">
+                          {item.titleAr}
+                        </span>
+                        {t(item.title, item.titleAr)}
+                      </h3>
+                      <p className="mt-1 text-gray-600 dark:text-gray-300">
+                        <span className="hidden" aria-hidden="true">
+                          {item.descriptionAr}
+                        </span>
+                        {t(item.description, item.descriptionAr)}
+                      </p>
                     </div>
                   </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Column - FAQ */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                <span className="hidden" aria-hidden="true">
+                  أسئلة شائعة
+                </span>
+                {t("home:faq.title", "أسئلة شائعة")}
+              </h3>
+              <div className="space-y-4">
+                {[
+                  {
+                    question: "home:faq.how_to_list",
+                    questionAr: "كيف يمكنني إضافة إعلان على سمسار؟",
+                    answer: "home:faq.how_to_list_answer",
+                    answerAr:
+                      "انقر على زر 'أضف إعلان' في الأعلى، املأ التفاصيل المطلوبة، وأضف الصور ثم انشر إعلانك. سنقوم بمراجعته والتأكيد خلال 24 ساعة.",
+                    answerFallback:
+                      "انقر على زر 'أضف إعلان' في الأعلى، املأ التفاصيل المطلوبة، وأضف الصور ثم انشر إعلانك. سنقوم بمراجعته والتأكيد خلال 24 ساعة.",
+                  },
+                  {
+                    question: "home:faq.payment_methods",
+                    questionAr: "ما هي طرق الدفع المتاحة؟",
+                    answer: "home:faq.payment_methods_answer",
+                    answerAr:
+                      "نقبل الدفع عبر البطاقات البنكية، المحافظ الإلكترونية، والتحويلات البنكية. جميع المعاملات مؤمنة بنسبة 100%.",
+                    answerFallback:
+                      "نقبل الدفع عبر البطاقات البنكية، المحافظ الإلكترونية، والتحويلات البنكية. جميع المعاملات مؤمنة بنسبة 100%.",
+                  },
+                  {
+                    question: "home:faq.verification",
+                    questionAr: "كيف يتم التحقق من صحة الإعلانات؟",
+                    answer: "home:faq.verification_answer",
+                    answerAr:
+                      "يخضع كل إعلان لمراجعة من قبل فريقنا للتأكد من دقة المعلومات والتأكد من هوية المعلن.",
+                    answerFallback:
+                      "يخضع كل إعلان لمراجعة من قبل فريقنا للتأكد من دقة المعلومات والتأكد من هوية المعلن.",
+                  },
+                  {
+                    question: "home:faq.contact_support",
+                    questionAr: "كيف يمكنني التواصل مع خدمة العملاء؟",
+                    answer: "home:faq.contact_support_answer",
+                    answerAr:
+                      "يمكنك التواصل معنا عبر الدردشة المباشرة، البريد الإلكتروني، أو الاتصال بنا على الرقم 123456789. نحن متواجدون على مدار الساعة.",
+                    answerFallback:
+                      "يمكنك التواصل معنا عبر الدردشة المباشرة، البريد الإلكتروني، أو الاتصال بنا على الرقم 123456789. نحن متواجدون على مدار الساعة.",
+                  },
+                ].map((item, index) => (
+                  <details
+                    key={index}
+                    className="group border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 last:pb-0"
+                  >
+                    <summary className="flex justify-between items-center font-medium text-gray-900 dark:text-white cursor-pointer list-none">
+                      <span>
+                        <span className="hidden" aria-hidden="true">
+                          {item.questionAr}
+                        </span>
+                        {t(item.question, item.questionAr)}
+                      </span>
+                      <span className="text-blue-600 dark:text-blue-400 group-open:rotate-180 transition-transform">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    </summary>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300">
+                      <span className="hidden" aria-hidden="true">
+                        {item.answerAr}
+                      </span>
+                      {t(item.answer, item.answerAr)}
+                    </p>
+                  </details>
                 ))}
               </div>
 
-              {/* Right Column - FAQ */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                  <span className="hidden" aria-hidden="true">أسئلة شائعة</span>
-                  {t("home:faq.title", "أسئلة شائعة")}
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    {
-                      question: "home:faq.how_to_list",
-                      questionAr: "كيف يمكنني إضافة إعلان على سمسار؟",
-                      answer: "home:faq.how_to_list_answer",
-                      answerAr: "انقر على زر 'أضف إعلان' في الأعلى، املأ التفاصيل المطلوبة، وأضف الصور ثم انشر إعلانك. سنقوم بمراجعته والتأكيد خلال 24 ساعة.",
-                      answerFallback: "انقر على زر 'أضف إعلان' في الأعلى، املأ التفاصيل المطلوبة، وأضف الصور ثم انشر إعلانك. سنقوم بمراجعته والتأكيد خلال 24 ساعة."
-                    },
-                    {
-                      question: "home:faq.payment_methods",
-                      questionAr: "ما هي طرق الدفع المتاحة؟",
-                      answer: "home:faq.payment_methods_answer",
-                      answerAr: "نقبل الدفع عبر البطاقات البنكية، المحافظ الإلكترونية، والتحويلات البنكية. جميع المعاملات مؤمنة بنسبة 100%.",
-                      answerFallback: "نقبل الدفع عبر البطاقات البنكية، المحافظ الإلكترونية، والتحويلات البنكية. جميع المعاملات مؤمنة بنسبة 100%."
-                    },
-                    {
-                      question: "home:faq.verification",
-                      questionAr: "كيف يتم التحقق من صحة الإعلانات؟",
-                      answer: "home:faq.verification_answer",
-                      answerAr: "يخضع كل إعلان لمراجعة من قبل فريقنا للتأكد من دقة المعلومات والتأكد من هوية المعلن.",
-                      answerFallback: "يخضع كل إعلان لمراجعة من قبل فريقنا للتأكد من دقة المعلومات والتأكد من هوية المعلن."
-                    },
-                    {
-                      question: "home:faq.contact_support",
-                      questionAr: "كيف يمكنني التواصل مع خدمة العملاء؟",
-                      answer: "home:faq.contact_support_answer",
-                      answerAr: "يمكنك التواصل معنا عبر الدردشة المباشرة، البريد الإلكتروني، أو الاتصال بنا على الرقم 123456789. نحن متواجدون على مدار الساعة.",
-                      answerFallback: "يمكنك التواصل معنا عبر الدردشة المباشرة، البريد الإلكتروني، أو الاتصال بنا على الرقم 123456789. نحن متواجدون على مدار الساعة."
-                    }
-                  ].map((item, index) => (
-                    <details key={index} className="group border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
-                      <summary className="flex justify-between items-center font-medium text-gray-900 dark:text-white cursor-pointer list-none">
-                        <span>
-                          <span className="hidden" aria-hidden="true">{item.questionAr}</span>
-                          {t(item.question, item.questionAr)}
-                        </span>
-                        <span className="text-blue-600 dark:text-blue-400 group-open:rotate-180 transition-transform">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      </summary>
-                      <p className="mt-2 text-gray-600 dark:text-gray-300">
-                        <span className="hidden" aria-hidden="true">{item.answerAr}</span>
-                        {t(item.answer, item.answerAr)}
-                      </p>
-                    </details>
-                  ))}
-                </div>
-                
-                
-                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/30">
-                  <h4 className="font-semibold text-blue-800 dark:text-blue-200">
-                    <span className="hidden" aria-hidden="true">هل تحتاج إلى مساعدة؟</span>
-                    <span>{t("home:help.title", "هل تحتاج إلى مساعدة؟")}</span>
-                  </h4>
-                  <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                    <span className="hidden" aria-hidden="true">فريق الدعم لدينا متاح على مدار الساعة للإجابة على استفساراتك.</span>
-                    <span>{t("home:help.description", "فريق الدعم لدينا متاح على مدار الساعة للإجابة على استفساراتك.")}</span>
-                  </p>
-                  <button className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span className="hidden" aria-hidden="true">تواصل مع الدعم</span>
-                    <span>{t("home:help.contact_button", "تواصل مع الدعم")}</span>
-                  </button>
+              <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-200">
+                  <span className="hidden" aria-hidden="true">
+                    هل تحتاج إلى مساعدة؟
+                  </span>
+                  <span>{t("home:help.title", "هل تحتاج إلى مساعدة؟")}</span>
+                </h4>
+                <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                  <span className="hidden" aria-hidden="true">
+                    فريق الدعم لدينا متاح على مدار الساعة للإجابة على
+                    استفساراتك.
+                  </span>
+                  <span>
+                    {t(
+                      "home:help.description",
+                      "فريق الدعم لدينا متاح على مدار الساعة للإجابة على استفساراتك.",
+                    )}
+                  </span>
+                </p>
+                <button className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  <span className="hidden" aria-hidden="true">
+                    تواصل مع الدعم
+                  </span>
+                  <span>{t("home:help.contact_button", "تواصل مع الدعم")}</span>
+                </button>
 
-                  {/* Social Sharing Buttons */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                      {t("share_with_friends", "شارك مع الأصدقاء")}:
-                    </p>
-                    <div className="flex space-x-3 rtl:space-x-reverse">
-                      <a 
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                        aria-label={t("share_on_facebook", "مشاركة على فيسبوك")}
+                {/* Social Sharing Buttons */}
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    {t("share_with_friends", "شارك مع الأصدقاء")}:
+                  </p>
+                  <div className="flex space-x-3 rtl:space-x-reverse">
+                    <a
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label={t("share_on_facebook", "مشاركة على فيسبوك")}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
-                        </svg>
-                      </a>
-                      <a 
-                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(pageTitle)}`}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-full bg-blue-400 text-white hover:bg-blue-500 transition-colors"
-                        aria-label={t("share_on_twitter", "مشاركة على تويتر")}
+                        <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                      </svg>
+                    </a>
+                    <a
+                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(pageTitle)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-full bg-blue-400 text-white hover:bg-blue-500 transition-colors"
+                      aria-label={t("share_on_twitter", "مشاركة على تويتر")}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/>
-                        </svg>
-                      </a>
-                      <a 
-                        href={`whatsapp://send?text=${encodeURIComponent(window.location.href)}`}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
-                        aria-label={t("share_on_whatsapp", "مشاركة على واتساب")}
+                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                      </svg>
+                    </a>
+                    <a
+                      href={`whatsapp://send?text=${encodeURIComponent(window.location.href)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
+                      aria-label={t("share_on_whatsapp", "مشاركة على واتساب")}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.963-.94 1.16-.173.199-.347.222-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.136-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.345m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.55 4.142 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.723 1.467h.005c6.554 0 11.89-5.335 11.89-11.893 0-3.18-1.26-6.19-3.548-8.465"/>
-                        </svg>
-                      </a>
-                    </div>
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.963-.94 1.16-.173.199-.347.222-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.136-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.345m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.55 4.142 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.723 1.467h.005c6.554 0 11.89-5.335 11.89-11.893 0-3.18-1.26-6.19-3.548-8.465" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+    </div>
   );
 };
 

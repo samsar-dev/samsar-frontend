@@ -34,10 +34,11 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-
-
 // Error boundary component with error reporting
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
@@ -48,9 +49,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // In production, report errors to your error tracking service
-      console.error('Application error:', { error, errorInfo });
+      console.error("Application error:", { error, errorInfo });
     }
   }
 
@@ -60,7 +61,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="text-center">
             <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-            <p className="text-gray-600 mb-4">We're working on fixing this issue.</p>
+            <p className="text-gray-600 mb-4">
+              We're working on fixing this issue.
+            </p>
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => window.location.reload()}
@@ -95,22 +98,20 @@ const initializeApp = () => {
   // Create root with concurrent features enabled
   const root = createRoot(container, {
     // Enable concurrent features for better performance
-    identifierPrefix: 'samsar-',
+    identifierPrefix: "samsar-",
   });
 
   // Optimize rendering with StrictMode and proper provider nesting
   root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        <HelmetProvider>
-          <Provider store={store}>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </Provider>
-        </HelmetProvider>
-      </ErrorBoundary>
-    </StrictMode>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Provider store={store}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </Provider>
+      </HelmetProvider>
+    </ErrorBoundary>,
   );
 };
 
@@ -119,22 +120,22 @@ const startApp = async () => {
   try {
     // Start preloading assets immediately
     const preloadPromise = preloadAssets();
-    
+
     // Initialize React while assets are preloading
     initializeReact();
-    
+
     // Wait for critical assets to finish preloading
     await preloadPromise;
-    
+
     // Report successful initialization
-    if (process.env.NODE_ENV === 'development') {
-      console.log('✅ Application initialized successfully');
+    if (process.env.NODE_ENV === "development") {
+      console.log("✅ Application initialized successfully");
     }
   } catch (error) {
-    console.error('❌ Failed to initialize application:', error);
-    
+    console.error("❌ Failed to initialize application:", error);
+
     // Show optimized error UI
-    const root = document.getElementById('root');
+    const root = document.getElementById("root");
     if (root) {
       root.innerHTML = `
         <div class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
@@ -163,12 +164,12 @@ const startApp = async () => {
 };
 
 // Start the application with performance timing
-if (process.env.NODE_ENV === 'development') {
-  console.time('⚡ App Startup Time');
+if (process.env.NODE_ENV === "development") {
+  console.time("⚡ App Startup Time");
 }
 
 startApp().finally(() => {
-  if (process.env.NODE_ENV === 'development') {
-    console.timeEnd('⚡ App Startup Time');
+  if (process.env.NODE_ENV === "development") {
+    console.timeEnd("⚡ App Startup Time");
   }
 });

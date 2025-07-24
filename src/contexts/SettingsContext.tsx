@@ -43,14 +43,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // Load settings from localStorage if available
-  const savedSettings = localStorage.getItem('settings');
-  const initialSettings = savedSettings ? JSON.parse(savedSettings) : defaultSettings;
-  
+  const savedSettings = localStorage.getItem("settings");
+  const initialSettings = savedSettings
+    ? JSON.parse(savedSettings)
+    : defaultSettings;
+
   const [settings, setSettings] = useState<Settings>(initialSettings);
   const [pendingChanges, setPendingChanges] = useState<Partial<Settings>>({});
 
   const updateSettings = useCallback((update: SettingsUpdate) => {
-    setPendingChanges(prev => ({
+    setPendingChanges((prev) => ({
       ...prev,
       ...update,
       preferences: {
@@ -75,7 +77,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const applySettings = useCallback(() => {
     // Get the current language from settings
     const currentLanguage = settings.preferences.language;
-    
+
     // Apply the pending changes
     const newSettings = {
       ...settings,
@@ -97,20 +99,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         ...pendingChanges.privacy,
       },
     };
-    
+
     // Save settings to localStorage
-    localStorage.setItem('settings', JSON.stringify(newSettings));
-    
+    localStorage.setItem("settings", JSON.stringify(newSettings));
+
     setSettings(newSettings);
-    
+
     // Update language if it changed
     const newLanguage = newSettings.preferences.language;
     if (currentLanguage !== newLanguage) {
-      const langCode = newLanguage === LanguageCode.AR ? 'ar' : 'en';
-      localStorage.setItem('language', langCode);
-      document.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+      const langCode = newLanguage === LanguageCode.AR ? "ar" : "en";
+      localStorage.setItem("language", langCode);
+      document.dir = langCode === "ar" ? "rtl" : "ltr";
     }
-    
+
     setPendingChanges({});
   }, [pendingChanges]);
 
@@ -120,7 +122,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <SettingsContext.Provider
-      value={{ settings, pendingChanges, updateSettings, applySettings, resetSettings }}
+      value={{
+        settings,
+        pendingChanges,
+        updateSettings,
+        applySettings,
+        resetSettings,
+      }}
     >
       {children}
     </SettingsContext.Provider>

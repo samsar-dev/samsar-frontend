@@ -7,62 +7,62 @@ const selectFiltersState = (state: RootState) => state.filters;
 // Individual selectors
 export const selectAction = createSelector(
   [selectFiltersState],
-  (filters) => filters.action
+  (filters) => filters.action,
 );
 
 export const selectVehicleType = createSelector(
   [selectFiltersState],
-  (filters) => filters.vehicleType
+  (filters) => filters.vehicleType,
 );
 
 export const selectPropertyType = createSelector(
   [selectFiltersState],
-  (filters) => filters.propertyType
+  (filters) => filters.propertyType,
 );
 
 export const selectMake = createSelector(
   [selectFiltersState],
-  (filters) => filters.make
+  (filters) => filters.make,
 );
 
 export const selectModel = createSelector(
   [selectFiltersState],
-  (filters) => filters.model
+  (filters) => filters.model,
 );
 
 export const selectYearRange = createSelector(
   [selectFiltersState],
-  (filters) => filters.yearRange
+  (filters) => filters.yearRange,
 );
 
 export const selectPriceRange = createSelector(
   [selectFiltersState],
-  (filters) => filters.priceRange
+  (filters) => filters.priceRange,
 );
 
 export const selectLocation = createSelector(
   [selectFiltersState],
-  (filters) => filters.location
+  (filters) => filters.location,
 );
 
 export const selectRadius = createSelector(
   [selectFiltersState],
-  (filters) => filters.radius
+  (filters) => filters.radius,
 );
 
 export const selectCondition = createSelector(
   [selectFiltersState],
-  (filters) => filters.condition
+  (filters) => filters.condition,
 );
 
 export const selectLoading = createSelector(
   [selectFiltersState],
-  (filters) => filters.loading
+  (filters) => filters.loading,
 );
 
 export const selectError = createSelector(
   [selectFiltersState],
-  (filters) => filters.error
+  (filters) => filters.error,
 );
 
 // Combined selector for all filters
@@ -89,7 +89,7 @@ export const selectAllFilters = createSelector(
     priceRange,
     location,
     radius,
-    condition
+    condition,
   ) => ({
     action,
     vehicleType,
@@ -101,7 +101,7 @@ export const selectAllFilters = createSelector(
     location,
     radius,
     condition,
-  })
+  }),
 );
 
 // Export all selectors

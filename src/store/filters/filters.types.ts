@@ -1,4 +1,9 @@
-import { ListingAction, VehicleType, PropertyType, Condition } from "@/types/enums";
+import {
+  ListingAction,
+  VehicleType,
+  PropertyType,
+  Condition,
+} from "@/types/enums";
 
 export const FILTERS_TYPES = {
   // Filter actions

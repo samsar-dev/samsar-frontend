@@ -11,43 +11,64 @@ const ProfileLoading = memo(() => (
     <LoadingSpinner size="lg" label="Loading profile..." />
   </div>
 ));
-ProfileLoading.displayName = 'ProfileLoading';
+ProfileLoading.displayName = "ProfileLoading";
 
 // Enhanced lazy loading for profile components
-const createProfileComponent = (importFn: () => Promise<{ default: React.ComponentType<any> }>, chunkName?: string) => {
+const createProfileComponent = (
+  importFn: () => Promise<{ default: React.ComponentType<any> }>,
+  chunkName?: string,
+) => {
   const LazyComponent = lazy(importFn);
-  
+
   // Add preload method
   (LazyComponent as any).preload = importFn;
-  
+
   return LazyComponent;
 };
 
 // Profile components with priority-based loading
-const Profile = createProfileComponent(() => import("@/pages/Profile"), "profile");
-const UserProfile = createProfileComponent(() => import("@/pages/UserProfile"), "user-profile");
-const Settings = createProfileComponent(() => import("@/pages/Settings"), "settings");
-const Messages = createProfileComponent(() => import("@/pages/Messages"), "messages");
+const Profile = createProfileComponent(
+  () => import("@/pages/Profile"),
+  "profile",
+);
+const UserProfile = createProfileComponent(
+  () => import("@/pages/UserProfile"),
+  "user-profile",
+);
+const Messages = createProfileComponent(
+  () => import("@/pages/Messages"),
+  "messages",
+);
 
 // Profile sub-components (lower priority)
-const ProfileInfo = createProfileComponent(() => import("@/components/profile/ProfileInfo"), "profile-info");
-const SavedListings = createProfileComponent(() => import("@/components/profile/SavedListings"), "saved-listings");
-const MyListings = createProfileComponent(() => import("@/components/profile/MyListings"), "my-listings");
-const ChangePassword = createProfileComponent(() => import("@/components/profile/ChangePassword"), "change-password");
+const ProfileInfo = createProfileComponent(
+  () => import("@/components/profile/ProfileInfo"),
+  "profile-info",
+);
+const SavedListings = createProfileComponent(
+  () => import("@/components/profile/SavedListings"),
+  "saved-listings",
+);
+const MyListings = createProfileComponent(
+  () => import("@/components/profile/MyListings"),
+  "my-listings",
+);
+const ChangePassword = createProfileComponent(
+  () => import("@/components/profile/ChangePassword"),
+  "change-password",
+);
 
 // Memoized layout wrapper for profile routes
 const ProfileLayout = memo(({ children }: { children: React.ReactNode }) => (
   <ErrorBoundary>
     <Layout>
       <PrivateRoute>
-        <Suspense fallback={<ProfileLoading />}>
-          {children}
-        </Suspense>
+        <Suspense fallback={<ProfileLoading />}>{children}</Suspense>
       </PrivateRoute>
     </Layout>
   </ErrorBoundary>
 ));
-ProfileLayout.displayName = 'ProfileLayout';
+ProfileLayout.displayName = "ProfileLayout";
 
 // Memoized component wrapper
 const withProfileLayout = memo((Component: React.ComponentType) => {
@@ -63,29 +84,38 @@ const withProfileLayout = memo((Component: React.ComponentType) => {
 const profileRoutes: RouteObject[] = [
   // Redirects for backward compatibility
   {
-    path: "/saved-listings",
-    element: <Navigate to="/profile/saved" replace />,
-  },
-  {
-    path: "/messages",
-    element: <Navigate to="/profile/messages" replace />,
-  },
-  // Settings route
-  {
-    path: "/settings",
-    element: withProfileLayout(Settings),
-  },
-  {
-    path: "/profile/*", // Use wildcard to allow nested routes in Profile component
-    element: withProfileLayout(Profile),
-  },
-  {
-    path: "/user/:id",
-    element: <UserProfile />,
-  },
-  {
-    path: "/user/:id/listings",
-    element: <UserProfile />, // This will be handled by the showListings prop in the Profile component
+    path: "/profile",
+    element: (
+      <PrivateRoute>
+        <Layout>
+          <Profile />
+        </Layout>
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Profile />,
+      },
+      {
+        path: ":username",
+        element: <UserProfile />,
+      },
+
+      {
+        path: "info",
+        element: <ProfileInfo />,
+      },
+
+      {
+        path: "listings",
+        element: <MyListings />,
+      },
+      {
+        path: "change-password",
+        element: <ChangePassword />,
+      },
+    ],
   },
 ];
 

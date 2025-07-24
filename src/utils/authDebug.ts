@@ -6,7 +6,7 @@
  */
 
 // Import statements are kept but not used when debugging is disabled
- 
+
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import type {
@@ -64,8 +64,5 @@ export function setupAuthDebugger(): (() => void) | undefined {
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
   (window as any).authDebug = {
     logAuthState,
-   
   };
-
-
 }

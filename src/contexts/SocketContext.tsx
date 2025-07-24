@@ -6,7 +6,6 @@ type SocketType = Socket | null;
 import { useAuth } from "@/hooks/useAuth";
 import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
 
-
 interface SocketContextType {
   socket: Socket | null;
   connected: boolean;
@@ -45,16 +44,20 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
 
         // Create new socket connection
         newSocket = socketIO(SOCKET_URL, {
-          auth: {
-            token: "Bearer " + "cookie-auth",
-          },
+          withCredentials: true, // This ensures cookies are sent with the connection
           transportOptions: {
             polling: {
-              credentials: "include",
+              extraHeaders: {
+                // Send cookies with polling transport
+                ...(document.cookie && { Cookie: document.cookie }),
+              },
             },
-          },
-          query: {
-            auth: "cookie-auth",
+            websocket: {
+              extraHeaders: {
+                // Send cookies with websocket transport
+                ...(document.cookie && { Cookie: document.cookie }),
+              },
+            },
           },
           transports: ["websocket", "polling"],
           reconnection: true,

@@ -21,34 +21,32 @@ interface Props {
   isRTL?: boolean;
 }
 
-function PreferenceSettings({
-  settings,
-  onUpdate,
-  isRTL = false,
-}: Props) {
+function PreferenceSettings({ settings, onUpdate, isRTL = false }: Props) {
   const { t } = useTranslation("settings");
-  
+
   // Use the settings language directly
   const currentSettings = settings || {
     language: LanguageCode.AR,
     theme: ThemeType.SYSTEM,
-    timezone: "UTC"
+    timezone: "UTC",
   };
 
   // Local state to track pending language change
-  const [pendingLanguage, setPendingLanguage] = useState<LanguageCode | null>(null);
+  const [pendingLanguage, setPendingLanguage] = useState<LanguageCode | null>(
+    null,
+  );
 
   const handleChange = (key: keyof PreferenceSettingsType, value: any) => {
     const newSettings = {
       ...currentSettings,
       [key]: value,
     };
-    
+
     // Store pending language change but don't apply it yet
-    if (key === 'language') {
+    if (key === "language") {
       setPendingLanguage(value);
     }
-    
+
     // Only update settings state, don't apply language change
     onUpdate(newSettings);
   };
@@ -56,7 +54,7 @@ function PreferenceSettings({
   // Remove the language change effect since we'll handle it in Settings component
   const applyLanguageChange = (langCode: string) => {
     // This function is now just a placeholder since language change is handled by Settings
-    console.log('Language change will be handled by Settings component');
+    console.log("Language change will be handled by Settings component");
   };
 
   // Remove the useEffect since language change is now handled by Settings component

@@ -8,7 +8,9 @@ const Register = lazy(() => import("@/pages/Register"));
 const VerifyEmail = lazy(() => import("@/pages/VerifyEmail"));
 const VerifyCode = lazy(() => import("@/pages/VerifyCode"));
 const PasswordReset = lazy(() => import("@/pages/PasswordReset"));
-const PasswordResetVerification = lazy(() => import("@/pages/PasswordResetVerification"));
+const PasswordResetVerification = lazy(
+  () => import("@/pages/PasswordResetVerification"),
+);
 
 // Layout wrapper for auth routes
 const withLayout = (Component: React.ComponentType) => {

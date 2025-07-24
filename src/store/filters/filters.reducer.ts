@@ -18,7 +18,7 @@ const initialState: FiltersState = {
 
 export const filtersReducer = (
   state = initialState,
-  action: FiltersAction
+  action: FiltersAction,
 ): FiltersState => {
   switch (action.type) {
     case FILTERS_TYPES.SET_ACTION:

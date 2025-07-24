@@ -15,7 +15,7 @@ export const preloadCriticalAssets = () => {
       { href: "/fonts/inter.woff2", as: "font", type: "font/woff2" },
       { href: "/fonts/roboto.woff2", as: "font", type: "font/woff2" },
     ];
-    fonts.forEach(font => {
+    fonts.forEach((font) => {
       const link = document.createElement("link");
       Object.entries(font).forEach(([k, v]) => link.setAttribute(k, v));
       link.setAttribute("crossorigin", "anonymous");

@@ -81,6 +81,7 @@ export interface AuthState {
   isLoading: boolean;
   error: AuthError | null;
   retryAfter: Date | null;
+  isInitialized: boolean;
 }
 
 export interface AuthContextType extends AuthState {
@@ -94,4 +95,5 @@ export interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   clearError: () => void;
   updateAuthUser: (userData: AuthUser) => void;
+  checkAuth: () => Promise<void>;
 }

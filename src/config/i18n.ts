@@ -16,7 +16,7 @@ const resources = {
 const i18nConfig: InitOptions = {
   resources,
   // Load language from localStorage if available, otherwise use Arabic
-  lng: localStorage.getItem('language') || "ar",
+  lng: localStorage.getItem("language") || "ar",
   fallbackLng: "ar",
   supportedLngs: ["en", "ar"],
   load: "languageOnly",

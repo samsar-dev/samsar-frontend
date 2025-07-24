@@ -18,7 +18,7 @@ import { toast } from "sonner";
 const renderTranslatedText = (
   t: (key: string, options?: any) => string,
   key: string,
-  defaultValue: string
+  defaultValue: string,
 ): string => {
   try {
     // Force the return type to be a string by using String()
@@ -57,7 +57,7 @@ import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
 
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery")
+  () => import("@/components/listings/images/ImageGallery"),
 );
 
 interface ExtendedListing {
@@ -114,7 +114,7 @@ const FieldValue = ({
   // Helper function to render translated text
   const renderText = (
     text: string | number | boolean,
-    options?: { capitalize?: boolean }
+    options?: { capitalize?: boolean },
   ): React.ReactNode => {
     if (text === undefined || text === null || text === "") {
       return <span className="text-gray-400">-</span>;
@@ -398,7 +398,7 @@ const ListingDetails = () => {
     (isVisible: boolean) => {
       dispatch(listingDetailsActions.setMessageFormVisibility(isVisible));
     },
-    [dispatch]
+    [dispatch],
   );
 
   // Handle message input change
@@ -409,7 +409,7 @@ const ListingDetails = () => {
         content: e.target.value,
       }));
     },
-    []
+    [],
   );
 
   // Handle message type change
@@ -420,7 +420,7 @@ const ListingDetails = () => {
         type: e.target.value as "question" | "offer" | "meeting",
       }));
     },
-    []
+    [],
   );
 
   // Handle send message
@@ -438,8 +438,8 @@ const ListingDetails = () => {
           listingDetailsActions.sendMessage(
             listing.id,
             message.content,
-            message.type
-          )
+            message.type,
+          ),
         );
 
         // Reset the form
@@ -455,7 +455,7 @@ const ListingDetails = () => {
         setSendingMessage(false);
       }
     },
-    [listing, message, dispatch, toggleMessageForm]
+    [listing, message, dispatch, toggleMessageForm],
   );
 
   // Handle report submission
@@ -566,7 +566,7 @@ const ListingDetails = () => {
 
       // Add common fields that might be at the listing level
       ["price", "title", "description", "location"].forEach((field) =>
-        fields.add(field)
+        fields.add(field),
       );
 
       return Array.from(fields);
@@ -794,7 +794,7 @@ const ListingDetails = () => {
                     <button
                       onClick={() =>
                         dispatch(
-                          listingDetailsActions.setMessageFormVisibility(true)
+                          listingDetailsActions.setMessageFormVisibility(true),
                         )
                       }
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
@@ -840,8 +840,8 @@ const ListingDetails = () => {
                         onClick={() =>
                           dispatch(
                             listingDetailsActions.setMessageFormVisibility(
-                              false
-                            )
+                              false,
+                            ),
                           )
                         }
                         className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -1011,7 +1011,7 @@ const ListingDetails = () => {
                   : [],
               },
               null,
-              2
+              2,
             )}
           </pre>
         </div>

@@ -264,7 +264,7 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaPlus />
-                      {t('navigation.create_listing')}
+                      {t("navigation.create_listing")}
                     </Link>
 
                     <Link
@@ -272,28 +272,31 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaFileAlt />
-                      {t('navigation.my_listings')}
+                      {t("navigation.my_listings")}
                     </Link>
 
                     <Link
-                      to="/saved-listings"
+                      to="/saved"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaHeart className="text-red-500" />
-                      {t('navigation.saved_listings')}
+                      {t("navigation.saved_listings")}
                     </Link>
                   </div>
                 </div>
 
                 {/* Notifications */}
-                <Tooltip content={t('navigation.notifications')} position="bottom">
+                <Tooltip
+                  content={t("navigation.notifications")}
+                  position="bottom"
+                >
                   <div>
                     <NotificationBell />
                   </div>
                 </Tooltip>
 
                 {/* Messages */}
-                <Tooltip content={t('navigation.messages')} position="bottom">
+                <Tooltip content={t("navigation.messages")} position="bottom">
                   <Link
                     to="/messages"
                     className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
@@ -339,14 +342,14 @@ const Navbar: React.FC = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaUser />
-                      {t('navigation.profile')}
+                      {t("navigation.profile")}
                     </Link>
                     <Link
                       to="/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <FaCog />
-                      {t('navigation.settings')}
+                      {t("navigation.settings")}
                     </Link>
                     <button
                       onClick={handleLogout}

@@ -262,10 +262,22 @@ apiClient.interceptors.response.use(
       return apiClient.request(error.config);
     }
 
+    // Handle 401 errors on auth endpoints (expected for logged-out users)
+    if (error.response?.status === 401) {
+      const url = error.config.url || "";
+      const isAuthEndpoint =
+        url.includes("/auth/me") || url.includes("/auth/profile");
+
+      if (isAuthEndpoint) {
+        // Don't log 401 errors for auth check endpoints - this is expected for logged-out users
+        return Promise.reject(error);
+      }
+    }
+
     // Handle network/CORS errors by trying the fallback
     if (!error.response) {
       console.warn("Network error detected, trying fallback endpoint...");
-      
+
       // Create a clean config without axios internals
       const fallbackConfig: RequestConfig = {
         url: error.config.url,

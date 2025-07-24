@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 const renderTranslatedText = (
   t: (key: string, options?: any) => string,
   key: string,
-  defaultValue: string
+  defaultValue: string,
 ): string => {
   try {
     // Force the return type to be a string by using String()
@@ -48,7 +48,7 @@ import { normalizeLocation } from "@/utils/locationUtils";
 type SchemaType = VehicleType | PropertyType;
 
 const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery")
+  () => import("@/components/listings/images/ImageGallery"),
 );
 
 interface ExtendedListing
@@ -106,7 +106,7 @@ const FieldValue = ({
   // Helper function to render translated text
   const renderText = (
     text: string | number | boolean,
-    options?: { capitalize?: boolean }
+    options?: { capitalize?: boolean },
   ): React.ReactNode => {
     if (text === undefined || text === null || text === "") {
       return <span className="text-gray-400">-</span>;
@@ -453,7 +453,7 @@ const ListingDetails = () => {
 
       // Add common fields that might be at the listing level
       ["price", "title", "description", "location"].forEach((field) =>
-        fields.add(field)
+        fields.add(field),
       );
 
       return Array.from(fields);
@@ -600,13 +600,13 @@ const ListingDetails = () => {
       } catch (err) {
         console.error("Error fetching listing:", err);
         setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
+          err instanceof Error ? err.message : "An unknown error occurred",
         );
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchListing();
   }, [id, user?.id, isAuthenticated]);
 
@@ -794,7 +794,7 @@ const ListingDetails = () => {
                   : [],
               },
               null,
-              2
+              2,
             )}
           </pre>
         </div>

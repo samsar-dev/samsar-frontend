@@ -39,7 +39,7 @@ const Register: React.FC = () => {
 
     // Validate name
     if (!formData.name || formData.name.trim().length < 2) {
-      toast.error(t('errors.nameTooShort'));
+      toast.error(t("errors.nameTooShort"));
       setLoading(false);
       return;
     }
@@ -47,14 +47,14 @@ const Register: React.FC = () => {
     // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error(t('errors.invalidEmail'));
+      toast.error(t("errors.invalidEmail"));
       setLoading(false);
       return;
     }
 
     // Check password match
     if (formData.password !== formData.confirmPassword) {
-      toast.error(t('errors.passwordMismatch'));
+      toast.error(t("errors.passwordMismatch"));
       setLoading(false);
       return;
     }
@@ -79,7 +79,7 @@ const Register: React.FC = () => {
     try {
       // Call register with the individual parameters
       await register(formData.email, formData.password, formData.name);
-      toast.success(t('registrationSuccessful'));
+      toast.success(t("registrationSuccessful"));
       // Redirect to verification code page with email in state
       navigate("/verify-code", { state: { email: formData.email } });
     } catch (error: any) {
@@ -111,14 +111,14 @@ const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {t('createYourAccount')}
+            {t("createYourAccount")}
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="name" className="sr-only">
-                {t('name')}
+                {t("name")}
               </label>
               <input
                 id="name"
@@ -128,7 +128,7 @@ const Register: React.FC = () => {
                 required
                 minLength={2}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={t('yourName')}
+                placeholder={t("yourName")}
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading}
@@ -136,7 +136,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="email" className="sr-only">
-                {t('email')}
+                {t("email")}
               </label>
               <input
                 id="email"
@@ -145,7 +145,7 @@ const Register: React.FC = () => {
                 autoComplete="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder={t('email')}
+                placeholder={t("email")}
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
@@ -153,7 +153,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                {t('password')}
+                {t("password")}
               </label>
               <div className="relative">
                 <input
@@ -163,7 +163,7 @@ const Register: React.FC = () => {
                   autoComplete="new-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
-                  placeholder={t('password')}
+                  placeholder={t("password")}
                   value={formData.password}
                   onChange={handleChange}
                   disabled={loading}
@@ -186,7 +186,7 @@ const Register: React.FC = () => {
             </div>
             <div>
               <label htmlFor="confirmPassword" className="sr-only">
-                {t('confirmPassword')}
+                {t("confirmPassword")}
               </label>
               <div className="relative">
                 <input
@@ -196,7 +196,7 @@ const Register: React.FC = () => {
                   autoComplete="new-password"
                   required
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
-                  placeholder={t('confirmPassword')}
+                  placeholder={t("confirmPassword")}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={loading}
@@ -233,7 +233,7 @@ const Register: React.FC = () => {
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {loading ? t('buttons.creatingAccount') : t('createAccount')}
+              {loading ? t("buttons.creatingAccount") : t("createAccount")}
             </button>
           </div>
 
@@ -243,7 +243,7 @@ const Register: React.FC = () => {
                 to="/login"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
-                {t('alreadyHaveAccount')} {t('signIn')}
+                {t("alreadyHaveAccount")} {t("signIn")}
               </Link>
             </div>
           </div>

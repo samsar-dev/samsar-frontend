@@ -55,7 +55,7 @@ class AuthAPI {
       if (status === 401 && retries > 0 && !skip401Retry) {
         try {
           // Try to refresh the token via backend
-          const refreshResponse = await apiClient.post('/auth/refresh');
+          const refreshResponse = await apiClient.post("/auth/refresh");
           if (refreshResponse.data?.success) {
             // Retry the original request
             return AuthAPI.retryRequest(
@@ -120,19 +120,21 @@ class AuthAPI {
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
     try {
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/login",
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        },
+      );
 
-      
-      const response = await apiClient.post<AuthResponse>("/auth/login", {
-        email,
-        password,
-      }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        }
-      });
-      
       console.log("Login response:", {
         status: response.status,
         data: response.data,
@@ -142,7 +144,6 @@ class AuthAPI {
 
       // Server returns success; no need to validate httpOnly cookie on the client.
       // The presence of the cookie cannot be verified from JavaScript when it is httpOnly, so we trust the server response.
-
 
       return response.data;
     } catch (error) {
@@ -163,7 +164,7 @@ class AuthAPI {
           statusText: axiosError.response?.statusText,
           data: axiosError.response?.data,
           headers: axiosError.response?.headers,
-        }
+        },
       });
 
       if (axiosError.response?.data) {
@@ -303,7 +304,7 @@ class AuthAPI {
     } catch (error) {
       const axiosError = error as Error;
       // Clear session by making a request to the logout endpoint
-      await apiClient.post('/auth/logout');
+      await apiClient.post("/auth/logout");
       console.error("Token refresh error:", axiosError);
       return {
         success: false,
@@ -321,6 +322,7 @@ class AuthAPI {
    */
   static async logout(): Promise<AuthResponse> {
     try {
+      console.log("🚪 Frontend logout - Making logout request");
       const response = await apiClient.post<AuthResponse>(
         "/auth/logout",
         null,
@@ -329,10 +331,7 @@ class AuthAPI {
         },
       );
 
-      // Clear tokens regardless of response
-      // Clear session by making a request to the logout endpoint
-      await apiClient.post('/auth/logout');
-
+      console.log("✅ Frontend logout - Logout request successful");
       return (
         response.data || {
           success: true,
@@ -341,12 +340,13 @@ class AuthAPI {
       );
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error("Logout error:", axiosError.response?.data || axiosError);
+      console.error(
+        "❌ Frontend logout error:",
+        axiosError.response?.data || axiosError,
+      );
 
-      // Clear tokens even if the request fails
-      // Clear session by making a request to the logout endpoint
-      await apiClient.post('/auth/logout');
-
+      // Even if logout API fails, we still consider it successful
+      // because the user wants to logout from the frontend
       return {
         success: true, // Always return success for logout
         data: { message: "Logged out successfully" },
@@ -360,34 +360,43 @@ class AuthAPI {
    */
   static async getMe(): Promise<AuthResponse> {
     try {
-      const response = await apiClient.get<AuthResponse>('/auth/me', {
+      const response = await apiClient.get<AuthResponse>("/auth/me", {
         withCredentials: true,
       });
 
       if (!response.data) {
-        throw new Error('No response data received');
+        throw new Error("No response data received");
       }
 
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
-      
+
       if (axiosError.response?.status === 401) {
-        // For 401, return success with null data
+        // For 401, return success with null data (user not authenticated - normal state)
         return {
           success: true,
           data: null,
         };
       }
 
+      // Only log non-401 errors to avoid console spam
+      if (axiosError.response?.status !== 401) {
+        console.error("AuthAPI.getMe error:", error);
+      }
+
       // For other errors, return the error details
       return {
         success: false,
         error: {
-          code: ((error as AxiosError).response?.data as any)?.error?.code || 
-                 ("NETWORK_ERROR" as AuthErrorCode),
-          message: ((error as AxiosError).response?.data as any)?.error?.message ||
-                   (error instanceof Error ? error.message : "Failed to get user profile"),
+          code:
+            ((error as AxiosError).response?.data as any)?.error?.code ||
+            ("NETWORK_ERROR" as AuthErrorCode),
+          message:
+            ((error as AxiosError).response?.data as any)?.error?.message ||
+            (error instanceof Error
+              ? error.message
+              : "Failed to get user profile"),
         },
       };
     }

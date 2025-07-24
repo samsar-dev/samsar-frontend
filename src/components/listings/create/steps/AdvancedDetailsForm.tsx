@@ -118,39 +118,37 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   values,
   onChange,
 }) => {
-  const { t } = useTranslation(['common', 'features']);
+  const { t } = useTranslation(["common", "features"]);
   // Expand by default
   const [isExpanded, setIsExpanded] = useState(true);
 
   // Helper to clean up and translate labels
   const cleanLabel = (label: string) => {
-    if (!label) return '';
-    
+    if (!label) return "";
+
     // If it's a translation key, translate it
-    if (label.startsWith('featureCategories.')) {
-      return t(label, { ns: 'features' }) || label;
+    if (label.startsWith("featureCategories.")) {
+      return t(label, { ns: "features" }) || label;
     }
-    
+
     // Handle features translation keys
-    if (label.startsWith('features.')) {
+    if (label.startsWith("features.")) {
       // First try to translate with the full key
-      const translated = t(label, { ns: 'features' });
+      const translated = t(label, { ns: "features" });
       if (translated !== label) return translated;
-      
+
       // If no translation found, clean up the label for display
-      return (
-        label
-          .replace(/^features\./, '') // Remove 'features.' prefix
-          .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
-          .replace(/\./g, ' ') // Replace dots with spaces
-          .replace(/\b\w/g, (l) => l.toUpperCase()) // Capitalize first letter of each word
-      );
+      return label
+        .replace(/^features\./, "") // Remove 'features.' prefix
+        .replace(/([a-z])([A-Z])/g, "$1 $2") // Add space before capital letters
+        .replace(/\./g, " ") // Replace dots with spaces
+        .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
     }
-    
+
     // If it's not a translation key, clean it up for display
     return label
-      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
-      .replace(/\./g, ' ') // Replace dots with spaces
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // Add space before capital letters
+      .replace(/\./g, " ") // Replace dots with spaces
       .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
   };
 

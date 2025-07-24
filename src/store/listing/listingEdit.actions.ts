@@ -2,10 +2,7 @@ import { LISTING_TYPES } from "./listingEdit.types";
 import type { Listing } from "@/types/listings";
 import type { AppDispatch } from "../store";
 import { validateField as validateFieldUtil } from "@/utils/listingSchemaRedux";
-import type{
-  PropertyType,
-  ListingStatus,
-} from "@/types/enums";
+import type { PropertyType, ListingStatus } from "@/types/enums";
 import { ListingCategory, VehicleType, ListingAction } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 
@@ -58,7 +55,7 @@ interface SetFieldValueAction {
 
 export const setFieldValue = (
   field: string,
-  value: any
+  value: any,
 ): SetFieldValueAction => ({
   type: LISTING_TYPES.SET_FIELD_VALUE,
   payload: { field, value },
@@ -75,7 +72,7 @@ interface ValidateFieldAction {
 export const validateField = (
   field: string,
   value: any,
-  listingType: VehicleType | PropertyType | string
+  listingType: VehicleType | PropertyType | string,
 ): ValidateFieldAction => {
   // Ensure listingType is a valid VehicleType or PropertyType
   const validListingType =
@@ -184,8 +181,8 @@ export const updateListing =
                 "updatedAt",
                 "listingAction",
                 "status",
-              ].includes(key)
-          )
+              ].includes(key),
+          ),
         ),
       };
 

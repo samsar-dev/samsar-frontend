@@ -22,7 +22,15 @@ import {
 } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  memo,
+  Suspense,
+} from "react";
+import { Helmet } from "react-helmet-async";
 
 // Extend the base Listing type to include our custom fields
 interface ExtendedListing extends Omit<BaseListing, "latitude" | "longitude"> {
@@ -47,7 +55,7 @@ export interface ListingCardProps {
   priority?: boolean;
 }
 
-const ListingCard: React.FC<ListingCardProps> = ({
+const ListingCardComponent: React.FC<ListingCardProps> = ({
   listing,
   onDelete,
   editable = false,
@@ -59,15 +67,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
   priority = false,
 }) => {
   const { t } = useTranslation(["listings", "common", "locations"]);
-  const formatViews = (count?: number) => {
+  const formatViews = useCallback((count?: number) => {
     if (!count) return "0";
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
-  };
+  }, []);
+
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [distance] = useState<number | null>(null); // Distance will be implemented later
+
+  // Memoize expensive computations
+  const formattedTitle = useMemo(() => listing.title, [listing.title]);
+  const formattedPrice = useMemo(() => listing.price, [listing.price]);
+  const formattedLocation = useMemo(
+    () => cleanLocationString(listing.location),
+    [listing.location],
+  );
 
   const {
     id,
@@ -106,12 +123,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const realEstateDetails =
     directRealEstateDetails || details?.realEstate || ({} as RealEstateDetails);
 
-  // Debugging logs
-  if (typeof window !== "undefined") {
-    console.log("[ListingCard Debug] Raw listing:", listing);
-    console.log("[ListingCard Debug] vehicleDetails:", vehicleDetails);
-  }
-
   // Normalize vehicle details to handle both transmission and transmissionType
   const normalizedVehicleDetails = {
     ...vehicleDetails,
@@ -119,14 +130,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
       vehicleDetails.transmission || vehicleDetails.transmissionType || "",
     fuelType: vehicleDetails.fuelType || "",
   };
-
-  // Debugging logs
-  if (typeof window !== "undefined") {
-    console.log(
-      "[ListingCard Debug] normalizedVehicleDetails:",
-      normalizedVehicleDetails,
-    );
-  }
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -311,40 +314,46 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const generateStructuredData = () => {
     const baseUrl = window.location.origin;
     const listingUrl = `${baseUrl}/listings/${listingId}`;
-    const imageUrl = mainImage || '';
-    const price = typeof listing.price === 'number' ? listing.price : 0;
-    const priceCurrency = 'SYP'; // Syrian Pound
-    
+    const imageUrl = mainImage || "";
+    const price = typeof listing.price === "number" ? listing.price : 0;
+    const priceCurrency = "SYP"; // Syrian Pound
+
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Product",
-      "name": title || '',
-      "description": t('listingDescription', {
+      name: title || "",
+      description: t("listingDescription", {
         category: category.subCategory,
-        make: vehicleDetails?.make || '',
-        model: vehicleDetails?.model || '',
-        year: vehicleDetails?.year || '',
-        location: location || ''
+        make: vehicleDetails?.make || "",
+        model: vehicleDetails?.model || "",
+        year: vehicleDetails?.year || "",
+        location: location || "",
       }),
-      "image": imageUrl,
-      "url": listingUrl,
-      "offers": {
+      image: imageUrl,
+      url: listingUrl,
+      offers: {
         "@type": "Offer",
-        "url": listingUrl,
-        "priceCurrency": priceCurrency,
-        "price": price,
-        "availability": listing.status === ListingStatus.ACTIVE 
-          ? "https://schema.org/InStock" 
-          : "https://schema.org/OutOfStock",
-        "itemCondition": "https://schema.org/UsedCondition",
-        "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        url: listingUrl,
+        priceCurrency: priceCurrency,
+        price: price,
+        availability:
+          listing.status === ListingStatus.ACTIVE
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/UsedCondition",
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
       },
-      "brand": category.mainCategory === ListingCategory.VEHICLES ? {
-        "@type": "Brand",
-        "name": vehicleDetails?.make || ''
-      } : undefined,
-      "itemCondition": "https://schema.org/UsedCondition",
-      "additionalProperty": []
+      brand:
+        category.mainCategory === ListingCategory.VEHICLES
+          ? {
+              "@type": "Brand",
+              name: vehicleDetails?.make || "",
+            }
+          : undefined,
+      itemCondition: "https://schema.org/UsedCondition",
+      additionalProperty: [],
     };
 
     // Add vehicle-specific properties
@@ -352,55 +361,69 @@ const ListingCard: React.FC<ListingCardProps> = ({
       structuredData.additionalProperty = [
         {
           "@type": "PropertyValue",
-          "name": "mileage",
-          "value": vehicleDetails.mileage ? `${vehicleDetails.mileage} km` : '',
-          "valueReference": "QuantitativeValue"
+          name: "mileage",
+          value: vehicleDetails.mileage ? `${vehicleDetails.mileage} km` : "",
+          valueReference: "QuantitativeValue",
         },
         {
           "@type": "PropertyValue",
-          "name": "year",
-          "value": vehicleDetails.year || '',
-          "valueReference": "QuantitativeValue"
+          name: "year",
+          value: vehicleDetails.year || "",
+          valueReference: "QuantitativeValue",
         },
         {
           "@type": "PropertyValue",
-          "name": "transmission",
-          "value": vehicleDetails.transmission || vehicleDetails.transmissionType || ''
+          name: "transmission",
+          value:
+            vehicleDetails.transmission ||
+            vehicleDetails.transmissionType ||
+            "",
         },
         {
           "@type": "PropertyValue",
-          "name": "fuelType",
-          "value": vehicleDetails.fuelType || ''
-        }
+          name: "fuelType",
+          value: vehicleDetails.fuelType || "",
+        },
       ];
     }
 
     // Add real estate specific properties
-    if (category.mainCategory === ListingCategory.REAL_ESTATE && realEstateDetails) {
+    if (
+      category.mainCategory === ListingCategory.REAL_ESTATE &&
+      realEstateDetails
+    ) {
       structuredData.additionalProperty = [
         {
           "@type": "PropertyValue",
-          "name": "propertyType",
-          "value": realEstateDetails.propertyType || ''
+          name: "propertyType",
+          value: realEstateDetails.propertyType || "",
         },
         {
           "@type": "PropertyValue",
-          "name": "size",
-          "value": realEstateDetails.size ? `${realEstateDetails.size} m²` : '',
-          "valueReference": "QuantitativeValue"
+          name: "size",
+          value: realEstateDetails.size ? `${realEstateDetails.size} m²` : "",
+          valueReference: "QuantitativeValue",
         },
-        ...(realEstateDetails.bedrooms ? [{
-          "@type": "PropertyValue",
-          "name": "bedrooms",
-          "value": realEstateDetails.bedrooms.toString(),
-          "valueReference": "QuantitativeValue"
-        }] : []),
-        ...(realEstateDetails.bathrooms ? [{
-          "@type": "PropertyValue",
-          "name": "bathrooms",
-          "value": realEstateDetails.bathrooms.toString(),
-          "valueReference": "QuantitativeValue"
-        }] : [])
+        ...(realEstateDetails.bedrooms
+          ? [
+              {
+                "@type": "PropertyValue",
+                name: "bedrooms",
+                value: realEstateDetails.bedrooms.toString(),
+                valueReference: "QuantitativeValue",
+              },
+            ]
+          : []),
+        ...(realEstateDetails.bathrooms
+          ? [
+              {
+                "@type": "PropertyValue",
+                name: "bathrooms",
+                value: realEstateDetails.bathrooms.toString(),
+                valueReference: "QuantitativeValue",
+              },
+            ]
+          : []),
       ];
     }
 
@@ -474,7 +497,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
               height={360}
               aria-hidden="false"
               role="img"
-              aria-label={title ? `${title} - ${t("listingImage")}` : t("listingImage")}
+              aria-label={
+                title ? `${title} - ${t("listingImage")}` : t("listingImage")
+              }
             />
 
             {/* Status badge */}
@@ -525,7 +550,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   }`}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${listingAction === ListingAction.SALE ? t('common.forSale') : t('common.forRent')}`}
+                    aria-label={`${listingAction === ListingAction.SALE ? t("common.forSale") : t("common.forRent")}`}
                   >
                     {listingAction === ListingAction.SALE
                       ? t("common.forSale")
@@ -566,8 +591,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <div className="p-5">
             {/* Title and Price Row */}
             <div className="flex justify-between items-start mb-4">
-              <h2 
-                itemProp="name" 
+              <h2
+                itemProp="name"
                 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200"
               >
                 <div
@@ -579,19 +604,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
               </h2>
               {showPrice && (
                 <div className="flex-shrink-0 ml-3">
-                  <div 
-                    itemProp="offers" 
-                    itemScope 
+                  <div
+                    itemProp="offers"
+                    itemScope
                     itemType="https://schema.org/Offer"
                     className="text-xl font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap"
                   >
-                    <meta itemProp="price" content={price?.toString() || '0'} />
+                    <meta itemProp="price" content={price?.toString() || "0"} />
                     <meta itemProp="priceCurrency" content="SYP" />
-                    <meta 
-                      itemProp="availability" 
-                      content={listing.status === ListingStatus.ACTIVE 
-                        ? 'https://schema.org/InStock' 
-                        : 'https://schema.org/OutOfStock'} 
+                    <meta
+                      itemProp="availability"
+                      content={
+                        listing.status === ListingStatus.ACTIVE
+                          ? "https://schema.org/InStock"
+                          : "https://schema.org/OutOfStock"
+                      }
                     />
                     <PriceConverter
                       price={price}
@@ -623,10 +650,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        const query = listing.latitude && listing.longitude 
-                          ? `${listing.latitude},${listing.longitude}`
-                          : encodeURIComponent(location || '');
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener,noreferrer');
+                        const query =
+                          listing.latitude && listing.longitude
+                            ? `${listing.latitude},${listing.longitude}`
+                            : encodeURIComponent(location || "");
+                        window.open(
+                          `https://www.google.com/maps/search/?api=1&query=${query}`,
+                          "_blank",
+                          "noopener,noreferrer",
+                        );
                       }}
                       className="truncate text-left hover:underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded px-2 py-1.5 -mx-1 text-[15px] font-medium"
                       aria-label={`${t("viewOnMap")} - ${location}`}
@@ -982,5 +1014,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
     </motion.article>
   );
 };
+
+// Memoize the component to prevent unnecessary re-renders
+export const ListingCard = memo(
+  ListingCardComponent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.listing.id === nextProps.listing.id &&
+      prevProps.priority === nextProps.priority &&
+      prevProps.showActions === nextProps.showActions &&
+      prevProps.showSaveButton === nextProps.showSaveButton &&
+      prevProps.showPrice === nextProps.showPrice &&
+      prevProps.showBadges === nextProps.showBadges &&
+      prevProps.editable === nextProps.editable &&
+      prevProps.deletable === nextProps.deletable
+    );
+  },
+);
 
 export default ListingCard;

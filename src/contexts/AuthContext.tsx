@@ -1,7 +1,15 @@
-import { createContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 import { apiClient } from "../api/apiClient";
+import { useAutoLogout } from "../hooks/useAutoLogout";
 import type {
   AuthContextType,
   AuthError,
@@ -12,13 +20,13 @@ import type {
 
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
-
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: true,
   error: null,
   retryAfter: null,
+  isInitialized: false,
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,8 +36,11 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [state, setState] = useState<AuthState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   const clearError = () => {
     setState((prev) => ({ ...prev, error: null, retryAfter: null }));
@@ -58,58 +69,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
+    // Prevent multiple simultaneous auth checks
+    if (isCheckingAuth || hasCheckedAuth) {
+      return;
+    }
+
     try {
+      console.log("🔍 Starting initial auth check...");
+      setIsCheckingAuth(true);
       setState((prev) => ({ ...prev, isLoading: true }));
+
       const response = await AuthAPI.getMe();
-      
+      console.log("🔍 Auth check response:", {
+        success: response?.success,
+        hasData: !!response?.data,
+        userData: response?.data,
+      });
+
       if (response?.success && response?.data) {
         // The response.data should be of type AuthUser
         const userData = response.data as AuthUser;
+        console.log(
+          "✅ Auth check successful - User authenticated:",
+          userData.name,
+        );
         setState({
           user: userData,
           isAuthenticated: true,
           isLoading: false,
           error: null,
           retryAfter: null,
+          isInitialized: true,
         });
-        setIsInitialized(true);
       } else {
-        // Not authenticated or invalid response
+        // Not authenticated or invalid response - this is normal for logged out users
         setState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: response?.error || {
-            code: 'UNAUTHORIZED',
-            message: 'Not authenticated'
-          },
+          error: null, // Don't treat 401 as an error for initial auth check
           retryAfter: null,
+          isInitialized: true,
         });
-        setIsInitialized(true);
       }
-    } catch (error) {
-      // Log error but don't show toast
-      console.error("Auth check error:", error);
-      setState((prev) => ({
-        ...prev,
+    } catch (error: any) {
+      // Clear any existing session
+      await AuthAPI.logout();
+      setState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null,
+        error: null, // Don't treat auth check failures as errors
         retryAfter: null,
-      }));
+        isInitialized: true,
+      });
     } finally {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setIsCheckingAuth(false);
+      setHasCheckedAuth(true);
       setIsInitialized(true);
     }
-  };
-
-  // Initialize auth state once on mount
-  useEffect(() => {
-    checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isCheckingAuth, hasCheckedAuth]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -157,8 +177,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }));
         return false;
       }
-
-
 
       setState((prev) => ({
         ...prev,
@@ -234,8 +252,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
-
-
       setState((prev) => ({
         ...prev,
         user,
@@ -263,13 +279,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     try {
+      console.log("🚪 Starting logout process...");
       await AuthAPI.logout();
+      console.log("✅ Logout API call successful");
     } catch (error) {
-      console.error("Logout API failed:", error); // Log or handle if needed
+      console.error("Logout API failed:", error);
     } finally {
+      // Clear state first to trigger any effects that depend on isAuthenticated
       setState({
         ...initialState,
+        isInitialized: true, // Keep initialized as true to prevent loading spinners
       });
+
+      // Use React Router navigation
+      const navigate = useNavigate();
+      const location = useLocation();
+
+      // Preserve the current URL including search params and hash
+      const returnTo = `${location.pathname}${location.search}${location.hash}`;
+
+      // Redirect to home page
+      navigate("/", { state: { from: returnTo }, replace: true });
     }
   };
 
@@ -280,19 +310,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     clearError,
     updateAuthUser,
+    checkAuth,
     isInitialized,
   };
 
+  // Initialize auth state once on mount
+  useEffect(() => {
+    if (!hasCheckedAuth && !isCheckingAuth) {
+      checkAuth();
+    }
+  }, [checkAuth, hasCheckedAuth, isCheckingAuth]);
+
   return (
     <AuthContext.Provider value={value}>
-      {state.isLoading ? (
-        <div 
+      {!isInitialized && state.isLoading ? (
+        <div
           className="flex h-screen w-full items-center justify-center bg-gray-50"
           role="status"
           aria-live="polite"
         >
-          <LoadingSpinner 
-            size="lg" 
+          <LoadingSpinner
+            size="lg"
             label="Initializing authentication..."
             ariaLive="polite"
             ariaAtomic={true}

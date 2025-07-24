@@ -360,11 +360,21 @@ export const FormField = forwardRef<
                   type={type}
                   id={name}
                   name={name}
-                  value={type === "number" ? (value === 0 ? "" : String(value)) : String(value)}
+                  value={
+                    type === "number"
+                      ? value === 0
+                        ? ""
+                        : String(value)
+                      : String(value)
+                  }
                   onChange={handleChange}
-                  className={clsx(inputClasses, 'relative z-10 bg-transparent', {
-                    'text-transparent': type === "number" && value === 0
-                  })}
+                  className={clsx(
+                    inputClasses,
+                    "relative z-10 bg-transparent",
+                    {
+                      "text-transparent": type === "number" && value === 0,
+                    },
+                  )}
                   placeholder="0"
                   required={required}
                   disabled={disabled}
