@@ -105,52 +105,42 @@ const CommunicationProviders = memo(
   ),
 );
 
-// Preload critical resources
-const preloadResources = () => {
-  if (typeof document !== "undefined") {
-    // Preload critical CSS
-    const preloadLink = document.createElement("link");
-    preloadLink.rel = "preload";
-    preloadLink.as = "style";
-    preloadLink.href = "/path/to/critical.css";
-    document.head.appendChild(preloadLink);
-  }
-};
 
+
+// Optimized: Show app immediately while initializing in the background
 const App: () => ReactElement = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Initialize critical resources first
-        preloadResources();
+    // Start with a minimal timeout to ensure first paint happens quickly
+    const initialDelay = setTimeout(() => {
+      setIsInitialized(true);
+    }, 50); // Very short delay to allow first paint
 
-        // Non-critical initialization can happen after first paint
-        requestIdleCallback(() => {
-          setupAuthDebugger();
-        });
 
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-        // Still show app even if initialization fails
-        setIsInitialized(true);
+
+    // Defer non-critical initializations
+    const idleCallbackId = window.requestIdleCallback
+      ? window.requestIdleCallback(
+          () => {
+            setupAuthDebugger();
+          },
+          { timeout: 1000 } // Ensure this runs within 1s even if the browser is busy
+        )
+      : setTimeout(() => setupAuthDebugger(), 0);
+
+    return () => {
+      clearTimeout(initialDelay);
+      if (window.cancelIdleCallback) {
+        window.cancelIdleCallback(idleCallbackId as number);
       }
     };
-
-    // Use requestIdleCallback to avoid blocking the main thread
-    if (window.requestIdleCallback) {
-      requestIdleCallback(initializeApp);
-    } else {
-      // Fallback for browsers that don't support requestIdleCallback
-      setTimeout(initializeApp, 0);
-    }
   }, []);
 
+  // Show minimal loading state only if needed
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading application...</p>
@@ -163,7 +153,7 @@ const App: () => ReactElement = () => {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       }
     >

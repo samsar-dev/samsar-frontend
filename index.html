@@ -62,21 +62,8 @@
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.samsar.app" />
 
-    <!-- Font preloading -->
-    <link
-      rel="preload"
-      href="/fonts/inter.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="/fonts/roboto.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <!-- Critical font preloading -->
+
 
     <!-- Inline critical CSS -->
     <style id="critical-css">
@@ -177,14 +164,17 @@
       content="black-translucent"
     />
 
-    <!-- Preload critical assets -->
+    <!-- Critical app font (remove if not used) -->
+    <!--
     <link
       rel="preload"
       href="/src/assets/fonts/your-main-font.woff2"
       as="font"
       type="font/woff2"
       crossorigin
+      onload="this.onload=null;this.rel='preload'"
     />
+    -->
     <meta name="author" content="Samsar Team" />
     <meta name="language" content="ar" />
     <meta name="geo.region" content="SY" />
@@ -277,39 +267,55 @@
     <meta name="msapplication-TileColor" content="#1a56db" />
     <meta name="theme-color" content="#1a56db" />
 
-    <!-- Fonts: Optimized for Arabic & English -->
+    <!-- Google Fonts with performance optimization -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap&display=swap&subset=arabic,latin&display=swap"
       onload="this.onload=null;this.rel='stylesheet'"
     />
-    <noscript
-      ><link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"
-    /></noscript>
+    <noscript>
+      <link 
+        rel="stylesheet" 
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap&display=swap&subset=arabic,latin&display=swap"
+      />
+    </noscript>
 
-    <!-- Preload Critical Assets -->
-    <link
-      rel="preload"
-      href="/images/hero.webp"
-      as="image"
-      type="image/webp"
-      fetchpriority="high"
-    />
+    <!-- Critical image preloads (only for above-the-fold content) -->
+    <!--
     <link
       rel="preload"
       href="/images/logo.svg"
       as="image"
       type="image/svg+xml"
+      fetchpriority="high"
     />
+    <link
+      rel="preload"
+      href="/images/hero.webp"
+      as="image"
+      type="image/webp"
+      imagesrcset="/images/hero-400.webp 400w, /images/hero-800.webp 800w, /images/hero-1200.webp 1200w"
+      imagesizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
+      fetchpriority="high"
+    />
+    -->
 
-    <!-- Preconnect to external domains -->
-    <link rel="preconnect" href="https://maps.googleapis.com" />
-    <link rel="preconnect" href="https://www.google-analytics.com" />
+    <!-- External connections with resource hints -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
+    
+    <!-- Add this before the closing </head> tag for non-critical CSS -->
+    <link 
+      rel="stylesheet" 
+      href="/styles/non-critical.css" 
+      media="print" 
+      onload="this.media='all'"
+    />
 
     <!-- Social: Open Graph -->
     <meta property="og:title" content="Marketplace - Buy and Sell Locally" />
@@ -326,6 +332,13 @@
   </head>
 
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+    <!-- Add a loading class that will be removed when the page is fully loaded -->
+    <script>
+      document.documentElement.classList.add('js-loading');
+      window.addEventListener('load', function() {
+        document.documentElement.classList.remove('js-loading');
+      });
+    </script>
     <noscript>
       <div
         style="
@@ -383,15 +396,7 @@
       });
     </script>
 
-    <!-- Preload critical assets -->
-    <link
-      rel="preload"
-      href="/src/index.css"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="/src/index.css" />
-    </noscript>
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="/src/index.css" />
   </body>
 </html>

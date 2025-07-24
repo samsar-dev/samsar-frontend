@@ -21,7 +21,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
     const sizeClasses = useMemo(
       () => ({
         sm: "w-4 h-4 border-2",
-        md: "w-8 h-8 border-3",
+        md: "w-8 h-8 border-2",  // Changed from border-3 to border-2 which is a valid Tailwind class
         lg: "w-12 h-12 border-4",
       }),
       [],
@@ -86,9 +86,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
           <div
             className="absolute inset-0 rounded-full border-solid border-transparent"
             style={{
-              borderColor:
-                "var(--spinner-track-color, rgba(229, 231, 235, 0.8))",
-              borderWidth: "inherit",
+              borderColor: "var(--spinner-track-color, rgba(229, 231, 235, 0.8))",
+              borderWidth: size === 'md' ? '2px' : undefined,  // Explicitly set border width for md size
             }}
             aria-hidden="true"
           />
@@ -97,7 +96,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
           <div
             className="absolute inset-0 rounded-full border-solid border-t-[color:var(--spinner-active-color)] border-transparent spinner-animate"
             style={{
-              borderWidth: "inherit",
+              borderWidth: size === 'md' ? '2px' : undefined,  // Explicitly set border width for md size
               willChange: "transform",
             }}
             aria-hidden="true"
