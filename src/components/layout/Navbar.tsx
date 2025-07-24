@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks";
@@ -38,22 +38,20 @@ const Navbar: React.FC = () => {
   const [showListingsMenu, setShowListingsMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (
-        !target.closest(".profile-menu") &&
-        !target.closest(".listings-menu")
-      ) {
-        setShowProfileMenu(false);
-        setShowListingsMenu(false);
-      }
-    };
+  // Memoize click outside handler
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest(".profile-menu") && !target.closest(".listings-menu")) {
+      setShowProfileMenu(false);
+      setShowListingsMenu(false);
+    }
+  }, []);
 
+  // Add click outside listener
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [handleClickOutside]);
 
   // Close dropdowns on route change
   useEffect(() => {
@@ -89,21 +87,98 @@ const Navbar: React.FC = () => {
     }
   };
 
-  const toggleProfileMenu = () => {
-    setShowProfileMenu(!showProfileMenu);
-    if (showListingsMenu) setShowListingsMenu(false);
-  };
+  // Memoize toggle functions
+  const toggleProfileMenu = useCallback(() => {
+    setShowProfileMenu(prev => {
+      if (!prev && showListingsMenu) {
+        setShowListingsMenu(false);
+      }
+      return !prev;
+    });
+  }, [showListingsMenu]);
 
-  const toggleListingsMenu = () => {
-    setShowListingsMenu(!showListingsMenu);
-    if (showProfileMenu) setShowProfileMenu(false);
-  };
+  const toggleListingsMenu = useCallback(() => {
+    setShowListingsMenu(prev => {
+      if (!prev && showProfileMenu) {
+        setShowProfileMenu(false);
+      }
+      return !prev;
+    });
+  }, [showProfileMenu]);
 
-  const dropdownClasses =
-    "absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200";
-  const activeDropdownClasses = "transform opacity-100 scale-100";
-  const inactiveDropdownClasses =
-    "transform opacity-0 scale-95 pointer-events-none";
+  // Memoize dropdown classes
+  const dropdownClasses = useMemo(() => ({
+    base: "absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200",
+    active: "transform opacity-100 scale-100",
+    inactive: "transform opacity-0 scale-95 pointer-events-none"
+  }), []);
+
+  // Memoize dropdown menu items to prevent unnecessary re-renders
+  const ListingsMenu = memo(() => (
+    <div
+      className={`${dropdownClasses.base} ${
+        showListingsMenu ? dropdownClasses.active : dropdownClasses.inactive
+      }`}
+    >
+      <Link
+        to="/listings/create"
+        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <FaPlus />
+        {t("navigation.create_listing")}
+      </Link>
+      <Link
+        to="/profile/listings"
+        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <FaFileAlt />
+        {t("navigation.my_listings")}
+      </Link>
+      <Link
+        to="/saved"
+        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <FaHeart className="text-red-500" />
+        {t("navigation.saved_listings")}
+      </Link>
+    </div>
+  ));
+
+  const ProfileMenu = memo(({ onLogout, isLoggingOut }: { onLogout: () => void, isLoggingOut: boolean }) => (
+    <div
+      className={`${dropdownClasses.base} ${
+        showProfileMenu ? dropdownClasses.active : dropdownClasses.inactive
+      }`}
+    >
+      <Link
+        to="/profile"
+        onClick={() => setShowProfileMenu(false)}
+        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <FaUser />
+        {t("navigation.profile")}
+      </Link>
+      <Link
+        to="/settings"
+        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <FaCog />
+        {t("navigation.settings")}
+      </Link>
+      <button
+        onClick={onLogout}
+        disabled={isLoggingOut}
+        className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+      >
+        {isLoggingOut ? (
+          <FaSpinner className="animate-spin" />
+        ) : (
+          <FaSignOutAlt />
+        )}
+        {isLoggingOut ? t("loggingOut") : t("logout")}
+      </button>
+    </div>
+  ));
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-md relative z-10">
@@ -240,6 +315,7 @@ const Navbar: React.FC = () => {
             ) : isAuthenticated && user ? (
               <>
                 {/* Listings Menu */}
+                {/* Listings Menu */}
                 <div className="relative listings-menu">
                   <Tooltip content="Listings" position="bottom">
                     <button
@@ -252,44 +328,11 @@ const Navbar: React.FC = () => {
                       <FaList className="h-5 w-5 mx-1 sm:mx-0" />
                     </button>
                   </Tooltip>
-                  <div
-                    className={`${dropdownClasses} ${
-                      showListingsMenu
-                        ? activeDropdownClasses
-                        : inactiveDropdownClasses
-                    }`}
-                  >
-                    <Link
-                      to="/listings/create"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaPlus />
-                      {t("navigation.create_listing")}
-                    </Link>
-
-                    <Link
-                      to="/profile/listings"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaFileAlt />
-                      {t("navigation.my_listings")}
-                    </Link>
-
-                    <Link
-                      to="/saved"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaHeart className="text-red-500" />
-                      {t("navigation.saved_listings")}
-                    </Link>
-                  </div>
+                  <ListingsMenu />
                 </div>
 
                 {/* Notifications */}
-                <Tooltip
-                  content={t("navigation.notifications")}
-                  position="bottom"
-                >
+                <Tooltip content={t("navigation.notifications")} position="bottom">
                   <div>
                     <NotificationBell />
                   </div>
@@ -329,41 +372,7 @@ const Navbar: React.FC = () => {
                       )}
                     </button>
                   </Tooltip>
-                  <div
-                    className={`${dropdownClasses} ${
-                      showProfileMenu
-                        ? activeDropdownClasses
-                        : inactiveDropdownClasses
-                    }`}
-                  >
-                    <Link
-                      to="/profile"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaUser />
-                      {t("navigation.profile")}
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <FaCog />
-                      {t("navigation.settings")}
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      {isLoggingOut ? (
-                        <FaSpinner className="animate-spin" />
-                      ) : (
-                        <FaSignOutAlt />
-                      )}
-                      {isLoggingOut ? t("loggingOut") : t("logout")}
-                    </button>
-                  </div>
+                  <ProfileMenu onLogout={handleLogout} isLoggingOut={isLoggingOut} />
                 </div>
               </>
             ) : (

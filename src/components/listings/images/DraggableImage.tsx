@@ -3,6 +3,7 @@ import type { Identifier } from "dnd-core";
 import { useDrag, useDrop } from "react-dnd";
 import { motion } from "framer-motion";
 import { FaTrash, FaEdit } from "react-icons/fa";
+import { throttle } from "lodash";
 import ImageFallback from "@/components/media/ImageFallback";
 
 interface DragItem {
@@ -42,6 +43,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   const ref = useRef<HTMLDivElement>(null);
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
   const componentId = useId();
+  // Cache for hover measurements
+  const hoverCache = useRef<{
+    hoverBoundingRect: DOMRect | null;
+    timestamp: number;
+  }>({ hoverBoundingRect: null, timestamp: 0 });
+  const hoverThrottleTimeout = useRef<number | null>(null);
 
   // Create a stable identifier that persists across re-renders
   const stableId = useMemo(
@@ -70,7 +77,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         handlerId: monitor.getHandlerId(),
       };
     },
-    hover(item: DragItem, monitor) {
+    hover: throttle((item: DragItem, monitor) => {
       if (!ref.current || item.id === stableId) {
         return;
       }
@@ -83,17 +90,26 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         return;
       }
 
-      // Get bounding rectangle of the hovered item
-      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      // Get client offset first as it's cheaper
       const clientOffset = monitor.getClientOffset();
-
-      if (!hoverBoundingRect || !clientOffset) {
+      if (!clientOffset) {
         return;
       }
 
-      // Get vertical middle of the hovered item
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      // Only update bounding rect cache if it's older than 100ms or doesn't exist
+      const now = Date.now();
+      if (!hoverCache.current.hoverBoundingRect || now - hoverCache.current.timestamp > 100) {
+        hoverCache.current.hoverBoundingRect = ref.current.getBoundingClientRect();
+        hoverCache.current.timestamp = now;
+      }
+
+      const { hoverBoundingRect } = hoverCache.current;
+      if (!hoverBoundingRect) {
+        return;
+      }
+
+      // Calculate positions using cached rect
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
       // Only perform the move when the mouse has crossed half of the items height
@@ -104,10 +120,17 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         return;
       }
 
-      // Time to actually perform the action
-      moveImage(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
+      // Clear any pending updates
+      if (hoverThrottleTimeout.current) {
+        window.cancelAnimationFrame(hoverThrottleTimeout.current);
+      }
+
+      // Use requestAnimationFrame to batch the state update
+      hoverThrottleTimeout.current = window.requestAnimationFrame(() => {
+        moveImage(dragIndex, hoverIndex);
+        item.index = hoverIndex;
+      });
+    }, 50, { leading: true, trailing: true }),
   });
 
   // Memoize handlers with stable references
