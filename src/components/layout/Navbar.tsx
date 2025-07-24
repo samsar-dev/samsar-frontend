@@ -26,10 +26,10 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation();
+  const { t, i18n, ready } = useTranslation();
 
-  // Detect RTL based on language
-  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-"));
+  // Detect RTL based on language, default to false if i18n not ready
+  const isRTL = ready && (i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-")));
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
