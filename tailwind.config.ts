@@ -93,9 +93,7 @@ const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/flowbite/**/*.js",
     "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
     "./public/**/*.html",
   ],
   darkMode: "class",
@@ -107,9 +105,34 @@ const config: Config = {
     screens,
     extend: {
       colors: {
-        ...colors,
-        // Alias for backward compatibility
-        brand: colors.primary,
+        primary: {
+          50: "#f0f9ff",
+          100: "#e0f2fe",
+          200: "#bae6fd",
+          300: "#7dd3fc",
+          400: "#38bdf8",
+          500: "#0ea5e9",
+          600: "#0284c7",
+          700: "#0369a1",
+          800: "#075985",
+          900: "#0c4a6e",
+        },
+        gray: {
+          50: "#f9fafb",
+          100: "#f3f4f6",
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#9ca3af",
+          500: "#6b7280",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#111827",
+        },
+        success: "#10b981",
+        warning: "#f59e0b",
+        error: "#ef4444",
+        info: "#3b82f6",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
@@ -166,15 +189,15 @@ const config: Config = {
     },
   },
   plugins: [
-    plugin,
-    aspectRatio,
-    typography,
-    require("@tailwindcss/forms")({
+    plugin({
       strategy: "class",
     }),
+    aspectRatio,
+    typography({
+      className: 'prose',
+    }),
     require("flowbite/plugin"),
-    // Custom plugins
-    function ({ addBase, addComponents, theme }) {
+    function ({ addBase, addComponents, theme }: any) {
       addBase({
         ":root": {
           "--color-primary": "hsla(210, 100%, 50%, 1)",

@@ -152,6 +152,7 @@ export default defineConfig(({ mode, command }) => {
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
       brotliSize: false,
+      cssTarget: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
 
       rollupOptions: {
         output: {
@@ -181,6 +182,7 @@ export default defineConfig(({ mode, command }) => {
           drop_console: mode === "production",
           drop_debugger: mode === "production",
           pure_funcs: ["console.log"],
+          passes: 2,
         },
         format: {
           comments: false,
@@ -204,8 +206,15 @@ export default defineConfig(({ mode, command }) => {
           additionalData: `@import "@/assets/styles/variables.scss";`,
         },
       },
-      // Minify in production
       minify: mode === "production",
+      lightningcss: {
+        targets: {
+          chrome: 90 * 65536,
+          firefox: 88 * 65536,
+          safari: 15 * 65536,
+          edge: 92 * 65536,
+        },
+      },
     },
 
     optimizeDeps: {
