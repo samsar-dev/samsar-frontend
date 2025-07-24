@@ -50,6 +50,8 @@ const Routes = lazy(() => import("./routes/Routes"));
 // Import utilities
 import { setupAuthDebugger } from "@/utils/authDebug";
 import { API_URL_PRIMARY, API_URL_FALLBACK } from "@/config";
+import i18n from "./config/i18n";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 // Add resource hints for external resources
 if (typeof document !== "undefined") {
@@ -200,15 +202,17 @@ const App: () => ReactElement = () => {
                     </div>
                   }
                 >
-                  <Suspense
-                    fallback={
-                      <div className="min-h-screen flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                      </div>
-                    }
-                  >
-                    <Routes />
-                  </Suspense>
+                  <LazyMotion features={domAnimation}>
+                    <Suspense
+                      fallback={
+                        <div className="min-h-screen flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                      }
+                    >
+                      <Routes />
+                    </Suspense>
+                  </LazyMotion>
                 </ErrorBoundary>
                 <ToastContainer
                   position="top-right"
