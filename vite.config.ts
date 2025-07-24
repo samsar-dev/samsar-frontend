@@ -146,77 +146,47 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: true,
       sourcemapIgnoreList: (file) => !file.endsWith(".js"),
 
+      minify: isProduction ? "terser" : false,
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 500,
+      reportCompressedSize: false,
+      brotliSize: false,
+      cssTarget: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
+
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // Ultra-aggressive chunk splitting
-            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-              return 'react-core';
-            }
-            if (id.includes('node_modules/react-router/')) {
-              return 'react-router';
-            }
-            if (id.includes('node_modules/axios/')) {
-              return 'vendor-axios';
-            }
-            if (id.includes('node_modules/framer-motion/')) {
-              return 'vendor-motion';
-            }
-            if (id.includes('node_modules/i18next/') || id.includes('node_modules/react-i18next/')) {
-              return 'vendor-i18n';
-            }
-            if (id.includes('node_modules/react-hook-form/')) {
-              return 'vendor-forms';
-            }
-            if (id.includes('node_modules/@headlessui/react/')) {
-              return 'vendor-headless';
-            }
-            if (id.includes('node_modules/@heroicons/react/')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('node_modules/@floating-ui/')) {
-              return 'vendor-floating';
-            }
-            if (id.includes('node_modules/react-toastify/')) {
-              return 'vendor-toast';
-            }
-            if (id.includes('node_modules/react-helmet-async/')) {
-              return 'vendor-helmet';
-            }
-            if (id.includes('node_modules/engine.io-client/')) {
-              return 'vendor-engine';
-            }
-            if (id.includes('/locales/') || id.includes('.json')) {
-              return 'translations';
-            }
+          manualChunks: {
+            react: ["react", "react-dom", "react-router-dom"],
+            vendor: ["axios", "date-fns", "react-i18next", "framer-motion"],
+            ui: ["@headlessui/react", "@heroicons/react"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
           },
-          chunkFileNames: "[name]-[hash].js",
-          entryFileNames: "[name]-[hash].js",
-          assetFileNames: "[name]-[hash].[ext]",
-          hoistTransitiveImports: false,
-          minifyInternalExports: true,
-          compact: true,
-          validate: false,
+          chunkFileNames: (chunkInfo) => {
+            const name = chunkInfo.name.toString();
+            if (name.includes('vendor')) return 'vendor.[hash].js';
+            return '[name]-[hash].js';
+          },
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
+            return 'assets/[name]-[hash][extname]';
+          },
         },
-        treeshake: {
-          preset: 'smallest',
-          moduleSideEffects: ['i18next', 'react-i18next', 'i18next-http-backend', '@/locales/**', '**/locales/**', '**/*.json'],
-          propertyReadSideEffects: false,
-          unknownGlobalSideEffects: false,
+        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+          const relativePath = path.relative(
+            process.cwd(),
+            relativeSourcePath,
+          );
+          // Use relative path for source maps
+          return `/${relativePath}`;
         },
-        external: ['fs', 'path', 'crypto', 'util', 'os'],
       },
-      minify: 'terser',
-      cssCodeSplit: true,
       terserOptions: {
         compress: {
-          pure_funcs: isProduction ? [
-            "console.log", "console.info", "console.debug", "console.warn", "console.trace",
-            "console.error", "console.table", "console.group", "console.groupEnd", "console.time",
-            "console.timeEnd", "console.assert", "console.clear", "console.count", "console.dir",
-            "console.dirxml", "console.groupCollapsed", "console.profile", "console.profileEnd",
-            "console.timeStamp", "console.context", "console.memory"
-          ] : [],
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: isProduction ? ["console.log", "console.info", "console.debug", "console.warn", "console.trace"] : [],
+          passes: 3,
           dead_code: true,
           unused: true,
           reduce_funcs: true,
@@ -231,29 +201,18 @@ export default defineConfig(({ mode, command }) => {
           sequences: true,
           properties: true,
           evaluate: true,
-          unsafe: true,
-          unsafe_arrows: true,
-          unsafe_comps: true,
-          unsafe_math: true,
-          unsafe_proto: true,
-          unsafe_regexp: true,
-          unsafe_undefined: true,
-          keep_fargs: false,
-          keep_fnames: false,
         },
         mangle: {
           toplevel: isProduction,
           safari10: true,
           keep_classnames: false,
           keep_fnames: false,
-          module: true,
         },
         format: {
           comments: false,
           beautify: false,
         },
       },
-      chunkSizeWarningLimit: 500,
     },
 
     css: {
