@@ -209,6 +209,8 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       minify: mode === "production",
+      // Use lightningcss for advanced CSS optimization
+      transformer: mode === "production" ? "lightningcss" : undefined,
       lightningcss: {
         targets: {
           chrome: 90 * 65536,
@@ -216,13 +218,17 @@ export default defineConfig(({ mode, command }) => {
           safari: 15 * 65536,
           edge: 92 * 65536,
         },
-        // Optimize CSS for production
-        unusedSymbols: mode === "production",
-        minify: mode === "production",
+        // Advanced CSS optimization settings
+        unusedSymbols: true,
+        minify: true,
         drafts: {
           nesting: true,
           customMedia: true,
         },
+        nonStandard: {
+          deepSelector: true,
+        },
+        include: 0b1111, // Include all features
       },
     },
 
