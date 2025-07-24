@@ -1,6 +1,7 @@
 import i18n from "i18next";
 import { InitOptions } from "i18next";
 import { initReactI18next } from "react-i18next";
+import Backend from "i18next-http-backend";
 
 // Import all translations using the index files
 import enTranslations from "@/locales/en";
@@ -11,9 +12,6 @@ const resources = {
   en: enTranslations,
   ar: arTranslations,
 };
-
-// Default language
-const defaultLanguage = 'ar';
 
 const i18nConfig: InitOptions = {
   resources,
@@ -58,22 +56,11 @@ const i18nConfig: InitOptions = {
   saveMissingTo: "all", // Keep for consistency, though not used when saveMissing is false
 };
 
-// Initialize i18n instance
-i18n
-  .use(initReactI18next)
-  .init({
-    ...i18nConfig,
-    react: {
-      useSuspense: true
-    },
-  })
-  .catch((error: Error) => {
-    console.error('Failed to initialize i18n:', error);
-  });
+i18n.use(Backend).use(initReactI18next).init(i18nConfig);
 
 // Language direction will be set by the SettingsContext
-const savedLang = localStorage.getItem("language") || "ar";
-document.documentElement.lang = savedLang;
-document.documentElement.dir = savedLang === "ar" ? "rtl" : "ltr";
+if (localStorage.getItem("language")) {
+  document.dir = localStorage.getItem("language") === "ar" ? "rtl" : "ltr";
+}
 
 export default i18n;
