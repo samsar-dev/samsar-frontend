@@ -1,11 +1,11 @@
-const purgecss = require('@fullhuman/postcss-purgecss');
+import purgecss from '@fullhuman/postcss-purgecss';
 
 export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
     ...(process.env.NODE_ENV === 'production' ? {
-      '@fullhuman/postcss-purgecss': {
+      'postcss-purgecss': purgecss({
         content: [
           './index.html',
           './src/**/*.{js,ts,jsx,tsx}',
@@ -27,7 +27,7 @@ export default {
           'card',
         ],
         defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
-      }
+      })
     } : {}),
   },
 };

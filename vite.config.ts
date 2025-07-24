@@ -151,14 +151,10 @@ export default defineConfig(({ mode, command }) => {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
-      brotliSize: false,
-      cssTarget: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
 
       rollupOptions: {
         output: {
           sourcemap: true,
-          sourcemapExcludeSources: false,
-          sourcemapFileNames: "[name]-[hash].map",
           manualChunks: {
             vendor: ["react", "react-dom"],
             ui: ["@headlessui/react", "@heroicons/react"],
