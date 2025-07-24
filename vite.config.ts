@@ -151,50 +151,75 @@ export default defineConfig(({ mode, command }) => {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 500,
       reportCompressedSize: false,
+      brotliSize: false,
+      cssTarget: ["es2022", "chrome90", "firefox88", "safari15", "edge92"],
 
       rollupOptions: {
         output: {
           sourcemap: true,
+          sourcemapExcludeSources: false,
+          sourcemapFileNames: "[name]-[hash].map",
           manualChunks: {
-            vendor: ["react", "react-dom"],
+            react: ["react", "react-dom", "react-router-dom"],
+            vendor: ["axios", "date-fns", "react-i18next", "framer-motion"],
             ui: ["@headlessui/react", "@heroicons/react"],
-            router: ["react-router-dom"],
-            utils: ["axios", "socket.io-client"],
+            forms: ["react-hook-form"],
+            maps: ["leaflet", "react-leaflet"],
           },
-          treeshake: {
-            preset: "smallest",
-            moduleSideEffects: false,
+          chunkFileNames: (chunkInfo) => {
+            const name = chunkInfo.name.toString();
+            if (name.includes('vendor')) return 'vendor.[hash].js';
+            return '[name]-[hash].js';
           },
-          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-            const relativePath = path.relative(
-              process.cwd(),
-              relativeSourcePath,
-            );
-            // Use relative path for source maps
-            return `/${relativePath}`;
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
+            return 'assets/[name]-[hash][extname]';
           },
+        },
+        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+          const relativePath = path.relative(
+            process.cwd(),
+            relativeSourcePath,
+          );
+          // Use relative path for source maps
+          return `/${relativePath}`;
         },
       },
       terserOptions: {
         compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ["console.log", "console.warn", "console.error"],
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: isProduction ? ["console.log", "console.info", "console.debug", "console.warn", "console.trace"] : [],
           passes: 3,
           dead_code: true,
-          booleans_as_integers: true,
-          if_return: true,
-          sequences: true,
           unused: true,
-          conditionals: true,
-          join_vars: true,
-          collapse_vars: true,
-          reduce_vars: true,
           reduce_funcs: true,
+          reduce_vars: true,
+          hoist_funs: true,
+          hoist_vars: true,
+          if_return: true,
+          join_vars: true,
+          cascade: true,
+          collapse_vars: true,
+          pure_getters: true,
+          side_effects: true,
+          sequences: true,
+          properties: true,
+          evaluate: true,
+          unsafe: false,
+          unsafe_comps: false,
+          unsafe_math: false,
+          unsafe_proto: false,
         },
         mangle: {
-          safari10: false,
-          toplevel: true,
+          toplevel: isProduction,
+          safari10: true,
+          keep_classnames: false,
+          keep_fnames: false,
+        },
+        format: {
+          comments: false,
+          beautify: false,
         },
       },
     },

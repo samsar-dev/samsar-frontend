@@ -1,33 +1,49 @@
-import purgecss from '@fullhuman/postcss-purgecss';
+const purgecss = require('@fullhuman/postcss-purgecss');
 
 export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
     ...(process.env.NODE_ENV === 'production' ? {
-      'postcss-purgecss': purgecss({
+      '@fullhuman/postcss-purgecss': {
         content: [
+          './src/**/*.{js,jsx,ts,tsx,vue}',
+          './public/**/*.html',
           './index.html',
-          './src/**/*.{js,ts,jsx,tsx}',
-          './node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
         ],
         safelist: [
           'html',
           'body',
+          'dark',
           /^bg-/,
           /^text-/,
           /^border-/,
           /^hover:/,
           /^focus:/,
+          /^disabled:/,
           /^dark:/,
-          /^scrollbar/,
-          'btn',
-          'btn-primary',
-          'input',
-          'card',
+          /^min-h-/,
+          /^w-/,
+          /^h-/,
+          /^max-w-/,
+          /^rounded-/,
+          /^shadow-/,
+          /^flex/,
+          /^grid/,
+          /^space-/,
+          /^p-/,
+          /^m-/,
+          /^px-/,
+          /^py-/,
+          /^pt-/,
+          /^pb-/,
+          /^pl-/,
+          /^pr-/,
         ],
-        defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
-      })
+        keyframes: true,
+        variables: true,
+        fontFace: true,
+      },
     } : {}),
   },
 };
