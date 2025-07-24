@@ -4,9 +4,22 @@ export const safeIdleCallback = (cb: () => void) =>
     : setTimeout(cb, 2000);
 
 export const preloadCriticalAssets = () => {
-  // Removed dynamic <link rel="preload"> insertion for CSS and fonts
-  // These resources are either non-critical or already referenced by the
-  // regular <link rel="stylesheet"> tag in index.html. Injecting additional
-  // preload tags caused "preloaded but not used" warnings.
-  return;
+  if (typeof window !== "undefined") {
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.href = "/assets/main-BYW6yWLQ.css";
+    preloadLink.as = "style";
+    document.head.appendChild(preloadLink);
+
+    const fonts = [
+      { href: "/fonts/inter.woff2", as: "font", type: "font/woff2" },
+      { href: "/fonts/roboto.woff2", as: "font", type: "font/woff2" },
+    ];
+    fonts.forEach((font) => {
+      const link = document.createElement("link");
+      Object.entries(font).forEach(([k, v]) => link.setAttribute(k, v));
+      link.setAttribute("crossorigin", "anonymous");
+      document.head.appendChild(link);
+    });
+  }
 };

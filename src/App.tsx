@@ -105,7 +105,17 @@ const CommunicationProviders = memo(
   ),
 );
 
-
+// Preload critical resources
+const preloadResources = () => {
+  if (typeof document !== "undefined") {
+    // Preload critical CSS
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "style";
+    preloadLink.href = "/path/to/critical.css";
+    document.head.appendChild(preloadLink);
+  }
+};
 
 // Optimized: Show app immediately while initializing in the background
 const App: () => ReactElement = () => {
@@ -117,7 +127,8 @@ const App: () => ReactElement = () => {
       setIsInitialized(true);
     }, 50); // Very short delay to allow first paint
 
-
+    // Load critical resources immediately
+    preloadResources();
 
     // Defer non-critical initializations
     const idleCallbackId = window.requestIdleCallback

@@ -63,7 +63,22 @@
     <link rel="dns-prefetch" href="https://api.samsar.app" />
 
     <!-- Critical font preloading -->
-
+    <link
+      rel="preload"
+      href="/fonts/inter.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      onload="this.onload=null;this.rel='preload'"
+    />
+    <link
+      rel="preload"
+      href="/fonts/roboto.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      onload="this.onload=null;this.rel='preload'"
+    />
 
     <!-- Inline critical CSS -->
     <style id="critical-css">
@@ -396,7 +411,15 @@
       });
     </script>
 
-    <!-- Main stylesheet -->
-    <link rel="stylesheet" href="/src/index.css" />
+    <!-- Preload critical assets -->
+    <link
+      rel="preload"
+      href="/src/index.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/src/index.css" />
+    </noscript>
   </body>
 </html>

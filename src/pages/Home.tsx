@@ -168,9 +168,21 @@ const Home: React.FC = () => {
       const firstListing = listings.all[0];
       setFirstVisibleListing(firstListing);
 
-      // No manual <link rel="preload"> – rely on browser lazy loading and
-      // IntersectionObserver based preloading in <PreloadImages>. This avoids
-      // "preloaded but not used" console warnings.
+      // Preload first few images for better LCP
+      const criticalImages = listings.all
+        .slice(0, 4)
+        .map((listing) => listing.images?.[0])
+        .filter(Boolean) as string[];
+
+      if (criticalImages.length > 0) {
+        // Preload the first image with high priority for LCP
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = criticalImages[0];
+        link.fetchPriority = "high";
+        document.head.appendChild(link);
+      }
     }
   }, [listings.all]);
 
