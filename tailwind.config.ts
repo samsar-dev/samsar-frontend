@@ -96,6 +96,28 @@ const config: Config = {
     "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
     "./public/**/*.html",
   ],
+  safelist: [
+    'bg-blue-600',
+    'hover:bg-blue-700',
+    'text-white',
+    'border-gray-300',
+    'dark:border-gray-600',
+    'focus:ring-blue-500',
+    'bg-white',
+    'dark:bg-gray-800',
+    'shadow-md',
+    'rounded-lg',
+    'px-4',
+    'py-2',
+    'w-full',
+    'h-full',
+    'min-h-screen',
+    'overflow-x-hidden',
+    'antialiased',
+    'text-gray-800',
+    'dark:text-gray-200',
+    'border-border',
+  ],
   darkMode: "class",
   mode: "jit",
   future: {
@@ -105,34 +127,18 @@ const config: Config = {
     screens,
     extend: {
       colors: {
-        primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
+        blue: {
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
         },
         gray: {
-          50: "#f9fafb",
-          100: "#f3f4f6",
           200: "#e5e7eb",
           300: "#d1d5db",
-          400: "#9ca3af",
-          500: "#6b7280",
           600: "#4b5563",
           700: "#374151",
           800: "#1f2937",
-          900: "#111827",
         },
-        success: "#10b981",
-        warning: "#f59e0b",
-        error: "#ef4444",
-        info: "#3b82f6",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
@@ -197,53 +203,6 @@ const config: Config = {
       className: 'prose',
     }),
     require("flowbite/plugin"),
-    function ({ addBase, addComponents, theme }: any) {
-      addBase({
-        ":root": {
-          "--color-primary": "hsla(210, 100%, 50%, 1)",
-          "--color-secondary": "hsla(210, 100%, 60%, 1)",
-          "--color-accent": "hsla(330, 100%, 50%, 1)",
-          "--color-text": theme("colors.gray.900"),
-          "--color-text-muted": theme("colors.gray.600"),
-          "--color-bg": theme("colors.white"),
-          "--color-bg-muted": theme("colors.gray.50"),
-        },
-        ".dark": {
-          "--color-primary": "hsla(210, 100%, 60%, 1)",
-          "--color-secondary": "hsla(210, 100%, 70%, 1)",
-          "--color-accent": "hsla(330, 100%, 60%, 1)",
-          "--color-text": theme("colors.gray.100"),
-          "--color-text-muted": theme("colors.gray.400"),
-          "--color-bg": theme("colors.gray.900"),
-          "--color-bg-muted": theme("colors.gray.800"),
-        },
-      });
-
-      addComponents({
-        ".container": {
-          width: "100%",
-          marginLeft: "auto",
-          marginRight: "auto",
-          paddingLeft: theme("spacing.4"),
-          paddingRight: theme("spacing.4"),
-          "@screen sm": {
-            maxWidth: "640px",
-          },
-          "@screen md": {
-            maxWidth: "768px",
-          },
-          "@screen lg": {
-            maxWidth: "1024px",
-          },
-          "@screen xl": {
-            maxWidth: "1280px",
-          },
-          "@screen 2xl": {
-            maxWidth: "1536px",
-          },
-        },
-      });
-    },
   ],
 };
 
