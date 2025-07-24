@@ -160,12 +160,14 @@ export default defineConfig(({ mode, command }) => {
           sourcemapExcludeSources: false,
           sourcemapFileNames: "[name]-[hash].map",
           manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            "vendor-large": ["framer-motion"],
-            vendor: ["axios", "date-fns", "react-i18next"],
+            vendor: ["react", "react-dom"],
             ui: ["@headlessui/react", "@heroicons/react"],
-            forms: ["react-hook-form"],
-            maps: ["leaflet", "react-leaflet"],
+            router: ["react-router-dom"],
+            utils: ["axios", "socket.io-client"],
+          },
+          treeshake: {
+            preset: "smallest",
+            moduleSideEffects: false,
           },
           sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
             const relativePath = path.relative(
@@ -179,15 +181,25 @@ export default defineConfig(({ mode, command }) => {
       },
       terserOptions: {
         compress: {
-          drop_console: mode === "production",
-          drop_debugger: mode === "production",
-          pure_funcs: ["console.log"],
-          passes: 2,
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ["console.log", "console.warn", "console.error"],
+          passes: 3,
+          dead_code: true,
+          booleans_as_integers: true,
+          if_return: true,
+          sequences: true,
+          unused: true,
+          conditionals: true,
+          join_vars: true,
+          collapse_vars: true,
+          reduce_vars: true,
+          reduce_funcs: true,
         },
-        format: {
-          comments: false,
+        mangle: {
+          safari10: false,
+          toplevel: true,
         },
-        sourceMap: true,
       },
     },
 

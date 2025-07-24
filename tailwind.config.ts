@@ -116,7 +116,6 @@ const config: Config = {
     'antialiased',
     'text-gray-800',
     'dark:text-gray-200',
-    'border-border',
   ],
   darkMode: "class",
   mode: "jit",
@@ -195,13 +194,6 @@ const config: Config = {
     },
   },
   plugins: [
-    plugin({
-      strategy: "class",
-    }),
-    aspectRatio,
-    typography({
-      className: 'prose',
-    }),
     require("flowbite/plugin"),
   ],
 };
