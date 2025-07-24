@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   // Detect RTL based on language
-  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-"));
+  const isRTL = i18n.language === "ar" || i18n.language.startsWith("ar-");
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();

@@ -171,11 +171,14 @@ export default defineConfig(({ mode, command }) => {
             if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
             return 'assets/[name]-[hash][extname]';
           },
-          inlineDynamicImports: false,
         },
-        treeshake: {
-          preset: 'smallest',
-          moduleSideEffects: false,
+        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+          const relativePath = path.relative(
+            process.cwd(),
+            relativeSourcePath,
+          );
+          // Use relative path for source maps
+          return `/${relativePath}`;
         },
       },
       terserOptions: {
@@ -210,28 +213,30 @@ export default defineConfig(({ mode, command }) => {
           beautify: false,
         },
       },
-      css: {
-        minify: mode === "production",
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@import "@/assets/styles/variables.scss";`,
-          },
+    },
+
+    css: {
+      postcss: "./postcss.config.js",
+      devSourcemap: mode !== "production",
+      modules: {
+        localsConvention: "camelCaseOnly",
+        generateScopedName:
+          mode === "production"
+            ? "[hash:base64:5]"
+            : "[name]__[local]__[hash:base64:5]",
+      },
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@/assets/styles/variables.scss";`,
         },
-        postcss: {
-          plugins: [
-            {
-              name: "lightningcss",
-              fn: {
-                targets: {
-                  chrome: 90 << 16,
-                  firefox: 88 << 16,
-                  safari: 15 << 16,
-                  edge: 92 << 16,
-                },
-                unusedSymbols: true,
-              },
-            },
-          ],
+      },
+      minify: mode === "production",
+      lightningcss: {
+        targets: {
+          chrome: 90 * 65536,
+          firefox: 88 * 65536,
+          safari: 15 * 65536,
+          edge: 92 * 65536,
         },
       },
     },
