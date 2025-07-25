@@ -240,7 +240,7 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
 
         output: {
-          manualChunks: (id) => {
+          /* manualChunks: (id) => {
             // Core React libraries
             if (id.includes('node_modules')) {
               // Split React into smaller chunks
@@ -428,7 +428,7 @@ export default defineConfig(({ mode, command }) => {
             if (id.includes('/components/chat/')) {
               return 'chat';
             }
-          },
+          }, */
           chunkFileNames: (chunkInfo) => {
             const name = chunkInfo.name.toString();
             if (name.includes('vendor')) return 'vendor.[hash].js';
