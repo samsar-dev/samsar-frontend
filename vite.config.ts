@@ -116,7 +116,7 @@ export default defineConfig(({ mode, command }) => {
           brotliSize: true,
         }),
 
-      // HTML plugin with preload links
+      // HTML plugin with preload links and script injection
       createHtmlPlugin({
         inject: {
           data: {
@@ -130,7 +130,16 @@ export default defineConfig(({ mode, command }) => {
               <link rel="preload" href="/public/fonts/roboto.*" as="font" type="font/woff2" crossorigin="anonymous">
               <link rel="preload" href="/public/fonts/material-icons.*" as="font" type="font/woff2" crossorigin="anonymous">
             `
-          }
+          },
+          tags: [
+            {
+              tag: 'script',
+              attrs: {
+                type: 'module',
+                src: '/src/main.tsx'
+              }
+            }
+          ]
         }
       }),
     ].filter(Boolean),
