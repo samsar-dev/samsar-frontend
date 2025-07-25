@@ -12,9 +12,7 @@ import {
   ListingAction,
 } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
-// Lazy-load framer-motion only on the client to keep initial bundle small
-// We will import it dynamically via useMotion hook below.
-
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { MdFilterList } from "react-icons/md";
@@ -46,18 +44,6 @@ interface ListingParams {
   listingAction?: "SALE" | "RENT";
 }
 
-// -------- Lazy framer-motion helper --------
-function useMotion() {
-  const motionRef = React.useRef<null | typeof import("framer-motion")>(null);
-  if (typeof window !== "undefined" && !motionRef.current) {
-    // Start loading framer-motion asynchronously; the Promise is ignored here
-    import("framer-motion").then((mod) => {
-      motionRef.current = mod;
-    });
-  }
-  return motionRef.current;
-}
-
 interface ListingsState {
   all: ExtendedListing[];
   popular: ExtendedListing[];
@@ -66,11 +52,6 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  // --- motion library (lazy) ---
-  const motionLib = useMotion();
-  const MDiv: any = motionLib ? motionLib.motion.div : "div";
-  const MButton: any = motionLib ? motionLib.motion.button : "button";
-
   // ... existing code ...
 
   // Use Suspense and lazy for ListingFilters
@@ -751,7 +732,7 @@ const Home: React.FC = () => {
         </div>
 
         {isFilterOpen && (
-          <MDiv
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -789,7 +770,7 @@ const Home: React.FC = () => {
               }}
               onSearch={fetchListings}
             />
-          </MDiv>
+          </motion.div>
         )}
 
         <div
@@ -811,7 +792,7 @@ const Home: React.FC = () => {
             />
           ))}
           {listings.all.length === 0 && listings.error && (
-            <MDiv
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -824,20 +805,20 @@ const Home: React.FC = () => {
                     : "Failed to fetch listings"}
                 </div>
               )}
-              <MButton
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={fetchListings}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 {t("common.try_again", "جرب مرة أخرى")}
-              </MButton>
-            </MDiv>
+              </motion.button>
+            </motion.div>
           )}
         </div>
 
         {listings.popular.length > 0 && (
-          <MDiv
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -846,7 +827,7 @@ const Home: React.FC = () => {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               {t("home.trending_now", "الأكثر رواجاً")}
             </h3>
-            <MDiv
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -870,8 +851,8 @@ const Home: React.FC = () => {
                   />
                 </div>
               ))}
-            </MDiv>
-          </MDiv>
+            </motion.div>
+          </motion.div>
         )}
       </>
     );
