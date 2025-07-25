@@ -14,8 +14,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  // Set base URL for assets - ensure consistent base for all environments
-  const base = "/";
+  // Set base URL for assets
+  const base = process.env.NODE_ENV === "production" ? "/" : "/";
 
   // Skip type checking during build
   if (command === "build") {
@@ -44,7 +44,12 @@ export default defineConfig(({ mode, command }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
     },
     plugins: [
-      react(),
+      react({
+        // Use modern browser targets
+        jsxImportSource: 'react',
+        // Enable fast refresh
+        plugins: [],
+      }),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,

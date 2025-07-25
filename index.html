@@ -14,9 +14,7 @@
     <meta name="author" content="Samsar Team" />
     <meta name="robots" content="index, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/src/main.tsx" as="script" crossorigin="anonymous">
-    <link rel="preload" href="/src/index.css" as="style">
+    <!-- Preload critical resources (dev only) -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -349,19 +347,9 @@
     </noscript>
     <div id="root"></div>
 
-    <!-- Main App Script with error handling -->
-    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Preload critical assets -->
-    <link
-      rel="preload"
-      href="/src/index.css"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="/src/index.css" />
-    </noscript>
+
   </body>
 </html>
