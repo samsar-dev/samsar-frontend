@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const formatPrice = (price: number): string => {
+const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -10,7 +10,7 @@ export const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-export const formatCurrency = (amount: number): string => {
+const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -58,4 +58,4 @@ const PriceConverter: React.FC<PriceConverterProps> = ({
   );
 };
 
-export default memo(PriceConverter);
+export { PriceConverter, formatPrice, formatCurrency };
