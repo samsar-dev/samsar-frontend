@@ -216,7 +216,7 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
   ]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 relative z-20 w-full max-w-6xl mx-auto">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 p-4 relative z-20 w-full max-w-6xl mx-auto transition-colors">
       <div className="flex flex-row gap-6 items-start">
         {/* Vehicle Type Selector */}
         <div className="flex flex-col space-y-3">
@@ -233,8 +233,8 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
                 }
                 className={`p-3 rounded-lg flex flex-col items-center justify-center min-h-[5.5rem] min-w-[5.5rem] transition-colors ${
                   type.id === selectedSubcategory
-                    ? "bg-blue-100 text-blue-700 ring-2 ring-blue-500"
-                    : "text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-2 ring-blue-500"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 }`}
                 aria-pressed={type.id === selectedSubcategory}
                 aria-label={type.name}
@@ -258,14 +258,14 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
             <div>
               <label
                 id="make-label"
-                className="block text-sm font-medium text-gray-800 mb-1.5"
+                className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1.5"
               >
                 {t("make")}
                 <span className="sr-only">{t("required")}</span>
               </label>
               <select
                 aria-labelledby="make-label"
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={selectedMake || ""}
                 onChange={(e) => setSelectedMake(e.target.value || null)}
                 disabled={loading}
@@ -280,11 +280,11 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("model")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={selectedModel || ""}
                 onChange={(e) => setSelectedModel(e.target.value || null)}
                 disabled={!selectedMake || loading}
@@ -300,11 +300,11 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("first_registration")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={selectedYear || ""}
                 onChange={(e) =>
                   setSelectedYear(
@@ -326,11 +326,11 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("kilometers_up_to")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={selectedMileage || ""}
                 onChange={(e) =>
                   setSelectedMileage(
@@ -352,11 +352,11 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("payment_method")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={selectedAction || ""}
                 onChange={(e) => handleActionChange(e.target.value)}
                 disabled={loading}
@@ -372,11 +372,11 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("price_up_to")} (€)
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={priceRange.max || ""}
                 onChange={(e) =>
                   onPriceRangeChange({
@@ -400,7 +400,7 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("location")}
               </label>
               <LocationSearch
@@ -408,12 +408,12 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
                 onSelectLocation={handleLocationSelect}
                 placeholder={t("search_location_placeholder")}
                 className="w-full"
-                inputClassName="w-full p-2 border border-gray-300 rounded-md pl-10"
+                inputClassName="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md pl-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 initialValue={locationData?.address || ""}
               />
               {locationData?.radius !== undefined && (
                 <div className="mt-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Within {locationData.radius} km
                   </label>
                   <input
@@ -429,9 +429,9 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
                       }));
                       onRadiusChange?.(newRadius);
                     }}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer dark:accent-blue-500"
                   />
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>{t("reset")}</span>
                     <span>50 {t("distance.km")}</span>
                     <span>100 {t("distance.km")}</span>
@@ -443,20 +443,18 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
               <div className="flex items-center space-x-3">
                 <button
                   type="button"
-                  className="px-5 py-2.5 text-sm font-medium text-gray-800 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   onClick={handleReset}
+                  className="px-5 py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  disabled={loading}
+                  aria-label={t("reset_filters")}
                 >
                   {t("reset")}
                 </button>
                 <button
-                  type="button"
-                  className="px-5 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                >
-                  {t("moreFilters")}
-                </button>
-                <button
                   type="submit"
-                  className="flex items-center px-6 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 transition-colors"
+                  className="flex items-center px-6 py-2.5 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
+                  aria-label={t("search")}
                 >
                   <MdSend className="mr-2 w-5 h-5" aria-hidden="true" />
                   {t("search")}

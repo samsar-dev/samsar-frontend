@@ -1,4 +1,6 @@
 import React, {
+  lazy,
+  Suspense,
   useState,
   useEffect,
   useRef,
@@ -15,7 +17,7 @@ import { TouchBackend } from "react-dnd-touch-backend";
 import { isMobile } from "react-device-detect";
 import imageCompression from "browser-image-compression";
 import { FaImage, FaSpinner } from "react-icons/fa";
-import ImageEditor from "./ImageEditor";
+const ImageEditor = lazy(() => import("./ImageEditor"));
 import DraggableImage from "./DraggableImage";
 
 // Define a unified image type to handle both File objects and URLs
@@ -773,11 +775,13 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         {/* Image Editor Modal */}
         <AnimatePresence>
           {editingImage && (
-            <ImageEditor
-              imageUrl={editingImage.url}
-              onSave={handleEditSave}
-              onClose={() => setEditingImage(null)}
-            />
+            <Suspense fallback={<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"><div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div></div>}>
+              <ImageEditor
+                imageUrl={editingImage.url}
+                onSave={handleEditSave}
+                onClose={() => setEditingImage(null)}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
       </div>

@@ -181,16 +181,16 @@ const Navbar: React.FC = () => {
   ));
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md relative z-10">
+    <nav className="bg-white dark:bg-gray-900 shadow-md relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Left section */}
           <div className="flex items-center">
             <Link to="/" className="flex flex-col items-start group">
-              <span className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight">
+              <span className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight dark:from-indigo-400 dark:to-purple-400">
                 SAMSAR
               </span>
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-indigo-500 transition-colors">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-300 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
                 MARKETPLACE
               </span>
             </Link>
@@ -221,7 +221,7 @@ const Navbar: React.FC = () => {
                   </label>
                   <select
                     id="category-select"
-                    className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     value={selectedCategory}
                     onChange={(e) => {
                       setSelectedCategory(e.target.value);
@@ -248,7 +248,7 @@ const Navbar: React.FC = () => {
                     </label>
                     <select
                       id="vehicles-subcategory-select"
-                      className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       value={selectedSubcategory}
                       onChange={(e) => setSelectedSubcategory(e.target.value)}
                       aria-label={t("selectVehicleType")}
@@ -276,7 +276,7 @@ const Navbar: React.FC = () => {
                     </label>
                     <select
                       id="realestate-subcategory-select"
-                      className="rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       value={selectedSubcategory}
                       onChange={(e) => setSelectedSubcategory(e.target.value)}
                       aria-label={t("selectPropertyType")}
@@ -379,14 +379,14 @@ const Navbar: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {t("auth.login")}
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-4 py-2 rounded-md"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {t("auth.register")}

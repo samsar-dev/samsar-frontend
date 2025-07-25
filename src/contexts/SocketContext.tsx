@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import type { Socket } from "socket.io-client";
 import socketIO from "socket.io-client";
 
@@ -10,13 +10,29 @@ interface SocketContextType {
   socket: Socket | null;
   connected: boolean;
   connectionError: string | null;
+  connectionState: 'disconnected' | 'connecting' | 'connected' | 'error';
+  reconnectAttempts: number;
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   connected: false,
   connectionError: null,
+  connectionState: 'disconnected',
+  reconnectAttempts: 0,
 });
+
+// Debug logging utility
+const debugLog = (message: string, data?: any) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[SocketContext ${timestamp}] ${message}`, data || '');
+};
+
+// Error logging utility  
+const errorLog = (message: string, error?: any) => {
+  const timestamp = new Date().toISOString();
+  console.error(`[SocketContext ${timestamp}] ❌ ${message}`, error || '');
+};
 
 export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   children,
@@ -24,99 +40,279 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const { user, isAuthenticated } = useAuth();
+  const [connectionState, setConnectionState] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  
+  const { user, isAuthenticated, isInitialized } = useAuth();
+  
+  // Refs to prevent memory leaks and race conditions
+  const socketRef = useRef<Socket | null>(null);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isConnectingRef = useRef(false);
+  const mountedRef = useRef(true);
+  
+  // Cleanup timer utility
+  const clearReconnectTimer = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+      debugLog('🧹 Cleared reconnect timer');
+    }
+  }, []);
+  
+  // Safe state update utility
+  const safeSetState = useCallback((updateFn: () => void) => {
+    if (mountedRef.current) {
+      updateFn();
+    }
+  }, []);
 
-  // Initialize socket connection when user is authenticated
-  useEffect(() => {
-    let newSocket: any = null;
-    const reconnectTimer: NodeJS.Timeout | null = null;
-
-    const initializeSocket = () => {
-      if (!isAuthenticated || !user) {
-        return;
-      }
-
-      // Clear any previous connection error
-      setConnectionError(null);
-
+  // Disconnect socket utility
+  const disconnectSocket = useCallback(() => {
+    debugLog('🔌 Disconnecting socket...');
+    
+    if (socketRef.current) {
       try {
-        console.log("Initializing socket connection to:", SOCKET_URL);
-
-        // Create new socket connection
-        newSocket = socketIO(SOCKET_URL, {
-          withCredentials: true, // This ensures cookies are sent with the connection
-          transportOptions: {
-            polling: {
-              extraHeaders: {
-                // Send cookies with polling transport
-                ...(document.cookie && { Cookie: document.cookie }),
-              },
-            },
-            websocket: {
-              extraHeaders: {
-                // Send cookies with websocket transport
-                ...(document.cookie && { Cookie: document.cookie }),
-              },
+        socketRef.current.removeAllListeners();
+        socketRef.current.disconnect();
+        debugLog('✅ Socket disconnected successfully');
+      } catch (error) {
+        errorLog('Failed to disconnect socket', error);
+      } finally {
+        socketRef.current = null;
+      }
+    }
+    
+    clearReconnectTimer();
+    isConnectingRef.current = false;
+    
+    safeSetState(() => {
+      setSocket(null);
+      setConnected(false);
+      setConnectionState('disconnected');
+    });
+  }, [clearReconnectTimer, safeSetState]);
+  
+  // Initialize socket connection
+  const initializeSocket = useCallback(() => {
+    // Prevent multiple simultaneous connections
+    if (isConnectingRef.current || !mountedRef.current) {
+      debugLog('⚠️ Connection already in progress or component unmounted');
+      return;
+    }
+    
+    // Check prerequisites
+    if (!isAuthenticated || !user || !isInitialized) {
+      debugLog('⚠️ Cannot connect socket - missing prerequisites', {
+        isAuthenticated,
+        hasUser: !!user,
+        isInitialized
+      });
+      return;
+    }
+    
+    debugLog('🚀 Initializing socket connection', {
+      url: SOCKET_URL,
+      userId: user.id,
+      userName: user.name
+    });
+    
+    isConnectingRef.current = true;
+    
+    safeSetState(() => {
+      setConnectionState('connecting');
+      setConnectionError(null);
+    });
+    
+    try {
+      // Create new socket connection with enhanced configuration
+      const newSocket = socketIO(SOCKET_URL, {
+        withCredentials: true,
+        transportOptions: {
+          polling: {
+            extraHeaders: {
+              ...(document.cookie && { Cookie: document.cookie }),
             },
           },
-          transports: ["websocket", "polling"],
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-          timeout: 10000,
+          websocket: {
+            extraHeaders: {
+              ...(document.cookie && { Cookie: document.cookie }),
+            },
+          },
+        },
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 10000,
+        forceNew: true, // Force new connection
+      });
+      
+      // Enhanced event handlers with debugging
+      newSocket.on("connect", () => {
+        debugLog('✅ Socket connected successfully', {
+          socketId: newSocket.id,
+          transport: newSocket.io.engine.transport.name
         });
-
-        // Set up event handlers
-        newSocket.on("connect", () => {
+        
+        isConnectingRef.current = false;
+        
+        safeSetState(() => {
           setConnected(true);
+          setConnectionState('connected');
           setConnectionError(null);
-          console.log("Socket connected");
+          setReconnectAttempts(0);
         });
-
-        newSocket.on("disconnect", (reason: string) => {
+      });
+      
+      newSocket.on("disconnect", (reason: string) => {
+        debugLog('🔌 Socket disconnected', { reason });
+        
+        safeSetState(() => {
           setConnected(false);
-          console.log(`Socket disconnected: ${reason}`);
-
-          // If disconnected due to transport close, try to reconnect
-          if (reason === "transport close" && isAuthenticated) {
-            console.log("Attempting to reconnect socket...");
-          }
+          setConnectionState('disconnected');
         });
-
-        newSocket.on("connect_error", (error: any) => {
+        
+        // Handle different disconnect reasons
+        if (reason === "io server disconnect" || reason === "io client disconnect") {
+          debugLog('🔄 Manual disconnect - not attempting reconnection');
+        } else if (isAuthenticated && mountedRef.current) {
+          debugLog('🔄 Unexpected disconnect - socket will auto-reconnect');
+        }
+      });
+      
+      newSocket.on("connect_error", (error: any) => {
+        errorLog('Socket connection error', {
+          message: error?.message,
+          description: error?.description,
+          context: error?.context,
+          type: error?.type
+        });
+        
+        isConnectingRef.current = false;
+        
+        const errorMessage = error?.message || "Unknown connection error";
+        
+        safeSetState(() => {
           setConnected(false);
-          const errorMessage = error?.message || "Unknown connection error";
+          setConnectionState('error');
           setConnectionError(errorMessage);
-          console.error("Socket connection error:", error);
+          setReconnectAttempts(prev => prev + 1);
         });
-
-        // Save the socket instance
+      });
+      
+      newSocket.on("reconnect", (attemptNumber: number) => {
+        debugLog('🔄 Socket reconnected', { attemptNumber });
+        
+        safeSetState(() => {
+          setReconnectAttempts(0);
+        });
+      });
+      
+      newSocket.on("reconnect_attempt", (attemptNumber: number) => {
+        debugLog('🔄 Socket reconnection attempt', { attemptNumber });
+        
+        safeSetState(() => {
+          setConnectionState('connecting');
+          setReconnectAttempts(attemptNumber);
+        });
+      });
+      
+      newSocket.on("reconnect_error", (error: any) => {
+        errorLog('Socket reconnection error', error);
+      });
+      
+      newSocket.on("reconnect_failed", () => {
+        errorLog('Socket reconnection failed after all attempts');
+        
+        safeSetState(() => {
+          setConnectionState('error');
+          setConnectionError('Failed to reconnect after multiple attempts');
+        });
+      });
+      
+      // Store socket reference
+      socketRef.current = newSocket;
+      
+      safeSetState(() => {
         setSocket(newSocket);
-      } catch (error) {
-        console.error("Error initializing socket:", error);
-        setConnectionError("Failed to initialize socket connection");
+      });
+      
+    } catch (error) {
+      errorLog('Failed to initialize socket', error);
+      isConnectingRef.current = false;
+      
+      safeSetState(() => {
+        setConnectionState('error');
+        setConnectionError('Failed to initialize socket connection');
+      });
+    }
+  }, [isAuthenticated, user, isInitialized, safeSetState, clearReconnectTimer]);
+  
+  // Main effect for socket lifecycle management
+  useEffect(() => {
+    debugLog('🔄 Socket effect triggered', {
+      isAuthenticated,
+      hasUser: !!user,
+      isInitialized,
+      currentState: connectionState
+    });
+    
+    if (isAuthenticated && user && isInitialized) {
+      // Only initialize if not already connected or connecting
+      if (connectionState === 'disconnected' || connectionState === 'error') {
+        initializeSocket();
       }
-    };
-
-    // Initialize socket
-    initializeSocket();
-
-    // Cleanup function
+    } else {
+      // Disconnect if user is not authenticated
+      if (socketRef.current) {
+        debugLog('🔌 User not authenticated - disconnecting socket');
+        disconnectSocket();
+      }
+    }
+    
+    // Cleanup on unmount
     return () => {
-      if (newSocket) {
-        console.log("Cleaning up socket connection");
-        newSocket.disconnect();
-        setSocket(null);
-      }
-
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
+      if (!mountedRef.current) {
+        debugLog('🧹 Component unmounting - cleaning up socket');
+        disconnectSocket();
       }
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, isInitialized, connectionState, initializeSocket, disconnectSocket]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    
+    return () => {
+      debugLog('🧹 SocketProvider unmounting');
+      mountedRef.current = false;
+      
+      // Force cleanup
+      if (socketRef.current) {
+        try {
+          socketRef.current.removeAllListeners();
+          socketRef.current.disconnect();
+        } catch (error) {
+          errorLog('Error during unmount cleanup', error);
+        }
+      }
+      
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, connected, connectionError }}>
+    <SocketContext.Provider value={{ 
+      socket, 
+      connected, 
+      connectionError, 
+      connectionState, 
+      reconnectAttempts 
+    }}>
       {children}
     </SocketContext.Provider>
   );

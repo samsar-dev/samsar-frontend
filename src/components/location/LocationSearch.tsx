@@ -458,7 +458,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   return (
     <div className={`relative w-full ${className}`} ref={searchRef}>
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 dark:text-gray-500">
           <FiMapPin className="h-5 w-5 text-gray-400" />
         </div>
         <input
@@ -468,7 +468,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           onChange={handleInputChange}
           onFocus={() => query.length > 2 && setShowResults(true)}
           placeholder={placeholder}
-          className={`w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white ${inputClassName}`}
+          className={`w-full p-2 pl-10 pr-10 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${inputClassName}`}
         />
         {query && (
           <button
@@ -483,11 +483,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
       {/* Search results */}
       {showResults && results.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
+        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
           {results.map((result) => (
             <div
               key={result.place_id}
-              className="cursor-default select-none relative py-2 pl-3 pr-9 hover:bg-indigo-50"
+              className="cursor-default select-none relative py-2 pl-3 pr-9 hover:bg-indigo-50 dark:hover:bg-gray-600"
               onClick={() => handleSelect(result)}
             >
               <div className="flex items-center">
@@ -502,8 +502,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
-          <div className="px-4 py-2 text-sm text-gray-500">
+        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto max-h-60 focus:outline-none sm:text-sm">
+          <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
             {t ? `${t("searching")}...` : "Searching..."}
           </div>
         </div>
