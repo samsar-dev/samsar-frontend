@@ -238,7 +238,6 @@ export default defineConfig(({ mode, command }) => {
       cssTarget: 'es2022',
 
       rollupOptions: {
-        external: ['react', 'react-dom'],
         output: {
           manualChunks: (id) => {
             // Core React libraries

@@ -3,36 +3,64 @@
   <head>
     <!-- SEO Meta Tags -->
     <title>سمسار | سوق السيارات والعقارات الأول في سوريا</title>
-    <meta name="description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا" />
-    <meta name="keywords" content="عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار" />
+    <meta
+      name="description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
+    />
+    <meta
+      name="keywords"
+      content="عقارات سوريا, سيارات للبيع, شقق للايجار, فلل فاخرة, أراضي سكنية, محلات تجارية, سوق السيارات, سوق العقارات, عقارات دمشق, عقارات حلب, سيارات مستعملة, شقق للبيع, شقق مفروشة, مكاتب إدارية, شقق فندقية, دراجات نارية, شاحنات, باصات, قطع غيار, سمسار"
+    />
     <meta name="author" content="Samsar Team" />
     <meta name="robots" content="index, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/assets/main-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/vendor-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/react-core-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/mui-core-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/main-*.css" as="style">
+    <link rel="preload" href="/assets/images/logo.*" as="image" type="image/webp">
+    <link rel="preload" href="/assets/images/favicon.*" as="image" type="image/webp">
+    <link rel="preload" href="/assets/fonts/roboto.*" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/material-icons.*" as="font" type="font/woff2" crossorigin="anonymous">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://samsar.app" />
-    <meta property="og:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا" />
-    <meta property="og:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا" />
+    <meta
+      property="og:title"
+      content="سمسار | سوق السيارات والعقارات الأول في سوريا"
+    />
+    <meta
+      property="og:description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
+    />
     <meta property="og:image" content="https://samsar.app/og-image.jpg" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:site_name" content="سمسار" />
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://samsar.app" />
-    <meta name="twitter:title" content="سمسار | سوق السيارات والعقارات الأول في سوريا" />
-    <meta name="twitter:description" content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا" />
+    <meta
+      name="twitter:title"
+      content="سمسار | سوق السيارات والعقارات الأول في سوريا"
+    />
+    <meta
+      name="twitter:description"
+      content="منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
+    />
     <meta name="twitter:image" content="https://samsar.app/og-image.jpg" />
     <meta name="twitter:creator" content="@samsar_sy" />
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://samsar.app" />
-    
+
     <!-- Alternate URLs -->
     <link rel="alternate" href="https://samsar.app/en" hreflang="en" />
     <link rel="alternate" href="https://samsar.app/ar" hreflang="ar" />
-    
+
     <!-- Preconnect to critical domains -->
     <link rel="preconnect" href="https://api.samsar.app" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,6 +71,22 @@
     <link rel="preconnect" href="https://api.samsar.app" crossorigin />
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.samsar.app" />
+
+    <!-- Font preloading -->
+    <link
+      rel="preload"
+      href="/fonts/inter.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/roboto.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <!-- Inline critical CSS -->
     <style id="critical-css">
@@ -130,7 +174,7 @@
     />
     <meta name="theme-color" content="#1a56db" />
     <meta name="robots" content="index, follow" />
-    
+
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
@@ -138,10 +182,19 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
     <!-- Preload critical assets -->
-    <link rel="preload" href="/src/assets/fonts/your-main-font.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/src/assets/fonts/your-main-font.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta name="author" content="Samsar Team" />
     <meta name="language" content="ar" />
     <meta name="geo.region" content="SY" />
@@ -217,8 +270,18 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/icons/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/icons/favicon-32x32.png"
+    />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="msapplication-TileColor" content="#1a56db" />
@@ -274,8 +337,21 @@
 
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <noscript>
-      <div style="position: fixed; top: 0; left: 0; right: 0; background: #f8d7da; color: #721c24; text-align: center; padding: 1rem; z-index: 1000;">
-        JavaScript is required to run this application. Please enable JavaScript to continue.
+      <div
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: #f8d7da;
+          color: #721c24;
+          text-align: center;
+          padding: 1rem;
+          z-index: 1000;
+        "
+      >
+        JavaScript is required to run this application. Please enable JavaScript
+        to continue.
       </div>
     </noscript>
     <div id="root"></div>
@@ -283,9 +359,9 @@
     <!-- Main App Script with error handling -->
     <script type="module">
       // Add global error handler
-      window.addEventListener('error', function(event) {
-        console.error('Global error:', event.error);
-        const root = document.getElementById('root');
+      window.addEventListener("error", function (event) {
+        console.error("Global error:", event.error);
+        const root = document.getElementById("root");
         if (root) {
           root.innerHTML = `
             <div style="padding: 2rem; text-align: center;">
@@ -300,9 +376,9 @@
       });
 
       // Load the main app
-      import('/src/main.tsx').catch(error => {
-        console.error('Failed to load application:', error);
-        const root = document.getElementById('root');
+      import("/src/main.tsx").catch((error) => {
+        console.error("Failed to load application:", error);
+        const root = document.getElementById("root");
         if (root) {
           root.innerHTML = `
             <div style="padding: 2rem; text-align: center;">
@@ -316,16 +392,16 @@
         }
       });
     </script>
-    
+
     <!-- Preload critical assets -->
-    <link 
-      rel="preload" 
-      href="/src/index.css" 
-      as="style" 
+    <link
+      rel="preload"
+      href="/src/index.css"
+      as="style"
       onload="this.onload=null;this.rel='stylesheet'"
-    >
+    />
     <noscript>
-      <link rel="stylesheet" href="/src/index.css">
+      <link rel="stylesheet" href="/src/index.css" />
     </noscript>
   </body>
 </html>
