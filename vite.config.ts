@@ -232,13 +232,40 @@ export default defineConfig(({ mode, command }) => {
 
       rollupOptions: {
         output: {
-          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-            const relativePath = path.relative(
-              process.cwd(),
-              relativeSourcePath,
-            );
-            // Use relative path for source maps
-            return `/${relativePath}`;
+          manualChunks: (id) => {
+            // Group vendor libraries
+            if (id.includes('node_modules')) {
+              if (id.includes('@mui') || id.includes('@emotion')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              return 'vendor'; // Catch-all for other node_modules
+            }
+
+            // App-specific chunking
+            if (id.includes('/pages/')) {
+              const pageName = id.split('/pages/')[1].split('.')[0];
+              if (pageName.includes('admin')) return 'admin-pages';
+              if (pageName.includes('profile')) return 'profile-pages';
+              if (pageName.includes('settings')) return 'settings-pages';
+              return `page-${pageName.toLowerCase()}`;
+            }
+            if (id.includes('/components/listings/')) {
+              return 'listings-components';
+            }
+            if (id.includes('/components/auth/')) {
+              return 'auth-components';
+            }
+            if (id.includes('/components/chat/')) {
+              return 'chat-components';
+            }
+          },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) return 'assets/css/[name]-[hash][extname]';
+            return 'assets/media/[name]-[hash][extname]';
           },
         },
       },
