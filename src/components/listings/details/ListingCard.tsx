@@ -449,33 +449,32 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
         stiffness: 400,
         damping: 25,
       }}
-      className="w-full bg-white dark:bg-gray-825 rounded-none sm:rounded-2xl shadow-sm hover:shadow-xl overflow-hidden group relative transition-all duration-300 border-0 sm:border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
+      className="w-full bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-sm hover:shadow-xl dark:shadow-lg dark:shadow-black/30 overflow-hidden group relative transition-all duration-300 border-0 sm:border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
     >
       {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      {/* Preload the main image for LCP optimization */}
-      {mainImage && typeof mainImage === "string" && (
-        <PreloadImages
-          imageUrls={[mainImage]}
-        />
-      )}
       <div className="relative h-full">
         <Link to={`/listings/${listingId}`} className="block h-full">
           <div
-            className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative group"
+            className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800/80 flex items-center justify-center relative group"
             role="img"
             aria-label={
               title ? `${title} - ${t("listingImage")}` : t("listingImage")
             }
           >
             {/* Image overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+
+            {/* Preload the main image for LCP optimization */}
+            {mainImage && typeof mainImage === "string" && (
+              <PreloadImages imageUrls={[mainImage]} />
+            )}
 
             {/* Fallback content for when image fails to load */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-base font-medium p-4">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800/90 text-gray-900 dark:text-gray-200 text-base font-medium p-4">
               {t("imageUnavailable")}
             </div>
 
@@ -527,7 +526,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                   {/* Category badge */}
                   <span
                     className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm text-gray-900 dark:text-white text-sm font-semibold px-5 py-3 rounded-full shadow-sm pointer-events-auto
-                  hover:bg-white hover:shadow-md transition-all duration-200 min-w-[120px] inline-flex items-center justify-center h-[44px]"
+                  hover:bg-white dark:hover:bg-gray-800/90 hover:shadow-md transition-all duration-200 min-w-[120px] inline-flex items-center justify-center h-[44px] border border-gray-100 dark:border-gray-700"
                     role="button"
                     tabIndex={0}
                     aria-label={t("category", category?.subCategory)}
@@ -543,8 +542,8 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     className={`text-sm font-semibold px-5 py-3 rounded-full shadow-sm pointer-events-auto
                   transition-all duration-200 hover:shadow-md min-h-[44px] inline-flex items-center ${
                     listingAction === ListingAction.SALE
-                      ? "bg-gradient-to-r from-blue-700 to-blue-600 text-white"
-                      : "bg-gradient-to-r from-emerald-700 to-teal-600 text-white"
+                      ? "bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white"
+                      : "bg-gradient-to-r from-emerald-700 to-teal-600 hover:from-emerald-800 hover:to-teal-700 text-white"
                   }`}
                     role="button"
                     tabIndex={0}
@@ -567,8 +566,8 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     }}
                     className={`p-3 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110 shadow-md pointer-events-auto w-11 h-11 ${
                       isFavorite
-                        ? "bg-red-600 text-white hover:bg-red-700"
-                        : "bg-white/95 dark:bg-gray-800/95 text-gray-700 hover:text-red-600 hover:bg-white dark:hover:bg-gray-700"
+                        ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                        : "bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 hover:bg-white dark:hover:bg-gray-700/80"
                     }`}
                     aria-label={
                       isFavorite
@@ -643,7 +642,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               {location && (
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
-                    <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 flex-shrink-0" />
+                    <MdLocationOn className="w-4 h-4 mr-1 text-blue-500 dark:text-blue-400 flex-shrink-0" />
                     <button
                       onClick={(e) => {
                         e.preventDefault();
@@ -658,7 +657,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           "noopener,noreferrer",
                         );
                       }}
-                      className="truncate text-left hover:underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded px-2 py-1.5 -mx-1 text-[15px] font-medium"
+                      className="truncate text-left text-gray-700 dark:text-gray-300 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded px-2 py-1.5 -mx-1 text-[15px] font-medium"
                       aria-label={`${t("viewOnMap")} - ${location}`}
                     >
                       {cleanLocationString(location)}
@@ -678,7 +677,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                 {vehicleDetails ? (
                   <div className="grid grid-cols-2 gap-3">
                     {/* Mileage box */}
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center justify-center space-x-2">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                           {t("listings.fields.mileage")}
@@ -694,7 +693,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     </div>
 
                     {/* Year box */}
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center justify-center space-x-2">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                           {t("year")}
@@ -707,7 +706,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                       </div>
                     </div>
                     {/* Fuel type box */}
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                       <div className="flex items-center justify-center space-x-2">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
                           {t("fields.fuelType")}
@@ -787,7 +786,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               realEstateDetails && (
                 <div className="grid grid-cols-2 gap-3">
                   {/* Size box */}
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                  <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                     <div className="flex items-center justify-center space-x-2">
                       <span className="text-gray-500 dark:text-gray-400 text-sm">
                         {t("fields.size")}
@@ -805,7 +804,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                   {category.subCategory?.toLowerCase() === "land" ? (
                     <>
                       {realEstateDetails.bedrooms && (
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                        <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                           <div className="flex items-center justify-center space-x-2">
                             <span className="text-gray-500 dark:text-gray-400 text-sm">
                               {t("fields.bedrooms")}
@@ -817,7 +816,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                         </div>
                       )}
                       {realEstateDetails.bathrooms && (
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                        <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                           <div className="flex items-center justify-center space-x-2">
                             <span className="text-gray-500 dark:text-gray-400 text-sm">
                               {t("fields.bathrooms")}
@@ -831,7 +830,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     </>
                   ) : (
                     <>
-                      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center justify-center space-x-2">
                           <span className="text-gray-500 dark:text-gray-400 text-sm">
                             {t("fields.bedrooms")}
@@ -847,7 +846,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           )}
                         </div>
                       </div>
-                      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/90 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center justify-center space-x-2">
                           <span className="text-gray-500 dark:text-gray-400 text-sm">
                             {t("fields.bathrooms")}
@@ -874,7 +873,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
         </Link>
       </div>
       {showActions && (
-        <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-3 bg-gray-50 dark:bg-gray-800/50">
+        <div className="border-t border-gray-100 dark:border-gray-800 px-5 py-3 bg-white/80 dark:bg-gray-900/95">
           <div className="flex justify-end gap-3">
             {editable && (
               <motion.button
@@ -902,7 +901,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     onDelete?.(id as string);
                   }
                 }}
-                className="px-4 py-2 bg-white hover:bg-gray-50 text-red-600 border border-red-200 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 dark:bg-gray-700 dark:border-gray-600 dark:text-red-400 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700/80 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
               >
                 <FaTrash className="w-3.5 h-3.5" />
                 {t("delete")}
@@ -913,7 +912,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
       )}
 
       {/* Footer with action buttons */}
-      <div className="px-5 pb-4 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+      <div className="px-5 pb-4 pt-2 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="flex items-center justify-between">
           <button
             onClick={(e) => {
@@ -945,7 +944,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               <>
                 <Link
                   to={`/listings/edit/${listingId}`}
-                  className="p-2 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200"
+                  className="p-2 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 bg-white/80 dark:bg-gray-800/90 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700/80"
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Edit listing"
                 >
@@ -957,7 +956,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     e.stopPropagation();
                     if (onDelete && id) onDelete(id);
                   }}
-                  className="p-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200"
+                  className="p-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200 bg-white/80 dark:bg-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700/80"
                   aria-label="Delete listing"
                 >
                   <FaTrash className="w-4 h-4" />
@@ -970,7 +969,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               className={`p-3 rounded-full transition-all duration-200 min-w-[50px] min-h-[50px] ${
                 isFavorite
                   ? "text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40"
-                  : "text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                  : "text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 bg-white/80 dark:bg-gray-800/80"
               }`}
               aria-label={
                 isFavorite ? "Remove from favorites" : "Add to favorites"

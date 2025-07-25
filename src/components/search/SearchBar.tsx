@@ -161,7 +161,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           ref={inputRef}
           type="search"
           id="search-input"
-          className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-20 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white py-2 pl-10 pr-20 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
           placeholder={placeholder}
           value={searchTerm}
           onChange={handleInputChange}
@@ -179,7 +179,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
           <svg
-            className="h-5 w-5 text-gray-400"
+            className="h-5 w-5 text-gray-400 dark:text-gray-400"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -200,7 +200,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             aria-label="Clear search"
           >
             <svg
-              className="h-5 w-5 text-gray-400 hover:text-gray-600"
+              className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -215,7 +215,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         )}
         <button
           type="submit"
-          className="absolute inset-y-0 right-0 flex items-center px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-r-lg transition-colors"
+          className="absolute inset-y-0 right-0 flex items-center px-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-r-lg transition-colors"
           aria-label="Search"
         >
           <svg

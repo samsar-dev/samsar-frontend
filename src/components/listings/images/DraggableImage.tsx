@@ -3,7 +3,7 @@ import type { Identifier } from "dnd-core";
 import { useDrag, useDrop } from "react-dnd";
 import { motion } from "framer-motion";
 import { FaTrash, FaEdit } from "react-icons/fa";
-import { throttle } from "lodash";
+import throttle from 'lodash.throttle';
 import ImageFallback from "@/components/media/ImageFallback";
 
 interface DragItem {

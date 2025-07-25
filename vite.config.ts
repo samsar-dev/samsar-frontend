@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
+import imagemin from "vite-plugin-imagemin";
+ 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -48,11 +50,6 @@ export default defineConfig(({ mode, command }) => {
         // Enable fast refresh
         plugins: [],
       }),
-      viteCompression({
-        algorithm: 'brotliCompress',
-        ext: '.br',
-        threshold: 1024,
-      }),
       createHtmlPlugin({
         minify: {
           collapseWhitespace: true,
@@ -74,13 +71,35 @@ export default defineConfig(({ mode, command }) => {
           },
         },
       }),
-      // Image optimization will be handled by the build script
-
+      // Image optimization
+      imagemin({
+        gifsicle: { optimizationLevel: 4, interlaced: true, colors: 256 },
+        optipng: { optimizationLevel: 8 },
+        mozjpeg: { quality: 75, progressive: true },
+        pngquant: { quality: [0.7, 0.85], speed: 6, dithering: 0.5 },
+        svgo: {
+          plugins: [
+            { name: 'removeViewBox', active: false },
+            { name: 'removeEmptyAttrs', active: true },
+            { name: 'removeEmptyText', active: true },
+            { name: 'removeComments', active: true },
+            { name: 'removeDesc', active: true },
+            { name: 'removeTitle', active: true },
+            { name: 'removeMetadata', active: true },
+            { name: 'removeUselessDefs', active: true },
+            { name: 'removeXMLNS', active: true },
+            { name: 'removeStyleElement', active: true },
+            { name: 'removeScriptElement', active: true },
+            { name: 'removeDimensions', active: true }
+          ]
+        }
+      }),
       // Compression
       viteCompression({
-        threshold: 1024, // Compress files >1KB
-        algorithm: "brotliCompress",
-        ext: ".br",
+        verbose: true,
+        disable: false,
+        threshold: 10240,
+        algorithm: 'brotliCompress'
       }),
       viteCompression({
         threshold: 1024, // Compress files >1KB
@@ -96,6 +115,24 @@ export default defineConfig(({ mode, command }) => {
           gzipSize: true,
           brotliSize: true,
         }),
+
+      // HTML plugin with preload links
+      createHtmlPlugin({
+        inject: {
+          data: {
+            preloadLinks: `
+              <link rel="preload" href="/assets/main-*.js" as="script" crossorigin="anonymous">
+              <link rel="preload" href="/assets/vendor-*.js" as="script" crossorigin="anonymous">
+              <link rel="preload" href="/assets/react-core-*.js" as="script" crossorigin="anonymous">
+              <link rel="preload" href="/assets/mui-core-*.js" as="script" crossorigin="anonymous">
+              <link rel="preload" href="/assets/main-*.css" as="style">
+              <link rel="preload" href="/public/icons/favicon.ico" as="image" type="image/x-icon">
+              <link rel="preload" href="/public/fonts/roboto.*" as="font" type="font/woff2" crossorigin="anonymous">
+              <link rel="preload" href="/public/fonts/material-icons.*" as="font" type="font/woff2" crossorigin="anonymous">
+            `
+          }
+        }
+      }),
     ].filter(Boolean),
 
     // Configure static asset handling
@@ -152,21 +189,263 @@ export default defineConfig(({ mode, command }) => {
 
       minify: 'esbuild', // Faster than terser and produces modern output
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 500,
-      reportCompressedSize: false,
+      chunkSizeWarningLimit: 200, // More aggressive chunk size warning
+      reportCompressedSize: true, // Report compressed sizes
+      
+      // Aggressive tree-shaking
+      treeshake: {
+        moduleSideEffects: 'no-external',
+        propertyReadSideEffects: false,
+        tryCatch: false,
+      },
+      
+      // Optimize imports
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+      },
+      
+      // Optimize ES modules
+      esModule: true,
+      
+      // Remove dead code
+      deadCodeElimination: {
+        annotations: true,
+      },
+      
+      // Optimize output
+      output: {
+        compact: true,
+        inlineDynamicImports: true,
+        manualChunks: (id) => {
+          // Keep existing manualChunks logic
+          if (id.includes('node_modules')) {
+            // ... existing logic ...
+          }
+          
+          // Optimize dynamic imports
+          if (id.includes('dynamic')) {
+            return 'dynamic-imports';
+          }
+          
+          // Optimize lazy-loaded components
+          if (id.includes('lazy')) {
+            return 'lazy-components';
+          }
+          
+          // Optimize hooks
+          if (id.includes('hooks')) {
+            return 'hooks';
+          }
+          
+          // Optimize utilities
+          if (id.includes('utils')) {
+            return 'utilities';
+          }
+          
+          // Optimize constants
+          if (id.includes('constants')) {
+            return 'constants';
+          }
+          
+          // Return default chunk
+          return 'app';
+        },
+      },
       brotliSize: false,
       cssTarget: 'es2022',
 
       rollupOptions: {
+        external: ['react', 'react-dom'],
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'ui-vendor': ['framer-motion', '@headlessui/react', '@heroicons/react'],
-            'i18n-vendor': ['i18next', 'react-i18next', 'i18next-http-backend'],
-            'utils-vendor': ['axios', 'date-fns', 'lodash'],
-            'forms-vendor': ['react-hook-form'],
-            'maps-vendor': ['leaflet', 'react-leaflet'],
-            'icons-vendor': ['react-icons'],
+          manualChunks: (id) => {
+            // Core React libraries
+            if (id.includes('node_modules')) {
+              // Split React into smaller chunks
+              if (id.includes('react')) {
+                if (id.includes('react/jsx-runtime')) {
+                  return 'react-runtime';
+                }
+                if (id.includes('react/jsx-dev-runtime')) {
+                  return 'react-dev-runtime';
+                }
+                return 'react-core';
+              }
+              if (id.includes('react-dom')) {
+                if (id.includes('react-dom/client')) {
+                  return 'react-dom-client';
+                }
+                if (id.includes('react-dom/server')) {
+                  return 'react-dom-server';
+                }
+                return 'react-dom';
+              }
+              
+              // Split React Router
+              if (id.includes('react-router')) {
+                if (id.includes('react-router-dom')) {
+                  return 'react-router-dom';
+                }
+                return 'react-router';
+              }
+              if (id.includes('react-router')) {
+                return 'react-router';
+              }
+              
+              // UI libraries - split by component
+              if (id.includes('@mui/material')) {
+                if (id.includes('Button')) {
+                  return 'mui-button';
+                }
+                if (id.includes('Card')) {
+                  return 'mui-card';
+                }
+                if (id.includes('Table')) {
+                  return 'mui-table';
+                }
+                if (id.includes('Dialog')) {
+                  return 'mui-dialog';
+                }
+                return 'mui-core';
+              }
+              if (id.includes('@emotion')) {
+                return 'emotion';
+              }
+              if (id.includes('framer-motion')) {
+                if (id.includes('dom')) {
+                  return 'motion-dom';
+                }
+                return 'motion-core';
+              }
+              if (id.includes('@headlessui')) {
+                if (id.includes('Listbox')) {
+                  return 'listbox';
+                }
+                if (id.includes('Dialog')) {
+                  return 'dialog';
+                }
+                return 'headlessui-core';
+              }
+              if (id.includes('@heroicons')) {
+                return 'heroicons';
+              }
+              if (id.includes('lucide-react')) {
+                return 'lucide';
+              }
+              
+              // Heavy utilities
+              if (id.includes('lodash')) {
+                return 'lodash';
+              }
+              if (id.includes('date-fns')) {
+                return 'date-utils';
+              }
+              
+              // Form libraries
+              if (id.includes('react-hook-form') || id.includes('yup') || id.includes('@hookform')) {
+                return 'forms';
+              }
+              
+              // I18n
+              if (id.includes('i18next') || id.includes('react-i18next')) {
+                return 'i18n';
+              }
+              
+              // Maps and location
+              if (id.includes('leaflet') || id.includes('react-leaflet')) {
+                return 'maps';
+              }
+              
+              // DnD
+              if (id.includes('react-dnd') || id.includes('dnd-core')) {
+                return 'dnd';
+              }
+              
+              // Redux
+              if (id.includes('@reduxjs') || id.includes('react-redux')) {
+                return 'redux';
+              }
+              
+              // Socket.io
+              if (id.includes('socket.io')) {
+                return 'socket';
+              }
+              
+              // Image processing
+              if (id.includes('react-image-crop') || id.includes('browser-image-compression')) {
+                return 'image-utils';
+              }
+              
+              // Form utilities
+              if (id.includes('formik') || id.includes('formik-yup')) {
+                return 'formik';
+              }
+              
+              // Charting
+              if (id.includes('chart.js') || id.includes('react-chartjs')) {
+                return 'charts';
+              }
+              
+              // PDF
+              if (id.includes('jspdf') || id.includes('html2canvas')) {
+                return 'pdf';
+              }
+              
+              // Analytics
+              if (id.includes('react-ga4') || id.includes('@amplitude')) {
+                return 'analytics';
+              }
+              
+              // Remaining small utilities
+              if (id.includes('axios') || id.includes('clsx') || id.includes('tailwind-merge')) {
+                return 'utils';
+              }
+              
+              // Everything else
+              return 'vendor';
+            }
+            
+            // App chunks by feature
+            if (id.includes('/pages/')) {
+              const pageName = id.split('/pages/')[1].split('.')[0];
+              // Split pages by category
+              if (pageName.includes('admin')) {
+                return 'admin-pages';
+              }
+              if (pageName.includes('profile')) {
+                return 'profile-pages';
+              }
+              if (pageName.includes('settings')) {
+                return 'settings-pages';
+              }
+              return `page-${pageName.toLowerCase()}`;
+            }
+            
+            if (id.includes('/components/listings/')) {
+              const feature = id.split('/components/listings/')[1].split('/')[0];
+              switch (feature) {
+                case 'create':
+                  return 'listings-create';
+                case 'details':
+                  return 'listings-details';
+                case 'filters':
+                  return 'listings-filters';
+                case 'images':
+                  return 'listings-images';
+                case 'map':
+                  return 'listings-map';
+                default:
+                  return 'listings-core';
+              }
+            }
+            
+            if (id.includes('/components/auth/')) {
+              return 'auth';
+            }
+            
+            if (id.includes('/components/chat/')) {
+              return 'chat';
+            }
           },
           chunkFileNames: (chunkInfo) => {
             const name = chunkInfo.name.toString();
@@ -222,8 +501,18 @@ export default defineConfig(({ mode, command }) => {
         "react-router-dom",
         "react-i18next",
         "i18next",
-        "date-fns",
+        "axios",
+        "clsx",
+        "tailwind-merge"
+      ],
+      exclude: [
+        "@mui/material",
+        "@emotion/styled",
         "framer-motion",
+        "lodash",
+        "date-fns",
+        "leaflet",
+        "react-leaflet"
       ],
       esbuildOptions: {
         target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],

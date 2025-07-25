@@ -5,7 +5,7 @@ import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
 import { ListingCategory, PropertyType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import { debounce } from "lodash-es";
+import debounce from 'lodash.debounce';
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
 

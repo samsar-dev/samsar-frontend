@@ -1,8 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FiMapPin, FiX } from "react-icons/fi";
-import { useDebounce } from "react-use";
 import { syrianCities } from "@/utils/syrianCitiesEnglish";
+
+// Simple debounce hook to replace react-use dependency
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  
+  return debouncedValue;
+};
 
 interface LocationArea {
   name: string;
@@ -240,17 +256,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   }, []);
 
   // Debounce search
-  useDebounce(
-    () => {
-      if (query && query.length > 2) {
-        searchLocations(query);
-      } else {
-        setApiResults([]);
-      }
-    },
-    300,
-    [query],
-  );
+  const debouncedQuery = useDebounce(query, 300);
+  
+  useEffect(() => {
+    if (debouncedQuery.length > 2) {
+      searchLocations(debouncedQuery);
+    } else {
+      setApiResults([]);
+    }
+  }, [debouncedQuery]);
 
   const searchLocations = async (searchQuery: string) => {
     if (!searchQuery.trim()) {

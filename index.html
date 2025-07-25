@@ -14,6 +14,16 @@
     <meta name="author" content="Samsar Team" />
     <meta name="robots" content="index, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/assets/main-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/vendor-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/react-core-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/mui-core-*.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/main-*.css" as="style">
+    <link rel="preload" href="/assets/images/logo.*" as="image" type="image/webp">
+    <link rel="preload" href="/assets/images/favicon.*" as="image" type="image/webp">
+    <link rel="preload" href="/assets/fonts/roboto.*" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/material-icons.*" as="font" type="font/woff2" crossorigin="anonymous">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
