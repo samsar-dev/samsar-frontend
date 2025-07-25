@@ -356,52 +356,6 @@
     </noscript>
     <div id="root"></div>
 
-    <!-- Main App Script with error handling -->
-    <script type="module">
-      // Add global error handler
-      window.addEventListener("error", function (event) {
-        console.error("Global error:", event.error);
-        const root = document.getElementById("root");
-        if (root) {
-          root.innerHTML = `
-            <div style="padding: 2rem; text-align: center;">
-              <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Application Error</h2>
-              <p style="margin-bottom: 1rem;">Sorry, something went wrong. Our team has been notified.</p>
-              <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Reload Application
-              </button>
-            </div>
-          `;
-        }
-      });
-
-      // Load the main app
-      import("/src/main.tsx").catch((error) => {
-        console.error("Failed to load application:", error);
-        const root = document.getElementById("root");
-        if (root) {
-          root.innerHTML = `
-            <div style="padding: 2rem; text-align: center;">
-              <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Failed to Load Application</h2>
-              <p style="margin-bottom: 1rem;">Please check your internet connection and try again.</p>
-              <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Try Again
-              </button>
-            </div>
-          `;
-        }
-      });
-    </script>
-
-    <!-- Preload critical assets -->
-    <link
-      rel="preload"
-      href="/src/index.css"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="/src/index.css" />
-    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
