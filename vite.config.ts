@@ -489,7 +489,7 @@ export default defineConfig(({ mode, command }) => {
       ],
       exclude: [
         "@mui/material",
-        "@emotion/styled",
+    
         "framer-motion",
         "lodash",
         "date-fns",
