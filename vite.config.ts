@@ -200,252 +200,46 @@ export default defineConfig(({ mode, command }) => {
         compact: true,
         inlineDynamicImports: true,
         manualChunks: (id) => {
-          // Keep existing manualChunks logic
           if (id.includes('node_modules')) {
-            // ... existing logic ...
+            if (id.includes('@mui') || id.includes('@emotion')) {
+              return 'vendor-ui';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
+            }
+            return 'vendor';
           }
-          
-          // Optimize dynamic imports
-          if (id.includes('dynamic')) {
-            return 'dynamic-imports';
+          // Your smart app-specific chunking logic
+          if (id.includes('/pages/')) {
+            const pageName = id.split('/pages/')[1].split('.')[0];
+            return `page-${pageName.toLowerCase()}`;
           }
-          
-          // Optimize lazy-loaded components
-          if (id.includes('lazy')) {
-            return 'lazy-components';
+          if (id.includes('/components/listings/')) {
+            return 'listings-components';
           }
-          
-          // Optimize hooks
-          if (id.includes('hooks')) {
-            return 'hooks';
+          if (id.includes('/components/auth/')) {
+            return 'auth-components';
           }
-          
-          // Optimize utilities
-          if (id.includes('utils')) {
-            return 'utilities';
+          if (id.includes('/components/chat/')) {
+            return 'chat-components';
           }
-          
-          // Optimize constants
-          if (id.includes('constants')) {
-            return 'constants';
-          }
-          
-          // Return default chunk
-          return 'app';
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
       brotliSize: false,
       cssTarget: 'es2022',
 
       rollupOptions: {
-
         output: {
-          /* manualChunks: (id) => {
-            // Core React libraries
-            if (id.includes('node_modules')) {
-              // Split React into smaller chunks
-              if (id.includes('react')) {
-                if (id.includes('react/jsx-runtime')) {
-                  return 'react-runtime';
-                }
-                if (id.includes('react/jsx-dev-runtime')) {
-                  return 'react-dev-runtime';
-                }
-                return 'react-core';
-              }
-              if (id.includes('react-dom')) {
-                if (id.includes('react-dom/client')) {
-                  return 'react-dom-client';
-                }
-                if (id.includes('react-dom/server')) {
-                  return 'react-dom-server';
-                }
-                return 'react-dom';
-              }
-              
-              // Split React Router
-              if (id.includes('react-router')) {
-                if (id.includes('react-router-dom')) {
-                  return 'react-router-dom';
-                }
-                return 'react-router';
-              }
-              if (id.includes('react-router')) {
-                return 'react-router';
-              }
-              
-              // UI libraries - split by component
-              if (id.includes('@mui/material')) {
-                if (id.includes('Button')) {
-                  return 'mui-button';
-                }
-                if (id.includes('Card')) {
-                  return 'mui-card';
-                }
-                if (id.includes('Table')) {
-                  return 'mui-table';
-                }
-                if (id.includes('Dialog')) {
-                  return 'mui-dialog';
-                }
-                return 'mui-core';
-              }
-              if (id.includes('@emotion')) {
-                return 'emotion';
-              }
-              if (id.includes('framer-motion')) {
-                if (id.includes('dom')) {
-                  return 'motion-dom';
-                }
-                return 'motion-core';
-              }
-              if (id.includes('@headlessui')) {
-                if (id.includes('Listbox')) {
-                  return 'listbox';
-                }
-                if (id.includes('Dialog')) {
-                  return 'dialog';
-                }
-                return 'headlessui-core';
-              }
-              if (id.includes('@heroicons')) {
-                return 'heroicons';
-              }
-              if (id.includes('lucide-react')) {
-                return 'lucide';
-              }
-              
-              // Heavy utilities
-              if (id.includes('lodash')) {
-                return 'lodash';
-              }
-              if (id.includes('date-fns')) {
-                return 'date-utils';
-              }
-              
-              // Form libraries
-              if (id.includes('react-hook-form') || id.includes('yup') || id.includes('@hookform')) {
-                return 'forms';
-              }
-              
-              // I18n
-              if (id.includes('i18next') || id.includes('react-i18next')) {
-                return 'i18n';
-              }
-              
-              // Maps and location
-              if (id.includes('leaflet') || id.includes('react-leaflet')) {
-                return 'maps';
-              }
-              
-              // DnD
-              if (id.includes('react-dnd') || id.includes('dnd-core')) {
-                return 'dnd';
-              }
-              
-              // Redux
-              if (id.includes('@reduxjs') || id.includes('react-redux')) {
-                return 'redux';
-              }
-              
-              // Socket.io
-              if (id.includes('socket.io')) {
-                return 'socket';
-              }
-              
-              // Image processing
-              if (id.includes('react-image-crop') || id.includes('browser-image-compression')) {
-                return 'image-utils';
-              }
-              
-              // Form utilities
-              if (id.includes('formik') || id.includes('formik-yup')) {
-                return 'formik';
-              }
-              
-              // Charting
-              if (id.includes('chart.js') || id.includes('react-chartjs')) {
-                return 'charts';
-              }
-              
-              // PDF
-              if (id.includes('jspdf') || id.includes('html2canvas')) {
-                return 'pdf';
-              }
-              
-              // Analytics
-              if (id.includes('react-ga4') || id.includes('@amplitude')) {
-                return 'analytics';
-              }
-              
-              // Remaining small utilities
-              if (id.includes('axios') || id.includes('clsx') || id.includes('tailwind-merge')) {
-                return 'utils';
-              }
-              
-              // Everything else
-              return 'vendor';
-            }
-            
-            // App chunks by feature
-            if (id.includes('/pages/')) {
-              const pageName = id.split('/pages/')[1].split('.')[0];
-              // Split pages by category
-              if (pageName.includes('admin')) {
-                return 'admin-pages';
-              }
-              if (pageName.includes('profile')) {
-                return 'profile-pages';
-              }
-              if (pageName.includes('settings')) {
-                return 'settings-pages';
-              }
-              return `page-${pageName.toLowerCase()}`;
-            }
-            
-            if (id.includes('/components/listings/')) {
-              const feature = id.split('/components/listings/')[1].split('/')[0];
-              switch (feature) {
-                case 'create':
-                  return 'listings-create';
-                case 'details':
-                  return 'listings-details';
-                case 'filters':
-                  return 'listings-filters';
-                case 'images':
-                  return 'listings-images';
-                case 'map':
-                  return 'listings-map';
-                default:
-                  return 'listings-core';
-              }
-            }
-            
-            if (id.includes('/components/auth/')) {
-              return 'auth';
-            }
-            
-            if (id.includes('/components/chat/')) {
-              return 'chat';
-            }
-          }, */
-          chunkFileNames: (chunkInfo) => {
-            const name = chunkInfo.name.toString();
-            if (name.includes('vendor')) return 'vendor.[hash].js';
-            return '[name]-[hash].js';
+          sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+            const relativePath = path.relative(
+              process.cwd(),
+              relativeSourcePath,
+            );
+            // Use relative path for source maps
+            return `/${relativePath}`;
           },
-          assetFileNames: (assetInfo) => {
-            if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
-            return 'assets/[name]-[hash][extname]';
-          },
-        },
-        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-          const relativePath = path.relative(
-            process.cwd(),
-            relativeSourcePath,
-          );
-          // Use relative path for source maps
-          return `/${relativePath}`;
         },
       },
     },
@@ -491,8 +285,6 @@ export default defineConfig(({ mode, command }) => {
         "@emotion/styled"
       ],
       exclude: [
-
-    
         "framer-motion",
         "lodash",
         "date-fns",
