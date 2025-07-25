@@ -120,14 +120,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null, // Don't treat auth check failures as errors
+        error: null, // Don't show error for initial auth check
         retryAfter: null,
         isInitialized: true,
       });
     } finally {
       setIsCheckingAuth(false);
       setHasCheckedAuth(true);
-      setIsInitialized(true);
     }
   }, [isCheckingAuth, hasCheckedAuth]);
 
@@ -314,12 +313,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isInitialized,
   };
 
-  // Initialize auth state once on mount
+  // Initialize auth state once on mount - only run once
   useEffect(() => {
     if (!hasCheckedAuth && !isCheckingAuth) {
       checkAuth();
     }
-  }, [checkAuth, hasCheckedAuth, isCheckingAuth]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   return (
     <AuthContext.Provider value={value}>
