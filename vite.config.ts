@@ -226,13 +226,13 @@ export default defineConfig(({ mode, command }) => {
       assetsDir: "assets",
       assetsInlineLimit: 4096, 
       emptyOutDir: true,
-      sourcemap: true,
+      sourcemap: false,
       sourcemapIgnoreList: (file) => !file.endsWith(".js"),
 
-      minify: 'esbuild', 
+      minify: 'terser', 
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 200, 
-      reportCompressedSize: true, 
+      chunkSizeWarningLimit: 150, 
+      reportCompressedSize: true,
       
       treeshake: {
         moduleSideEffects: 'no-external',
@@ -252,13 +252,23 @@ export default defineConfig(({ mode, command }) => {
       },
       
       optimizeDeps: {
-        include: ['floating-ui/core', 'floating-ui/dom'],
+        include: [
+          'floating-ui/core',
+          'floating-ui/dom',
+          'react-i18next',
+          'framer-motion',
+          'axios',
+          'socket.io-client',
+          '@tanstack/react-query'
+        ],
         esbuildOptions: {
           target: 'es2020',
           treeShaking: true,
           define: {
             'process.env.NODE_ENV': JSON.stringify('production'),
           },
+          keepNames: true,
+          legalComments: 'none'
         },
       },
       
@@ -267,9 +277,43 @@ export default defineConfig(({ mode, command }) => {
           output: {
             manualChunks: {
               'floating-ui': ['floating-ui/core', 'floating-ui/dom'],
+              'react-i18next': ['react-i18next'],
+              'framer-motion': ['framer-motion'],
+              'axios': ['axios'],
+              'socket.io': ['socket.io-client'],
+              'react-query': ['@tanstack/react-query']
             },
+            inlineDynamicImports: true,
+            compact: true,
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]'
           },
+          treeshake: {
+            moduleSideEffects: true,
+            propertyReadSideEffects: false,
+            tryCatch: false
+          }
         },
+        terserOptions: {
+          compress: {
+            drop_console: true,
+            drop_debugger: true,
+            pure_funcs: ['console.log']
+          },
+          mangle: {
+            toplevel: true,
+            properties: {
+              regex: /^_/,
+              reserved: ['__esModule']
+            }
+          },
+          keep_classnames: false,
+          keep_fnames: false,
+          format: {
+            comments: false
+          }
+        }
       },
       
       output: {
