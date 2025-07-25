@@ -251,6 +251,27 @@ export default defineConfig(({ mode, command }) => {
         annotations: true,
       },
       
+      optimizeDeps: {
+        include: ['floating-ui/core', 'floating-ui/dom'],
+        esbuildOptions: {
+          target: 'es2020',
+          treeShaking: true,
+          define: {
+            'process.env.NODE_ENV': JSON.stringify('production'),
+          },
+        },
+      },
+      
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'floating-ui': ['floating-ui/core', 'floating-ui/dom'],
+            },
+          },
+        },
+      },
+      
       output: {
         compact: true,
 

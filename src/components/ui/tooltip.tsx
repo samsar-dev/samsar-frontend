@@ -1,5 +1,4 @@
 import { forwardRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface TooltipProps {
   content: string;
@@ -12,18 +11,15 @@ interface TooltipProps {
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   ({ content, children, className = "", delay = 0, position = "top" }, ref) => {
     const [showTooltip, setShowTooltip] = useState(false);
-    let timeout: NodeJS.Timeout;
 
     const handleMouseEnter = () => {
-      timeout = setTimeout(() => setShowTooltip(true), delay);
+      setTimeout(() => setShowTooltip(true), delay);
     };
 
     const handleMouseLeave = () => {
-      clearTimeout(timeout);
       setShowTooltip(false);
     };
 
-    // Calculate position classes based on position prop
     const positionClasses = {
       top: "bottom-full mt-2",
       bottom: "top-full -mt-2",
@@ -46,20 +42,19 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         className="relative inline-block"
       >
         {children}
-        <AnimatePresence>
-          {showTooltip && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
-              className={`absolute ${positionClasses[position]} ${horizontalClasses[position]} px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 ${className}`}
-              role="tooltip"
-            >
-              {content}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showTooltip && (
+          <div
+            className={`absolute ${positionClasses[position]} ${horizontalClasses[position]} px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 ${className} transition-all duration-150 ease-out transform translate-y-[-6px] opacity-0 pointer-events-none`}
+            style={{
+              transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+              opacity: showTooltip ? 1 : 0,
+              transform: showTooltip ? 'translateY(0)' : 'translateY(-6px)',
+            }}
+            role="tooltip"
+          >
+            {content}
+          </div>
+        )}
       </div>
     );
   },
