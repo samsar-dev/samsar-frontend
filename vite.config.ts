@@ -485,7 +485,10 @@ export default defineConfig(({ mode, command }) => {
         "i18next",
         "axios",
         "clsx",
-        "tailwind-merge"
+        "tailwind-merge",
+        "@mui/material",
+        "@emotion/react",
+        "@emotion/styled"
       ],
       exclude: [
 
