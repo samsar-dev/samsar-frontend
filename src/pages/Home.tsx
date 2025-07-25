@@ -4,8 +4,12 @@ import { debounce } from 'lodash';
 import { startTransition } from 'react';
 const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
 const ListingFilters = lazy(() => import("@/components/filters/ListingFilters"));
-const AdvantageSection = lazy(() => import("@/components/home/AdvantageSection"));
-const FaqSection = lazy(() => import("@/components/home/FaqSection"));
+const AdvantageSection = lazy(() => 
+  import("@/components/home/AdvantageSection").then(module => ({ default: module.default }))
+);
+const FaqSection = lazy(() => 
+  import("@/components/home/FaqSection").then(module => ({ default: module.default }))
+);
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import PreloadImages from "@/components/media/PreloadImages";
 import ImageFallback from "@/components/media/ImageFallback";
