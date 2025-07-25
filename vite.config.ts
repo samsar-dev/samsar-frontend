@@ -115,33 +115,6 @@ export default defineConfig(({ mode, command }) => {
           gzipSize: true,
           brotliSize: true,
         }),
-
-      // HTML plugin with preload links and script injection
-      createHtmlPlugin({
-        inject: {
-          data: {
-            preloadLinks: `
-              <link rel="preload" href="/assets/main-*.js" as="script" crossorigin="anonymous">
-              <link rel="preload" href="/assets/vendor-*.js" as="script" crossorigin="anonymous">
-              <link rel="preload" href="/assets/react-core-*.js" as="script" crossorigin="anonymous">
-              <link rel="preload" href="/assets/mui-core-*.js" as="script" crossorigin="anonymous">
-              <link rel="preload" href="/assets/main-*.css" as="style">
-              <link rel="preload" href="/public/icons/favicon.ico" as="image" type="image/x-icon">
-              <link rel="preload" href="/public/fonts/roboto.*" as="font" type="font/woff2" crossorigin="anonymous">
-              <link rel="preload" href="/public/fonts/material-icons.*" as="font" type="font/woff2" crossorigin="anonymous">
-            `
-          },
-          tags: [
-            {
-              tag: 'script',
-              attrs: {
-                type: 'module',
-                src: '/src/main.tsx'
-              }
-            }
-          ]
-        }
-      }),
     ].filter(Boolean),
 
     // Configure static asset handling
