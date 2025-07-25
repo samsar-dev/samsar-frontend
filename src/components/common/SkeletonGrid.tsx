@@ -1,10 +1,7 @@
-interface SkeletonCardProps {
-  className?: string;
-}
+import React from 'react';
+import { memo } from 'react';
 
-
-
-const SkeletonListingCard = ({ className = "" }: SkeletonCardProps) => (
+const SkeletonCard = ({ className = "" }: { className?: string }) => (
   <div
     className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group relative ${className}`}
   >
@@ -17,19 +14,14 @@ const SkeletonListingCard = ({ className = "" }: SkeletonCardProps) => (
   </div>
 );
 
-interface SkeletonGridProps {
-  count?: number;
-  className?: string;
-}
-
-const SkeletonListingGrid = ({ count = 8, className = "" }: SkeletonGridProps) => (
+const SkeletonGrid = ({ count = 8, className = "" }: { count?: number; className?: string }) => (
   <div
     className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ${className}`}
   >
     {Array.from({ length: count }).map((_, idx) => (
-      <SkeletonListingCard key={idx} />
+      <SkeletonCard key={idx} />
     ))}
   </div>
 );
 
-export default SkeletonListingGrid;
+export default memo(SkeletonGrid);
