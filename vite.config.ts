@@ -488,7 +488,7 @@ export default defineConfig(({ mode, command }) => {
         "tailwind-merge"
       ],
       exclude: [
-        "@mui/material",
+
     
         "framer-motion",
         "lodash",
