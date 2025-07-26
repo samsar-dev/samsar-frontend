@@ -1,10 +1,22 @@
 import { listingsAPI } from "@/api/listings.api";
 import React, { Suspense, lazy, useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
+import type { FiltersState } from "@/components/filters/useListingFilters";
+import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
+
+// Lazy load all components
 const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
 const ListingFilters = lazy(() => import("@/components/filters/ListingFiltersSmart"));
-import SkeletonListingGrid from "@/components/common/SkeletonGrid";
-import PreloadImages from "@/components/media/PreloadImages";
-import ImageFallback from "@/components/media/ImageFallback";
+const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
+const PreloadImages = lazy(() => import("@/components/media/PreloadImages"));
+const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
+const HomeHero = lazy(() => import("@/components/home/HomeHero"));
+const PopularCategories = lazy(() => import("@/components/home/PopularCategories"));
+const FAQ = lazy(() => import("@/components/home/FAQ"));
+const AdvantageCards = lazy(() => import("@/components/home/AdvantageCards"));
+
+// Types and enums
 import {
   ListingCategory,
   VehicleType,
@@ -12,18 +24,14 @@ import {
   ListingAction,
 } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
-const HomeHero = lazy(() => import("@/components/home/HomeHero"));
-const PopularCategories = lazy(() => import("@/components/home/PopularCategories"));
-const FAQ = lazy(() => import("@/components/home/FAQ"));
-const AdvantageCards = lazy(() => import("@/components/home/AdvantageCards"));
-import { motion } from "framer-motion";
-import type { FiltersState } from "@/components/filters/useListingFilters";
-import { useTranslation } from "react-i18next";
-import { Helmet } from "react-helmet-async";
-import { MdFilterList } from "react-icons/md";
-import { FaCar, FaHome } from "react-icons/fa";
+
+// Icons
+const MdFilterList = lazy(() => import("react-icons/md").then((mod) => ({ default: mod.MdFilterList })));
+const FaCar = lazy(() => import("react-icons/fa").then((mod) => ({ default: mod.FaCar })));
+const FaHome = lazy(() => import("react-icons/fa").then((mod) => ({ default: mod.FaHome })));
+const HiSelector = lazy(() => import("react-icons/hi").then((mod) => ({ default: mod.HiSelector })));
+const HiCheck = lazy(() => import("react-icons/hi").then((mod) => ({ default: mod.HiCheck })));
 import { Listbox } from "@headlessui/react";
-import { HiSelector, HiCheck } from "react-icons/hi"; 
 
 interface ListingParams {
   category?: {
