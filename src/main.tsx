@@ -10,7 +10,17 @@ import { preloadAssets } from "./utils/preload";
 import "./config/i18n"; // Import i18n configuration
 
 // Import critical styles
-import "@/assets/css/index.css";
+import "@/styles/critical.css";
+
+// Defer non-critical CSS
+const link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = '/assets/index.css';
+link.media = 'print';
+link.onload = () => {
+  link.media = 'all';
+};
+document.head.appendChild(link);
 
 // Performance monitoring
 if (process.env.NODE_ENV === "production") {

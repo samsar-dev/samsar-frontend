@@ -596,17 +596,15 @@ export default defineConfig(({ mode, command }) => {
     css: {
       postcss: "./postcss.config.js",
       devSourcemap: mode !== "production",
-      modules: {
-        localsConvention: "camelCaseOnly",
-        generateScopedName:
-          mode === "production"
-            ? "[hash:base64:5]"
-            : "[name]__[local]__[hash:base64:5]",
-      },
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "@/assets/styles/variables.scss";`,
-        },
+          additionalData: `@import "./src/styles/variables.scss";`
+        }
+      },
+      extract: true,
+      modules: {
+        localsConvention: "camelCaseOnly",
+        generateScopedName: "[name]__[local]__[hash:base64:5]"
       },
       minify: mode === "production",
       lightningcss: {
@@ -614,7 +612,6 @@ export default defineConfig(({ mode, command }) => {
           chrome: 90 * 65536,
           firefox: 88 * 65536,
           safari: 15 * 65536,
-          edge: 92 * 65536,
         },
       },
     },
