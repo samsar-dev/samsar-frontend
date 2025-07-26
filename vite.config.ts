@@ -231,7 +231,7 @@ export default defineConfig(({ mode, command }) => {
 
       minify: 'terser', 
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 150, 
+      chunkSizeWarningLimit: 100, 
       reportCompressedSize: true,
       
       treeshake: {
@@ -259,16 +259,24 @@ export default defineConfig(({ mode, command }) => {
           'framer-motion',
           'axios',
           'socket.io-client',
-          '@tanstack/react-query'
+          '@tanstack/react-query',
+          'react',
+          'react-dom',
+          '@radix-ui/react-slot',
+          '@radix-ui/react-icons',
+          'clsx',
+          'tailwind-merge'
         ],
         esbuildOptions: {
           target: 'es2020',
           treeShaking: true,
           define: {
             'process.env.NODE_ENV': JSON.stringify('production'),
+            'global': 'window'
           },
           keepNames: true,
-          legalComments: 'none'
+          legalComments: 'none',
+          drop: ['debugger', 'console']
         },
       },
       
@@ -281,13 +289,19 @@ export default defineConfig(({ mode, command }) => {
               'framer-motion': ['framer-motion'],
               'axios': ['axios'],
               'socket.io': ['socket.io-client'],
-              'react-query': ['@tanstack/react-query']
+              'react-query': ['@tanstack/react-query'],
+              'react': ['react', 'react-dom'],
+              'radix': ['@radix-ui/react-slot', '@radix-ui/react-icons'],
+              'utils': ['clsx', 'tailwind-merge']
             },
             inlineDynamicImports: true,
             compact: true,
             entryFileNames: 'assets/[name]-[hash].js',
             chunkFileNames: 'assets/[name]-[hash].js',
-            assetFileNames: 'assets/[name]-[hash].[ext]'
+            assetFileNames: 'assets/[name]-[hash].[ext]',
+          
+            
+           
           },
           treeshake: {
             moduleSideEffects: true,
@@ -299,20 +313,72 @@ export default defineConfig(({ mode, command }) => {
           compress: {
             drop_console: true,
             drop_debugger: true,
-            pure_funcs: ['console.log']
+            pure_funcs: ['console.log', 'console.info', 'console.warn'],
+            dead_code: true,
+            unused: true,
+            conditionals: true,
+            comparisons: true,
+            evaluate: true,
+            booleans: true,
+            if_return: true,
+            join_vars: true
           },
           mangle: {
             toplevel: true,
             properties: {
               regex: /^_/,
-              reserved: ['__esModule']
+              reserved: ['__esModule', 'default']
             }
           },
           keep_classnames: false,
           keep_fnames: false,
           format: {
-            comments: false
+            comments: false,
+            ascii_only: true
           }
+        }
+      },
+      
+      plugins: [
+        {
+          name: 'dynamic-imports',
+          async generateBundle(_, bundle) {
+            const dynamicImports = {
+              'components': [
+                'ImageFallback',
+                'SkeletonGrid',
+                'PreloadImages',
+                'PriceConverter',
+                'ErrorBoundary'
+              ],
+              'utils': [
+                'locationUtils',
+                'useTranslation'
+              ]
+            };
+
+            for (const file in bundle) {
+              if (bundle[file].type === 'asset') {
+                const fileName = bundle[file].fileName;
+                if (fileName.endsWith('.png') || fileName.endsWith('.jpg')) {
+                  // Add image optimization logic here
+                } else if (fileName.endsWith('.woff2') || fileName.endsWith('.woff')) {
+                  // Add font optimization logic here
+                }
+              }
+            }
+          }
+        }
+      ],
+      
+      define: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        'global': 'window'
+      },
+      
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, './src')
         }
       },
       

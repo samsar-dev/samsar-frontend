@@ -1,0 +1,57 @@
+/* Critical CSS for Hero Section - Inlined in head for LCP optimization */
+/* Initial state - hidden but taking up space */
+.hero-title {
+  font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 1.5rem;
+  color: white !important;
+  text-align: center;
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+  
+  /* Initial state - will be overridden by JS */
+  opacity: 0;
+  visibility: hidden;
+  animation: none;
+}
+
+/* Animation class added by JS */
+.hero-title.animate {
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@font-face {
+  font-family: 'Tajawal';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/Tajawal-Regular.woff2) format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure smooth rendering */
+@supports (-webkit-font-smoothing: antialiased) {
+  .hero-title {
+    -webkit-font-smoothing: antialiased;
+  }
+}

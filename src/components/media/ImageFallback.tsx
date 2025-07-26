@@ -111,11 +111,16 @@ const ImageComponent: React.FC<ImageProps> = ({
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
       preloadLink.as = "image";
-      preloadLink.href = getOptimizedImageUrl(800); // Preload medium size
-      document.head.appendChild(preloadLink);
-
+      preloadLink.href = getOptimizedImageUrl(800);
+      
+      // Store a reference to the link
+      const linkElement = document.head.appendChild(preloadLink);
+  
       return () => {
-        document.head.removeChild(preloadLink);
+        // Only remove if the link is still in the document
+        if (document.head.contains(linkElement)) {
+          document.head.removeChild(linkElement);
+        }
       };
     }
   }, [priority, isR2Image, baseUrl, imageQuality]);
