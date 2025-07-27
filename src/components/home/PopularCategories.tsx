@@ -14,9 +14,10 @@ const PopularCategories = () => {
     paramsObj.delete('width');
     paramsObj.delete('format');
     
-    // Set WebP format and quality if not set
+    // Preserve original format for PNG files
     if (!paramsObj.has('format')) {
-      paramsObj.set('format', 'webp');
+      const ext = url.substring(url.lastIndexOf('.') + 1);
+      paramsObj.set('format', ext === 'png' ? 'png' : 'webp');
     }
     if (!paramsObj.has('quality')) {
       paramsObj.set('quality', '80');
