@@ -5,12 +5,37 @@ import ImageFallback from '@/components/media/ImageFallback';
 const PopularCategories = () => {
   const { t } = useTranslation();
 
+  // Helper function to generate responsive image URLs
+  const getImageSrcSet = (baseUrl: string) => {
+    const [url, params] = baseUrl.split('?');
+    const paramsObj = new URLSearchParams(params || '');
+    
+    // Remove width and format from base params
+    paramsObj.delete('width');
+    paramsObj.delete('format');
+    
+    // Set WebP format and quality if not set
+    if (!paramsObj.has('format')) {
+      paramsObj.set('format', 'webp');
+    }
+    if (!paramsObj.has('quality')) {
+      paramsObj.set('quality', '80');
+    }
+    
+    const baseParams = paramsObj.toString();
+    const sizes = [332, 664, 996]; // Common responsive breakpoints
+    
+    return sizes.map(size => 
+      `${url}?${baseParams}&width=${size} ${size}w`
+    ).join(', ');
+  };
+
   const categories = [
     {
       id: 'cars',
       title: t('home:categories.cars', 'سيارات'),
       description: t('home:categories.cars_desc', 'أحدث الموديلات والماركات'),
-      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=75',
+      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=80&format=webp',
       href: '/listings?category=vehicles&subCategory=CAR',
       alt: t('home:categories.cars', 'سيارات'),
     },
@@ -18,7 +43,7 @@ const PopularCategories = () => {
       id: 'real_estate',
       title: t('home:categories.real_estate', 'عقارات'),
       description: t('home:categories.real_estate_desc', 'شقق، فلل، محلات تجارية'),
-      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=75',
+      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/building-8078604_1920.jpg?width=800&quality=80&format=webp',
       href: '/listings?category=real_estate',
       alt: t('home:categories.real_estate', 'عقارات'),
     },
@@ -26,7 +51,7 @@ const PopularCategories = () => {
       id: 'motorcycles',
       title: t('home:categories.motorcycles', 'دراجات نارية'),
       description: t('home:categories.motorcycles_desc', 'أحدث الموديلات بأسعار منافسة'),
-      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=75&format=webp',
+      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/motorcycle.png?width=800&quality=80&format=webp',
       href: '/listings?category=vehicles&subCategory=MOTORCYCLE',
       alt: t('home:categories.motorcycles', 'دراجات نارية'),
     },
@@ -58,12 +83,15 @@ const PopularCategories = () => {
               <div className="relative h-48 w-full overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <ImageFallback
-                    src={category.image}
+                    src={`${category.image.split('?')[0]}?${new URLSearchParams(category.image.split('?')[1] || '').toString()}&width=332`}
+                    srcSet={getImageSrcSet(category.image)}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     alt={category.alt}
                     className="min-w-full min-h-full object-cover"
                     width={800}
                     height={600}
                     loading="lazy"
+                    decoding="async"
                     fallbackText={category.title}
                   />
                 </div>

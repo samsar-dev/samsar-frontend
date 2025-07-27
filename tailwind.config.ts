@@ -6,7 +6,13 @@ const config: Config = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/**/*.{js,ts,jsx,tsx,mdx}",
     "./public/**/*.html",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}", // ensure mdx included
+  ],
+  safelist: [
+    // Pattern for all critical/dynamic classes
+    { pattern: /^(lcp-|hero-|btn-|bg-|text-|border-|container|flex|grid|dark|light)/ },
+    'rtl', 'ltr',
+    // Add any other classes built dynamically in JS/TSX as needed
   ],
   darkMode: 'class',
   mode: 'jit',
