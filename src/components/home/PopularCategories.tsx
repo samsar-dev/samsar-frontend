@@ -35,7 +35,7 @@ const PopularCategories = () => {
       id: 'cars',
       title: t('home:categories.cars', 'سيارات'),
       description: t('home:categories.cars_desc', 'أحدث الموديلات والماركات'),
-      image: 'https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/bmw-8327255_1920.jpg?width=800&quality=80&format=webp',
+      image: 'https://samsar.app/bmw-8327255_1920.jpg?width=800&quality=80&format=webp',
       href: '/listings?category=vehicles&subCategory=CAR',
       alt: t('home:categories.cars', 'سيارات'),
     },
