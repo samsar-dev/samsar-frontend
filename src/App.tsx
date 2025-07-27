@@ -81,7 +81,7 @@ const Routes = lazy(() => import("./routes/Routes"));
 
 // Import utilities
 import { setupAuthDebugger } from "@/utils/authDebug";
-import { API_URL_PRIMARY, API_URL_FALLBACK } from "@/config";
+import { ACTIVE_API_URL } from "@/config";
 import i18n from "./config/i18n";
 import { LazyMotion, domAnimation } from "framer-motion";
 
@@ -90,13 +90,14 @@ if (typeof document !== "undefined") {
   // Preconnect to primary API server
   const preconnectPrimary = document.createElement("link");
   preconnectPrimary.rel = "preconnect";
-  preconnectPrimary.href = new URL(API_URL_PRIMARY).origin;
+  preconnectPrimary.href = new URL(ACTIVE_API_URL).origin;
   document.head.appendChild(preconnectPrimary);
 
   // Preconnect to fallback API server
   const preconnectFallback = document.createElement("link");
+  const healthCheckUrl = `${ACTIVE_API_URL}/health`;
   preconnectFallback.rel = "preconnect";
-  preconnectFallback.href = new URL(API_URL_FALLBACK).origin;
+  preconnectFallback.href = new URL(ACTIVE_API_URL).origin;
   document.head.appendChild(preconnectFallback);
 
   // DNS prefetch for API domains

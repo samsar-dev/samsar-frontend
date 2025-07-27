@@ -1,75 +1,49 @@
-// Environment
-export const IS_PRODUCTION = import.meta.env.VITE_ENV === "production";
+// ==========================================================================
+// SINGLE SOURCE OF TRUTH FOR API & SOCKET CONFIGURATION
+// ==========================================================================
 
-// API Configuration - Development
-export const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-export const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+// Environment Detection
+export const IS_PRODUCTION = import.meta.env.VITE_ENV === 'production';
 
-// Production API Endpoints
-export const API_URL_PRIMARY =
-  import.meta.env.VITE_API_URL_PROD || "https://api.samsar.app/api";
-export const SOCKET_URL_PRIMARY =
-  import.meta.env.VITE_SOCKET_URL_PROD || "https://api.samsar.app";
+// Development Endpoints (with clear localhost defaults)
+const DEV_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const DEV_SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:5000';
 
-// Fallback API Endpoints (Railway)
-export const API_URL_FALLBACK =
-  import.meta.env.VITE_API_URL_FALLBACK ||
-  "https://samsar-backend-production.up.railway.app/api";
-export const SOCKET_URL_FALLBACK =
-  import.meta.env.VITE_SOCKET_URL_FALLBACK ||
-  "https://samsar-backend-production.up.railway.app";
+// Production Endpoints (NO DEFAULTS - these MUST be set in the environment)
+const PROD_API_URL = import.meta.env.VITE_API_URL_PROD;
+const PROD_SOCKET_URL = import.meta.env.VITE_SOCKET_URL_PROD;
 
-/**
- * Check if primary API endpoint is available
- */
-const checkPrimaryApiHealth = async (): Promise<boolean> => {
-  if (!IS_PRODUCTION) return false;
+// Final, active URLs to be used by the application
+export const ACTIVE_API_URL = IS_PRODUCTION ? PROD_API_URL : DEV_API_URL;
+export const ACTIVE_SOCKET_URL = IS_PRODUCTION ? PROD_SOCKET_URL : DEV_SOCKET_URL;
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
-
-    const response = await fetch(`${API_URL_PRIMARY}/health`, {
-      signal: controller.signal,
-      method: "HEAD",
-    });
-
-    clearTimeout(timeoutId);
-    return response.ok;
-  } catch (error) {
-    console.warn(
-      "Primary API endpoint is not available, falling back to backup",
-    );
-    return false;
+// Log configuration to prevent silent failures in production
+if (IS_PRODUCTION) {
+  if (!PROD_API_URL || !PROD_SOCKET_URL) {
+    console.error('FATAL: Production environment variables VITE_API_URL_PROD and VITE_SOCKET_URL_PROD are not set!');
   }
+  console.log('✅ Production config loaded:');
+  console.log(`   - API URL: ${ACTIVE_API_URL}`);
+  console.log(`   - Socket URL: ${ACTIVE_SOCKET_URL}`);
+} else {
+  console.log('✅ Development config loaded:');
+  console.log(`   - API URL: ${ACTIVE_API_URL}`);
+  console.log(`   - Socket URL: ${ACTIVE_SOCKET_URL}`);
+}
+
+// Google Maps API Key
+export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Samsar';
+export const DEBUG_MODE = import.meta.env.VITE_DEBUG_MODE === 'true';
+
+// Socket.IO Configuration
+export const SOCKET_CONFIG = {
+  autoConnect: true,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  timeout: 5000,
 };
-
-// Determine which API endpoints to use
-export const getActiveEndpoints = async () => {
-  if (!IS_PRODUCTION) {
-    return {
-      apiUrl: API_URL,
-      socketUrl: SOCKET_URL,
-      isFallback: false,
-    };
-  }
-
-  const isPrimaryAvailable = await checkPrimaryApiHealth();
-
-  return {
-    apiUrl: isPrimaryAvailable ? API_URL_PRIMARY : API_URL_FALLBACK,
-    socketUrl: isPrimaryAvailable ? SOCKET_URL_PRIMARY : SOCKET_URL_FALLBACK,
-    isFallback: !isPrimaryAvailable,
-  };
-};
-
-// For synchronous usage (initial load, will default to primary)
-export const ACTIVE_API_URL = IS_PRODUCTION ? API_URL_PRIMARY : API_URL;
-export const ACTIVE_SOCKET_URL = IS_PRODUCTION
-  ? SOCKET_URL_PRIMARY
-  : SOCKET_URL;
 
 // Default UI Settings
 export const DEFAULT_SETTINGS = {

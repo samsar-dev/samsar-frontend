@@ -1,6 +1,6 @@
 // �� src/api/index.ts
 
-import { API_URL, SOCKET_URL } from "@/config";
+import { ACTIVE_API_URL, ACTIVE_SOCKET_URL } from "@/config";
 
 // Export all API modules
 export * from "./auth.api";
@@ -19,8 +19,8 @@ export { default as apiClient } from "./apiClient";
 
 // Base API configuration
 export const apiConfig = {
-  baseURL: API_URL,
-  socketURL: SOCKET_URL,
+  baseURL: ACTIVE_API_URL,
+  socketURL: ACTIVE_SOCKET_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -32,7 +32,7 @@ export async function fetchAPI<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(`${ACTIVE_API_URL}${endpoint}`, {
     ...options,
     credentials: "include",
     headers: {

@@ -4,7 +4,7 @@ import socketIO from "socket.io-client";
 
 type SocketType = Socket | null;
 import { useAuth } from "@/hooks/useAuth";
-import { SOCKET_URL, SOCKET_CONFIG } from "@/config/socket";
+import { ACTIVE_SOCKET_URL, SOCKET_CONFIG } from "@/config";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -112,7 +112,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     }
     
     debugLog('🚀 Initializing socket connection', {
-      url: SOCKET_URL,
+      url: ACTIVE_SOCKET_URL,
       userId: user.id,
       userName: user.name
     });
@@ -126,7 +126,8 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     
     try {
       // Create new socket connection with enhanced configuration
-      const newSocket = socketIO(SOCKET_URL, {
+      const newSocket = socketIO(ACTIVE_SOCKET_URL, {
+        ...SOCKET_CONFIG,
         withCredentials: true,
         transportOptions: {
           polling: {
@@ -141,11 +142,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
           },
         },
         transports: ["websocket", "polling"],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 10000,
         forceNew: true, // Force new connection
       });
       

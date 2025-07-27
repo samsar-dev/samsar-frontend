@@ -6,15 +6,13 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
-import { API_URL as ACTIVE_API_URL } from "../config";
+import { ACTIVE_API_URL } from "../config";
 
-// Fallback API URL from environment variables
-const FALLBACK_API_URL =
-  import.meta.env.VITE_API_URL_FALLBACK ||
-  "https://samsar-backend-production.up.railway.app";
-
-// Storage key for persisting the active API URL
+// Storage key for persisting the active API URL (kept for backward compatibility)
 const API_URL_STORAGE_KEY = "active_api_url";
+
+// For backward compatibility only - will be removed in future
+const FALLBACK_API_URL = ACTIVE_API_URL;
 
 // Define API response type
 export interface APIResponse<T = any> {
@@ -36,23 +34,13 @@ export interface RequestConfig extends AxiosRequestConfig {
   _isFallback?: boolean;
 }
 
-// Get the active base URL with fallback support
+// Get the active base URL
 const getBaseUrl = (config?: RequestConfig): string => {
-  // If explicitly requesting fallback, use fallback URL
-  if (config?._useFallback) {
-    localStorage.setItem(API_URL_STORAGE_KEY, FALLBACK_API_URL);
-    return FALLBACK_API_URL;
-  }
-
-  // Check localStorage for a previously used URL
-  const savedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
-  if (savedUrl) {
-    return savedUrl;
-  }
-
-  // Default to the primary URL
+  // Use the configured active API URL
   return ACTIVE_API_URL;
-};
+}
+ 
+ 
 
 // Track the current base URL
 let currentBaseURL = ACTIVE_API_URL;
