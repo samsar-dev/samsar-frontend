@@ -1,33 +1,29 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import {
-  Button,
-  TextField,
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CircularProgress,
-  Divider,
-  Switch,
-  FormControlLabel,
-  FormGroup,
-  FormHelperText,
-  Container,
-  Grid,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import { Typography } from "@/utils/typography";
+import { Paper } from "@/utils/paper";
+
+import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
+import FormHelperText from "@mui/material/FormHelperText";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 
 // GridItem component that properly extends MUI Grid item
 const GridItem = (props: any) => <Grid item {...props} />;
 
-import {
-  Send as SendIcon,
-  People as PeopleIcon,
-  Schedule as ScheduleIcon,
-  Code as CodeIcon,
-  Preview as PreviewIcon,
-} from "@mui/icons-material";
+import SendIcon from "@mui/icons-material/Send";
+import PeopleIcon from "@mui/icons-material/People";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import CodeIcon from "@mui/icons-material/Code";
+import PreviewIcon from "@mui/icons-material/Preview";
 import {
   sendNewsletter,
   getNewsletterStats,
@@ -148,11 +144,9 @@ const Newsletter = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Grid container spacing={3}>
         <GridItem xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" component="h1" gutterBottom>
-                Send Newsletter
-              </Typography>
+          <Paper sx={{ p: 2 }}>
+
+              <h5>Send Newsletter</h5>
 
               <Box
                 component="form"
@@ -258,15 +252,13 @@ const Newsletter = () => {
                   </Box>
                 </Box>
               </Box>
-            </CardContent>
-          </Card>
+
+          </Paper>
 
           {showPreview && (
-            <Card sx={{ mt: 3 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Preview
-                </Typography>
+            <Paper sx={{ mt: 3, p: 2 }}>
+  
+                <h6>Preview</h6>
                 <Divider sx={{ mb: 2 }} />
                 <Box
                   sx={{
@@ -290,48 +282,30 @@ const Newsletter = () => {
                     __html: isHtml ? preview : preview.replace(/\n/g, "<br>"),
                   }}
                 />
-              </CardContent>
-            </Card>
+  
+            </Paper>
           )}
         </GridItem>
 
         <GridItem xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Newsletter Stats
-              </Typography>
+          <Paper sx={{ p: 2 }}>
+
+              <h6>Newsletter Stats</h6>
               <Divider sx={{ my: 2 }} />
 
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <PeopleIcon color="primary" sx={{ mr: 1 }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Total Users
-                  </Typography>
-                  <Typography variant="h6">
-                    {stats.totalSubscribers.toLocaleString()}
-                  </Typography>
-                </Box>
+                <p style={{ color: 'text.secondary' }}>Total Users</p>
+                <h6>{stats.totalSubscribers.toLocaleString()}</h6>
               </Box>
 
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <ScheduleIcon color="primary" sx={{ mr: 1 }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Last Sent
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatDate(stats.lastSent)}
-                  </Typography>
-                </Box>
+                <p style={{ color: 'text.secondary' }}>Last Sent</p>
+                <p>{formatDate(stats.lastSent)}</p>
               </Box>
 
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="subtitle2" gutterBottom>
+              <p style={{ fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>
                 Tips for effective newsletters:
-              </Typography>
+              </p>
               <ul style={{ paddingLeft: 20, margin: "8px 0" }}>
                 <li>Keep subject lines clear and engaging</li>
                 <li>Use a friendly, conversational tone</li>
@@ -343,13 +317,12 @@ const Newsletter = () => {
               {isHtml && (
                 <Box
                   sx={{
-                    mt: 2,
-                    p: 1.5,
+                    p: 2,
                     bgcolor: "warning.light",
                     borderRadius: 1,
                   }}
                 >
-                  <Typography variant="body2" color="warning.contrastText">
+                  <Typography variant="body2" color="warning">
                     <CodeIcon
                       fontSize="small"
                       sx={{ verticalAlign: "middle", mr: 0.5 }}
@@ -359,8 +332,8 @@ const Newsletter = () => {
                   </Typography>
                 </Box>
               )}
-            </CardContent>
-          </Card>
+
+          </Paper>
         </GridItem>
       </Grid>
     </Container>

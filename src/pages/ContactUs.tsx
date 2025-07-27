@@ -1,20 +1,21 @@
 import { useState } from "react";
-import {
-  Container,
-  Typography,
-  Box,
-  TextField,
-  Button,
-  Paper,
-  Divider,
-  Alert,
-  Snackbar,
-  CircularProgress,
-  IconButton,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+ import Container from "@mui/material/Container";
+import { Typography } from "@/utils/typography";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import { Paper } from "@/utils/paper";
+import Divider from "@mui/material/Divider";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
 import { motion } from "framer-motion";
-import { Send, LocationOn, Phone, Email, Close } from "@mui/icons-material";
+import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/apiClient";
 import { SEO } from "@/utils/seo";
@@ -29,12 +30,20 @@ const FormField = ({ children }: { children: React.ReactNode }) => (
   <Box sx={{ flex: `1 1 calc(50% - 12px)`, minWidth: "250px" }}>{children}</Box>
 );
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[4],
-  height: "100%",
-}));
+const StyledPaper = ({ children, ...props }) => (
+  <Box
+    component={Paper}
+    sx={{
+      p: 4,
+      borderRadius: (theme) => theme.shape.borderRadius,
+      boxShadow: (theme) => theme.shadows[4],
+      height: '100%',
+    }}
+    {...props}
+  >
+    {children}
+  </Box>
+);
 
 interface FormData {
   firstName: string;
@@ -46,16 +55,10 @@ interface FormData {
 
 const ContactUs = () => {
   const { t } = useTranslation("footer");
-  const pageTitle = t("contact_page.meta_title", "اتصل بنا - سمسار");
-  const pageDescription = t(
-    "contact_page.meta_description",
-    "تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة",
-  );
-  const pageKeywords = t(
-    "contact_page.meta_keywords",
-    "اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل",
-  );
-
+  const pageTitle = t('contact_page.meta_title', 'اتصل بنا - سمسار');
+  const pageDescription = t('contact_page.meta_description', 'تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة');
+  const pageKeywords = t('contact_page.meta_keywords', 'اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل');
+  
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -72,7 +75,7 @@ const ContactUs = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -170,7 +173,7 @@ const ContactUs = () => {
 
   return (
     <Box sx={{ py: 8, bgcolor: "background.default" }} dir="rtl">
-      <SEO
+      <SEO 
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
@@ -184,9 +187,12 @@ const ContactUs = () => {
           <Typography
             variant="h2"
             component="h1"
-            gutterBottom
             align="center"
-            sx={{ fontWeight: 700, mb: 2 }}
+            sx={{
+              fontWeight: 700,
+              mb: 4,
+              fontSize: { xs: 32, md: 40 },
+            }}
           >
             {t("contact_page.title")}
           </Typography>
@@ -194,7 +200,12 @@ const ContactUs = () => {
             variant="h5"
             color="text.secondary"
             align="center"
-            sx={{ mb: 6, maxWidth: 700, mx: "auto" }}
+            sx={{
+              mb: 6,
+              maxWidth: 700,
+              mx: "auto",
+              typography: "body1",
+            }}
           >
             {t("contact_page.subtitle")}
           </Typography>
@@ -298,7 +309,7 @@ const ContactUs = () => {
                   variant="contained"
                   color="primary"
                   size="large"
-                  startIcon={<Send />}
+                  startIcon={<SendIcon />}
                   fullWidth
                 >
                   {isSubmitting ? (
@@ -312,7 +323,7 @@ const ContactUs = () => {
                     </>
                   ) : (
                     <>
-                      <Send sx={{ mr: 1 }} />
+                      <SendIcon sx={{ mr: 1 }} />
                       {t("contact_page.form.sendButton")}
                     </>
                   )}
@@ -335,7 +346,7 @@ const ContactUs = () => {
                         size="small"
                         onClick={handleCloseSnackbar}
                       >
-                        <Close fontSize="inherit" />
+                        <CloseIcon fontSize="inherit" />
                       </IconButton>
                     }
                   >
@@ -368,8 +379,7 @@ const ContactUs = () => {
                   <Typography
                     variant="h5"
                     component="h3"
-                    gutterBottom
-                    sx={{ fontWeight: 600, mb: 3 }}
+                    sx={{ fontWeight: 600, mb: 4 }}
                   >
                     {t("contact_page.contactInfo.title")}
                   </Typography>
@@ -378,7 +388,7 @@ const ContactUs = () => {
                   <Box
                     sx={{ display: "flex", alignItems: "flex-start", mb: 3 }}
                   >
-                    <LocationOn color="primary" sx={{ mr: 2, mt: 0.5 }} />
+                    <LocationOnIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t("contact_page.contactInfo.office.label")}
@@ -394,7 +404,7 @@ const ContactUs = () => {
                   </Box>
 
                   <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <Phone color="primary" sx={{ mr: 2 }} />
+                    <PhoneIcon color="primary" sx={{ mr: 2 }} />
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t("contact_page.contactInfo.phone.label")}
@@ -406,7 +416,7 @@ const ContactUs = () => {
                   </Box>
 
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Email color="primary" sx={{ mr: 2 }} />
+                    <EmailIcon color="primary" sx={{ mr: 2 }} />
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t("contact_page.contactInfo.email.label")}
@@ -428,8 +438,7 @@ const ContactUs = () => {
                   <Typography
                     variant="h5"
                     component="h3"
-                    gutterBottom
-                    sx={{ fontWeight: 600, mb: 3 }}
+                    sx={{ fontWeight: 600, mb: 4 }}
                   >
                     {t("contact_page.businessHours.title")}
                   </Typography>

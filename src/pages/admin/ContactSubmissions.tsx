@@ -1,31 +1,27 @@
 import { useState, useEffect, FC } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Chip,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Alert,
-  AlertTitle,
-  Button,
-  TableFooter,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import { Typography } from "@/utils/typography";
+import { Paper } from "@/utils/paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
+import Chip from "@mui/material/Chip";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import Button from "@mui/material/Button";
+import TableFooter from "@mui/material/TableFooter";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  Visibility as ViewIcon,
-  MarkEmailRead as MarkReadIcon,
-  ArrowBack as BackIcon,
-} from "@mui/icons-material";
+import ViewIcon from "@mui/icons-material/Visibility";
+import MarkReadIcon from "@mui/icons-material/MarkEmailRead";
+import BackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "../../hooks/useAuth";
 import { apiClient } from "../../api/apiClient";
 
@@ -186,7 +182,7 @@ const ContactSubmissions: FC = () => {
         alignItems="center"
       >
         <CircularProgress sx={{ mb: 2 }} />
-        <Typography variant="body2" color="textSecondary">
+        <Typography variant="body2" color="text.secondary">
           Loading submissions...
         </Typography>
       </Box>

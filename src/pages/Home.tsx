@@ -4,17 +4,22 @@ import { motion } from "framer-motion";
 import type { FiltersState } from "@/components/filters/useListingFilters";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
+import { Listbox } from "@headlessui/react";
 
-// Lazy load all components
+// Icons - Imported directly since they're small
+import { MdFilterList } from "react-icons/md";
+import { HiSelector, HiCheck } from "react-icons/hi";
+
+// Lazy load only large components
 const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
 const ListingFilters = lazy(() => import("@/components/filters/ListingFiltersSmart"));
 const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
 const PreloadImages = lazy(() => import("@/components/media/PreloadImages"));
-const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
 const HomeHero = lazy(() => import("@/components/home/HomeHero"));
 const PopularCategories = lazy(() => import("@/components/home/PopularCategories"));
 const FAQ = lazy(() => import("@/components/home/FAQ"));
 const AdvantageCards = lazy(() => import("@/components/home/AdvantageCards"));
+const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
 
 // Types and enums
 import {
@@ -24,14 +29,6 @@ import {
   ListingAction,
 } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
-
-// Icons
-const MdFilterList = lazy(() => import("react-icons/md").then((mod) => ({ default: mod.MdFilterList })));
-const FaCar = lazy(() => import("react-icons/fa").then((mod) => ({ default: mod.FaCar })));
-const FaHome = lazy(() => import("react-icons/fa").then((mod) => ({ default: mod.FaHome })));
-const HiSelector = lazy(() => import("react-icons/hi").then((mod) => ({ default: mod.HiSelector })));
-const HiCheck = lazy(() => import("react-icons/hi").then((mod) => ({ default: mod.HiCheck })));
-import { Listbox } from "@headlessui/react";
 
 interface ListingParams {
   category?: {
@@ -385,7 +382,7 @@ const Home: React.FC = () => {
 
     return (
       <>
-        <div className="flex flex-row justify-between items-center gap-2 px-2 sm:px-0 mt-4 mb-6 w-full">
+        <div className="flex flex-row justify-between items-center gap-2 px-0 sm:px-2 mt-4 mb-6 w-full">
           <button
             onClick={toggleFilters}
             className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors w-auto"
@@ -396,7 +393,7 @@ const Home: React.FC = () => {
           </button>
 
           {/* Sort By - Always Visible */}
-          <div className="relative inline-block text-left w-auto max-w-[160px] sm:w-52">
+          <div className="relative inline-block text-left w-auto max-w-[180px] sm:w-52">
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="relative">
                 <Listbox.Button className="w-full flex justify-between items-center px-3 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -455,7 +452,7 @@ const Home: React.FC = () => {
         )}
 
         <div
-          className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           itemScope
           itemType="https://schema.org/ItemList"
         >
@@ -643,13 +640,13 @@ const Home: React.FC = () => {
 
       {/* Main Content */}
       <main className="w-full py-12 px-0">
-        <div className="w-full max-w-none lg:max-w-7xl lg:mx-auto px-4">
+        <div className="w-full px-0 sm:px-2 md:px-4">
           {/* Featured Listings Section */}
           <section
             aria-labelledby="featured-listings-heading"
-            className="w-full mb-16"
+            className="w-full mb-16 px-0 sm:px-2"
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 px-2 sm:px-0">
               <h2
                 id="featured-listings-heading"
                 className="text-2xl font-bold text-gray-900 dark:text-white"

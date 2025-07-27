@@ -1,5 +1,8 @@
+import * as React from 'react';
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
+const OptimizedAvatar = React.lazy(() => import('@/components/ui/avatar'));
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types";
@@ -209,11 +212,17 @@ const PublicProfileInfo = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex items-center space-x-6">
             <div className="relative">
-              <img
-                src={avatarPreview || "/default-avatar.png"}
-                alt={formData.username}
-                className="w-24 h-24 rounded-full object-cover"
-              />
+              <React.Suspense fallback={
+                <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">Loading...</span>
+                </div>
+              }>
+                <OptimizedAvatar
+                  src={avatarPreview}
+                  fallback={user?.name || user?.username || 'U'}
+                  className="w-full h-full object-cover"
+                />
+              </React.Suspense>
               <label
                 htmlFor="avatar-upload"
                 className="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full cursor-pointer hover:bg-blue-600"

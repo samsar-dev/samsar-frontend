@@ -1,29 +1,62 @@
 import { NotificationType, Notification } from "@/types/notifications";
 
+// Color mapping for notifications - optimized for bundle size
+const NOTIFICATION_COLORS: Record<NotificationType, string> = {
+  [NotificationType.NEW_MESSAGE]: "blue",
+  [NotificationType.PRICE_UPDATE]: "green",
+  [NotificationType.LISTING_SOLD]: "orange",
+  [NotificationType.LISTING_INTEREST]: "indigo",
+  [NotificationType.NEW_LISTING_MATCH]: "purple",
+  [NotificationType.ACCOUNT_WARNING]: "red",
+  [NotificationType.SYSTEM_ANNOUNCEMENT]: "yellow",
+  [NotificationType.SYSTEM_NOTICE]: "gray",
+  [NotificationType.LISTING_CREATED]: "green",
+};
+
 /**
  * Get the appropriate icon color for a notification based on its type
  */
-export const getNotificationColor = (type: NotificationType): string => {
-  switch (type) {
-    case NotificationType.NEW_MESSAGE:
-      return "blue";
-    case NotificationType.PRICE_UPDATE:
-      return "green";
-    case NotificationType.LISTING_SOLD:
-      return "orange";
-    case NotificationType.LISTING_INTEREST:
-      return "indigo";
-    case NotificationType.NEW_LISTING_MATCH:
-      return "purple";
-    case NotificationType.ACCOUNT_WARNING:
-      return "red";
-    case NotificationType.SYSTEM_ANNOUNCEMENT:
-      return "yellow";
-    case NotificationType.SYSTEM_NOTICE:
-      return "gray";
-    default:
-      return "gray";
-  }
+export const getNotificationColor = (type: NotificationType): string => 
+  NOTIFICATION_COLORS[type] || "gray";
+
+// Lookup tables for better bundle size and performance
+const NOTIFICATION_ACTIONS: Record<NotificationType, (notification: Notification) => { path: string; query?: Record<string, string> }> = {
+  [NotificationType.NEW_MESSAGE]: (notification) => ({ path: `/messages/${notification.targetId}` }),
+  [NotificationType.PRICE_UPDATE]: (notification) => ({ path: `/listings/${notification.listingId}` }),
+  [NotificationType.LISTING_SOLD]: (notification) => ({ path: `/listings/${notification.listingId}` }),
+  [NotificationType.LISTING_INTEREST]: (notification) => ({ path: `/listings/${notification.listingId}` }),
+  [NotificationType.LISTING_CREATED]: (notification) => ({ path: `/listings/${notification.listingId}` }),
+  [NotificationType.NEW_LISTING_MATCH]: (notification) => ({
+    path: `/listings`,
+    query: { match: notification.targetId || "" },
+  }),
+  [NotificationType.ACCOUNT_WARNING]: () => ({ path: `/account/settings` }),
+  [NotificationType.SYSTEM_ANNOUNCEMENT]: () => ({ path: `/notifications` }),
+  [NotificationType.SYSTEM_NOTICE]: () => ({ path: `/notifications` }),
+};
+
+const NOTIFICATION_ICONS: Record<NotificationType, string> = {
+  [NotificationType.NEW_MESSAGE]: "message",
+  [NotificationType.PRICE_UPDATE]: "price-tag",
+  [NotificationType.LISTING_SOLD]: "sold",
+  [NotificationType.LISTING_INTEREST]: "heart",
+  [NotificationType.LISTING_CREATED]: "plus",
+  [NotificationType.NEW_LISTING_MATCH]: "match",
+  [NotificationType.ACCOUNT_WARNING]: "warning",
+  [NotificationType.SYSTEM_ANNOUNCEMENT]: "announcement",
+  [NotificationType.SYSTEM_NOTICE]: "info",
+};
+
+const NOTIFICATION_MESSAGES: Record<NotificationType, string> = {
+  [NotificationType.NEW_MESSAGE]: "You have received a new message",
+  [NotificationType.PRICE_UPDATE]: "The price of a listing you're interested in has been updated",
+  [NotificationType.LISTING_SOLD]: "A listing you were interested in has been sold",
+  [NotificationType.LISTING_INTEREST]: "Someone is interested in your listing",
+  [NotificationType.LISTING_CREATED]: "A new listing has been created",
+  [NotificationType.NEW_LISTING_MATCH]: "A new listing matches your saved search criteria",
+  [NotificationType.ACCOUNT_WARNING]: "There's an important notice about your account",
+  [NotificationType.SYSTEM_ANNOUNCEMENT]: "There's a new system announcement",
+  [NotificationType.SYSTEM_NOTICE]: "There's a new system notice",
 };
 
 /**
@@ -31,57 +64,14 @@ export const getNotificationColor = (type: NotificationType): string => {
  */
 export const getNotificationAction = (
   notification: Notification,
-): { path: string; query?: Record<string, string> } => {
-  switch (notification.type) {
-    case NotificationType.NEW_MESSAGE:
-      return { path: `/messages/${notification.targetId}` };
-    case NotificationType.PRICE_UPDATE:
-    case NotificationType.LISTING_SOLD:
-    case NotificationType.LISTING_INTEREST:
-    case NotificationType.LISTING_CREATED:
-      return { path: `/listings/${notification.listingId}` };
-    case NotificationType.NEW_LISTING_MATCH:
-      return {
-        path: `/listings`,
-        query: { match: notification.targetId || "" },
-      };
-    case NotificationType.ACCOUNT_WARNING:
-      return { path: `/account/settings` };
-    case NotificationType.SYSTEM_ANNOUNCEMENT:
-    case NotificationType.SYSTEM_NOTICE:
-      return { path: `/notifications` };
-    default:
-      return { path: `/notifications` };
-  }
-};
+): { path: string; query?: Record<string, string> } => 
+  NOTIFICATION_ACTIONS[notification.type]?.(notification) || { path: `/notifications` };
 
 /**
  * Get the appropriate icon name for a notification based on its type
  */
-export const getNotificationIcon = (type: NotificationType): string => {
-  switch (type) {
-    case NotificationType.NEW_MESSAGE:
-      return "message";
-    case NotificationType.PRICE_UPDATE:
-      return "tag";
-    case NotificationType.LISTING_SOLD:
-      return "check-circle";
-    case NotificationType.LISTING_INTEREST:
-      return "heart";
-    case NotificationType.LISTING_CREATED:
-      return "plus-circle";
-    case NotificationType.NEW_LISTING_MATCH:
-      return "search";
-    case NotificationType.ACCOUNT_WARNING:
-      return "exclamation";
-    case NotificationType.SYSTEM_ANNOUNCEMENT:
-      return "megaphone";
-    case NotificationType.SYSTEM_NOTICE:
-      return "info";
-    default:
-      return "bell";
-  }
-};
+export const getNotificationIcon = (type: NotificationType): string => 
+  NOTIFICATION_ICONS[type] || "info";
 
 /**
  * Format a notification message with appropriate context
@@ -89,32 +79,22 @@ export const getNotificationIcon = (type: NotificationType): string => {
 export const formatNotificationMessage = (
   notification: Notification,
 ): string => {
-  // If the notification already has a formatted message, use it
+  // Use notification message if provided, otherwise use type-based template
   if (notification.message) {
     return notification.message;
   }
 
-  // Otherwise, generate a generic message based on the notification type
-  switch (notification.type) {
-    case NotificationType.NEW_MESSAGE:
-      return "You have received a new message";
-    case NotificationType.PRICE_UPDATE:
-      return "The price of a listing you're interested in has been updated";
-    case NotificationType.LISTING_SOLD:
-      return "A listing you were interested in has been sold";
-    case NotificationType.LISTING_INTEREST:
-      return "Someone is interested in your listing";
-    case NotificationType.LISTING_CREATED:
-      return "A new listing has been created";
-    case NotificationType.NEW_LISTING_MATCH:
-      return "A new listing matches your saved search criteria";
-    case NotificationType.ACCOUNT_WARNING:
-      return "There's an important notice about your account";
-    case NotificationType.SYSTEM_ANNOUNCEMENT:
-      return "There's a new system announcement";
-    case NotificationType.SYSTEM_NOTICE:
-      return "There's a new system notice";
-    default:
-      return "You have a new notification";
-  }
+  const baseMessages: Record<NotificationType, string> = {
+    [NotificationType.NEW_MESSAGE]: "You have received a new message",
+    [NotificationType.PRICE_UPDATE]: "Price update for your listing",
+    [NotificationType.LISTING_SOLD]: "Your listing has been sold",
+    [NotificationType.LISTING_INTEREST]: "Someone is interested in your listing",
+    [NotificationType.LISTING_CREATED]: "New listing created",
+    [NotificationType.NEW_LISTING_MATCH]: "New listing matches your search",
+    [NotificationType.ACCOUNT_WARNING]: "Important account notice",
+    [NotificationType.SYSTEM_ANNOUNCEMENT]: "System announcement",
+    [NotificationType.SYSTEM_NOTICE]: "System notice",
+  };
+
+  return baseMessages[notification.type] || "New notification";
 };

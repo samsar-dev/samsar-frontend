@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo, memo } from "react";
-import { FaCar, FaMotorcycle, FaTruck, FaCaravan, FaBus } from "react-icons/fa";
-import { MdSend } from "react-icons/md";
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
+import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
+import { FaCaravan } from "@react-icons/all-files/fa/FaCaravan";
+import { FaBus } from "@react-icons/all-files/fa/FaBus";
+import { MdSend } from "@react-icons/all-files/md/MdSend";
 import { useTranslation } from "react-i18next";
 
 import { ListingAction, VehicleType } from "@/types/enums";

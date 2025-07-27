@@ -83,7 +83,7 @@ const FAQ: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6">
       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         <span className="hidden" aria-hidden="true">
           أسئلة شائعة

@@ -1,21 +1,8 @@
-import React, { useRef, memo, useMemo, useCallback, useId } from "react";
-import type { Identifier } from "dnd-core";
-import { useDrag, useDrop } from "react-dnd";
-import { motion } from "framer-motion";
-import { FaTrash, FaEdit } from "react-icons/fa";
-import throttle from 'lodash.throttle';
-import ImageFallback from "@/components/media/ImageFallback";
+import { memo, useCallback, useId } from "react";
+import { FaTrash, FaEdit, FaGripVertical } from "react-icons/fa";
 
-interface DragItem {
-  type: string;
-  index: number;
-  id: string;
-}
-
-/**
- * DraggableImage component for drag-and-drop image reordering
- */
-interface DraggableImageProps {
+// Props type definition
+interface DraggableImageOptimizedProps {
   url: string;
   index: number;
   uid: string;
@@ -26,12 +13,18 @@ interface DraggableImageProps {
   isExisting?: boolean;
   fileSize?: string;
   dimensions?: string;
+  isDragging?: boolean;
+  isHovered?: boolean;
 }
 
-// In DraggableImage.tsx
-const DraggableImage: React.FC<DraggableImageProps> = ({
+/**
+ * Lightweight DraggableImage component without react-dnd dependency
+ * Uses native HTML5 drag and drop API
+ */
+const DraggableImageOptimized: React.FC<DraggableImageOptimizedProps> = ({
   url,
   index,
+  uid,
   moveImage,
   onDelete,
   onEdit,
@@ -39,193 +32,200 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   isExisting = false,
   fileSize,
   dimensions,
+  isDragging = false,
+  isHovered = false,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const dragPreviewRef = useRef<HTMLDivElement | null>(null);
-  const componentId = useId();
-  // Cache for hover measurements
-  const hoverCache = useRef<{
-    hoverBoundingRect: DOMRect | null;
-    timestamp: number;
-  }>({ hoverBoundingRect: null, timestamp: 0 });
-  const hoverThrottleTimeout = useRef<number | null>(null);
+  const id = useId();
 
-  // Create a stable identifier that persists across re-renders
-  const stableId = useMemo(
-    () => `${componentId}-${index}`,
-    [componentId, index],
-  );
-
-  const [{ isDragging }, drag, preview] = useDrag({
-    type: "image",
-    item: () => ({ type: "image", index, id: stableId }),
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-    canDrag: !isUploading,
-    // Optimize performance by preventing expensive operations during drag
-    isDragging: (monitor) => {
-      const item = monitor.getItem() as DragItem | null;
-      return item ? item.id === stableId : false;
-    },
-  });
-
-  const [, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
-    accept: "image",
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      };
-    },
-    hover: throttle((item: DragItem, monitor) => {
-      if (!ref.current || item.id === stableId) {
-        return;
+  // Handle drag start
+  const handleDragStart = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('text/plain', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+    
+    // Create drag image
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.transform = 'rotate(5deg)';
+    dragImage.style.opacity = '0.8';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 50, 50);
+    
+    // Clean up drag image after a short delay
+    setTimeout(() => {
+      if (document.body.contains(dragImage)) {
+        document.body.removeChild(dragImage);
       }
+    }, 0);
+  }, [index]);
 
-      const dragIndex = item.index;
-      const hoverIndex = index;
+  // Handle drag over
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
 
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return;
-      }
+  // Handle drop
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (fromIndex !== index && !isNaN(fromIndex)) {
+      moveImage(fromIndex, index);
+    }
+  }, [index, moveImage]);
 
-      // Get client offset first as it's cheaper
-      const clientOffset = monitor.getClientOffset();
-      if (!clientOffset) {
-        return;
-      }
-
-      // Only update bounding rect cache if it's older than 100ms or doesn't exist
-      const now = Date.now();
-      if (!hoverCache.current.hoverBoundingRect || now - hoverCache.current.timestamp > 100) {
-        hoverCache.current.hoverBoundingRect = ref.current.getBoundingClientRect();
-        hoverCache.current.timestamp = now;
-      }
-
-      const { hoverBoundingRect } = hoverCache.current;
-      if (!hoverBoundingRect) {
-        return;
-      }
-
-      // Calculate positions using cached rect
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-
-      // Only perform the move when the mouse has crossed half of the items height
-      if (
-        (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) ||
-        (dragIndex > hoverIndex && hoverClientY > hoverMiddleY)
-      ) {
-        return;
-      }
-
-      // Clear any pending updates
-      if (hoverThrottleTimeout.current) {
-        window.cancelAnimationFrame(hoverThrottleTimeout.current);
-      }
-
-      // Use requestAnimationFrame to batch the state update
-      hoverThrottleTimeout.current = window.requestAnimationFrame(() => {
-        moveImage(dragIndex, hoverIndex);
-        item.index = hoverIndex;
-      });
-    }, 50, { leading: true, trailing: true }),
-  });
-
-  // Memoize handlers with stable references
-  const handleDelete = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
+  // Handle delete with confirmation
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this image?')) {
       onDelete(index);
-    },
-    [onDelete, index],
-  );
+    }
+  }, [index, onDelete]);
 
-  const handleEdit = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onEdit(url, index);
-    },
-    [onEdit, url, index],
-  );
+  // Handle edit
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit(url, index);
+  }, [url, index, onEdit]);
 
-  // Set up refs for drag and drop
-  const setDragRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (node) {
-        // Store the node reference
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
-        // Setup drag and drop
-        drag(drop(node));
-        // Setup preview if preview ref is available
-        if (dragPreviewRef.current) {
-          preview(dragPreviewRef);
-        }
-      }
-    },
-    [drag, drop, preview],
-  );
+  // Format file size
+  const formatFileSize = useCallback((size: string | undefined) => {
+    if (!size) return '';
+    return size.includes('MB') ? size : `${(parseFloat(size) / 1024 / 1024).toFixed(2)} MB`;
+  }, []);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className={`relative group ${isDragging ? "opacity-40" : "opacity-100"}`}
-      ref={setDragRef}
+    <div
+      id={`draggable-image-${id}`}
+      draggable={!isUploading}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className={`
+        relative group rounded-lg overflow-hidden border-2 transition-all duration-200
+        ${isDragging ? 'opacity-50 scale-95 rotate-2' : ''}
+        ${isHovered ? 'border-blue-400 scale-105 shadow-lg' : 'border-gray-200'}
+        ${isExisting ? 'ring-2 ring-green-200' : ''}
+        ${isUploading ? 'cursor-not-allowed' : 'cursor-move'}
+        hover:shadow-md
+      `}
+      style={{
+        aspectRatio: '1',
+        minHeight: '120px',
+      }}
     >
-      <div
-        className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
-        ref={dragPreviewRef}
-      >
-        <ImageFallback
+      {/* Drag Handle */}
+      <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <div className="bg-black bg-opacity-50 rounded p-1">
+          <FaGripVertical className="h-3 w-3 text-white" />
+        </div>
+      </div>
+
+      {/* Image */}
+      <div className="w-full h-full relative">
+        <img
           src={url}
-          alt="Listing image"
-          className="w-full h-full object-cover"
-          width={200}
-          height={200}
-          quality={75}
-          priority={index === 0}
-          loading={index < 3 ? "eager" : "lazy"}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          alt={`Image ${index + 1}`}
+          className={`
+            w-full h-full object-cover transition-all duration-200
+            ${isUploading ? 'opacity-50' : ''}
+            ${isDragging ? 'blur-sm' : ''}
+          `}
+          loading="lazy"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder-image.jpg'; // Fallback image
+          }}
         />
-        {/* Image metadata overlay */}
-        {(fileSize || dimensions) && (
-          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1">
-            <div className="flex justify-between px-2">
-              {fileSize && <span>{fileSize}</span>}
-              {dimensions && <span>{dimensions}</span>}
+
+        {/* Upload Progress Overlay */}
+        {isUploading && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="text-white text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+              <p className="text-xs">Uploading...</p>
             </div>
           </div>
         )}
-        {/* Action buttons */}
-        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      </div>
+
+      {/* Action Buttons */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex space-x-1">
           <button
+            type="button"
             onClick={handleEdit}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            disabled={isUploading}
+            className="p-1.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Edit image"
+            aria-label={`Edit image ${index + 1}`}
           >
-            <FaEdit className="w-4 h-4 text-gray-600" />
+            <FaEdit className="h-3 w-3" />
           </button>
           <button
+            type="button"
             onClick={handleDelete}
             disabled={isUploading}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            className="p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Delete image"
+            aria-label={`Delete image ${index + 1}`}
           >
-            <FaTrash className="w-4 h-4 text-red-500" />
+            <FaTrash className="h-3 w-3" />
           </button>
         </div>
       </div>
-      {isExisting && (
-        <div className="absolute top-2 left-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-[10px] font-medium px-2 py-0.5 rounded-full border border-yellow-300 dark:border-yellow-700 shadow-sm">
-          Existing
+
+      {/* Image Info Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="text-white text-xs space-y-1">
+          {/* Existing Image Badge */}
+          {isExisting && (
+            <div className="flex items-center">
+              <span className="inline-block bg-green-600 px-2 py-0.5 rounded text-xs font-medium">
+                Existing
+              </span>
+            </div>
+          )}
+          
+          {/* File Size */}
+          {fileSize && (
+            <p className="truncate">
+              <span className="font-medium">Size:</span> {formatFileSize(fileSize)}
+            </p>
+          )}
+          
+          {/* Dimensions */}
+          {dimensions && (
+            <p className="truncate">
+              <span className="font-medium">Dimensions:</span> {dimensions}
+            </p>
+          )}
+          
+          {/* Index */}
+          <p className="text-gray-300">
+            Position: {index + 1}
+          </p>
+        </div>
+      </div>
+
+      {/* Drag Indicator */}
+      {isDragging && (
+        <div className="absolute inset-0 border-2 border-dashed border-blue-400 bg-blue-50 bg-opacity-50 flex items-center justify-center">
+          <div className="text-blue-600 text-center">
+            <FaGripVertical className="h-6 w-6 mx-auto mb-1" />
+            <p className="text-xs font-medium">Dragging...</p>
+          </div>
         </div>
       )}
-    </motion.div>
+
+      {/* Drop Indicator */}
+      {isHovered && !isDragging && (
+        <div className="absolute inset-0 border-2 border-dashed border-green-400 bg-green-50 bg-opacity-50 flex items-center justify-center">
+          <div className="text-green-600 text-center">
+            <p className="text-xs font-medium">Drop here</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default memo(DraggableImage);
+export default memo(DraggableImageOptimized);

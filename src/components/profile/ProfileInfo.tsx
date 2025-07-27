@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
@@ -44,8 +46,9 @@ const ProfileInfo = () => {
   });
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    undefined,
+    user?.profilePicture
   );
+  const OptimizedAvatar = React.lazy(() => import('@/components/ui/avatar'));
 
   // Initialize form data when user data is available
   useEffect(() => {
@@ -172,11 +175,17 @@ const ProfileInfo = () => {
         <div className="flex flex-col items-center mb-8">
           <div className="relative group">
             <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-md">
-              <img
-                src={avatarPreview || "/default-avatar.png"}
-                alt={formData.username}
-                className="w-full h-full object-cover"
-              />
+                <React.Suspense fallback={
+                  <div className="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400">Loading...</span>
+                  </div>
+                }>
+                  <OptimizedAvatar
+                    src={avatarPreview}
+                    fallback={user?.name || user?.username || 'U'}
+                    className="h-32 w-32 border-4 border-white shadow-lg"
+                  />
+                </React.Suspense>
             </div>
             <label
               htmlFor="avatar-upload"

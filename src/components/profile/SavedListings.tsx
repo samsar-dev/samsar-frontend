@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BsSend } from "react-icons/bs";
-import { MdDelete, MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { MdDelete } from "@react-icons/all-files/md/MdDelete";
+import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
+import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
 

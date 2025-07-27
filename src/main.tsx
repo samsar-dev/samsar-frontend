@@ -1,26 +1,34 @@
-import React, { StrictMode } from "react";
+import React, { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { Provider } from "react-redux";
-import { store } from "./store/store";
-import App from "./App";
 import { preloadAssets } from "./utils/preload";
-// import "react-loading-skeleton/dist/skeleton.css";
-import "./config/i18n"; // Import i18n configuration
+import "./config/i18n";
+import "@/assets/css/index.css";
 
-// Import critical styles
-import "@/styles/critical.css";
+// Import store directly since it's needed immediately
+import { store } from "./store/store";
 
-// Defer non-critical CSS
-const link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = '/assets/index.css';
-link.media = 'print';
-link.onload = () => {
-  link.media = 'all';
-};
-document.head.appendChild(link);
+// Lazy load components with chunk naming
+const BrowserRouter = lazy(() =>
+  import('react-router-dom').then(m => ({
+    default: m.BrowserRouter,
+    __chunkName: 'react-router-dom'
+  }))
+);
+
+const HelmetProvider = lazy(() =>
+  import('react-helmet-async').then(m => ({
+    default: m.HelmetProvider,
+    __chunkName: 'react-helmet'
+  }))
+);
+
+const App = lazy(() =>
+  import('./App').then(m => ({
+    default: m.default,
+    __chunkName: 'app'
+  }))
+);
 
 // Performance monitoring
 if (process.env.NODE_ENV === "production") {
@@ -43,50 +51,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Error boundary component with error reporting
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    if (process.env.NODE_ENV === "production") {
-      // In production, report errors to your error tracking service
-      console.error("Application error:", { error, errorInfo });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-            <p className="text-gray-600 mb-4">
-              We're working on fixing this issue.
-            </p>
-            <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={() => window.location.reload()}
-            >
-              Reload Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
+ 
 
 // Ensure React is properly initialized
 const initializeReact = () => {
@@ -112,15 +77,17 @@ const initializeApp = () => {
 
   // Optimize rendering with StrictMode and proper provider nesting
   root.render(
-    <ErrorBoundary>
-      <HelmetProvider>
-        <Provider store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </Provider>
-      </HelmetProvider>
-    </ErrorBoundary>,
+    <StrictMode>
+      <Suspense fallback={null}>
+        <HelmetProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </Provider>
+        </HelmetProvider>
+      </Suspense>
+    </StrictMode>
   );
 };
 
@@ -142,35 +109,9 @@ const startApp = async () => {
     }
   } catch (error) {
     console.error("❌ Failed to initialize application:", error);
-
-    // Show optimized error UI
-    const root = document.getElementById("root");
-    if (root) {
-      root.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-          <div class="text-center max-w-md">
-            <div class="mb-4">
-              <svg class="mx-auto h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">Application Error</h2>
-            <p class="text-gray-600 mb-6">Failed to load the application. Please try refreshing the page.</p>
-            <button 
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              onclick="window.location.reload()"
-            >
-              <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Retry
-            </button>
-          </div>
-        </div>
-      `;
-    }
+    // Error will be handled by the ErrorBoundary component
   }
-};
+}
 
 // Add modern browser detection
 const checkModernBrowser = () => {

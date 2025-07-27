@@ -6,21 +6,53 @@ import {
   Suspense,
   lazy,
 } from "react";
-import { ToastContainer } from "react-toastify";
 
+// Lazy load heavy components
+const ToastContainer = lazy(() =>
+  import("react-toastify").then(m => ({
+    default: m.ToastContainer,
+    __chunkName: 'toastify'
+  }))
+);
 
-// Import providers directly since they're lightweight
+// Import core providers directly since they're lightweight
 import {
   AuthProvider,
   ListingsProvider,
   FavoritesProvider,
   UIProvider,
 } from "@/contexts";
-import { NotificationsProvider } from "@/contexts/NotificationsContext";
-import { SettingsProvider } from "@/contexts/SettingsContext";
-import { MessagesProvider } from "./contexts/MessagesContext";
-import SavedListingsProvider from "./contexts/SavedListingsContext";
-import { SocketProvider } from "./contexts/SocketContext";
+
+// Lazy load other providers
+const NotificationsProvider = lazy(() =>
+  import("@/contexts/NotificationsContext").then(m => ({
+    default: m.NotificationsProvider,
+    __chunkName: 'notifications'
+  }))
+);
+
+const SettingsProvider = lazy(() =>
+  import("@/contexts/SettingsContext").then(m => ({
+    default: m.SettingsProvider,
+    __chunkName: 'settings'
+  }))
+);
+
+import { MessagesProvider } from "@/contexts/MessagesContext";
+
+const SavedListingsProvider = lazy(() =>
+  import("./contexts/SavedListingsContext").then(m => ({
+    default: m.SavedListingsProvider,
+    __chunkName: 'saved-listings'
+  }))
+);
+
+const SocketProvider = lazy(() =>
+  import("./contexts/SocketContext").then(m => ({
+    default: m.SocketProvider,
+    __chunkName: 'socket'
+  }))
+);
 
 // Lazy load heavy components with proper type annotations
 const ErrorBoundary = lazy(() =>

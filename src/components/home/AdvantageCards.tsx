@@ -84,7 +84,7 @@ const AdvantageCards: React.FC = () => {
             </span>
             {t("home:advantage.title", "ميزات سمسار الفريدة")}
           </h2>
-          <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 px-2">
             <span className="hidden" aria-hidden="true">
               اكتشف لماذا يختار آلاف العملاء منصة سمسار
             </span>
@@ -95,7 +95,7 @@ const AdvantageCards: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-2 sm:px-4 lg:max-w-7xl lg:mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-0 sm:px-2">
           <div className="space-y-6">
             {advantages.map((item, index) => (
               <AdvantageCard key={index} {...item} />

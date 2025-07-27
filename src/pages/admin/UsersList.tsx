@@ -1,23 +1,20 @@
 import { FC, useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TablePagination,
-  CircularProgress,
-  Alert,
-  AlertTitle,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import { Typography } from "@/utils/typography";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import { Paper } from "@/utils/paper";
+import TablePagination from "@mui/material/TablePagination";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../api/apiClient";
 import { useAuth } from "../../hooks/useAuth";
@@ -136,12 +133,12 @@ const UsersList: FC = () => {
                       {u.isOnline ? "Online" : "Offline"}
                       {!u.isOnline && u.lastActiveAt && (
                         <Typography
-                          variant="caption"
+                          variant="body2"
                           color="text.secondary"
                           ml={1}
+                          sx={{ fontSize: '0.75rem' }}
                         >
-                          (Last seen:{" "}
-                          {new Date(u.lastActiveAt).toLocaleString()})
+                          (Last seen: {new Date(u.lastActiveAt).toLocaleString()})
                         </Typography>
                       )}
                     </Box>

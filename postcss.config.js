@@ -1,5 +1,3 @@
-const purgecss = require('@fullhuman/postcss-purgecss');
-
 export default {
   plugins: {
     'postcss-import': {},
@@ -17,14 +15,6 @@ export default {
               reduceIdents: false,
               zindex: false,
             }]
-          },
-          purgecss: {
-            content: [
-              './src/**/*.tsx',
-              './src/**/*.ts'
-            ],
-            defaultExtractor: content => content.match(/[^<"`\s]*[^<"`\s:]/g) || [],
-            whitelistPatterns: [/hero/, /navbar/, /btn/, /skeleton/]
           }
         } 
       : {}

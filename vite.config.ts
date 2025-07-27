@@ -6,6 +6,7 @@ import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 import imagemin from "vite-plugin-imagemin";
+
  
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -233,6 +234,36 @@ export default defineConfig(({ mode, command }) => {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 100, 
       reportCompressedSize: true,
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log'],
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'floating-ui': ['@floating-ui/dom', '@floating-ui/core'],
+            'headlessui': ['@headlessui/react'],
+            'react-router-dom': ['react-router-dom'],
+            'react-helmet': ['react-helmet-async'],
+            'core-vendors': ['react', 'react-dom', 'react-redux'],
+          },
+          chunkFileNames: (chunkInfo) => {
+            if (chunkInfo.name === 'app') {
+              return 'assets/app-[hash].js';
+            }
+            if (chunkInfo.name === 'react-router-dom') {
+              return 'assets/react-router-dom-[hash].js';
+            }
+            if (chunkInfo.name === 'react-helmet') {
+              return 'assets/react-helmet-[hash].js';
+            }
+            return 'assets/[name]-[hash].js';
+          },
+        },
+      },
       
       treeshake: {
         moduleSideEffects: 'no-external',
@@ -276,7 +307,8 @@ export default defineConfig(({ mode, command }) => {
           },
           keepNames: true,
           legalComments: 'none',
-          drop: ['debugger', 'console']
+          drop: ['debugger', 'console'],
+          pure: ['React.createElement', 'React.cloneElement', 'React.memo']
         },
       },
       
@@ -290,11 +322,43 @@ export default defineConfig(({ mode, command }) => {
               'axios': ['axios'],
               'socket.io': ['socket.io-client'],
               'react-query': ['@tanstack/react-query'],
-              'react': ['react', 'react-dom'],
+              'react': ['react'],
               'radix': ['@radix-ui/react-slot', '@radix-ui/react-icons'],
-              'utils': ['clsx', 'tailwind-merge']
+              'utils': ['clsx', 'tailwind-merge'],
+              'react-dom': ['react-dom'],
+              'react-dom-client': ['react-dom/client'],
+              'react-dom-server': ['react-dom/server'],
+              'react-router': [
+                'react-router',
+                'react-router-dom',
+                'react-router-dom/server',
+                'react-router-dom/client'
+              ],
+              'react-select': [
+                'react-select',
+                'react-select/async',
+                'react-select/async-creatable',
+                'react-select/creatable'
+              ],
+              'react-dnd': [
+                'react-dnd',
+                'react-dnd-html5-backend',
+                'react-dnd-touch-backend',
+                'react-dropzone',
+                'browser-image-compression',
+                'file-selector',
+                'attr-accept',
+                'lodash.throttle',
+                'ua-parser-js',
+                'react-device-detect',
+                'fast-deep-equal',
+                'shallowequal',
+                'asap',
+                'prop-types',
+                'invariant'
+              ]
             },
-            inlineDynamicImports: true,
+ 
             compact: true,
             entryFileNames: 'assets/[name]-[hash].js',
             chunkFileNames: 'assets/[name]-[hash].js',
@@ -304,9 +368,15 @@ export default defineConfig(({ mode, command }) => {
            
           },
           treeshake: {
-            moduleSideEffects: true,
+            moduleSideEffects: 'no-external',
             propertyReadSideEffects: false,
             tryCatch: false
+          },
+          minifyInternalExports: true,
+          manualChunks: {
+            'react-dom': ['react-dom'],
+            'react-dom-client': ['react-dom/client'],
+            'react-dom-server': ['react-dom/server']
           }
         },
         terserOptions: {
@@ -403,6 +473,9 @@ export default defineConfig(({ mode, command }) => {
               if (id.includes('react-dom/server')) {
                 return 'react-dom-server';
               }
+              if (id.includes('react-dom/cjs/react-dom.production.min.js')) {
+                return 'react-dom-cjs';
+              }
               return 'react-dom';
             }
             
@@ -417,22 +490,91 @@ export default defineConfig(({ mode, command }) => {
             }
             
             if (id.includes('@mui/material')) {
+              // Ultra-aggressive splitting for MUI system components
+              if (id.includes('DefaultPropsProvider') || id.includes('ThemeProvider') || id.includes('CssBaseline') || id.includes('StyledEngineProvider') || id.includes('GlobalStyles') || id.includes('useTheme') || id.includes('useColorScheme')) {
+                return 'mui-system';
+              }
               if (id.includes('Button')) {
                 return 'mui-button';
               }
-              if (id.includes('Card')) {
-                return 'mui-card';
+              if (id.includes('Card') || id.includes('Paper') || id.includes('CardContent') || id.includes('CardActions')) {
+                return 'mui-surfaces';
               }
               if (id.includes('Table')) {
                 return 'mui-table';
               }
-              if (id.includes('Dialog')) {
+              if (id.includes('Dialog') || id.includes('Modal')) {
                 return 'mui-dialog';
+              }
+              if (id.includes('Typography') || id.includes('Text')) {
+                return 'mui-typography';
+              }
+              if (id.includes('Box') || id.includes('Grid') || id.includes('Container') || id.includes('Stack')) {
+                return 'mui-layout';
+              }
+              if (id.includes('@headlessui')) {
+                return 'headlessui';
               }
               return 'mui-core';
             }
+            if (id.includes('@floating-ui')) {
+              // Optimize floating-ui imports
+              if (id.includes('dom')) {
+                return 'floating-ui-dom';
+              }
+              if (id.includes('core')) {
+                return 'floating-ui-core';
+              }
+            }
             if (id.includes('@emotion')) {
-              return 'emotion';
+              // Ultra-aggressive splitting for emotion styling system
+              if (id.includes('@emotion/react') || id.includes('emotion-element')) {
+                return 'emotion-react';
+              }
+              if (id.includes('@emotion/styled')) {
+                return 'emotion-styled';
+              }
+              if (id.includes('@emotion/cache') || id.includes('emotion-cache')) {
+                return 'emotion-cache';
+              }
+              if (id.includes('@emotion/utils') || id.includes('emotion-utils')) {
+                return 'emotion-utils';
+              }
+              if (id.includes('emotion-use-insertion-effect')) {
+                return 'emotion-insertion';
+              }
+              return 'emotion-core';
+            }
+            // Gesture-related libraries
+            if (id.includes('@react-spring')) {
+              if (id.includes('core')) {
+                return 'spring-core';
+              }
+              if (id.includes('gestures')) {
+                return 'spring-gestures';
+              }
+              if (id.includes('web')) {
+                return 'spring-web';
+              }
+              return 'spring-core';
+            }
+            if (id.includes('@use-gesture')) {
+              if (id.includes('core')) {
+                return 'use-gesture-core';
+              }
+              if (id.includes('react')) {
+                return 'use-gesture-react';
+              }
+              return 'use-gesture';
+            }
+            if (id.includes('framer-motion')) {
+              if (id.includes('gestures')) {
+                return 'motion-gestures';
+              }
+              if (id.includes('dom')) {
+                return 'motion-dom';
+              }
+              return 'motion-core';
             }
             if (id.includes('framer-motion')) {
               if (id.includes('dom')) {
@@ -446,6 +588,9 @@ export default defineConfig(({ mode, command }) => {
               }
               if (id.includes('Dialog')) {
                 return 'dialog';
+              }
+              if (id.includes('Button')) {
+                return 'headlessui-button';
               }
               return 'headlessui-core';
             }
@@ -463,38 +608,36 @@ export default defineConfig(({ mode, command }) => {
               return 'date-utils';
             }
             
+            // Core UI and state management
+            if (id.includes('react-helmet') || id.includes('react-helmet-async')) {
+              return 'helmet';
+            }
+            
+            if (id.includes('react-toastify')) {
+              return 'toast';
+            }
+            
+            // Socket.IO and its dependencies
+            if (id.includes('socket.io') || id.includes('engine.io') || id.includes('component-emitter')) {
+              return 'socketio';
+            }
+            
+            // React DOM and scheduler
+            if (id.includes('react-dom') || id.includes('scheduler')) {
+              return 'react-dom';
+            }
+            
+            // React Router and related
+            if (id.includes('react-router') || id.includes('@remix-run/router')) {
+              return 'router';
+            }
+            
+            // Form libraries
             if (id.includes('react-hook-form') || id.includes('yup') || id.includes('@hookform')) {
               return 'forms';
             }
             
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'i18n';
-            }
-            
-            if (id.includes('leaflet') || id.includes('react-leaflet')) {
-              return 'maps';
-            }
-            
-            if (id.includes('react-dnd') || id.includes('dnd-core')) {
-              return 'dnd';
-            }
-            
-            if (id.includes('@reduxjs') || id.includes('react-redux')) {
-              return 'redux';
-            }
-            
-            if (id.includes('socket.io')) {
-              return 'socket';
-            }
-            
-            if (id.includes('react-image-crop') || id.includes('browser-image-compression')) {
-              return 'image-utils';
-            }
-            
-            if (id.includes('formik') || id.includes('formik-yup')) {
-              return 'formik';
-            }
-            
+            // Chart libraries
             if (id.includes('chart.js') || id.includes('react-chartjs')) {
               return 'charts';
             }
@@ -530,6 +673,48 @@ export default defineConfig(({ mode, command }) => {
             if (id.includes('date-fns')) {
               return 'date-utils';
             }
+
+            // Split MUI Select components into their own chunk
+            if (id.includes('@mui/material/Select') || 
+                id.includes('@mui/material/MenuItem') ||
+                id.includes('@mui/material/FormControl') ||
+                id.includes('@mui/material/FormLabel') ||
+                id.includes('@mui/material/OutlinedInput')) {
+              return 'mui-select';
+            }
+
+            // Split MUI Table components into their own chunk
+            // Group Radix UI Avatar components together
+            // Group optimized avatar components
+            if (id.includes('avatar') || 
+                id.includes('@radix-ui/react-avatar') || 
+                id.includes('/ui/avatar') ||
+                id.includes('Avatar.') || 
+                id.includes('AvatarPrimitive')) {
+              return 'avatar';
+            }
+
+            // Group chat-related components together
+            if (id.includes('MessagesContext') || 
+                id.includes('ConversationsList') || 
+                id.includes('ChatSection') || 
+                id.includes('ChatItem') || 
+                id.includes('UserDetails')) {
+              return 'chat-components';
+            }
+
+            if (id.includes('@mui/material/Table') || 
+                id.includes('@mui/material/TableBody') ||
+                id.includes('@mui/material/TableCell') ||
+                id.includes('@mui/material/TableContainer') ||
+                id.includes('@mui/material/TableHead') ||
+                id.includes('@mui/material/TableRow') ||
+                id.includes('@mui/material/TablePagination') ||
+                id.includes('@mui/material/TableFooter')) {
+              return 'mui-table';
+            }
+
+            if (id.includes('react-icons')) return 'icons';
 
             // Let Vite handle the rest of the vendor modules automatically
           }
@@ -596,15 +781,17 @@ export default defineConfig(({ mode, command }) => {
     css: {
       postcss: "./postcss.config.js",
       devSourcemap: mode !== "production",
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "./src/styles/variables.scss";`
-        }
-      },
-      extract: true,
       modules: {
         localsConvention: "camelCaseOnly",
-        generateScopedName: "[name]__[local]__[hash:base64:5]"
+        generateScopedName:
+          mode === "production"
+            ? "[hash:base64:5]"
+            : "[name]__[local]__[hash:base64:5]",
+      },
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@/assets/styles/variables.scss";`,
+        },
       },
       minify: mode === "production",
       lightningcss: {
@@ -612,6 +799,7 @@ export default defineConfig(({ mode, command }) => {
           chrome: 90 * 65536,
           firefox: 88 * 65536,
           safari: 15 * 65536,
+          edge: 92 * 65536,
         },
       },
     },
@@ -621,13 +809,21 @@ export default defineConfig(({ mode, command }) => {
         "react",
         "react-dom",
         "react-dom/client",
-        "react/jsx-runtime",
-        "react/jsx-dev-runtime",
         "react-router-dom",
+        "@emotion/react",
+        "@emotion/styled",
+        "@mui/material/Box",
+        "@mui/material/Button",
+        "@mui/material/Container",
+        "@mui/material/styles",
+        "@mui/material/useMediaQuery",
         "@headlessui/react",
         "@heroicons/react/24/outline",
         "@heroicons/react/24/solid",
-        "framer-motion",
+        "framer-motion", 
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@mui/system",
         "socket.io-client",
         "axios",
         "react-toastify",
@@ -654,6 +850,8 @@ export default defineConfig(({ mode, command }) => {
             process.env.NODE_ENV || "development",
           ),
         },
+        treeShaking: true,
+        keepNames: true, // Preserve React component names for better debugging
       },
     },
 

@@ -1,7 +1,4 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
-
-import { motion, AnimatePresence } from "framer-motion";
 import {
   FaTimes,
   FaCrop,
@@ -9,13 +6,22 @@ import {
   FaSave,
   FaUndo,
   FaSlidersH,
+  FaRedo,
+  FaUndoAlt,
 } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
-interface ImageEditorProps {
+interface ImageEditorOptimizedProps {
   imageUrl: string;
   onSave: (editedImage: Blob) => void;
   onClose: () => void;
+}
+
+interface CropArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 interface BlurRegion {
@@ -25,402 +31,468 @@ interface BlurRegion {
   height: number;
 }
 
-const ImageEditor: React.FC<ImageEditorProps> = ({
+interface Filters {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  blur: number;
+  rotation: number;
+}
+
+const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
   imageUrl,
   onSave,
   onClose,
 }) => {
   const { t } = useTranslation();
-  const [crop, setCrop] = useState<Crop>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mode, setMode] = useState<"crop" | "blur" | "filters">("crop");
+  
+  // Crop state
+  const [cropArea, setCropArea] = useState<CropArea | null>(null);
+  const [isDrawingCrop, setIsDrawingCrop] = useState(false);
+  const [cropStart, setCropStart] = useState<{ x: number; y: number } | null>(null);
+  
+  // Blur state
   const [blurRegions, setBlurRegions] = useState<BlurRegion[]>([]);
   const [isDrawingBlur, setIsDrawingBlur] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
-    null,
-  );
-  const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
-  const [mode, setMode] = useState<"crop" | "blur">("crop");
-  const [blurIntensity, setBlurIntensity] = useState(10);
+  const [blurStart, setBlurStart] = useState<{ x: number; y: number } | null>(null);
+  
+  // Filters state
+  const [filters, setFilters] = useState<Filters>({
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    blur: 0,
+    rotation: 0,
+  });
+  
+  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
 
-  // Lazy-load ReactCrop styles only when ImageEditor mounts (code-split)
-  useEffect(() => {
-    import('react-image-crop/dist/ReactCrop.css');
-  }, []);
-  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(
-    null,
-  );
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
-  const imageRefCallback = useCallback((node: HTMLImageElement | null) => {
-    if (node !== null) {
-      imgRef.current = node;
-      setImageRef(node);
-    }
-  }, []);
-
-  // Function to get the scaled coordinates
-  const getScaledCoordinates = (
-    clientX: number,
-    clientY: number,
-    element: HTMLDivElement,
-  ) => {
-    const rect = element.getBoundingClientRect();
-    const scaleX = (originalImage?.width || 0) / rect.width;
-    const scaleY = (originalImage?.height || 0) / rect.height;
-
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
-    };
-  };
-
-  // Enhanced blur preview with debouncing
-  useEffect(() => {
-    const updateBlurPreview = () => {
-      if (mode !== "blur" || !originalImage || !previewCanvasRef.current)
-        return;
-
-      const canvas = previewCanvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      // Set canvas dimensions to match original image
-      canvas.width = originalImage.width;
-      canvas.height = originalImage.height;
-
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw original image
-      ctx.drawImage(originalImage, 0, 0);
-
-      if (blurRegions.length > 0) {
-        // Create temporary canvas for blur effect
-        const tempCanvas = document.createElement("canvas");
-        const tempCtx = tempCanvas.getContext("2d");
-        if (!tempCtx) return;
-
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        tempCtx.drawImage(canvas, 0, 0);
-
-        // Apply blur to each region
-        blurRegions.forEach((region) => {
-          if (region.width === 0 || region.height === 0) return;
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(region.x, region.y, region.width, region.height);
-          ctx.closePath();
-          ctx.clip();
-
-          // Enhanced blur effect
-          ctx.filter = `blur(${blurIntensity}px)`;
-          ctx.drawImage(tempCanvas, 0, 0);
-
-          // Add slight darkening effect for better visibility
-          ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-          ctx.fillRect(region.x, region.y, region.width, region.height);
-
-          ctx.restore();
-        });
-      }
-    };
-
-    const timeoutId = setTimeout(updateBlurPreview, 50); // Debounce time
-    return () => clearTimeout(timeoutId);
-  }, [mode, originalImage, blurRegions, blurIntensity]);
-
-  // Load and cache the original image
+  // Initialize image
   useEffect(() => {
     const img = new Image();
-    img.src = imageUrl;
-    img.crossOrigin = "anonymous"; // Enable CORS
+    img.crossOrigin = "anonymous";
     img.onload = () => {
       setOriginalImage(img);
-      if (!crop) {
-        // Set initial crop area to 80% of image
-        setCrop({
-          unit: "%",
-          width: 80,
-          height: 80,
-          x: 10,
-          y: 10,
-        });
-      }
+      setIsLoading(false);
+      drawCanvas();
     };
+    img.onerror = () => {
+      console.error("Failed to load image");
+      setIsLoading(false);
+    };
+    img.src = imageUrl;
   }, [imageUrl]);
 
-  const onImageLoad = useCallback((image: HTMLImageElement) => {
-    setImageRef(image);
-  }, []);
+  // Draw canvas with current state
+  const drawCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx || !originalImage) return;
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (mode !== "blur" || !imageRef) return;
-
-    const coords = getScaledCoordinates(e.clientX, e.clientY, e.currentTarget);
-    setStartPoint(coords);
-    setIsDrawingBlur(true);
-
-    setBlurRegions((prev) => [
-      ...prev,
-      {
-        x: coords.x,
-        y: coords.y,
-        width: 0,
-        height: 0,
-      },
-    ]);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDrawingBlur || !startPoint || !imageRef) return;
-
-    const coords = getScaledCoordinates(e.clientX, e.clientY, e.currentTarget);
-
-    const width = Math.abs(coords.x - startPoint.x);
-    const height = Math.abs(coords.y - startPoint.y);
-    const x = Math.min(coords.x, startPoint.x);
-    const y = Math.min(coords.y, startPoint.y);
-
-    setBlurRegions((prev) => {
-      const regions = [...prev];
-      regions[regions.length - 1] = { x, y, width, height };
-      return regions;
-    });
-  };
-
-  const handleMouseUp = () => {
-    if (isDrawingBlur && startPoint) {
-      setIsDrawingBlur(false);
-      setStartPoint(null);
-    }
-  };
-
-  const removeLastBlurRegion = () => {
-    setBlurRegions((prev) => prev.slice(0, -1));
-  };
-
-  const handleSave = async () => {
-    if (!originalImage) return;
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Set canvas size to original image dimensions
+    // Set canvas size
     canvas.width = originalImage.width;
     canvas.height = originalImage.height;
 
-    // Draw the original image
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Apply filters
+    ctx.filter = `
+      brightness(${filters.brightness}%) 
+      contrast(${filters.contrast}%) 
+      saturate(${filters.saturation}%) 
+      blur(${filters.blur}px)
+    `;
+
+    // Save context for rotation
+    ctx.save();
+    
+    // Apply rotation
+    if (filters.rotation !== 0) {
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((filters.rotation * Math.PI) / 180);
+      ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    }
+
+    // Draw image
     ctx.drawImage(originalImage, 0, 0);
 
-    // Apply crop if in crop mode and crop is completed
-    if (mode === "crop" && completedCrop && imgRef.current) {
-      const croppedCanvas = document.createElement("canvas");
-      const croppedCtx = croppedCanvas.getContext("2d");
-      if (!croppedCtx) return;
-
-      // Calculate actual pixel values for crop
-      const scaleX = originalImage.width / imgRef.current.width;
-      const scaleY = originalImage.height / imgRef.current.height;
-
-      croppedCanvas.width = completedCrop.width * scaleX;
-      croppedCanvas.height = completedCrop.height * scaleY;
-
-      croppedCtx.drawImage(
-        canvas,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-      );
-
-      // Update main canvas with cropped image
-      canvas.width = croppedCanvas.width;
-      canvas.height = croppedCanvas.height;
-      ctx.drawImage(croppedCanvas, 0, 0);
-    }
+    // Restore context
+    ctx.restore();
 
     // Apply blur regions
-    if (blurRegions.length > 0) {
-      const tempCanvas = document.createElement("canvas");
-      const tempCtx = tempCanvas.getContext("2d");
-      if (!tempCtx) return;
+    blurRegions.forEach(region => {
+      ctx.save();
+      ctx.filter = 'blur(10px)';
+      ctx.drawImage(
+        originalImage,
+        region.x, region.y, region.width, region.height,
+        region.x, region.y, region.width, region.height
+      );
+      ctx.restore();
+    });
 
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      tempCtx.drawImage(canvas, 0, 0);
-
-      blurRegions.forEach((region) => {
-        if (region.width === 0 || region.height === 0) return;
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(region.x, region.y, region.width, region.height);
-        ctx.closePath();
-        ctx.clip();
-
-        // Enhanced blur effect
-        ctx.filter = `blur(${blurIntensity}px)`;
-        ctx.drawImage(tempCanvas, 0, 0);
-
-        // Add slight darkening for better visibility
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-        ctx.fillRect(region.x, region.y, region.width, region.height);
-
-        ctx.restore();
-      });
+    // Draw crop overlay
+    if (cropArea) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      
+      // Draw overlay outside crop area
+      ctx.fillRect(0, 0, canvas.width, cropArea.y);
+      ctx.fillRect(0, cropArea.y, cropArea.x, cropArea.height);
+      ctx.fillRect(cropArea.x + cropArea.width, cropArea.y, canvas.width - cropArea.x - cropArea.width, cropArea.height);
+      ctx.fillRect(0, cropArea.y + cropArea.height, canvas.width, canvas.height - cropArea.y - cropArea.height);
+      
+      // Draw crop border
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cropArea.x, cropArea.y, cropArea.width, cropArea.height);
+      
+      ctx.restore();
     }
 
-    // Convert to blob and save
-    canvas.toBlob(
-      (blob) => {
+    // Draw blur regions overlay
+    blurRegions.forEach(region => {
+      ctx.save();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeRect(region.x, region.y, region.width, region.height);
+      ctx.restore();
+    });
+
+  }, [originalImage, filters, cropArea, blurRegions]);
+
+  // Redraw canvas when state changes
+  useEffect(() => {
+    drawCanvas();
+  }, [drawCanvas]);
+
+  // Mouse event handlers for crop
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    if (mode === "crop") {
+      setIsDrawingCrop(true);
+      setCropStart({ x, y });
+      setCropArea(null);
+    } else if (mode === "blur") {
+      setIsDrawingBlur(true);
+      setBlurStart({ x, y });
+    }
+  }, [mode]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    if (isDrawingCrop && cropStart) {
+      const width = x - cropStart.x;
+      const height = y - cropStart.y;
+      setCropArea({
+        x: width > 0 ? cropStart.x : x,
+        y: height > 0 ? cropStart.y : y,
+        width: Math.abs(width),
+        height: Math.abs(height),
+      });
+    }
+  }, [isDrawingCrop, cropStart]);
+
+  const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDrawingCrop) {
+      setIsDrawingCrop(false);
+      setCropStart(null);
+    } else if (isDrawingBlur && blurStart) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      const width = x - blurStart.x;
+      const height = y - blurStart.y;
+      
+      if (Math.abs(width) > 10 && Math.abs(height) > 10) {
+        setBlurRegions(prev => [...prev, {
+          x: width > 0 ? blurStart.x : x,
+          y: height > 0 ? blurStart.y : y,
+          width: Math.abs(width),
+          height: Math.abs(height),
+        }]);
+      }
+
+      setIsDrawingBlur(false);
+      setBlurStart(null);
+    }
+  }, [isDrawingCrop, isDrawingBlur, blurStart]);
+
+  // Apply crop
+  const applyCrop = useCallback(() => {
+    if (!cropArea || !originalImage) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = cropArea.width;
+    canvas.height = cropArea.height;
+
+    ctx.drawImage(
+      originalImage,
+      cropArea.x, cropArea.y, cropArea.width, cropArea.height,
+      0, 0, cropArea.width, cropArea.height
+    );
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        onSave(blob);
+      }
+    }, 'image/jpeg', 0.9);
+  }, [cropArea, originalImage, onSave]);
+
+  // Save edited image
+  const handleSave = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (cropArea) {
+      applyCrop();
+    } else {
+      canvas.toBlob((blob) => {
         if (blob) {
           onSave(blob);
         }
-      },
-      "image/jpeg",
-      0.95,
+      }, 'image/jpeg', 0.9);
+    }
+  }, [applyCrop, cropArea, onSave]);
+
+  // Reset all edits
+  const handleReset = useCallback(() => {
+    setCropArea(null);
+    setBlurRegions([]);
+    setFilters({
+      brightness: 100,
+      contrast: 100,
+      saturation: 100,
+      blur: 0,
+      rotation: 0,
+    });
+  }, []);
+
+  // Rotate image
+  const handleRotate = useCallback((direction: 'left' | 'right') => {
+    setFilters(prev => ({
+      ...prev,
+      rotation: prev.rotation + (direction === 'right' ? 90 : -90)
+    }));
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-center">Loading editor...</p>
+        </div>
+      </div>
     );
-  };
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4"
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <div className="flex space-x-4">
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-6xl max-h-[95vh] w-full flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">Image Editor</h3>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <FaTimes className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => setMode("crop")}
-              className={`p-2 rounded flex items-center ${mode === "crop" ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"}`}
-              title={t("crop")}
+              className={`px-3 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
+                mode === "crop" ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
+              }`}
             >
-              <FaCrop className="mr-2" />
-              <span>{t("crop")}</span>
+              <FaCrop className="h-4 w-4" />
+              <span>Crop</span>
             </button>
             <button
               onClick={() => setMode("blur")}
-              className={`p-2 rounded flex items-center ${mode === "blur" ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"}`}
-              title={t("blur")}
+              className={`px-3 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
+                mode === "blur" ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
+              }`}
             >
-              <FaEraser className="mr-2" />
-              <span>{t("blur")}</span>
+              <FaEraser className="h-4 w-4" />
+              <span>Blur</span>
             </button>
-            {mode === "blur" && (
-              <>
-                <button
-                  onClick={removeLastBlurRegion}
-                  className="p-2 rounded flex items-center text-gray-600 hover:bg-gray-100"
-                  title={t("undo")}
-                >
-                  <FaUndo className="mr-2" />
-                  <span>{t("undo")}</span>
-                </button>
-                <div className="flex items-center space-x-2">
-                  <FaSlidersH className="text-gray-600" />
-                  <input
-                    type="range"
-                    min="5"
-                    max="20"
-                    value={blurIntensity}
-                    onChange={(e) => setBlurIntensity(Number(e.target.value))}
-                    className="w-24"
-                    title={t("blurIntensity")}
-                  />
-                </div>
-              </>
-            )}
+            <button
+              onClick={() => setMode("filters")}
+              className={`px-3 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
+                mode === "filters" ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              <FaSlidersH className="h-4 w-4" />
+              <span>Filters</span>
+            </button>
           </div>
-          <div className="flex space-x-2">
+
+          <div className="flex items-center space-x-2">
             <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center"
+              onClick={() => handleRotate('left')}
+              className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+              title="Rotate Left"
             >
-              <FaSave className="mr-2" />
-              {t("save")}
+              <FaUndoAlt className="h-4 w-4" />
             </button>
             <button
-              onClick={onClose}
-              className="p-2 text-gray-500 hover:text-gray-700"
-              title={t("close")}
+              onClick={() => handleRotate('right')}
+              className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+              title="Rotate Right"
             >
-              <FaTimes />
+              <FaRedo className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleReset}
+              className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <FaUndo className="h-4 w-4" />
+              <span>Reset</span>
             </button>
           </div>
         </div>
 
-        <div className="relative flex-1 overflow-auto p-4">
-          <div
-            className="relative"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-          >
-            {mode === "crop" ? (
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={undefined}
-              >
-                <img
-                  ref={imageRefCallback}
-                  src={imageUrl}
-                  alt="Edit"
-                  onLoad={(e) => onImageLoad(e.currentTarget)}
-                  className="max-w-full"
-                  crossOrigin="anonymous"
-                />
-              </ReactCrop>
-            ) : (
-              <div className="relative">
-                <canvas
-                  ref={previewCanvasRef}
-                  className="max-w-full"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    display: mode === "blur" ? "block" : "none",
-                  }}
-                />
-                <img
-                  src={imageUrl}
-                  alt="Edit"
-                  ref={imageRefCallback}
-                  className="max-w-full"
-                  style={{ display: mode === "blur" ? "none" : "block" }}
-                  crossOrigin="anonymous"
-                />
-                {blurRegions.map((region, index) => (
-                  <div
-                    key={index}
-                    className="absolute bg-blue-500 bg-opacity-30 border-2 border-blue-500"
-                    style={{
-                      left: `${(region.x / (originalImage?.width || 1)) * 100}%`,
-                      top: `${(region.y / (originalImage?.height || 1)) * 100}%`,
-                      width: `${(region.width / (originalImage?.width || 1)) * 100}%`,
-                      height: `${(region.height / (originalImage?.height || 1)) * 100}%`,
-                    }}
+        {/* Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Canvas Area */}
+          <div className="flex-1 p-4 flex items-center justify-center bg-gray-100">
+            <div className="max-w-full max-h-full overflow-auto">
+              <canvas
+                ref={canvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                className="max-w-full max-h-full border border-gray-300 cursor-crosshair"
+                style={{ maxHeight: '60vh' }}
+              />
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          {mode === "filters" && (
+            <div className="w-80 p-4 border-l bg-white overflow-y-auto">
+              <h4 className="font-semibold mb-4">Filters</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Brightness: {filters.brightness}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={filters.brightness}
+                    onChange={(e) => setFilters(prev => ({ ...prev, brightness: parseInt(e.target.value) }))}
+                    className="w-full"
                   />
-                ))}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Contrast: {filters.contrast}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={filters.contrast}
+                    onChange={(e) => setFilters(prev => ({ ...prev, contrast: parseInt(e.target.value) }))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Saturation: {filters.saturation}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={filters.saturation}
+                    onChange={(e) => setFilters(prev => ({ ...prev, saturation: parseInt(e.target.value) }))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Blur: {filters.blur}px
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={filters.blur}
+                    onChange={(e) => setFilters(prev => ({ ...prev, blur: parseInt(e.target.value) }))}
+                    className="w-full"
+                  />
+                </div>
               </div>
-            )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between p-4 border-t bg-gray-50">
+          <div className="text-sm text-gray-600">
+            {mode === "crop" && "Click and drag to select crop area"}
+            {mode === "blur" && "Click and drag to add blur regions"}
+            {mode === "filters" && "Adjust filters using the sidebar"}
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <FaSave className="h-4 w-4" />
+              <span>Save</span>
+            </button>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default ImageEditor;
+export default ImageEditorOptimized;

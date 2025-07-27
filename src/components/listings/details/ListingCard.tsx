@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import PreloadImages from "@/components/media/PreloadImages";
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
+import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
 import { PriceConverter } from "@/components/common/PriceConverter";
@@ -14,12 +15,10 @@ import type {
 } from "@/types/listings";
 import { ListingCategory, ListingAction, ListingStatus } from "@/types/enums";
 import { motion } from "framer-motion";
-import {
-  MdFavorite,
-  MdFavoriteBorder,
-  MdLocationOn,
-  MdOutlineRemoveRedEye,
-} from "react-icons/md";
+import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
+import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
+import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
+import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks";
 import {

@@ -1,7 +1,7 @@
 "use client";
 
 import { MessagesAPI } from "@/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import OptimizedAvatar from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -380,12 +380,12 @@ const ParticipantMessageBubble = ({
 }: ParticipantMessageBubbleProps) => {
   return (
     <div className="flex items-start space-x-3">
-      <Avatar className="h-10 w-10 border">
-        <AvatarImage src={participant?.profilePicture || "/placeholder.svg"} />
-        <AvatarFallback>
-          {participant?.username?.slice(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      <OptimizedAvatar
+        src={participant?.profilePicture}
+        fallback={participant?.username}
+        size="md"
+        className="h-8 w-8"
+      />
       <div className="flex-1">
         <div className="flex items-center mb-1">
           <div className="font-medium">
@@ -431,12 +431,12 @@ const UserMessageBubble = ({ message, user }: UserMessageBubbleProps) => {
           <p>{message.content}</p>
         </div>
       </div>
-      <Avatar className="h-10 w-10 border">
-        <AvatarImage src={user?.profilePicture || ""} />
-        <AvatarFallback>
-          {user?.username?.slice(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      <OptimizedAvatar
+        src={user?.profilePicture}
+        fallback={user?.username || 'U'}
+        size="md"
+        className="h-8 w-8"
+      />
     </div>
   );
 };

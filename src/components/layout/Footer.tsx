@@ -1,7 +1,15 @@
-import React from "react";
+import React, { memo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+
+// Use lightweight social icons instead of react-icons
+const SocialIcon = ({ name, url }: { name: string; url: string }) => (
+  <a href={url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
+    <span className="sr-only">{name}</span>
+    <span className="text-lg">{name.slice(0, 1)}</span>
+  </a>
+);
 
 const Footer: React.FC = () => {
   const { t } = useTranslation("footer");
@@ -164,8 +172,8 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Social Links */}
-          <div>
+           {/* Social Links */}
+           <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
               <span aria-hidden="true" className="hidden">
                 اتصل بنا
@@ -217,23 +225,10 @@ const Footer: React.FC = () => {
                   <FaInstagram className="w-6 h-6 inline" />
                 </span>
               </a>
-              <a
-                href="#"
-                className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
-                aria-label="LinkedIn"
-                role="link"
-                tabIndex={0}
-              >
-                <span aria-hidden="true" className="hidden">
-                  لينكد إن
-                </span>
-                <span lang="ar" className="inline">
-                  <FaLinkedin className="w-6 h-6 inline" />
-                </span>
-              </a>
             </div>
           </div>
         </div>
+
 
         {/* Copyright */}
         <div className="border-t border-border-primary dark:border-border-primary-dark pt-6 mt-8">

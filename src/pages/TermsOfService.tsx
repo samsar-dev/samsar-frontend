@@ -1,25 +1,22 @@
-import {
-  Container,
-  Typography,
-  Box,
-  Link,
-  Paper,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
+import Container from "@mui/material/Container";
+import { Typography } from "@/utils/typography";
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import { motion } from "framer-motion";
-import {
-  Gavel,
-  Description,
-  AccountBalance,
-  Security,
-  Policy,
-  ContactSupport,
-  Star,
-  Info as InfoIcon,
-} from "@mui/icons-material";
+import Gavel from "@mui/icons-material/Gavel";
+import Description from "@mui/icons-material/Description";
+import AccountBalance from "@mui/icons-material/AccountBalance";
+import Security from "@mui/icons-material/Security";
+import Policy from "@mui/icons-material/Policy";
+import ContactSupport from "@mui/icons-material/ContactSupport";
+import Star from "@mui/icons-material/Star";
+import InfoIcon from "@mui/icons-material/Info";
+
 import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
 
@@ -42,13 +39,13 @@ const TermsOfService = () => {
       icon: <Description sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             Welcome to our marketplace platform ("Platform"). These Terms of
             Service ("Terms") govern your access to and use of our website and
             services. Please read these Terms carefully before using the
             Platform.
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             By accessing or using the Platform, you agree to be bound by these
             Terms and our Privacy Policy. If you do not agree to these Terms,
             you may not access or use the Platform.
@@ -61,7 +58,7 @@ const TermsOfService = () => {
       icon: <AccountBalance sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             To access certain features of the Platform, you may be required to
             create an account. When creating an account, you agree to:
           </Typography>
@@ -91,7 +88,7 @@ const TermsOfService = () => {
       icon: <Gavel sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             Our Platform allows users to list, buy, and sell vehicles and real
             estate properties. When using these features, you agree to:
           </Typography>
@@ -113,7 +110,7 @@ const TermsOfService = () => {
               <ListItemText primary="Not post any content that is illegal, offensive, or infringes on others' rights" />
             </ListItem>
           </List>
-          <Typography variant="body1" paragraph sx={{ mt: 2 }}>
+          <Typography component="h4" sx={{ fontWeight: 600 }}>
             We reserve the right to remove any listings that violate these Terms
             or that we determine, in our sole discretion, to be inappropriate.
           </Typography>
@@ -125,12 +122,12 @@ const TermsOfService = () => {
       icon: <Policy sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             Certain features of the Platform may require payment of fees. All
             fees are in USD and are non-refundable unless otherwise stated. You
             are responsible for paying all applicable taxes.
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             We use third-party payment processors to facilitate transactions. By
             making a payment through the Platform, you agree to the terms and
             conditions and privacy policy of the applicable payment processor.
@@ -147,13 +144,13 @@ const TermsOfService = () => {
       icon: <Security sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             Your privacy is important to us. Our Privacy Policy explains how we
             collect, use, and protect your personal information. By using the
             Platform, you consent to our collection and use of your information
             as described in the Privacy Policy.
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             You are responsible for maintaining the confidentiality of your
             account credentials and for all activities that occur under your
             account. You agree to immediately notify us of any unauthorized use
@@ -167,7 +164,7 @@ const TermsOfService = () => {
       icon: <Description sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             The Platform and its entire contents, features, and functionality
             (including but not limited to all information, software, text,
             displays, images, video, and audio, and the design, selection, and
@@ -176,7 +173,7 @@ const TermsOfService = () => {
             trademark, patent, trade secret, and other intellectual property or
             proprietary rights laws.
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             You may use the Platform for your personal, non-commercial use only.
             You must not reproduce, distribute, modify, create derivative works
             of, publicly display, publicly perform, republish, download, store,
@@ -204,7 +201,7 @@ const TermsOfService = () => {
       icon: <Security sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             To the maximum extent permitted by law, in no event shall we be
             liable for any indirect, punitive, incidental, special,
             consequential, or exemplary damages, including without limitation
@@ -212,7 +209,7 @@ const TermsOfService = () => {
             intangible losses, that result from the use of, or inability to use,
             the Platform.
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             In no event shall our total liability to you for all damages,
             losses, and causes of action exceed the amount you have paid us in
             the past six (6) months, or, if greater, one hundred U.S. dollars
@@ -226,7 +223,7 @@ const TermsOfService = () => {
       icon: <ContactSupport sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             We may update these Terms from time to time. If we make material
             changes, we will notify you by email or by posting a notice on the
             Platform prior to the effective date of the changes. Your continued
@@ -241,10 +238,10 @@ const TermsOfService = () => {
       icon: <ContactSupport sx={{ color: "primary.main", mr: 2 }} />,
       content: (
         <>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             If you have any questions about these Terms, please contact us at:
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             Email:{" "}
             <Link href="mailto:contact@samsar.app" color="primary">
               contact@samsar.app
@@ -254,7 +251,7 @@ const TermsOfService = () => {
             <br />
             Address: 123 Marketplace Street, New York, NY 10001, United States
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography component="p" paragraph>
             <strong>Effective Date:</strong> June 5, 2025
           </Typography>
         </>
@@ -275,21 +272,10 @@ const TermsOfService = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Typography
-            variant="h2"
-            component="h1"
-            gutterBottom
-            align="center"
-            sx={{ fontWeight: 700, mb: 3 }}
-          >
+          <Typography variant="h2" component="h1" align="center" sx={{ fontWeight: 700, mb: 3 }}>
             Terms of Service
           </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            align="center"
-            sx={{ mb: 8, maxWidth: 800, mx: "auto" }}
-          >
+          <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 8, maxWidth: 800, mx: "auto" }}>
             Please read these Terms of Service carefully before using our
             Platform.
           </Typography>

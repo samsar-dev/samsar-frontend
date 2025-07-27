@@ -5,7 +5,7 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import OptimizedAvatar from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
@@ -76,15 +76,12 @@ export default function UserDetails({
             to={`/profile/${participant.id}`}
             className="flex flex-col items-center"
           >
-            <Avatar className="h-20 w-20 mb-2">
-              {participant.profilePicture ? (
-                <AvatarImage src={participant.profilePicture} />
-              ) : (
-                <AvatarFallback className="text-2xl">
-                  {getInitials(participant.name)}
-                </AvatarFallback>
-              )}
-            </Avatar>
+            <OptimizedAvatar 
+              src={participant?.profilePicture}
+              fallback={participant?.name || participant?.username || 'U'}
+              size="lg"
+              className="h-24 w-24 mb-4"
+            />
             <div className="font-medium">{participant.name}</div>
             {participant.showEmail && (
               <div className="text-xs text-gray-500 mb-4">

@@ -4,8 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks";
 import { useUI } from "@/contexts/UIContext";
 import { Tooltip } from "@/components/ui/tooltip";
+
+// Import components using default exports
 import { SearchBar } from "@/components/search/SearchBar";
 import NotificationBell from "@/components/notifications/NotificationBell";
+
+// Import only necessary icons to reduce bundle size
+ 
 import {
   FaUser,
   FaCog,
@@ -19,6 +24,10 @@ import {
   FaEnvelope,
   FaHeart,
 } from "react-icons/fa";
+// Icon props interface for type safety
+interface IconProps {
+  className?: string;
+}
 
 const Navbar: React.FC = () => {
   // --- Added for category search ---

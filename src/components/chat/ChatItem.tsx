@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import OptimizedAvatar from "@/components/ui/avatar";
 import type { Conversation, User } from "@/types";
 import type { AuthUser } from "@/types/auth.types";
 
@@ -19,12 +19,12 @@ function ChatItem({
     <div
       className={`flex items-start space-x-3 hover:bg-gray-100/30 cursor-pointer ${chatId === chat?.id && "bg-gray-100"} py-2 px-2 rounded`}
     >
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={participants.profilePicture} />
-        <AvatarFallback>
-          {participants?.username[0]?.toLocaleUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      <OptimizedAvatar 
+        src={participants.profilePicture} 
+        fallback={participants?.username}
+        size="md"
+        className="h-8 w-8"
+      />
       <div className="flex-1">
         <div className="flex items-center justify-between">
           <div className="font-medium">

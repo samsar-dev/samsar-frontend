@@ -434,6 +434,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
+    // Mark location as touched during validation
+    setTouched((prev) => ({ ...prev, location: true }));
+
     // Basic fields validation
     if (!formData.title?.trim()) newErrors.title = formT("validation.required");
     if (!formData.description?.trim())
@@ -1805,14 +1808,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                       lng: location.coordinates[1],
                       bounds: location.boundingBox,
                     });
+                    // Mark location as touched when user selects a location
+                    setTouched((prev) => ({ ...prev, location: true }));
                   }}
                   placeholder={commonT("propertyDetails.selectLocation")}
-                  className="w-full"
+                  className={`w-full ${
+                    errors.location && touched.location
+                      ? "border-red-500 ring-1 ring-red-500"
+                      : ""
+                  }`}
                   initialValue={formData.locationDisplay || formData.location}
                 />
-                {locationError && (
+                {errors.location && touched.location && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {locationError}
+                    {errors.location}
                   </p>
                 )}
               </div>

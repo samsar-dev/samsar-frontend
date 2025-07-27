@@ -1,11 +1,15 @@
-import { Container, Typography, Box, Link, Paper } from "@mui/material";
+import { Container, Box, Link, Paper } from "@mui/material";
+import { Typography } from "@/utils/typography";
 import { motion } from "framer-motion";
-import { PrivacyTip, Security, Gavel, ContactMail } from "@mui/icons-material";
+import PrivacyTip from "@mui/icons-material/PrivacyTip";
+import Security from "@mui/icons-material/Security";
+import Gavel from "@mui/icons-material/Gavel";
+import ContactMail from "@mui/icons-material/ContactMail";
 import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
 
 const PrivacyPolicy = () => {
-  const { t } = useTranslation("privacy_policy");
+  const { t } = useTranslation("footer");
   const pageTitle = t("privacy_policy.meta_title", "سياسة الخصوصية - سمسار");
   const pageDescription = t(
     "privacy_policy.meta_description",
@@ -136,7 +140,6 @@ const PrivacyPolicy = () => {
         <Typography
           variant="h1"
           component="h1"
-          gutterBottom
           align="center"
           sx={{
             mb: 4,
