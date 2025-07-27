@@ -29,22 +29,17 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
       "--spinner-track-color": trackColor,
       "--spinner-active-color": activeColor,
       "--spinner-animation-duration": `${speed}s`,
+      "--spinner-border-width": sizeClasses[size].includes('border-2') ? '2px' : '4px',
     } as React.CSSProperties & {
       "--spinner-track-color": string;
       "--spinner-active-color": string;
       "--spinner-animation-duration": string;
-    };
-
-    // Inline critical styles
-    const inlineStyles = {
-      "--spinner-track-color": trackColor,
-      "--spinner-active-color": activeColor,
-      "--spinner-animation-duration": `${speed}s`,
+      "--spinner-border-width": string;
     };
 
     return (
       <div
-        className={`inline-flex items-center justify-center ${className}`}
+        className={`inline-flex items-center justify-center ${className} loading-spinner`}
         role="status"
         aria-live={ariaLive}
         aria-atomic={ariaAtomic}
@@ -54,11 +49,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
         <div className={`relative ${sizeClasses[size]}`} style={spinnerStyle}>
           {/* Background track */}
           <div
-            className="absolute inset-0 border-solid border-transparent"
+            className="loading-spinner__track"
             style={{
               borderColor: "var(--spinner-track-color)",
-              borderWidth: sizeClasses[size].includes('border-2') ? '2px' : '4px',
-              borderRadius: '50%',
+              borderWidth: "var(--spinner-border-width)",
               transform: 'translateZ(0)',
               willChange: 'transform',
               animationName: 'spin',
@@ -71,10 +65,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
 
           {/* Animated spinner */}
           <div
-            className="absolute inset-0 border-solid border-t-[color:var(--spinner-active-color)] border-transparent"
+            className="loading-spinner__indicator"
             style={{
-              borderWidth: sizeClasses[size].includes('border-2') ? '2px' : '4px',
-              borderRadius: '50%',
+              borderWidth: "var(--spinner-border-width)",
               transform: 'translateZ(0)',
               willChange: 'transform',
               animationName: 'spin',
