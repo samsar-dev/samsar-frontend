@@ -6,6 +6,7 @@ import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
 import imagemin from "vite-plugin-imagemin";
+import { cssOptimizationPlugin } from "./src/plugins/cssOptimization";
 
  
 
@@ -52,6 +53,7 @@ export default defineConfig(({ mode, command }) => {
     },
     plugins: [
       react(),
+      cssOptimizationPlugin(),
       visualizer({
         open: true,
         filename: 'stats.html',
@@ -794,6 +796,7 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       minify: mode === "production",
+      // Enhanced CSS optimization for mobile
       lightningcss: {
         targets: {
           chrome: 90 * 65536,
@@ -801,7 +804,15 @@ export default defineConfig(({ mode, command }) => {
           safari: 15 * 65536,
           edge: 92 * 65536,
         },
+        // Enable advanced optimizations
+        minify: true,
+        sourceMap: false,
+        cssModules: {
+          pattern: "[hash]_[local]",
+        },
       },
+      // Code splitting for CSS
+      codeSplit: true,
     },
 
     optimizeDeps: {

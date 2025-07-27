@@ -2,8 +2,41 @@ import React, { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { preloadAssets } from "./utils/preload";
+import { injectCriticalCSS, preloadNonCriticalCSS } from "./utils/criticalCSS";
+import { optimizeCSSForMobile, monitorCSSPerformance } from "./utils/cssSplitting";
 import "./config/i18n";
-import "@/assets/css/index.css";
+
+// Inject critical CSS immediately for LCP optimization
+injectCriticalCSS();
+
+// Optimize CSS delivery for mobile devices
+if (typeof window !== 'undefined') {
+  // Initialize CSS optimization
+  optimizeCSSForMobile();
+  
+  // Monitor CSS performance in development
+  if (process.env.NODE_ENV === 'development') {
+    monitorCSSPerformance();
+  }
+  
+  // Defer non-critical CSS loading with priority
+  requestIdleCallback(() => {
+    import("@/assets/css/index.css").then(() => {
+      preloadNonCriticalCSS();
+      console.log('✅ Non-critical CSS loaded');
+    }).catch(err => {
+      console.warn('⚠️ Failed to load non-critical CSS:', err);
+      // Fallback: load synchronously
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/css/index.css';
+      document.head.appendChild(link);
+    });
+  }, { timeout: 2000 });
+} else {
+  // Server-side: load normally
+  import("@/assets/css/index.css");
+}
 
 // Import store directly since it's needed immediately
 import { store } from "./store/store";

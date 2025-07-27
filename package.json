@@ -76,6 +76,7 @@
     "start": "vite"
   },
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^7.0.2",
     "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
     "@types/node": "^20.19.7",
     "@types/react": "^18.3.23",

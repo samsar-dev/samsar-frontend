@@ -78,25 +78,169 @@
       crossorigin
     />
 
-    <!-- Inline critical CSS -->
+    <!-- Enhanced Critical CSS for LCP Optimization -->
     <style id="critical-css">
-      /* Critical CSS for above-the-fold content */
+      /* Critical CSS for above-the-fold content - Optimized for mobile */
       :root {
         --primary: #2563eb;
+        --primary-dark: #1d4ed8;
         --background: #ffffff;
         --text: #1f2937;
+        --border: #e5e7eb;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
       }
+      
+      /* Reset and base styles */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      
       body {
         margin: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         line-height: 1.5;
         color: var(--text);
+        background-color: var(--background);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-display: swap;
       }
+      
+      /* Critical layout utilities */
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+      
+      .flex { display: flex; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .justify-center { justify-content: center; }
+      .flex-col { flex-direction: column; }
+      .gap-4 { gap: 1rem; }
+      .gap-6 { gap: 1.5rem; }
+      
+      /* Critical spacing */
+      .p-4 { padding: 1rem; }
+      .p-6 { padding: 1.5rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+      .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+      .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+      .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+      .mt-4 { margin-top: 1rem; }
+      .mb-6 { margin-bottom: 1.5rem; }
+      .mb-8 { margin-bottom: 2rem; }
+      
+      /* Critical text styles */
+      .text-center { text-align: center; }
+      .text-right { text-align: right; }
+      .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+      .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+      .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+      .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+      .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+      .font-bold { font-weight: 700; }
+      .font-semibold { font-weight: 600; }
+      
+      /* Critical colors */
+      .text-gray-600 { color: #4b5563; }
+      .text-gray-800 { color: var(--gray-800); }
+      .text-gray-900 { color: var(--gray-900); }
+      .text-blue-600 { color: var(--primary); }
+      .bg-white { background-color: #ffffff; }
+      .bg-gray-50 { background-color: var(--gray-50); }
+      .bg-blue-600 { background-color: var(--primary); }
+      
+      /* Critical button styles */
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-display: swap;
+      }
+      
+      .btn-primary:hover {
+        background-color: var(--primary-dark);
+      }
+      
+      /* Critical header/hero styles */
+      .hero-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        min-height: 60vh;
+      }
+      
       .lcp-element {
         will-change: transform;
         font-weight: 700;
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+        contain: layout style paint;
       }
+      
+      /* Critical responsive */
+      @media (min-width: 768px) {
+        .container {
+          padding: 0 2rem;
+        }
+        
+        .lcp-element {
+          font-size: 3rem;
+          line-height: 1.2;
+        }
+        
+        .text-4xl {
+          font-size: 3rem;
+          line-height: 1.2;
+        }
+      }
+      
+      /* Critical loading states */
+      .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+      }
+      
+      @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+      
+      /* Dark mode critical styles */
+      .dark {
+        --background: #111827;
+        --text: #f9fafb;
+        --border: #374151;
+      }
+      
+      .dark body {
+        background-color: var(--background);
+        color: var(--text);
+      }
+      
+      .dark .bg-white {
+        background-color: #1f2937;
+      }
+      
+      .dark .text-gray-800 {
+        color: #f3f4f6;
+      }
+      
+      .dark .text-gray-600 {
+        color: #9ca3af;
+      }
+      
       /* Critical layout styles */
       #root {
         display: flex;
@@ -323,6 +467,132 @@
     <meta name="twitter:title" content="Marketplace - Buy and Sell Locally" />
     <meta name="twitter:description" content="Find amazing deals near you" />
     <meta name="twitter:image" content="/og-image.jpg" />
+    
+    <!-- CSS Loading Optimization Script -->
+    <script>
+      // Async CSS loading for non-critical styles
+      (function() {
+        'use strict';
+        
+        // Function to load CSS asynchronously
+        function loadCSS(href, before, media, attributes) {
+          var doc = window.document;
+          var ss = doc.createElement('link');
+          var ref;
+          if (before) {
+            ref = before;
+          } else {
+            var refs = (doc.body || doc.getElementsByTagName('head')[0]).childNodes;
+            ref = refs[refs.length - 1];
+          }
+          
+          var sheets = doc.styleSheets;
+          if (attributes) {
+            for (var attributeName in attributes) {
+              if (attributes.hasOwnProperty(attributeName)) {
+                ss.setAttribute(attributeName, attributes[attributeName]);
+              }
+            }
+          }
+          ss.rel = 'stylesheet';
+          ss.href = href;
+          ss.media = 'only x';
+          
+          function ready(cb) {
+            if (doc.body) {
+              return cb();
+            }
+            setTimeout(function() {
+              ready(cb);
+            });
+          }
+          
+          ready(function() {
+            ref.parentNode.insertBefore(ss, (before ? ref : ref.nextSibling));
+          });
+          
+          var onloadcssdefined = function(cb) {
+            var resolvedHref = ss.href;
+            var i = sheets.length;
+            while (i--) {
+              if (sheets[i].href === resolvedHref) {
+                return cb();
+              }
+            }
+            setTimeout(function() {
+              onloadcssdefined(cb);
+            });
+          };
+          
+          function loadCB() {
+            if (ss.addEventListener) {
+              ss.removeEventListener('load', loadCB);
+            }
+            ss.media = media || 'all';
+          }
+          
+          if (ss.addEventListener) {
+            ss.addEventListener('load', loadCB);
+          }
+          ss.onloadcssdefined = onloadcssdefined;
+          onloadcssdefined(loadCB);
+          return ss;
+        }
+        
+        // Preload critical resources
+        var criticalResources = [
+          '/fonts/inter.woff2',
+          '/fonts/roboto.woff2'
+        ];
+        
+        criticalResources.forEach(function(resource) {
+          var link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = resource.includes('.woff') ? 'font' : 'style';
+          link.href = resource;
+          if (resource.includes('.woff')) {
+            link.crossOrigin = 'anonymous';
+          }
+          document.head.appendChild(link);
+        });
+        
+        // Performance observer for LCP
+        if ('PerformanceObserver' in window) {
+          var observer = new PerformanceObserver(function(list) {
+            var entries = list.getEntries();
+            var lastEntry = entries[entries.length - 1];
+            console.log('LCP:', lastEntry.startTime + 'ms');
+          });
+          observer.observe({ entryTypes: ['largest-contentful-paint'] });
+        }
+        
+        // Resource hints for better loading
+        var resourceHints = [
+          { rel: 'dns-prefetch', href: 'https://api.samsar.app' },
+          { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+          { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }
+        ];
+        
+        resourceHints.forEach(function(hint) {
+          var link = document.createElement('link');
+          link.rel = hint.rel;
+          link.href = hint.href;
+          if (hint.crossorigin) {
+            link.crossOrigin = 'anonymous';
+          }
+          document.head.appendChild(link);
+        });
+      })();
+    </script>
+    
+    <!-- Fallback for critical CSS if JavaScript fails -->
+    <noscript>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+        .lcp-element { font-size: 2rem; font-weight: 700; }
+      </style>
+    </noscript>
   </head>
 
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
