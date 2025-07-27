@@ -1,9 +1,9 @@
 import type { LoadingSpinnerProps } from "@/types/ui";
-import React, { memo, useMemo, useEffect } from "react";
+import React, { memo } from "react";
 
 /**
- * A highly performant and accessible loading spinner component.
- * Uses CSS transforms and hardware acceleration for smooth animations.
+ * A highly optimized loading spinner component.
+ * Uses CSS-only animations and hardware acceleration for maximum performance.
  */
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
   ({
@@ -17,60 +17,30 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
     speed = 1,
     ...rest
   }) => {
-    // Memoize the size classes to prevent recalculation on every render
-    const sizeClasses = useMemo(
-      () => ({
-        sm: "w-4 h-4 border-2",
-        md: "w-8 h-8 border-2",  // Changed from border-3 to border-2 which is a valid Tailwind class
-        lg: "w-12 h-12 border-4",
-      }),
-      [],
-    );
+    // Predefined size classes with optimized border widths
+    const sizeClasses = {
+      sm: "w-4 h-4 border-2 rounded-full",
+      md: "w-8 h-8 border-2 rounded-full",
+      lg: "w-12 h-12 border-4 rounded-full",
+    };
 
-    // Memoize the spinner style to prevent unnecessary recalculations
-    const spinnerStyle = useMemo(
-      () =>
-        ({
-          "--spinner-track-color": trackColor,
-          "--spinner-active-color": activeColor,
-          "--spinner-animation-duration": `${speed}s`,
-        }) as React.CSSProperties & {
-          "--spinner-track-color": string;
-          "--spinner-active-color": string;
-          "--spinner-animation-duration": string;
-        },
-      [trackColor, activeColor, speed],
-    );
+    // Use CSS variables for better performance
+    const spinnerStyle = {
+      "--spinner-track-color": trackColor,
+      "--spinner-active-color": activeColor,
+      "--spinner-animation-duration": `${speed}s`,
+    } as React.CSSProperties & {
+      "--spinner-track-color": string;
+      "--spinner-active-color": string;
+      "--spinner-animation-duration": string;
+    };
 
-    // Add global styles for the spinner animation
-    useEffect(() => {
-      if (typeof document === "undefined") return;
-
-      // Create or update the style element
-      let styleElement = document.getElementById("spinner-styles");
-
-      if (!styleElement) {
-        styleElement = document.createElement("style");
-        styleElement.id = "spinner-styles";
-        document.head.appendChild(styleElement);
-      }
-
-      styleElement.textContent = `
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      .spinner-animate {
-        animation: spin var(--spinner-animation-duration, 1s) linear infinite;
-      }
-    `;
-
-      // Clean up the style element when the component unmounts
-      return () => {
-        if (styleElement && styleElement.parentNode === document.head) {
-          document.head.removeChild(styleElement);
-        }
-      };
-    }, [speed]);
+    // Inline critical styles
+    const inlineStyles = {
+      "--spinner-track-color": trackColor,
+      "--spinner-active-color": activeColor,
+      "--spinner-animation-duration": `${speed}s`,
+    };
 
     return (
       <div
@@ -84,20 +54,33 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
         <div className={`relative ${sizeClasses[size]}`} style={spinnerStyle}>
           {/* Background track */}
           <div
-            className="absolute inset-0 rounded-full border-solid border-transparent"
+            className="absolute inset-0 border-solid border-transparent"
             style={{
-              borderColor: "var(--spinner-track-color, rgba(229, 231, 235, 0.8))",
-              borderWidth: size === 'md' ? '2px' : undefined,  // Explicitly set border width for md size
+              borderColor: "var(--spinner-track-color)",
+              borderWidth: sizeClasses[size].includes('border-2') ? '2px' : '4px',
+              borderRadius: '50%',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              animationName: 'spin',
+              animationDuration: `${speed}s`,
+              animationTimingFunction: 'linear',
+              animationIterationCount: 'infinite',
             }}
             aria-hidden="true"
           />
 
           {/* Animated spinner */}
           <div
-            className="absolute inset-0 rounded-full border-solid border-t-[color:var(--spinner-active-color)] border-transparent spinner-animate"
+            className="absolute inset-0 border-solid border-t-[color:var(--spinner-active-color)] border-transparent"
             style={{
-              borderWidth: size === 'md' ? '2px' : undefined,  // Explicitly set border width for md size
-              willChange: "transform",
+              borderWidth: sizeClasses[size].includes('border-2') ? '2px' : '4px',
+              borderRadius: '50%',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              animationName: 'spin',
+              animationDuration: `${speed}s`,
+              animationTimingFunction: 'linear',
+              animationIterationCount: 'infinite',
             }}
             aria-hidden="true"
           />
