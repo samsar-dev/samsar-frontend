@@ -3,11 +3,11 @@ import react from "@vitejs/plugin-react-swc";
 import Inspect from 'vite-plugin-inspect';
 import path from "path";
 import { fileURLToPath } from "url";
-import viteCompression from "vite-plugin-compression";
-import { createHtmlPlugin } from "vite-plugin-html";
-import { visualizer } from "rollup-plugin-visualizer";
-import { imageOptimizationPlugin } from "./src/plugins/imageOptimization";
-import { cssOptimizationPlugin } from "./src/plugins/cssOptimization";
+import { compression } from "vite-plugin-compression2";
+ 
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteImagemin from "vite-plugin-imagemin";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 
  
 
@@ -54,12 +54,12 @@ export default defineConfig(({ mode, command }) => {
     },
     plugins: [
       react(),
-      cssOptimizationPlugin(),
+      cssInjectedByJsPlugin(),
       visualizer({
         open: true,
-        filename: 'stats.html',
+        filename: path.join(__dirname, 'stats.html'),
         gzipSize: true,
-        brotliSize: true,
+        brotliSize: true
       }),
       Inspect(), // Add Inspect plugin for bundle analysis
       (() => ({
@@ -77,55 +77,29 @@ export default defineConfig(({ mode, command }) => {
           console.log('------------------------\n');
         },
       }))(),
-      createHtmlPlugin({
-        minify: {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          useShortDoctype: true,
-          minifyCSS: true,
-          minifyJS: {
-            ecma: 2020,
-          },
-        },
-        inject: {
-          data: {
-            title: "Samsar - سمسار",
-            description: "سوق السيارات والعقارات الأول في سوريا",
-            themeColor: "#1a56db",
-          },
-        },
+
+
+      // Image optimization with modern plugin
+      viteImagemin({
+        gifsicle: { optimizationLevel: 7 },
+        optipng: { optimizationLevel: 5 },
+        mozjpeg: { quality: 80 },
+        pngquant: { quality: [0.7, 0.9], speed: 4 },
+        svgo: { plugins: [{ name: 'removeViewBox' }, { name: 'cleanupIDs' }] },
       }),
-      // Image optimization
-      imageOptimizationPlugin({
-        quality: 85,
-        maxWidth: 1920,
-        maxHeight: 1080,
-        formats: ['jpeg', 'png', 'webp', 'avif']
+
+      // Modern compression with parallel processing
+      compression({
+        algorithms: ['brotliCompress'],
+        threshold: 1024,
       }),
-      // Compression
-      viteCompression({
-        verbose: true,
-        disable: false,
-        threshold: 10240,
-        algorithm: 'brotliCompress'
-      }),
-      viteCompression({
-        threshold: 1024, // Compress files >1KB
-        algorithm: "gzip",
-        ext: ".gz",
+      compression({
+        algorithms: ['gzip'],
+        threshold: 1024,
       }),
 
       // Bundle analyzer (only in analyze mode)
-      mode === "analyze" &&
-        visualizer({
-          open: true,
-          filename: "bundle-analyzer-report.html",
-          gzipSize: true,
-          brotliSize: true,
-        }),
+      mode === 'analyze' && visualizer({}),
     ].filter(Boolean),
 
     // Configure static asset handling
