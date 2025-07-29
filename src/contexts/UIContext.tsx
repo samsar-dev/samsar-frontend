@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import type { UIContextType, UIPreferences, ToastPosition } from "@/types";
+import type { UIContextType, UIPreferences, ToastPosition } from "@/types/ui";
 import { DEFAULT_SETTINGS } from "@/config";
 
 /**

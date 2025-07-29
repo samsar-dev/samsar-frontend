@@ -2,6 +2,7 @@
  * Critical CSS utilities for optimizing above-the-fold content
  */
 
+// Base styles and resets
 export const criticalCSS = `
 /* Critical CSS for LCP optimization - Above the fold only */
 :root {
@@ -22,42 +23,115 @@ export const criticalCSS = `
   box-sizing: border-box;
 }
 
-body {
+html, body, #root {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
-  color: var(--text);
-  background-color: var(--background);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive display classes */
+.hidden {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .md:flex {
+    display: flex !important;
+  }
+  .md:block {
+    display: block !important;
+  }
 }
 
 /* Critical layout utilities */
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
 }
 
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.flex-col { flex-direction: column; }
-.gap-4 { gap: 1rem; }
-.gap-6 { gap: 1.5rem; }
+/* Critical navigation styles */
+.navbar {
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+}
 
-/* Critical spacing */
-.p-4 { padding: 1rem; }
-.p-6 { padding: 1.5rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-.mt-4 { margin-top: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.mb-8 { margin-bottom: 2rem; }
+.navbar-brand {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  color: var(--primary);
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.navbar-link {
+  color: var(--text);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.navbar-link:hover {
+  color: var(--primary);
+  background-color: var(--gray-50);
+}
+
+/* Critical search bar styles */
+.search-bar {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+/* Critical button styles */
+.button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Critical select styles */
+.select {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
 
 /* Critical text styles */
 .text-center { text-align: center; }
@@ -166,17 +240,19 @@ body {
 /**
  * Inject critical CSS into document head
  */
-export function injectCriticalCSS(): void {
-  if (typeof document === 'undefined') return;
-  
-  const existingStyle = document.getElementById('critical-css-runtime');
-  if (existingStyle) return;
-  
+export const injectCriticalCSS = () => {
   const style = document.createElement('style');
-  style.id = 'critical-css-runtime';
   style.textContent = criticalCSS;
-  document.head.insertBefore(style, document.head.firstChild);
-}
+  style.id = 'critical-css';
+  document.head.appendChild(style);
+};
+
+export const cleanupCriticalCSS = () => {
+  const style = document.getElementById('critical-css');
+  if (style) {
+    document.head.removeChild(style);
+  }
+};
 
 /**
  * Preload non-critical CSS asynchronously

@@ -1,4 +1,8 @@
-import { Container, Box, Card, CardContent } from '@mui/material';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';

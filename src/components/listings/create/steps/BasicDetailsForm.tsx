@@ -36,7 +36,7 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
-import type { ListingStatus } from "@/types";
+import type { ListingStatus } from "@/types/enums";
 
 interface ExtendedVehicleDetails {
   vehicleType: VehicleType;

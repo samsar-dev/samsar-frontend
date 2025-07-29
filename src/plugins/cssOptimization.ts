@@ -24,8 +24,8 @@ export function cssOptimizationPlugin(): Plugin {
     },
     
     transformIndexHtml: {
-      enforce: 'post',
-      transform(html, context) {
+      order: 'post',
+      handler(html, context) {
         if (context.bundle) {
           // Find the main CSS file
           const cssFiles = Object.keys(context.bundle).filter(name => 

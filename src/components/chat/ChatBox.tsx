@@ -14,7 +14,7 @@ type AutoSizerProps = {
 };
 import type { ListChildComponentProps } from "react-window";
 import type { User } from "@/types/user";
-import type { Conversation } from "@/types";
+import type { Conversation } from "@/types/messaging";
 
 interface Message {
   id: string;

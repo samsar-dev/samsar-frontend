@@ -1,5 +1,7 @@
-import { LanguageCode, ThemeType } from "@/types/enums";
+import React from "react";
 import type { Settings, SettingsUpdate } from "@/types/settings";
+import { LanguageCode } from "@/types/enums";
+import { defaultSettings } from "@/constants/defaultSettings";
 import { createContext, useCallback, useContext, useState } from "react";
 
 export interface SettingsContextType {
@@ -10,30 +12,6 @@ export interface SettingsContextType {
   resetSettings: () => void;
 }
 
-const defaultSettings: Settings = {
-  preferences: {
-    language: LanguageCode.AR,
-    theme: ThemeType.LIGHT,
-    timezone: "UTC",
-  },
-  security: {
-    twoFactorEnabled: false,
-    loginNotifications: true,
-    securityQuestions: false,
-  },
-  notifications: {
-    listingUpdates: true,
-    newInboxMessages: true,
-    loginNotifications: true,
-  },
-  privacy: {
-    showEmail: false,
-    showPhone: false,
-    showOnlineStatus: true,
-    allowMessaging: true,
-    profileVisibility: "public",
-  },
-};
 
 export const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
@@ -120,16 +98,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings(defaultSettings);
   }, []);
 
+  const contextValue = React.useMemo(() => ({
+    settings,
+    pendingChanges,
+    updateSettings,
+    applySettings,
+    resetSettings,
+  }), [settings, pendingChanges, updateSettings, applySettings, resetSettings]);
+
   return (
-    <SettingsContext.Provider
-      value={{
-        settings,
-        pendingChanges,
-        updateSettings,
-        applySettings,
-        resetSettings,
-      }}
-    >
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   );

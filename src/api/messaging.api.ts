@@ -73,3 +73,32 @@ export class MessagesAPI {
     return response.data;
   }
 }
+
+// Legacy procedural API wrapper for compatibility with existing imports
+
+export const messagesAPI = {
+  getConversations: () => apiClient.get("/messages/conversations"),
+  getConversation: (id: string) =>
+    apiClient.get(`/messages/conversations/${id}`),
+  getMessages: (conversationId: string) =>
+    apiClient.get(`/messages/conversations/${conversationId}/messages`),
+  sendMessage: (conversationId: string, input: { content: string }) =>
+    apiClient.post(
+      `/messages/conversations/${conversationId}/messages`,
+      input,
+    ),
+  createConversation: (input: {
+    participantIds: string[];
+    initialMessage?: string;
+  }) => apiClient.post("/messages/conversations", input),
+  markAsRead: (conversationId: string, messageId: string) =>
+    apiClient.put(
+      `/messages/conversations/${conversationId}/messages/${messageId}/read`,
+    ),
+  deleteMessage: (conversationId: string, messageId: string) =>
+    apiClient.delete(
+      `/messages/conversations/${conversationId}/messages/${messageId}`,
+    ),
+  deleteConversation: (conversationId: string) =>
+    apiClient.delete(`/messages/conversations/${conversationId}`),
+};

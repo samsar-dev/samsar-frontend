@@ -632,21 +632,18 @@ const Home: React.FC = () => {
       </Helmet>
 
       <Suspense fallback={<div className="h-[500px] bg-gray-100 dark:bg-gray-800 animate-pulse"></div>}>
-        <HomeHero
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        <HomeHero selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
       </Suspense>
 
       {/* Main Content */}
-      <main className="w-full py-12 px-0">
-        <div className="w-full px-0 sm:px-2 md:px-4">
+      <main className="w-full py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rtl:direction-rtl">
           {/* Featured Listings Section */}
           <section
             aria-labelledby="featured-listings-heading"
-            className="w-full mb-16 px-0 sm:px-2"
+            className="w-full mb-16"
           >
-            <div className="flex justify-between items-center mb-6 px-2 sm:px-0">
+            <div className="flex justify-between items-center mb-6">
               <h2
                 id="featured-listings-heading"
                 className="text-2xl font-bold text-gray-900 dark:text-white"

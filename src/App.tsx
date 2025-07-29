@@ -5,275 +5,211 @@ import {
   memo,
   Suspense,
   lazy,
+  useCallback,
 } from "react";
 
-// Lazy load heavy components
+// Core providers - only import what's needed for initial render
+import { AuthProvider } from "@/contexts/AuthContext";
+
+// Lazy load ALL heavy components and providers
 const ToastContainer = lazy(() =>
   import("react-toastify").then(m => ({
     default: m.ToastContainer,
-    __chunkName: 'toastify'
   }))
 );
 
-// Import core providers directly since they're lightweight
-import {
-  AuthProvider,
-  ListingsProvider,
-  FavoritesProvider,
-  UIProvider,
-} from "@/contexts";
+const ListingsProvider = lazy(() =>
+  import("@/contexts/ListingsContext").then(m => ({
+    default: m.ListingsProvider,
+  }))
+);
 
-// Lazy load other providers
+const FavoritesProvider = lazy(() =>
+  import("@/contexts/FavoritesContext").then(m => ({
+    default: m.FavoritesProvider,
+  }))
+);
+
+const UIProvider = lazy(() =>
+  import("@/contexts/UIContext").then(m => ({
+    default: m.UIProvider,
+  }))
+);
+
 const NotificationsProvider = lazy(() =>
   import("@/contexts/NotificationsContext").then(m => ({
     default: m.NotificationsProvider,
-    __chunkName: 'notifications'
   }))
 );
 
 const SettingsProvider = lazy(() =>
   import("@/contexts/SettingsContext").then(m => ({
     default: m.SettingsProvider,
-    __chunkName: 'settings'
   }))
 );
 
-import { MessagesProvider } from "@/contexts/MessagesContext";
+const MessagesProvider = lazy(() =>
+  import("@/contexts/MessagesContext").then(m => ({
+    default: m.MessagesProvider,
+  }))
+);
 
 const SavedListingsProvider = lazy(() =>
   import("./contexts/SavedListingsContext").then(m => ({
     default: m.SavedListingsProvider,
-    __chunkName: 'saved-listings'
   }))
 );
 
 const SocketProvider = lazy(() =>
   import("./contexts/SocketContext").then(m => ({
     default: m.SocketProvider,
-    __chunkName: 'socket'
   }))
 );
 
-// Lazy load heavy components with proper type annotations
 const ErrorBoundary = lazy(() =>
-  import("@/components/common/ErrorBoundary").then((module) => ({
-    default: module.default,
-  })),
+  import("@/components/common/ErrorBoundary")
 );
 
+// Defer analytics to after app is fully loaded
 const SpeedInsights = lazy(() =>
   import("@vercel/speed-insights/react").then((module) => ({
-    default: () => <module.SpeedInsights />,
-  })),
+    default: module.SpeedInsights,
+  }))
 );
 
 const Analytics = lazy(() =>
   import("@vercel/analytics/react").then((module) => ({
-    default: () => {
-      const isProd = process.env.NODE_ENV === "production";
-      return isProd ? <module.Analytics /> : null;
-    },
-  })),
+    default: module.Analytics,
+  }))
 );
 
 // Lazy load routes
 const Routes = lazy(() => import("./routes/Routes"));
 
-// Import utilities
-import { setupAuthDebugger } from "@/utils/authDebug";
-import { ACTIVE_API_URL } from "@/config";
-import i18n from "./config/i18n";
-import { LazyMotion, domAnimation } from "framer-motion";
-
-// Add resource hints for external resources
-if (typeof document !== "undefined") {
-  // Preconnect to primary API server
-  const preconnectPrimary = document.createElement("link");
-  preconnectPrimary.rel = "preconnect";
-  preconnectPrimary.href = new URL(ACTIVE_API_URL).origin;
-  document.head.appendChild(preconnectPrimary);
-
-  // Preconnect to fallback API server
-  const preconnectFallback = document.createElement("link");
-  const healthCheckUrl = `${ACTIVE_API_URL}/health`;
-  preconnectFallback.rel = "preconnect";
-  preconnectFallback.href = new URL(ACTIVE_API_URL).origin;
-  document.head.appendChild(preconnectFallback);
-
-  // DNS prefetch for API domains
-  const dnsPrefetchLink = document.createElement("link");
-  dnsPrefetchLink.rel = "dns-prefetch";
-  dnsPrefetchLink.href = "https://samsar-backend-production.up.railway.app";
-  document.head.appendChild(dnsPrefetchLink);
-}
-
-// Memoized provider components to prevent unnecessary re-renders
-const CombinedDataProvider = memo(
-  ({ children }: { children: React.ReactNode }) => (
-    <Suspense fallback={null}>
-      <ListingsProvider>
-        <FavoritesProvider>
-          <SavedListingsProvider>{children}</SavedListingsProvider>
-        </FavoritesProvider>
-      </ListingsProvider>
-    </Suspense>
-  ),
+// Lazy load utilities to reduce initial bundle
+const LazyMotion = lazy(() =>
+  import("framer-motion").then(m => ({ default: m.LazyMotion }))
 );
 
-const UIProviders = memo(({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={null}>
-    <UIProvider>
-      <SettingsProvider>{children}</SettingsProvider>
-    </UIProvider>
-  </Suspense>
-));
+// Defer heavy imports
+let domAnimation: any;
+let ACTIVE_API_URL: string;
 
-const CommunicationProviders = memo(
-  ({ children }: { children: React.ReactNode }) => (
-    <Suspense fallback={null}>
-      <SocketProvider>
-        <MessagesProvider>
-          <NotificationsProvider>{children}</NotificationsProvider>
-        </MessagesProvider>
-      </SocketProvider>
-    </Suspense>
-  ),
-);
-
-// Preload critical resources
-const preloadResources = () => {
-  if (typeof document !== "undefined") {
-    // Preload critical CSS
-    const preloadLink = document.createElement("link");
-    preloadLink.rel = "preload";
-    preloadLink.as = "style";
-    preloadLink.href = "/path/to/critical.css";
-    document.head.appendChild(preloadLink);
+// Initialize resources lazily
+const initializeResources = async () => {
+  const [{ domAnimation: dom }, { ACTIVE_API_URL: url }] = await Promise.all([
+    import("framer-motion"),
+    import("@/config")
+  ]);
+  
+  domAnimation = dom;
+  ACTIVE_API_URL = url;
+  
+  // Add resource hints after initialization
+  if (typeof document !== "undefined" && ACTIVE_API_URL) {
+    const origin = new URL(ACTIVE_API_URL).origin;
+    
+     
   }
 };
 
-// Optimized: Show app immediately while initializing in the background
+// Optimized single provider component with immediate rendering
+const AppProviders = memo(({ children }: { children: React.ReactNode }) => {
+  return (
+    <UIProvider>
+      <SettingsProvider>
+        <ListingsProvider>
+          <FavoritesProvider>
+            <SavedListingsProvider>
+              <SocketProvider>
+                <MessagesProvider>
+                  <NotificationsProvider>
+                    {children}
+                  </NotificationsProvider>
+                </MessagesProvider>
+              </SocketProvider>
+            </SavedListingsProvider>
+          </FavoritesProvider>
+        </ListingsProvider>
+      </SettingsProvider>
+    </UIProvider>
+  );
+});
+
+// Minimal loading component
+const MinimalLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-white">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+);
+
+// Optimized App component with minimal initial bundle
 const App: () => ReactElement = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Lazy-load Toastify styles only when the app mounts (code-split)
-  useEffect(() => {
-    import('react-toastify/dist/ReactToastify.css');
+  const [isReady, setIsReady] = useState(false);
+  
+  // Memoized initialization function
+  const initialize = useCallback(async () => {
+    try {
+      // Initialize resources in parallel
+      await Promise.all([
+        initializeResources(),
+        // Lazy load CSS
+        import('react-toastify/dist/ReactToastify.css'),
+      ]);
+      
+      // Initialization complete
+      
+      setIsReady(true);
+    } catch (error) {
+      console.error('App initialization error:', error);
+      setIsReady(true); // Continue anyway
+    }
   }, []);
 
   useEffect(() => {
-    // Start with a minimal timeout to ensure first paint happens quickly
-    const initialDelay = setTimeout(() => {
-      setIsInitialized(true);
-    }, 50); // Very short delay to allow first paint
+    initialize();
+  }, [initialize]);
 
-    // Load critical resources immediately
-    preloadResources();
-
-    // Defer non-critical initializations
-    const idleCallbackId = window.requestIdleCallback
-      ? window.requestIdleCallback(
-          () => {
-            setupAuthDebugger();
-          },
-          { timeout: 1000 } // Ensure this runs within 1s even if the browser is busy
-        )
-      : setTimeout(() => setupAuthDebugger(), 0);
-
-    return () => {
-      clearTimeout(initialDelay);
-      if (window.cancelIdleCallback) {
-        window.cancelIdleCallback(idleCallbackId as number);
-      }
-    };
-  }, []);
-
-  // Show minimal loading state only if needed
-  if (!isInitialized) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading application...</p>
-        </div>
-      </div>
-    );
+  if (!isReady) {
+    return <MinimalLoader />;
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      }
-    >
-      <ErrorBoundary
-        onError={(error, errorInfo) => {
-          // Log errors to your monitoring service
-          console.error("Application error:", error);
-          console.error("Component stack:", errorInfo.componentStack);
-        }}
-      >
-        <AuthProvider>
-          <UIProviders>
-            <CombinedDataProvider>
-              <CommunicationProviders>
-                <ErrorBoundary
-                  fallback={
-                    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-                      <div className="max-w-md w-full space-y-4 text-center">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          Something went wrong with this view
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          We've encountered an error rendering this page. Please
-                          try refreshing.
-                        </p>
-                        <button
-                          onClick={() => window.location.reload()}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                          Refresh Page
-                        </button>
-                      </div>
-                    </div>
-                  }
-                >
-                  <LazyMotion features={domAnimation}>
-                    <Suspense
-                      fallback={
-                        <div className="min-h-screen flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                        </div>
-                      }
-                    >
-                      <Routes />
-                    </Suspense>
-                  </LazyMotion>
-                </ErrorBoundary>
-                <ToastContainer
-                  position="top-right"
-                  autoClose={5000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick
-                  rtl={false}
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  theme="light"
-                />
-                <Suspense fallback={null}>
-                  <SpeedInsights />
-                  <Analytics />
-                </Suspense>
-              </CommunicationProviders>
-            </CombinedDataProvider>
-          </UIProviders>
-        </AuthProvider>
-      </ErrorBoundary>
-    </Suspense>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppProviders>
+          <Suspense fallback={<MinimalLoader />}>
+            <LazyMotion features={domAnimation}>
+              <Routes />
+            </LazyMotion>
+          </Suspense>
+          
+          {/* Defer non-critical components */}
+          <Suspense fallback={null}>
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+          </Suspense>
+          
+          {/* Analytics only in production and after everything loads */}
+          {process.env.NODE_ENV === 'production' && (
+            <Suspense fallback={null}>
+              <SpeedInsights />
+              <Analytics />
+            </Suspense>
+          )}
+        </AppProviders>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

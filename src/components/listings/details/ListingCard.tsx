@@ -6,7 +6,8 @@ import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
 import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { PriceConverter } from "@/components/common/PriceConverter";
+import { lazy, Suspense } from "react";
+const PriceConverter = lazy(() => import("@/components/common/PriceConverter"));
 import { cleanLocationString } from "@/utils/locationUtils";
 import type {
   Listing as BaseListing,
@@ -20,16 +21,15 @@ import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
 import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { listingsAPI } from "@/api/listings.api";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useState,
   useEffect,
   useCallback,
   useMemo,
-  memo,
-  Suspense,
+  memo
 } from "react";
-import { Helmet } from "react-helmet-async";
+ 
 
 // Extend the base Listing type to include our custom fields
 interface ExtendedListing extends Omit<BaseListing, "latitude" | "longitude"> {
@@ -616,20 +616,24 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           : "https://schema.org/OutOfStock"
                       }
                     />
-                    <PriceConverter
-                      price={price}
-                      showMonthly={listingAction === ListingAction.RENT}
-                      className="font-semibold"
-                    />
+                    <Suspense fallback={<div className="font-semibold">Loading price...</div>}>
+                      <PriceConverter
+                        price={price}
+                        showMonthly={listingAction === ListingAction.RENT}
+                        className="font-semibold"
+                      />
+                    </Suspense>
                   </div>
                   {"originalPrice" in listing &&
                     listing.originalPrice &&
                     listing.originalPrice > price && (
                       <p className="text-sm text-gray-500 dark:text-gray-400 line-through text-right">
-                        <PriceConverter
-                          price={listing.originalPrice}
-                          className="line-through"
-                        />
+                        <Suspense fallback={<div className="line-through">Loading price...</div>}>
+                          <PriceConverter
+                            price={listing.originalPrice}
+                            className="line-through"
+                          />
+                        </Suspense>
                       </p>
                     )}
                 </div>

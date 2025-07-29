@@ -422,6 +422,8 @@ interface ListingsAPI {
   ): Promise<APIResponse<any>>;
 }
 
+
+
 export const listingsAPI: ListingsAPI = {
   // Get saved listings with abort signal support
   async getSavedListings(
@@ -551,87 +553,11 @@ export const listingsAPI: ListingsAPI = {
         signal,
       });
 
-      // Check if response is ok
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      console.log("Response status:", response.status);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries()),
-      );
-      console.log("Response type:", response.type);
-
-      // IMPORTANT: Check if there's actually content before parsing JSON
-      const contentType = response.headers.get("content-type");
-      console.log("Content-Type:", contentType);
-
-      // Get the raw response text
-      const responseText = await response.text();
-
-      // Log response details for debugging
-      console.log({
-        status: response.status,
-        statusText: response.statusText,
-        contentType: response.headers.get("content-type"),
-        contentLength: response.headers.get("content-length"),
-        responseTextLength: responseText.length,
-        responseTextPreview:
-          responseText.length > 200
-            ? `${responseText.substring(0, 200)}...`
-            : responseText,
-      });
-
-      // Check for empty response
-      if (!responseText.trim()) {
-        const error = new Error("Server returned empty response");
-        console.error(error.message, { status: response.status });
-        throw error;
-      }
-
-      // Parse JSON response
-      let data: any;
-      try {
-        data = JSON.parse(responseText);
-      } catch (error: unknown) {
-        const err = error as Error;
-        console.error("Failed to parse JSON response:", {
-          error: err.message,
-          responsePreview:
-            responseText.length > 200
-              ? `${responseText.substring(0, 200)}...`
-              : responseText,
-        });
-        throw new Error(`Invalid JSON response: ${err.message}`);
-      }
-
-      // Log parsed data structure for debugging
-      console.log("Parsed response data:", {
-        hasData: !!data,
-        hasDataProperty: !!(data && data.data !== undefined),
-        dataType: data ? typeof data : "null",
-        dataKeys: data ? Object.keys(data) : [],
-      });
-
-      // Continue with your existing logic...
-      console.log("Raw API response:", data);
-      console.log("API response data structure:", typeof data.data, data.data); // Debug the data structure
-
-      // Debug listing actions
-      if (data.data && data.data.items && Array.isArray(data.data.items)) {
-        console.log("--- LISTING ACTIONS DEBUG ---");
-        data.data.items.forEach((item: any, index: number) => {
-          console.log(`Listing ${index + 1}: ${item.title}`);
-          console.log(`  ID: ${item.id}`);
-          console.log(`  Raw listingAction: ${item.listingAction}`);
-          console.log(`  Type: ${typeof item.listingAction}`);
-          console.log(`  Action field: ${item.action}`);
-          console.log(`  Type field: ${item.type}`);
-          console.log(`  Full item:`, JSON.stringify(item, null, 2));
-        });
-        console.log("--- END LISTING ACTIONS DEBUG ---");
-      }
+      const data = await response.json();
 
       // Handle different response formats
       let responseData;

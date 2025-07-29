@@ -1,5 +1,5 @@
 import React from "react";
-import type { Message } from "@/types";
+import type { Message } from "@/types/messaging";
 
 interface MessageItemProps {
   message: Message;

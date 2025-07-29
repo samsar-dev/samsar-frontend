@@ -1,117 +1,138 @@
 import React, { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { preloadAssets } from "./utils/preload";
-import { injectCriticalCSS, preloadNonCriticalCSS } from "./utils/criticalCSS";
-import { optimizeCSSForMobile, monitorCSSPerformance } from "./utils/cssSplitting";
-import "./config/i18n";
 
-// Inject critical CSS immediately for LCP optimization
-injectCriticalCSS();
-
-// Optimize CSS delivery for mobile devices
-if (typeof window !== 'undefined') {
-  // Initialize CSS optimization
-  optimizeCSSForMobile();
-  
-  // Monitor CSS performance in development
-  if (process.env.NODE_ENV === 'development') {
-    monitorCSSPerformance();
-  }
-  
-  // Defer non-critical CSS loading with priority
-  requestIdleCallback(() => {
-    import("@/assets/css/index.css").then(() => {
-      preloadNonCriticalCSS();
-      console.log('✅ Non-critical CSS loaded');
-    }).catch(err => {
-      console.warn('⚠️ Failed to load non-critical CSS:', err);
-      // Fallback: load synchronously
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = '/assets/css/index.css';
-      document.head.appendChild(link);
-    });
-  }, { timeout: 2000 });
-} else {
-  // Server-side: load normally
-  import("@/assets/css/index.css");
-}
-
-// Import store directly since it's needed immediately
-import { store } from "./store/store";
-
-// Lazy load components with chunk naming
-const BrowserRouter = lazy(() =>
-  import('react-router-dom').then(m => ({
-    default: m.BrowserRouter,
-    __chunkName: 'react-router-dom'
-  }))
-);
-
-const HelmetProvider = lazy(() =>
-  import('react-helmet-async').then(m => ({
-    default: m.HelmetProvider,
-    __chunkName: 'react-helmet'
-  }))
-);
-
-const App = lazy(() =>
-  import('./App').then(m => ({
-    default: m.default,
-    __chunkName: 'app'
-  }))
-);
-
-// Performance monitoring
-if (process.env.NODE_ENV === "production") {
-  // Report web vitals if in production
-  import("web-vitals").then(({ onCLS, onFCP, onLCP }) => {
-    // Report metrics with a threshold of 1000ms
-    const reportMetric = (metric: any) => {
-      console.log({
-        name: metric.name,
-        value: metric.value,
-        delta: metric.delta,
-        id: metric.id,
-        rating: metric.rating,
-      });
-    };
-
-    onCLS(reportMetric, { reportAllChanges: true });
-    onFCP(reportMetric);
-    onLCP(reportMetric, { reportAllChanges: true });
-  });
-}
-
- 
-
-// Ensure React is properly initialized
-const initializeReact = () => {
-  // Wait for DOM to be fully loaded
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeApp);
-  } else {
-    initializeApp();
+// Minimal critical CSS injection - defer the rest
+const injectMinimalCSS = () => {
+  if (typeof document !== 'undefined') {
+    const style = document.createElement('style');
+    style.textContent = `
+      body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+      .hidden{display:none!important}
+      #root{min-height:100vh}
+      @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    `;
+    document.head.appendChild(style);
   }
 };
 
-const initializeApp = () => {
+// Inject only minimal CSS immediately
+injectMinimalCSS();
+
+// Lazy load everything else
+let store: any;
+let i18nInitialized = false;
+
+// Initialize heavy dependencies asynchronously
+const initializeDependencies = async () => {
+  const [storeModule, i18nModule] = await Promise.all([
+    import("./store/store"),
+    import("./config/i18n")
+  ]);
+  
+  store = storeModule.store;
+  i18nInitialized = true;
+  
+  // Defer CSS optimization to after app loads
+  if (typeof window !== 'undefined') {
+    requestIdleCallback(async () => {
+      try {
+        const [cssUtils, criticalCSS, cssSplitting] = await Promise.all([
+          import("@/assets/css/index.css"),
+          import("./utils/criticalCSS"),
+          import("./utils/cssSplitting")
+        ]);
+        
+        criticalCSS.injectCriticalCSS();
+        cssSplitting.optimizeCSSForMobile();
+        criticalCSS.preloadNonCriticalCSS();
+      } catch (err) {
+        console.warn('CSS optimization failed:', err);
+      }
+    });
+  }
+};
+
+// Lazy load components without chunk naming for faster loading
+const BrowserRouter = lazy(() =>
+  import('react-router-dom').then(m => ({ default: m.BrowserRouter }))
+);
+
+const HelmetProvider = lazy(() =>
+  import('react-helmet-async').then(m => ({ default: m.HelmetProvider }))
+);
+
+const App = lazy(() => import('./App'));
+
+// Defer performance monitoring to after app loads
+const initializePerformanceMonitoring = () => {
+  if (process.env.NODE_ENV === "production" && typeof window !== 'undefined') {
+    // Delay web vitals to avoid blocking startup
+    setTimeout(() => {
+      import("web-vitals").then(({ onCLS, onFCP, onLCP }) => {
+        const reportMetric = (metric: any) => {
+          console.log({
+            name: metric.name,
+            value: metric.value,
+            delta: metric.delta,
+            id: metric.id,
+            rating: metric.rating,
+          });
+        };
+
+        onCLS(reportMetric, { reportAllChanges: true });
+        onFCP(reportMetric);
+        onLCP(reportMetric, { reportAllChanges: true });
+      });
+    }, 2000); // Delay by 2 seconds
+  }
+};
+
+ 
+
+// Minimal loading fallback
+const LoadingFallback = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff'
+  }}>
+    <div style={{
+      width: '32px',
+      height: '32px',
+      border: '2px solid #e5e7eb',
+      borderTop: '2px solid #2563eb',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }} />
+  </div>
+);
+
+// Fast app initialization
+const initializeApp = async () => {
   const container = document.getElementById("root");
   if (!container) {
     throw new Error("Failed to find the root element");
   }
 
-  // Create root with concurrent features enabled
+  // Ensure dependencies are loaded
+  if (!store || !i18nInitialized) {
+    await initializeDependencies();
+  }
+
   const root = createRoot(container, {
-    // Enable concurrent features for better performance
     identifierPrefix: "samsar-",
   });
 
-  // Optimize rendering with StrictMode and proper provider nesting
   root.render(
     <StrictMode>
-      <Suspense fallback={null}>
+      <Suspense fallback={<LoadingFallback />}>
         <HelmetProvider>
           <Provider store={store}>
             <BrowserRouter>
@@ -122,42 +143,43 @@ const initializeApp = () => {
       </Suspense>
     </StrictMode>
   );
+  
+  // Initialize performance monitoring after render
+  initializePerformanceMonitoring();
 };
 
-// Optimized app startup with performance monitoring
+// Ultra-fast app startup
 const startApp = async () => {
   try {
-    // Start preloading assets immediately
-    const preloadPromise = preloadAssets();
+    // Initialize app immediately without waiting for preloading
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initializeApp);
+    } else {
+      await initializeApp();
+    }
 
-    // Initialize React while assets are preloading
-    initializeReact();
+    // Defer asset preloading to after app loads
+    requestIdleCallback(async () => {
+      try {
+        const { preloadAssetsNow } = await import("./utils/preload");
+        await preloadAssetsNow();
+        console.log("✅ Assets preloaded");
+      } catch (error) {
+        console.warn("⚠️ Asset preloading failed:", error);
+      }
+    });
 
-    // Wait for critical assets to finish preloading
-    await preloadPromise;
-
-    // Report successful initialization
     if (process.env.NODE_ENV === "development") {
       console.log("✅ Application initialized successfully");
     }
   } catch (error) {
     console.error("❌ Failed to initialize application:", error);
-    // Error will be handled by the ErrorBoundary component
   }
-}
+};
 
-// Add modern browser detection
+// Simplified browser detection
 const checkModernBrowser = () => {
-  // Check for modern browser features
-  const features = {
-    es6: typeof Symbol !== 'undefined' && Symbol.iterator,
-    es2017: typeof Object.entries !== 'undefined',
-    es2018: typeof Promise.prototype.finally !== 'undefined',
-    fetch: typeof fetch !== 'undefined',
-    intersectionObserver: typeof IntersectionObserver !== 'undefined',
-  };
-  
-  return Object.values(features).every(Boolean);
+  return typeof Symbol !== 'undefined' && typeof fetch !== 'undefined';
 };
 
 // Modern browser detection script

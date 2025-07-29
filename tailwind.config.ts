@@ -20,7 +20,7 @@ const config: Config = {
   corePlugins: {
     // Disable unused features for smaller CSS
     container: true,
-    accessibility: false, // We handle manually
+    accessibility: true, // Enable accessibility utilities like sr-only
     backdropOpacity: false,
     backgroundOpacity: false,
     borderOpacity: false,
@@ -119,9 +119,7 @@ const config: Config = {
   },
   // Optimize for production
   ...(process.env.NODE_ENV === 'production' && {
-    experimental: {
-      optimizeUniversalDefaults: true,
-    },
+    // Removed experimental features to avoid warnings
   }),
   plugins: [
     // Add container queries for better mobile optimization

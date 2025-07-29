@@ -10,7 +10,6 @@ import { houseSchema } from "@/components/listings/create/advanced/schemas/house
 import { apartmentSchema } from "@/components/listings/create/advanced/schemas/apartmentSchema";
 import { landSchema } from "@/components/listings/create/advanced/schemas/landSchema";
 import { VehicleType, PropertyType } from "@/types/enums";
-import type { Listing } from "@/types";
 
 // Define a union of all possible listing types
 type ListingType =

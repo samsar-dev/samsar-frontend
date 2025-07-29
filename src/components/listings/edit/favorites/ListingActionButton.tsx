@@ -1,5 +1,5 @@
 import React from "react";
-import { useFavorites } from "@/hooks";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useSavedListings } from "@/contexts/SavedListingsContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 

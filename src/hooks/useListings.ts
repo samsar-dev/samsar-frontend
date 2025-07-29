@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { listingsAPI } from "@/api";
+import { listingsAPI } from "@/api/listings.api";
 import type { Listing } from "@/types/listings";
 
 export interface UseListingsResult {
@@ -14,16 +14,13 @@ export function useListings(): UseListingsResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = async (params?: any) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await listingsAPI.getAll({});
-      // The response data is directly available in response.data
+      const response = await listingsAPI.getAll(params);
       if (response.data) {
-        // Check if the response has a data property (common pattern)
-        const listingsData = response.data.data || response.data;
-        setListings(Array.isArray(listingsData) ? listingsData : []);
+        setListings(response.data.listings || []);
       } else {
         throw new Error("No data received from the server");
       }

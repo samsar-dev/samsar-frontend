@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useContextMessages } from "@/contexts/MessagesContext";
-import type { Conversation } from "@/types";
+import type { Conversation } from "@/types/messaging";
 import type { AuthUser } from "@/types/auth.types";
 import { Check, ChevronDown, Edit, Search, Trash, X } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";

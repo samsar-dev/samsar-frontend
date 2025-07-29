@@ -6,13 +6,14 @@ import React, {
   useMemo,
 } from "react";
 import { useTranslation } from "react-i18next";
-import SkeletonListingGrid from "@/components/common/SkeletonGrid";
-import ListingFilters from "@/components/filters/ListingFilters";
-import ListingCard from "@/components/listings/details/ListingCard";
+import { Suspense, lazy } from "react";
+const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
+const ListingFilters = lazy(() => import("@/components/filters/ListingFilters"));
+const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
 import { ExtendedListing } from "@/types/listings";
 import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
 

@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
-import { reportsAPI } from "@/api";
-import type { APIResponse } from "@/types/api";
+import { ReportsAPI } from "@/api/reports.api";
 import type {
   Report,
   ReportStatus,
@@ -31,8 +30,8 @@ export function useReports(): UseReportsReturn {
     setLoading(true);
     setError(null);
     try {
-      const { data: response } = await reportsAPI.getReports();
-      if (response?.success && response.data) {
+      const response = await ReportsAPI.getReports();
+      if (response.data) {
         setReports(response.data.items || []);
       } else {
         setError(response?.error || "Failed to fetch reports");
@@ -54,8 +53,8 @@ export function useReports(): UseReportsReturn {
           targetId,
           reason,
         };
-        const { data: response } = await reportsAPI.createReport(reportData);
-        if (response?.success) {
+        const response = await ReportsAPI.createReport(reportData);
+        if (response.data) {
           await fetchReports();
         } else {
           setError(response?.error || "Failed to create report");
@@ -74,10 +73,10 @@ export function useReports(): UseReportsReturn {
       setLoading(true);
       setError(null);
       try {
-        const { data: response } = await reportsAPI.updateReport(id, {
+        const response = await ReportsAPI.updateReport(id, {
           status,
         });
-        if (response?.success) {
+        if (response.data) {
           setReports((prev) =>
             prev.map((report) =>
               report.id === id ? { ...report, status } : report,

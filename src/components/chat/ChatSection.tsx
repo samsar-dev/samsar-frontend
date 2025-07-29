@@ -1,6 +1,6 @@
 "use client";
 
-import { MessagesAPI } from "@/api";
+import { MessagesAPI } from "@/api/messaging.api";
 import OptimizedAvatar from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { NEW_MESSAGE } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
-import type { Conversation, Message, User } from "@/types";
+import type { Conversation, Message } from "@/types/messaging";
+import type { User } from "@/types/user";
 import type { AuthUser } from "@/types/auth.types";
 import {
   ImageIcon,

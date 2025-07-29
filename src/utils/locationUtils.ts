@@ -1,34 +1,48 @@
+// Pre-computed location map for O(1) lookups
+const LOCATION_MAP = {
+  holms: "homs",
+  hasekeh: "hasaka",
+  "al hasakah": "hasaka",
+  "deir ez zor": "deir_ezzor",
+  "deir-ez-zor": "deir_ezzor",
+  "deir al-zor": "deir_ezzor",
+  "as suwayda": "sweida",
+  "as-suwayda": "sweida",
+  "al suwayda": "sweida",
+  "al-suwayda": "sweida",
+  "dar`a": "daraa",
+  dara: "daraa",
+  "dara`a": "daraa",
+  daraah: "daraa",
+  "al qunaytirah": "quneitra",
+  "al-qunaytirah": "quneitra",
+  qunaytirah: "quneitra",
+  "al ladhiqiyah": "latakia",
+  "al-ladhiqiyah": "latakia",
+  ladhiqiyah: "latakia",
+  tartus: "tartous",
+  tarus: "tartous",
+} as const;
+
+// Memoization cache for normalizeLocation
+const normalizeCache = new Map<string, string>();
+const cleanLocationCache = new Map<string, string>();
+
 // Maps common location name variations to their standard keys
 export const normalizeLocation = (location: string): string => {
   if (!location) return "";
-
-  const locationMap: Record<string, string> = {
-    holms: "homs",
-    hasekeh: "hasaka",
-    "al hasakah": "hasaka",
-    "deir ez zor": "deir_ezzor",
-    "deir-ez-zor": "deir_ezzor",
-    "deir al-zor": "deir_ezzor",
-    "as suwayda": "sweida",
-    "as-suwayda": "sweida",
-    "al suwayda": "sweida",
-    "al-suwayda": "sweida",
-    "dar`a": "daraa",
-    dara: "daraa",
-    "dara`a": "daraa",
-    daraah: "daraa",
-    "al qunaytirah": "quneitra",
-    "al-qunaytirah": "quneitra",
-    qunaytirah: "quneitra",
-    "al ladhiqiyah": "latakia",
-    "al-ladhiqiyah": "latakia",
-    ladhiqiyah: "latakia",
-    tartus: "tartous",
-    tarus: "tartous",
-  };
-
-  const normalized = location.toLowerCase().trim().replace(/\s+/g, "_");
-  return locationMap[normalized] || normalized;
+  
+  // Check cache first
+  if (normalizeCache.has(location)) {
+    return normalizeCache.get(location)!;
+  }
+  
+  const key = location.toLowerCase().trim().replace(/\s+/g, "_");
+  const result = LOCATION_MAP[key as keyof typeof LOCATION_MAP] || key;
+  
+  // Cache result
+  normalizeCache.set(location, result);
+  return result;
 };
 
 /**
@@ -40,30 +54,33 @@ export const normalizeLocation = (location: string): string => {
  */
 export const cleanLocationString = (location: string): string => {
   if (!location) return "";
+  
+  // Check cache first
+  if (cleanLocationCache.has(location)) {
+    return cleanLocationCache.get(location)!;
+  }
 
-  // Split by commas and clean up each part
-  const parts = location
-    .split(",")
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
+  const parts = location.split(",").map(p => p.trim()).filter(Boolean);
+  if (parts.length <= 1) {
+    cleanLocationCache.set(location, location);
+    return location;
+  }
 
-  if (parts.length <= 1) return location;
-
-  // Remove consecutive duplicates
+  // Use Set for deduplication (case-insensitive)
   const uniqueParts = [];
-  let lastPart = "";
-
+  const seen = new Set<string>();
+  
   for (const part of parts) {
-    if (part.toLowerCase() !== lastPart.toLowerCase()) {
+    const key = part.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
       uniqueParts.push(part);
-      lastPart = part;
     }
+    // Limit to first 2 parts for better UX
+    if (uniqueParts.length >= 2) break;
   }
 
-  // If we have more than 2 parts (neighborhood, city, city), take the first two
-  if (uniqueParts.length > 2) {
-    return `${uniqueParts[0]}, ${uniqueParts[1]}`;
-  }
-
-  return uniqueParts.join(", ");
+  const result = uniqueParts.join(", ");
+  cleanLocationCache.set(location, result);
+  return result;
 };

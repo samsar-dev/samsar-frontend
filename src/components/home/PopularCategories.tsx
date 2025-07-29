@@ -110,7 +110,7 @@ const PopularCategories = () => {
               </div>
               <a
                 href={category.href}
-                className="absolute inset-0 z-10"
+                className="absolute inset-0 z-0"
                 aria-label={t('browse_category', 'تصفح {{category}}', { category: category.title })}
               />
             </div>

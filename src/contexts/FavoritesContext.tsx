@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import type { APIResponse } from "@/types";
+import type { APIResponse } from "@/types/api";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";

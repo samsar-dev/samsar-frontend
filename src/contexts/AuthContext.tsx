@@ -8,8 +8,7 @@ import React, {
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
-import { apiClient } from "../api/apiClient";
-import { useAutoLogout } from "../hooks/useAutoLogout";
+
 import type {
   AuthContextType,
   AuthError,
@@ -23,7 +22,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   error: null,
   retryAfter: null,
   isInitialized: false,
@@ -76,24 +75,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      console.log("🔍 Starting initial auth check...");
       setIsCheckingAuth(true);
       setState((prev) => ({ ...prev, isLoading: true }));
 
       const response = await AuthAPI.getMe();
-      console.log("🔍 Auth check response:", {
-        success: response?.success,
-        hasData: !!response?.data,
-        userData: response?.data,
-      });
 
       if (response?.success && response?.data) {
-        // The response.data should be of type AuthUser
+        // User is authenticated
         const userData = response.data as AuthUser;
-        console.log(
-          "✅ Auth check successful - User authenticated:",
-          userData.name,
-        );
+        console.log("✅ User authenticated:", userData.name);
         setState({
           user: userData,
           isAuthenticated: true,
@@ -103,33 +93,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isInitialized: true,
         });
       } else {
-        // Not authenticated or invalid response - this is normal for logged out users
         setState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: null, // Don't treat 401 as an error for initial auth check
+          error: null,
           retryAfter: null,
           isInitialized: true,
         });
       }
-    } catch (error: any) {
-      // Clear any existing session
-      await AuthAPI.logout();
+    } catch (error) {
+      console.error("❌ Unexpected auth check error:", error);
       setState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null, // Don't treat auth check failures as errors
+        error: {
+          code: "NETWORK_ERROR",
+          message: "Failed to verify authentication",
+        },
         retryAfter: null,
         isInitialized: true,
       });
     } finally {
       setIsCheckingAuth(false);
       setHasCheckedAuth(true);
-      setIsInitialized(true);
+      setIsInitialized(true); // Ensure we always set initialized to true
     }
-  }, [isCheckingAuth, hasCheckedAuth]);
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -280,26 +271,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async (): Promise<void> => {
     try {
       console.log("🚪 Starting logout process...");
+      // Show loading state
+      setState(prev => ({
+        ...prev,
+        isLoading: true,
+        error: null
+      }));
+
       await AuthAPI.logout();
-      console.log("✅ Logout API call successful");
+      setState({ ...initialState, isInitialized: true });
+      window.location.href = '/';
     } catch (error) {
-      console.error("Logout API failed:", error);
-    } finally {
-      // Clear state first to trigger any effects that depend on isAuthenticated
-      setState({
-        ...initialState,
-        isInitialized: true, // Keep initialized as true to prevent loading spinners
-      });
-
-      // Use React Router navigation
-      const navigate = useNavigate();
-      const location = useLocation();
-
-      // Preserve the current URL including search params and hash
-      const returnTo = `${location.pathname}${location.search}${location.hash}`;
-
-      // Redirect to home page
-      navigate("/", { state: { from: returnTo }, replace: true });
+      toast.error("Logout failed. Please try again.");
+      setState(prev => ({ ...prev, isLoading: false, error: { code: 'UNAUTHORIZED', message: 'Logout failed' } }));
     }
   };
 
@@ -316,14 +300,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state once on mount
   useEffect(() => {
-    if (!hasCheckedAuth && !isCheckingAuth) {
+    if (!hasCheckedAuth) {
       checkAuth();
     }
-  }, [checkAuth, hasCheckedAuth, isCheckingAuth]);
+  }, []);
 
   return (
     <AuthContext.Provider value={value}>
-      {!isInitialized && state.isLoading ? (
+      {state.isLoading && !isInitialized ? (
         <div
           className="flex h-screen w-full items-center justify-center bg-gray-50"
           role="status"

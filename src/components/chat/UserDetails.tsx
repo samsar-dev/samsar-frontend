@@ -9,7 +9,7 @@ import OptimizedAvatar from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import type { User } from "@/types";
+import type { User } from "@/types/user";
 import { AccordionItem } from "@radix-ui/react-accordion";
 import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";

@@ -1,5 +1,6 @@
 import OptimizedAvatar from "@/components/ui/avatar";
-import type { Conversation, User } from "@/types";
+import type { Conversation } from "@/types/messaging";
+import type { User } from "@/types/user";
 import type { AuthUser } from "@/types/auth.types";
 
 function ChatItem({

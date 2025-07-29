@@ -1,8 +1,8 @@
 import { NotificationsAPI } from "@/api/notifications.api";
-import { Tooltip } from "@/components/ui";
+import { Tooltip } from "@/components/ui/tooltip";
 import { NEW_MESSAGE_ALERT, PRICE_CHANGE } from "@/constants/socketEvents";
 import { useSocket } from "@/contexts/SocketContext";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/useAuth";
 import type {
   Notification,
   PriceUpdateNotification,
@@ -32,10 +32,14 @@ import { toast } from "react-toastify";
 
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;
+  onClick?: (e: React.MouseEvent) => void;
+  isActive?: boolean;
 }
 
 export default function NotificationBell({
   onNotificationClick,
+  onClick,
+  isActive = false
 }: NotificationBellProps) {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation("common");
@@ -45,6 +49,7 @@ export default function NotificationBell({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const showDropdown = onClick ? isActive : showNotifications;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { socket, connected, connectionError } = useSocket();
 
@@ -55,19 +60,14 @@ export default function NotificationBell({
       if (response.success && response.data?.items) {
         setNotifications(response.data.items);
       } else if (response.error) {
-        console.error("Failed to fetch notifications:", response.error);
-        // Simply display a generic error message to avoid type issues
         toast.error("Failed to load notifications");
       }
     } catch (error: any) {
-      console.error("Failed to fetch notifications:", error);
-      // Provide a more user-friendly error message
       const errorMessage =
         error?.response?.status === 500
           ? "Server error: Unable to load notifications at this time"
           : error?.error || "Failed to load notifications";
       toast.error(errorMessage);
-      // Initialize with empty data to prevent UI errors
       setNotifications([]);
     }
   };
@@ -134,7 +134,6 @@ export default function NotificationBell({
 
       setShowNotifications(false);
     } catch (error: any) {
-      console.error("Failed to mark notification as read:", error);
       toast.error(error?.error || "Failed to update notification");
     }
   };
@@ -152,7 +151,6 @@ export default function NotificationBell({
         toast.error(response.error);
       }
     } catch (error: any) {
-      console.error("Failed to mark all notifications as read:", error);
       toast.error("Failed to update notifications");
     }
   };
@@ -164,13 +162,10 @@ export default function NotificationBell({
   useEffect(() => {
     // Only set up socket listeners if socket is available and connected
     if (!socket || !connected) {
-      console.log("Socket not yet initialized or not connected, waiting...");
       return;
     }
 
-    // Log connection error if any
     if (connectionError) {
-      console.warn("Socket connection error:", connectionError);
       return;
     }
 
@@ -184,19 +179,14 @@ export default function NotificationBell({
       read: boolean;
       createdAt: string;
     }) => {
-      console.log("new message alert received:", data);
-      console.log("chatId", location.pathname.split("/")[2]);
-
       // If user is in the chat related to this notification, delete it
       if (location.pathname.split("/")[2] === data.relatedId) {
         try {
           const result = await NotificationsAPI.deleteNotification(
             data.relatedId,
           );
-          console.log("notification deleted result:", result);
           return;
         } catch (error) {
-          console.error("Error deleting notification:", error);
           return;
         }
       }
@@ -212,13 +202,11 @@ export default function NotificationBell({
         read: data.read,
       };
 
-      console.log("Adding new notification:", newNotification);
       setNotifications((prev) => [newNotification, ...prev]);
       setUnreadCount((prev) => prev + 1);
     };
 
     const handleNewMessagePriceChange = (data: PriceUpdateNotification) => {
-      console.log("new price change alert received:", data);
       const newNotification: Notification = {
         id: data.id,
         userId: data.userId,
@@ -276,7 +264,16 @@ export default function NotificationBell({
         className="cursor-pointer"
       >
         <button
-          onClick={() => setShowNotifications(!showNotifications)}
+          onClick={(e) => {
+            const toggleNotifications = (e: React.MouseEvent) => {
+              if (onClick) {
+                onClick(e);
+              } else {
+                setShowNotifications(!showNotifications);
+              }
+            };
+            toggleNotifications(e);
+          }}
           className="p-2 rounded-lg text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
           aria-label={t("notifications.toggle", "Toggle Notifications")}
           aria-expanded={showNotifications}
@@ -294,8 +291,8 @@ export default function NotificationBell({
         </span>
       )}
 
-      {showNotifications && (
-        <div className="absolute right-0 mt-2 max-w-[90vw] sm:w-80 z-[100] overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-border-primary dark:border-border-primary-dark">
+      {!onClick && showNotifications && (
+        <div className="fixed right-4 mt-2 w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg overflow-hidden z-50">
           <div className="p-4 max-h-96 overflow-y-auto">
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-2">
               Notifications

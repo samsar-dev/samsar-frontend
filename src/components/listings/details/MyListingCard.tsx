@@ -6,8 +6,9 @@ import type {
   RealEstateDetails,
   VehicleDetails,
 } from "@/types/listings";
+import { lazy, Suspense } from "react";
+const PriceConverter = lazy(() => import("@/components/common/PriceConverter"));
 import { useTranslation } from "react-i18next";
-import { PriceConverter } from "@/components/common/PriceConverter";
 import { FaEdit, FaMapMarkerAlt, FaTrash, FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -233,7 +234,9 @@ const MyListingCard = ({ listing, onDelete }: MyListingCardProps) => {
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-2 truncate">{title}</h3>
           <div className="text-green-600 dark:text-green-400 font-semibold mb-2">
-            <PriceConverter price={price} />
+            <Suspense fallback={<div className="font-semibold">Loading price...</div>}>
+              <PriceConverter price={price} />
+            </Suspense>
           </div>
 
           {/* Location and Views */}

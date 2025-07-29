@@ -7,8 +7,6 @@ import type {
   Conversation,
   ConversationResponse,
 } from "@/types/messaging";
-import type { APIResponse, PaginatedData } from "@/types/api";
-import type { PaginationParams } from "@/types/common";
 
 interface UseMessagesReturn {
   messages: Message[];

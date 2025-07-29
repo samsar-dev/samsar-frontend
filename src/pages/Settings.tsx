@@ -2,7 +2,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import { SEO } from "@/utils/seo";
+
 
 const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
 const NotificationSettings = lazy(() => import("@/components/settings/NotificationSettings"));
@@ -11,7 +11,7 @@ const SecuritySettings = lazy(() => import("@/components/settings/SecuritySettin
 
 // import SecuritySettings from "@/components/settings/SecuritySettings";
 
-import { SettingsAPI } from "@/api";
+import { SettingsAPI } from "@/api/settings.api";
 import { LanguageCode, ThemeType } from "@/types/enums";
 import type {
   PreferenceSettings as PreferenceSettingsType,
@@ -338,11 +338,7 @@ function SettingsContent() {
 
   return (
     <>
-      <SEO
-        title={pageTitle}
-        description={pageDescription}
-        keywords={pageKeywords}
-      />
+
       <div
         className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isRTL ? "rtl" : "ltr"} bg-gray-50 dark:bg-gray-900`}
       >

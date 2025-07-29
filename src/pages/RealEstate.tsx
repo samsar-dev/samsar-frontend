@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import ListingCard from "@/components/listings/details/ListingCard";
-import SkeletonListingGrid from "@/components/common/SkeletonGrid";
 import { ExtendedListing } from "@/types/listings";
 import { ListingCategory, PropertyType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
+
+// Lazy load heavy components
+const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
+const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -152,26 +154,27 @@ const RealEstatePage: React.FC = () => {
           />
         </div>
 
-        {listings.loading ? (
-          <SkeletonListingGrid />
-        ) : listings.error ? (
-          <div className="text-center text-red-500 py-8">{listings.error}</div>
-        ) : listings.all.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            No real estate listings found
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.all.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                showPrice={true}
-                showLocation={true}
-              />
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<div>Loading listings...</div>}>
+          {listings.loading ? (
+            <Suspense fallback={<div>Loading skeleton...</div>}>
+              <SkeletonListingGrid count={6} />
+            </Suspense>
+          ) : listings.error ? (
+            <div className="text-center text-red-500 py-8">{listings.error}</div>
+          ) : listings.all.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+              No real estate listings found
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings.all.map((listing) => (
+                <Suspense key={listing.id} fallback={<div>Loading listing...</div>}>
+                  <ListingCard listing={listing} />
+                </Suspense>
+              ))}
+            </div>
+          )}
+        </Suspense>
       </div>
     </div>
   );

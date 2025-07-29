@@ -1,6 +1,8 @@
 import apiClient from "./apiClient";
 import type { SearchQuery, SearchResponse, SearchResult } from "@/types/search";
-import type { APIResponse, Listing, User } from "@/types";
+import type { APIResponse } from "@/types/api";
+import type { Listing } from "@/types/listings";
+import type { User } from "@/types/user";
 
 export const SearchAPI = {
   searchListings: async (

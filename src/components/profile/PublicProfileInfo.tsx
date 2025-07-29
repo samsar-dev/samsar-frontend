@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 const OptimizedAvatar = React.lazy(() => import('@/components/ui/avatar'));
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
-import type { UserProfile } from "@/types";
+import type { UserProfile } from "@/types/user";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";

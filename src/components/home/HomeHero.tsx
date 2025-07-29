@@ -47,7 +47,7 @@ const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryCh
       {/* Ultra-optimized Critical CSS */}
       <style dangerouslySetInnerHTML={{
         __html: `
-          .hero-container {
+                    .hero-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 40vh;
             display: flex;
@@ -55,11 +55,15 @@ const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryCh
             justify-content: center;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            direction: rtl;
+            isolation: isolate;
           }
           .hero-content {
             text-align: center;
-            z-index: 10;
+            color: white;
             position: relative;
+            z-index: auto;
           }
           .hero-title {
             font-size: clamp(2.5rem, 5vw, 4rem);

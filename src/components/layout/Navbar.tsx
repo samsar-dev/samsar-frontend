@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import NotificationsDropdown from "./NotificationsDropdown";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/useAuth";
 import { useUI } from "@/contexts/UIContext";
 import { Tooltip } from "@/components/ui/tooltip";
 
@@ -45,14 +46,20 @@ const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useUI();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showListingsMenu, setShowListingsMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Memoize click outside handler
   const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as HTMLElement;
-    if (!target.closest(".profile-menu") && !target.closest(".listings-menu")) {
+    if (!target.closest(".profile-menu")) {
       setShowProfileMenu(false);
+    }
+    if (!target.closest(".listings-menu")) {
       setShowListingsMenu(false);
+    }
+    if (!target.closest(".notifications-dropdown") && !target.closest("button[aria-label='notifications']")) {
+      setShowNotifications(false);
     }
   }, []);
 
@@ -106,6 +113,15 @@ const Navbar: React.FC = () => {
     });
   }, [showListingsMenu]);
 
+  const toggleNotifications = useCallback(() => {
+    setShowNotifications(prev => {
+      if (!prev && showProfileMenu) {
+        setShowProfileMenu(false);
+      }
+      return !prev;
+    });
+  }, [showProfileMenu]);
+
   const toggleListingsMenu = useCallback(() => {
     setShowListingsMenu(prev => {
       if (!prev && showProfileMenu) {
@@ -117,10 +133,10 @@ const Navbar: React.FC = () => {
 
   // Memoize dropdown classes
   const dropdownClasses = useMemo(() => ({
-    base: "absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 transition-all duration-200",
+    base: `fixed mt-2 w-64 max-w-sm bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 transition-all duration-200 ${isRTL ? 'left-0' : 'right-0'} top-16`,
     active: "transform opacity-100 scale-100",
     inactive: "transform opacity-0 scale-95 pointer-events-none"
-  }), []);
+  }), [isRTL]);
 
   // Memoize dropdown menu items to prevent unnecessary re-renders
   const ListingsMenu = memo(() => (
@@ -190,7 +206,7 @@ const Navbar: React.FC = () => {
   ));
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-md relative z-10">
+    <nav className="bg-white dark:bg-gray-900 shadow-md fixed top-0 left-0 right-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Left section */}
@@ -323,9 +339,7 @@ const Navbar: React.FC = () => {
               </div>
             ) : isAuthenticated && user ? (
               <>
-                {/* Listings Menu */}
-                {/* Listings Menu */}
-                <div className="relative listings-menu">
+                <div className="relative">
                   <Tooltip content="Listings" position="bottom">
                     <button
                       onClick={toggleListingsMenu}
@@ -340,14 +354,20 @@ const Navbar: React.FC = () => {
                   <ListingsMenu />
                 </div>
 
-                {/* Notifications */}
-                <Tooltip content={t("navigation.notifications")} position="bottom">
-                  <div>
-                    <NotificationBell />
+                <div className="relative">
+                  <NotificationBell 
+                    onClick={toggleNotifications}
+                    isActive={showNotifications}
+                  />
+                  <div className="notifications-dropdown">
+                    <NotificationsDropdown
+                      isOpen={showNotifications}
+                      onClose={toggleNotifications}
+                      isRTL={isRTL}
+                    />
                   </div>
-                </Tooltip>
+                </div>
 
-                {/* Messages */}
                 <Tooltip content={t("navigation.messages")} position="bottom">
                   <Link
                     to="/messages"
@@ -358,8 +378,7 @@ const Navbar: React.FC = () => {
                   </Link>
                 </Tooltip>
 
-                {/* Profile Menu */}
-                <div className="relative profile-menu">
+                <div className="relative">
                   <Tooltip content={user.name || user.email} position="bottom">
                     <button
                       onClick={toggleProfileMenu}

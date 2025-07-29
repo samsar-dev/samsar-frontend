@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import type { APIResponse, PaginatedData } from "@/types";
+import type { APIResponse, PaginatedData } from "@/types/api";
 
 export interface CommonData {
   settings: {

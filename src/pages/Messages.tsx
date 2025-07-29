@@ -1,35 +1,23 @@
 "use client";
 
-import { LoadingSpinner } from "@/api";
 import { useParams } from "react-router-dom";
-import type { Conversation, User } from "@/types";
+import type { Conversation } from "@/types/messaging";
+import type { User } from "@/types/user";
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+
+// Direct imports for hooks and contexts
+import { useAuth } from "@/hooks/useAuth";
+import { useContextMessages } from "@/contexts/MessagesContext";
+import { useSocket } from "@/contexts/SocketContext";
+import { NEW_MESSAGE } from "@/constants/socketEvents";
+
+// Component imports
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Lazy load components
 const ConversationsList = lazy(() => import("@/components/chat/ConversationsList"));
 const UserDetails = lazy(() => import("@/components/chat/UserDetails"));
 const ChatSection = lazy(() => import("@/components/chat/ChatSection"));
-
-// Lazy load hooks and constants
-const useAuth = () => {
-  const { useAuth } = require("@/hooks");
-  return useAuth();
-};
-
-const useContextMessages = () => {
-  const { useContextMessages } = require("@/contexts/MessagesContext");
-  return useContextMessages();
-};
-
-const useSocket = () => {
-  const { useSocket } = require("@/contexts/SocketContext");
-  return useSocket();
-};
-
-const NEW_MESSAGE = () => {
-  const { NEW_MESSAGE } = require("@/constants/socketEvents");
-  return NEW_MESSAGE;
-};
 
 export default function ChatInterface() {
   const [infoOpen, setInfoOpen] = useState(true);

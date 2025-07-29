@@ -11,8 +11,8 @@ import type {
   Conversation,
   MessageInput,
   ConversationCreateInput,
-} from "@/types";
-import { messagesAPI } from "@/api";
+} from "@/types/messaging";
+import { messagesAPI } from "@/api/messaging.api";
 
 export interface MessagesContextType {
   conversations: Conversation[];

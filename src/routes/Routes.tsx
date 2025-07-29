@@ -13,6 +13,7 @@ import {
   useMemo,
   memo,
   startTransition,
+  useRef,
 } from "react";
 import type { RouteObject } from "react-router-dom";
 import type { ErrorInfo } from "react";
@@ -126,13 +127,15 @@ type RouteKey = keyof typeof PageComponents;
 const Routes = () => {
   const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [observedElements, setObservedElements] = useState<Set<string>>(
-    new Set(),
-  );
+  const observedElements = useRef<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const isMounted = useRef(true);
 
-  // Optimized preloading with priority-based loading
+  // Preload critical routes first, then others
   useEffect(() => {
-    let preloadController: AbortController | null = null;
+    isMounted.current = true;
+    let preloadController = new AbortController();
+    const { signal } = preloadController;
 
     const preloadRoutes = async () => {
       try {
@@ -196,36 +199,33 @@ const Routes = () => {
     };
   }, []);
 
-  // Memoize route loading to prevent unnecessary re-renders
-  // Helper function to flatten route tree
-  const flattenRoutes = (
-    routes: RouteObject[],
-    parentPath = "",
-  ): RouteObject[] => {
+  // Memoized route flattener
+  const flattenRoutes = useCallback((routes: RouteObject[], parentPath = ""): RouteObject[] => {
     return routes.flatMap((route) => {
       const fullPath = parentPath + (route.path || "");
-      const children = route.children
-        ? flattenRoutes(route.children, fullPath)
-        : [];
+      const children = route.children ? flattenRoutes(route.children, fullPath) : [];
       return [{ ...route, path: fullPath }, ...children];
     });
-  };
+  }, []);
 
   const loadRoutes = useCallback(async () => {
     try {
       setIsLoading(true);
-
-      // Define default empty routes for error cases
       const defaultRoutes: RouteObject[] = [];
 
-      // Load route modules in parallel with error handling for each
-      const [mainModule, authModule, adminModule, profileModule] =
+      // Load critical routes first
+      const [mainModule, authModule] = await Promise.allSettled([
+        import("./MainRoutes"),
+        import("./AuthRoutes")
+      ]);
+
+      // Load non-critical routes in the background
+      safeIdleCallback(async () => {
         await Promise.allSettled([
-          import("./MainRoutes"),
-          import("./AuthRoutes"),
           import("./AdminRoutes"),
-          import("./ProfileRoutes"),
+          import("./ProfileRoutes")
         ]);
+      });
 
       // Extract routes with proper error handling
       const mainRoutes =
@@ -236,14 +236,10 @@ const Routes = () => {
         authModule.status === "fulfilled"
           ? authModule.value.default
           : defaultRoutes;
-      const adminRoutes =
-        adminModule.status === "fulfilled"
-          ? adminModule.value.default
-          : defaultRoutes;
-      const profileRoutes =
-        profileModule.status === "fulfilled"
-          ? profileModule.value.default
-          : defaultRoutes;
+      
+      // Non-critical routes will be loaded in the background
+      const adminRoutes = defaultRoutes;
+      const profileRoutes = defaultRoutes;
 
       // Combine all routes with not found fallback
       const allRoutes = [
@@ -307,105 +303,121 @@ const Routes = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const routeName = entry.target.getAttribute("data-route");
-            if (
-              routeName &&
-              PageComponents[routeName as keyof typeof PageComponents]
-            ) {
-              PageComponents[
-                routeName as keyof typeof PageComponents
-              ].preload();
+            const component = routeName && PageComponents[routeName as keyof typeof PageComponents];
+            
+            if (component?.preload) {
+              component.preload();
               observer.unobserve(entry.target);
             }
           }
         });
       },
-      { rootMargin: "200px" },
+      { rootMargin: "200px" }
     );
 
-    return () => observer.disconnect();
+    observerRef.current = observer;
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // Add route to intersection observer
-  const observeRoute = useCallback(
-    (routeName: string, element: HTMLElement | null) => {
-      if (element && !observedElements.has(routeName)) {
-        element.setAttribute("data-route", routeName);
-        setObservedElements((prev) => new Set(prev).add(routeName));
-        // The actual observation is handled by the IntersectionObserver setup above
-      }
-    },
-    [observedElements],
-  );
+  const observeRoute = useCallback((routeName: string, element: HTMLElement | null) => {
+    if (element && !observedElements.current.has(routeName)) {
+      element.setAttribute("data-route", routeName);
+      observedElements.current.add(routeName);
+      observerRef.current?.observe(element);
+    }
+  }, []);
 
   // Memoize route rendering
-  const renderRoutes = useCallback(() => {
+  const renderRoutes = useMemo(() => {
     return routes.map((route, index) => {
-      const routeElement = route.element ? (
-        <ErrorBoundary>
-          <Suspense fallback={<RouteLoading />}>{route.element}</Suspense>
-        </ErrorBoundary>
+      const element = route.element ? (
+        <Suspense fallback={<RouteLoading />}>
+          {route.element}
+        </Suspense>
       ) : null;
 
       return (
         <Route
-          key={`${route.path || "route"}-${index}`}
+          key={`${route.path || 'route'}-${index}`}
           path={route.path}
-          element={routeElement}
+          element={element}
         >
-          {route.children?.map((child, childIndex) => {
-            const childElement = child.element ? (
-              <ErrorBoundary>
-                <Suspense fallback={<RouteLoading />}>{child.element}</Suspense>
-              </ErrorBoundary>
-            ) : null;
-
-            return (
-              <Route
-                key={`${child.path || "child"}-${childIndex}`}
-                path={child.path}
-                element={childElement}
-              />
-            );
-          })}
+          {route.children?.map((child, childIndex) => (
+            <Route
+              key={`${child.path || 'child'}-${childIndex}`}
+              path={child.path}
+              element={
+                child.element ? (
+                  <Suspense fallback={<RouteLoading />}>
+                    {child.element}
+                  </Suspense>
+                ) : null
+              }
+            />
+          ))}
         </Route>
       );
     });
   }, [routes]);
 
-  // Debounced route preloading on hover
-  const handleRouteHover = useMemo(
-    () =>
-      debounce((routeName: RouteKey) => {
-        const component = PageComponents[routeName];
-        if (component && typeof component.preload === "function") {
-          component.preload();
-        }
-      }, 150),
-    [],
-  );
+  // Memoized hover handler for route preloading
+  const handleRouteHover = useMemo(() => {
+    return debounce((routeName: RouteKey) => {
+      const component = PageComponents[routeName];
+      if (component?.preload) {
+        component.preload();
+      }
+    }, 150);
+  }, []);
+
+  // Preload critical routes on mount
+  useEffect(() => {
+    if (!isLoading) {
+      const preloadCritical = () => {
+        safeIdleCallback(() => {
+          ['Search', 'Vehicles', 'RealEstate'].forEach(route => {
+            const component = PageComponents[route as keyof typeof PageComponents];
+            if (component?.preload) {
+              component.preload();
+            }
+          });
+        });
+      };
+
+      preloadCritical();
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return <RouteLoading />;
   }
 
   return (
-    <div className="route-container">
-      <RouterRoutes>{renderRoutes()}</RouterRoutes>
-      {/* Add invisible elements for intersection observation */}
-      {/* Intersection observers for route preloading */}
-      {(["Search", "Vehicles", "RealEstate"] as const).map((route, index) => (
-        <div
-          key={route}
-          ref={(el) => observeRoute(route, el)}
-          style={{
-            position: "absolute",
-            top: `${100 + index * 50}vh`,
-            height: "1px",
-            pointerEvents: "none",
-          }}
-        />
-      ))}
-    </div>
+    <ErrorBoundary>
+      <div className="route-container">
+        <RouterRoutes>
+          {renderRoutes}
+        </RouterRoutes>
+        {(['Search', 'Vehicles', 'RealEstate'] as const).map((route, index) => (
+          <div
+            key={route}
+            ref={(el) => observeRoute(route, el)}
+            style={{
+              position: 'absolute',
+              top: `${100 + index * 50}vh`,
+              height: '1px',
+              pointerEvents: 'none',
+              visibility: 'hidden',
+            }}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+    </ErrorBoundary>
   );
 };
 

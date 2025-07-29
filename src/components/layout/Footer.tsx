@@ -24,24 +24,14 @@ const Footer: React.FC = () => {
             <span aria-hidden="true" className="hidden">
               منصة سمسار | سوق السيارات والعقارات الأول في سوريا
             </span>
-            <span lang="ar" className="inline">
-              {t(
-                "seo_title",
-                "Simsar | The First Car and Real Estate Market in Syria",
-              )}
-            </span>
+            
           </h2>
           <p>
             <span aria-hidden="true" className="hidden">
               بيع وشراء سيارات، عقارات، دراجات نارية، ومحلات تجارية في سوريا |
               إعلانات موثوقة ومجانية
             </span>
-            <span lang="ar" className="inline">
-              {t(
-                "seo_description",
-                "Buy and sell cars, real estate, motorcycles, and commercial properties in Syria | Trusted and free ads",
-              )}
-            </span>
+             
           </p>
         </div>
 

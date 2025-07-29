@@ -1,11 +1,12 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import Inspect from 'vite-plugin-inspect';
 import path from "path";
 import { fileURLToPath } from "url";
 import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { visualizer } from "rollup-plugin-visualizer";
-import imagemin from "vite-plugin-imagemin";
+import { imageOptimizationPlugin } from "./src/plugins/imageOptimization";
 import { cssOptimizationPlugin } from "./src/plugins/cssOptimization";
 
  
@@ -60,6 +61,7 @@ export default defineConfig(({ mode, command }) => {
         gzipSize: true,
         brotliSize: true,
       }),
+      Inspect(), // Add Inspect plugin for bundle analysis
       (() => ({
         name: 'print-chunks',
         generateBundle(options, bundle) {
@@ -97,27 +99,11 @@ export default defineConfig(({ mode, command }) => {
         },
       }),
       // Image optimization
-      imagemin({
-        gifsicle: { optimizationLevel: 4, interlaced: true, colors: 256 },
-        optipng: { optimizationLevel: 8 },
-        mozjpeg: { quality: 75, progressive: true },
-        pngquant: { quality: [0.7, 0.85], speed: 6, dithering: 0.5 },
-        svgo: {
-          plugins: [
-            { name: 'removeViewBox', active: false },
-            { name: 'removeEmptyAttrs', active: true },
-            { name: 'removeEmptyText', active: true },
-            { name: 'removeComments', active: true },
-            { name: 'removeDesc', active: true },
-            { name: 'removeTitle', active: true },
-            { name: 'removeMetadata', active: true },
-            { name: 'removeUselessDefs', active: true },
-            { name: 'removeXMLNS', active: true },
-            { name: 'removeStyleElement', active: true },
-            { name: 'removeScriptElement', active: true },
-            { name: 'removeDimensions', active: true }
-          ]
-        }
+      imageOptimizationPlugin({
+        quality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        formats: ['jpeg', 'png', 'webp', 'avif']
       }),
       // Compression
       viteCompression({
@@ -162,6 +148,7 @@ export default defineConfig(({ mode, command }) => {
         '@store': path.resolve(__dirname, "src/store"),
         '@types': path.resolve(__dirname, "src/types"),
         '@utils': path.resolve(__dirname, "src/utils"),
+        'react-router-dom$'  : 'react-router-dom/dist/index.production.min.js',
       },
     },
 
@@ -234,44 +221,9 @@ export default defineConfig(({ mode, command }) => {
 
       minify: 'terser', 
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 100, 
+      chunkSizeWarningLimit: 500, 
       reportCompressedSize: true,
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ['console.log'],
-        },
-      },
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'floating-ui': ['@floating-ui/dom', '@floating-ui/core'],
-            'headlessui': ['@headlessui/react'],
-            'react-router-dom': ['react-router-dom'],
-            'react-helmet': ['react-helmet-async'],
-            'core-vendors': ['react', 'react-dom', 'react-redux'],
-          },
-          chunkFileNames: (chunkInfo) => {
-            if (chunkInfo.name === 'app') {
-              return 'assets/app-[hash].js';
-            }
-            if (chunkInfo.name === 'react-router-dom') {
-              return 'assets/react-router-dom-[hash].js';
-            }
-            if (chunkInfo.name === 'react-helmet') {
-              return 'assets/react-helmet-[hash].js';
-            }
-            return 'assets/[name]-[hash].js';
-          },
-        },
-      },
-      
-      treeshake: {
-        moduleSideEffects: 'no-external',
-        propertyReadSideEffects: false,
-        tryCatch: false,
-      },
+
       
       commonjsOptions: {
         include: [/node_modules/],
@@ -317,69 +269,32 @@ export default defineConfig(({ mode, command }) => {
       build: {
         rollupOptions: {
           output: {
-            manualChunks: {
-              'floating-ui': ['floating-ui/core', 'floating-ui/dom'],
-              'react-i18next': ['react-i18next'],
-              'framer-motion': ['framer-motion'],
-              'axios': ['axios'],
-              'socket.io': ['socket.io-client'],
-              'react-query': ['@tanstack/react-query'],
-              'react': ['react'],
-              'radix': ['@radix-ui/react-slot', '@radix-ui/react-icons'],
-              'utils': ['clsx', 'tailwind-merge'],
-              'react-dom': ['react-dom'],
-              'react-dom-client': ['react-dom/client'],
-              'react-dom-server': ['react-dom/server'],
-              'react-router': [
-                'react-router',
-                'react-router-dom',
-                'react-router-dom/server',
-                'react-router-dom/client'
-              ],
-              'react-select': [
-                'react-select',
-                'react-select/async',
-                'react-select/async-creatable',
-                'react-select/creatable'
-              ],
-              'react-dnd': [
-                'react-dnd',
-                'react-dnd-html5-backend',
-                'react-dnd-touch-backend',
-                'react-dropzone',
-                'browser-image-compression',
-                'file-selector',
-                'attr-accept',
-                'lodash.throttle',
-                'ua-parser-js',
-                'react-device-detect',
-                'fast-deep-equal',
-                'shallowequal',
-                'asap',
-                'prop-types',
-                'invariant'
-              ]
-            },
- 
             compact: true,
             entryFileNames: 'assets/[name]-[hash].js',
-            chunkFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: (chunkInfo) => {
+              if (chunkInfo.name === 'app') {
+                return 'assets/app-[hash].js';
+              }
+              if (chunkInfo.name === 'react-router-dom') {
+                return 'assets/react-router-dom-[hash].js';
+              }
+              if (chunkInfo.name === 'react-helmet') {
+                return 'assets/react-helmet-[hash].js';
+              }
+              return 'assets/[name]-[hash].js';
+            },
             assetFileNames: 'assets/[name]-[hash].[ext]',
-          
+           
             
            
           },
           treeshake: {
-            moduleSideEffects: 'no-external',
+            moduleSideEffects: false,  // More aggressive tree-shaking
             propertyReadSideEffects: false,
-            tryCatch: false
+            tryCatchDeoptimization: false
           },
           minifyInternalExports: true,
-          manualChunks: {
-            'react-dom': ['react-dom'],
-            'react-dom-client': ['react-dom/client'],
-            'react-dom-server': ['react-dom/server']
-          }
+
         },
         terserOptions: {
           compress: {
@@ -458,7 +373,9 @@ export default defineConfig(({ mode, command }) => {
         compact: true,
 
         manualChunks: (id) => {
+          // Split large libraries into separate chunks
           if (id.includes('node_modules')) {
+            // React core libraries
             if (id.includes('react')) {
               if (id.includes('react/jsx-runtime')) {
                 return 'react-runtime';
@@ -468,6 +385,7 @@ export default defineConfig(({ mode, command }) => {
               }
               return 'react-core';
             }
+            
             if (id.includes('react-dom')) {
               if (id.includes('react-dom/client')) {
                 return 'react-dom-client';
@@ -475,291 +393,118 @@ export default defineConfig(({ mode, command }) => {
               if (id.includes('react-dom/server')) {
                 return 'react-dom-server';
               }
-              if (id.includes('react-dom/cjs/react-dom.production.min.js')) {
-                return 'react-dom-cjs';
-              }
               return 'react-dom';
             }
             
-            if (id.includes('react-router')) {
-              if (id.includes('react-router-dom')) {
-                return 'react-router-dom';
-              }
-              return 'react-router';
-            }
-            if (id.includes('react-router')) {
-              return 'react-router';
+            // Routing
+            if (id.includes('react-router-dom')) {
+              return 'react-router-dom';
             }
             
+            // Material UI - split by component type
             if (id.includes('@mui/material')) {
-              // Ultra-aggressive splitting for MUI system components
-              if (id.includes('DefaultPropsProvider') || id.includes('ThemeProvider') || id.includes('CssBaseline') || id.includes('StyledEngineProvider') || id.includes('GlobalStyles') || id.includes('useTheme') || id.includes('useColorScheme')) {
-                return 'mui-system';
-              }
-              if (id.includes('Button')) {
-                return 'mui-button';
-              }
-              if (id.includes('Card') || id.includes('Paper') || id.includes('CardContent') || id.includes('CardActions')) {
-                return 'mui-surfaces';
-              }
-              if (id.includes('Table')) {
-                return 'mui-table';
-              }
-              if (id.includes('Dialog') || id.includes('Modal')) {
-                return 'mui-dialog';
-              }
-              if (id.includes('Typography') || id.includes('Text')) {
-                return 'mui-typography';
-              }
-              if (id.includes('Box') || id.includes('Grid') || id.includes('Container') || id.includes('Stack')) {
-                return 'mui-layout';
-              }
-              if (id.includes('@headlessui')) {
-                return 'headlessui';
-              }
+              if (id.includes('Button')) return 'mui-button';
+              if (id.includes('Card') || id.includes('Paper')) return 'mui-surfaces';
+              if (id.includes('Table')) return 'mui-table';
+              if (id.includes('Dialog') || id.includes('Modal')) return 'mui-dialog';
+              if (id.includes('Typography')) return 'mui-typography';
+              if (id.includes('Box') || id.includes('Grid') || id.includes('Container')) return 'mui-layout';
+              if (id.includes('Select') || id.includes('MenuItem') || id.includes('FormControl')) return 'mui-select';
               return 'mui-core';
             }
-            if (id.includes('@floating-ui')) {
-              // Optimize floating-ui imports
-              if (id.includes('dom')) {
-                return 'floating-ui-dom';
-              }
-              if (id.includes('core')) {
-                return 'floating-ui-core';
-              }
-            }
+            
+            // Emotion styling
             if (id.includes('@emotion')) {
-              // Ultra-aggressive splitting for emotion styling system
-              if (id.includes('@emotion/react') || id.includes('emotion-element')) {
-                return 'emotion-react';
-              }
-              if (id.includes('@emotion/styled')) {
-                return 'emotion-styled';
-              }
-              if (id.includes('@emotion/cache') || id.includes('emotion-cache')) {
-                return 'emotion-cache';
-              }
-              if (id.includes('@emotion/utils') || id.includes('emotion-utils')) {
-                return 'emotion-utils';
-              }
-              if (id.includes('emotion-use-insertion-effect')) {
-                return 'emotion-insertion';
-              }
+              if (id.includes('@emotion/react')) return 'emotion-react';
+              if (id.includes('@emotion/styled')) return 'emotion-styled';
               return 'emotion-core';
             }
-            // Gesture-related libraries
-            if (id.includes('@react-spring')) {
-              if (id.includes('core')) {
-                return 'spring-core';
-              }
-              if (id.includes('gestures')) {
-                return 'spring-gestures';
-              }
-              if (id.includes('web')) {
-                return 'spring-web';
-              }
-              return 'spring-core';
-            }
-            if (id.includes('@use-gesture')) {
-              if (id.includes('core')) {
-                return 'use-gesture-core';
-              }
-              if (id.includes('react')) {
-                return 'use-gesture-react';
-              }
-              return 'use-gesture';
-            }
-            if (id.includes('framer-motion')) {
-              if (id.includes('gestures')) {
-                return 'motion-gestures';
-              }
-              if (id.includes('dom')) {
-                return 'motion-dom';
-              }
-              return 'motion-core';
-            }
-            if (id.includes('framer-motion')) {
-              if (id.includes('dom')) {
-                return 'motion-dom';
-              }
-              return 'motion-core';
-            }
-            if (id.includes('@headlessui')) {
-              if (id.includes('Listbox')) {
-                return 'listbox';
-              }
-              if (id.includes('Dialog')) {
-                return 'dialog';
-              }
-              if (id.includes('Button')) {
-                return 'headlessui-button';
-              }
-              return 'headlessui-core';
-            }
-            if (id.includes('@heroicons')) {
-              return 'heroicons';
-            }
-            if (id.includes('lucide-react')) {
-              return 'lucide';
-            }
             
+            // UI libraries
+            if (id.includes('@headlessui/react')) return 'headlessui';
+            if (id.includes('@radix-ui')) return 'radix-ui';
+            if (id.includes('framer-motion')) return 'framer-motion';
+            
+            // Maps
+            if (id.includes('react-leaflet') || id.includes('leaflet')) return 'maps';
+            
+            // Utilities
+            if (id.includes('date-fns')) return 'date-fns';
+            if (id.includes('axios')) return 'axios';
+            if (id.includes('socket.io-client')) return 'socket-io';
+            
+            // Forms
+            if (id.includes('react-hook-form')) return 'react-hook-form';
+            if (id.includes('react-select')) return 'react-select';
+            
+            // File handling
+            if (id.includes('react-dropzone')) return 'dropzone';
+            if (id.includes('browser-image-compression')) return 'image-compression';
+            
+            // Icons
+            if (id.includes('react-icons') || id.includes('@react-icons/all-files')) return 'react-icons';
+            if (id.includes('lucide-react')) return 'lucide-react';
+            if (id.includes('@heroicons')) return 'heroicons';
+            
+            // Search
+            if (id.includes('fuse.js')) return 'fuse-js';
+            
+            // i18n
+            if (id.includes('i18next')) return 'i18next';
+            if (id.includes('react-i18next')) return 'react-i18next';
+            
+            // Notifications
+            if (id.includes('react-toastify')) return 'react-toastify';
+            if (id.includes('notistack')) return 'notistack';
+            
+            // Styling utilities
+            if (id.includes('clsx') || id.includes('tailwind-merge')) return 'classnames';
+            
+            // Lodash utilities
             if (id.includes('lodash')) {
+              if (id.includes('lodash.debounce')) return 'lodash-debounce';
+              if (id.includes('lodash.throttle')) return 'lodash-throttle';
               return 'lodash';
             }
-            if (id.includes('date-fns')) {
-              return 'date-utils';
-            }
             
-            // Core UI and state management
-            if (id.includes('react-helmet') || id.includes('react-helmet-async')) {
-              return 'helmet';
-            }
+            // State management
+            if (id.includes('react-redux') || id.includes('@reduxjs/toolkit')) return 'redux';
             
-            if (id.includes('react-toastify')) {
-              return 'toast';
-            }
+            // DnD
+            if (id.includes('react-dnd') || id.includes('dnd-core')) return 'dnd';
             
-            // Socket.IO and its dependencies
-            if (id.includes('socket.io') || id.includes('engine.io') || id.includes('component-emitter')) {
-              return 'socketio';
-            }
+            // Virtualization
+            if (id.includes('react-window') || id.includes('react-virtualized-auto-sizer')) return 'virtualization';
             
-            // React DOM and scheduler
-            if (id.includes('react-dom') || id.includes('scheduler')) {
-              return 'react-dom';
-            }
+            // Device detection
+            if (id.includes('react-device-detect')) return 'device-detect';
             
-            // React Router and related
-            if (id.includes('react-router') || id.includes('@remix-run/router')) {
-              return 'router';
-            }
-            
-            // Form libraries
-            if (id.includes('react-hook-form') || id.includes('yup') || id.includes('@hookform')) {
-              return 'forms';
-            }
-            
-            // Chart libraries
-            if (id.includes('chart.js') || id.includes('react-chartjs')) {
-              return 'charts';
-            }
-            
-            if (id.includes('jspdf') || id.includes('html2canvas')) {
-              return 'pdf';
-            }
-            
-            if (id.includes('react-ga4') || id.includes('@amplitude')) {
-              return 'analytics';
-            }
-            
-            if (id.includes('axios') || id.includes('clsx') || id.includes('tailwind-merge')) {
-              return 'utils';
-            }
-
-            if (id.includes('react-hook-form') || id.includes('yup')) {
-              return 'forms';
-            }
-
-            if (id.includes('lucide-react') || id.includes('@heroicons')) {
-              return 'icons';
-            }
-
-            if (id.includes('react-dropzone') || id.includes('browser-image-compression')) {
-              return 'image-libs';
-            }
-
-            if (id.includes('@headlessui/react') || id.includes('react-toastify')) {
-              return 'ui-libs';
-            }
-
-            if (id.includes('date-fns')) {
-              return 'date-utils';
-            }
-
-            // Split MUI Select components into their own chunk
-            if (id.includes('@mui/material/Select') || 
-                id.includes('@mui/material/MenuItem') ||
-                id.includes('@mui/material/FormControl') ||
-                id.includes('@mui/material/FormLabel') ||
-                id.includes('@mui/material/OutlinedInput')) {
-              return 'mui-select';
-            }
-
-            // Split MUI Table components into their own chunk
-            // Group Radix UI Avatar components together
-            // Group optimized avatar components
-            if (id.includes('avatar') || 
-                id.includes('@radix-ui/react-avatar') || 
-                id.includes('/ui/avatar') ||
-                id.includes('Avatar.') || 
-                id.includes('AvatarPrimitive')) {
-              return 'avatar';
-            }
-
-            // Group chat-related components together
-            if (id.includes('MessagesContext') || 
-                id.includes('ConversationsList') || 
-                id.includes('ChatSection') || 
-                id.includes('ChatItem') || 
-                id.includes('UserDetails')) {
-              return 'chat-components';
-            }
-
-            if (id.includes('@mui/material/Table') || 
-                id.includes('@mui/material/TableBody') ||
-                id.includes('@mui/material/TableCell') ||
-                id.includes('@mui/material/TableContainer') ||
-                id.includes('@mui/material/TableHead') ||
-                id.includes('@mui/material/TableRow') ||
-                id.includes('@mui/material/TablePagination') ||
-                id.includes('@mui/material/TableFooter')) {
-              return 'mui-table';
-            }
-
-            if (id.includes('react-icons')) return 'icons';
-
-            // Let Vite handle the rest of the vendor modules automatically
+            // Catch-all for other vendor libraries
+            return 'vendor';
           }
           
+          // Split pages into separate chunks
           if (id.includes('/pages/')) {
             const pageName = id.split('/pages/')[1].split('.')[0];
-            if (pageName.includes('admin')) {
-              return 'admin-pages';
-            }
-            if (pageName.includes('profile')) {
-              return 'profile-pages';
-            }
-            if (pageName.includes('settings')) {
-              return 'settings-pages';
-            }
+            // Group related pages together
+            if (pageName.includes('admin')) return 'admin-pages';
+            if (pageName.includes('profile') || pageName.includes('settings')) return 'user-pages';
             return `page-${pageName.toLowerCase()}`;
           }
           
-          if (id.includes('/components/listings/')) {
-            const feature = id.split('/components/listings/')[1].split('/')[0];
-            switch (feature) {
-              case 'create':
-                return 'listings-create';
-              case 'details':
-                return 'listings-details';
-              case 'filters':
-                return 'listings-filters';
-              case 'images':
-                return 'listings-images';
-              case 'map':
-                return 'listings-map';
-              default:
-                return 'listings-core';
+          // Split components by feature
+          if (id.includes('/components/')) {
+            if (id.includes('/components/listings/')) {
+              const feature = id.split('/components/listings/')[1].split('/')[0];
+              return `listings-${feature}`;
             }
+            if (id.includes('/components/auth/')) return 'auth-components';
+            if (id.includes('/components/chat/')) return 'chat-components';
+            if (id.includes('/components/layout/')) return 'layout-components';
           }
           
-          if (id.includes('/components/auth/')) {
-            return 'auth';
-          }
-          
-          if (id.includes('/components/chat/')) {
-            return 'chat';
-          }
+          // Default behavior
+          return undefined;
         }, 
         chunkFileNames: (chunkInfo) => {
           const name = chunkInfo.name.toString();
@@ -844,7 +589,6 @@ export default defineConfig(({ mode, command }) => {
         "tailwind-merge",
         "react-helmet-async",
         "react-hook-form",
-        "yup",
         "date-fns",
         "lucide-react",
       ],

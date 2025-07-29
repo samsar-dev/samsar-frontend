@@ -1,4 +1,4 @@
-import type { Settings } from "@/types";
+import type { Settings } from "@/types/settings";
 import type { AuthUser } from "@/types/auth.types";
 import type {
   APIResponse,
