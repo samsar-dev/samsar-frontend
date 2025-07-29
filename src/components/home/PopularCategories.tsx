@@ -6,29 +6,16 @@ const PopularCategories = () => {
   const { t } = useTranslation();
 
   // Helper function to generate responsive image URLs
+  // Note: ImageFallback component will handle the actual optimization
   const getImageSrcSet = (baseUrl: string) => {
-    const [url, params] = baseUrl.split('?');
-    const paramsObj = new URLSearchParams(params || '');
+    if (!baseUrl) return '';
+    const [url] = baseUrl.split('?');
     
-    // Remove width and format from base params
-    paramsObj.delete('width');
-    paramsObj.delete('format');
+    // Let the ImageFallback component handle the optimization
+    // We just need to specify the widths we want
+    const sizes = [332, 664, 996]; // 1x, 2x, 3x for high-DPI displays
     
-    // Preserve original format for PNG files
-    if (!paramsObj.has('format')) {
-      const ext = url.substring(url.lastIndexOf('.') + 1);
-      paramsObj.set('format', ext === 'png' ? 'png' : 'webp');
-    }
-    if (!paramsObj.has('quality')) {
-      paramsObj.set('quality', '80');
-    }
-    
-    const baseParams = paramsObj.toString();
-    const sizes = [332, 664, 996]; // Common responsive breakpoints
-    
-    return sizes.map(size => 
-      `${url}?${baseParams}&width=${size} ${size}w`
-    ).join(', ');
+    return sizes.map(size => `${url}?width=${size} ${size}w`).join(', ');
   };
 
   const categories = [
@@ -84,13 +71,14 @@ const PopularCategories = () => {
               <div className="relative h-48 w-full overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <ImageFallback
-                    src={`${category.image.split('?')[0]}?${new URLSearchParams(category.image.split('?')[1] || '').toString()}&width=332`}
+                    src={category.image}
                     srcSet={getImageSrcSet(category.image)}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 332px"
                     alt={category.alt}
-                    className="min-w-full min-h-full object-cover"
-                    width={800}
-                    height={600}
+                    className="w-full h-full object-cover"
+                    width={332}
+                    height={248}
+                    quality={75} // Optimize quality for WebP
                     loading="lazy"
                     decoding="async"
                     fallbackText={category.title}
