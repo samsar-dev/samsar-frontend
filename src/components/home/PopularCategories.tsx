@@ -12,37 +12,56 @@ const PopularCategories = () => {
       id: 'cars',
       title: t('home:categories.cars', 'سيارات'),
       description: t('home:categories.cars_desc', 'أحدث الموديلات والماركات'),
-      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-332x248.webp',
-      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-664x496.webp 664w',
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-cars-bmw.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-cars-bmw.webp 300w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-cars-bmw.webp 450w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-cars-bmw.webp 600w',
       href: '/listings?category=vehicles&subCategory=CAR',
       alt: t('home:categories.cars', 'سيارات'),
+      width: 300,
+      height: 184,
     },
     {
       id: 'real_estate',
       title: t('home:categories.real_estate', 'عقارات'),
       description: t('home:categories.real_estate_desc', 'شقق، فلل، محلات تجارية'),
-      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-332x248.webp',
-      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-664x496.webp 664w',
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 300w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 450w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 600w',
       href: '/listings?category=real_estate',
       alt: t('home:categories.real_estate', 'عقارات'),
+      width: 300,
+      height: 184,
     },
     {
       id: 'motorcycles',
       title: t('home:categories.motorcycles', 'دراجات نارية'),
       description: t('home:categories.motorcycles_desc', 'أحدث الموديلات بأسعار منافسة'),
-      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-332x248.webp',
-      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-664x496.webp 664w',
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-motorcycle.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-motorcycle.webp 300w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-motorcycle.webp 450w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/vehicles-motorcycle.webp 600w',
       href: '/listings?category=vehicles&subCategory=MOTORCYCLE',
       alt: t('home:categories.motorcycles', 'دراجات نارية'),
+      width: 300,
+      height: 184,
     },
     {
       id: 'commercial',
       title: t('home:categories.commercial', 'تجاري'),
       description: t('home:categories.commercial_desc', 'محلات ومكاتب تجارية'),
-      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-332x248.webp',
-      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-664x496.webp 664w',
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/property-office.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/property-office.webp 300w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/property-office.webp 450w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/property-office.webp 600w',
       href: '/listings?category=real_estate&subCategory=COMMERCIAL',
       alt: t('home:categories.commercial', 'تجاري'),
+      width: 300,
+      height: 184,
+    },
+    {
+      id: 'trucks',
+      title: t('home:categories.trucks', 'شاحنات'),
+      description: t('home:categories.trucks_desc', 'شاحنات ثقيلة وخفيفة'),
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 300w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 450w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories/realestate-building.webp 600w',
+      href: '/listings?category=vehicles&subCategory=TRUCK',
+      alt: t('home:categories.trucks', 'شاحنات'),
+      width: 300,
+      height: 184,
     },
   ];
 
@@ -69,12 +88,11 @@ const PopularCategories = () => {
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 332px"
                     alt={category.alt}
                     className="w-full h-full object-cover"
-                    width={332}
-                    height={248}
-                    quality={75} // Optimize quality for WebP
+                    width={300}
+                    height={184}
+                    quality={75}
                     loading="lazy"
                     decoding="async"
-                    fallbackText={category.title}
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

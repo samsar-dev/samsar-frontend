@@ -48,11 +48,12 @@ interface ImageProps
   height?: number | string;
   quality?: number;
   category?: CategoryType;
-  fallbackText?: string;
   placeholder?: string;
   blur?: boolean;
   onLoad?: () => void;
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  responsive?: boolean;
+  maxWidth?: number;
 }
 
 const DEFAULT_PLACEHOLDER = "";

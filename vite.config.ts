@@ -274,10 +274,10 @@ export default defineConfig(({ mode, command }) => {
             'process.env.NODE_ENV': JSON.stringify('production'),
             'global': 'window'
           },
-          keepNames: true,
+          keepNames: false,
           legalComments: 'none',
           drop: ['debugger', 'console'],
-          pure: ['React.createElement', 'React.cloneElement', 'React.memo']
+          pure: ['React.createElement', 'React.cloneElement', 'React.memo', 'console.log', 'console.warn', 'console.info']
         },
       },
       
@@ -306,16 +306,30 @@ export default defineConfig(({ mode, command }) => {
           treeshake: {
             moduleSideEffects: false,  // More aggressive tree-shaking
             propertyReadSideEffects: false,
-            tryCatchDeoptimization: false
+            tryCatchDeoptimization: false,
+            unknownGlobalSideEffects: false,
+            annotations: true
           },
           minifyInternalExports: true,
+          external: (id) => {
+            // Mark certain modules as external to reduce bundle size
+            if (id.includes('node_modules') && (
+              id.includes('lodash') ||
+              id.includes('moment') ||
+              id.includes('date-fns/locale') ||
+              id.includes('@mui/icons-material')
+            )) {
+              return false; // Keep these bundled but tree-shake aggressively
+            }
+            return false;
+          },
 
         },
         terserOptions: {
           compress: {
             drop_console: true,
             drop_debugger: true,
-            pure_funcs: ['console.log', 'console.info', 'console.warn'],
+            pure_funcs: ['console.log', 'console.info', 'console.warn', 'console.error', 'console.trace'],
             dead_code: true,
             unused: true,
             conditionals: true,
@@ -328,28 +342,81 @@ export default defineConfig(({ mode, command }) => {
             collapse_vars: true,
             inline: 3,
             // Less aggressive settings to avoid React error #61
-            passes: 2,
+            passes: 3,
             keep_fargs: false,
             pure_getters: true,
-            side_effects: true
+            side_effects: false,
+            // More aggressive unused code removal
+            global_defs: {
+              'process.env.NODE_ENV': '"production"',
+              'typeof window': '"object"',
+              'typeof document': '"object"'
+            },
+            // Remove more unused code
+            sequences: true,
+            properties: true,
+            unsafe: false,
+            unsafe_comps: false,
+            unsafe_Function: false,
+            unsafe_math: true,
+            unsafe_symbols: false,
+            unsafe_methods: false,
+            unsafe_proto: false,
+            unsafe_regexp: false,
+            unsafe_undefined: false,
+            switches: true,
+            negate_iife: true,
+            merge_vars: true,
+            hoist_funs: true,
+            hoist_vars: false,
+            hoist_props: true,
+            top_retain: null,
+            keep_infinity: false
           },
           mangle: {
             toplevel: true,
             properties: {
               regex: /^_/,
-              reserved: ['__esModule', 'default']
+              reserved: ['__esModule', 'default', 'React', 'ReactDOM']
             }
           },
           keep_classnames: false,
           keep_fnames: false,
           format: {
             comments: false,
-            ascii_only: true
+            ascii_only: true,
+            beautify: false,
+            braces: false,
+            semicolons: false
           }
         }
       },
       
       plugins: [
+        {
+          name: 'unused-code-elimination',
+          generateBundle(options, bundle) {
+            // Remove unused exports and imports
+            Object.keys(bundle).forEach(fileName => {
+              const chunk = bundle[fileName];
+              if (chunk.type === 'chunk') {
+                // Remove unused imports and exports
+                chunk.code = chunk.code
+                  .replace(/import\s+[^;]+from\s+['"][^'"]*['"];?\s*\n?/g, (match) => {
+                    // Keep only essential imports
+                    if (match.includes('react') || match.includes('react-dom') || match.includes('react-router')) {
+                      return match;
+                    }
+                    return '';
+                  })
+                  .replace(/export\s*\{[^}]*\}\s*from\s*['"][^'"]*['"];?\s*\n?/g, '')
+                  .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+                  .replace(/\/\/.*$/gm, '') // Remove single line comments
+                  .replace(/\n\s*\n/g, '\n'); // Remove empty lines
+              }
+            });
+          }
+        },
         {
           name: 'dynamic-imports',
           async generateBundle(_, bundle) {
