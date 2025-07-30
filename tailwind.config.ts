@@ -1,11 +1,18 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  // Enable JIT mode for better performance and smaller bundles
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./public/**/*.html",
+    // Include specific component libraries that use Tailwind classes
+    "./node_modules/@headlessui/react/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroicons/react/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/react-helmet-async/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/framer-motion/**/*.{js,ts,jsx,tsx}",
   ],
+  
   theme: {
     extend: {
       colors: {
@@ -22,8 +29,29 @@ const config: Config = {
           900: '#111827',
         },
       },
+      
+      // Optimize spacing scale for common patterns
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      },
+      
+      // Optimize animation durations
+      transitionDuration: {
+        '2000': '2000ms',
+      },
+      
+      // Optimize z-index scale
+      zIndex: {
+        '60': '60',
+        '70': '70',
+        '80': '80',
+        '90': '90',
+        '100': '100',
+      },
     },
   },
+  
   plugins: [],
 };
 

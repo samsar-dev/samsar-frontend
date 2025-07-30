@@ -91,8 +91,8 @@ const PopularCategories = () => {
                     width={300}
                     height={184}
                     quality={75}
-                    loading="lazy"
-                    decoding="async"
+                    loading="eager"
+                    priority
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
