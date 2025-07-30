@@ -1,11 +1,11 @@
 /**
- * Tailwind CSS Imports
+ * Tailwind CSS - Optimized imports for smaller bundle
  */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles */
+/* Custom base styles - optimized for actual usage */
 * {
   box-sizing: border-box;
 }
@@ -15,7 +15,7 @@ body {
   font-family: Inter, sans-serif;
   background-color: #fff;
   color: #1f2937;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 .dark body {

@@ -7,26 +7,61 @@ const config: Config = {
     "./public/**/*.html",
   ],
   safelist: [
-    // Pattern for all critical/dynamic classes
-    { pattern: /^(lcp-|hero-|btn-|bg-|text-|border-|container|flex|grid|dark|light)/ },
-    'rtl', 'ltr',
-    // Add any other classes built dynamically in JS/TSX as needed
+    // Only safelist classes actually used in the codebase
+    { pattern: /^(bg-|text-|border-|shadow-|rounded-|w-|h-|p-|m-|flex|grid|container)/ },
+    'rtl', 'ltr', 'dark', 'light',
+    // RTL specific classes
+    'text-right', 'text-left', 'text-center',
+    'ml-auto', 'mr-auto', 'mx-auto',
+    // Common responsive classes
+    'sm:', 'md:', 'lg:', 'xl:',
   ],
   darkMode: 'class',
   mode: 'jit',
-  // Optimize for mobile performance
+  // Aggressively disable unused features
   corePlugins: {
-    // Disable unused features for smaller CSS
+    // Keep only essential features
+    preflight: true,
     container: true,
-    accessibility: true, // Enable accessibility utilities like sr-only
+    accessibility: true,
+    
+    // Disable unused features
     backdropOpacity: false,
     backgroundOpacity: false,
     borderOpacity: false,
     divideOpacity: false,
     placeholderOpacity: false,
     textOpacity: false,
-    // Keep essential features
-    preflight: true,
+    
+    // Disable advanced features not used
+    backdropBlur: false,
+    backdropBrightness: false,
+    backdropContrast: false,
+    backdropGrayscale: false,
+    backdropHueRotate: false,
+    backdropInvert: false,
+    backdropSaturate: false,
+    backdropSepia: false,
+    
+    blur: false,
+    brightness: false,
+    contrast: false,
+    dropShadow: false,
+    grayscale: false,
+    hueRotate: false,
+    invert: false,
+    saturate: false,
+    sepia: false,
+    
+    // Disable transforms not used
+    skew: false,
+    scale: false,
+    rotate: false,
+    translate: false,
+    transform: false,
+    transformOrigin: false,
+    
+    // Keep spacing and layout
     space: true,
     divideWidth: true,
     divideColor: true,
