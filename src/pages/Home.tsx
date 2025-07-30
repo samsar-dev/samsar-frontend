@@ -10,16 +10,19 @@ import { Listbox } from "@headlessui/react";
 import { MdFilterList } from "react-icons/md";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
-// Lazy load only large components
+// Synchronous import for critical above-the-fold component
+import HomeHero from "@/components/home/HomeHero";
+
+// Lazy load other components
 import ListingCard from "@/components/listings/details/ListingCard";
 const ListingFilters = lazy(() => import("@/components/filters/ListingFiltersSmart"));
 const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
 const PreloadImages = lazy(() => import("@/components/media/PreloadImages"));
-const HomeHero = lazy(() => import("@/components/home/HomeHero"));
 const PopularCategories = lazy(() => import("@/components/home/PopularCategories"));
 const FAQ = lazy(() => import("@/components/home/FAQ"));
 const AdvantageCards = lazy(() => import("@/components/home/AdvantageCards"));
 const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
+import LazyLoadOnScroll from '@/components/common/LazyLoadOnScroll';
 
 // Types and enums
 import {
@@ -655,63 +658,63 @@ const Home: React.FC = () => {
 
             {renderContent()}
           </section>
+
+        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
+          <PopularCategories />
+        </LazyLoadOnScroll>
+
+        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
+          <AdvantageCards />
+        </LazyLoadOnScroll>
+
+        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
+          <FAQ />
+        </LazyLoadOnScroll>
         </div>
       </main>
 
-      {/* Popular Categories Section */}
-      <div>
-        <Suspense fallback={<div className="h-[400px] flex items-center justify-center">Loading categories...</div>}>
-          <PopularCategories />
-        </Suspense>
-
-        {/* Structured Data for SEO */}
-        <div className="hidden">
-          <script type="application/ld+json">
-            {JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              itemListElement: [
-                {
-                  "@type": "CategoryCode",
-                  position: 1,
-                  name: t("categories.cars", "سيارات"),
-                  url:
-                    window.location.origin +
-                    "/listings?category=vehicles&subCategory=CAR",
-                },
-                {
-                  "@type": "CategoryCode",
-                  position: 2,
-                  name: t("categories.real_estate", "عقارات"),
-                  url:
-                    window.location.origin + "/listings?category=real_estate",
-                },
-                {
-                  "@type": "CategoryCode",
-                  position: 3,
-                  name: t("categories.motorcycles", "دراجات نارية"),
-                  url:
-                    window.location.origin +
-                    "/listings?category=vehicles&subCategory=MOTORCYCLE",
-                },
-                {
-                  "@type": "CategoryCode",
-                  position: 4,
-                  name: t("categories.commercial", "تجاري"),
-                  url:
-                    window.location.origin +
-                    "/listings?category=real_estate&subCategory=COMMERCIAL",
-                },
-              ],
-            })}
-          </script>
-        </div>
+      {/* Structured Data for SEO */}
+      <div className="hidden">
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            itemListElement: [
+              {
+                "@type": "CategoryCode",
+                position: 1,
+                name: t("categories.cars", "سيارات"),
+                url:
+                  window.location.origin +
+                  "/listings?category=vehicles&subCategory=CAR",
+              },
+              {
+                "@type": "CategoryCode",
+                position: 2,
+                name: t("categories.real_estate", "عقارات"),
+                url:
+                  window.location.origin + "/listings?category=real_estate",
+              },
+              {
+                "@type": "CategoryCode",
+                position: 3,
+                name: t("categories.motorcycles", "دراجات نارية"),
+                url:
+                  window.location.origin +
+                  "/listings?category=vehicles&subCategory=MOTORCYCLE",
+              },
+              {
+                "@type": "CategoryCode",
+                position: 4,
+                name: t("categories.commercial", "تجاري"),
+                url:
+                  window.location.origin +
+                  "/listings?category=real_estate&subCategory=COMMERCIAL",
+              },
+            ],
+          })}
+        </script>
       </div>
-
-      {/* Samsar Advantage Section */}
-      <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center">Loading features...</div>}>
-        <AdvantageCards />
-      </Suspense>
     </div>
   );
 };
