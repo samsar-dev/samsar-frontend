@@ -11,7 +11,7 @@ import { MdFilterList } from "react-icons/md";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
 // Lazy load only large components
-const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
+import ListingCard from "@/components/listings/details/ListingCard";
 const ListingFilters = lazy(() => import("@/components/filters/ListingFiltersSmart"));
 const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
 const PreloadImages = lazy(() => import("@/components/media/PreloadImages"));
@@ -466,7 +466,7 @@ const Home: React.FC = () => {
               showPrice={true}
               showLocation={true}
               showBadges={true}
-              priority={index < 2} // Prioritize first two listings for LCP
+              priority={index < 4} // Prioritize first four listings for LCP
             />
           ))}
           {listings.all.length === 0 && listings.error && (
@@ -530,7 +530,7 @@ const Home: React.FC = () => {
                     showPrice={true}
                     showLocation={true}
                     showBadges={true}
-                    priority={index === 0} // Prioritize only the first popular listing
+                    priority={index < 4} // Prioritize first four popular listings for LCP
                   />
                 </div>
               ))}
