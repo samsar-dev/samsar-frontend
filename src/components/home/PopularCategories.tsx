@@ -5,16 +5,16 @@ import ImageFallback from '@/components/media/ImageFallback';
 const PopularCategories = () => {
   const { t } = useTranslation();
 
-  // Helper function to generate Cloudflare-optimized image URLs
+  // Helper function to generate Cloudflare-optimized image URLs for R2
   const getImageSrcSet = (baseUrl: string) => {
     if (!baseUrl) return '';
     const [url] = baseUrl.split('?');
     
-    // Optimized for actual display size (332px) with proper compression
-    const sizes = [332, 498, 664]; // 1x, 1.5x, 2x for actual usage
+    // Aggressive optimization for actual display size (332x248)
+    const sizes = [332, 498, 664]; // 1x, 1.5x, 2x for responsive
     
     return sizes.map(size => 
-      `${url}?width=${size}&height=${Math.floor(size * 0.75)}&format=webp&quality=70&fit=crop ${size}w`
+      `${url}?width=${size}&height=${Math.floor(size * 0.75)}&format=webp&quality=60&fit=crop&compression=strong ${size}w`
     ).join(', ');
   };
 
@@ -22,9 +22,9 @@ const PopularCategories = () => {
     if (!baseUrl) return '';
     const [url] = baseUrl.split('?');
     
-    // Optimized for actual display with aggressive compression
-    const height = Math.floor(width * 0.75); // 3:4 aspect ratio
-    return `${url}?width=${width}&height=${height}&format=webp&quality=70&fit=crop`;
+    // Ultra-aggressive compression for 332x248 display
+    const height = Math.floor(width * 0.75);
+    return `${url}?width=${width}&height=${height}&format=webp&quality=60&fit=crop&compression=strong`;
   };
 
   const categories = [

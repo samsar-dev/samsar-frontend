@@ -88,7 +88,7 @@ export default defineConfig(({ mode, command }) => {
             
             // Set cache headers for static assets
             if (/\.(jpg|jpeg|png|webp|svg|ico|gif|woff2|css|js)$/.test(url)) {
-              // Cache static assets for 1 year in production
+              // Cache static assets for 1 year in production (Cloudflare R2 compatible)
               if (process.env.NODE_ENV === 'production') {
                 res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
                 res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
@@ -98,10 +98,11 @@ export default defineConfig(({ mode, command }) => {
               }
             }
             
-            // Cache images with Cloudflare-specific headers
+            // Cache images with Cloudflare R2 optimization headers
             if (/\.(jpg|jpeg|png|webp|svg|ico|gif)$/.test(url)) {
               res.setHeader('CF-Cache-Status', 'HIT');
               res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+              res.setHeader('CDN-Cache-Control', 'public, max-age=31536000');
             }
             
             next();
