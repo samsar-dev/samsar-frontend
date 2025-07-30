@@ -323,7 +323,15 @@ export default defineConfig(({ mode, command }) => {
             evaluate: true,
             booleans: true,
             if_return: true,
-            join_vars: true
+            join_vars: true,
+            reduce_vars: true,
+            collapse_vars: true,
+            inline: 3,
+            // Less aggressive settings to avoid React error #61
+            passes: 2,
+            keep_fargs: false,
+            pure_getters: true,
+            side_effects: true
           },
           mangle: {
             toplevel: true,
@@ -388,134 +396,97 @@ export default defineConfig(({ mode, command }) => {
         compact: true,
 
         manualChunks: (id) => {
-          // Split large libraries into separate chunks
+          // More balanced code splitting strategy to reduce main-thread work
           if (id.includes('node_modules')) {
-            // React core libraries
+            // Critical libraries that should be loaded early
             if (id.includes('react')) {
-              if (id.includes('react/jsx-runtime')) {
-                return 'react-runtime';
+              if (id.includes('react-dom')) {
+                return 'react-dom';
               }
-              if (id.includes('react/jsx-dev-runtime')) {
-                return 'react-dev-runtime';
-              }
-              return 'react-core';
+              return 'react';
             }
             
-            if (id.includes('react-dom')) {
-              if (id.includes('react-dom/client')) {
-                return 'react-dom-client';
-              }
-              if (id.includes('react-dom/server')) {
-                return 'react-dom-server';
-              }
-              return 'react-dom';
-            }
-            
-            // Routing
+            // Routing as a separate chunk
             if (id.includes('react-router-dom')) {
-              return 'react-router-dom';
+              return 'router';
             }
             
-            // Material UI - split by component type
-            if (id.includes('@mui/material')) {
-              if (id.includes('Button')) return 'mui-button';
-              if (id.includes('Card') || id.includes('Paper')) return 'mui-surfaces';
-              if (id.includes('Table')) return 'mui-table';
-              if (id.includes('Dialog') || id.includes('Modal')) return 'mui-dialog';
-              if (id.includes('Typography')) return 'mui-typography';
-              if (id.includes('Box') || id.includes('Grid') || id.includes('Container')) return 'mui-layout';
-              if (id.includes('Select') || id.includes('MenuItem') || id.includes('FormControl')) return 'mui-select';
-              return 'mui-core';
+            // UI libraries grouped more reasonably
+            if (id.includes('@mui/material') || id.includes('@emotion')) {
+              return 'mui';
             }
             
-            // Emotion styling
-            if (id.includes('@emotion')) {
-              if (id.includes('@emotion/react')) return 'emotion-react';
-              if (id.includes('@emotion/styled')) return 'emotion-styled';
-              return 'emotion-core';
+            if (id.includes('framer-motion') || id.includes('@headlessui') || id.includes('@radix-ui')) {
+              return 'ui-animations';
             }
             
-            // UI libraries
-            if (id.includes('@headlessui/react')) return 'headlessui';
-            if (id.includes('@radix-ui')) return 'radix-ui';
-            if (id.includes('framer-motion')) return 'framer-motion';
+            // Forms and data handling
+            if (id.includes('react-hook-form') || id.includes('react-select') || id.includes('react-dropzone')) {
+              return 'forms';
+            }
             
-            // Maps
-            if (id.includes('react-leaflet') || id.includes('leaflet')) return 'maps';
+            // Utilities and helpers
+            if (id.includes('date-fns') || id.includes('lodash') || id.includes('clsx') || id.includes('tailwind-merge')) {
+              return 'utils';
+            }
             
-            // Utilities
-            if (id.includes('date-fns')) return 'date-fns';
-            if (id.includes('axios')) return 'axios';
-            if (id.includes('socket.io-client')) return 'socket-io';
-            
-            // Forms
-            if (id.includes('react-hook-form')) return 'react-hook-form';
-            if (id.includes('react-select')) return 'react-select';
-            
-            // File handling
-            if (id.includes('react-dropzone')) return 'dropzone';
-            if (id.includes('browser-image-compression')) return 'image-compression';
+            // Network and real-time
+            if (id.includes('axios') || id.includes('socket.io-client')) {
+              return 'network';
+            }
             
             // Icons
-            if (id.includes('react-icons') || id.includes('@react-icons/all-files')) return 'react-icons';
-            if (id.includes('lucide-react')) return 'lucide-react';
-            if (id.includes('@heroicons')) return 'heroicons';
+            if (id.includes('react-icons') || id.includes('lucide-react') || id.includes('@heroicons')) {
+              return 'icons';
+            }
+            
+            // Internationalization
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'i18n';
+            }
+            
+            // Maps
+            if (id.includes('react-leaflet') || id.includes('leaflet')) {
+              return 'maps';
+            }
             
             // Search
-            if (id.includes('fuse.js')) return 'fuse-js';
-            
-            // i18n
-            if (id.includes('i18next')) return 'i18next';
-            if (id.includes('react-i18next')) return 'react-i18next';
+            if (id.includes('fuse.js')) {
+              return 'search';
+            }
             
             // Notifications
-            if (id.includes('react-toastify')) return 'react-toastify';
-            if (id.includes('notistack')) return 'notistack';
-            
-            // Styling utilities
-            if (id.includes('clsx') || id.includes('tailwind-merge')) return 'classnames';
-            
-            // Lodash utilities
-            if (id.includes('lodash')) {
-              if (id.includes('lodash.debounce')) return 'lodash-debounce';
-              if (id.includes('lodash.throttle')) return 'lodash-throttle';
-              return 'lodash';
+            if (id.includes('react-toastify') || id.includes('notistack')) {
+              return 'notifications';
             }
             
             // State management
-            if (id.includes('react-redux') || id.includes('@reduxjs/toolkit')) return 'redux';
+            if (id.includes('react-redux') || id.includes('@reduxjs/toolkit') || id.includes('zustand')) {
+              return 'state';
+            }
             
-            // DnD
-            if (id.includes('react-dnd') || id.includes('dnd-core')) return 'dnd';
-            
-            // Virtualization
-            if (id.includes('react-window') || id.includes('react-virtualized-auto-sizer')) return 'virtualization';
-            
-            // Device detection
-            if (id.includes('react-device-detect')) return 'device-detect';
-            
-            // Catch-all for other vendor libraries
+            // All other vendor libraries
             return 'vendor';
           }
           
-          // Split pages into separate chunks
+          // Split pages into separate chunks but more conservatively
           if (id.includes('/pages/')) {
             const pageName = id.split('/pages/')[1].split('.')[0];
             // Group related pages together
             if (pageName.includes('admin')) return 'admin-pages';
             if (pageName.includes('profile') || pageName.includes('settings')) return 'user-pages';
-            return `page-${pageName.toLowerCase()}`;
+            return 'pages';
           }
           
-          // Split components by feature
+          // Components by major feature
           if (id.includes('/components/')) {
             if (id.includes('/components/listings/')) {
-              const feature = id.split('/components/listings/')[1].split('/')[0];
-              return `listings-${feature}`;
+              return 'listings-components';
             }
             if (id.includes('/components/auth/')) return 'auth-components';
             if (id.includes('/components/chat/')) return 'chat-components';
             if (id.includes('/components/layout/')) return 'layout-components';
+            return 'components';
           }
           
           // Default behavior
