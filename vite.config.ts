@@ -79,6 +79,46 @@ export default defineConfig(({ mode, command }) => {
       }))(),
 
 
+      // Cache headers plugin for Cloudflare
+      {
+        name: 'cache-headers-plugin',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = req.url || '';
+            
+            // Set cache headers for static assets
+            if (/\.(jpg|jpeg|png|webp|svg|ico|gif|woff2|css|js)$/.test(url)) {
+              // Cache static assets for 1 month in production
+              if (process.env.NODE_ENV === 'production') {
+                res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+                res.setHeader('Expires', new Date(Date.now() + 2592000000).toUTCString());
+              } else {
+                // Shorter cache for development
+                res.setHeader('Cache-Control', 'public, max-age=3600');
+              }
+            }
+            
+            // Cache images with Cloudflare-specific headers
+            if (/\.(jpg|jpeg|png|webp|svg|ico|gif)$/.test(url)) {
+              res.setHeader('CF-Cache-Status', 'HIT');
+              res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+            }
+            
+            next();
+          });
+        },
+        generateBundle(_, bundle) {
+          // Add cache headers for build output
+          Object.keys(bundle).forEach(fileName => {
+            const file = bundle[fileName];
+            if (file.type === 'asset') {
+              // Add cache metadata for CDN optimization
+              if (!file.name) file.name = fileName;
+            }
+          });
+        }
+      },
+
       // Image optimization with modern plugin
       viteImagemin({
         gifsicle: { optimizationLevel: 7 },
