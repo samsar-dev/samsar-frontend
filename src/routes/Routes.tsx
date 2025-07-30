@@ -211,35 +211,32 @@ const Routes = () => {
   const loadRoutes = useCallback(async () => {
     try {
       setIsLoading(true);
-      const defaultRoutes: RouteObject[] = [];
 
-      // Load critical routes first
-      const [mainModule, authModule] = await Promise.allSettled([
+      // Load all routes
+      const [mainModule, authModule, profileModule, adminModule] = await Promise.allSettled([
         import("./MainRoutes"),
-        import("./AuthRoutes")
+        import("./AuthRoutes"),
+        import("./ProfileRoutes"),
+        import("./AdminRoutes")
       ]);
-
-      // Load non-critical routes in the background
-      safeIdleCallback(async () => {
-        await Promise.allSettled([
-          import("./AdminRoutes"),
-          import("./ProfileRoutes")
-        ]);
-      });
 
       // Extract routes with proper error handling
       const mainRoutes =
         mainModule.status === "fulfilled"
           ? mainModule.value.default
-          : defaultRoutes;
+          : [];
       const authRoutes =
         authModule.status === "fulfilled"
           ? authModule.value.default
-          : defaultRoutes;
-      
-      // Non-critical routes will be loaded in the background
-      const adminRoutes = defaultRoutes;
-      const profileRoutes = defaultRoutes;
+          : [];
+      const profileRoutes =
+        profileModule.status === "fulfilled"
+          ? profileModule.value.default
+          : [];
+      const adminRoutes =
+        adminModule.status === "fulfilled"
+          ? adminModule.value.default
+          : [];
 
       // Combine all routes with not found fallback
       const allRoutes = [

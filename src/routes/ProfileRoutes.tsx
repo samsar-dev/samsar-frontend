@@ -82,9 +82,9 @@ const withProfileLayout = memo((Component: React.ComponentType) => {
 });
 
 const profileRoutes: RouteObject[] = [
-  // Redirects for backward compatibility
+  // Main profile route with nested routing support
   {
-    path: "/profile",
+    path: "/profile/*",
     element: (
       <PrivateRoute>
         <Layout>
@@ -93,29 +93,21 @@ const profileRoutes: RouteObject[] = [
       </PrivateRoute>
     ),
     children: [
-      {
-        index: true,
-        element: <Profile />,
-      },
-      {
-        path: ":username",
-        element: <UserProfile />,
-      },
-
-      {
-        path: "info",
-        element: <ProfileInfo />,
-      },
-
-      {
-        path: "listings",
-        element: <MyListings />,
-      },
-      {
-        path: "change-password",
-        element: <ChangePassword />,
-      },
+      { index: true, element: <ProfileInfo /> },
+      { path: "listings", element: <MyListings /> },
+      { path: "password", element: <ChangePassword /> },
     ],
+  },
+  // User profile route
+  {
+    path: "/profile/:username",
+    element: (
+      <PrivateRoute>
+        <Layout>
+          <UserProfile />
+        </Layout>
+      </PrivateRoute>
+    ),
   },
 ];
 

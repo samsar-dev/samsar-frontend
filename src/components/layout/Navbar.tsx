@@ -65,8 +65,8 @@ const Navbar: React.FC = () => {
 
   // Add click outside listener
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [handleClickOutside]);
 
   // Close dropdowns on route change
@@ -104,7 +104,8 @@ const Navbar: React.FC = () => {
   };
 
   // Memoize toggle functions
-  const toggleProfileMenu = useCallback(() => {
+  const toggleProfileMenu = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation(); // Prevent event from reaching document if it exists
     setShowProfileMenu(prev => {
       if (!prev && showListingsMenu) {
         setShowListingsMenu(false);
@@ -113,7 +114,8 @@ const Navbar: React.FC = () => {
     });
   }, [showListingsMenu]);
 
-  const toggleNotifications = useCallback(() => {
+  const toggleNotifications = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation(); // Prevent event from reaching document if it exists
     setShowNotifications(prev => {
       if (!prev && showProfileMenu) {
         setShowProfileMenu(false);
@@ -122,7 +124,8 @@ const Navbar: React.FC = () => {
     });
   }, [showProfileMenu]);
 
-  const toggleListingsMenu = useCallback(() => {
+  const toggleListingsMenu = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation(); // Prevent event from reaching document if it exists
     setShowListingsMenu(prev => {
       if (!prev && showProfileMenu) {
         setShowProfileMenu(false);
@@ -342,7 +345,7 @@ const Navbar: React.FC = () => {
                 <div className="relative">
                   <Tooltip content="Listings" position="bottom">
                     <button
-                      onClick={toggleListingsMenu}
+                      onClick={(e) => toggleListingsMenu(e)}
                       className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
                       aria-label={t("listings")}
                       aria-expanded={showListingsMenu}
@@ -356,7 +359,7 @@ const Navbar: React.FC = () => {
 
                 <div className="relative">
                   <NotificationBell 
-                    onClick={toggleNotifications}
+                    onClick={(e) => toggleNotifications(e)}
                     isActive={showNotifications}
                   />
                   <div className="notifications-dropdown">
@@ -381,7 +384,7 @@ const Navbar: React.FC = () => {
                 <div className="relative">
                   <Tooltip content={user.name || user.email} position="bottom">
                     <button
-                      onClick={toggleProfileMenu}
+                      onClick={(e) => toggleProfileMenu(e)}
                       className="flex items-center focus:outline-none"
                       aria-label={t("profileMenu")}
                       aria-expanded={showProfileMenu}

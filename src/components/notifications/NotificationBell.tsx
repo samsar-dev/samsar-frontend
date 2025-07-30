@@ -71,7 +71,8 @@ export default function NotificationBell({
       setNotifications([]);
     }
   };
-  console.log("chatId", location.pathname.split("/")[2]);
+  const pathSegments = location.pathname.split("/");
+  const chatId = pathSegments.length > 2 ? pathSegments[2] : undefined;
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!isAuthenticated) return;

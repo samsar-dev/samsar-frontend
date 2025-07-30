@@ -12,6 +12,7 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FormData {
   currentPassword: string;
@@ -27,6 +28,7 @@ interface PasswordStrength {
 }
 
 const ChangePassword = () => {
+  const { user } = useAuth();
   const { t } = useTranslation("profile");
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -255,6 +257,13 @@ const ChangePassword = () => {
           value={value}
           onChange={handleChange}
           required
+          autoComplete={
+            id === "currentPassword"
+              ? "current-password"
+              : id === "newPassword" || id === "confirmPassword"
+              ? "new-password"
+              : undefined
+          }
           className="w-full px-4 py-2 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -288,6 +297,17 @@ const ChangePassword = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Hidden username/email field for accessibility */}
+        <input
+          type="text"
+          name="username"
+          autoComplete="username"
+          value={user?.email || user?.username || ""}
+          style={{ display: "none" }}
+          readOnly
+          tabIndex={-1}
+          aria-hidden="true"
+        />
         <div className="space-y-4">
           {renderPasswordInput(
             "currentPassword",
