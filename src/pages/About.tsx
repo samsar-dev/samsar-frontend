@@ -4,7 +4,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
 import { styled } from '@mui/material/styles';
-import { motion } from 'framer-motion';
+import React, { Suspense, lazy } from 'react';
+const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
 import { useTranslation } from 'react-i18next';
 import { SEO } from '@/utils/seo';
 import { Typography } from '@/utils/typography';
@@ -50,7 +51,8 @@ const About = () => {
         keywords={t('about_page.meta_keywords', 'من نحن, عن سمسار, منصة سمسار, فريق سمسار, رؤيتنا, مهمتنا, قيمنا')}
       />
       <Container maxWidth="lg">
-        <motion.div
+        <Suspense fallback={null}>
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -61,7 +63,8 @@ const About = () => {
           <Typography variant="h5" color="text.secondary" paragraph align="center" sx={{ mb: 8, maxWidth: 800, mx: 'auto' }}>
             {t('about_page.subtitle')}
           </Typography>
-        </motion.div>
+        </MotionDiv>
+        </Suspense>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
           {features.map((feature, index) => (

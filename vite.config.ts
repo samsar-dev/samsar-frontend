@@ -236,7 +236,8 @@ export default defineConfig(({ mode, command }) => {
 
       minify: 'terser', 
       cssCodeSplit: true,
-      chunkSizeWarningLimit: 500, 
+      chunkSizeWarningLimit: 300, 
+      dynamicImportVarsOptions: { warnOnError: true },
       reportCompressedSize: true,
 
       
@@ -463,101 +464,22 @@ export default defineConfig(({ mode, command }) => {
         compact: true,
 
         manualChunks: (id) => {
-          // More balanced code splitting strategy to reduce main-thread work
           if (id.includes('node_modules')) {
-            // Critical libraries that should be loaded early
-            if (id.includes('react')) {
-              if (id.includes('react-dom')) {
-                return 'react-dom';
-              }
-              return 'react';
-            }
-            
-            // Routing as a separate chunk
-            if (id.includes('react-router-dom')) {
+            if (id.includes('react-router-dom') || id.includes('react-router')) {
               return 'router';
             }
-            
-            // UI libraries grouped more reasonably
-            if (id.includes('@mui/material') || id.includes('@emotion')) {
+            if (id.includes('react-dom') || id.includes('react')) {
+              return 'react';
+            }
+            if (id.includes('@mui') || id.includes('@emotion')) {
               return 'mui';
             }
-            
-            if (id.includes('framer-motion') || id.includes('@headlessui') || id.includes('@radix-ui')) {
-              return 'ui-animations';
+            if (id.includes('framer-motion')) {
+              return 'motion';
             }
-            
-            // Forms and data handling
-            if (id.includes('react-hook-form') || id.includes('react-select') || id.includes('react-dropzone')) {
-              return 'forms';
-            }
-            
-            // Utilities and helpers
-            if (id.includes('date-fns') || id.includes('lodash') || id.includes('clsx') || id.includes('tailwind-merge')) {
-              return 'utils';
-            }
-            
-            // Network and real-time
-            if (id.includes('axios') || id.includes('socket.io-client')) {
-              return 'network';
-            }
-            
-            // Icons
-            if (id.includes('react-icons') || id.includes('lucide-react') || id.includes('@heroicons')) {
-              return 'icons';
-            }
-            
-            // Internationalization
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'i18n';
-            }
-            
-            // Maps
-            if (id.includes('react-leaflet') || id.includes('leaflet')) {
-              return 'maps';
-            }
-            
-            // Search
-            if (id.includes('fuse.js')) {
-              return 'search';
-            }
-            
-            // Notifications
-            if (id.includes('react-toastify') || id.includes('notistack')) {
-              return 'notifications';
-            }
-            
-            // State management
-            if (id.includes('react-redux') || id.includes('@reduxjs/toolkit') || id.includes('zustand')) {
-              return 'state';
-            }
-            
             // All other vendor libraries
             return 'vendor';
           }
-          
-          // Split pages into separate chunks but more conservatively
-          if (id.includes('/pages/')) {
-            const pageName = id.split('/pages/')[1].split('.')[0];
-            // Group related pages together
-            if (pageName.includes('admin')) return 'admin-pages';
-            if (pageName.includes('profile') || pageName.includes('settings')) return 'user-pages';
-            return 'pages';
-          }
-          
-          // Components by major feature
-          if (id.includes('/components/')) {
-            if (id.includes('/components/listings/')) {
-              return 'listings-components';
-            }
-            if (id.includes('/components/auth/')) return 'auth-components';
-            if (id.includes('/components/chat/')) return 'chat-components';
-            if (id.includes('/components/layout/')) return 'layout-components';
-            return 'components';
-          }
-          
-          // Default behavior
-          return undefined;
         }, 
         chunkFileNames: (chunkInfo) => {
           const name = chunkInfo.name.toString();

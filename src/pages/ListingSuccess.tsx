@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import React, { Suspense, lazy } from 'react';
+const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
 import { FaCheckCircle, FaEye, FaEdit, FaHome, FaTag } from "react-icons/fa";
 
 const ListingSuccess = () => {
@@ -7,7 +8,8 @@ const ListingSuccess = () => {
   const { listingId, isUpdate, title, isPriceReduced } = location.state || {};
 
   return (
-    <motion.div
+    <Suspense fallback={null}>
+        <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-xl mx-auto mt-16 text-center space-y-6"
@@ -63,7 +65,8 @@ const ListingSuccess = () => {
           My Listings
         </Link>
       </div>
-    </motion.div>
+    </MotionDiv>
+        </Suspense>
   );
 };
 

@@ -7,7 +7,8 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { motion } from "framer-motion";
+import React, { Suspense, lazy } from 'react';
+const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
 import Gavel from "@mui/icons-material/Gavel";
 import Description from "@mui/icons-material/Description";
 import AccountBalance from "@mui/icons-material/AccountBalance";
@@ -267,7 +268,8 @@ const TermsOfService = () => {
         keywords={pageKeywords}
       />
       <Container maxWidth="lg">
-        <motion.div
+        <Suspense fallback={null}>
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -279,12 +281,13 @@ const TermsOfService = () => {
             Please read these Terms of Service carefully before using our
             Platform.
           </Typography>
-        </motion.div>
+        </MotionDiv>
+        </Suspense>
 
         <Box sx={{ maxWidth: 1000, mx: "auto" }}>
           {sections.map((section, index) => (
-            <motion.div
-              key={section.title}
+            <Suspense fallback={null}>
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -312,7 +315,8 @@ const TermsOfService = () => {
                 </Box>
                 {section.content}
               </Paper>
-            </motion.div>
+            </MotionDiv>
+            </Suspense>
           ))}
         </Box>
       </Container>

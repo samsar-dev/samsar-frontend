@@ -1,10 +1,12 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { listingEditReducer } from "./listing";
 import { listingDetailsReducer } from "./listing/listingDetails.reducer";
+import { filtersReducer } from "./filters/filters.reducer";
 
 const rootReducer = combineReducers({
   listingEdit: listingEditReducer,
   listingDetails: listingDetailsReducer,
+  filters: filtersReducer,
   // Add other reducers here
 });
 
