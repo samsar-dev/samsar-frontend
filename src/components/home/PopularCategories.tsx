@@ -5,35 +5,15 @@ import ImageFallback from '@/components/media/ImageFallback';
 const PopularCategories = () => {
   const { t } = useTranslation();
 
-  // Helper function to generate Cloudflare-optimized image URLs for R2
-  const getImageSrcSet = (baseUrl: string) => {
-    if (!baseUrl) return '';
-    const [url] = baseUrl.split('?');
-    
-    // Aggressive optimization for actual display size (332x248)
-    const sizes = [332, 498, 664]; // 1x, 1.5x, 2x for responsive
-    
-    return sizes.map(size => 
-      `${url}?width=${size}&height=${Math.floor(size * 0.75)}&format=webp&quality=60&fit=crop&compression=strong ${size}w`
-    ).join(', ');
-  };
 
-  const getOptimizedImageUrl = (baseUrl: string, width: number = 332) => {
-    if (!baseUrl) return '';
-    const [url] = baseUrl.split('?');
-    
-    // Ultra-aggressive compression for 332x248 display
-    const height = Math.floor(width * 0.75);
-    return `${url}?width=${width}&height=${height}&format=webp&quality=60&fit=crop&compression=strong`;
-  };
 
   const categories = [
     {
       id: 'cars',
       title: t('home:categories.cars', 'سيارات'),
       description: t('home:categories.cars_desc', 'أحدث الموديلات والماركات'),
-      image: getOptimizedImageUrl('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-8327255_1920.jpg'),
-      srcSet: getImageSrcSet('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-8327255_1920.jpg'),
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-332x248.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/bmw-664x496.webp 664w',
       href: '/listings?category=vehicles&subCategory=CAR',
       alt: t('home:categories.cars', 'سيارات'),
     },
@@ -41,8 +21,8 @@ const PopularCategories = () => {
       id: 'real_estate',
       title: t('home:categories.real_estate', 'عقارات'),
       description: t('home:categories.real_estate_desc', 'شقق، فلل، محلات تجارية'),
-      image: getOptimizedImageUrl('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-8078604_1920.jpg'),
-      srcSet: getImageSrcSet('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-8078604_1920.jpg'),
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-332x248.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/building-664x496.webp 664w',
       href: '/listings?category=real_estate',
       alt: t('home:categories.real_estate', 'عقارات'),
     },
@@ -50,8 +30,8 @@ const PopularCategories = () => {
       id: 'motorcycles',
       title: t('home:categories.motorcycles', 'دراجات نارية'),
       description: t('home:categories.motorcycles_desc', 'أحدث الموديلات بأسعار منافسة'),
-      image: getOptimizedImageUrl('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle.png'),
-      srcSet: getImageSrcSet('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle.png'),
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-332x248.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/motorcycle-664x496.webp 664w',
       href: '/listings?category=vehicles&subCategory=MOTORCYCLE',
       alt: t('home:categories.motorcycles', 'دراجات نارية'),
     },
@@ -59,8 +39,8 @@ const PopularCategories = () => {
       id: 'commercial',
       title: t('home:categories.commercial', 'تجاري'),
       description: t('home:categories.commercial_desc', 'محلات ومكاتب تجارية'),
-      image: getOptimizedImageUrl('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-1094826_1920.jpg'),
-      srcSet: getImageSrcSet('https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-1094826_1920.jpg'),
+      image: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-332x248.webp',
+      srcSet: 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-332x248.webp 332w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-498x372.webp 498w, https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/office-664x496.webp 664w',
       href: '/listings?category=real_estate&subCategory=COMMERCIAL',
       alt: t('home:categories.commercial', 'تجاري'),
     },
@@ -85,7 +65,7 @@ const PopularCategories = () => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <ImageFallback
                     src={category.image}
-                    srcSet={getImageSrcSet(category.image)}
+                    srcSet={category.srcSet}
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 332px"
                     alt={category.alt}
                     className="w-full h-full object-cover"
