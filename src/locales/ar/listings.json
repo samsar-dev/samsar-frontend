@@ -110,16 +110,15 @@
   "mileage": "عدد الكيلومترات",
   "cylinders": "عدد الأسطوانات",
   "registrationExpiry": "انتهاء التسجيل",
-  "upholsteryMaterial": "مادة التنجيد",
-  "tireCondition": "حالة الإطارات",
+ 
   "torque": "عزم الدوران",
   "seatingCapacity": "سعة المقاعد",
   "doors": "عدد الأبواب",
   "vin": "رقم الهيكل (VIN)",
   "engineNumber": "رقم المحرك",
-  "insuranceType": "نوع التأمين",
+ 
   "vehicleOwners": "عدد الملاك السابقين",
-  "serviceHistory": "سجل الصيانة",
+ 
   "accidentFree": "خالية من الحوادث",
   "warranty": "الضمان",
   "warrantyPeriod": "فترة الضمان",
@@ -276,7 +275,7 @@
     "wheelSize": "مقاس العجلات",
     "hp": "حصان",
     "nm": "نيوتن.متر",
-    "emissions": "معايير الانبعاثات",
+ 
     "brakeSystem": "نظام الفرامل",
     "entertainmentFeatures": "ميزات الترفيه",
     "safetyFeatures": "ميزات السلامة",
@@ -344,9 +343,7 @@
     "foundation": "الأساس",
     "zoning": "التخطيط الحضري",
     "previousOwners": "الملاك السابقون",
-    "insuranceType": "نوع التأمين",
-    "upholsteryMaterial": "نوع التنجيد",
-    "tireCondition": "حالة الإطارات",
+ 
     "utilities": "المرافق",
     "floor": "الطابق",
     "totalFloors": "عدد الطوابق",
@@ -555,9 +552,8 @@
 
     "no": "لا",
     "roofType": "نوع السقف",
-    "customsCleared": "تم التخليص الجمركي",
-    "warrantyPeriod": "فترة الضمان",
-    "serviceHistoryDetails": "تفاصيل سجل الصيانة"
+    "customsCleared": "تم التخليص الجمركي"
+ 
   },
   "insuranceType": {
     "comprehensive": "تأمين شامل",
@@ -760,7 +756,7 @@
     "camera360": "كاميرا 360 درجة",
     "dashCam": "كاميرا تسجيل القيادة",
     "nightVision": "رؤية ليلية",
-    "parkingSensors": "أجهزة استشعار ركن السيارات",
+ 
     "parkingAid": "مساعد ركن السيارات",
     "parkingAidCamera": "كاميرا مساعدة الركن",
     "parkingAidSensorsRear": "أجهزة استشعار الركن الخلفية",
@@ -824,22 +820,20 @@
     "clothSeats": "مقاعد قماشية",
     "sportSeats": "مقاعد رياضية",
     "massageSeats": "مقاعد مساج",
-    "memorySeats": "ذاكرة للمقاعد",
-
-    "powerWindows": "نوافذ كهربائية",
+ 
     "oneTouchWindows": "نوافذ بنظام اللمسة الواحدة",
     "rearPrivacyGlass": "زجاج معتم خلفي",
     "sunblinds": "ستائر شمسية",
 
-    "powerMirrors": "مرايا كهربائية",
+ 
     "autoDimmingMirrors": "مرايا معتمة تلقائياً",
-    "heatedMirrors": "مرايا مدفأة",
+ 
     "autoFoldingMirrors": "مرايا قابلة للطي أوتوماتيكياً",
     "memoryMirrors": "ذاكرة للمرايا"
   },
 
   "additionalInformation": "معلومات إضافية",
-  "additionalDetails": "تفاصيل إضافية",
+ 
   "vehicleFeatures": "ميزات المركبة",
 
   "featureCategories": {

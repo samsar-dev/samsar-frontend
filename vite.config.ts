@@ -500,7 +500,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     css: {
-      postcss: "./postcss.config.js",
+      postcss: "./postcss.config.cjs",
       devSourcemap: mode !== "production",
       modules: {
         localsConvention: "camelCaseOnly",

@@ -4,9 +4,7 @@ const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/**/*.{js,ts,jsx,tsx,mdx}",
     "./public/**/*.html",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}", // ensure mdx included
   ],
   safelist: [
     // Pattern for all critical/dynamic classes

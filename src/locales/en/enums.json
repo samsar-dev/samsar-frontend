@@ -100,13 +100,6 @@
     "LUXURY": "Luxury",
     "OTHER": "Other"
   },
-  "registrationStatus": {
-    "REGISTERED": "Registered",
-    "UNREGISTERED": "Unregistered",
-    "EXPIRED": "Expired",
-    "SORN": "SORN (Statutory Off Road Notification)",
-    "OTHER": "Other"
-  },
   "insuranceType": {
     "COMPREHENSIVE": "Comprehensive",
     "THIRD_PARTY": "Third Party",
@@ -135,16 +128,7 @@
     "IMPORTED": "Imported",
     "GRAY_MARKET": "Gray Market",
     "OTHER": "Other"
-  },
-  "serviceHistory": {
-    "FULL_DEALER_HISTORY": "Full Dealer History",
-    "PARTIAL_DEALER_HISTORY": "Partial Dealer History",
-    "FULL_SERVICE_RECORDS": "Full Service Records",
-    "PARTIAL_SERVICE_RECORDS": "Partial Service Records",
-    "NO_HISTORY": "No History",
-    "FULL": "Full",
-    "PARTIAL": "Partial",
-    "NONE": "None"
+ 
   },
   "bedLength": {
     "SHORT": "Short",
