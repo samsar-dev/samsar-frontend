@@ -10,11 +10,11 @@ const PopularCategories = () => {
     if (!baseUrl) return '';
     const [url] = baseUrl.split('?');
     
-    // Cloudflare-optimized image URLs with proper caching
-    const sizes = [332, 664, 996]; // 1x, 2x, 3x for high-DPI displays
+    // Optimized for actual display size (332px) with proper compression
+    const sizes = [332, 498, 664]; // 1x, 1.5x, 2x for actual usage
     
     return sizes.map(size => 
-      `${url}?width=${size}&format=webp&quality=75&fit=crop ${size}w`
+      `${url}?width=${size}&height=${Math.floor(size * 0.75)}&format=webp&quality=70&fit=crop ${size}w`
     ).join(', ');
   };
 
@@ -22,8 +22,9 @@ const PopularCategories = () => {
     if (!baseUrl) return '';
     const [url] = baseUrl.split('?');
     
-    // Single optimized URL for Cloudflare caching
-    return `${url}?width=${width}&format=webp&quality=75&fit=crop`;
+    // Optimized for actual display with aggressive compression
+    const height = Math.floor(width * 0.75); // 3:4 aspect ratio
+    return `${url}?width=${width}&height=${height}&format=webp&quality=70&fit=crop`;
   };
 
   const categories = [
