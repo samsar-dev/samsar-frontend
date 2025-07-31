@@ -72,15 +72,17 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     debugLog('🔌 Disconnecting socket...');
     
     if (socketRef.current) {
-      try {
-        socketRef.current.removeAllListeners();
-        socketRef.current.disconnect();
-        debugLog('✅ Socket disconnected successfully');
-      } catch (error) {
-        errorLog('Failed to disconnect socket', error);
-      } finally {
-        socketRef.current = null;
+      // Avoid disconnecting during INITIAL connecting phase to prevent premature closure warnings
+      if (socketRef.current.connected) {
+        try {
+          socketRef.current.removeAllListeners();
+          socketRef.current.disconnect();
+          debugLog('✅ Socket disconnected successfully');
+        } catch (error) {
+          errorLog('Failed to disconnect socket', error);
+        }
       }
+      socketRef.current = null;
     }
     
     clearReconnectTimer();
@@ -268,13 +270,9 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
       }
     }
     
-    // Cleanup on unmount
-    return () => {
-      if (!mountedRef.current) {
-        debugLog('🧹 Component unmounting - cleaning up socket');
-        disconnectSocket();
-      }
-    };
+    // No cleanup here to avoid premature disconnects caused by React 18 Strict Mode
+    return undefined;
+
   }, [isAuthenticated, user, isInitialized, connectionState, initializeSocket, disconnectSocket]);
   
   // Cleanup on unmount
@@ -285,8 +283,8 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
       debugLog('🧹 SocketProvider unmounting');
       mountedRef.current = false;
       
-      // Force cleanup
-      if (socketRef.current) {
+      // Force cleanup only if socket is connected to avoid premature WebSocket closure warnings
+      if (socketRef.current && socketRef.current.connected) {
         try {
           socketRef.current.removeAllListeners();
           socketRef.current.disconnect();

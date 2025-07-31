@@ -108,22 +108,8 @@ const ImageComponent: React.FC<ImageProps> = ({
 
   // Preload critical images
   useEffect(() => {
-    if (priority && isR2Image && baseUrl) {
-      const preloadLink = document.createElement("link");
-      preloadLink.rel = "preload";
-      preloadLink.as = "image";
-      preloadLink.href = getOptimizedImageUrl(800);
-      
-      // Store a reference to the link
-      const linkElement = document.head.appendChild(preloadLink);
-  
-      return () => {
-        // Only remove if the link is still in the document
-        if (document.head.contains(linkElement)) {
-          document.head.removeChild(linkElement);
-        }
-      };
-    }
+    // Remove preload injection - let browser handle critical image loading
+    // Preloading should only be used for above-the-fold critical images
   }, [priority, isR2Image, baseUrl, imageQuality]);
 
   // Helper function to get the most appropriate icon based on category

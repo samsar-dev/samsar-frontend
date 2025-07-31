@@ -54,29 +54,10 @@
     <!-- Preconnect to critical domains -->
     <link rel="preconnect" href="https://api.samsar.app" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
-
-    <!-- Preload key requests -->
-    <link rel="preconnect" href="https://api.samsar.app" crossorigin />
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.samsar.app" />
 
-    <!-- Font preloading -->
-    <link
-      rel="preload"
-      href="/fonts/inter.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="/fonts/roboto.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+
 
     <!-- Enhanced Critical CSS for LCP Optimization -->
     <style id="critical-css">
@@ -322,14 +303,7 @@
       content="black-translucent"
     />
 
-    <!-- Preload critical assets -->
-    <link
-      rel="preload"
-      href="/src/assets/fonts/your-main-font.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+
     <meta name="author" content="Samsar Team" />
     <meta name="language" content="ar" />
     <meta name="geo.region" content="SY" />
@@ -437,21 +411,6 @@
         href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap"
     /></noscript>
 
-    <!-- Preload Critical Assets -->
-    <link
-      rel="preload"
-      href="/images/hero.webp"
-      as="image"
-      type="image/webp"
-      fetchpriority="high"
-    />
-    <link
-      rel="preload"
-      href="/images/logo.svg"
-      as="image"
-      type="image/svg+xml"
-    />
-
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://maps.googleapis.com" />
     <link rel="preconnect" href="https://www.google-analytics.com" />
@@ -540,22 +499,7 @@
           return ss;
         }
         
-        // Preload critical resources
-        var criticalResources = [
-          '/fonts/inter.woff2',
-          '/fonts/roboto.woff2'
-        ];
-        
-        criticalResources.forEach(function(resource) {
-          var link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = resource.includes('.woff') ? 'font' : 'style';
-          link.href = resource;
-          if (resource.includes('.woff')) {
-            link.crossOrigin = 'anonymous';
-          }
-          document.head.appendChild(link);
-        });
+
         
         // Performance observer for LCP
         if ('PerformanceObserver' in window) {

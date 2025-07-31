@@ -1,91 +1,30 @@
 import type { Settings } from "@/types/settings";
-import type { AuthUser } from "@/types/auth.types";
-import type {
-  APIResponse,
-  AppSettingsData,
-  NotificationSettings,
-  PrivacySettings,
-} from "@/types/common";
-import type { RequestConfig } from "./apiClient";
+import type { APIResponse } from "@/types/common";
+import type { LanguageCode, ThemeType } from "@/types/enums";
 import apiClient from "./apiClient";
 
-const DEFAULT_SETTINGS: AppSettingsData = {
-  notifications: {
-    email: true,
-    push: true,
-    messages: true,
-    listings: true,
-    system: true,
-    desktop: true,
-  },
-  security: {
-    twoFactorEnabled: false,
-    loginNotifications: true,
-  },
-  privacy: {
-    profileVisibility: "public",
-    showPhone: false,
-    showOnlineStatus: true,
-    allowMessagesFrom: "everyone",
-    allowMessaging: true,
-  },
-  preferences: {
-    language: "en",
-    theme: "light",
-    currency: "USD",
-  },
-};
+export interface PreferenceSettingsType {
+  language: LanguageCode;
+  theme: ThemeType;
+  timezone: string;
+}
 
 export class SettingsAPI {
-  private static readonly BASE_PATH = "/users/settings";
+  private static readonly BASE_PATH = "/settings";
 
-  static async getSettings(): Promise<APIResponse<AuthUser>> {
-    const response = await apiClient.get(`${this.BASE_PATH}`);
+  static async getSettings(): Promise<APIResponse<Settings>> {
+    const response = await apiClient.get<APIResponse<Settings>>(this.BASE_PATH);
     return response.data;
   }
 
-  static async updateNotificationSettings(
-    settings: NotificationSettings,
-  ): Promise<APIResponse<NotificationSettings>> {
-    const response = await apiClient.patch(
-      `${this.BASE_PATH}/notifications`,
-      settings,
-    );
+  static async updateSettings(settings: Partial<Settings>): Promise<APIResponse<Settings>> {
+    const response = await apiClient.patch<APIResponse<Settings>>(this.BASE_PATH, settings);
     return response.data;
   }
 
-  static async updatePrivacySettings(
-    settings: Settings,
-  ): Promise<APIResponse<PrivacySettings>> {
-    const response = await apiClient.post(
-      `${this.BASE_PATH}`,
-      { notifications: settings.notifications, privacy: settings.privacy },
-      {
-        requiresAuth: true, // Add this to ensure auth token is sent
-      } as RequestConfig,
-    );
-    // const response = await axios.post(
-    //   `${this.BASE_PATH}`,
-    //   { notifications: settings.notifications, privacy: settings.privacy },
-    //   {
-    //     withCredentials: true,
-    //   }
-    // );
-    console.log("response", response.data);
-    return response.data;
-  }
-
-  static async getNotificationPreferences(): Promise<
-    APIResponse<NotificationSettings>
-  > {
-    const response = await apiClient.get(`${this.BASE_PATH}/notifications`);
-    return response.data;
-  }
-
-  static async getPrivacySettings(): Promise<APIResponse<PrivacySettings>> {
-    const response = await apiClient.get(`${this.BASE_PATH}/privacy`);
-    return response.data;
+  static async updatePrivacySettings(settings: Settings['privacy']): Promise<APIResponse<Settings>> {
+    return this.updateSettings({ privacy: settings });
   }
 }
 
-export { DEFAULT_SETTINGS };
+export default SettingsAPI;

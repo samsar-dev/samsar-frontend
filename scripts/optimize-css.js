@@ -23,24 +23,18 @@ const config = {
     './src/**/*.{js,ts,jsx,tsx}',
   ],
   safelist: [
-    // Always keep these classes
+    // Critical only - exclude all transform utilities
     'html', 'body', '#root',
-    // Safe list common patterns
+    // Layout only
+    /^flex/, /^hidden/, /^block/, /^inline/,
+    /^w-/, /^h-/, /^p-/, /^m-/,
+    // Colors only
     /^bg-/, /^text-/, /^border-/,
-    /^flex/, /^grid/, /^hidden/, /^block/, /^inline/,
-    /^relative/, /^absolute/, /^fixed/, /^sticky/,
-    /^z-/, /^w-/, /^h-/, /^p-/, /^m-/, /^space-/,
-    /^rounded/, /^shadow/, /^opacity/, /^transition/,
-    /^duration/, /^ease/, /^transform/, /^scale/, /^rotate/,
-    /^translate/, /^skew/,
-    // Responsive prefixes
-    /^sm:/, /^md:/, /^lg:/, /^xl:/, /^2xl:/,
-    // State variants
-    /^hover:/, /^focus:/, /^active:/, /^disabled:/, /^visited:/,
-    // Animation classes
-    /^animate-/,
-    // Component classes
-    /^btn/, /^card/, /^modal/, /^dropdown/, /^tooltip/, /^popover/,
+    // Border radius only
+    /^rounded/,
+    // Responsive only
+    /^sm:/, /^md:/,
+    // No transform utilities at all
   ]
 };
 
@@ -73,7 +67,7 @@ async function optimizeCSS() {
     const originalSize = Buffer.byteLength(css, 'utf8');
     log(`Original CSS size: ${formatBytes(originalSize)}`);
 
-    // Create PostCSS processor with plugins
+    // Create PostCSS processor with plugins - exclude transform utilities
     const processor = postcss([
       autoprefixer({
         overrideBrowserslist: [
@@ -91,8 +85,16 @@ async function optimizeCSS() {
         fontFace: true,
         defaultExtractor: content => {
           const selectors = [];
+          // Exclude transform utilities
           const matches = content.match(/[A-Za-z0-9-_:/]+/g) || [];
-          selectors.push(...matches);
+          const filtered = matches.filter(selector => 
+            !selector.includes('translate') && 
+            !selector.includes('rotate') && 
+            !selector.includes('scale') && 
+            !selector.includes('skew') &&
+            !selector.includes('transform')
+          );
+          selectors.push(...filtered);
           return selectors;
         }
       }),
@@ -102,8 +104,8 @@ async function optimizeCSS() {
           normalizeWhitespace: true,
           minifyFontValues: true,
           minifySelectors: true,
-          reduceIdents: false, // Keep ID selectors for critical CSS
-          zindex: false // Keep z-index values
+          reduceIdents: false,
+          zindex: false
         }]
       })
     ]);
@@ -138,35 +140,32 @@ async function extractCriticalCSS(css, originalSize) {
   try {
     log('Extracting critical CSS...');
     
-    // Define critical CSS patterns (above-the-fold content)
+    // Define minimal critical CSS patterns - exclude transform utilities
     const criticalPatterns = [
-      // Base resets and typography
+      // Base only
       /html\s*{[^}]*}/g,
       /body\s*{[^}]*}/g,
       /#root\s*{[^}]*}/g,
       
-      // Layout utilities
-      /\.container\s*{[^}]*}/g,
+      // Essential layout only - no transforms
       /\.flex\s*{[^}]*}/g,
-      /\.grid\s*{[^}]*}/g,
       /\.hidden\s*{[^}]*}/g,
-      /\.block\s*{[^}]*}/g,
-      /\.inline\s*{[^}]*}/g,
+      /\.w-full\s*{[^}]*}/g,
       
-      // Responsive utilities
-      /\.sm:[^\s{]*\s*{[^}]*}/g,
-      /\.md:[^\s{]*\s*{[^}]*}/g,
-      /\.lg:[^\s{]*\s*{[^}]*}/g,
+      // Essential spacing only
+      /\.p-4\s*{[^}]*}/g,
+      /\.m-4\s*{[^}]*}/g,
       
-      // Common spacing utilities
-      /\.p-[0-9]*\s*{[^}]*}/g,
-      /\.m-[0-9]*\s*{[^}]*}/g,
-      /\.space-[xy]-[0-9]*\s*{[^}]*}/g,
+      // Essential text only
+      /\.text-center\s*{[^}]*}/g,
+      /\.text-xl\s*{[^}]*}/g,
       
-      // Color utilities
-      /\.bg-[a-z-]*\s*{[^}]*}/g,
-      /\.text-[a-z-]*\s*{[^}]*}/g,
-      /\.border-[a-z-]*\s*{[^}]*}/g,
+      // Essential colors only
+      /\.bg-white\s*{[^}]*}/g,
+      /\.text-gray-900\s*{[^}]*}/g,
+      
+      // Essential borders only
+      /\.border\s*{[^}]*}/g,
     ];
 
     let criticalCSS = '';
@@ -179,63 +178,23 @@ async function extractCriticalCSS(css, originalSize) {
       }
     });
 
-    // Add essential base styles
+    // Add ultra-minimal critical CSS - exclude all transforms
     criticalCSS += `
-/* Critical base styles */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+/* Ultra-minimal critical CSS */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; width: 100%; min-height: 100%; }
 
-html, body {
+.lcp-text {
+  font-size: 1.875rem;
+  font-weight: 800;
+  text-align: center;
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.5;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-/* Critical layout utilities */
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.flex {
-  display: flex;
-}
-
-.grid {
-  display: grid;
-}
-
-.hidden {
-  display: none;
-}
-
-.block {
-  display: block;
-}
-
-/* Critical responsive utilities */
-@media (min-width: 640px) {
-  .sm\:flex { display: flex; }
-  .sm\:block { display: block; }
 }
 
 @media (min-width: 768px) {
-  .md\:flex { display: flex; }
-  .md\:block { display: block; }
+  .lcp-text { font-size: 2.25rem; }
 }
-
-@media (min-width: 1024px) {
-  .lg\:flex { display: flex; }
-  .lg\:block { display: block; }
-}
-`;
+    `;
 
     // Minify critical CSS
     const criticalProcessor = postcss([

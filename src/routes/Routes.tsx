@@ -21,7 +21,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { debounce } from "@/utils/debounce";
 import { safeIdleCallback, cancelIdleCallback } from "@/utils/idleCallback";
-import { preloadCriticalAssets } from "@/utils/preloadUtils";
+
+
 
 // Optimized loading component with memoization
 const RouteLoading = memo(() => (
@@ -125,11 +126,32 @@ export const PageComponents = {
 type RouteKey = keyof typeof PageComponents;
 
 const Routes = () => {
+  useEffect(() => {
+    // Use requestIdleCallback to defer preloading until the browser is idle.
+    const handle = requestIdleCallback(() => {
+      import('@/utils/preloadUtils').then(utils => {
+        utils.preloadCriticalAssets();
+      });
+    });
+
+    // Cleanup the callback if the component unmounts.
+    return () => cancelIdleCallback(handle);
+  }, []);
   const [routes, setRoutes] = useState<RouteObject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const observedElements = useRef<Set<string>>(new Set());
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isMounted = useRef(true);
+
+  // Preload critical assets when the browser is idle
+  useEffect(() => {
+    const handle = requestIdleCallback(() => {
+      import('@/utils/preloadUtils').then(utils => {
+        utils.preloadCriticalAssets();
+      });
+    });
+    return () => cancelIdleCallback(handle);
+  }, []);
 
   // Preload critical routes first, then others
   useEffect(() => {
@@ -141,9 +163,6 @@ const Routes = () => {
       try {
         preloadController = new AbortController();
         const { signal } = preloadController;
-
-        // Preload critical assets first
-        await preloadCriticalAssets();
 
         if (signal.aborted) return;
 

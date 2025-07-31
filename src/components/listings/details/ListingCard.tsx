@@ -267,7 +267,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
           {vehicleDetails.fuelType && (
             <p className="flex items-center gap-2">
               {renderIcon("FaGasPump", "text-blue-500 mr-1")}{" "}
-              {t(`fields.fuelTypes.${vehicleDetails.fuelType}`)}
+              {t(`fields.fuelType.${vehicleDetails.fuelType}`)}
             </p>
           )}
         </div>
@@ -730,7 +730,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/60 dark:to-gray-800/60 rounded-xl p-3 border border-gray-100/50 dark:border-gray-700/50 transition-colors duration-200">
                       <div className="flex items-center justify-center space-x-2">
                         <span className="text-gray-500 dark:text-gray-400 text-sm">
-                          {t("fields.transmission")}
+                          {t("fields.transmissionType")}
                         </span>
                       </div>
                       <div className="mt-1 text-center font-medium text-gray-900 dark:text-white">
@@ -742,37 +742,60 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           if (!transmissionValue)
                             return <span className="text-gray-400">-</span>;
 
-                          let translationKey = transmissionValue.toLowerCase();
-
-                          // Handle special cases
-                          if (
-                            [
-                              "cvt",
-                              "continuously_variable",
-                              "continuouslyvariable",
-                            ].includes(transmissionValue)
-                          ) {
-                            return "CVT";
-                          } else if (
-                            ["semi_automatic", "semi-automatic"].includes(
-                              transmissionValue,
-                            )
-                          ) {
-                            translationKey = "semiAutomatic";
-                          } else if (
-                            ["dual_clutch", "dualclutch"].includes(
-                              transmissionValue,
-                            )
-                          ) {
-                            translationKey = "dualClutch";
+                          // Convert to lowercase for consistent comparison
+                          const lowerCaseValue = transmissionValue.toLowerCase();
+                          
+                          // Normalize the transmission value to match our translation keys
+                          let translationKey = '';
+                          
+                          // Convert to lowercase and remove special characters for easier matching
+                          const normalizedValue = transmissionValue.toLowerCase().replace(/[^a-z0-9]/g, '');
+                          
+                          // Map all possible variations to our translation keys
+                          if (['cvt', 'continuouslyvariable', 'continuously_variable'].includes(normalizedValue)) {
+                            translationKey = 'CVT';
+                          } else if (['semimanual', 'semiautomatic', 'semi_automatic', 'semi-automatic'].includes(normalizedValue)) {
+                            translationKey = 'SEMI_AUTOMATIC';
+                          } else if (['dualclutch', 'dual_clutch', 'dualgrip'].includes(normalizedValue)) {
+                            translationKey = 'DUAL_CLUTCH';
+                          } else if (['automatic', 'auto', 'اتوماتيك'].includes(normalizedValue)) {
+                            translationKey = 'AUTOMATIC';
+                          } else if (['manual', 'stick', 'عادي'].includes(normalizedValue)) {
+                            translationKey = 'MANUAL';
+                          } else {
+                            // If we don't recognize the value, use it as-is
+                            translationKey = transmissionValue.toUpperCase();
                           }
-
-                          return t(
-                            `fields.transmissionTypes.${translationKey}`,
-                            {
-                              defaultValue: transmissionValue,
-                            },
-                          );
+                          
+                          // Try to get the translation from the options namespace first
+                          let translated = t(`options:transmission.${translationKey}`, {
+                            // Fallback to common namespace if not found in options
+                            defaultValue: t(`common:fields.transmissionTypes.${translationKey}`, {
+                              // Fallback to listings namespace if not found in common
+                              defaultValue: t(`fields.transmissionTypes.${translationKey}`, {
+                                // If still not found, format the key nicely
+                                defaultValue: translationKey
+                                  .toLowerCase()
+                                  .replace(/([a-z])([A-Z])/g, '$1 $2')
+                                  .replace(/_/g, ' ')
+                                  .replace(/\b\w/g, (char) => char.toUpperCase())
+                              })
+                            })
+                          });
+                          
+                          // If we still don't have a translation, format the original value nicely
+                          if (!translated || translated.startsWith('options:') || 
+                              translated.startsWith('common:') || 
+                              translated.startsWith('fields.')) {
+                            return transmissionValue
+                              .toLowerCase()
+                              .replace(/([a-z])([A-Z])/g, '$1 $2')
+                              .replace(/[_-]/g, ' ')
+                              .replace(/\b\w/g, (char) => char.toUpperCase())
+                              .trim();
+                          }
+                          
+                          return translated;
                         })()}
                       </div>
                     </div>

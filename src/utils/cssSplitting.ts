@@ -3,22 +3,13 @@
  */
 
 /**
- * Preload critical fonts
+ * Preload critical fonts - disabled to prevent browser warnings
  */
 export function preloadCriticalFonts(): void {
   if (typeof document === 'undefined') return;
   
-  // Preload only essential fonts
-  const fonts = ['/fonts/inter-var.woff2'];
-  fonts.forEach(font => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'font';
-    link.type = 'font/woff2';
-    link.crossOrigin = 'anonymous';
-    link.href = font;
-    document.head.appendChild(link);
-  });
+  // Let browser handle font loading naturally
+  // Preloading disabled to prevent "resource preloaded but not used" warnings
 }
 
 /**
@@ -33,8 +24,8 @@ export function optimizeCSSForMobile(): void {
     criticalCSS.setAttribute('data-optimized', 'true');
   }
   
-  // Preload fonts
-  preloadCriticalFonts();
+  // Font preloading disabled to prevent warnings
+  // preloadCriticalFonts();
   
   // Handle mobile-specific CSS loading
   const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');

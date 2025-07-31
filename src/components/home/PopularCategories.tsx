@@ -49,14 +49,6 @@ const PopularCategories = () => {
       href: '/listings?category=real_estate&subCategory=COMMERCIAL',
       alt: t('home:categories.commercial', 'تجاري'),
     },
-    {
-      id: 'trucks',
-      title: t('home:categories.trucks', 'شاحنات'),
-      description: t('home:categories.trucks_desc', 'شاحنات ثقيلة وخفيفة'),
-      imageName: 'realestate-building.webp', // Using a placeholder, replace with actual truck image
-      href: '/listings?category=vehicles&subCategory=TRUCK',
-      alt: t('home:categories.trucks', 'شاحنات'),
-    },
   ];
 
   return (

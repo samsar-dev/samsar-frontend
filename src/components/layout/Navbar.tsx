@@ -49,15 +49,21 @@ const Navbar: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Memoize click outside handler
+  // Memoize click outside handler - close all dropdowns when clicking outside or on other icons
   const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as HTMLElement;
-    if (!target.closest(".profile-menu")) {
+    
+    // Close profile menu when clicking outside profile area
+    if (!target.closest(".profile-menu") && !target.closest("button[aria-label='profile']")) {
       setShowProfileMenu(false);
     }
-    if (!target.closest(".listings-menu")) {
+    
+    // Close listings menu when clicking outside listings area  
+    if (!target.closest(".listings-menu") && !target.closest("button[aria-label='listings']")) {
       setShowListingsMenu(false);
     }
+    
+    // Close notifications when clicking outside notifications area
     if (!target.closest(".notifications-dropdown") && !target.closest("button[aria-label='notifications']")) {
       setShowNotifications(false);
     }
@@ -69,10 +75,11 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [handleClickOutside]);
 
-  // Close dropdowns on route change
+  // Close all dropdowns on route change
   useEffect(() => {
     setShowProfileMenu(false);
     setShowListingsMenu(false);
+    setShowNotifications(false);
   }, [location.pathname]);
 
   const handleSearch = (
@@ -103,36 +110,42 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Memoize toggle functions
+  // Memoize toggle functions - close other dropdowns when opening new ones
   const toggleProfileMenu = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation(); // Prevent event from reaching document if it exists
+    e?.stopPropagation();
     setShowProfileMenu(prev => {
-      if (!prev && showListingsMenu) {
+      if (!prev) {
+        // Close other dropdowns when opening profile menu
+        setShowNotifications(false);
         setShowListingsMenu(false);
       }
       return !prev;
     });
-  }, [showListingsMenu]);
+  }, []);
 
   const toggleNotifications = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation(); // Prevent event from reaching document if it exists
+    e?.stopPropagation();
     setShowNotifications(prev => {
-      if (!prev && showProfileMenu) {
+      if (!prev) {
+        // Close other dropdowns when opening notifications
         setShowProfileMenu(false);
+        setShowListingsMenu(false);
       }
       return !prev;
     });
-  }, [showProfileMenu]);
+  }, []);
 
   const toggleListingsMenu = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation(); // Prevent event from reaching document if it exists
+    e?.stopPropagation();
     setShowListingsMenu(prev => {
-      if (!prev && showProfileMenu) {
+      if (!prev) {
+        // Close other dropdowns when opening listings menu
         setShowProfileMenu(false);
+        setShowNotifications(false);
       }
       return !prev;
     });
-  }, [showProfileMenu]);
+  }, []);
 
   // Memoize dropdown classes
   const dropdownClasses = useMemo(() => ({

@@ -1,130 +1,34 @@
-/**
- * Critical CSS utilities for optimizing above-the-fold content
- */
-
 // Base styles and resets
 export const criticalCSS = `
-/* Critical CSS for LCP optimization - Above the fold only */
+/* Critical CSS - Mobile-first essentials */
 :root {
   --primary: #2563eb;
-  --primary-dark: #1d4ed8;
   --background: #ffffff;
   --text: #1f2937;
   --border: #e5e7eb;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
 }
 
-/* Reset and base styles */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; width: 100%; min-height: 100%; }
 
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.5;
-}
+.container { max-width: 100%; margin: 0 auto; padding: 0 1rem; }
 
-/* Responsive display classes */
-.hidden {
-  display: none !important;
-}
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
 
-@media (min-width: 768px) {
-  .md:flex {
-    display: flex !important;
-  }
-  .md:block {
-    display: block !important;
-  }
-}
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-h-screen { min-height: 100vh; }
 
-/* Critical layout utilities */
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-}
+.p-4 { padding: 1rem; }
+.m-4 { margin: 1rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
 
-/* Critical navigation styles */
-.navbar {
-  background-color: var(--background);
-  border-bottom: 1px solid var(--border);
-  padding: 0.5rem 1rem;
-}
-
-.navbar-brand {
-  color: var(--text);
-  text-decoration: none;
-}
-
-.navbar-brand:hover {
-  color: var(--primary);
-}
-
-.navbar-links {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.navbar-link {
-  color: var(--text);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-}
-
-.navbar-link:hover {
-  color: var(--primary);
-  background-color: var(--gray-50);
-}
-
-/* Critical search bar styles */
-.search-bar {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-}
-
-.search-bar:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary);
-}
-
-/* Critical button styles */
-.button {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.button:hover {
-  background-color: var(--primary-dark);
-}
-
-/* Critical select styles */
-.select {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
 }
 
 .select:focus {

@@ -1,23 +1,60 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  // Enable JIT mode for better performance and smaller bundles
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./public/**/*.html",
-    // Include specific component libraries that use Tailwind classes
-    "./node_modules/@headlessui/react/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/@heroicons/react/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/react-helmet-async/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/framer-motion/**/*.{js,ts,jsx,tsx}",
   ],
-  
+  safelist: [
+    // Only include absolutely necessary dynamic classes
+    'rtl', 'ltr',
+    // Add specific dynamic classes used in your components
+    ...['bg-blue-500', 'text-white', 'hover:bg-blue-600'], // Add your most used classes
+  ],
+  darkMode: 'class',
+  mode: 'jit',
+  // Disable all core plugins by default
+  corePlugins: {
+    // Enable only what you need
+    preflight: true,
+    container: true,
+    accessibility: true,
+    // Disable opacity plugins as they're rarely needed
+    backdropOpacity: false,
+    backgroundOpacity: false,
+    borderOpacity: false,
+    divideOpacity: false,
+    placeholderOpacity: false,
+    textOpacity: false,
+    // Disable other unused features
+    float: false,
+    clear: false,
+    // Keep essential layout features
+    position: true,
+    display: true,
+    flex: true,
+ 
+  },
   theme: {
+    // Optimize breakpoints - remove unused ones
+    screens: {
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
+      // Reduce color palette to only what's needed
       colors: {
+        // Keep only colors you actually use
+        primary: {
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+        },
         gray: {
-          50: '#f9fafb',
           100: '#f3f4f6',
           200: '#e5e7eb',
           300: '#d1d5db',
@@ -29,30 +66,66 @@ const config: Config = {
           900: '#111827',
         },
       },
-      
-      // Optimize spacing scale for common patterns
+      // Optimize font stack
+      fontFamily: {
+        sans: [
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'sans-serif',
+        ],
+      },
+      // Optimize spacing
       spacing: {
         '18': '4.5rem',
         '88': '22rem',
       },
-      
-      // Optimize animation durations
-      transitionDuration: {
-        '2000': '2000ms',
+      // Simplify animations
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-out',
       },
-      
-      // Optimize z-index scale
-      zIndex: {
-        '60': '60',
-        '70': '70',
-        '80': '80',
-        '90': '90',
-        '100': '100',
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       },
+      // Optimize container
+      container: {
+        center: true,
+        padding: '1rem',
+        screens: {
+          sm: '640px',
+          lg: '1024px',
+          xl: '1280px',
+        },
+      },
+      // Disable unused variants
+      variants: {
+        extend: {
+          opacity: ['disabled'],
+          cursor: ['disabled'],
+        }
+      }
     },
   },
-  
-  plugins: [],
+  // Performance optimizations
+ 
+  experimental: {
+    optimizeUniversalDefaults: true,
+  },
+  plugins: [
+    // Only include essential plugins
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.lcp-optimized': {
+          'contain': 'paint layout style',
+          'content-visibility': 'auto',
+        },
+      });
+    },
+  ],
 };
 
 export default config;

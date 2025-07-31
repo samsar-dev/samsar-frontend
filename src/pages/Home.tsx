@@ -1,5 +1,14 @@
 import { listingsAPI } from "@/api/listings.api";
-import React, { Suspense, lazy, useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { 
+  Suspense, 
+  lazy, 
+  useState, 
+  useEffect, 
+  useRef, 
+  useMemo, 
+  useCallback, 
+  memo 
+} from "react";
 import { motion } from "framer-motion";
 import type { FiltersState } from "@/components/filters/useListingFilters";
 import { useTranslation } from "react-i18next";
@@ -14,14 +23,40 @@ import { HiSelector, HiCheck } from "react-icons/hi";
 import HomeHero from "@/components/home/HomeHero";
 
 // Lazy load other components
-import ListingCard from "@/components/listings/details/ListingCard";
-const ListingFilters = lazy(() => import("@/components/filters/ListingFiltersSmart"));
-const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
-const PreloadImages = lazy(() => import("@/components/media/PreloadImages"));
-const PopularCategories = lazy(() => import("@/components/home/PopularCategories"));
-const FAQ = lazy(() => import("@/components/home/FAQ"));
-const AdvantageCards = lazy(() => import("@/components/home/AdvantageCards"));
-const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
+const ListingCard = React.memo(lazy(() => import("@/components/listings/details/ListingCard")));
+const ListingFilters = lazy(() => 
+  import("@/components/filters/ListingFiltersSmart")
+    .then(module => ({ default: module.default }))
+);
+
+// Memoized lazy components
+const SkeletonGrid = lazy(() => import("@/components/common/SkeletonGrid"));
+
+interface SkeletonProps {
+  count?: number;
+}
+
+const MemoizedSkeleton: React.FC<SkeletonProps> = memo(({ count = 8 }) => (
+  <Suspense fallback={<div className="h-[300px] w-full" />}>
+    <SkeletonGrid count={count} />
+  </Suspense>
+));
+
+// Set display name for better debugging
+MemoizedSkeleton.displayName = 'MemoizedSkeleton';
+
+const PopularCategories = memo(lazy(() => 
+  import("@/components/home/PopularCategories")
+));
+
+const FAQ = memo(lazy(() => 
+  import("@/components/home/FAQ")
+));
+
+const AdvantageCards = memo(lazy(() => 
+  import("@/components/home/AdvantageCards")
+));
+
 import LazyLoadOnScroll from '@/components/common/LazyLoadOnScroll';
 
 // Types and enums
@@ -29,9 +64,8 @@ import {
   ListingCategory,
   VehicleType,
   PropertyType,
-  ListingAction,
 } from "@/types/enums";
-import { type ExtendedListing } from "@/types/listings";
+import type { ExtendedListing } from "@/types/listings";
 
 interface ListingParams {
   category?: {
@@ -68,12 +102,15 @@ interface ListingsState {
 const Home: React.FC = () => {
   // ... existing code ...
 
-  // Use Suspense and lazy for ListingFilters with proper typing
-  const LazyListingFilters = React.memo((props: React.ComponentProps<typeof ListingFilters>) => (
-    <Suspense fallback={<div className="p-8 text-center">Loading filters…</div>}>
-      <ListingFilters {...props} />
-    </Suspense>
-  ));
+  // Memoized ListingFilters with proper typing
+  const LazyListingFilters = useMemo(() => 
+    memo((props: React.ComponentProps<typeof ListingFilters>) => (
+      <Suspense fallback={<div className="p-8 text-center">Loading filters…</div>}>
+        <ListingFilters {...props} />
+      </Suspense>
+    )),
+    []
+  );
   LazyListingFilters.displayName = 'LazyListingFilters';
 
   const { t, i18n } = useTranslation([
@@ -129,77 +166,59 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  // Update first visible listing when listings change and preload critical images
+  // Update first visible listing when listings change
   useEffect(() => {
     if (listings.all.length > 0) {
       const firstListing = listings.all[0];
       setFirstVisibleListing(firstListing);
-
-      // Preload first few images for better LCP
-      const criticalImages = listings.all
-        .slice(0, 4)
-        .map((listing) => listing.images?.[0])
-        .filter(Boolean) as string[];
-
-      if (criticalImages.length > 0) {
-        // Preload the first image with high priority for LCP
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = criticalImages[0];
-        link.fetchPriority = "high";
-        document.head.appendChild(link);
-      }
+      
+      // Let browser handle image preloading for non-critical images
     }
   }, [listings.all]);
 
-  // Cache for storing initial listings data
+  // Cache for storing initial listings data with LRU-like behavior
   const listingsCache = useRef<{
-    [key in ListingCategory]?: ExtendedListing[];
+    [key in ListingCategory]?: {
+      data: ExtendedListing[];
+      timestamp: number;
+    };
   }>({});
+  
+  // Cache TTL (5 minutes)
+  const CACHE_TTL = 5 * 60 * 1000;
 
   const toggleFilters = useCallback(() => {
     setIsFilterOpen(prev => !prev);
   }, []);
 
   const fetchListings = useCallback(async () => {
-    // If we have cached data for this category and it's not initial load or force refresh, use it
-    if (
-      !isInitialLoad &&
-      !forceRefresh &&
-      listingsCache.current[selectedCategory]
-    ) {
-      let sortedListings = [...(listingsCache.current[selectedCategory] || [])];
+    // Check cache validity before using
+    const cachedData = listingsCache.current[selectedCategory];
+    const isCacheValid = cachedData && 
+                         (Date.now() - cachedData.timestamp) < CACHE_TTL &&
+                         !isInitialLoad && 
+                         !forceRefresh;
 
-      // Client-side sorting for additional options
-      switch (sortBy) {
-        case "priceAsc":
-          sortedListings.sort((a, b) => (a.price || 0) - (b.price || 0));
-          break;
-        case "priceDesc":
-          sortedListings.sort((a, b) => (b.price || 0) - (a.price || 0));
-          break;
-        case "locationAsc":
-          sortedListings.sort((a, b) =>
-            (a.location || "").localeCompare(b.location || ""),
-          );
-          break;
-        case "locationDesc":
-          sortedListings.sort((a, b) =>
-            (b.location || "").localeCompare(a.location || ""),
-          );
-          break;
-        case "newestFirst":
-        default:
-          sortedListings.sort(
-            (a, b) =>
-              new Date(b.createdAt || 0).getTime() -
-              new Date(a.createdAt || 0).getTime(),
-          );
-      }
+    if (isCacheValid) {
+      const sortedListings = [...cachedData.data];
+      
+      // Memoize sort function
+      const sortFunctions = {
+        priceAsc: (a: ExtendedListing, b: ExtendedListing) => (a.price || 0) - (b.price || 0),
+        priceDesc: (a: ExtendedListing, b: ExtendedListing) => (b.price || 0) - (a.price || 0),
+        locationAsc: (a: ExtendedListing, b: ExtendedListing) => 
+          (a.location || "").localeCompare(b.location || ""),
+        locationDesc: (a: ExtendedListing, b: ExtendedListing) => 
+          (b.location || "").localeCompare(a.location || ""),
+        newestFirst: (a: ExtendedListing, b: ExtendedListing) => 
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      };
 
-      // No filtering here - filtering is now handled by ListingFiltersSmart
-      setListings((prev) => ({
+      // Apply sorting
+      const sortFn = sortFunctions[sortBy as keyof typeof sortFunctions] || sortFunctions.newestFirst;
+      sortedListings.sort(sortFn);
+
+      setListings(prev => ({
         ...prev,
         all: sortedListings,
         loading: false,
@@ -263,8 +282,11 @@ const Home: React.FC = () => {
         throw new Error(response.error || "Failed to fetch listings");
       }
 
-      // Cache the results
-      listingsCache.current[selectedCategory] = responseData.listings;
+      // Cache the results with timestamp
+      listingsCache.current[selectedCategory] = {
+        data: responseData.listings,
+        timestamp: Date.now()
+      };
 
       setListings((prev) => ({
         ...prev,
@@ -343,29 +365,14 @@ const Home: React.FC = () => {
 
   // Debug logging for i18n
 
-  // Define sort options with translations from the filters namespace
-  const sortOptions = [
-    {
-      value: "newestFirst",
-      label: t("sorting.newest", { ns: "filters" }),
-    },
-    {
-      value: "priceAsc",
-      label: t("sorting.price_asc", { ns: "filters" }),
-    },
-    {
-      value: "priceDesc",
-      label: t("sorting.price_desc", { ns: "filters" }),
-    },
-    {
-      value: "locationAsc",
-      label: t("sorting.location_asc", { ns: "filters" }),
-    },
-    {
-      value: "locationDesc",
-      label: t("sorting.location_desc", { ns: "filters" }),
-    },
-  ];
+  // Memoize sort options to prevent unnecessary re-renders
+  const sortOptions = useMemo(() => [
+    { value: "newestFirst", label: t("sorting.newest", { ns: "filters" }) },
+    { value: "priceAsc", label: t("sorting.price_asc", { ns: "filters" }) },
+    { value: "priceDesc", label: t("sorting.price_desc", { ns: "filters" }) },
+    { value: "locationAsc", label: t("sorting.location_asc", { ns: "filters" }) },
+    { value: "locationDesc", label: t("sorting.location_desc", { ns: "filters" }) },
+  ] as const, [t]);
 
   // Debug logging sort options
 
@@ -376,7 +383,9 @@ const Home: React.FC = () => {
           <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-600 mb-6">
             {t("home:loading_listings", "جاري تحميل العروض...")}
           </h2>
-          <SkeletonListingGrid />
+          <Suspense fallback={<div className="h-[300px] w-full" />}>
+            <MemoizedSkeleton />
+          </Suspense>
         </div>
       );
     }
@@ -459,18 +468,19 @@ const Home: React.FC = () => {
           itemScope
           itemType="https://schema.org/ItemList"
         >
-          {listings.loading && <SkeletonListingGrid count={8} />}
+          {listings.loading && <MemoizedSkeleton count={8} />}
           {listings.all.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              showActions={false}
-              showSaveButton={true}
-              showPrice={true}
-              showLocation={true}
-              showBadges={true}
-              priority={index < 4} // Prioritize first four listings for LCP
-            />
+            <Suspense key={listing.id} fallback={<div className="h-[300px] w-full" />}>
+              <ListingCard
+                listing={listing}
+                showActions={false}
+                showSaveButton={true}
+                showPrice={true}
+                showLocation={true}
+                showBadges={true}
+                priority={index < 4} // Prioritize first four listings for LCP
+              />
+            </Suspense>
           ))}
           {listings.all.length === 0 && listings.error && (
             <motion.div
@@ -550,7 +560,8 @@ const Home: React.FC = () => {
   ]);
 
   // Generate dynamic title and description based on category
-  const getPageMetadata = () => {
+  // Memoize page metadata to prevent unnecessary re-renders
+  const { title, description } = useMemo(() => {
     if (selectedCategory === ListingCategory.VEHICLES) {
       return {
         title: t(
@@ -574,9 +585,12 @@ const Home: React.FC = () => {
         ),
       };
     }
-  };
+  }, [selectedCategory, t]);
 
-  const { title, description } = getPageMetadata();
+  const metaDescription = t(
+    "meta_description",
+    "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -584,13 +598,7 @@ const Home: React.FC = () => {
         <title>
           {t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
         </title>
-        <meta
-          name="description"
-          content={t(
-            "meta_description",
-            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
-          )}
-        />
+        <meta name="description" content={metaDescription} />
         <meta
           name="keywords"
           content={t(
@@ -606,13 +614,7 @@ const Home: React.FC = () => {
           property="og:title"
           content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
         />
-        <meta
-          property="og:description"
-          content={t(
-            "meta_description",
-            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
-          )}
-        />
+        <meta property="og:description" content={metaDescription} />
         <meta
           property="og:image"
           content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg"
@@ -625,13 +627,7 @@ const Home: React.FC = () => {
           name="twitter:title"
           content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
         />
-        <meta
-          name="twitter:description"
-          content={t(
-            "meta_description",
-            "سوق السيارات والعقارات الأول في سوريا - تصفح أحدث الإعلانات للسيارات، الشقق، الفلل، الأراضي والمزيد. أسعار تنافسية وضمان الجودة.",
-          )}
-        />
+        <meta name="twitter:description" content={metaDescription} />
       </Helmet>
 
       <Suspense fallback={<div className="h-[500px] bg-gray-100 dark:bg-gray-800 animate-pulse"></div>}>
@@ -641,6 +637,14 @@ const Home: React.FC = () => {
       {/* Main Content */}
       <main className="w-full py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rtl:direction-rtl">
+          {/* SEO-Optimized H1 (hidden visually but accessible to screen readers) */}
+          <h1 className="sr-only">
+            {t("home:seo_title", "سيارات للبيع في سوريا | عقارات للبيع والايجار | منصة سمسار")}
+          </h1>
+          <p className="sr-only">
+            {t("home:seo_description", "أكبر سوق إلكتروني متخصص في بيع وشراء السيارات المستعملة والجديدة، الشقق، الفلل، الأراضي، والمحلات التجارية في جميع أنحاء سوريا. أسعار منافسة وضمان الجودة")}
+          </p>
+
           {/* Featured Listings Section */}
           <section
             aria-labelledby="featured-listings-heading"
