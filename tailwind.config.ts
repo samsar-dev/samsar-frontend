@@ -19,6 +19,32 @@ const config: Config = {
   corePlugins: {
     preflight: true,
     container: true,
+    // Disable transform utilities that are causing unused CSS
+    transform: false,
+    translate: false,
+    rotate: false,
+    skew: false,
+    scale: false,
+    transformOrigin: false,
+    // Disable other potentially unused utilities
+    backdropBlur: false,
+    backdropBrightness: false,
+    backdropContrast: false,
+    backdropGrayscale: false,
+    backdropHueRotate: false,
+    backdropInvert: false,
+    backdropOpacity: false,
+    backdropSaturate: false,
+    backdropSepia: false,
+    blur: false,
+    brightness: false,
+    contrast: false,
+    dropShadow: false,
+    grayscale: false,
+    hueRotate: false,
+    invert: false,
+    saturate: false,
+    sepia: false,
   },
   theme: {
     // Optimize breakpoints - remove unused ones
@@ -50,25 +76,20 @@ const config: Config = {
         '18': '4.5rem',
         '88': '22rem',
       },
-      // Simplify animations
+      // Simplify animations - only essential ones
       animation: {
-        'fade-in': 'fadeIn 0.2s ease-out',
+        'spin': 'spin 1s linear infinite',
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
         },
       },
       // Optimize container
       container: {
         center: true,
         padding: '1rem',
-        screens: {
-          sm: '640px',
-          lg: '1024px',
-          xl: '1280px',
-        },
       },
       // Disable unused variants
       variants: {

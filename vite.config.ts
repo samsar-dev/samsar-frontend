@@ -288,28 +288,45 @@ export default defineConfig(({ mode, command }) => {
             compact: true,
             entryFileNames: 'assets/[name]-[hash].js',
             chunkFileNames: (chunkInfo) => {
-              if (chunkInfo.name === 'app') {
-                return 'assets/app-[hash].js';
+              // More aggressive chunk splitting
+              if (chunkInfo.name.includes('react') || chunkInfo.name.includes('vendor')) {
+                return 'assets/vendor-[hash].js';
               }
-              if (chunkInfo.name === 'react-router-dom') {
-                return 'assets/react-router-dom-[hash].js';
+              if (chunkInfo.name.includes('utils') || chunkInfo.name.includes('helper')) {
+                return 'assets/utils-[hash].js';
               }
-              if (chunkInfo.name === 'react-helmet') {
-                return 'assets/react-helmet-[hash].js';
+              if (chunkInfo.name.includes('components')) {
+                return 'assets/components-[hash].js';
               }
               return 'assets/[name]-[hash].js';
             },
             assetFileNames: 'assets/[name]-[hash].[ext]',
-           
-            
-           
+            manualChunks: {
+              // Split large dependencies into separate chunks
+              'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+              'ui-vendor': ['@mui/material', '@emotion/react', '@emotion/styled'],
+              'form-vendor': ['react-hook-form', '@hookform/resolvers', 'yup'],
+              'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+              'socket-vendor': ['socket.io-client'],
+              'i18n-vendor': ['react-i18next', 'i18next'],
+              'animation-vendor': ['framer-motion'],
+              'utils-vendor': ['axios', 'date-fns', 'clsx', 'tailwind-merge'],
+            },
           },
           treeshake: {
             moduleSideEffects: false,  // More aggressive tree-shaking
             propertyReadSideEffects: false,
             tryCatchDeoptimization: false,
             unknownGlobalSideEffects: false,
-            annotations: true
+            annotations: true,
+            preset: 'smallest', // Most aggressive tree-shaking
+            manualPureFunctions: [
+              'console.log',
+              'console.warn',
+              'console.error',
+              'console.info',
+              'console.debug'
+            ]
           },
           minifyInternalExports: true,
           external: (id) => {
@@ -330,7 +347,6 @@ export default defineConfig(({ mode, command }) => {
           compress: {
             drop_console: true,
             drop_debugger: true,
-            pure_funcs: ['console.log', 'console.info', 'console.warn', 'console.error', 'console.trace'],
             dead_code: true,
             unused: true,
             conditionals: true,
@@ -342,8 +358,8 @@ export default defineConfig(({ mode, command }) => {
             reduce_vars: true,
             collapse_vars: true,
             inline: 3,
-            // Less aggressive settings to avoid React error #61
-            passes: 3,
+            // More aggressive compression
+            passes: 4,
             keep_fargs: false,
             pure_getters: true,
             side_effects: false,
@@ -351,7 +367,9 @@ export default defineConfig(({ mode, command }) => {
             global_defs: {
               'process.env.NODE_ENV': '"production"',
               'typeof window': '"object"',
-              'typeof document': '"object"'
+              'typeof document': '"object"',
+              'process.env.DEBUG': 'false',
+              '__DEV__': 'false'
             },
             // Remove more unused code
             sequences: true,
@@ -372,7 +390,22 @@ export default defineConfig(({ mode, command }) => {
             hoist_vars: false,
             hoist_props: true,
             top_retain: null,
-            keep_infinity: false
+            keep_infinity: false,
+            // Additional aggressive optimizations
+            pure_funcs: [
+              'console.log',
+              'console.info',
+              'console.warn',
+              'console.error',
+              'console.trace',
+              'console.debug',
+              'console.dir',
+              'console.table',
+              'console.time',
+              'console.timeEnd',
+              'console.group',
+              'console.groupEnd'
+            ]
           },
           mangle: {
             toplevel: true,
