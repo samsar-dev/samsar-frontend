@@ -4,37 +4,21 @@ const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./public/**/*.html",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "!./src/**/*.test.{js,ts,jsx,tsx}",
+    "!./src/**/*.spec.{js,ts,jsx,tsx}",
   ],
   safelist: [
-    // Only include absolutely necessary dynamic classes
-    'rtl', 'ltr',
-    // Add specific dynamic classes used in your components
-    ...['bg-blue-500', 'text-white', 'hover:bg-blue-600'], // Add your most used classes
+    'rtl',
+    'ltr',
+    'dark',
   ],
   darkMode: 'class',
   mode: 'jit',
-  // Disable all core plugins by default
   corePlugins: {
-    // Enable only what you need
     preflight: true,
     container: true,
-    accessibility: true,
-    // Disable opacity plugins as they're rarely needed
-    backdropOpacity: false,
-    backgroundOpacity: false,
-    borderOpacity: false,
-    divideOpacity: false,
-    placeholderOpacity: false,
-    textOpacity: false,
-    // Disable other unused features
-    float: false,
-    clear: false,
-    // Keep essential layout features
-    position: true,
-    display: true,
-    flex: true,
- 
   },
   theme: {
     // Optimize breakpoints - remove unused ones
@@ -43,28 +27,13 @@ const config: Config = {
       'md': '768px',
       'lg': '1024px',
       'xl': '1280px',
-      '2xl': '1536px',
     },
     extend: {
       // Reduce color palette to only what's needed
       colors: {
-        // Keep only colors you actually use
-        primary: {
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        },
-        gray: {
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
-          500: '#6b7280',
-          600: '#4b5563',
-          700: '#374151',
-          800: '#1f2937',
-          900: '#111827',
-        },
+        primary: '#2563eb',
+        secondary: '#64748b',
+        accent: '#f59e0b',
       },
       // Optimize font stack
       fontFamily: {

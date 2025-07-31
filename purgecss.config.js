@@ -1,66 +1,28 @@
 export default {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    './public/index.html',
+    './index.html',
     './src/components/**/*.{js,jsx,ts,tsx}',
     './src/pages/**/*.{js,jsx,ts,tsx}',
-    './src/contexts/**/*.{js,jsx,ts,tsx}',
-    './src/hooks/**/*.{js,jsx,ts,tsx}',
+    '!./src/**/*.test.{js,jsx,ts,tsx}',
+    '!./src/**/*.spec.{js,jsx,ts,tsx}',
   ],
   css: [
     './src/assets/css/index.css',
   ],
   defaultExtractor: content => content.match(/[A-Za-z0-9-_:/]+/g) || [],
   safelist: [
-    // Critical layout classes
+    // Critical layout classes only
     'hidden', 'block', 'flex', 'grid', 'container',
-    'rtl', 'ltr', 'dark', 'light',
-    
-    // RTL specific classes
+    'rtl', 'ltr', 'dark',
     'text-right', 'text-left', 'text-center',
-    'ml-auto', 'mr-auto', 'mx-auto',
-    'pl-2', 'pr-2', 'pl-4', 'pr-4', 'pl-6', 'pr-6',
-    'ml-2', 'mr-2', 'ml-4', 'mr-4', 'ml-6', 'mr-6',
-    
-    // Spacing and sizing
-    /^w-/, /^h-/, /^p-/, /^m-/, /^gap-/, /^space-/,
-    /^min-w-/, /^min-h-/, /^max-w-/, /^max-h-/,
-    
-    // Colors and backgrounds
-    /^bg-/, /^text-/, /^border-/, /^shadow-/,
-    
-    // Layout and positioning
-    /^rounded-/, /^inset-/, /^top-/, /^right-/, /^bottom-/, /^left-/,
-    /^object-/, /^overflow-/, /^z-/,
-    
-    // Flexbox and grid
-    /^items-/, /^justify-/, /^self-/, /^place-/,
-    /^col-/, /^row-/,
-    
-    // Transitions and animations
-    /^transition-/, /^duration-/, /^ease-/, /^transform/,
-    
-    // Focus states
-    'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500',
-    
-    // Hover states
-    /^hover:/,
-    
-    // Dark mode
-    /^dark:/,
-    
-    // RTL utilities
-    'ml-auto', 'mr-auto', 'text-right', 'text-left',
-    
-    // Common responsive classes
-    'sm:', 'md:', 'lg:', 'xl:',
-    
-    // Form classes
-    'form-input', 'form-textarea', 'form-select',
-    'form-checkbox', 'form-radio',
-    
-    // Loading states
-    'animate-spin', 'animate-pulse',
+    'w-full', 'h-full', 'min-h-screen',
+    'p-4', 'm-4', 'px-4', 'py-4', 'mx-4', 'my-4',
+    'text-sm', 'text-base', 'text-lg', 'text-xl',
+    'bg-white', 'bg-gray-50', 'bg-gray-100',
+    'border-gray-200', 'border-gray-300',
+    'rounded', 'rounded-lg', 'rounded-xl',
+    'shadow', 'shadow-lg',
   ],
   blocklist: [
     // Aggressively block unused Tailwind features

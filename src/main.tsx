@@ -37,15 +37,8 @@ const initializeDependencies = async () => {
   if (typeof window !== 'undefined') {
     requestIdleCallback(async () => {
       try {
-        const [cssUtils, criticalCSS, cssSplitting] = await Promise.all([
-          import("@/assets/css/index.css"),
-          import("./utils/criticalCSS"),
-          import("./utils/cssSplitting")
-        ]);
-        
-        criticalCSS.injectCriticalCSS();
-        cssSplitting.optimizeCSSForMobile();
-        criticalCSS.preloadNonCriticalCSS();
+        // CSS is now handled by build tools - no manual optimization needed
+        await import("@/assets/css/index.css");
       } catch (err) {
         console.warn('CSS optimization failed:', err);
       }
