@@ -4,7 +4,6 @@ import Inspect from 'vite-plugin-inspect';
 import path from "path";
 import { fileURLToPath } from "url";
 import { compression } from "vite-plugin-compression2";
- 
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteImagemin from "vite-plugin-imagemin";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
