@@ -321,7 +321,7 @@ function Settings() {
                   {/* Left scroll indicator - removed as per user request */}
                   <div
                     ref={tabListRef}
-                    className="overflow-x-auto pb-1 scrollbar-hide tab-scroll-container"
+                    className="overflow-x-auto pb-1"
                   >
                     <Tab.List className="flex space-x-1 w-max min-w-full border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-2">
                       {tabs.map((tab) => (
@@ -348,7 +348,7 @@ function Settings() {
                   {/* Right scroll indicator - removed as per user request */}
                 </div>
                 {/* Fade effect on the right side for mobile */}
-                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-gray-50 to-transparent dark:from-gray-800 pointer-events-none"></div>
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 pointer-events-none"></div>
               </div>
 
               <Tab.Panels>
