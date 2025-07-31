@@ -172,14 +172,43 @@ const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
     drawCanvas();
   }, [drawCanvas]);
 
-  // Mouse event handlers for crop
+  // Cache canvas measurements to prevent forced reflows
+  const canvasMeasurements = useRef<{
+    rect?: DOMRect;
+    scaleX?: number;
+    scaleY?: number;
+  }>({});
+
+  // Reset measurements when image loads or canvas changes
+  useEffect(() => {
+    canvasMeasurements.current = {};
+  }, [imageUrl]);
+
+  // Update measurements on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      canvasMeasurements.current = {};
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Mouse event handlers for crop - optimized to prevent forced reflows
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    // Cache measurements to avoid repeated getBoundingClientRect calls
+    if (!canvasMeasurements.current.rect) {
+      canvasMeasurements.current.rect = canvas.getBoundingClientRect();
+      canvasMeasurements.current.scaleX = canvas.width / canvasMeasurements.current.rect.width;
+      canvasMeasurements.current.scaleY = canvas.height / canvasMeasurements.current.rect.height;
+    }
+
+    const { scaleX, scaleY, rect } = canvasMeasurements.current;
+    if (!rect || !scaleX || !scaleY) return;
+
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
@@ -194,25 +223,30 @@ const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
   }, [mode]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawingCrop || !cropStart) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    // Use cached measurements
+    const { scaleX, scaleY, rect } = canvasMeasurements.current;
+    if (!rect || !scaleX || !scaleY) return;
+
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    if (isDrawingCrop && cropStart) {
-      const width = x - cropStart.x;
-      const height = y - cropStart.y;
+    const width = x - cropStart.x;
+    const height = y - cropStart.y;
+    
+    // Use RAF to prevent layout thrashing
+    requestAnimationFrame(() => {
       setCropArea({
         x: width > 0 ? cropStart.x : x,
         y: height > 0 ? cropStart.y : y,
         width: Math.abs(width),
         height: Math.abs(height),
       });
-    }
+    });
   }, [isDrawingCrop, cropStart]);
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -223,9 +257,10 @@ const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
+      // Use cached measurements
+      const { scaleX, scaleY, rect } = canvasMeasurements.current;
+      if (!rect || !scaleX || !scaleY) return;
+
       const x = (e.clientX - rect.left) * scaleX;
       const y = (e.clientY - rect.top) * scaleY;
 
@@ -233,14 +268,18 @@ const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
       const height = y - blurStart.y;
       
       if (Math.abs(width) > 10 && Math.abs(height) > 10) {
-        setBlurRegions(prev => [...prev, {
+        const newBlurRegion = {
           x: width > 0 ? blurStart.x : x,
           y: height > 0 ? blurStart.y : y,
           width: Math.abs(width),
           height: Math.abs(height),
-        }]);
+        };
+        
+        // Use RAF for state updates
+        requestAnimationFrame(() => {
+          setBlurRegions(prev => [...prev, newBlurRegion]);
+        });
       }
-
       setIsDrawingBlur(false);
       setBlurStart(null);
     }

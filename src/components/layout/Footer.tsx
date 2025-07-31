@@ -174,11 +174,13 @@ const Footer: React.FC = () => {
             </h3>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://facebook.com/samsar.official"
                 className="text-text-secondary dark:text-text-secondary-dark hover:text-accent-blue dark:hover:text-accent-blue-dark"
                 aria-label="Facebook"
                 role="link"
                 tabIndex={0}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <span aria-hidden="true" className="hidden">
                   فيسبوك

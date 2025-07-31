@@ -56,8 +56,8 @@ import { formatCurrency } from "@/utils/formatUtils";
 import { normalizeLocation } from "@/utils/locationUtils";
 import { getFieldsBySection, getFieldValue } from "@/utils/listingSchemaUtils";
 
-const ImageGallery = lazy(
-  () => import("@/components/listings/images/ImageGallery"),
+const UnifiedImageGallery = lazy(
+  () => import("@/components/listings/images/UnifiedImageGallery"),
 );
 
 interface ExtendedListing {
@@ -761,7 +761,7 @@ const ListingDetails = () => {
         {/* Images Section */}
         <div className="w-full">
           <Suspense fallback={<div>Loading images...</div>}>
-            <ImageGallery images={listing.images || []} />
+            <UnifiedImageGallery images={listing.images || []} />
           </Suspense>
         </div>
 

@@ -1,14 +1,17 @@
-import DeleteAccount from "@/components/settings/DeleteAccount";
+import { lazy, Suspense } from "react";
 import NotificationSettings from "@/components/settings/NotificationSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
+
+const SecuritySettingsComponent = lazy(() => import("@/components/settings/SecuritySettings"));
+const LanguageSettingsComponent = lazy(() => import("@/components/settings/LanguageSettings"));
+const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
+const AccountSettings = lazy(() => import("@/components/settings/AccountSettings"));
 import { useSettings } from "@/contexts/SettingsContext";
 import { Tab } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
- 
-import { SEO } from "@/utils/seo";
 
-// import SecuritySettings from "@/components/settings/SecuritySettings";
+import { SEO } from "@/utils/seo";
 
 import { SettingsAPI } from "@/api/settings.api";
 import { LanguageCode, ThemeType } from "@/types/enums";
@@ -16,6 +19,7 @@ import type {
   PreferenceSettings as PreferenceSettingsType,
   Settings as AppSettings,
 } from "@/types/settings";
+import type { PrivacySettings as PrivacySettingsType } from "@/types/common";
 
 interface ToggleProps {
   checked?: boolean;
@@ -140,7 +144,37 @@ function Settings() {
         }
       } catch (error) {
         console.error("Failed to load settings:", error);
-        setSaveStatus({ type: "error", message: "Failed to load settings" });
+        // Don't show error message on initial load, just log it
+        console.warn("Using default settings due to load error");
+        // Set default settings when load fails
+        const defaultSettings: AppSettings = {
+          notifications: {
+            listingUpdates: false,
+            newInboxMessages: false,
+            loginNotifications: true,
+            newsletterSubscribed: false,
+          },
+          privacy: {
+            showEmail: true,
+            showPhone: true,
+            showOnlineStatus: true,
+            allowMessaging: true,
+            profileVisibility: "public",
+          },
+          preferences: {
+            language: LanguageCode.AR,
+            theme: ThemeType.LIGHT,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
+          security: {
+            loginNotifications: true,
+            securityQuestions: false,
+            twoFactorEnabled: false,
+            autoLogoutTime: 30,
+          },
+        };
+        setLocalSettings(defaultSettings);
+        updateSettings(defaultSettings);
       }
     };
     fetchUserSettings();
@@ -153,10 +187,17 @@ function Settings() {
     setIsSaving(true);
     setSaveStatus({ type: null, message: "" });
 
+    let settingsToSave: AppSettings;
     try {
       // Create a complete settings object with all required fields
-      const settingsToSave: AppSettings = {
+      settingsToSave = {
         ...localSettings,
+        notifications: {
+          listingUpdates: localSettings.notifications?.listingUpdates ?? false,
+          newInboxMessages: localSettings.notifications?.newInboxMessages ?? false,
+          loginNotifications: localSettings.notifications?.loginNotifications ?? true,
+          ...localSettings.notifications,
+        },
         privacy: {
           showEmail: localSettings.privacy?.showEmail ?? true,
           showPhone: localSettings.privacy?.showPhone ?? true,
@@ -176,39 +217,21 @@ function Settings() {
             localSettings.security?.loginNotifications ?? true,
           securityQuestions: localSettings.security?.securityQuestions ?? false,
           twoFactorEnabled: localSettings.security?.twoFactorEnabled ?? false,
-          autoLogoutTime: localSettings.security?.autoLogoutTime,
+          autoLogoutTime: localSettings.security?.autoLogoutTime ?? 30,
         },
       };
 
-      const response = await SettingsAPI.updatePrivacySettings({
-        showPhone: localSettings.privacy?.showPhone ?? true,
-        showEmail: localSettings.privacy?.showEmail ?? true,
-        showOnlineStatus: localSettings.privacy?.showOnlineStatus ?? true,
-        allowMessaging: localSettings.privacy?.allowMessaging ?? true,
-        profileVisibility: localSettings.privacy?.profileVisibility ?? "public",
-      });
-      if (response.error) {
-        throw new Error(response.error);
+      const response = await SettingsAPI.updateSettings(settingsToSave);
+      if (!response || response.error) {
+        throw new Error(response?.error || "Settings update failed");
       }
-
-      // Update the settings in the context with the complete settings object
-      updateSettings({
-        ...settingsToSave,
-        preferences: {
-          language: settingsToSave.preferences.language,
-          theme: settingsToSave.preferences.theme || ThemeType.LIGHT,
-          timezone:
-            settingsToSave.preferences.timezone ||
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-        },
-        security: {
-          loginNotifications:
-            settingsToSave.security?.loginNotifications ?? true,
-          securityQuestions:
-            settingsToSave.security?.securityQuestions ?? false,
-          ...settingsToSave.security,
-        },
-      });
+      
+      // Ensure we have valid response data
+      if (response.data) {
+        // Update with server response to ensure consistency
+        updateSettings(response.data);
+        setLocalSettings(response.data);
+      }
 
       // Apply language change after successful save
       if (localSettings.preferences?.language) {
@@ -222,7 +245,9 @@ function Settings() {
       setSaveStatus({ type: "success", message: t("saveSuccess") });
     } catch (error) {
       console.error("Failed to save settings:", error);
-      setSaveStatus({ type: "error", message: t("saveError") });
+      console.error("Settings being sent:", JSON.stringify(settingsToSave, null, 2));
+      const errorMessage = error instanceof Error ? error.message : "Save failed";
+      setSaveStatus({ type: "error", message: `${t("saveError")}: ${errorMessage}` });
     } finally {
       setIsSaving(false);
 
@@ -263,35 +288,53 @@ function Settings() {
     setLocalSettings(newSettings);
   };
 
-  // Security settings functionality can be implemented here when needed
-
-  const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
+  const handleSecurityUpdate = (securitySettings: any) => {
     setLocalSettings((prev) => ({
       ...prev,
-      privacy: {
-        profileVisibility: updates.profileVisibility
-          ? updates.profileVisibility === "private"
-            ? "private"
-            : "public"
-          : prev.privacy?.profileVisibility || "public",
-        showOnlineStatus:
-          updates.showOnlineStatus ?? prev.privacy?.showOnlineStatus ?? true,
-        showPhone: updates.showPhone ?? prev.privacy?.showPhone ?? false,
-        showEmail: updates.showEmail ?? prev.privacy?.showEmail ?? false,
-        allowMessaging:
-          updates.allowMessaging ?? prev.privacy?.allowMessaging ?? true,
+      security: {
+        ...prev.security,
+        ...securitySettings,
       },
     }));
+  };
+
+  const handleLanguageUpdate = (languageSettings: any) => {
+    const newSettings = {
+      preferences: {
+        ...localSettings.preferences,
+        language: languageSettings.interfaceLanguage || localSettings.preferences?.language || LanguageCode.EN,
+      },
+    };
+    setLocalSettings(prev => ({ ...prev, ...newSettings }));
+  };
+
+  const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
+    console.log('Settings: Privacy updates received', updates);
+    setLocalSettings((prev) => {
+      const newSettings = {
+        ...prev,
+        privacy: {
+          profileVisibility: updates.profileVisibility ?? prev.privacy?.profileVisibility ?? "public",
+          showOnlineStatus:
+            updates.showOnlineStatus ?? prev.privacy?.showOnlineStatus ?? true,
+          showPhone: updates.showPhone ?? prev.privacy?.showPhone ?? true,
+          showEmail: updates.showEmail ?? prev.privacy?.showEmail ?? true,
+          allowMessaging:
+            updates.allowMessaging ?? prev.privacy?.allowMessaging ?? true,
+        },
+      };
+      console.log('Settings: New settings after privacy update', newSettings);
+      return newSettings;
+    });
   };
 
   // Define the tabs for the settings page
   const tabs = [
     { name: t("preferences"), icon: "⚙️" },
     { name: t("notifications.title"), icon: "🔔" },
-    // { name: t("security.title"), icon: "🔐" },
-    { name: t("privacy.title"), icon: "🔒" },
-    { name: t("connectedAccounts.title"), icon: "🔗" },
+    { name: t("security.title"), icon: "🔐" },
     { name: t("account.title"), icon: "👤" },
+    { name: t("account.deleteAccount"), icon: "🗑️" },
   ];
 
   return (
@@ -435,192 +478,81 @@ function Settings() {
                 </Tab.Panel>
 
                 {/* Security Panel */}
-                {/* <Tab.Panel className="p-6">
-                <SecuritySettings
-                  settings={settings?.security || {}}
-                  onUpdate={handleSecurityUpdate}
-                  isRTL={isRTL}
-                />
-              </Tab.Panel> */}
-
-                {/* Privacy Panel */}
                 <Tab.Panel className="p-6">
-                  <div className="space-y-6">
-                    {/* Profile Visibility */}
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-medium">
-                        {t("privacy.profileVisibility")}
-                      </h3>
-                      <div className="pl-4">
-                        <div className="flex items-center space-x-4">
-                          <select
-                            value={
-                              settings?.privacy?.profileVisibility ?? "public"
-                            }
-                            onChange={(e) =>
-                              handlePrivacyUpdate({
-                                profileVisibility: e.target.value as
-                                  | "public"
-                                  | "private",
-                              })
-                            }
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                          >
-                            <option value="public">
-                              {t("privacy.public")}
-                            </option>
-                            <option value="private">
-                              {t("privacy.private")}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Show Online Status */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showOnlineStatus")}
-                        </span>
-                        <Toggle
-                          checked={
-                            localSettings?.privacy?.showOnlineStatus ?? true
-                          }
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showOnlineStatus: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Show Phone Number */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showPhoneNumber")}
-                        </span>
-                        <Toggle
-                          checked={localSettings?.privacy?.showPhone ?? false}
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showPhone: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Show Email */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.showEmail")}
-                        </span>
-                        <Toggle
-                          checked={localSettings?.privacy?.showEmail ?? false}
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ showEmail: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-
-                    {/* Allow Direct Messaging */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between pl-4">
-                        <span className="text-gray-600">
-                          {t("privacy.allowDirectMessaging")}
-                        </span>
-                        <Toggle
-                          checked={
-                            localSettings?.privacy?.allowMessaging ?? true
-                          }
-                          onChange={(checked: boolean) =>
-                            handlePrivacyUpdate({ allowMessaging: checked })
-                          }
-                          label=""
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-6 flex justify-between items-center">
-                      {saveStatus.type && (
-                        <div
-                          className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
-                        >
-                          {saveStatus.message}
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleSaveSettings}
-                        disabled={isSaving}
-                        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                          isSaving
-                            ? "bg-green-400"
-                            : "bg-green-600 hover:bg-green-700"
-                        } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                    <SecuritySettingsComponent
+                      settings={settings?.security || {}}
+                      onUpdate={handleSecurityUpdate}
+                      isRTL={isRTL}
+                    />
+                  </Suspense>
+                  <div className="mt-6 flex justify-between items-center">
+                    {saveStatus.type && (
+                      <div
+                        className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
                       >
-                        {isSaving ? t("saving") : t("save")}
-                      </button>
-                    </div>
-                  </div>
-                </Tab.Panel>
-
-                {/* Connected Accounts Panel */}
-                <Tab.Panel className="p-6">
-                  <div className="space-y-4">
-                    {/* Google */}
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white">
-                          G
-                        </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.google")}
-                        </span>
+                        {saveStatus.message}
                       </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
-                    </div>
-
-                    {/* Facebook */}
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                          f
-                        </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.facebook")}
-                        </span>
-                      </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
-                    </div>
-
-                    {/* Twitter */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white">
-                          t
-                        </div>
-                        <span className="font-medium">
-                          {t("connectedAccounts.twitter")}
-                        </span>
-                      </div>
-                      <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        {t("connectedAccounts.connect")}
-                      </button>
-                    </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      disabled={isSaving}
+                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                        isSaving
+                          ? "bg-green-400"
+                          : "bg-green-600 hover:bg-green-700"
+                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                    >
+                      {isSaving ? t("saving") : t("save")}
+                    </button>
                   </div>
                 </Tab.Panel>
 
                 {/* Account Panel */}
                 <Tab.Panel className="p-6">
-                  <DeleteAccount />
+                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                    <AccountSettings
+                      settings={{
+                        profileVisibility: localSettings?.privacy?.profileVisibility || "public",
+                        showOnlineStatus: localSettings?.privacy?.showOnlineStatus ?? true,
+                        showPhone: localSettings?.privacy?.showPhone ?? true,
+                        showEmail: localSettings?.privacy?.showEmail ?? true,
+                        allowMessaging: localSettings?.privacy?.allowMessaging ?? true,
+                      }}
+                      onUpdate={handlePrivacyUpdate}
+                      isRTL={isRTL}
+                    />
+                  </Suspense>
+                  <div className="mt-6 flex justify-between items-center">
+                    {saveStatus.type && (
+                      <div
+                        className={`text-sm ${saveStatus.type === "success" ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {saveStatus.message}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSaveSettings}
+                      disabled={isSaving}
+                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                        isSaving
+                          ? "bg-green-400"
+                          : "bg-green-600 hover:bg-green-700"
+                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                    >
+                      {isSaving ? t("saving") : t("save")}
+                    </button>
+                  </div>
+                </Tab.Panel>
+
+                {/* Delete Account Panel */}
+                <Tab.Panel className="p-6">
+                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                    <DeleteAccount />
+                  </Suspense>
+                  
                 </Tab.Panel>
               </Tab.Panels>
             </Tab.Group>

@@ -4,13 +4,15 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  lazy,
+  Suspense,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { FaImage, FaSpinner, FaTrash, FaEdit, FaPlus } from "react-icons/fa";
 import { useDragDrop, reorderArray, useFileDropZone } from "@/utils/dragDropUtils";
 import { compressImage, formatFileSize, validateImageFile } from "@/utils/imageUtils";
-import ImageEditor from "@/components/listings/images/ImageEditor";
+const ImageEditor = lazy(() => import("@/components/listings/images/ImageEditor"));
 
 // Lightweight drag and drop implementation without react-dnd
 interface DragState {
@@ -307,18 +309,24 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
       {/* Image Editor Modal */}
       {isEditing && editingImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Edit Image</h2>
-              <ImageEditor
-                imageUrl={editingImage.url}
-                onSave={handleEditSave}
-                onClose={handleEditClose}
-              />
+        <Suspense fallback={
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          </div>
+        }>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-auto">
+              <div className="p-4 border-b">
+                <h2 className="text-xl font-semibold mb-4">Edit Image</h2>
+                <ImageEditor
+                  imageUrl={editingImage.url}
+                  onSave={handleEditSave}
+                  onClose={handleEditClose}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </Suspense>
       )}
 
       {/* Images Grid */}

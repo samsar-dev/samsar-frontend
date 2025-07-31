@@ -1,5 +1,5 @@
 import { listingsAPI } from "@/api/listings.api";
-import MyListingCard from "@/components/listings/details/MyListingCard";
+import UnifiedImageGallery from "@/components/listings/images/UnifiedImageGallery";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings";
@@ -261,7 +261,7 @@ export default function MyListings({ userId }: MyListingsProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <MyListingCard listing={listing} onDelete={handleDelete} />
+                  <UnifiedImageGallery listing={listing} onDelete={handleDelete} isModal={false} />
                 </motion.div>
               ))}
             </div>

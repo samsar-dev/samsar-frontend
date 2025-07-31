@@ -1,6 +1,6 @@
 import type { Settings } from "@/types/settings";
 import type { APIResponse } from "@/types/common";
-import type { LanguageCode, ThemeType } from "@/types/enums";
+import { LanguageCode, ThemeType } from "@/types/enums";
 import apiClient from "./apiClient";
 
 export interface PreferenceSettingsType {
@@ -12,14 +12,58 @@ export interface PreferenceSettingsType {
 export class SettingsAPI {
   private static readonly BASE_PATH = "/settings";
 
+  // Mock implementation for development
   static async getSettings(): Promise<APIResponse<Settings>> {
-    const response = await apiClient.get<APIResponse<Settings>>(this.BASE_PATH);
-    return response.data;
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Return mock data
+    return {
+      status: 200,
+      success: true,
+      error: null,
+      data: {
+        notifications: {
+          listingUpdates: false,
+          newInboxMessages: false,
+          loginNotifications: true,
+          newsletterSubscribed: false,
+        },
+        privacy: {
+          showEmail: true,
+          showPhone: true,
+          showOnlineStatus: true,
+          allowMessaging: true,
+          profileVisibility: "public",
+        },
+        preferences: {
+          language: LanguageCode.EN,
+          theme: ThemeType.LIGHT,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        security: {
+          loginNotifications: true,
+          securityQuestions: false,
+          twoFactorEnabled: false,
+          autoLogoutTime: 30,
+        },
+      },
+      message: "Settings loaded successfully",
+    };
   }
 
   static async updateSettings(settings: Partial<Settings>): Promise<APIResponse<Settings>> {
-    const response = await apiClient.patch<APIResponse<Settings>>(this.BASE_PATH, settings);
-    return response.data;
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Return the updated settings
+    return {
+      status: 200,
+      success: true,
+      error: null,
+      data: settings as Settings,
+      message: "Settings updated successfully",
+    };
   }
 
   static async updatePrivacySettings(settings: Settings['privacy']): Promise<APIResponse<Settings>> {

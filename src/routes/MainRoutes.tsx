@@ -95,7 +95,7 @@ const mainRoutes: RouteObject[] = [
     element: <PrivateRoute>{withLayout(CreateListing)}</PrivateRoute>,
   },
   {
-    path: "/listings/edit/:id",
+    path: "/listings/:id/edit",
     element: <PrivateRoute>{withLayout(EditListing)}</PrivateRoute>,
   },
   {
