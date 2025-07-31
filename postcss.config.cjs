@@ -6,11 +6,7 @@ module.exports = {
     // Use the main Tailwind config
     require('tailwindcss'),
     
-    // Use existing purgecss.config.js for production builds
-    ...(process.env.NODE_ENV === 'production' ? [
-      require('@fullhuman/postcss-purgecss')(require('./purgecss.config.js'))
-    ] : []),
-    
+    // Skip purgecss for now to avoid ES module issues
     require('autoprefixer')({
       overrideBrowserslist: [
         'last 2 Chrome versions',
