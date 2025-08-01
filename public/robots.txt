@@ -1,6 +1,4 @@
-# robots.txt for https://samsar.app
-# Learn more: https://www.robotstxt.org/robotstxt.html
-
+# robots.txt for https://samsar.app - Syrian Market
 User-agent: *
 Allow: /
 
@@ -10,15 +8,40 @@ Disallow: /_next/
 Disallow: /server-sitemap.xml
 Disallow: /*.json$
 Disallow: /*?*
+Disallow: */api/*
+Disallow: /*/api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /private/
+Disallow: /internal/
 
 # Disallow user-specific pages
 Disallow: /profile
-Disallow: /profile/listings
-Disallow: /profile/password
+Disallow: /profile/*
 Disallow: /saved-listings
 Disallow: /listings/create
 Disallow: /settings
 Disallow: /messages
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Allow important listing categories for Syrian market
+Allow: /listings?category=real_estate&subCategory=APARTMENT
+Allow: /listings?category=real_estate&subCategory=HOUSE
+Allow: /listings?category=real_estate&subCategory=COMMERCIAL
+Allow: /listings?category=vehicles&subCategory=CAR
+Allow: /listings?category=vehicles&subCategory=MOTORCYCLE
+Allow: /listings?category=vehicles&subCategory=TRUCK
+Allow: /listings?location=damascus
+Allow: /listings?location=aleppo
+Allow: /listings?location=latakia
+Allow: /listings?location=homs
+
+# Block API subdomain and other subdomains
+User-agent: *
+Disallow: /
 
 # Sitemap location
 Sitemap: https://samsar.app/sitemap.xml
