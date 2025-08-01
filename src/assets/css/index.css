@@ -1,32 +1,32 @@
 /**
  * Tailwind CSS - Optimized imports for smaller bundle
  */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom base styles - optimized for actual usage */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background-color: #fff;
-  color: #1f2937;
-  overflow-x: hidden;
-}
-
-.dark body {
-  background-color: #111827;
-  color: #f9fafb;
-}
-
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-
+ @tailwind base;
+ @tailwind components;
+ @tailwind utilities;
+ 
+ /* Custom base styles - optimized for actual usage */
+ * {
+   box-sizing: border-box;
+ }
+ 
+ body {
+   margin: 0;
+   font-family: Inter, sans-serif;
+   background-color: #fff;
+   color: #1f2937;
+   overflow-x: hidden;
+ }
+ 
+ .dark body {
+   background-color: #111827;
+   color: #f9fafb;
+ }
+ 
+ .container {
+   max-width: 1280px;
+   margin: 0 auto;
+   padding: 0 1rem;
+ }
+ 
+ 

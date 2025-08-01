@@ -287,38 +287,103 @@ export default defineConfig(({ mode, command }) => {
             compact: true,
             entryFileNames: 'assets/[name]-[hash].js',
             chunkFileNames: (chunkInfo) => {
-              // More aggressive chunk splitting
-              if (chunkInfo.name.includes('react') || chunkInfo.name.includes('vendor')) {
-                return 'assets/vendor-[hash].js';
+              // Force smaller chunks with specific naming
+              const size = chunkInfo.type === 'chunk' ? chunkInfo.code?.length || 0 : 0;
+              const sizeKB = Math.round(size / 1024);
+              
+              // Split large chunks (>50KB) into smaller ones
+              if (sizeKB > 50) {
+                return `assets/chunk-${chunkInfo.name}-[hash].js`;
               }
-              if (chunkInfo.name.includes('utils') || chunkInfo.name.includes('helper')) {
-                return 'assets/utils-[hash].js';
-              }
-              if (chunkInfo.name.includes('components')) {
-                return 'assets/components-[hash].js';
-              }
+              
+              // Specific naming for known large chunks
+              if (chunkInfo.name.includes('react')) return `assets/react-[hash].js`;
+              if (chunkInfo.name.includes('mui')) return `assets/mui-[hash].js`;
+              if (chunkInfo.name.includes('proxy')) return `assets/proxy-[hash].js`;
+              if (chunkInfo.name.includes('vendor')) return `assets/vendor-[hash].js`;
+              
               return 'assets/[name]-[hash].js';
             },
             assetFileNames: 'assets/[name]-[hash].[ext]',
-            manualChunks: {
-              // Split large dependencies into separate chunks
-              'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-              'ui-vendor': ['@mui/material', '@emotion/react', '@emotion/styled'],
-              'form-vendor': ['react-hook-form', '@hookform/resolvers', 'yup'],
-              'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
-              'socket-vendor': ['socket.io-client'],
-              'i18n-vendor': ['react-i18next', 'i18next'],
-              'animation-vendor': ['framer-motion'],
-              'utils-vendor': ['axios', 'date-fns', 'clsx', 'tailwind-merge'],
+            manualChunks: (id) => {
+              // Split by exact module paths
+              if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+                return 'react-vendor';
+              }
+              if (id.includes('node_modules/@reduxjs/toolkit/') || id.includes('node_modules/react-redux/')) {
+                return 'redux-vendor';
+              }
+              if (id.includes('node_modules/react-router/') || id.includes('node_modules/react-router-dom/')) {
+                return 'router-vendor';
+              }
+              if (id.includes('node_modules/@mui/material/')) {
+                return 'mui-material';
+              }
+              if (id.includes('node_modules/@emotion/')) {
+                return 'emotion-vendor';
+              }
+              if (id.includes('node_modules/@tanstack/react-query/')) {
+                return 'query-vendor';
+              }
+              if (id.includes('node_modules/react-hook-form/')) {
+                return 'form-vendor';
+              }
+              if (id.includes('node_modules/socket.io-client/')) {
+                return 'socket-vendor';
+              }
+              if (id.includes('node_modules/framer-motion/')) {
+                return 'animation-vendor';
+              }
+              if (id.includes('node_modules/axios/') || id.includes('node_modules/date-fns/')) {
+                return 'utils-vendor';
+              }
+              if (id.includes('node_modules/core-js/') || id.includes('node_modules/regenerator-runtime/')) {
+                return 'polyfills';
+              }
+              if (id.includes('node_modules/scheduler/')) {
+                return 'scheduler';
+              }
+              if (id.includes('node_modules/use-sync-external-store/')) {
+                return 'react-utils';
+              }
+              if (id.includes('node_modules/react-select/')) {
+                return 'react-select';
+              }
+              if (id.includes('node_modules/react-window/')) {
+                return 'react-window';
+              }
+              if (id.includes('node_modules/memoize-one/')) {
+                return 'memoize-one';
+              }
+              if (id.includes('node_modules/@emotion/cache/') || 
+                  id.includes('node_modules/@emotion/utils/') || 
+                  id.includes('node_modules/@emotion/serialize/')) {
+                return 'emotion-utils';
+              }
+              
+              // Split large proxy-related chunks
+              if (id.includes('node_modules/@emotion/cache/') || 
+                  id.includes('node_modules/@emotion/utils/') || 
+                  id.includes('node_modules/@emotion/serialize/')) {
+                return 'emotion-utils';
+              }
+              
+              // Split any chunk that's getting too large
+              if (id.includes('node_modules/') && id.includes('chunk')) {
+                const moduleName = id.split('node_modules/')[1]?.split('/')[0];
+                if (moduleName) {
+                  return `vendor-${moduleName}`;
+                }
+              }
             },
           },
           treeshake: {
-            moduleSideEffects: false,  // More aggressive tree-shaking
+            moduleSideEffects: false,
             propertyReadSideEffects: false,
             tryCatchDeoptimization: false,
             unknownGlobalSideEffects: false,
+            preset: 'smallest',
             annotations: true,
-            preset: 'smallest', // Most aggressive tree-shaking
             manualPureFunctions: [
               'console.log',
               'console.warn',

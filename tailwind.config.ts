@@ -19,20 +19,14 @@ const config: Config = {
   corePlugins: {
     preflight: true,
     container: true,
-    // Aggressively disable utilities causing unused CSS
+    // Disable transform utilities that are causing unused CSS
     transform: false,
     translate: false,
     rotate: false,
     skew: false,
     scale: false,
     transformOrigin: false,
-    // Disable gradient utilities causing 17KB unused
-    gradientColorStops: false,
-    backgroundImage: false,
-    backgroundSize: false,
-    backgroundPosition: false,
-    backgroundRepeat: false,
-    // Disable other unused utilities
+    // Disable other potentially unused utilities
     backdropBlur: false,
     backdropBrightness: false,
     backdropContrast: false,
@@ -51,20 +45,6 @@ const config: Config = {
     invert: false,
     saturate: false,
     sepia: false,
-    // Disable sizing utilities
-    width: false,
-    height: false,
-    minWidth: false,
-    maxWidth: false,
-    minHeight: false,
-    maxHeight: false,
-    // Disable flexbox utilities if not used
-    flex: false,
- 
-    // Disable position utilities
-    position: false,
-    inset: false,
-    zIndex: false,
   },
   theme: {
     // Optimize breakpoints - remove unused ones

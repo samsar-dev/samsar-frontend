@@ -1,4 +1,7 @@
-import { Container, Box, Link, Paper } from "@mui/material";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
 import { Typography } from "@/utils/typography";
 import { motion } from "framer-motion";
 import PrivacyTip from "@mui/icons-material/PrivacyTip";

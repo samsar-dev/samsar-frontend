@@ -19,8 +19,7 @@ import { Listbox } from "@headlessui/react";
 import { MdFilterList } from "react-icons/md";
 import { HiSelector, HiCheck } from "react-icons/hi";
 
-// Synchronous import for critical above-the-fold component
-import HomeHero from "@/components/home/HomeHero";
+// Inline HomeHero component for better performance and bundle optimization
 
 // Lazy load other components
 const ListingCard = React.memo(lazy(() => import("@/components/listings/details/ListingCard")));
@@ -66,6 +65,171 @@ import {
   PropertyType,
 } from "@/types/enums";
 import type { ExtendedListing } from "@/types/listings";
+
+// Icons for HomeHero
+import { FaCar, FaHome } from 'react-icons/fa';
+
+// Inline HomeHero component
+interface HomeHeroProps {
+  selectedCategory: ListingCategory;
+  onCategoryChange: (category: ListingCategory) => void;
+}
+
+const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryChange }) => {
+  const { t } = useTranslation(['home']);
+
+  const animationRef = useRef<number>();
+  const headerRef = useRef<HTMLHeadingElement>(null);
+  const hasAnimatedRef = useRef(false);
+
+  useEffect(() => {
+    // Only run this effect once on initial mount
+    if (hasAnimatedRef.current || !headerRef.current) return;
+    
+    const headerText = headerRef.current;
+    
+    // Clean up any existing animations
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    
+    // Schedule the animation for the next frame
+    animationRef.current = requestAnimationFrame(() => {
+      // Add the animate class to trigger the CSS animation
+      headerText.classList.add('animate');
+      hasAnimatedRef.current = true;
+    });
+    
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Ultra-optimized Critical CSS for Mobile LCP */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          /* Mobile-first critical CSS */
+          .hero-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            direction: rtl;
+            contain: layout style paint;
+          }
+          .hero-content {
+            text-align: center;
+            color: white;
+            padding: 1rem;
+            max-width: 100%;
+          }
+          .hero-title {
+            font-size: clamp(1.75rem, 8vw, 2.5rem);
+            font-weight: 700;
+            color: white;
+            margin: 0 0 0.5rem;
+            line-height: 1.2;
+            /* Remove animation for mobile LCP */
+            opacity: 1;
+            transform: none;
+          }
+          .hero-subtitle {
+            font-size: clamp(1rem, 4vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0 0 1.5rem;
+            line-height: 1.4;
+            /* Remove animation for mobile LCP */
+            opacity: 1;
+            transform: none;
+          }
+          .hero-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+          }
+          .hero-button {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: none; /* Remove transitions for mobile */
+            width: 100%;
+            max-width: 200px;
+          }
+          .hero-button-active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+          }
+          
+          /* Desktop enhancements (loaded after) */
+          @media (min-width: 768px) {
+            .hero-container { min-height: 60vh; }
+            .hero-title { font-size: clamp(2.5rem, 5vw, 4rem); }
+            .hero-subtitle { font-size: clamp(1.1rem, 2.5vw, 1.5rem); }
+            .hero-buttons { 
+              flex-direction: row; 
+              gap: 1rem;
+            }
+            .hero-button { 
+              width: auto; 
+              padding: 0.75rem 2rem;
+              font-size: 1rem;
+            }
+          }
+        `
+      }} />
+      
+      <div className="hero-container">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            {t('home:hero.title')}
+          </h1>
+          <p className="hero-subtitle">
+            {t('home:hero.subtitle')}
+          </p>
+          <div className="hero-buttons">
+            <button
+              onClick={() => onCategoryChange(ListingCategory.VEHICLES)}
+              className={`hero-button ${
+                selectedCategory === ListingCategory.VEHICLES
+                  ? 'hero-button-active'
+                  : ''
+              }`}
+            >
+              <FaCar />
+              {t('home:vehicle_section.title')}
+            </button>
+            <button
+              onClick={() => onCategoryChange(ListingCategory.REAL_ESTATE)}
+              className={`hero-button ${
+                selectedCategory === ListingCategory.REAL_ESTATE
+                  ? 'hero-button-active'
+                  : ''
+              }`}
+            >
+              <FaHome />
+              {t('home:property_section.title')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+});
+
+HomeHero.displayName = 'HomeHero';
 
 interface ListingParams {
   category?: {
@@ -630,9 +794,8 @@ const Home: React.FC = () => {
         <meta name="twitter:description" content={metaDescription} />
       </Helmet>
 
-      <Suspense fallback={<div className="h-[500px] bg-gray-100 dark:bg-gray-800 animate-pulse"></div>}>
-        <HomeHero selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
-      </Suspense>
+      {/* Inline HomeHero component - no suspense for critical hero */}
+      <HomeHero selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
       {/* Main Content */}
       <main className="w-full py-8 sm:py-12">

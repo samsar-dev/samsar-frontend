@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCarSide,
@@ -38,8 +38,8 @@ interface FeatureItem {
 }
 import type { SectionId } from "../advanced/listingsAdvancedFieldSchema";
 import {
-  listingsAdvancedFieldSchema,
   SECTION_CONFIG,
+  loadSchema,
 } from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "@/components/form/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
@@ -238,37 +238,41 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
     const [activeSection, setActiveSection] = useState<SectionId>("essential");
 
     const [form, setForm] = useState<ExtendedFormState>(() => {
-      if (!formData || !formData.category) {
-        return {
-          title: "",
-          description: "",
-          price: 0,
-          category: {
-            mainCategory: ListingCategoryValue.VEHICLES,
-            subCategory: VehicleTypeValue.CAR,
-          },
-          location: "",
-          latitude: 0,
-          longitude: 0,
-          images: [],
-          details: {
-            vehicles: {},
-          },
-          listingAction: ListingAction.SALE,
-          status: ListingStatus.ACTIVE,
-        };
+      const initialData = formData || {};
+      if (!initialData.details) {
+        initialData.details = {};
       }
-      return formData as ExtendedFormState;
+      if (!initialData.details.vehicles && !initialData.details.realEstate) {
+        initialData.details.vehicles = {};
+        initialData.details.realEstate = {};
+      }
+      return initialData as ExtendedFormState;
     });
+
+    const [currentSchema, setCurrentSchema] = useState<ListingFieldSchema[]>([]);
+    const [isLoadingSchema, setIsLoadingSchema] = useState(true);
 
     console.log("form", form);
 
     const isVehicle =
       form.category.mainCategory === ListingCategoryValue.VEHICLES;
-    const currentSchema =
-      listingsAdvancedFieldSchema[
-        form.category.subCategory as keyof typeof listingsAdvancedFieldSchema
-      ] || [];
+
+    useEffect(() => {
+      const loadCurrentSchema = async () => {
+        setIsLoadingSchema(true);
+        try {
+          const schema = await loadSchema(form.category.subCategory);
+          setCurrentSchema(schema);
+        } catch (error) {
+          console.error("Error loading schema:", error);
+          setCurrentSchema([]);
+        } finally {
+          setIsLoadingSchema(false);
+        }
+      };
+
+      loadCurrentSchema();
+    }, [form.category.subCategory]);
 
     // Get unique sections from the schema and sort them according to SECTION_CONFIG
     const sections = Array.from(
@@ -391,6 +395,17 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         },
         {} as Record<string, ListingFieldSchema[]>,
       );
+
+      if (isLoadingSchema) {
+        return (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-sm text-gray-600">Loading advanced fields...</p>
+            </div>
+          </div>
+        );
+      }
 
       const standardFields = activeFields.filter(
         (field) => !field.featureCategory,

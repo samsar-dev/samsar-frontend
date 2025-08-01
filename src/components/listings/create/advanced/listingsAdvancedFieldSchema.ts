@@ -2,17 +2,19 @@
 import type { ListingFieldSchema } from "@/types/listings";
 import { VehicleType, PropertyType, Condition } from "@/types/enums";
 
-// Import individual schemas
-import { carSchema } from "./schemas/carSchema";
-import { motorcycleSchema } from "./schemas/motorcycleSchema";
-import { truckSchema } from "./schemas/truckSchema";
-import { tractorSchema } from "./schemas/tractorSchema";
-import { constructionSchema } from "./schemas/constructionSchema";
-import { vanSchema } from "./schemas/vanSchema";
-import { busSchema } from "./schemas/busSchema";
-import { houseSchema } from "./schemas/houseSchema";
-import { apartmentSchema } from "./schemas/apartmentSchema";
-import { landSchema } from "./schemas/landSchema";
+// Schema loading functions to reduce bundle size
+const schemaLoaders = {
+  [VehicleType.CAR]: () => import("./schemas/carSchema").then(m => m.carSchema),
+  [VehicleType.MOTORCYCLE]: () => import("./schemas/motorcycleSchema").then(m => m.motorcycleSchema),
+  [VehicleType.TRUCK]: () => import("./schemas/truckSchema").then(m => m.truckSchema),
+  [VehicleType.TRACTOR]: () => import("./schemas/tractorSchema").then(m => m.tractorSchema),
+  [VehicleType.CONSTRUCTION]: () => import("./schemas/constructionSchema").then(m => m.constructionSchema),
+  [VehicleType.VAN]: () => import("./schemas/vanSchema").then(m => m.vanSchema),
+  [VehicleType.BUS]: () => import("./schemas/busSchema").then(m => m.busSchema),
+  [PropertyType.HOUSE]: () => import("./schemas/houseSchema").then(m => m.houseSchema),
+  [PropertyType.APARTMENT]: () => import("./schemas/apartmentSchema").then(m => m.apartmentSchema),
+  [PropertyType.LAND]: () => import("./schemas/landSchema").then(m => m.landSchema),
+};
 
 import {
   FaCarSide,
@@ -138,7 +140,6 @@ const baseVehicleSchema: ListingFieldSchema[] = [
     section: "essential",
     required: true,
   },
-
   {
     name: "condition",
     label: "listings.condition",
@@ -168,80 +169,75 @@ const baseRealEstateSchema: ListingFieldSchema[] = [
   },
 ];
 
-// Create schema map for all vehicle types
-// NOTE: For VehicleType.CAR, we use ONLY carSchema, which already contains all required fields and validation logic.
-const vehicleSchemas: Partial<Record<VehicleType, ListingFieldSchema[]>> = {
-  [VehicleType.CAR]: carSchema, // Do NOT add colorField or any overrides for cars!
-  [VehicleType.MOTORCYCLE]: [...motorcycleSchema, colorField],
-  [VehicleType.TRUCK]: truckSchema,
-  [VehicleType.TRACTOR]: tractorSchema,
-  [VehicleType.VAN]: [...vanSchema, colorField],
-  [VehicleType.BUS]: [...busSchema, colorField],
-  [VehicleType.CONSTRUCTION]: [...constructionSchema],
-  [VehicleType.RV]: [...baseVehicleSchema],
-  [VehicleType.OTHER]: [...baseVehicleSchema],
+// Dynamic schema loading functions
+export const loadSchema = async (type: VehicleType | PropertyType): Promise<ListingFieldSchema[]> => {
+  const loader = schemaLoaders[type as keyof typeof schemaLoaders];
+  if (!loader) return [];
+  
+  const schema = await loader();
+  
+  // Add common fields based on type
+  if (Object.values(VehicleType).includes(type as VehicleType)) {
+    if (type === VehicleType.CAR) return schema; // CAR schema already has all fields
+    if ([VehicleType.MOTORCYCLE, VehicleType.VAN, VehicleType.BUS].includes(type as VehicleType)) {
+      return [...schema, colorField];
+    }
+    return schema;
+  }
+  
+  if (Object.values(PropertyType).includes(type as PropertyType)) {
+    if ([PropertyType.HOUSE, PropertyType.APARTMENT].includes(type as PropertyType)) {
+      return [...schema, conditionField];
+    }
+    return schema;
+  }
+  
+  return schema;
 };
 
-// Create schema map for all property types
-const propertySchemas: Partial<Record<PropertyType, ListingFieldSchema[]>> = {
-  [PropertyType.HOUSE]: [...houseSchema, conditionField],
-  [PropertyType.APARTMENT]: [...apartmentSchema, conditionField],
-  [PropertyType.CONDO]: [...baseRealEstateSchema],
-  [PropertyType.LAND]: [...landSchema],
-  [PropertyType.COMMERCIAL]: [...baseRealEstateSchema],
-  [PropertyType.OTHER]: [...baseRealEstateSchema],
-};
-
-// Combine both schema maps
+// Legacy static schema map (deprecated - use loadSchema instead)
 export const listingsAdvancedFieldSchema = {
-  [VehicleType.CAR]: carSchema,
-  [VehicleType.MOTORCYCLE]: motorcycleSchema,
-  [VehicleType.TRUCK]: truckSchema,
-  [VehicleType.TRACTOR]: tractorSchema,
-  [VehicleType.CONSTRUCTION]: constructionSchema,
-  [VehicleType.VAN]: vanSchema,
-  [VehicleType.BUS]: busSchema,
-  [PropertyType.HOUSE]: houseSchema,
-  [PropertyType.APARTMENT]: apartmentSchema,
-  [PropertyType.LAND]: landSchema,
+  [VehicleType.CAR]: [],
+  [VehicleType.MOTORCYCLE]: [],
+  [VehicleType.TRUCK]: [],
+  [VehicleType.TRACTOR]: [],
+  [VehicleType.CONSTRUCTION]: [],
+  [VehicleType.VAN]: [],
+  [VehicleType.BUS]: [],
+  [PropertyType.HOUSE]: [],
+  [PropertyType.APARTMENT]: [],
+  [PropertyType.LAND]: [],
 };
 
-// Export individual field lists
-export const carAdvancedFieldList: ListingFieldSchema[] = [...carSchema];
-export const busAdvancedFieldList: ListingFieldSchema[] = [...busSchema];
-export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [
-  ...motorcycleSchema,
-];
-export const truckAdvancedFieldList: ListingFieldSchema[] = [...truckSchema];
-export const vanAdvancedFieldList: ListingFieldSchema[] = [...vanSchema];
-export const tractorAdvancedFieldList: ListingFieldSchema[] = [
-  ...tractorSchema,
-];
-export const constructionAdvancedFieldList: ListingFieldSchema[] = [
-  ...constructionSchema,
-];
-export const houseAdvancedFieldList: ListingFieldSchema[] = [...houseSchema];
-export const apartmentAdvancedFieldList: ListingFieldSchema[] = [
-  ...apartmentSchema,
-];
-export const landAdvancedFieldList: ListingFieldSchema[] = [...landSchema];
-
-// Map for dynamic lookup in review section
-export const vehicleAdvancedFieldLists = {
-  CAR: carAdvancedFieldList,
-  BUS: busAdvancedFieldList,
-  MOTORCYCLE: motorcycleAdvancedFieldList,
-  TRUCK: truckAdvancedFieldList,
-  VAN: vanAdvancedFieldList,
-  TRACTOR: tractorAdvancedFieldList,
-  CONSTRUCTION: constructionAdvancedFieldList,
+// Dynamic field list loading functions
+export const loadFieldList = async (type: VehicleType | PropertyType): Promise<ListingFieldSchema[]> => {
+  return loadSchema(type);
 };
 
-export const propertyAdvancedFieldLists = {
-  HOUSE: houseAdvancedFieldList,
-  APARTMENT: apartmentAdvancedFieldList,
-  LAND: landAdvancedFieldList,
+// Legacy static field lists (deprecated - use loadFieldList instead)
+export const carAdvancedFieldList: ListingFieldSchema[] = [];
+export const busAdvancedFieldList: ListingFieldSchema[] = [];
+export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [];
+export const truckAdvancedFieldList: ListingFieldSchema[] = [];
+export const vanAdvancedFieldList: ListingFieldSchema[] = [];
+export const tractorAdvancedFieldList: ListingFieldSchema[] = [];
+export const constructionAdvancedFieldList: ListingFieldSchema[] = [];
+export const houseAdvancedFieldList: ListingFieldSchema[] = [];
+export const apartmentAdvancedFieldList: ListingFieldSchema[] = [];
+export const landAdvancedFieldList: ListingFieldSchema[] = [];
+
+// Dynamic lookup functions for review section
+export const loadVehicleFieldList = async (vehicleType: VehicleType): Promise<ListingFieldSchema[]> => {
+  return loadSchema(vehicleType);
 };
+
+export const loadPropertyFieldList = async (propertyType: PropertyType): Promise<ListingFieldSchema[]> => {
+  return loadSchema(propertyType);
+};
+
+// Legacy static maps (deprecated - use load functions instead)
+export const vehicleAdvancedFieldLists = {};
+export const propertyAdvancedFieldLists = {};
 
 export const validateAdvancedFields = (values: any) => {
   console.log(

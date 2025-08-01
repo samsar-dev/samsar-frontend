@@ -25,7 +25,13 @@ import { BiBuildingHouse } from "react-icons/bi";
 import FormField, { type FormFieldValue } from "@/components/form/FormField";
 import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
 import { MapPin, Locate } from "lucide-react";
-import Select from "react-select";
+import { lazy } from "react";
+const Select = lazy(() => 
+  import("react-select").then(module => {
+    // Return the base select with minimal features
+    return { default: module.default };
+  })
+);
 import { ImageManager } from "../../images/ImageManager";
 import LocationSearch, {
   type SelectedLocation,

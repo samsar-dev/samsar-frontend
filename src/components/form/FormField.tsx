@@ -1,10 +1,16 @@
 import clsx from "clsx";
-import { forwardRef } from "react";
+import { forwardRef, lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import Select from "react-select";
 import type { SingleValue, ActionMeta, MultiValue } from "react-select";
-import makeAnimated from "react-select/animated";
 import { Tooltip } from "@/components/ui/tooltip";
+
+// Use a lightweight alternative for simple selects
+const Select = lazy(() => 
+  import("react-select").then(module => {
+    // Return the base select with minimal features
+    return { default: module.default };
+  })
+);
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export type FormFieldValue = string | number | boolean | string[];
@@ -67,6 +73,15 @@ export const FormField = forwardRef<
     ref,
   ) => {
     const { t } = useTranslation();
+    const [animatedComponents, setAnimatedComponents] = useState<any>(null);
+
+    useEffect(() => {
+      if (type === "multiselect") {
+        import("react-select/animated").then((module) => {
+          setAnimatedComponents(module.default());
+        });
+      }
+    }, [type]);
     const handleChange = (
       e:
         | React.ChangeEvent<
@@ -171,8 +186,6 @@ export const FormField = forwardRef<
       "placeholder-gray-400",
     );
 
-    const animatedComponents = makeAnimated();
-
     const renderInput = () => {
       switch (type) {
         case "textarea":
@@ -194,111 +207,86 @@ export const FormField = forwardRef<
           );
 
         case "select":
-          if (isSearchable) {
-            const selectedOption = options?.find((opt) => opt.value === value);
+          if (!isSearchable) {
             return (
+              <select
+                ref={ref as React.Ref<HTMLSelectElement>}
+                id={name}
+                name={name}
+                value={value as string}
+                onChange={handleChange}
+                className={inputClasses}
+                disabled={disabled}
+                required={required}
+                aria-invalid={!!error}
+                aria-describedby={error ? `${name}-error` : undefined}
+              >
+                <option value="" disabled>
+                  {placeholder || t("form.select_option")}
+                </option>
+                {options?.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.translationKey
+                      ? t(option.translationKey)
+                      : option.label}
+                  </option>
+                ))}
+              </select>
+            );
+          }
+        // Fall through to Suspense-wrapped Select for searchable dropdowns
+
+        case "multiselect": {
+          const selectedOption = options?.find((opt) => opt.value === value);
+          return (
+            <Suspense
+              fallback={<div className={clsx(inputClasses, "h-[42px]")} />}
+            >
               <Select
                 id={name}
                 name={name}
-                value={selectedOption}
-                onChange={handleChange}
-                options={options}
+                value={type === "multiselect" ? (value as any) : selectedOption}
+                onChange={
+                  type === "multiselect"
+                    ? handleMultiSelectChange
+                    : handleChange
+                }
+                options={options?.map((opt) => ({
+                  ...opt,
+                  label: opt.translationKey ? t(opt.translationKey) : opt.label,
+                }))}
                 isDisabled={disabled}
-                placeholder={placeholder || "Select an option"}
+                placeholder={placeholder || t("form.select_option")}
                 className="react-select-container"
                 classNamePrefix="react-select"
-                isSearchable={true}
+                isSearchable={isSearchable}
+                isMulti={type === "multiselect"}
+                components={type === "multiselect" ? animatedComponents : null}
+                closeMenuOnSelect={type !== "multiselect"}
                 styles={{
                   control: (base, state) => ({
                     ...base,
-                    minHeight: "40px",
+                    minHeight: "42px",
                     borderColor: error
-                      ? "var(--red-300)"
+                      ? "rgb(239 68 68)"
                       : state.isFocused
-                        ? "var(--blue-500)"
-                        : "var(--gray-300)",
-                    backgroundColor: error ? "var(--red-50)" : "white",
-                    boxShadow: "none",
-                    transition: "all 0.15s ease-in-out",
+                        ? "rgb(59 130 246)"
+                        : "rgb(209 213 219)",
+                    backgroundColor: error ? "rgb(254 242 242)" : "white",
+                    boxShadow: state.isFocused
+                      ? `0 0 0 1px ${error ? "rgb(239 68 68)" : "rgb(59 130 246)"}`
+                      : "none",
                     "&:hover": {
-                      borderColor: error ? "var(--red-400)" : "var(--blue-300)",
-                    },
-                    "&:focus-within": {
-                      borderColor: error ? "var(--red-500)" : "var(--blue-500)",
-                      boxShadow: `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`,
+                      borderColor: error
+                        ? "rgb(248 113 113)"
+                        : "rgb(96 165 250)",
                     },
                   }),
                 }}
               />
-            );
-          }
-          return (
-            <select
-              ref={ref as React.Ref<HTMLSelectElement>}
-              id={name}
-              name={name}
-              value={value as string}
-              onChange={handleChange}
-              className={inputClasses}
-              required={required}
-              disabled={disabled}
-              aria-invalid={!!error}
-              aria-describedby={error ? `${name}-error` : undefined}
-            >
-              <option value="">{placeholder || "Select an option"}</option>
-              {options?.map((option) => {
-                // Use translationKey if available, otherwise use the label
-                const displayLabel = option.translationKey
-                  ? t(option.translationKey, option.label)
-                  : option.label;
-
-                return (
-                  <option key={option.value} value={option.value}>
-                    {typeof displayLabel === "string"
-                      ? displayLabel === option.value
-                        ? `${displayLabel.charAt(0).toUpperCase()}${displayLabel.slice(1).toLowerCase()}`
-                        : displayLabel
-                      : String(displayLabel)}
-                  </option>
-                );
-              })}
-            </select>
+            </Suspense>
           );
-
-        case "multiselect":
-          return (
-            <Select
-              closeMenuOnSelect={false}
-              id={name}
-              name={name}
-              onChange={handleMultiSelectChange}
-              components={animatedComponents}
-              placeholder={placeholder || "Select an option"}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              isSearchable={true}
-              isMulti
-              isDisabled={disabled || false}
-              options={options}
-              styles={{
-                control: (base, state) => ({
-                  ...base,
-                  borderColor: error
-                    ? "var(--red-300)"
-                    : state.isFocused
-                      ? "var(--blue-500)"
-                      : "var(--gray-300)",
-                  backgroundColor: error ? "var(--red-50)" : "white",
-                  boxShadow: state.isFocused
-                    ? `0 0 0 1px ${error ? "var(--red-500)" : "var(--blue-500)"}`
-                    : "none",
-                  "&:hover": {
-                    borderColor: error ? "var(--red-400)" : "var(--blue-400)",
-                  },
-                }),
-              }}
-            />
-          );
+        }
 
         case "checkbox":
         case "boolean":
