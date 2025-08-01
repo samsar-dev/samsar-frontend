@@ -100,11 +100,7 @@ const config: Config = {
       }
     },
   },
-  // Performance optimizations
- 
-  experimental: {
-    optimizeUniversalDefaults: true,
-  },
+  // Performance optimizations - removed experimental features
   plugins: [
     // Only include essential plugins
     function({ addUtilities }: any) {

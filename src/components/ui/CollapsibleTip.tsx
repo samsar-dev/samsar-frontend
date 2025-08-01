@@ -1,6 +1,14 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { lazy, Suspense } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+
+// Lazy load framer-motion components
+const MotionDiv = lazy(() =>
+  import('framer-motion').then(mod => ({ default: mod.motion.div }))
+);
+const AnimatePresence = lazy(() =>
+  import('framer-motion').then(mod => ({ default: mod.AnimatePresence }))
+);
 
 interface CollapsibleTipProps {
   title: string;
@@ -28,22 +36,24 @@ export const CollapsibleTip = ({
         <span>{title}</span>
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            id="tip-content"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Suspense fallback={<div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">{children}</div>}>
+        <AnimatePresence>
+          {isOpen && (
+            <MotionDiv
+              id="tip-content"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                {children}
+              </div>
+            </MotionDiv>
+          )}
+        </AnimatePresence>
+      </Suspense>
     </div>
   );
 };
