@@ -80,17 +80,17 @@ const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryCh
 
   return (
     <>
-      {/* Ultra-minimal Critical CSS for Mobile LCP */}
+      {/* Ultra-minimal Critical CSS for Mobile LCP - Reduced Size */}
       <style dangerouslySetInnerHTML={{
         __html: `
-          .hero-container{background:linear-gradient(135deg,#667eea,#764ba2);min-height:50vh;display:flex;align-items:center;justify-content:center;width:100%;direction:rtl}
+          .hero-container{background:linear-gradient(135deg,#667eea,#764ba2);min-height:35vh;display:flex;align-items:center;justify-content:center;width:100%;direction:rtl;padding:2rem 0}
           .hero-content{text-align:center;color:white;padding:1rem}
-          .hero-title{font-size:clamp(1.75rem,8vw,2.5rem);font-weight:700;margin:0 0 .5rem;line-height:1.2}
-          .hero-subtitle{font-size:clamp(1rem,4vw,1.25rem);opacity:.9;margin:0 0 1.5rem;line-height:1.4}
-          .hero-buttons{display:flex;gap:.75rem;justify-content:center;flex-direction:column;align-items:center}
-          .hero-button{padding:.75rem 1.5rem;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:white;border-radius:25px;font-weight:600;font-size:.875rem;cursor:pointer;width:100%;max-width:200px}
+          .hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;margin:0 0 .5rem;line-height:1.2}
+          .hero-subtitle{font-size:clamp(.875rem,3vw,1.125rem);opacity:.9;margin:0 0 1rem;line-height:1.4}
+          .hero-buttons{display:flex;gap:.5rem;justify-content:center;flex-direction:column;align-items:center}
+          .hero-button{padding:.5rem 1.25rem;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:white;border-radius:20px;font-weight:600;font-size:.8rem;cursor:pointer;width:100%;max-width:160px}
           .hero-button-active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5)}
-          @media(min-width:768px){.hero-container{min-height:60vh}.hero-title{font-size:clamp(2.5rem,5vw,4rem)}.hero-buttons{flex-direction:row}}
+          @media(min-width:768px){.hero-container{min-height:40vh}.hero-title{font-size:clamp(1.75rem,4vw,2.5rem)}.hero-buttons{flex-direction:row;gap:1rem}}
         `
       }} />
       
@@ -457,8 +457,6 @@ const Home: React.FC = () => {
       );
     }
 
-
-
     return (
       <>
         <div className="flex flex-row justify-between items-center gap-2 px-0 sm:px-2 mt-4 mb-6 w-full">
@@ -666,35 +664,24 @@ const Home: React.FC = () => {
           {t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
         </title>
         <meta name="description" content={metaDescription} />
-        <meta
-          name="keywords"
-          content={t(
-            "meta_keywords",
-            "سيارات للبيع، عقارات للبيع، سمسار، سوريا، سيارات مستعملة، عقارات جديدة، أسعار تنافسية، ضمان الجودة",
-          )}
-        />
+        
+        {/* Canonical and hreflang */}
+        <link rel="canonical" href={window.location.href} />
+        <link rel="alternate" hrefLang="ar" href={`https://samsar.app${i18n.language === 'ar' ? '/ar' : ''}/`} />
+        <link rel="alternate" hrefLang="x-default" href="https://samsar.app/" />
 
-        {/* Open Graph / Facebook */}
+        {/* Open Graph - covers Facebook and most social platforms */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
-        <meta
-          property="og:title"
-          content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
-        />
+        <meta property="og:title" content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")} />
         <meta property="og:description" content={metaDescription} />
-        <meta
-          property="og:image"
-          content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg"
-        />
+        <meta property="og:image" content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg" />
+        <meta property="og:locale" content="ar_AR" />
+        <meta property="og:site_name" content="سمسار" />
 
-        {/* Twitter */}
+        {/* Twitter Card - minimal and essential */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={window.location.href} />
-        <meta
-          name="twitter:title"
-          content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
-        />
-        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:site" content="@samsar_sy" />
       </Helmet>
 
       {/* Inline HomeHero component - no suspense for critical hero */}
@@ -703,10 +690,13 @@ const Home: React.FC = () => {
       {/* Main Content */}
       <main className="w-full py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rtl:direction-rtl">
-          {/* SEO-Optimized H1 (hidden visually but accessible to screen readers) */}
-          <h1 className="sr-only">
+          {/* SEO-Optimized H1 - Visible heading for better SEO */}
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
             {t("home:seo_title", "سيارات للبيع في سوريا | عقارات للبيع والايجار | منصة سمسار")}
           </h1>
+          <h2 className="text-xl text-gray-600 dark:text-gray-300 mb-12 text-center">
+            {t("home:seo_description", "اكتشف أفضل العروض على سيارات وعقارات في سوريا")}
+          </h2>
           <p className="sr-only">
             {t("home:seo_description", "أكبر سوق إلكتروني متخصص في بيع وشراء السيارات المستعملة والجديدة، الشقق، الفلل، الأراضي، والمحلات التجارية في جميع أنحاء سوريا. أسعار منافسة وضمان الجودة")}
           </p>
@@ -729,17 +719,35 @@ const Home: React.FC = () => {
             {renderContent()}
           </section>
 
-        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
-          <PopularCategories />
-        </LazyLoadOnScroll>
+          {/* Popular Categories Section */}
+          <section aria-labelledby="popular-categories-heading" className="w-full mb-16">
+            <h2 id="popular-categories-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              {t("home:popular_categories", "الفئات الأكثر شعبية")}
+            </h2>
+            <LazyLoadOnScroll fallback={<div className="h-[400px] w-full" />}>
+              <PopularCategories />
+            </LazyLoadOnScroll>
+          </section>
 
-        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
-          <AdvantageCards />
-        </LazyLoadOnScroll>
+          {/* Advantage Cards Section */}
+          <section aria-labelledby="advantage-cards-heading" className="w-full mb-16">
+            <h2 id="advantage-cards-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              {t("home:advantages_title", "لماذا تختار سمسار؟")}
+            </h2>
+            <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
+              <AdvantageCards />
+            </LazyLoadOnScroll>
+          </section>
 
-        <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
-          <FAQ />
-        </LazyLoadOnScroll>
+          {/* FAQ Section */}
+          <section aria-labelledby="faq-heading" className="w-full mb-16">
+            <h2 id="faq-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+              {t("home:faq_title", "الأسئلة الشائعة")}
+            </h2>
+            <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
+              <FAQ />
+            </LazyLoadOnScroll>
+          </section>
         </div>
       </main>
 
@@ -748,7 +756,20 @@ const Home: React.FC = () => {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "ItemList",
+            "@type": "WebSite",
+            name: "سمسار",
+            alternateName: "Samsar",
+            url: "https://samsar.app",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://samsar.app/listings?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            },
+            inLanguage: ["ar", "en"],
+            areaServed: {
+              "@type": "Country",
+              name: "Syria"
+            },
             itemListElement: [
               {
                 "@type": "CategoryCode",
