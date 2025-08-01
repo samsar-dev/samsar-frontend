@@ -9,11 +9,9 @@ import React, {
   useCallback, 
   memo 
 } from "react";
-import { motion } from "framer-motion";
 import type { FiltersState } from "@/components/filters/useListingFilters";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
-import { Listbox } from "@headlessui/react";
 
 // Icons - Imported directly since they're small
 import { MdFilterList } from "react-icons/md";
@@ -469,54 +467,24 @@ const Home: React.FC = () => {
             <span className="text-sm">{t("Filters", "الفلاتر")}</span>
           </button>
 
-          {/* Sort By - Always Visible */}
+          {/* Sort By - Simple HTML Select */}
           <div className="relative inline-block text-left w-auto max-w-[180px] sm:w-52">
-            <Listbox value={sortBy} onChange={setSortBy}>
-              <div className="relative">
-                <Listbox.Button className="w-full flex justify-between items-center px-3 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <span className="truncate">
-                    {sortOptions.find((opt) => opt.value === sortBy)?.label ||
-                      t("sorting.sort_by", "فرز حسب")}
-                  </span>
-                  <HiSelector className="w-5 h-5 ml-1 flex-shrink-0 text-gray-400" />
-                </Listbox.Button>
-                <Listbox.Options className="absolute z-[70] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg focus:outline-none text-sm">
-                  {sortOptions.map((option) => (
-                    <Listbox.Option
-                      key={option.value}
-                      value={option.value}
-                      className={({ active }) =>
-                        `cursor-pointer select-none px-4 py-2 ${
-                          active
-                            ? "bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white"
-                            : "text-gray-700 dark:text-white"
-                        }`
-                      }
-                    >
-                      {({ selected }) => (
-                        <span className="flex items-center justify-between">
-                          {option.label}
-                          {selected && (
-                            <HiCheck className="w-4 h-4 text-blue-500 dark:text-white" />
-                          )}
-                        </span>
-                      )}
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </div>
-            </Listbox>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full px-3 py-2 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {isFilterOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
+          <div className="overflow-hidden">
             <ListingFilters
               loading={listings.loading}
               listings={listings.original}
@@ -525,7 +493,7 @@ const Home: React.FC = () => {
               areas={areas}
               onApply={handleFilterApply}
             />
-          </motion.div>
+          </div>
         )}
 
         <div
@@ -548,12 +516,7 @@ const Home: React.FC = () => {
             </Suspense>
           ))}
           {listings.all.length === 0 && listings.error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="col-span-full text-center py-8 text-gray-600 dark:text-gray-400"
-            >
+            <div className="col-span-full text-center py-8 text-gray-600 dark:text-gray-400">
               {listings.error && (
                 <div className="text-red-500 whitespace-pre-wrap">
                   {typeof listings.error === "string"
@@ -561,15 +524,13 @@ const Home: React.FC = () => {
                     : "Failed to fetch listings"}
                 </div>
               )}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={fetchListings}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 {t("common.try_again", "جرب مرة أخرى")}
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
           )}
           {listings.all.length === 0 && !listings.loading && (
             <div className="col-span-full text-center py-8 text-gray-600 dark:text-gray-400">
@@ -579,29 +540,19 @@ const Home: React.FC = () => {
         </div>
 
         {listings.popular.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mt-12"
-          >
+          <div className="mt-12">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               {t("home.trending_now", "الأكثر رواجاً")}
             </h3>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {listings.popular.map((listing, index) => (
                 <div
+                  key={listing.id}
                   itemScope
                   itemType="https://schema.org/Product"
                   itemProp="itemListElement"
                 >
                   <ListingCard
-                    key={listing.id}
                     listing={listing}
                     showActions={false}
                     showSaveButton={true}
@@ -612,8 +563,8 @@ const Home: React.FC = () => {
                   />
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </>
     );
