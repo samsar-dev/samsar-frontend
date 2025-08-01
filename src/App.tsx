@@ -1,4 +1,5 @@
 import { type ReactElement } from "react";
+import { HelmetProvider } from "react-helmet-async";
 
 // Core providers - load synchronously for immediate availability
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -15,17 +16,19 @@ import Routes from "./routes/Routes";
 // Simple App component with essential structure
 const App: () => ReactElement = () => {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <UIProvider>
-          <ListingsProvider>
-            <Layout>
-              <Routes />
-            </Layout>
-          </ListingsProvider>
-        </UIProvider>
-      </SocketProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <UIProvider>
+            <ListingsProvider>
+              <Layout>
+                <Routes />
+              </Layout>
+            </ListingsProvider>
+          </UIProvider>
+        </SocketProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 };
 

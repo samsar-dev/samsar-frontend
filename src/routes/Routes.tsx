@@ -1,5 +1,12 @@
 import { Routes as RouterRoutes, Route } from "react-router-dom";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
+
+// Simple loading component
+const LoadingSpinner = () => (
+  <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 const Home = lazy(() => import("@/pages/Home"));
 const Search = lazy(() => import("@/pages/Search"));
@@ -21,22 +28,22 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const Routes = () => {
   return (
     <RouterRoutes>
-      <Route path="/" element={<Home />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/vehicles" element={<Vehicles />} />
-      <Route path="/real-estate" element={<RealEstate />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/messages" element={<Messages />} />
-      <Route path="/listing-success" element={<ListingSuccess />} />
-      <Route path="/password-reset" element={<PasswordReset />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<ContactUs />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/" element={<Suspense fallback={<LoadingSpinner />}><Home /></Suspense>} />
+      <Route path="/search" element={<Suspense fallback={<LoadingSpinner />}><Search /></Suspense>} />
+      <Route path="/vehicles" element={<Suspense fallback={<LoadingSpinner />}><Vehicles /></Suspense>} />
+      <Route path="/real-estate" element={<Suspense fallback={<LoadingSpinner />}><RealEstate /></Suspense>} />
+      <Route path="/login" element={<Suspense fallback={<LoadingSpinner />}><Login /></Suspense>} />
+      <Route path="/register" element={<Suspense fallback={<LoadingSpinner />}><Register /></Suspense>} />
+      <Route path="/profile" element={<Suspense fallback={<LoadingSpinner />}><Profile /></Suspense>} />
+      <Route path="/settings" element={<Suspense fallback={<LoadingSpinner />}><Settings /></Suspense>} />
+      <Route path="/messages" element={<Suspense fallback={<LoadingSpinner />}><Messages /></Suspense>} />
+      <Route path="/listing-success" element={<Suspense fallback={<LoadingSpinner />}><ListingSuccess /></Suspense>} />
+      <Route path="/password-reset" element={<Suspense fallback={<LoadingSpinner />}><PasswordReset /></Suspense>} />
+      <Route path="/about" element={<Suspense fallback={<LoadingSpinner />}><About /></Suspense>} />
+      <Route path="/contact" element={<Suspense fallback={<LoadingSpinner />}><ContactUs /></Suspense>} />
+      <Route path="/privacy" element={<Suspense fallback={<LoadingSpinner />}><PrivacyPolicy /></Suspense>} />
+      <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsOfService /></Suspense>} />
+      <Route path="*" element={<Suspense fallback={<LoadingSpinner />}><NotFound /></Suspense>} />
     </RouterRoutes>
   );
 };

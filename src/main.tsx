@@ -51,10 +51,6 @@ const BrowserRouter = lazy(() =>
   import('react-router-dom').then(m => ({ default: m.BrowserRouter }))
 );
 
-const HelmetProvider = lazy(() =>
-  import('react-helmet-async').then(m => ({ default: m.HelmetProvider }))
-);
-
 const App = lazy(() => import('./App'));
 
 // Defer performance monitoring to after app loads
@@ -125,15 +121,11 @@ const initializeApp = async () => {
 
   root.render(
     <StrictMode>
-      <Suspense fallback={<LoadingFallback />}>
-        <HelmetProvider>
-          <Provider store={store}>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </Provider>
-        </HelmetProvider>
-      </Suspense>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
     </StrictMode>
   );
   
