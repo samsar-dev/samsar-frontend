@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,31 +34,45 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const fetchListings = async () => {
     try {
       setIsLoading(true);
       setError(null);
       const response = await listingsAPI.getAll({});
-      if (response.success) {
+      if (response.success && isMountedRef.current) {
         setListings(response.data?.listings || []);
-      } else {
+      } else if (isMountedRef.current) {
         throw new Error(response.error || "Failed to fetch listings");
       }
     } catch (error) {
-      console.error("Error fetching listings:", error);
-      setError("Failed to fetch listings");
-      setListings([]);
-      toast.error("Failed to fetch listings");
+      if (isMountedRef.current) {
+        console.error("Error fetching listings:", error);
+        setError("Failed to fetch listings");
+        setListings([]);
+        toast.error("Failed to fetch listings");
+      }
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   const fetchUserListings = async () => {
     // Only attempt to fetch if user is authenticated
     if (!user?.id) {
-      setUserListings([]);
+      if (isMountedRef.current) {
+        setUserListings([]);
+      }
       return;
     }
 
@@ -66,12 +81,14 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
       setError(null); // Clear any previous errors
       const response = await listingsAPI.getUserListings();
 
-      if (response.success) {
+      if (response.success && isMountedRef.current) {
         setUserListings(response.data?.listings || []);
-      } else {
+      } else if (isMountedRef.current) {
         throw new Error(response.error || "Failed to fetch user listings");
       }
     } catch (error: any) {
+      if (!isMountedRef.current) return;
+      
       // Don't show error toast for authentication errors
       if (error.message === "User not authenticated") {
         setUserListings([]);
@@ -83,7 +100,9 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
       setUserListings([]);
       toast.error("Failed to fetch user listings");
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -95,23 +114,28 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
     try {
       setIsLoading(true);
       const response = await listingsAPI.delete(id);
-      if (response.success) {
+      if (response.success && isMountedRef.current) {
         toast.success("Listing deleted successfully");
         await fetchUserListings();
         await fetchListings();
-      } else {
+      } else if (isMountedRef.current) {
         throw new Error(response.error || "Failed to delete listing");
       }
     } catch (error) {
-      console.error("Error deleting listing:", error);
-      setError("Failed to delete listing");
-      toast.error("Failed to delete listing");
+      if (isMountedRef.current) {
+        console.error("Error deleting listing:", error);
+        setError("Failed to delete listing");
+        toast.error("Failed to delete listing");
+      }
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   const refetchListings = async () => {
+    if (!isMountedRef.current) return;
     await Promise.all([
       fetchListings(),
       user?.id ? fetchUserListings() : Promise.resolve(),
@@ -120,16 +144,18 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
 
   // Fetch listings only when user changes
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && isMountedRef.current) {
       fetchUserListings();
-    } else {
+    } else if (isMountedRef.current) {
       setUserListings([]);
     }
   }, [user?.id]);
 
-  // Fetch all listings on mount
+  // Fetch all listings on mount - but only once
   useEffect(() => {
-    fetchListings();
+    if (isMountedRef.current) {
+      fetchListings();
+    }
   }, []);
 
   return (

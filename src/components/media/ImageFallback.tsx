@@ -179,9 +179,9 @@ const ImageComponent: React.FC<ImageProps> = ({
         role="img"
         aria-label={alt || "Image not available"}
       >
-        <Icon className="text-4xl text-gray-400" />
-        <div className="text-gray-500 text-center">
-          <p className="mt-2">Image Unavailable</p>
+        <Icon className="text-4xl text-gray-600 dark:text-gray-400" />
+        <div className="text-gray-700 dark:text-gray-300 text-center">
+          <p className="mt-2 font-medium">Image Unavailable</p>
         </div>
       </div>
     );
@@ -212,10 +212,10 @@ const ImageComponent: React.FC<ImageProps> = ({
       {hasError ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
           {React.createElement(getCategoryIcon(category), {
-            className: "w-1/4 h-1/4 text-gray-400 mb-2",
+            className: "w-1/4 h-1/4 text-gray-600 dark:text-gray-400 mb-2",
             "aria-hidden": "true",
           })}
-          <span className="text-sm text-gray-500 text-center">
+          <span className="text-sm text-gray-700 dark:text-gray-300 text-center font-medium">
             {alt || "Image not available"}
           </span>
         </div>

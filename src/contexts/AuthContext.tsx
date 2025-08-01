@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     // Prevent multiple simultaneous auth checks
-    if (isCheckingAuth || hasCheckedAuth) {
+    if (isCheckingAuth || hasCheckedAuth || !isInitialized) {
       return;
     }
 
@@ -118,9 +118,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsCheckingAuth(false);
       setHasCheckedAuth(true);
-      setIsInitialized(true); // Ensure we always set initialized to true
     }
-  }, []);
+  }, [isCheckingAuth, hasCheckedAuth, isInitialized]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {

@@ -61,11 +61,11 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="text-blue-600 dark:text-blue-400"
+            className="text-blue-700 dark:text-blue-300"
           >
             {formattedSYP}
             {showMonthly && (
-              <span className="text-gray-500 dark:text-gray-400">/mo</span>
+              <span className="text-gray-700 dark:text-gray-300">/mo</span>
             )}
           </motion.span>
         ) : (
@@ -75,10 +75,11 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
+            className="text-emerald-700 dark:text-emerald-300"
           >
             {formattedUSD}
             {showMonthly && (
-              <span className="text-gray-500 dark:text-gray-400">/mo</span>
+              <span className="text-gray-700 dark:text-gray-300">/mo</span>
             )}
           </motion.span>
         )}

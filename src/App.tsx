@@ -10,8 +10,9 @@ import { ListingsProvider } from "@/contexts/ListingsContext";
 // Layout component for navigation
 import Layout from "@/components/layout/Layout";
 
-// Routes - direct import to avoid Suspense delays
-import Routes from "./routes/Routes";
+// Routes - lazy loaded to reduce initial chunk size
+import { lazy, Suspense } from 'react';
+const Routes = lazy(() => import('./routes/Routes'));
 
 // Simple App component with essential structure
 const App: () => ReactElement = () => {
@@ -22,7 +23,9 @@ const App: () => ReactElement = () => {
           <UIProvider>
             <ListingsProvider>
               <Layout>
-                <Routes />
+                <Suspense fallback={null}>
+                  <Routes />
+                </Suspense>
               </Layout>
             </ListingsProvider>
           </UIProvider>

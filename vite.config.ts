@@ -130,14 +130,10 @@ export default defineConfig(({ mode, command }) => {
 
       // Modern compression with parallel processing
       compression({
-        algorithms: ['brotliCompress'],
+        algorithms: ['brotliCompress', 'gzip'],
         threshold: 1024,
       }),
-      compression({
-        algorithms: ['gzip'],
-        threshold: 1024,
-      }),
-
+      
       // Bundle analyzer (only in analyze mode)
       mode === 'analyze' && visualizer({}),
     ].filter(Boolean),
@@ -238,7 +234,302 @@ export default defineConfig(({ mode, command }) => {
       chunkSizeWarningLimit: 300, 
       dynamicImportVarsOptions: { warnOnError: true },
       reportCompressedSize: true,
+      
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          dead_code: true,
+          unused: true,
+          conditionals: true,
+          comparisons: true,
+          evaluate: true,
+          booleans: true,
+          if_return: true,
+          join_vars: true,
+          reduce_vars: true,
+          collapse_vars: true,
+          inline: 3,
+          passes: 4,
+          keep_fargs: false,
+          pure_getters: true,
+          side_effects: false,
+          sequences: true,
+          properties: true,
+          switches: true,
+          negate_iife: true,
+          hoist_funs: true,
+          hoist_props: true,
+          hoist_vars: true,
+          module: true,
+          toplevel: true,
+          unsafe: true,
+          unsafe_arrows: true,
+          unsafe_comps: true,
+          unsafe_Function: true,
+          unsafe_math: true,
+          unsafe_methods: true,
+          pure_funcs: [
+            'console.log',
+            'console.info',
+            'console.warn',
+            'console.error',
+            'console.trace',
+            'console.debug',
+            'console.table'
+          ]
+        },
+        mangle: {
+          toplevel: true,
+          properties: {
+            regex: /^_/
+          }
+        },
+        format: {
+          comments: false,
+          ascii_only: true,
+          beautify: false,
+          braces: false,
+          semicolons: false
+        }
+      },
 
+      rollupOptions: {
+        external: [
+          '@mui/material',
+          '@mui/system',
+          '@mui/icons-material',
+          'react',
+          'react-dom'
+        ],
+        output: {
+          compact: true,
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
+          manualChunks: (id) => {
+            // --- Heavy libraries (split from vendor-misc) ---
+            if (id.includes('immer')) return 'immer';
+            if (id.includes('framer-motion')) return 'framer-motion';
+            if (id.includes('fuse.js')) return 'fuse-search';
+            if (id.includes('cross-fetch')) return 'cross-fetch';
+            
+            // --- Animation libraries ---
+            if (id.includes('motion-dom')) return 'motion-dom';
+            if (id.includes('framer-motion')) return 'framer-motion';
+            
+            // --- Socket libraries ---
+            if (id.includes('engine.io-client')) return 'socket-engine';
+            if (id.includes('socket.io-client')) return 'socket-client';
+            
+            // --- Emotion CSS-in-JS ---
+            if (id.includes('@emotion/cache')) return 'emotion-cache';
+            if (id.includes('@emotion/react')) return 'emotion-react';
+            if (id.includes('@emotion/styled')) return 'emotion-styled';
+            if (id.includes('@emotion')) return 'emotion-core';
+            
+            // --- State management ---
+            if (id.includes('redux')) return 'redux';
+            if (id.includes('reselect')) return 'reselect';
+            if (id.includes('zustand')) return 'zustand';
+            
+            // --- Notifications ---
+            if (id.includes('react-hot-toast')) return 'react-hot-toast';
+            
+            // --- Cookie handling ---
+            if (id.includes('set-cookie-parser')) return 'set-cookie-parser';
+            
+            // --- vendor-misc (remaining utilities) ---
+            if (id.includes('react-transition-group')) return 'react-transition-group';
+            if (id.includes('object-assign')) return 'object-assign';
+            if (id.includes('deepmerge')) return 'deepmerge';
+            if (id.includes('hoist-non-react-statics')) return 'hoist-non-react-statics';
+            if (id.includes('tiny-invariant')) return 'tiny-invariant';
+            if (id.includes('tiny-warning')) return 'tiny-warning';
+            if (id.includes('react-error-boundary')) return 'react-error-boundary';
+            if (id.includes('react-fast-compare')) return 'react-fast-compare';
+            if (id.includes('react-is')) return 'react-is';
+            if (id.includes('react-refresh')) return 'react-refresh';
+            if (id.includes('rc-util')) return 'rc-util';
+            if (id.includes('rc-field-form')) return 'rc-field-form';
+            if (id.includes('rc-')) return 'rc-lib';
+
+            // --- i18n (ultra-granular) ---
+            if (id.includes('react-i18next')) return 'i18n-react';
+            if (id.includes('i18next-browser-languagedetector')) return 'i18n-languagedetector';
+            if (id.includes('i18next-http-backend')) return 'i18n-http-backend';
+            if (id.includes('i18next')) return 'i18n-core';
+            if (id.includes('locales')) return 'i18n-locales';
+            if (id.includes('i18next-fs-backend')) return 'i18n-fs-backend';
+            if (id.includes('i18next-localstorage-backend')) return 'i18n-localstorage-backend';
+
+            // --- React Router (ultra-granular) ---
+            if (id.includes('react-router-dom')) return 'react-router-dom';
+            if (id.includes('react-router')) return 'react-router-core';
+
+            // --- More vendor libraries (split out of vendor-misc) ---
+            if (id.includes('@date-io')) return 'date-io';
+            if (id.includes('zod')) return 'zod';
+            if (id.includes('formik')) return 'formik';
+            if (id.includes('yup')) return 'yup';
+            if (id.includes('notistack')) return 'notistack';
+            if (id.includes('uuid')) return 'uuid';
+            if (id.includes('qs')) return 'qs';
+            if (id.includes('lodash')) return 'lodash';
+            if (id.includes('dayjs')) return 'dayjs';
+            if (id.includes('moment')) return 'moment';
+            if (id.includes('react-toastify')) return 'react-toastify';
+            if (id.includes('react-helmet-async')) return 'react-helmet-async';
+            if (id.includes('react-helmet')) return 'react-helmet';
+            if (id.includes('@heroicons')) return 'heroicons';
+            if (id.includes('lucide-react')) return 'lucide-react';
+            if (id.includes('@radix-ui')) return 'radix-ui';
+            if (id.includes('@headlessui')) return 'headlessui';
+            if (id.includes('tailwind-merge')) return 'tailwind-merge';
+
+            // --- MUI components (ultra-granular) ---
+            if (id.includes('@mui/material/Button')) return 'mui-button';
+            if (id.includes('@mui/material/Box')) return 'mui-box';
+            if (id.includes('@mui/material/Container')) return 'mui-container';
+            if (id.includes('@mui/material/Typography')) return 'mui-typography';
+            if (id.includes('@mui/material/Grid')) return 'mui-grid';
+            if (id.includes('@mui/material/Card')) return 'mui-card';
+            if (id.includes('@mui/material/Paper')) return 'mui-paper';
+            if (id.includes('@mui/material/Chip')) return 'mui-chip';
+            if (id.includes('@mui/material/IconButton')) return 'mui-icon-button';
+            if (id.includes('@mui/material/Dialog')) return 'mui-dialog';
+            if (id.includes('@mui/material/TextField')) return 'mui-text-field';
+            if (id.includes('@mui/material/Form')) return 'mui-form';
+            if (id.includes('@mui/material/List')) return 'mui-list';
+            if (id.includes('@mui/material/AppBar')) return 'mui-app-bar';
+            if (id.includes('@mui/material/Toolbar')) return 'mui-toolbar';
+            if (id.includes('@mui/material/styles')) return 'mui-styles';
+            if (id.includes('@mui/material/useMediaQuery')) return 'mui-use-media-query';
+            if (id.includes('@mui/material/Divider')) return 'mui-divider';
+            if (id.includes('@mui/material/Collapse')) return 'mui-collapse';
+            if (id.includes('@mui/material/Drawer')) return 'mui-drawer';
+            if (id.includes('@mui/material/Skeleton')) return 'mui-skeleton';
+            if (id.includes('@mui/material/Tabs')) return 'mui-tabs';
+            if (id.includes('@mui/material/Avatar')) return 'mui-avatar';
+            if (id.includes('@mui/material/Menu')) return 'mui-menu';
+            if (id.includes('@mui/material/Snackbar')) return 'mui-snackbar';
+            if (id.includes('@mui/material/Stepper')) return 'mui-stepper';
+            if (id.includes('@mui/material/Grid2')) return 'mui-grid2';
+            if (id.includes('@mui/material/Accordion')) return 'mui-accordion';
+            if (id.includes('@mui/material/AccordionSummary')) return 'mui-accordion-summary';
+            if (id.includes('@mui/material/AccordionDetails')) return 'mui-accordion-details';
+            if (id.includes('@mui/material/CircularProgress')) return 'mui-circular-progress';
+            if (id.includes('@mui/material/LinearProgress')) return 'mui-linear-progress';
+            if (id.includes('@mui/material/Rating')) return 'mui-rating';
+            if (id.includes('@mui/material/Slider')) return 'mui-slider';
+            if (id.includes('@mui/material/Switch')) return 'mui-switch';
+            if (id.includes('@mui/material/Tooltip')) return 'mui-tooltip';
+            if (id.includes('@mui/material/Popover')) return 'mui-popover';
+            if (id.includes('@mui/material/Popper')) return 'mui-popper';
+            if (id.includes('@mui/material/Backdrop')) return 'mui-backdrop';
+            if (id.includes('@mui/material/Grow')) return 'mui-grow';
+            if (id.includes('@mui/material/Fade')) return 'mui-fade';
+            if (id.includes('@mui/material/Zoom')) return 'mui-zoom';
+            if (id.includes('@mui/material/Slide')) return 'mui-slide';
+            if (id.includes('@mui/material/Stepper')) return 'mui-stepper';
+            if (id.includes('@mui/material/Grid2')) return 'mui-grid2';
+            if (id.includes('@mui/material/Accordion')) return 'mui-accordion';
+            if (id.includes('@mui/material/internal')) return 'mui-internal';
+            if (id.includes('@mui/material/utils')) return 'mui-utils-internal';
+            if (id.includes('@mui/material/styles/')) return 'mui-styles-sub';
+            if (id.includes('@mui/material/colors')) return 'mui-colors';
+            if (id.includes('@mui/material/locale')) return 'mui-locale';
+            if (id.includes('@mui/material/Unstable_')) return 'mui-unstable';
+            
+            // --- MUI system utilities (split these from mui-misc) ---
+            if (id.includes('@mui/system/colorManipulator')) return 'mui-system-color';
+            if (id.includes('@mui/system/css')) return 'mui-system-css';
+            if (id.includes('@mui/system/styled')) return 'mui-system-styled';
+            if (id.includes('@mui/system/useTheme')) return 'mui-system-theme';
+            if (id.includes('@mui/system/useMediaQuery')) return 'mui-system-media';
+            if (id.includes('@mui/system/createTheme')) return 'mui-system-create-theme';
+            if (id.includes('@mui/system/createBreakpoints')) return 'mui-system-breakpoints';
+            if (id.includes('@mui/system/style')) return 'mui-system-style';
+            
+            // --- MUI icons (group by category) ---
+            if (id.includes('@mui/icons-material/')) {
+              const iconPath = id.toLowerCase();
+              if (iconPath.includes('navigation')) return 'mui-icons-navigation';
+              if (iconPath.includes('action')) return 'mui-icons-action';
+              if (iconPath.includes('content')) return 'mui-icons-content';
+              if (iconPath.includes('device')) return 'mui-icons-device';
+              if (iconPath.includes('editor')) return 'mui-icons-editor';
+              if (iconPath.includes('image')) return 'mui-icons-image';
+              if (iconPath.includes('alert')) return 'mui-icons-alert';
+              if (iconPath.includes('toggle')) return 'mui-icons-toggle';
+              return 'vendor-misc';
+            }
+            
+            // --- MUI lab & data grid ---
+            if (id.includes('@mui/lab/')) return 'mui-lab';
+            if (id.includes('@mui/x-data-grid')) return 'mui-data-grid';
+            
+            // --- MUI material components (strategic splits) ---
+            if (id.includes('@mui/material/Dialog')) return 'mui-dialog';
+            if (id.includes('@mui/material/Drawer')) return 'mui-drawer';
+            if (id.includes('@mui/material/Menu')) return 'mui-menu';
+            if (id.includes('@mui/material/Popover')) return 'mui-popover';
+            if (id.includes('@mui/material/Modal')) return 'mui-modal';
+            if (id.includes('@mui/material/Tooltip')) return 'mui-tooltip';
+            if (id.includes('@mui/material/Snackbar')) return 'mui-snackbar';
+            if (id.includes('@mui/material/Stepper')) return 'mui-stepper';
+            if (id.includes('@mui/material/Accordion')) return 'mui-accordion';
+            if (id.includes('@mui/material/Progress')) return 'mui-progress';
+            if (id.includes('@mui/material/Rating')) return 'mui-rating';
+            if (id.includes('@mui/material/Slider')) return 'mui-slider';
+            if (id.includes('@mui/material/Switch')) return 'mui-switch';
+            
+            // --- MUI system (main) ---
+            if (id.includes('@mui/system')) return 'mui-system-core';
+            if (id.includes('@mui/base')) return 'mui-base';
+            if (id.includes('@mui/utils')) return 'mui-utils-core';
+            if (id.includes('@mui/icons-material')) return 'mui-icons';
+            if (id.includes('@mui/lab')) return 'mui-lab';
+            if (id.includes('@mui/x-data-grid')) return 'mui-data-grid';
+          
+            // --- Other common libraries ---
+            if (id.includes('date-fns')) return 'date-fns';
+            if (id.includes('lodash')) return 'lodash';
+            if (id.includes('clsx')) return 'clsx';
+            if (id.includes('uuid')) return 'uuid';
+            if (id.includes('formik')) return 'formik';
+            if (id.includes('yup')) return 'yup';
+            if (id.includes('notistack')) return 'notistack';
+            if (id.includes('react-router')) return 'react-router';
+            if (id.includes('react-hook-form')) return 'react-hook-form';
+            if (id.includes('axios')) return 'axios';
+          
+            // --- React and vendor ---
+            if (id.includes('node_modules/react/')) return 'react-vendor';
+            if (id.includes('node_modules/react-dom/')) return 'react-dom-vendor';
+            if (id.includes('node_modules/@mui/material/')) return 'mui-material-vendor';
+            if (id.includes('node_modules/@mui/')) return 'mui-system-vendor';
+            if (id.includes('node_modules/core-js/')) return 'polyfills';
+            if (id.includes('node_modules/react-router/dist/development/chunk-KIUJAIYX.mjs')) return 'react-router-chunk-kiujaiyx';
+            if (id.includes('node_modules/react-router/dist/development/chunk-C37GKA54.mjs')) return 'react-router-chunk-c37gka54';
+            if (id.includes('node_modules/react-router/dist/development/chunk-')) {
+              // fallback for any other react-router chunk
+              return 'react-router-chunks';
+            }
+
+          
+            // --- Catch-all for any remaining large node_modules chunk ---
+            if (id.includes('node_modules/')) return 'vendor-misc';
+          },
+        },
+        treeshake: {
+          moduleSideEffects: false,
+          preset: 'smallest',
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
+          unknownGlobalSideEffects: false,
+        },
+      },
       
       commonjsOptions: {
         include: [/node_modules/],
@@ -253,17 +544,18 @@ export default defineConfig(({ mode, command }) => {
       
       optimizeDeps: {
         include: [
-          'floating-ui/core',
-          'floating-ui/dom',
-          'react-i18next',
-          'framer-motion',
-          'axios',
-          'socket.io-client',
-          '@tanstack/react-query',
           'react',
           'react-dom',
-          '@radix-ui/react-slot',
-          '@radix-ui/react-icons',
+          'react-router-dom',
+          '@tanstack/react-query',
+          'axios',
+          'socket.io-client',
+          '@mui/material',
+          '@emotion/react',
+          '@emotion/styled',
+          'react-hook-form',
+          'react-i18next',
+          'date-fns',
           'clsx',
           'tailwind-merge'
         ],
@@ -280,332 +572,15 @@ export default defineConfig(({ mode, command }) => {
           pure: ['React.createElement', 'React.cloneElement', 'React.memo', 'console.log', 'console.warn', 'console.info']
         },
       },
-      
-      build: {
-        rollupOptions: {
-          output: {
-            compact: true,
-            entryFileNames: 'assets/[name]-[hash].js',
-            chunkFileNames: (chunkInfo) => {
-              // Force smaller chunks with specific naming
-              const size = chunkInfo.type === 'chunk' ? chunkInfo.code?.length || 0 : 0;
-              const sizeKB = Math.round(size / 1024);
-              
-              // Split large chunks (>50KB) into smaller ones
-              if (sizeKB > 50) {
-                return `assets/chunk-${chunkInfo.name}-[hash].js`;
-              }
-              
-              // Specific naming for known large chunks
-              if (chunkInfo.name.includes('react')) return `assets/react-[hash].js`;
-              if (chunkInfo.name.includes('mui')) return `assets/mui-[hash].js`;
-              if (chunkInfo.name.includes('proxy')) return `assets/proxy-[hash].js`;
-              if (chunkInfo.name.includes('vendor')) return `assets/vendor-[hash].js`;
-              
-              return 'assets/[name]-[hash].js';
-            },
-            assetFileNames: 'assets/[name]-[hash].[ext]',
-            manualChunks: (id) => {
-              // Split by exact module paths
-              if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-                return 'react-vendor';
-              }
-              if (id.includes('node_modules/@reduxjs/toolkit/') || id.includes('node_modules/react-redux/')) {
-                return 'redux-vendor';
-              }
-              if (id.includes('node_modules/react-router/') || id.includes('node_modules/react-router-dom/')) {
-                return 'router-vendor';
-              }
-              if (id.includes('node_modules/@mui/material/')) {
-                return 'mui-material';
-              }
-              if (id.includes('node_modules/@emotion/')) {
-                return 'emotion-vendor';
-              }
-              if (id.includes('node_modules/@tanstack/react-query/')) {
-                return 'query-vendor';
-              }
-              if (id.includes('node_modules/react-hook-form/')) {
-                return 'form-vendor';
-              }
-              if (id.includes('node_modules/socket.io-client/')) {
-                return 'socket-vendor';
-              }
-              if (id.includes('node_modules/framer-motion/')) {
-                return 'animation-vendor';
-              }
-              if (id.includes('node_modules/axios/') || id.includes('node_modules/date-fns/')) {
-                return 'utils-vendor';
-              }
-              if (id.includes('node_modules/core-js/') || id.includes('node_modules/regenerator-runtime/')) {
-                return 'polyfills';
-              }
-              if (id.includes('node_modules/scheduler/')) {
-                return 'scheduler';
-              }
-              if (id.includes('node_modules/use-sync-external-store/')) {
-                return 'react-utils';
-              }
-              if (id.includes('node_modules/react-select/')) {
-                return 'react-select';
-              }
-              if (id.includes('node_modules/react-window/')) {
-                return 'react-window';
-              }
-              if (id.includes('node_modules/memoize-one/')) {
-                return 'memoize-one';
-              }
-              if (id.includes('node_modules/@emotion/cache/') || 
-                  id.includes('node_modules/@emotion/utils/') || 
-                  id.includes('node_modules/@emotion/serialize/')) {
-                return 'emotion-utils';
-              }
-              
-              // Split large proxy-related chunks
-              if (id.includes('node_modules/@emotion/cache/') || 
-                  id.includes('node_modules/@emotion/utils/') || 
-                  id.includes('node_modules/@emotion/serialize/')) {
-                return 'emotion-utils';
-              }
-              
-              // Split any chunk that's getting too large
-              if (id.includes('node_modules/') && id.includes('chunk')) {
-                const moduleName = id.split('node_modules/')[1]?.split('/')[0];
-                if (moduleName) {
-                  return `vendor-${moduleName}`;
-                }
-              }
-            },
-          },
-          treeshake: {
-            moduleSideEffects: false,
-            propertyReadSideEffects: false,
-            tryCatchDeoptimization: false,
-            unknownGlobalSideEffects: false,
-            preset: 'smallest',
-            annotations: true,
-            manualPureFunctions: [
-              'console.log',
-              'console.warn',
-              'console.error',
-              'console.info',
-              'console.debug'
-            ]
-          },
-          minifyInternalExports: true,
-          external: (id) => {
-            // Mark certain modules as external to reduce bundle size
-            if (id.includes('node_modules') && (
-              id.includes('lodash') ||
-              id.includes('moment') ||
-              id.includes('date-fns/locale') ||
-              id.includes('@mui/icons-material')
-            )) {
-              return false; // Keep these bundled but tree-shake aggressively
-            }
-            return false;
-          },
-
-        },
-        terserOptions: {
-          compress: {
-            drop_console: true,
-            drop_debugger: true,
-            dead_code: true,
-            unused: true,
-            conditionals: true,
-            comparisons: true,
-            evaluate: true,
-            booleans: true,
-            if_return: true,
-            join_vars: true,
-            reduce_vars: true,
-            collapse_vars: true,
-            inline: 3,
-            // More aggressive compression
-            passes: 4,
-            keep_fargs: false,
-            pure_getters: true,
-            side_effects: false,
-            // More aggressive unused code removal
-            global_defs: {
-              'process.env.NODE_ENV': '"production"',
-              'typeof window': '"object"',
-              'typeof document': '"object"',
-              'process.env.DEBUG': 'false',
-              '__DEV__': 'false'
-            },
-            // Remove more unused code
-            sequences: true,
-            properties: true,
-            unsafe: false,
-            unsafe_comps: false,
-            unsafe_Function: false,
-            unsafe_math: true,
-            unsafe_symbols: false,
-            unsafe_methods: false,
-            unsafe_proto: false,
-            unsafe_regexp: false,
-            unsafe_undefined: false,
-            switches: true,
-            negate_iife: true,
-            merge_vars: true,
-            hoist_funs: true,
-            hoist_vars: false,
-            hoist_props: true,
-            top_retain: null,
-            keep_infinity: false,
-            // Additional aggressive optimizations
-            pure_funcs: [
-              'console.log',
-              'console.info',
-              'console.warn',
-              'console.error',
-              'console.trace',
-              'console.debug',
-              'console.dir',
-              'console.table',
-              'console.time',
-              'console.timeEnd',
-              'console.group',
-              'console.groupEnd'
-            ]
-          },
-          mangle: {
-            toplevel: true,
-            properties: {
-              regex: /^_/,
-              reserved: ['__esModule', 'default', 'React', 'ReactDOM']
-            }
-          },
-          keep_classnames: false,
-          keep_fnames: false,
-          format: {
-            comments: false,
-            ascii_only: true,
-            beautify: false,
-            braces: false,
-            semicolons: false
-          }
-        }
-      },
-      
-      plugins: [
-        {
-          name: 'unused-code-elimination',
-          generateBundle(options, bundle) {
-            // Remove unused exports and imports
-            Object.keys(bundle).forEach(fileName => {
-              const chunk = bundle[fileName];
-              if (chunk.type === 'chunk') {
-                // Remove unused imports and exports
-                chunk.code = chunk.code
-                  .replace(/import\s+[^;]+from\s+['"][^'"]*['"];?\s*\n?/g, (match) => {
-                    // Keep only essential imports
-                    if (match.includes('react') || match.includes('react-dom') || match.includes('react-router')) {
-                      return match;
-                    }
-                    return '';
-                  })
-                  .replace(/export\s*\{[^}]*\}\s*from\s*['"][^'"]*['"];?\s*\n?/g, '')
-                  .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
-                  .replace(/\/\/.*$/gm, '') // Remove single line comments
-                  .replace(/\n\s*\n/g, '\n'); // Remove empty lines
-              }
-            });
-          }
-        },
-        {
-          name: 'dynamic-imports',
-          async generateBundle(_, bundle) {
-            const dynamicImports = {
-              'components': [
-                'ImageFallback',
-                'SkeletonGrid',
-                'PreloadImages',
-                'PriceConverter',
-                'ErrorBoundary'
-              ],
-              'utils': [
-                'locationUtils',
-                'useTranslation'
-              ]
-            };
-
-            for (const file in bundle) {
-              if (bundle[file].type === 'asset') {
-                const fileName = bundle[file].fileName;
-                if (fileName.endsWith('.png') || fileName.endsWith('.jpg')) {
-                  // Add image optimization logic here
-                } else if (fileName.endsWith('.woff2') || fileName.endsWith('.woff')) {
-                  // Add font optimization logic here
-                }
-              }
-            }
-          }
-        }
-      ],
-      
-      define: {
-        'process.env.NODE_ENV': JSON.stringify('production'),
-        'global': 'window'
-      },
-      
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, './src')
-        }
-      },
-      
-      output: {
-        compact: true,
-
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react-router-dom') || id.includes('react-router')) {
-              return 'router';
-            }
-            if (id.includes('react-dom') || id.includes('react')) {
-              return 'react';
-            }
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'mui';
-            }
-            if (id.includes('framer-motion')) {
-              return 'motion';
-            }
-            // All other vendor libraries
-            return 'vendor';
-          }
-        }, 
-        chunkFileNames: (chunkInfo) => {
-          const name = chunkInfo.name.toString();
-          if (name.includes('vendor')) return 'vendor.[hash].js';
-          return '[name]-[hash].js';
-        },
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) return 'css/[name]-[hash][extname]';
-          return 'assets/[name]-[hash][extname]';
-        },
-      },
-      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-        const relativePath = path.relative(
-          process.cwd(),
-          relativeSourcePath,
-        );
-        return `/${relativePath}`;
-      },
     },
 
     css: {
       postcss: "./postcss.config.cjs",
       devSourcemap: mode !== "production",
       modules: {
-        localsConvention: "camelCaseOnly",
-        generateScopedName:
-          mode === "production"
-            ? "[hash:base64:5]"
-            : "[name]__[local]__[hash:base64:5]",
+        generateScopedName: isProduction 
+          ? '[hash:base64:5]' 
+          : '[name]__[local]--[hash:base64:5]'
       },
       preprocessorOptions: {
         scss: {
@@ -613,73 +588,6 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       minify: mode === "production",
-      // Enhanced CSS optimization for mobile
-      lightningcss: {
-        targets: {
-          chrome: 90 * 65536,
-          firefox: 88 * 65536,
-          safari: 15 * 65536,
-          edge: 92 * 65536,
-        },
-        // Enable advanced optimizations
-        minify: true,
-        sourceMap: false,
-        cssModules: {
-          pattern: "[hash]_[local]",
-        },
-      },
-      // Code splitting for CSS
-      codeSplit: true,
-    },
-
-    optimizeDeps: {
-      include: [
-        "react",
-        "react-dom",
-        "react-dom/client",
-        "react-router-dom",
-        "@emotion/react",
-        "@emotion/styled",
-        "@mui/material/Box",
-        "@mui/material/Button",
-        "@mui/material/Container",
-        "@mui/material/styles",
-        "@mui/material/useMediaQuery",
-        "@headlessui/react",
-        "@heroicons/react/24/outline",
-        "@heroicons/react/24/solid",
-        "framer-motion", 
-        "react/jsx-runtime",
-        "react/jsx-dev-runtime",
-        "@mui/system",
-        "socket.io-client",
-        "axios",
-        "react-toastify",
-        "react-i18next",
-        "i18next",
-        "clsx",
-        "tailwind-merge",
-        "react-helmet-async",
-        "react-hook-form",
-        "date-fns",
-        "lucide-react",
-      ],
-      exclude: [
-        "@vercel/analytics", 
-        "@vercel/speed-insights",
-        "fsevents" 
-      ],
-      force: true,
-      esbuildOptions: {
-        target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
-        define: {
-          "process.env.NODE_ENV": JSON.stringify(
-            process.env.NODE_ENV || "development",
-          ),
-        },
-        treeShaking: true,
-        keepNames: true, // Preserve React component names for better debugging
-      },
     },
 
     esbuild: {
