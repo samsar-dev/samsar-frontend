@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-surface-secondary dark:bg-surface-secondary-dark border-t border-border-primary dark:border-border-primary-dark">
+    <footer className="bg-surface-secondary dark:bg-surface-secondary-dark border-t border-border-primary dark:border-border-primary-dark h-full">
       <div className="container mx-auto px-4 py-8">
         {/* SEO Rich Text - Only visible to search engines */}
         <div className="sr-only">

@@ -220,7 +220,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: 'es2020',
+      target: ['es2020', 'chrome87', 'safari14', 'firefox78'],
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: mode !== 'production',
@@ -231,8 +231,34 @@ export default defineConfig(({ mode, command }) => {
           drop_debugger: mode === 'production',
           unsafe_Function: true,
           unsafe_math: true,
+          passes: 2,
+          pure_funcs: ['console.log', 'console.warn'],
+        },
+        mangle: {
+          safari10: true,
+        },
+        format: {
+          comments: false,
         },
       },
+      rollupOptions: {
+        output: {
+          compact: true,
+          manualChunks: undefined, // Let Vite handle chunking automatically for better caching
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]',
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+      assetsInlineLimit: 4096, // Inline smaller assets for mobile
+      reportCompressedSize: false,
+    },
+    
+    // Mobile performance optimizations
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-router-dom'],
+      exclude: ['@headlessui/react', 'framer-motion'],
     },
 
     css: {
@@ -252,7 +278,29 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      target: ['es2020', 'chrome87', 'safari14', 'firefox78'],
+      supported: {
+        'top-level-await': true,
+        'dynamic-import': true,
+      },
     },
+    
+    
+    // Critical CSS extraction for mobile
+    cssCodeSplit: true,
+    
+    // Mobile-first build optimizations
+    rollupOptions: {
+      output: {
+        compact: true,
+        manualChunks: undefined, // Let Vite handle chunking automatically for better caching
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]',
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+    assetsInlineLimit: 4096, // Inline smaller assets for mobile
+    reportCompressedSize: false,
   };
 });
