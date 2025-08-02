@@ -52,16 +52,8 @@ const PopularCategories = () => {
   ];
 
   return (
-    <section className="mt-16 bg-gray-50 dark:bg-gray-900 py-12 w-full">
+    <section className="bg-gray-50 dark:bg-gray-900 w-full">
       <div className="w-full px-0 sm:px-2 md:px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 px-2">
-          <span className="hidden" aria-hidden="true">
-            تصفح الفئات الأكثر طلباً
-          </span>
-          <span>
-            {t("home:popular_categories", "تصفح الفئات الأكثر طلباً")}
-          </span>
-        </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full px-0 sm:px-2">
           {categories.map((category) => (

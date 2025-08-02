@@ -74,8 +74,6 @@ interface HomeHeroProps {
 const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryChange }) => {
   const { t } = useTranslation(['home']);
 
-
-
   return (
     <>
       {/* Ultra-minimal Critical CSS for Mobile LCP - Reduced Size */}

@@ -225,34 +225,72 @@ export default defineConfig(({ mode, command }) => {
       assetsDir: 'assets',
       sourcemap: mode !== 'production',
       minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production',
-          drop_debugger: mode === 'production',
-          unsafe_Function: true,
-          unsafe_math: true,
-          passes: 2,
-          pure_funcs: ['console.log', 'console.warn'],
-        },
-        mangle: {
-          safari10: true,
-        },
-        format: {
-          comments: false,
-        },
-      },
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
           compact: true,
-          manualChunks: undefined, // Let Vite handle chunking automatically for better caching
+          hoistTransitiveImports: false,
+          interop: 'auto',
           entryFileNames: 'assets/[name].[hash].js',
           chunkFileNames: 'assets/[name].[hash].js',
           assetFileNames: 'assets/[name].[hash].[ext]',
         },
+        treeshake: {
+          preset: 'smallest',
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
+        },
       },
-      chunkSizeWarningLimit: 1000,
-      assetsInlineLimit: 4096, // Inline smaller assets for mobile
-      reportCompressedSize: false,
+      terserOptions: {
+        compress: {
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+          pure_funcs: ['console.log', 'console.warn', 'console.error', 'console.info', 'console.debug'],
+          passes: 3,
+          unsafe: true,
+          unsafe_arrows: true,
+          unsafe_comps: true,
+          unsafe_math: true,
+          unsafe_methods: true,
+          unsafe_proto: true,
+          unsafe_regexp: true,
+          unsafe_undefined: true,
+          booleans_as_integers: true,
+          pure_getters: true,
+          keep_fargs: false,
+          keep_fnames: false,
+          hoist_funs: true,
+          hoist_vars: true,
+          reduce_vars: true,
+          reduce_funcs: true,
+          collapse_vars: true,
+          sequences: true,
+          dead_code: true,
+          conditionals: true,
+          comparisons: true,
+          evaluate: true,
+          booleans: true,
+          loops: true,
+          unused: true,
+          toplevel: true,
+          top_retain: [],
+          side_effects: false,
+        },
+        mangle: {
+          safari10: true,
+          toplevel: true,
+          eval: true,
+          module: true,
+        },
+        format: {
+          comments: false,
+          beautify: false,
+          indent_level: 0,
+          max_line_len: 0,
+          preserve_annotations: false,
+        },
+      },
     },
     
     // Mobile performance optimizations
@@ -284,23 +322,5 @@ export default defineConfig(({ mode, command }) => {
         'dynamic-import': true,
       },
     },
-    
-    
-    // Critical CSS extraction for mobile
-    cssCodeSplit: true,
-    
-    // Mobile-first build optimizations
-    rollupOptions: {
-      output: {
-        compact: true,
-        manualChunks: undefined, // Let Vite handle chunking automatically for better caching
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]',
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-    assetsInlineLimit: 4096, // Inline smaller assets for mobile
-    reportCompressedSize: false,
   };
 });
