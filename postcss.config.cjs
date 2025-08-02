@@ -1,19 +1,29 @@
+const isProd = process.env.NODE_ENV === 'production';
+
 module.exports = {
   plugins: [
     require('postcss-import'),
     require('tailwindcss/nesting'),
-    
-    // Use the main Tailwind config
     require('tailwindcss'),
-    
-    // Skip purgecss for now to avoid ES module issues
-    require('autoprefixer')({
-      overrideBrowserslist: [
-        'last 2 Chrome versions',
-        'last 2 Firefox versions',
-        'last 2 Safari versions',
-        'last 2 Edge versions'
-      ]
-    })
+    require('autoprefixer'),
+
+    // Add cssnano only in production for minification
+    ...(isProd
+      ? [
+          require('cssnano')({
+            preset: [
+              'default',
+              {
+                discardComments: { removeAll: true },
+                normalizeWhitespace: true,
+                minifyFontValues: true,
+                minifySelectors: true,
+                reduceIdents: false,
+                zindex: false
+              }
+            ]
+          })
+        ]
+      : [])
   ]
 };
