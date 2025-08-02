@@ -1,11 +1,16 @@
 import type { Config } from "tailwindcss";
 
+// Add Node.js process type
+declare const process: {
+  env: {
+    NODE_ENV: 'development' | 'production' | 'test';
+  };
+};
+
 const config: Config = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./src/components/**/*.{js,ts,jsx,tsx}",
-    "./src/pages/**/*.{js,ts,jsx,tsx}",
     "!./src/**/*.test.{js,ts,jsx,tsx}",
     "!./src/**/*.spec.{js,ts,jsx,tsx}",
   ],
@@ -13,46 +18,26 @@ const config: Config = {
     'rtl',
     'ltr',
     'dark',
+    // Safe-list any dynamic classes that can't be detected statically
+    { pattern: /^bg-/ },
+    { pattern: /^text-/ },
   ],
   darkMode: 'class',
   mode: 'jit',
   corePlugins: {
     preflight: true,
     container: true,
-    // Disable transform utilities that are causing unused CSS
-    transform: false,
-    translate: false,
-    rotate: false,
-    skew: false,
-    scale: false,
-    transformOrigin: false,
-    // Disable other potentially unused utilities
-    backdropBlur: false,
-    backdropBrightness: false,
-    backdropContrast: false,
-    backdropGrayscale: false,
-    backdropHueRotate: false,
-    backdropInvert: false,
-    backdropOpacity: false,
-    backdropSaturate: false,
-    backdropSepia: false,
-    blur: false,
-    brightness: false,
-    contrast: false,
-    dropShadow: false,
-    grayscale: false,
-    hueRotate: false,
-    invert: false,
-    saturate: false,
-    sepia: false,
   },
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+
   theme: {
-    // Optimize breakpoints - remove unused ones
+    // Only include breakpoints actually used in the project
     screens: {
       'sm': '640px',
       'md': '768px',
       'lg': '1024px',
-      'xl': '1280px',
     },
     extend: {
       // Reduce color palette to only what's needed

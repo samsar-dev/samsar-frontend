@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = memo(({ children }) => {
           </div>
         </div>
       </main>
-      <div className="w-full h-[300px] md:h-[280px] lg:h-[260px]">
+      <div className="w-full">
         {!isMessagesPage && <Footer />}
       </div>
     </div>
