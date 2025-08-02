@@ -1,8 +1,6 @@
-import React, { StrictMode } from "react";
+import React, { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
 
 // Minimal critical CSS injection - defer the rest
 const injectMinimalCSS = () => {
@@ -21,17 +19,25 @@ const injectMinimalCSS = () => {
 // Inject only minimal CSS immediately
 injectMinimalCSS();
 
-// Import store synchronously for immediate Redux Provider availability
-import { store } from "./store/store";
+// Lazy load everything else
+let store: any;
+let i18nInitialized = false;
 
-// Import i18n configuration synchronously to ensure it's initialized
-import "./config/i18n";
-
-// Defer CSS optimization to after app loads
-const initializeCSS = () => {
+// Initialize heavy dependencies asynchronously
+const initializeDependencies = async () => {
+  const [storeModule, i18nModule] = await Promise.all([
+    import("./store/store"),
+    import("./config/i18n")
+  ]);
+  
+  store = storeModule.store;
+  i18nInitialized = true;
+  
+  // Defer CSS optimization to after app loads
   if (typeof window !== 'undefined') {
     requestIdleCallback(async () => {
       try {
+        // CSS is now handled by build tools - no manual optimization needed
         await import("@/assets/css/index.css");
       } catch (err) {
         console.warn('CSS optimization failed:', err);
@@ -40,7 +46,12 @@ const initializeCSS = () => {
   }
 };
 
-// Critical components imported synchronously - no lazy loading for frame
+// Lazy load components without chunk naming for faster loading
+const BrowserRouter = lazy(() =>
+  import('react-router-dom').then(m => ({ default: m.BrowserRouter }))
+);
+
+const App = lazy(() => import('./App'));
 
 // Defer performance monitoring to after app loads
 const initializePerformanceMonitoring = () => {
@@ -56,7 +67,29 @@ const initializePerformanceMonitoring = () => {
 
  
 
-// Loading fallback no longer needed since critical components load synchronously
+// Minimal loading fallback
+const LoadingFallback = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff'
+  }}>
+    <div style={{
+      width: '32px',
+      height: '32px',
+      border: '2px solid #e5e7eb',
+      borderTop: '2px solid #2563eb',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }} />
+  </div>
+);
 
 // Fast app initialization
 const initializeApp = async () => {
@@ -65,23 +98,25 @@ const initializeApp = async () => {
     throw new Error("Failed to find the root element");
   }
 
+  // Ensure dependencies are loaded
+  if (!store || !i18nInitialized) {
+    await initializeDependencies();
+  }
+
   const root = createRoot(container, {
     identifierPrefix: "samsar-",
   });
 
-  // Initialize CSS optimization after app loads
-  initializeCSS();
-
-  // Start app immediately
   root.render(
     <StrictMode>
-      <BrowserRouter>
-        <Provider store={store}>
+      <Provider store={store}>
+        <BrowserRouter>
           <App />
-        </Provider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </Provider>
     </StrictMode>
-  );  
+  );
+  
   // Initialize performance monitoring after render
   initializePerformanceMonitoring();
 };

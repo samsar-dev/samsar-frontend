@@ -11,7 +11,6 @@ import React, {
 } from "react";
 import type { FiltersState } from "@/components/filters/useListingFilters";
 import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
 import { Helmet } from "react-helmet-async";
 
 // Icons - Imported directly since they're small
@@ -70,10 +69,10 @@ import { FaCar, FaHome } from 'react-icons/fa';
 interface HomeHeroProps {
   selectedCategory: ListingCategory;
   onCategoryChange: (category: ListingCategory) => void;
-  t: any; // Using any for now to avoid type issues
 }
 
-const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryChange, t }) => {
+const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryChange }) => {
+  const { t } = useTranslation(['home']);
 
   return (
     <>
@@ -164,13 +163,7 @@ interface ListingsState {
 }
 
 const Home: React.FC = () => {
-  // Single useTranslation call at the top level
-  const { t, i18n } = useTranslation([
-    "common",
-    "filters",
-    "home",
-    "locations",
-  ]);
+  // ... existing code ...
 
   // Memoized ListingFilters with proper typing
   const LazyListingFilters = useMemo(() => 
@@ -179,9 +172,16 @@ const Home: React.FC = () => {
         <ListingFilters {...props} />
       </Suspense>
     )),
-    [t]
+    []
   );
   LazyListingFilters.displayName = 'LazyListingFilters';
+
+  const { t, i18n } = useTranslation([
+    "common",
+    "filters",
+    "home",
+    "locations",
+  ]);
 
   // Get city and area translations for filtering
   const cities = t("locations:cities", {
@@ -634,11 +634,7 @@ const Home: React.FC = () => {
       </Helmet>
 
       {/* Inline HomeHero component - no suspense for critical hero */}
-      <HomeHero 
-        selectedCategory={selectedCategory} 
-        onCategoryChange={setSelectedCategory} 
-        t={t}
-      />
+      <HomeHero selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
 
       {/* Main Content */}
       <main className="w-full py-8 sm:py-12">

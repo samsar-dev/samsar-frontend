@@ -31,26 +31,23 @@ interface IconProps {
 }
 
 const Navbar: React.FC = () => {
-  // All hooks must be called unconditionally at the top level
+  // --- Added for category search ---
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
+  // --- END ---
+
   const { t, i18n } = useTranslation();
+
+  // Detect RTL based on language
+  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-"));
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { theme, toggleTheme } = useUI();
-  
-  // State hooks - always called in the same order
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showListingsMenu, setShowListingsMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  
-  // Computed values using useMemo to ensure consistent order
-  const isRTL = useMemo(() => 
-    i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-")), 
-    [i18n.language]
-  );
 
   // Memoize click outside handler - close all dropdowns when clicking outside or on other icons
   const handleClickOutside = useCallback((event: MouseEvent) => {

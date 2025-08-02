@@ -12,7 +12,6 @@ const SocialIcon = ({ name, url }: { name: string; url: string }) => (
 );
 
 const Footer: React.FC = () => {
-  // Hook must be called unconditionally at the top level
   const { t } = useTranslation("footer");
   const currentYear = new Date().getFullYear();
 
