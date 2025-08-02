@@ -24,14 +24,11 @@ injectMinimalCSS();
 // Import store synchronously for immediate Redux Provider availability
 import { store } from "./store/store";
 
-// Initialize i18n asynchronously (non-critical)
-let i18nInitialized = false;
+// Import i18n configuration synchronously to ensure it's initialized
+import "./config/i18n";
 
-const initializeI18n = async () => {
-  await import("./config/i18n");
-  i18nInitialized = true;
-  
-  // Defer CSS optimization to after app loads
+// Defer CSS optimization to after app loads
+const initializeCSS = () => {
   if (typeof window !== 'undefined') {
     requestIdleCallback(async () => {
       try {
@@ -68,25 +65,23 @@ const initializeApp = async () => {
     throw new Error("Failed to find the root element");
   }
 
-  // Initialize i18n asynchronously (non-blocking)
-  if (!i18nInitialized) {
-    initializeI18n(); // Don't await - let it run in background
-  }
-
   const root = createRoot(container, {
     identifierPrefix: "samsar-",
   });
 
+  // Initialize CSS optimization after app loads
+  initializeCSS();
+
+  // Start app immediately
   root.render(
     <StrictMode>
-      <Provider store={store}>
-        <BrowserRouter>
+      <BrowserRouter>
+        <Provider store={store}>
           <App />
-        </BrowserRouter>
-      </Provider>
+        </Provider>
+      </BrowserRouter>
     </StrictMode>
-  );
-  
+  );  
   // Initialize performance monitoring after render
   initializePerformanceMonitoring();
 };
