@@ -3,11 +3,11 @@ import NotificationSettings from "@/components/settings/NotificationSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 
 const SecuritySettingsComponent = lazy(() => import("@/components/settings/SecuritySettings"));
-const LanguageSettingsComponent = lazy(() => import("@/components/settings/LanguageSettings"));
+
 const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
 const AccountSettings = lazy(() => import("@/components/settings/AccountSettings"));
 import { useSettings } from "@/contexts/SettingsContext";
-import { Tab } from "@headlessui/react";
+import * as Tabs from "@radix-ui/react-tabs";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,32 +19,8 @@ import type {
   PreferenceSettings as PreferenceSettingsType,
   Settings as AppSettings,
 } from "@/types/settings";
-import type { PrivacySettings as PrivacySettingsType } from "@/types/common";
 
-interface ToggleProps {
-  checked?: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-  disabled?: boolean;
-}
 
-const Toggle: React.FC<ToggleProps> = ({
-  checked,
-  onChange,
-  label,
-  disabled,
-}) => (
-  <label className="flex items-center space-x-3 cursor-pointer">
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-      disabled={disabled}
-      className="form-checkbox h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary disabled:opacity-50"
-    />
-    <span className="text-sm font-medium text-gray-700">{label}</span>
-  </label>
-);
 
 interface SettingsState {
   privacy: {
@@ -187,34 +163,36 @@ function Settings() {
     setIsSaving(true);
     setSaveStatus({ type: null, message: "" });
 
-    let settingsToSave: AppSettings;
     try {
       // Create a complete settings object with all required fields
-      settingsToSave = {
+      const settingsToSave: AppSettings = {
         ...localSettings,
         notifications: {
           listingUpdates: localSettings.notifications?.listingUpdates ?? false,
           newInboxMessages: localSettings.notifications?.newInboxMessages ?? false,
           loginNotifications: localSettings.notifications?.loginNotifications ?? true,
-          ...localSettings.notifications,
+          newsletterSubscribed: localSettings.notifications?.newsletterSubscribed ?? false,
+          email: localSettings.notifications?.email ?? true,
+          push: localSettings.notifications?.push ?? true,
+          message: localSettings.notifications?.message ?? true,
+          generalUpdates: localSettings.notifications?.generalUpdates ?? true,
+          orderUpdates: localSettings.notifications?.orderUpdates ?? true,
+          enabledTypes: localSettings.notifications?.enabledTypes || ["message", "listing"],
         },
         privacy: {
-          showEmail: localSettings.privacy?.showEmail ?? true,
-          showPhone: localSettings.privacy?.showPhone ?? true,
+          profileVisibility: localSettings.privacy?.profileVisibility || "public",
           showOnlineStatus: localSettings.privacy?.showOnlineStatus ?? true,
+          showPhone: localSettings.privacy?.showPhone ?? true,
+          showEmail: localSettings.privacy?.showEmail ?? true,
           allowMessaging: localSettings.privacy?.allowMessaging ?? true,
-          profileVisibility: localSettings.privacy?.profileVisibility ?? "public",
         },
         preferences: {
           language: localSettings.preferences?.language || LanguageCode.AR,
           theme: localSettings.preferences?.theme || ThemeType.LIGHT,
-          timezone:
-            localSettings.preferences?.timezone ||
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: localSettings.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         },
         security: {
-          loginNotifications:
-            localSettings.security?.loginNotifications ?? true,
+          loginNotifications: localSettings.security?.loginNotifications ?? true,
           securityQuestions: localSettings.security?.securityQuestions ?? false,
           twoFactorEnabled: localSettings.security?.twoFactorEnabled ?? false,
           autoLogoutTime: localSettings.security?.autoLogoutTime ?? 30,
@@ -245,7 +223,6 @@ function Settings() {
       setSaveStatus({ type: "success", message: t("saveSuccess") });
     } catch (error) {
       console.error("Failed to save settings:", error);
-      console.error("Settings being sent:", JSON.stringify(settingsToSave, null, 2));
       const errorMessage = error instanceof Error ? error.message : "Save failed";
       setSaveStatus({ type: "error", message: `${t("saveError")}: ${errorMessage}` });
     } finally {
@@ -288,6 +265,15 @@ function Settings() {
     setLocalSettings(newSettings);
   };
 
+  const handleNotificationsUpdate = (notifications: any) => {
+    if (!localSettings) return;
+    const newSettings: AppSettings = {
+      ...localSettings,
+      notifications,
+    };
+    setLocalSettings(newSettings);
+  };
+
   const handleSecurityUpdate = (securitySettings: any) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -298,15 +284,7 @@ function Settings() {
     }));
   };
 
-  const handleLanguageUpdate = (languageSettings: any) => {
-    const newSettings = {
-      preferences: {
-        ...localSettings.preferences,
-        language: languageSettings.interfaceLanguage || localSettings.preferences?.language || LanguageCode.EN,
-      },
-    };
-    setLocalSettings(prev => ({ ...prev, ...newSettings }));
-  };
+
 
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
     console.log('Settings: Privacy updates received', updates);
@@ -330,11 +308,11 @@ function Settings() {
 
   // Define the tabs for the settings page
   const tabs = [
-    { name: t("preferences"), icon: "⚙️" },
-    { name: t("notifications.title"), icon: "🔔" },
-    { name: t("security.title"), icon: "🔐" },
-    { name: t("account.title"), icon: "👤" },
-    { name: t("account.deleteAccount"), icon: "🗑️" },
+    { name: t("preferences"), icon: "⚙️", id: "preferences" },
+    { name: t("notifications.title"), icon: "🔔", id: "notifications" },
+    { name: t("security.title"), icon: "🔐", id: "security" },
+    { name: t("account.title"), icon: "👤", id: "account" },
+    { name: t("account.deleteAccount"), icon: "🗑️", id: "delete" },
   ];
 
   return (
@@ -358,25 +336,19 @@ function Settings() {
           </div>
 
           <div className="bg-white shadow rounded-lg overflow-hidden dark:bg-gray-800">
-            <Tab.Group>
+            <Tabs.Root defaultValue="preferences" className="w-full">
               <div className="relative">
                 <div className="relative">
-                  {/* Left scroll indicator - removed as per user request */}
                   <div
                     ref={tabListRef}
                     className="overflow-x-auto pb-1"
                   >
-                    <Tab.List className="flex space-x-1 w-max min-w-full border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-2">
+                    <Tabs.List className="flex space-x-1 w-max min-w-full border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-2">
                       {tabs.map((tab) => (
-                        <Tab
+                        <Tabs.Trigger
                           key={tab.name}
-                          className={({ selected }) =>
-                            `flex-shrink-0 py-3 px-4 text-center focus:outline-none transition-colors duration-200 ${
-                              selected
-                                ? "border-b-2 border-indigo-500 font-medium text-indigo-600 dark:text-white"
-                                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                            }`
-                          }
+                          value={tab.id}
+                          className="flex-shrink-0 py-3 px-4 text-center focus:outline-none transition-colors duration-200 data-[state=active]:border-b-2 data-[state=active]:border-indigo-500 data-[state=active]:font-medium data-[state=active]:text-indigo-600 dark:data-[state=active]:text-white text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
                         >
                           <div className="flex flex-col items-center justify-center space-y-1 min-w-[70px]">
                             <span className="text-xl">{tab.icon}</span>
@@ -384,19 +356,16 @@ function Settings() {
                               {tab.name}
                             </span>
                           </div>
-                        </Tab>
+                        </Tabs.Trigger>
                       ))}
-                    </Tab.List>
+                    </Tabs.List>
                   </div>
-                  {/* Right scroll indicator - removed as per user request */}
                 </div>
-                {/* Fade effect on the right side for mobile */}
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 pointer-events-none"></div>
               </div>
 
-              <Tab.Panels>
+              <div className="mt-2">
                 {/* Preferences Panel */}
-                <Tab.Panel className="p-6">
+                <Tabs.Content value="preferences" className="p-6">
                   <PreferenceSettings
                     settings={
                       localSettings?.preferences || {
@@ -430,10 +399,10 @@ function Settings() {
                       {isSaving ? t("saving") : t("save")}
                     </button>
                   </div>
-                </Tab.Panel>
+                </Tabs.Content>
 
                 {/* Notifications Panel */}
-                <Tab.Panel className="p-6">
+                <Tabs.Content value="notifications" className="p-6">
                   <NotificationSettings
                     notifications={
                       localSettings?.notifications || {
@@ -449,10 +418,7 @@ function Settings() {
                         enabledTypes: ["message", "listing"],
                       }
                     }
-                    onUpdate={(notifications) => {
-                      const newSettings = { ...localSettings, notifications };
-                      setLocalSettings(newSettings);
-                    }}
+                    onUpdate={handleNotificationsUpdate}
                   />
                   <div className="mt-6 flex justify-between items-center">
                     {saveStatus.type && (
@@ -475,10 +441,10 @@ function Settings() {
                       {isSaving ? t("saving") : t("save")}
                     </button>
                   </div>
-                </Tab.Panel>
+                </Tabs.Content>
 
                 {/* Security Panel */}
-                <Tab.Panel className="p-6">
+                <Tabs.Content value="security" className="p-6">
                   <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
                     <SecuritySettingsComponent
                       settings={settings?.security || {}}
@@ -507,10 +473,10 @@ function Settings() {
                       {isSaving ? t("saving") : t("save")}
                     </button>
                   </div>
-                </Tab.Panel>
+                </Tabs.Content>
 
                 {/* Account Panel */}
-                <Tab.Panel className="p-6">
+                <Tabs.Content value="account" className="p-6">
                   <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
                     <AccountSettings
                       settings={{
@@ -545,17 +511,16 @@ function Settings() {
                       {isSaving ? t("saving") : t("save")}
                     </button>
                   </div>
-                </Tab.Panel>
+                </Tabs.Content>
 
                 {/* Delete Account Panel */}
-                <Tab.Panel className="p-6">
+                <Tabs.Content value="delete" className="p-6">
                   <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
                     <DeleteAccount />
                   </Suspense>
-                  
-                </Tab.Panel>
-              </Tab.Panels>
-            </Tab.Group>
+                </Tabs.Content>
+              </div>
+            </Tabs.Root>
           </div>
         </div>
       </div>

@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { lazy, Suspense } from "react";
 
-// Lazy load framer-motion components
-const MotionSpan = lazy(() => 
-  import('framer-motion').then(mod => ({ default: mod.motion.span }))
-);
-const AnimatePresence = lazy(() => 
-  import('framer-motion').then(mod => ({ default: mod.AnimatePresence }))
-);
 
 export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat("en-US", {
@@ -61,46 +53,12 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
       onMouseLeave={handleMouseLeave}
       title={isHovered ? t("common.showInUSD") : t("common.showInSYP")}
     >
-      <Suspense fallback={
-        <span className={isHovered ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"}>
-          {isHovered ? formattedSYP : formattedUSD}
-          {showMonthly && (
-            <span className="text-xs ml-1">{t("common.monthly")}</span>
-          )}
-        </span>
-      }>
-        <AnimatePresence mode="wait">
-          {isHovered ? (
-            <MotionSpan
-              key="syp"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="text-blue-700 dark:text-blue-300"
-            >
-              {formattedSYP}
-              {showMonthly && (
-                <span className="text-xs ml-1">{t("common.monthly")}</span>
-              )}
-            </MotionSpan>
-          ) : (
-            <MotionSpan
-              key="usd"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="text-gray-900 dark:text-gray-100"
-            >
-              {formattedUSD}
-              {showMonthly && (
-                <span className="text-xs ml-1">{t("common.monthly")}</span>
-              )}
-            </MotionSpan>
-          )}
-        </AnimatePresence>
-      </Suspense>
+      <span className={`transition-opacity duration-200 ${isHovered ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"}`}>
+        {isHovered ? formattedSYP : formattedUSD}
+        {showMonthly && (
+          <span className="text-xs ml-1">{t("common.monthly")}</span>
+        )}
+      </span>
     </div>
   );
 };

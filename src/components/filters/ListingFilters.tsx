@@ -1,6 +1,12 @@
-import React, { useEffect, useState, useCallback, useMemo, memo } from "react";
-import { FaCar, FaMotorcycle, FaTruck, FaCaravan, FaBus } from "react-icons/fa";
-import { MdSend } from "react-icons/md";
+import * as React from 'react';
+import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import type { FC } from 'react';
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
+import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
+import { FaCaravan } from "@react-icons/all-files/fa/FaCaravan";
+import { FaBus } from "@react-icons/all-files/fa/FaBus";
+import { MdSend } from "@react-icons/all-files/md/MdSend";
 import { useTranslation } from "react-i18next";
 
 import { ListingAction, VehicleType } from "@/types/enums";
@@ -41,7 +47,7 @@ interface ListingFiltersProps {
   onRadiusChange?: (radius: number | null) => void;
 }
 
-const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
+const ListingFiltersComponent: FC<ListingFiltersProps> = ({
   selectedAction,
   setSelectedAction,
   selectedMake,
@@ -72,47 +78,47 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
       {
         id: VehicleType.CAR,
         name: tEnums("vehicleType.CAR"),
-        icon: FaCar,
+        icon: <FaCar className="w-6 h-6" />,
       },
       {
         id: VehicleType.MOTORCYCLE,
         name: tEnums("vehicleType.MOTORCYCLE"),
-        icon: FaMotorcycle,
+        icon: <FaMotorcycle className="w-6 h-6" />,
       },
       {
         id: VehicleType.TRUCK,
         name: tEnums("vehicleType.TRUCK"),
-        icon: FaTruck,
+        icon: <FaTruck className="w-6 h-6" />,
       },
       {
         id: VehicleType.VAN,
         name: tEnums("vehicleType.VAN"),
-        icon: FaTruck,
+        icon: <FaTruck className="w-6 h-6" />,
       },
       {
         id: VehicleType.RV,
         name: tEnums("vehicleType.RV"),
-        icon: FaCaravan,
+        icon: <FaCaravan className="w-6 h-6" />,
       },
       {
         id: VehicleType.BUS,
         name: tEnums("vehicleType.BUS"),
-        icon: FaBus,
+        icon: <FaBus className="w-6 h-6" />,
       },
       {
         id: VehicleType.CONSTRUCTION,
         name: tEnums("vehicleType.CONSTRUCTION"),
-        icon: FaTruck,
+        icon: <FaTruck className="w-6 h-6" />,
       },
       {
         id: VehicleType.TRACTOR,
         name: tEnums("vehicleType.TRACTOR"),
-        icon: FaTruck,
+        icon: <FaTruck className="w-6 h-6" />,
       },
       {
         id: VehicleType.OTHER,
         name: tEnums("vehicleType.OTHER"),
-        icon: FaTruck,
+        icon: <FaTruck className="w-6 h-6" />,
       },
     ];
   }, []);
@@ -181,7 +187,7 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
       setLocationData(location);
       setSelectedLocation(location.address);
       onLocationChange?.({ address: location.address });
-      onRadiusChange?.(location.radius);
+      onRadiusChange?.(location.radius ?? null);
     },
     [onLocationChange, onRadiusChange],
   );
@@ -222,30 +228,30 @@ const ListingFiltersComponent: React.FC<ListingFiltersProps> = ({
         <div className="flex flex-col space-y-3">
           <h2 className="sr-only">{t("vehicle_type")}</h2>
           <div className="grid grid-cols-3 gap-2">
-            {vehicleTypes.map((type) => {
-              const IconComponent = type.icon;
-              return (
-                <button
-                  key={type.id}
-                  type="button"
-                  onClick={() =>
-                    setSelectedSubcategory(
-                      type.id === selectedSubcategory ? null : type.id,
-                    )
-                  }
-                  className={`p-3 rounded-lg flex flex-col items-center justify-center min-h-[5.5rem] min-w-[5.5rem] transition-colors ${
-                    type.id === selectedSubcategory
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-2 ring-blue-500"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  }`}
-                  aria-pressed={type.id === selectedSubcategory}
-                  aria-label={type.name}
-                >
-                  <IconComponent className="w-6 h-6" aria-hidden="true" />
-                  <span className="text-xs mt-1.5 font-medium">{type.name}</span>
-                </button>
-              );
-            })}
+            {vehicleTypes.map((type) => (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() =>
+                  setSelectedSubcategory(
+                    type.id === selectedSubcategory ? null : type.id,
+                  )
+                }
+                className={`p-3 rounded-lg flex flex-col items-center justify-center min-h-[5.5rem] min-w-[5.5rem] transition-colors ${
+                  type.id === selectedSubcategory
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-2 ring-blue-500"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                }`}
+                aria-pressed={type.id === selectedSubcategory}
+                aria-label={type.name}
+              >
+                {React.cloneElement(type.icon, {
+                  "aria-hidden": "true",
+                  className: "w-6 h-6",
+                })}
+                <span className="text-xs mt-1.5 font-medium">{type.name}</span>
+              </button>
+            ))}
           </div>
         </div>
 

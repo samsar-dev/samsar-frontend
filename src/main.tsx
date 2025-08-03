@@ -1,4 +1,4 @@
-import React, { StrictMode, Suspense, lazy } from "react";
+import { StrictMode, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 
@@ -62,10 +62,6 @@ const initializePerformanceMonitoring = () => {
     });
   }
 };
-
-       
-
- 
 
 // Minimal loading fallback
 const LoadingFallback = () => (

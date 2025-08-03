@@ -1,7 +1,4 @@
-/**
- * Lightweight image utilities to replace heavy dependencies
- * Replaces: browser-image-compression, react-image-crop
- */
+ 
 
 export interface ImageDimensions {
   width: number;
@@ -302,7 +299,7 @@ export const generateThumbnail = (
         // Calculate dimensions for square thumbnail
         const { width, height } = img;
         const minDimension = Math.min(width, height);
-        const scale = size / minDimension;
+       
         
         canvas.width = size;
         canvas.height = size;

@@ -1,22 +1,6 @@
-import Container from "@mui/material/Container";
 import { Typography } from "@/utils/typography";
-import Box from "@mui/material/Box";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import React, { Suspense, lazy } from 'react';
-const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
-import Gavel from "@mui/icons-material/Gavel";
-import Description from "@mui/icons-material/Description";
-import AccountBalance from "@mui/icons-material/AccountBalance";
-import Security from "@mui/icons-material/Security";
-import Policy from "@mui/icons-material/Policy";
-import ContactSupport from "@mui/icons-material/ContactSupport";
-import Star from "@mui/icons-material/Star";
-import InfoIcon from "@mui/icons-material/Info";
+import { FileText, Shield, Scale, Info, Star, Mail, Building } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
@@ -37,7 +21,7 @@ const TermsOfService = () => {
   const sections = [
     {
       title: "1. Introduction",
-      icon: <Description sx={{ color: "primary.main", mr: 2 }} />,
+      icon: <FileText className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -55,62 +39,20 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "2. User Accounts",
-      icon: <AccountBalance sx={{ color: "primary.main", mr: 2 }} />,
-      content: (
-        <>
-          <Typography component="p" paragraph>
-            To access certain features of the Platform, you may be required to
-            create an account. When creating an account, you agree to:
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Provide accurate, current, and complete information" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Maintain the security of your account credentials" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Be responsible for all activities that occur under your account" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Immediately notify us of any unauthorized use of your account" />
-            </ListItem>
-          </List>
-        </>
-      ),
-    },
-    {
-      title: "3. Listings and Transactions",
-      icon: <Gavel sx={{ color: "primary.main", mr: 2 }} />,
+      title: "2. User Obligations",
+      icon: <Scale className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
             Our Platform allows users to list, buy, and sell vehicles and real
             estate properties. When using these features, you agree to:
           </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Provide accurate and complete information in all listings" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Comply with all applicable laws and regulations" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Not engage in any fraudulent, misleading, or deceptive practices" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Not post any content that is illegal, offensive, or infringes on others' rights" />
-            </ListItem>
-          </List>
+          <ul className="list-disc pl-4">
+            <li>Provide accurate and complete information in all listings</li>
+            <li>Comply with all applicable laws and regulations</li>
+            <li>Not engage in any fraudulent, misleading, or deceptive practices</li>
+            <li>Not post any content that is illegal, offensive, or infringes on others' rights</li>
+          </ul>
           <Typography component="h4" sx={{ fontWeight: 600 }}>
             We reserve the right to remove any listings that violate these Terms
             or that we determine, in our sole discretion, to be inappropriate.
@@ -119,8 +61,26 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "4. Fees and Payments",
-      icon: <Policy sx={{ color: "primary.main", mr: 2 }} />,
+      title: "3. Account Registration",
+      icon: <Building className="text-primary mr-2" />,
+      content: (
+        <>
+          <Typography component="p" paragraph>
+            To access certain features of the Platform, you may be required to
+            create an account. When creating an account, you agree to:
+          </Typography>
+          <ul className="list-disc pl-4">
+            <li>Provide accurate, current, and complete information</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Be responsible for all activities that occur under your account</li>
+            <li>Immediately notify us of any unauthorized use of your account</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      title: "4. Content Guidelines",
+      icon: <Info className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -138,11 +98,11 @@ const TermsOfService = () => {
     },
     {
       title: "5. Featured Offers Service (Coming Soon)",
-      icon: <Star sx={{ color: "primary.main", mr: 2 }} />,
+      icon: <Star className="text-primary mr-2" />,
     },
     {
-      title: "5. Privacy and Security",
-      icon: <Security sx={{ color: "primary.main", mr: 2 }} />,
+      title: "5. Privacy & Security",
+      icon: <Shield className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -162,7 +122,7 @@ const TermsOfService = () => {
     },
     {
       title: "6. Intellectual Property",
-      icon: <Description sx={{ color: "primary.main", mr: 2 }} />,
+      icon: <FileText className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -180,26 +140,17 @@ const TermsOfService = () => {
             of, publicly display, publicly perform, republish, download, store,
             or transmit any of the material on our Platform, except as follows:
           </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="Your computer may temporarily store copies of such materials in RAM incidental to your accessing and viewing those materials." />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="You may store files that are automatically cached by your Web browser for display enhancement purposes." />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon sx={{ minWidth: 36 }}>•</ListItemIcon>
-              <ListItemText primary="You may print or download one copy of a reasonable number of pages of the Platform for your own personal, non-commercial use." />
-            </ListItem>
-          </List>
+          <ul className="list-disc pl-4">
+            <li>Your computer may temporarily store copies of such materials in RAM incidental to your accessing and viewing those materials.</li>
+            <li>You may store files that are automatically cached by your Web browser for display enhancement purposes.</li>
+            <li>You may print or download one copy of a reasonable number of pages of the Platform for your own personal, non-commercial use.</li>
+          </ul>
         </>
       ),
     },
     {
       title: "7. Limitation of Liability",
-      icon: <Security sx={{ color: "primary.main", mr: 2 }} />,
+      icon: <Star className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -220,23 +171,8 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "8. Changes to These Terms",
-      icon: <ContactSupport sx={{ color: "primary.main", mr: 2 }} />,
-      content: (
-        <>
-          <Typography component="p" paragraph>
-            We may update these Terms from time to time. If we make material
-            changes, we will notify you by email or by posting a notice on the
-            Platform prior to the effective date of the changes. Your continued
-            use of the Platform following the posting of revised Terms means
-            that you accept and agree to the changes.
-          </Typography>
-        </>
-      ),
-    },
-    {
-      title: "9. Contact Us",
-      icon: <ContactSupport sx={{ color: "primary.main", mr: 2 }} />,
+      title: "8. Contact Information",
+      icon: <Mail className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
@@ -244,9 +180,9 @@ const TermsOfService = () => {
           </Typography>
           <Typography component="p" paragraph>
             Email:{" "}
-            <Link href="mailto:contact@samsar.app" color="primary">
+            <a href="mailto:contact@samsar.app" className="text-primary">
               contact@samsar.app
-            </Link>
+            </a>
             <br />
             Phone: +1 (555) 987-6543
             <br />
@@ -261,66 +197,44 @@ const TermsOfService = () => {
   ];
 
   return (
-    <Box sx={{ py: 8, bgcolor: "background.default" }}>
+    <div className="py-8 bg-background">
       <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
       />
-      <Container maxWidth="lg">
-        <Suspense fallback={null}>
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Typography variant="h2" component="h1" align="center" sx={{ fontWeight: 700, mb: 3 }}>
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="animate-fadeInUp">
+          <Typography variant="h2" component="h1" align="center" className="font-bold mb-3">
             Terms of Service
           </Typography>
-          <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 8, maxWidth: 800, mx: "auto" }}>
+          <Typography variant="h6" color="text.secondary" align="center" className="mb-8 max-w-800 mx-auto">
             Please read these Terms of Service carefully before using our
             Platform.
           </Typography>
-        </MotionDiv>
-        </Suspense>
+        </div>
 
-        <Box sx={{ maxWidth: 1000, mx: "auto" }}>
+        <div className="max-w-5xl mx-auto">
           {sections.map((section, index) => (
-            <Suspense fallback={null}>
-            <MotionDiv
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 3, md: 5 },
-                  mb: 4,
-                  borderRadius: 3,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  bgcolor: "background.paper",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <div className="animate-fadeInUp" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card className="p-6 md:p-8 mb-4 border rounded-lg">
+                <div className="flex items-center mb-3">
                   {section.icon}
                   <Typography
                     variant="h4"
                     component="h2"
-                    sx={{ fontWeight: 600 }}
+                    className="font-bold"
                   >
                     {section.title}
                   </Typography>
-                </Box>
+                </div>
                 {section.content}
-              </Paper>
-            </MotionDiv>
-            </Suspense>
+              </Card>
+            </div>
           ))}
-        </Box>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

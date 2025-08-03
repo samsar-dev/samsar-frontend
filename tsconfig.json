@@ -1,37 +1,41 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "module": "ESNext",
     "moduleResolution": "node",
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "noEmit": true,
+
+    /* Module resolution & interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false,
+
+    /* Base paths for cleaner imports */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "vite/client"],
-    "typeRoots": ["./node_modules/@types"]
+
+    /* Type support */
+    "types": ["vite/client"],
+    "typeRoots": ["./node_modules/@types"],
+
+    /* Performance */
+    "skipLibCheck": true,
+
+    /* Disable strict checks to reduce noise */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": false
   },
+
   "include": ["src", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

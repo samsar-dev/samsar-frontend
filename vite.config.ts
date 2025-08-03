@@ -63,11 +63,11 @@ export default defineConfig(({ mode, command }) => {
       Inspect(), // Add Inspect plugin for bundle analysis
       (() => ({
         name: 'print-chunks',
-        generateBundle(options, bundle) {
+        generateBundle(_options: any, bundle: any) {
           console.log('\n\n--- Generated Chunks ---');
           const chunks = Object.values(bundle)
-            .filter((item): item is import('rollup').OutputChunk => (item as any).type === 'chunk')
-            .map(item => ({
+            .filter((item: any) => item.type === 'chunk')
+            .map((item: any) => ({
               name: item.fileName,
               size: `${(item.code.length / 1024).toFixed(2)} kB`
             }))
@@ -81,8 +81,8 @@ export default defineConfig(({ mode, command }) => {
       // Cache headers plugin for Cloudflare
       {
         name: 'cache-headers-plugin',
-        configureServer(server) {
-          server.middlewares.use((req, res, next) => {
+        configureServer(server: any) {
+          server.middlewares.use((req: any, res: any, next: any) => {
             const url = req.url || '';
             
             // Set cache headers for static assets
@@ -107,7 +107,7 @@ export default defineConfig(({ mode, command }) => {
             next();
           });
         },
-        generateBundle(_, bundle) {
+        generateBundle(_: any, bundle: any) {
           // Add cache headers for build output
           Object.keys(bundle).forEach(fileName => {
             const file = bundle[fileName];
@@ -184,7 +184,7 @@ export default defineConfig(({ mode, command }) => {
             proxy.on('error', (err, _req, _res) => {
               console.log('Proxy error:', err);
             });
-            proxy.on('proxyReq', (proxyReq, req, _res) => {
+            proxy.on('proxyReq', (_proxyReq, req, _res) => {
               console.log('Proxying request:', req.method, req.url);
             });
           },
@@ -296,7 +296,7 @@ export default defineConfig(({ mode, command }) => {
     // Mobile performance optimizations
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
-      exclude: ['@headlessui/react', 'framer-motion'],
+      exclude: ['@headlessui/react', ],
     },
 
     css: {

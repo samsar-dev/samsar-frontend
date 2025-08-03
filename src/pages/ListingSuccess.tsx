@@ -1,18 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
-import React, { Suspense, lazy } from 'react';
-const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
-import { FaCheckCircle, FaEye, FaEdit, FaHome, FaTag } from "react-icons/fa";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
+import { FaHome } from "@react-icons/all-files/fa/FaHome";
+import { FaTag } from "@react-icons/all-files/fa/FaTag";
 
 const ListingSuccess = () => {
   const location = useLocation();
   const { listingId, isUpdate, title, isPriceReduced } = location.state || {};
 
   return (
-    <Suspense fallback={null}>
-        <MotionDiv
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-xl mx-auto mt-16 text-center space-y-6"
+    <div
+      className="max-w-xl mx-auto mt-16 text-center space-y-6 transition-all duration-300 ease-in-out animate-fadeInUp"
     >
       <div className="text-5xl text-green-500">
         <FaCheckCircle className="mx-auto" />
@@ -65,8 +64,7 @@ const ListingSuccess = () => {
           My Listings
         </Link>
       </div>
-    </MotionDiv>
-        </Suspense>
+    </div>
   );
 };
 

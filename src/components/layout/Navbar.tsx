@@ -12,23 +12,17 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 
 // Import only necessary icons to reduce bundle size
  
-import {
-  FaUser,
-  FaCog,
-  FaSignOutAlt,
-  FaPlus,
-  FaList,
-  FaFileAlt,
-  FaMoon,
-  FaSun,
-  FaSpinner,
-  FaEnvelope,
-  FaHeart,
-} from "react-icons/fa";
-// Icon props interface for type safety
-interface IconProps {
-  className?: string;
-}
+import { FaUser } from "@react-icons/all-files/fa/FaUser";
+import { FaCog } from "@react-icons/all-files/fa/FaCog";
+import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
+import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
+import { FaList } from "@react-icons/all-files/fa/FaList";
+import { FaFileAlt } from "@react-icons/all-files/fa/FaFileAlt";
+import { FaMoon } from "@react-icons/all-files/fa/FaMoon";
+import { FaSun } from "@react-icons/all-files/fa/FaSun";
+import { FaSpinner } from "@react-icons/all-files/fa/FaSpinner";
+import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
+import { FaHeart } from "@react-icons/all-files/fa/FaHeart";
 
 const Navbar: React.FC = () => {
   // --- Added for category search ---
@@ -39,7 +33,7 @@ const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   // Detect RTL based on language
-  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-"));
+  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-")) || false;
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();

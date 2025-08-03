@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
 const OptimizedAvatar = React.lazy(() => import('@/components/ui/avatar'));
 import { useTranslation } from "react-i18next";

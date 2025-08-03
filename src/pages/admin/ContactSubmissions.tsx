@@ -1,29 +1,14 @@
 import { useState, useEffect, FC } from "react";
 import { useNavigate } from "react-router-dom";
-import Box from "@mui/material/Box";
 import { Typography } from "@/utils/typography";
 import { Paper } from "@/utils/paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import TablePagination from "@mui/material/TablePagination";
-import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
-import Button from "@mui/material/Button";
-import TableFooter from "@mui/material/TableFooter";
-import CloseIcon from "@mui/icons-material/Close";
-import ViewIcon from "@mui/icons-material/Visibility";
-import MarkReadIcon from "@mui/icons-material/MarkEmailRead";
-import BackIcon from "@mui/icons-material/ArrowBack";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Eye, MailCheck, ArrowLeft, X } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { apiClient } from "../../api/apiClient";
+import { cn } from "@/lib/utils";
 
 interface ContactSubmission {
   id: string;
@@ -98,12 +83,7 @@ const ContactSubmissions: FC = () => {
     setCurrentPage(newPage);
   };
 
-  const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(0);
-  };
+
 
   const handleViewSubmission = async (submission: ContactSubmission) => {
     try {
@@ -174,145 +154,93 @@ const ContactSubmissions: FC = () => {
 
   if (isLoading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        p={4}
-        flexDirection="column"
-        alignItems="center"
-      >
-        <CircularProgress sx={{ mb: 2 }} />
-        <Typography variant="body2" color="text.secondary">
-          Loading submissions...
-        </Typography>
-      </Box>
+      <div className="flex justify-center mt-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box p={3}>
-        {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => setError("")}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            <AlertTitle>Error Loading Submissions</AlertTitle>
-            {error}
-            <Box
-              component="div"
-              sx={{ mt: 1, fontSize: "0.8rem", opacity: 0.8 }}
-            >
-              Check browser console for more details
-            </Box>
-          </Alert>
-        )}
-      </Box>
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertTitle>Error</AlertTitle>
+          {error}
+          <Button variant="ghost" size="sm" onClick={() => setError("")} className="ml-auto">
+            <X className="h-4 w-4" />
+          </Button>
+        </Alert>
+      </div>
     );
   }
 
   return (
-    <Box p={3}>
-      <Box display="flex" alignItems="center" mb={3}>
-        <Button
-          startIcon={<BackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ mr: 2 }}
-        >
-          Back
-        </Button>
-        <Typography variant="h4" component="h1">
-          Contact Form Submissions
-        </Typography>
-      </Box>
+    <div className="p-6">
+      <Typography variant="h4" className="mb-4">
+        Contact Submissions
+      </Typography>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(-1)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
 
       {selectedSubmission ? (
-        <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography variant="h6" component="h2">
-              {selectedSubmission.subject}
+        <Paper elevation={3} className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <Typography variant="h5">
+              {selectedSubmission.firstName} {selectedSubmission.lastName}
             </Typography>
-            <Box>
-              <Chip
-                label={selectedSubmission.read ? "Read" : "New"}
-                color={selectedSubmission.read ? "default" : "primary"}
-                size="small"
-                sx={{ mr: 1 }}
-              />
-              <Button onClick={handleCloseDetails}>Back to List</Button>
-            </Box>
-          </Box>
-
-          <Box mb={2}>
-            <Typography variant="subtitle2" color="text.secondary">
-              From: {selectedSubmission.firstName} {selectedSubmission.lastName}
-            </Typography>
-            <Typography variant="subtitle2" color="text.secondary">
-              Email: {selectedSubmission.email}
-            </Typography>
-            <Typography variant="subtitle2" color="text.secondary">
-              Date: {formatDate(selectedSubmission.createdAt)}
-            </Typography>
-          </Box>
-
-          <Paper
-            variant="outlined"
-            sx={{ p: 2, bgcolor: "background.default" }}
-          >
-            <Typography variant="body1" whiteSpace="pre-line">
-              {selectedSubmission.message}
-            </Typography>
-          </Paper>
-
+            <Button variant="ghost" size="icon" onClick={handleCloseDetails}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <Typography variant="body2" className="text-muted-foreground mb-4">
+            {selectedSubmission.email} • {formatDate(selectedSubmission.createdAt)}
+          </Typography>
+          <Typography variant="h6" className="mb-2">
+            {selectedSubmission.subject}
+          </Typography>
+          <Typography variant="body1" className="mb-4">
+            {selectedSubmission.message}
+          </Typography>
           {!selectedSubmission.read && (
-            <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button
-                variant="contained"
-                startIcon={<MarkReadIcon />}
-                onClick={() => markAsRead(selectedSubmission.id)}
-              >
-                Mark as Read
-              </Button>
-            </Box>
+            <Button
+              onClick={() => markAsRead(selectedSubmission.id)}
+            >
+              <MailCheck className="h-4 w-4 mr-2" />
+              Mark as Read
+            </Button>
           )}
         </Paper>
       ) : (
-        <TableContainer component={Paper} elevation={3}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Subject</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <Paper elevation={3} className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Date</th>
+                  <th className="text-left p-4 font-medium">Name</th>
+                  <th className="text-left p-4 font-medium">Email</th>
+                  <th className="text-left p-4 font-medium">Subject</th>
+                  <th className="text-left p-4 font-medium">Status</th>
+                  <th className="text-left p-4 font-medium">Actions</th>
+                <th className="text-left p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {submissions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <Typography variant="body1" color="text.secondary">
+                <tr>
+                  <td colSpan={6} className="text-center p-8">
+                    <Typography variant="body1" className="text-muted-foreground">
                       No contact submissions found
                     </Typography>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ) : (
                 submissions
                   .slice(
@@ -320,75 +248,85 @@ const ContactSubmissions: FC = () => {
                     currentPage * rowsPerPage + rowsPerPage,
                   )
                   .map((submission) => (
-                    <TableRow
+                    <tr
                       key={submission.id}
-                      sx={{
-                        cursor: "pointer",
-                        bgcolor: submission.read ? "inherit" : "action.hover",
-                        "&:hover": { bgcolor: "action.hover" },
-                      }}
+                      className={cn(
+                        "border-b hover:bg-muted/50 cursor-pointer",
+                        !submission.read && "bg-muted/20"
+                      )}
                       onClick={async () =>
                         await handleViewSubmission(submission)
                       }
                     >
-                      <TableCell>{formatDate(submission.createdAt)}</TableCell>
-                      <TableCell>{`${submission.firstName} ${submission.lastName}`}</TableCell>
-                      <TableCell>{submission.email}</TableCell>
-                      <TableCell>{submission.subject}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={submission.read ? "Read" : "New"}
-                          color={submission.read ? "default" : "primary"}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title="View Details">
-                          <IconButton
-                            size="small"
+                      <td className="p-4">{formatDate(submission.createdAt)}</td>
+                      <td className="p-4">{`${submission.firstName} ${submission.lastName}`}</td>
+                      <td className="p-4">{submission.email}</td>
+                      <td className="p-4">{submission.subject}</td>
+                      <td className="p-4">
+                        <Badge 
+                          variant={submission.read ? "secondary" : "default"}
+                        >
+                          {submission.read ? "Read" : "New"}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleViewSubmission(submission);
                             }}
                           >
-                            <ViewIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        {!submission.read && (
-                          <Tooltip title="Mark as Read">
-                            <IconButton
-                              size="small"
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {!submission.read && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await markAsRead(submission.id);
                               }}
                             >
-                              <MarkReadIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
+                              <MailCheck className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   ))
               )}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
-                  count={submissions.length}
-                  rowsPerPage={rowsPerPage}
-                  page={currentPage}
-                  onPageChange={handlePageChange}
-                  onRowsPerPageChange={handleRowsPerPageChange}
-                  colSpan={6}
-                />
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 border-t">
+          <div className="text-sm text-muted-foreground">
+            Showing {currentPage * rowsPerPage + 1} to {Math.min((currentPage + 1) * rowsPerPage, submissions.length)} of {submissions.length} results
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handlePageChange(null, currentPage - 1)}
+              disabled={currentPage === 0}
+            >
+              Previous
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handlePageChange(null, currentPage + 1)}
+              disabled={(currentPage + 1) * rowsPerPage >= submissions.length}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </Paper>
       )}
-    </Box>
+    </div>
   );
 };
 

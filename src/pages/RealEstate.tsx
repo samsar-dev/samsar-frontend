@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ExtendedListing } from "@/types/listings";
 import { ListingCategory, PropertyType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import debounce from 'lodash/debounce';
+import debounce from 'lodash-es/debounce';
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
 

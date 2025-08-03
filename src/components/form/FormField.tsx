@@ -1,17 +1,10 @@
 import clsx from "clsx";
-import { forwardRef, lazy, Suspense, useEffect, useState } from "react";
+import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { SingleValue, ActionMeta, MultiValue } from "react-select";
 import { Tooltip } from "@/components/ui/tooltip";
-
-// Use a lightweight alternative for simple selects
-const Select = lazy(() => 
-  import("react-select").then(module => {
-    // Return the base select with minimal features
-    return { default: module.default };
-  })
-);
-import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 export type FormFieldValue = string | number | boolean | string[];
 
@@ -43,7 +36,7 @@ export interface FormFieldProps {
   customValidation?: (
     value: string | string[],
   ) => string | string[] | undefined | null;
-  isSearchable?: boolean;
+
   tooltip?: string;
 }
 
@@ -67,44 +60,28 @@ export const FormField = forwardRef<
       max,
       prefix,
       customValidation,
-      isSearchable,
       tooltip,
     },
     ref,
   ) => {
     const { t } = useTranslation();
-    const [animatedComponents, setAnimatedComponents] = useState<any>(null);
-
-    useEffect(() => {
-      if (type === "multiselect") {
-        import("react-select/animated").then((module) => {
-          setAnimatedComponents(module.default());
-        });
-      }
-    }, [type]);
     const handleChange = (
       e:
-        | React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-          >
-        | SingleValue<{ value: string; label: string }>,
-      _actionMeta?: ActionMeta<{ value: string; label: string }>,
+        | React.ChangeEvent<HTMLInputElement>
+        | React.ChangeEvent<HTMLSelectElement>
+        | React.ChangeEvent<HTMLTextAreaElement>
+        | null,
     ) => {
       let newValue: string | boolean | string[];
 
-      // Handle react-select change
-      if (e && typeof e === "object" && "value" in e) {
-        newValue = e.value;
-      } else if (e && "target" in e) {
+      if (e && "target" in e) {
         // Handle standard form input change
-        const target = e.target as HTMLInputElement;
-        if (type === "checkbox") {
-          newValue = target.checked;
+        const target = e.target;
+        if (type === "checkbox" || type === "boolean") {
+          newValue = (target as HTMLInputElement).checked;
         } else if (type === "date") {
           // Format date to YYYY-MM-DD
-          newValue = target.value
-            ? new Date(target.value).toISOString().split("T")[0]
-            : "";
+          newValue = target.value;
         } else {
           newValue = target.value;
         }
@@ -141,8 +118,7 @@ export const FormField = forwardRef<
     };
 
     const handleMultiSelectChange = (
-      newValue: MultiValue<unknown>,
-      _actionMeta?: ActionMeta<unknown>,
+      newValue: string[],
     ) => {
       let newValueArr: string[] | null = null;
 
@@ -206,85 +182,128 @@ export const FormField = forwardRef<
             />
           );
 
-        case "select":
-          if (!isSearchable) {
-            return (
-              <select
-                ref={ref as React.Ref<HTMLSelectElement>}
-                id={name}
-                name={name}
-                value={value as string}
-                onChange={handleChange}
-                className={inputClasses}
-                disabled={disabled}
-                required={required}
-                aria-invalid={!!error}
-                aria-describedby={error ? `${name}-error` : undefined}
+        case "select": {
+          return (
+            <SelectPrimitive.Root
+              value={value as string}
+              onValueChange={(newValue: string) => handleChange({ target: { value: newValue } } as React.ChangeEvent<HTMLSelectElement>)}
+              disabled={disabled}
+            >
+              <SelectPrimitive.Trigger
+                className={clsx(
+                  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                  "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  error && "border-red-500"
+                )}
               >
-                <option value="" disabled>
-                  {placeholder || t("form.select_option")}
-                </option>
-                {options?.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.translationKey
-                      ? t(option.translationKey)
-                      : option.label}
-                  </option>
-                ))}
-              </select>
-            );
-          }
-        // Fall through to Suspense-wrapped Select for searchable dropdowns
+                <SelectPrimitive.Value placeholder={placeholder || t("form.select_option")} />
+                <SelectPrimitive.Icon>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </SelectPrimitive.Icon>
+              </SelectPrimitive.Trigger>
+              <SelectPrimitive.Portal>
+                <SelectPrimitive.Content 
+                  className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                >
+                  <SelectPrimitive.Viewport className="p-1">
+                    {options?.map((option) => (
+                      <SelectPrimitive.Item 
+                        key={option.value}
+                        value={option.value}
+                        className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                      >
+                        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                          <SelectPrimitive.ItemIndicator>
+                            <Check className="h-4 w-4" />
+                          </SelectPrimitive.ItemIndicator>
+                        </span>
+                        <SelectPrimitive.ItemText>
+                          {option.translationKey ? t(option.translationKey) : option.label}
+                        </SelectPrimitive.ItemText>
+                      </SelectPrimitive.Item>
+                    ))}
+                  </SelectPrimitive.Viewport>
+                </SelectPrimitive.Content>
+              </SelectPrimitive.Portal>
+            </SelectPrimitive.Root>
+          );
+        }
 
         case "multiselect": {
-          const selectedOption = options?.find((opt) => opt.value === value);
+          const selectedValues = Array.isArray(value) ? value : [];
           return (
-            <Suspense
-              fallback={<div className={clsx(inputClasses, "h-[42px]")} />}
-            >
-              <Select
-                id={name}
-                name={name}
-                value={type === "multiselect" ? (value as any) : selectedOption}
-                onChange={
-                  type === "multiselect"
-                    ? handleMultiSelectChange
-                    : handleChange
-                }
-                options={options?.map((opt) => ({
-                  ...opt,
-                  label: opt.translationKey ? t(opt.translationKey) : opt.label,
-                }))}
-                isDisabled={disabled}
-                placeholder={placeholder || t("form.select_option")}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                isSearchable={isSearchable}
-                isMulti={type === "multiselect"}
-                components={type === "multiselect" ? animatedComponents : null}
-                closeMenuOnSelect={type !== "multiselect"}
-                styles={{
-                  control: (base, state) => ({
-                    ...base,
-                    minHeight: "42px",
-                    borderColor: error
-                      ? "rgb(239 68 68)"
-                      : state.isFocused
-                        ? "rgb(59 130 246)"
-                        : "rgb(209 213 219)",
-                    backgroundColor: error ? "rgb(254 242 242)" : "white",
-                    boxShadow: state.isFocused
-                      ? `0 0 0 1px ${error ? "rgb(239 68 68)" : "rgb(59 130 246)"}`
-                      : "none",
-                    "&:hover": {
-                      borderColor: error
-                        ? "rgb(248 113 113)"
-                        : "rgb(96 165 250)",
-                    },
-                  }),
-                }}
-              />
-            </Suspense>
+            <div className="relative">
+              <div 
+                className={clsx(
+                  "flex flex-wrap gap-1 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  error && "border-red-500"
+                )}
+              >
+                {selectedValues.map((val) => {
+                  const option = options?.find(opt => opt.value === val);
+                  return (
+                    <div 
+                      key={val}
+                      className="flex items-center gap-1 bg-blue-100 text-blue-800 rounded px-2 py-1 text-xs"
+                    >
+                      {option ? (option.translationKey ? t(option.translationKey) : option.label) : val}
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newValues = selectedValues.filter(v => v !== val);
+                          handleMultiSelectChange(newValues);
+                        }}
+                        className="ml-1 rounded-full hover:bg-blue-200"
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+                <SelectPrimitive.Root
+                  onValueChange={(newValue: string) => {
+                    if (!selectedValues.includes(newValue)) {
+                      handleMultiSelectChange([...selectedValues, newValue]);
+                    }
+                  }}
+                  disabled={disabled}
+                >
+                  <SelectPrimitive.Trigger className="flex items-center text-muted-foreground hover:text-foreground">
+                    <span>{placeholder || t("form.select_option")}</span>
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </SelectPrimitive.Trigger>
+                  <SelectPrimitive.Portal>
+                    <SelectPrimitive.Content 
+                      className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                    >
+                      <SelectPrimitive.Viewport className="p-1">
+                        {options?.map((option) => (
+                          !selectedValues.includes(option.value) && (
+                            <SelectPrimitive.Item 
+                              key={option.value}
+                              value={option.value}
+                              className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                            >
+                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                <SelectPrimitive.ItemIndicator>
+                                  <Check className="h-4 w-4" />
+                                </SelectPrimitive.ItemIndicator>
+                              </span>
+                              <SelectPrimitive.ItemText>
+                                {option.translationKey ? t(option.translationKey) : option.label}
+                              </SelectPrimitive.ItemText>
+                            </SelectPrimitive.Item>
+                          )
+                        ))}
+                      </SelectPrimitive.Viewport>
+                    </SelectPrimitive.Content>
+                  </SelectPrimitive.Portal>
+                </SelectPrimitive.Root>
+              </div>
+            </div>
           );
         }
 
@@ -315,15 +334,7 @@ export const FormField = forwardRef<
                 name={name}
                 value={value as string}
                 onChange={(e) => {
-                  // Format the date to YYYY-MM-DD for proper display
-                  const dateValue = e.target.value;
-                  handleChange({
-                    ...e,
-                    target: {
-                      ...e.target,
-                      value: dateValue,
-                    },
-                  });
+                  handleChange(e);
                 }}
                 className={inputClasses}
                 required={required}
@@ -397,7 +408,7 @@ export const FormField = forwardRef<
           </label>
           {tooltip && (
             <Tooltip content={tooltip} position="right">
-              <QuestionMarkCircleIcon className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-500" />
             </Tooltip>
           )}
         </div>

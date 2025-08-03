@@ -9,13 +9,11 @@ import React, {
   useCallback, 
   memo 
 } from "react";
-import type { FiltersState } from "@/components/filters/useListingFilters";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 
 // Icons - Imported directly since they're small
-import { MdFilterList } from "react-icons/md";
-import { HiSelector, HiCheck } from "react-icons/hi";
+import { MdFilterList } from "@react-icons/all-files/md/MdFilterList";
 
 // Lazy load other components
 const ListingCard = React.memo(lazy(() => import("@/components/listings/details/ListingCard")));
@@ -60,7 +58,7 @@ import {
   VehicleType,
   PropertyType,
 } from "@/types/enums";
-import type { ExtendedListing } from "@/types/listings";
+import { ExtendedListing } from "@/types/listings";
 
 // Icons for HomeHero
 import { FaCar, FaHome } from 'react-icons/fa';
@@ -194,7 +192,7 @@ const Home: React.FC = () => {
   }) as Record<string, string>;
 
   // Track first visible listing for LCP optimization
-  const [firstVisibleListing, setFirstVisibleListing] =
+  const [, setFirstVisibleListing] =
     useState<ExtendedListing | null>(null);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
@@ -408,15 +406,11 @@ const Home: React.FC = () => {
 
 
 
-  // Handle category change
-  const handleCategoryChange = useCallback((category: ListingCategory) => {
-    localStorage.setItem("selectedCategory", category);
-    setSelectedCategory(category);
-  }, []);
+
 
   // Handle filtered results from ListingFiltersSmart (always defined at top level to avoid hook order errors)
   const handleFilterApply = useCallback(
-    (filtered: ExtendedListing[], filters: FiltersState) => {
+    (filtered: ExtendedListing[]) => {
       setListings((prev) => ({
         ...prev,
         all: filtered,
@@ -601,18 +595,13 @@ const Home: React.FC = () => {
     }
   }, [selectedCategory, t]);
 
-  const metaDescription = t(
-    "meta_description",
-    "منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. تصفح الآلاف من إعلانات السيارات المستعملة، الشقق، الفلل، الأراضي والمزيد في جميع أنحاء سوريا"
-  );
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Helmet>
         <title>
-          {t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
+          {title}
         </title>
-        <meta name="description" content={metaDescription} />
+        <meta name="description" content={description} />
         
         {/* Canonical and hreflang */}
         <link rel="canonical" href={window.location.href} />
@@ -623,7 +612,7 @@ const Home: React.FC = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:title" content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")} />
-        <meta property="og:description" content={metaDescription} />
+        <meta property="og:description" content={description} />
         <meta property="og:image" content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg" />
         <meta property="og:locale" content="ar_AR" />
         <meta property="og:site_name" content="سمسار" />

@@ -5,7 +5,7 @@ interface PreloadImagesProps {
 }
 
 const PreloadImages: React.FC<PreloadImagesProps> = ({ imageUrls = [] }) => {
-  const preloadImages = useMemo(() => {
+  useMemo(() => {
     if (!imageUrls.length) return;
     
     const uniqueUrls = Array.from(new Set(imageUrls));

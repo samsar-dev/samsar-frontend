@@ -1,7 +1,9 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaFacebook } from "@react-icons/all-files/fa/FaFacebook";
+import { FaInstagram } from "@react-icons/all-files/fa/FaInstagram";
+import { FaTwitter } from "@react-icons/all-files/fa/FaTwitter";
 
 // Use lightweight social icons instead of react-icons
 const SocialIcon = ({ name, url }: { name: string; url: string }) => (

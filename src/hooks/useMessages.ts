@@ -24,7 +24,6 @@ interface UseMessagesReturn {
   setConversations: Dispatch<SetStateAction<Conversation[]>>;
   setSelectedConversation: Dispatch<SetStateAction<Conversation | null>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
-  f;
 }
 
 // Convert ConversationResponse data to Conversation
@@ -90,7 +89,7 @@ export function useMessages(): UseMessagesReturn {
   );
 
   const createConversation = useCallback(
-    async (participantIds: string[], initialMessage?: string) => {
+    async (participantIds: string[], _initialMessage?: string) => {
       try {
         setIsLoading(true);
         const response = await MessagesAPI.createConversation({
@@ -150,6 +149,5 @@ export function useMessages(): UseMessagesReturn {
     setConversations,
     setSelectedConversation,
     setIsLoading,
-    f: () => {}, // Placeholder function for future use
   };
 }

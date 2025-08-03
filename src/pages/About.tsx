@@ -1,25 +1,17 @@
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-
-import { styled } from '@mui/material/styles';
-import React, { Suspense, lazy } from 'react';
-const MotionDiv = lazy(() => import('framer-motion').then(mod => ({ default: mod.motion.div })));
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '@/utils/seo';
 import { Typography } from '@/utils/typography';
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  transition: 'transform 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: theme.shadows[8],
-  },
-}));
+const StyledCard = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <Card className={cn(
+    "h-full flex flex-col transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg",
+    className
+  )}>
+    {children}
+  </Card>
+);
 
 const About = () => {
   const { t } = useTranslation('footer');
@@ -44,53 +36,47 @@ const About = () => {
   ];
   
   return (
-    <Box sx={{ py: 8, bgcolor: 'background.default' }} dir="rtl">
+    <div className="py-8 bg-background" dir="rtl">
       <SEO 
         title={t('about_page.meta_title', 'من نحن - سمسار')}
         description={t('about_page.meta_description', 'تعرف على منصة سمسار الرائدة في بيع وشراء السيارات والعقارات في سوريا. مهمتنا ورؤيتنا وقيمنا')}
         keywords={t('about_page.meta_keywords', 'من نحن, عن سمسار, منصة سمسار, فريق سمسار, رؤيتنا, مهمتنا, قيمنا')}
       />
-      <Container maxWidth="lg">
-        <Suspense fallback={null}>
-        <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Typography variant="h1" component="h1" gutterBottom align="center" sx={{ fontWeight: 700, mb: 4, fontSize: { xs: '2rem', md: '2.5rem' } }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="animate-fadeInUp">
+          <Typography variant="h1" component="h1" className="text-3xl md:text-4xl font-bold text-center mb-4">
             {t('about_page.title', 'من نحن')}
           </Typography>
-          <Typography variant="h5" color="text.secondary" paragraph align="center" sx={{ mb: 8, maxWidth: 800, mx: 'auto' }}>
+          <Typography variant="h5" className="text-muted-foreground text-center mb-8 max-w-3xl mx-auto">
             {t('about_page.subtitle')}
           </Typography>
-        </MotionDiv>
-        </Suspense>
+        </div>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <StyledCard key={index}>
-              <CardContent>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 2 }}>
+              <CardContent className="p-6">
+                <Typography variant="h4" component="h3" className="text-xl font-semibold mb-2">
                   {feature.title}
                 </Typography>
-                <Typography variant="body1" paragraph>
+                <Typography className="text-muted-foreground">
                   {feature.description}
                 </Typography>
               </CardContent>
             </StyledCard>
           ))}
-        </Box>
+        </div>
 
-        <Box sx={{ mt: 12, textAlign: 'center' }}>
-          <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 4 }}>
+        <div className="mt-12 text-center">
+          <Typography variant="h4" component="h2" className="text-2xl font-semibold mb-4">
             {t('about_page.story.title')}
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 800, mx: 'auto', mb: 6 }}>
+          <Typography className="text-muted-foreground max-w-3xl mx-auto">
             {t('about_page.story.content')}
           </Typography>
-        </Box>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

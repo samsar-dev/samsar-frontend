@@ -2,15 +2,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import { toast } from "react-toastify";
-import {
-  FaEye,
-  FaEyeSlash,
-  FaLock,
-  FaShieldAlt,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaInfoCircle,
-} from "react-icons/fa";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
+import { FaLock } from "@react-icons/all-files/fa/FaLock";
+import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaTimesCircle } from "@react-icons/all-files/fa/FaTimesCircle";
+import { FaInfoCircle } from "@react-icons/all-files/fa/FaInfoCircle";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 

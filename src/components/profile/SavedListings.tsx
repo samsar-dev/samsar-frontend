@@ -4,10 +4,10 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { ListingAction } from "@/types/enums";
 import type { Listing, ListingDetails } from "@/types/listings";
-import { motion } from "framer-motion";
+
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BsSend } from "react-icons/bs";
+import { BiSend } from "@react-icons/all-files/bi/BiSend";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
 import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
@@ -30,15 +30,7 @@ interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
 
 const SavedListings = () => {
   const { t } = useTranslation();
-  const pageTitle = t("saved_listings.meta_title", "المحفوظات - سمسار");
-  const pageDescription = t(
-    "saved_listings.meta_description",
-    "عرض العقارات والمركبات المحفوظة في حسابك على منصة سمسار",
-  );
-  const pageKeywords = t(
-    "saved_listings.meta_keywords",
-    "المحفوظات, العقارات المحفوظة, المركبات المحفوظة, المفضلة, سمسار",
-  );
+
   const [listings, setListings] = useState<ExtendedListing[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -145,12 +137,7 @@ const SavedListings = () => {
     <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-transparent py-8">
        
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="space-y-4"
-        >
+        <div className="space-y-4 animate-fadeIn">
           <div className="flex items-center gap-3 mb-2">
             <MdFavorite className="text-red-500 w-6 h-6" />
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -164,14 +151,9 @@ const SavedListings = () => {
           <div className="flex flex-col gap-4">
             {listings.length > 0 ? (
               listings.map((item, index) => (
-                <motion.div
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.08, ease: "easeOut" }}
-                  className="group bg-white/80 dark:bg-gray-800 flex items-end justify-between rounded overflow-hidden border border-gray-200 dark:border-gray-700 dark:hover:shadow hover:shadow-sm transition-all duration-100"
+                  className="group flex bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 ease-in-out opacity-0 animate-fadeIn"
                 >
                   <div className="flex w-full">
                     <div className="relative overflow-visible w-36 h-36 flex-shrink-0">
@@ -258,7 +240,7 @@ const SavedListings = () => {
                         /* TODO: Implement share functionality */
                       }}
                     >
-                      <BsSend className="w-5 h-5" />
+                      <BiSend className="w-5 h-5" />
                     </button>
                     <button
                       className="p-2 mx-2 my-1 flex items-center justify-center text-gray-600 dark:text-gray-400 rounded-full border-2 border-gray-200 dark:border-gray-700 hover:text-red-700 hover:bg-red-600/50 hover:border-red-600/30 dark:hover:border-red-600/20 dark:hover:text-red-400 transition-colors duration-300"
@@ -267,7 +249,7 @@ const SavedListings = () => {
                       <MdDelete className="w-5 h-5" />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               ))
             ) : (
               <div className="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
@@ -283,7 +265,7 @@ const SavedListings = () => {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

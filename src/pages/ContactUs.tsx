@@ -1,49 +1,14 @@
 import { useState } from "react";
- import Container from "@mui/material/Container";
-import { Typography } from "@/utils/typography";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import { Paper } from "@/utils/paper";
-import Divider from "@mui/material/Divider";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import { motion } from "framer-motion";
-import SendIcon from "@mui/icons-material/Send";
-import CloseIcon from "@mui/icons-material/Close";
-import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import { toast } from "@/components/common/toast";
+import { Send, Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/apiClient";
-import { SEO } from "@/utils/seo";
-
-const FormRow = ({ children }: { children: React.ReactNode }) => (
-  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
-    {children}
-  </Box>
-);
-
-const FormField = ({ children }: { children: React.ReactNode }) => (
-  <Box sx={{ flex: `1 1 calc(50% - 12px)`, minWidth: "250px" }}>{children}</Box>
-);
-
-const StyledPaper = ({ children, ...props }) => (
-  <Box
-    component={Paper}
-    sx={{
-      p: 4,
-      borderRadius: (theme) => theme.shape.borderRadius,
-      boxShadow: (theme) => theme.shadows[4],
-      height: '100%',
-    }}
-    {...props}
-  >
-    {children}
-  </Box>
-);
+ 
 
 interface FormData {
   firstName: string;
@@ -55,10 +20,6 @@ interface FormData {
 
 const ContactUs = () => {
   const { t } = useTranslation("footer");
-  const pageTitle = t('contact_page.meta_title', 'اتصل بنا - سمسار');
-  const pageDescription = t('contact_page.meta_description', 'تواصل مع فريق سمسار للحصول على الدعم الفني أو الاستفسارات المتعلقة بالسيارات والعقارات في سوريا. نحن هنا لمساعدتك على مدار الساعة');
-  const pageKeywords = t('contact_page.meta_keywords', 'اتصل بنا, تواصل مع سمسار, دعم فني, استفسارات, شكاوى, اقتراحات, معلومات الاتصال, وسائل التواصل');
-  
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -67,11 +28,6 @@ const ContactUs = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    open: boolean;
-    success: boolean;
-    message: string;
-  }>({ open: false, success: false, message: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
@@ -115,396 +71,220 @@ const ContactUs = () => {
     console.log("Form submission started", { formData });
 
     if (!validateForm()) {
-      console.log("Form validation failed", { formErrors });
+      console.log("Form validation failed", formErrors);
       return;
     }
 
     setIsSubmitting(true);
+    setFormErrors({});
 
     try {
-      console.log("Sending request to server...");
-      const response = await apiClient.post("/contact", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await apiClient.post("/contact", formData);
+      console.log("Contact form submitted successfully", response.data);
+
+      toast.success(t("contact_page.successMessage"), {
+        duration: 5000,
       });
 
-      console.log("Server response:", response.data);
-
-      if (response.data.success) {
-        setSubmitStatus({
-          open: true,
-          success: true,
-          message:
-            "Your message has been sent successfully! We will get back to you soon.",
-        });
-        // Reset form on success
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          subject: "",
-          message: "",
-        });
-      } else {
-        throw new Error(response.data.error || "Failed to send message");
-      }
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
     } catch (error: any) {
-      console.error("Error submitting form:", error);
+      console.error("Contact form submission error", error);
       const errorMessage =
+        error.response?.data?.error ||
         error.response?.data?.message ||
-        error.message ||
-        "Failed to send message. Please try again.";
-      setSubmitStatus({
-        open: true,
-        success: false,
-        message: errorMessage,
+        t("contact_page.errorMessage");
+      toast.error(errorMessage, {
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSubmitStatus((prev) => ({ ...prev, open: false }));
-  };
-
-  // Form submission handler is defined above in the file
-
   return (
-    <Box sx={{ py: 8, bgcolor: "background.default" }} dir="rtl">
-      <SEO 
-        title={pageTitle}
-        description={pageDescription}
-        keywords={pageKeywords}
-      />
-      <Container maxWidth="lg">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Typography
-            variant="h2"
-            component="h1"
-            align="center"
-            sx={{
-              fontWeight: 700,
-              mb: 4,
-              fontSize: { xs: 32, md: 40 },
-            }}
-          >
-            {t("contact_page.title")}
-          </Typography>
-          <Typography
-            variant="h5"
-            color="text.secondary"
-            align="center"
-            sx={{
-              mb: 6,
-              maxWidth: 700,
-              mx: "auto",
-              typography: "body1",
-            }}
-          >
-            {t("contact_page.subtitle")}
-          </Typography>
-        </motion.div>
+    <>
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 mb-12 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold mb-4">{t("contact_page.title")}</h1>
+          <p className="text-xl opacity-90">{t("contact_page.subtitle")}</p>
+        </div>
+      </div>
 
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-          <Box
-            sx={{
-              flex: "1 1 100%",
-              "@media (min-width: 900px)": { flex: "1 1 calc(60% - 32px)" },
-            }}
-          >
-            <StyledPaper>
-              <form onSubmit={handleSubmit} noValidate>
-                <FormRow>
-                  <FormField>
-                    <TextField
-                      required
-                      fullWidth
-                      id="firstName"
+      <div className="container mx-auto px-4">
+        <div className="mb-6">
+          <Alert className="mb-4">
+            {t("contact_page.formInfo")}
+          </Alert>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-6">{t("contact_page.formTitle")}</h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t("contact_page.form.firstName")}
+                    </label>
+                    <Input
+                      placeholder={t("contact_page.form.firstName")}
                       name="firstName"
-                      label={t("contact_page.form.firstName")}
-                      variant="outlined"
                       value={formData.firstName}
                       onChange={handleChange}
-                      error={!!formErrors.firstName}
-                      helperText={formErrors.firstName}
-                      disabled={isSubmitting}
+                      className={formErrors.firstName ? "border-red-500" : ""}
                     />
-                  </FormField>
-                  <FormField>
-                    <TextField
-                      required
-                      fullWidth
-                      id="lastName"
+                    {formErrors.firstName && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t("contact_page.form.lastName")}
+                    </label>
+                    <Input
+                      placeholder={t("contact_page.form.lastName")}
                       name="lastName"
-                      label={t("contact_page.form.lastName")}
-                      variant="outlined"
                       value={formData.lastName}
                       onChange={handleChange}
-                      error={!!formErrors.lastName}
-                      helperText={formErrors.lastName}
-                      disabled={isSubmitting}
+                      className={formErrors.lastName ? "border-red-500" : ""}
                     />
-                  </FormField>
-                </FormRow>
+                    {formErrors.lastName && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName}</p>
+                    )}
+                  </div>
+                </div>
 
-                <Box sx={{ mb: 3 }}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="email"
-                    name="email"
-                    label={t("contact_page.form.email")}
-                    type="email"
-                    variant="outlined"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={!!formErrors.email}
-                    helperText={formErrors.email}
-                    disabled={isSubmitting}
-                  />
-                </Box>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t("contact_page.form.email")}
+                    </label>
+                    <Input
+                      type="email"
+                      placeholder={t("contact_page.form.email")}
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={formErrors.email ? "border-red-500" : ""}
+                    />
+                    {formErrors.email && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t("contact_page.form.subject")}
+                    </label>
+                    <Input
+                      placeholder={t("contact_page.form.subject")}
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      className={formErrors.subject ? "border-red-500" : ""}
+                    />
+                    {formErrors.subject && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
+                    )}
+                  </div>
+                </div>
 
-                <Box sx={{ mb: 3 }}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="subject"
-                    name="subject"
-                    label={t("contact_page.form.subject")}
-                    variant="outlined"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    error={!!formErrors.subject}
-                    helperText={formErrors.subject}
-                    disabled={isSubmitting}
-                  />
-                </Box>
-
-                <Box sx={{ mb: 3 }}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="message"
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t("contact_page.form.message")}
+                  </label>
+                  <Textarea
+                    placeholder={t("contact_page.form.message")}
                     name="message"
-                    label={t("contact_page.form.message")}
-                    multiline
-                    rows={6}
-                    variant="outlined"
                     value={formData.message}
                     onChange={handleChange}
-                    error={!!formErrors.message}
-                    helperText={formErrors.message}
-                    disabled={isSubmitting}
+                    rows={6}
+                    className={formErrors.message ? "border-red-500" : ""}
                   />
-                </Box>
+                  {formErrors.message && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.message}</p>
+                  )}
+                </div>
 
                 <Button
                   type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  startIcon={<SendIcon />}
-                  fullWidth
+                  disabled={isSubmitting}
+                  className="w-full"
                 >
                   {isSubmitting ? (
                     <>
-                      <CircularProgress
-                        size={24}
-                        color="inherit"
-                        style={{ marginRight: 8 }}
-                      />
-                      Sending...
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {t("contact_page.form.submitting")}
                     </>
                   ) : (
                     <>
-                      <SendIcon sx={{ mr: 1 }} />
-                      {t("contact_page.form.sendButton")}
+                      <Send className="mr-2 h-4 w-4" />
+                      {t("contact_page.form.submit")}
                     </>
                   )}
                 </Button>
-
-                <Snackbar
-                  open={submitStatus.open}
-                  autoHideDuration={6000}
-                  onClose={handleCloseSnackbar}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                >
-                  <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={submitStatus.success ? "success" : "error"}
-                    sx={{ width: "100%" }}
-                    action={
-                      <IconButton
-                        aria-label="close"
-                        color="inherit"
-                        size="small"
-                        onClick={handleCloseSnackbar}
-                      >
-                        <CloseIcon fontSize="inherit" />
-                      </IconButton>
-                    }
-                  >
-                    {submitStatus.message}
-                  </Alert>
-                </Snackbar>
               </form>
-            </StyledPaper>
-          </Box>
-          <Box
-            sx={{
-              flex: "1 1 100%",
-              "@media (min-width: 900px)": { flex: "1 1 calc(40% - 32px)" },
-            }}
-          >
-            <Box
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-              }}
-            >
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <StyledPaper>
-                  <Typography
-                    variant="h5"
-                    component="h3"
-                    sx={{ fontWeight: 600, mb: 4 }}
-                  >
-                    {t("contact_page.contactInfo.title")}
-                  </Typography>
-                  <Divider sx={{ mb: 3 }} />
+            </Card>
+          </div>
 
-                  <Box
-                    sx={{ display: "flex", alignItems: "flex-start", mb: 3 }}
-                  >
-                    <LocationOnIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {t("contact_page.contactInfo.office.label")}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        {t("contact_page.contactInfo.office.address1")}
-                        <br />
-                        {t("contact_page.contactInfo.office.address2")}
-                        <br />
-                        {t("contact_page.contactInfo.office.address3")}
-                      </Typography>
-                    </Box>
-                  </Box>
+          <div>
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-semibold mb-4">{t("contact_page.contactInfo.title")}</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">{t("contact_page.contactInfo.address.label")}</p>
+                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.address.value")}</p>
+                  </div>
+                </div>
 
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                    <PhoneIcon color="primary" sx={{ mr: 2 }} />
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {t("contact_page.contactInfo.phone.label")}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        {t("contact_page.contactInfo.phone.number")}
-                      </Typography>
-                    </Box>
-                  </Box>
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">{t("contact_page.contactInfo.phone.label")}</p>
+                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.phone.number")}</p>
+                  </div>
+                </div>
 
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <EmailIcon color="primary" sx={{ mr: 2 }} />
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {t("contact_page.contactInfo.email.label")}
-                      </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        {t("contact_page.contactInfo.email.address")}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </StyledPaper>
-              </motion.div>
+                <div className="flex items-center space-x-3">
+                  <Mail className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">{t("contact_page.contactInfo.email.label")}</p>
+                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.email.address")}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
 
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <StyledPaper>
-                  <Typography
-                    variant="h5"
-                    component="h3"
-                    sx={{ fontWeight: 600, mb: 4 }}
-                  >
-                    {t("contact_page.businessHours.title")}
-                  </Typography>
-                  <Divider sx={{ mb: 3 }} />
-                  <Box
-                    sx={{
-                      "& > div": {
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1.5,
-                      },
-                    }}
-                  >
-                    <Box>
-                      <Typography component="span" sx={{ fontWeight: 500 }}>
-                        {t("contact_page.businessHours.weekdays")}
-                      </Typography>
-                    </Box>
-                    <Typography>
-                      {t("contact_page.businessHours.weekdaysTime")}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      "& > div": {
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1.5,
-                        color: "text.secondary",
-                      },
-                    }}
-                  >
-                    <Box>
-                      <Typography component="span">
-                        {t("contact_page.businessHours.saturday")}
-                      </Typography>
-                    </Box>
-                    <Typography>
-                      {t("contact_page.businessHours.saturdayTime")}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      "& > div": {
-                        display: "flex",
-                        justifyContent: "space-between",
-                        color: "text.secondary",
-                      },
-                    }}
-                  >
-                    <Box>
-                      <Typography component="span">
-                        {t("contact_page.businessHours.sunday")}
-                      </Typography>
-                    </Box>
-                    <Typography>
-                      {t("contact_page.businessHours.sundayTime")}
-                    </Typography>
-                  </Box>
-                </StyledPaper>
-              </motion.div>
-            </Box>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-4">{t("contact_page.businessHours.title")}</h3>
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-medium">{t("contact_page.businessHours.weekdays")}</span>
+                  <span className="text-sm text-muted-foreground">{t("contact_page.businessHours.weekdaysTime")}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("contact_page.businessHours.saturday")}</span>
+                  <span className="text-sm">{t("contact_page.businessHours.saturdayTime")}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("contact_page.businessHours.sunday")}</span>
+                  <span className="text-sm">{t("contact_page.businessHours.sundayTime")}</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

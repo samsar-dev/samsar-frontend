@@ -1,13 +1,6 @@
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
 import { Typography } from "@/utils/typography";
-import { motion } from "framer-motion";
-import PrivacyTip from "@mui/icons-material/PrivacyTip";
-import Security from "@mui/icons-material/Security";
-import Gavel from "@mui/icons-material/Gavel";
-import ContactMail from "@mui/icons-material/ContactMail";
+import { Shield, FileText, Mail } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
 
@@ -38,7 +31,7 @@ const PrivacyPolicy = () => {
   const sections: SectionItem[] = [
     {
       key: "information_we_collect",
-      icon: <PrivacyTip sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />,
+      icon: <Shield className="w-10 h-10 text-primary mb-4" />,
       content: (
         <>
           <Typography variant="body1" paragraph>
@@ -63,7 +56,7 @@ const PrivacyPolicy = () => {
     },
     {
       key: "how_we_use",
-      icon: <Security sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />,
+      icon: <Shield className="w-10 h-10 text-primary mb-4" />,
       content: (
         <>
           <Typography variant="body1" paragraph>
@@ -83,7 +76,7 @@ const PrivacyPolicy = () => {
     },
     {
       key: "information_sharing",
-      icon: <Gavel sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />,
+      icon: <FileText className="w-10 h-10 text-primary mb-4" />,
       content: (
         <>
           <Typography variant="body1" paragraph>
@@ -106,7 +99,7 @@ const PrivacyPolicy = () => {
     },
     {
       key: "your_choices",
-      icon: <ContactMail sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />,
+      icon: <Mail className="w-10 h-10 text-primary mb-4" />,
       content: (
         <>
           <Typography variant="body1" paragraph>
@@ -129,17 +122,13 @@ const PrivacyPolicy = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }} dir="rtl">
+    <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8" dir="rtl">
       <SEO
         title={pageTitle}
         description={pageDescription}
         keywords={pageKeywords}
       />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="animate-fadeInUp">
         <Typography
           variant="h1"
           component="h1"
@@ -163,32 +152,17 @@ const PrivacyPolicy = () => {
         <Typography variant="body1" paragraph sx={{ mb: 6 }}>
           {t("privacy_policy.welcome")}
         </Typography>
-      </motion.div>
+      </div>
 
-      <Box sx={{ maxWidth: 900, mx: "auto" }}>
+      <div className="max-w-4xl mx-auto">
         {sections.map((section, index) => (
-          <motion.div
+          <div
             key={section.key}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="animate-fadeInUp transition-all duration-500 delay-100"
+            style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, md: 5 },
-                mb: 6,
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                "&:hover": {
-                  boxShadow: 3,
-                },
-                transition: "all 0.3s ease-in-out",
-              }}
-            >
-              <Box sx={{ mb: 3 }}>
+            <Card className="p-6 md:p-8 mb-6 border rounded-lg transition-shadow hover:shadow-lg">
+              <div className="mb-4">
                 {section.icon}
                 {section.title && (
                   <Typography
@@ -200,39 +174,22 @@ const PrivacyPolicy = () => {
                   </Typography>
                 )}
                 {section.content}
-              </Box>
-            </Paper>
-          </motion.div>
+              </div>
+            </Card>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Changes to Policy and Contact Us Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+      <div
+        className="animate-fadeInUp transition-all duration-500 delay-400"
+        style={{ animationDelay: "0.4s" }}
       >
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 3, md: 5 },
-            mb: 6,
-            borderRadius: 4,
-            border: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
-            maxWidth: 900,
-            mx: "auto",
-            "&:hover": {
-              boxShadow: 3,
-            },
-            transition: "all 0.3s ease-in-out",
-          }}
-        >
+        <Card className="p-6 md:p-8 mb-6 border rounded-lg max-w-4xl mx-auto">
           <Typography
             variant="h2"
             component="h2"
-            sx={{ fontWeight: 600, mb: 3, textAlign: "center" }}
+            className="font-semibold mb-3 text-center"
           >
             {t("privacy_policy.sections.changes_to_policy.title")}
           </Typography>
@@ -242,7 +199,7 @@ const PrivacyPolicy = () => {
           <Typography
             variant="h3"
             component="h3"
-            sx={{ fontWeight: 600, mt: 4, mb: 2 }}
+            className="font-semibold mt-4 mb-2"
           >
             {t("privacy_policy.sections.contact_us.title")}
           </Typography>
@@ -251,12 +208,12 @@ const PrivacyPolicy = () => {
           </Typography>
           <Typography variant="body1" paragraph>
             {t("email")}:{" "}
-            <Link
+            <a
               href={`mailto:${t("privacy_policy.sections.contact_us.email")}`}
-              color="primary"
+              className="text-primary hover:underline"
             >
               {t("privacy_policy.sections.contact_us.email")}
-            </Link>
+            </a>
             <br />
             {t("phone")}: {t("privacy_policy.sections.contact_us.phone")}
             <br />
@@ -265,9 +222,9 @@ const PrivacyPolicy = () => {
               joinArrays: "\n",
             })}
           </Typography>
-        </Paper>
-      </motion.div>
-    </Container>
+        </Card>
+      </div>
+    </div>
   );
 };
 

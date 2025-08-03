@@ -6,18 +6,15 @@ import type {
 } from "@/types/enums";
 import { ListingCategory, VehicleType } from "@/types/enums";
 import type { FormState } from "@/types/forms";
-import { motion } from "framer-motion";
 import React, { Suspense, lazy, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  FaCar,
-  FaCheck,
-  FaEdit,
-  FaHistory,
-  FaHome,
-  FaImages,
-  FaTag,
-} from "react-icons/fa";
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaCheck } from "@react-icons/all-files/fa/FaCheck";
+import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
+import { FaHistory } from "@react-icons/all-files/fa/FaHistory";
+import { FaHome } from "@react-icons/all-files/fa/FaHome";
+import { FaImages } from "@react-icons/all-files/fa/FaImages";
+import { FaTag } from "@react-icons/all-files/fa/FaTag";
 
 const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
 // Example: If you have a heavy component for images or advanced details, lazy load it here
@@ -45,12 +42,8 @@ interface ReviewSectionProps {
   error?: string | null;
 }
 
-const pageTransition = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.3 },
-};
+// Animation classes for transitions
+const transitionClasses = "transition-all duration-300 ease-in-out";
 
 const ReviewSection = React.memo<ReviewSectionProps>(
   ({ formData, onSubmit, onBack, onEdit, isSubmitting, error }) => {
@@ -768,7 +761,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     const advancedFieldList = getAdvancedFieldList();
 
     return (
-      <motion.div {...pageTransition} className="space-y-6">
+      <div className={`${transitionClasses} space-y-6 opacity-0 translate-y-5 animate-fadeInUp`} style={{ animation: 'fadeInUp 0.3s ease-out forwards' }}>
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
             <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -950,7 +943,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
             </button>
           </div>
         </form>
-      </motion.div>
+      </div>
     );
   },
 ); // Close the React.memo wrapper

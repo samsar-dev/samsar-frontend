@@ -1,22 +1,22 @@
 import React from "react";
-import FaCar from "@react-icons/all-files/fa/FaCar";
-import FaHome from "@react-icons/all-files/fa/FaHome";
-import FaBuilding from "@react-icons/all-files/fa/FaBuilding";
-import FaMotorcycle from "@react-icons/all-files/fa/FaMotorcycle";
-import FaTruck from "@react-icons/all-files/fa/FaTruck";
-import FaBus from "@react-icons/all-files/fa/FaBus";
-import FaTractor from "@react-icons/all-files/fa/FaTractor";
-import FaTachometerAlt from "@react-icons/all-files/fa/FaTachometerAlt"; // Mileage
-import FaCalendarAlt from "@react-icons/all-files/fa/FaCalendarAlt"; // Year
-import FaGasPump from "@react-icons/all-files/fa/FaGasPump"; // Fuel Type
-import FaCogs from "@react-icons/all-files/fa/FaCogs"; // Transmission (alt)
-import FaGripLines from "@react-icons/all-files/fa/FaGripLines"; // Transmission (modern)
-import FaBolt from "@react-icons/all-files/fa/FaBolt"; // Power (kW)
-import FaHorseHead from "@react-icons/all-files/fa/FaHorseHead"; // Horsepower
-import FaBath from "@react-icons/all-files/fa/FaBath"; // Bathrooms
-import FaBed from "@react-icons/all-files/fa/FaBed"; // Bedrooms
-import { MdConstruction } from "react-icons/md";
-import GiTreeBranch from "@react-icons/all-files/gi/GiTreeBranch";
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaHome } from "@react-icons/all-files/fa/FaHome";
+import { FaBuilding } from "@react-icons/all-files/fa/FaBuilding";
+import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
+import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
+import { FaBus } from "@react-icons/all-files/fa/FaBus";
+import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
+import { FaTachometerAlt } from "@react-icons/all-files/fa/FaTachometerAlt"; // Mileage
+import { FaCalendarAlt } from "@react-icons/all-files/fa/FaCalendarAlt"; // Year
+import { FaGasPump } from "@react-icons/all-files/fa/FaGasPump"; // Fuel Type
+import { FaCogs } from "@react-icons/all-files/fa/FaCogs"; // Transmission (alt)
+import { FaGripLines } from "@react-icons/all-files/fa/FaGripLines"; // Transmission (modern)
+import { FaBolt } from "@react-icons/all-files/fa/FaBolt"; // Power (kW)
+import { FaHorseHead } from "@react-icons/all-files/fa/FaHorseHead"; // Horsepower
+import { FaBath } from "@react-icons/all-files/fa/FaBath"; // Bathrooms
+import { FaBed } from "@react-icons/all-files/fa/FaBed"; // Bedrooms
+import { MdBuild } from "@react-icons/all-files/md/MdBuild";
+import { GiTreeBranch } from "@react-icons/all-files/gi/GiTreeBranch";
 
 // Custom Heart Icons
 const HeartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -62,7 +62,7 @@ const icons: { [key: string]: React.ComponentType<any> } = {
   FaHorseHead, // Horsepower
   FaBath, // Bathrooms
   FaBed, // Bedrooms
-  MdConstruction,
+  MdBuild,
   GiTreeBranch,
   HeartIcon,
   HeartFilledIcon,

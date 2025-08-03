@@ -70,15 +70,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     // Prevent multiple simultaneous auth checks
-    if (isCheckingAuth || hasCheckedAuth || !isInitialized) {
+    if (isCheckingAuth || hasCheckedAuth) {
+      console.log('⏭️ Skipping auth check - already checking or already checked');
       return;
     }
 
     try {
+      console.log('🔍 Starting auth check...');
       setIsCheckingAuth(true);
       setState((prev) => ({ ...prev, isLoading: true }));
 
       const response = await AuthAPI.getMe();
+      console.log('📡 Auth check response:', response);
 
       if (response?.success && response?.data) {
         // User is authenticated
@@ -93,6 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isInitialized: true,
         });
       } else {
+        console.log("❌ User not authenticated - response:", response);
         setState({
           user: null,
           isAuthenticated: false,
@@ -119,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsCheckingAuth(false);
       setHasCheckedAuth(true);
     }
-  }, [isCheckingAuth, hasCheckedAuth, isInitialized]);
+  }, [isCheckingAuth, hasCheckedAuth]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -299,10 +303,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state once on mount
   useEffect(() => {
-    if (!hasCheckedAuth) {
+    console.log('🔄 AuthContext useEffect triggered', { hasCheckedAuth, isInitialized, isCheckingAuth });
+    if (!hasCheckedAuth && !isCheckingAuth) {
+      console.log('🚀 Running initial auth check...');
       checkAuth();
+    } else {
+      console.log('⏭️ Skipping auth check:', { hasCheckedAuth, isCheckingAuth });
     }
-  }, []);
+  }, [hasCheckedAuth, checkAuth, isCheckingAuth]);
 
   return (
     <AuthContext.Provider value={value}>

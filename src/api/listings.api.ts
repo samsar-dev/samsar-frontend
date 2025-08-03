@@ -257,7 +257,7 @@ export const createListing = async (
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        requiresAuth: true, // Add this to ensure auth token is sent
+        withCredentials: true,
       } as RequestConfig);
 
       if (!response.data.success) {
@@ -422,8 +422,6 @@ interface ListingsAPI {
   ): Promise<APIResponse<any>>;
 }
 
-
-
 export const listingsAPI: ListingsAPI = {
   // Get saved listings with abort signal support
   async getSavedListings(
@@ -436,7 +434,7 @@ export const listingsAPI: ListingsAPI = {
         `/listings/save${userId ? `?userId=${userId}` : ""}`,
         {
           signal,
-          // No need for headers since we're using cookies
+          withCredentials: true,
         },
       );
 
@@ -551,6 +549,7 @@ export const listingsAPI: ListingsAPI = {
       const response = await fetch(`${API_URL}/listings?${queryParams}`, {
         method: "GET",
         signal,
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -691,7 +690,7 @@ export const listingsAPI: ListingsAPI = {
       console.log("response>>>>", params);
       const response = await apiClient.get<APIResponse<ListingsResponse>>(
         `/listings/vehicles`,
-        { params },
+        { params, withCredentials: true },
       );
       const data = response.data;
 
@@ -733,7 +732,7 @@ export const listingsAPI: ListingsAPI = {
     try {
       const response = await apiClient.get<ListingsResponse>(
         `/listings/real-estate`,
-        { params },
+        { params, withCredentials: true },
       );
       return { success: true, data: response.data };
     } catch (error) {
@@ -762,7 +761,7 @@ export const listingsAPI: ListingsAPI = {
         `/listings/user${queryString ? `?${queryString}` : ""}`,
         {
           signal,
-          // No need for headers since we're using cookies
+          withCredentials: true,
         },
       );
 
@@ -827,7 +826,9 @@ export const listingsAPI: ListingsAPI = {
   async getListing(id: string): Promise<APIResponse<Listing>> {
     try {
       console.log("Fetching listing with ID:", id);
-      const response = await apiClient.get(`/listings/public/${id}`);
+      const response = await apiClient.get(`/listings/public/${id}`, {
+        withCredentials: true,
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching listing:", error);
@@ -1094,7 +1095,9 @@ export const listingsAPI: ListingsAPI = {
   // Delete a listing
   async deleteListing(id: string): Promise<APIResponse<Listing>> {
     try {
-      const response = await apiClient.delete(`/listings/${id}`);
+      const response = await apiClient.delete(`/listings/${id}`, {
+        withCredentials: true,
+      });
       if (!response.data.success) {
         throw new Error(response.data.error || "Failed to delete listing");
       }
@@ -1115,7 +1118,9 @@ export const listingsAPI: ListingsAPI = {
       // Ensure listingId is a string
       const id = String(listingId);
 
-      const response = await apiClient.post(`/listings/saved/${id}`);
+      const response = await apiClient.post(`/listings/${id}/view`, {}, {
+        withCredentials: true,
+      });
 
       if (!response.data.success) {
         throw new Error(response.data.error || "Failed to save listing");

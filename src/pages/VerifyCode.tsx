@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ACTIVE_API_URL } from "@/config";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaEnvelope,
-  FaLock,
-} from "react-icons/fa";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaExclamationTriangle } from "@react-icons/all-files/fa/FaExclamationTriangle";
+import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
+import { FaLock } from "@react-icons/all-files/fa/FaLock";
 
 const VerifyCode = () => {
-  const { t } = useTranslation();
-  // Using t function for translations throughout the component
+
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = location.state || {};

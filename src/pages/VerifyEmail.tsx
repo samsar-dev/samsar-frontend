@@ -4,11 +4,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ACTIVE_API_URL } from "@/config";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaEnvelope,
-} from "react-icons/fa";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaExclamationTriangle } from "@react-icons/all-files/fa/FaExclamationTriangle";
+import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 
 const VerifyEmail = () => {
   const { t } = useTranslation();

@@ -2,6 +2,9 @@
 import type { ListingFieldSchema } from "@/types/listings";
 import { VehicleType, PropertyType, Condition } from "@/types/enums";
 
+// Create a union of all possible keys
+type SchemaKey = VehicleType | PropertyType;
+
 // Schema loading functions to reduce bundle size
 const schemaLoaders = {
   [VehicleType.CAR]: () => import("./schemas/carSchema").then(m => m.carSchema),
@@ -16,20 +19,18 @@ const schemaLoaders = {
   [PropertyType.LAND]: () => import("./schemas/landSchema").then(m => m.landSchema),
 };
 
-import {
-  FaCarSide,
-  FaCogs,
-  FaCouch,
-  FaShieldAlt,
-  FaBuilding,
-  FaCog,
-  FaList,
-  FaTachometerAlt,
-  FaWheelchair,
-  FaPaintBrush,
-  FaTree,
-  FaClock,
-} from "react-icons/fa";
+import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
+import { FaCogs } from "@react-icons/all-files/fa/FaCogs";
+import { FaCouch } from "@react-icons/all-files/fa/FaCouch";
+import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
+import { FaBuilding } from "@react-icons/all-files/fa/FaBuilding";
+import { FaCog } from "@react-icons/all-files/fa/FaCog";
+import { FaList } from "@react-icons/all-files/fa/FaList";
+import { FaTachometerAlt } from "@react-icons/all-files/fa/FaTachometerAlt";
+import { FaWheelchair } from "@react-icons/all-files/fa/FaWheelchair";
+import { FaPaintBrush } from "@react-icons/all-files/fa/FaPaintBrush";
+import { FaTree } from "@react-icons/all-files/fa/FaTree";
+import { FaClock } from "@react-icons/all-files/fa/FaClock";
 
 // Define section configuration type
 export type SectionId = "essential" | "advanced" | "images";
@@ -196,7 +197,8 @@ export const loadSchema = async (type: VehicleType | PropertyType): Promise<List
 };
 
 // Legacy static schema map (deprecated - use loadSchema instead)
-export const listingsAdvancedFieldSchema = {
+export const listingsAdvancedFieldSchema: Record<SchemaKey, ListingFieldSchema[]> = {
+  // Vehicle types
   [VehicleType.CAR]: [],
   [VehicleType.MOTORCYCLE]: [],
   [VehicleType.TRUCK]: [],
@@ -204,9 +206,15 @@ export const listingsAdvancedFieldSchema = {
   [VehicleType.CONSTRUCTION]: [],
   [VehicleType.VAN]: [],
   [VehicleType.BUS]: [],
+  [VehicleType.RV]: [],
+  [VehicleType.OTHER]: [],
+  
+  // Property types
   [PropertyType.HOUSE]: [],
   [PropertyType.APARTMENT]: [],
   [PropertyType.LAND]: [],
+  [PropertyType.CONDO]: [],
+  [PropertyType.COMMERCIAL]: [],
 };
 
 // Dynamic field list loading functions

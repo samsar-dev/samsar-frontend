@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -14,39 +14,48 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   redirectTo = "/login",
   children,
 }) => {
-  const { user, isAuthenticated, isLoading, isInitialized, checkAuth } =
-    useAuth();
+  const { user, isAuthenticated, isLoading, isInitialized, checkAuth } = useAuth();
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const location = useLocation();
 
-  // If auth is not initialized, we need to check it
+  // Check auth status on mount and when auth state changes
   useEffect(() => {
+    let isMounted = true;
+
+    const verifyAuth = async () => {
+      try {
+        await checkAuth();
+      } finally {
+        if (isMounted) {
+          setHasCheckedAuth(true);
+        }
+      }
+    };
+
     if (!isInitialized) {
-      checkAuth();
+      verifyAuth();
+    } else {
+      setHasCheckedAuth(true);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [isInitialized, checkAuth]);
 
-  // Show loading spinner while auth is initializing
-  if (isLoading || !isInitialized) {
+  // Show loading spinner only when we're still checking auth
+  if (isLoading || !hasCheckedAuth) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        role="status"
-        aria-live="polite"
-      >
-        <LoadingSpinner
-          size="lg"
-          label="Loading authentication..."
-          ariaLive="polite"
-          ariaAtomic={true}
-        />
+      <div className="min-h-screen flex items-center justify-center" role="status">
+        <LoadingSpinner size="lg" label="Loading..." />
       </div>
     );
   }
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    // Preserve the full URL including search params and hash
-    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    // Preserve the intended destination for after login
+    const returnTo = location.pathname + location.search + location.hash;
 
     // Create a new Navigate component with the correct state
     return (

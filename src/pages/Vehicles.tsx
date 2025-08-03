@@ -13,7 +13,7 @@ const ListingCard = lazy(() => import("@/components/listings/details/ListingCard
 import { ExtendedListing } from "@/types/listings";
 import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import debounce from 'lodash/debounce';
+import debounce from 'lodash-es/debounce';
 import { toast } from "react-toastify";
 import { SEO } from "@/utils/seo";
 

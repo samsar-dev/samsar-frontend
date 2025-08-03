@@ -6,7 +6,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
-import { ACTIVE_API_URL } from "../config";
+import { ACTIVE_API_URL, IS_PRODUCTION } from "../config";
 
 // Storage key for persisting the active API URL (kept for backward compatibility)
 const API_URL_STORAGE_KEY = "active_api_url";
@@ -57,7 +57,8 @@ const defaultHeaders = {
 
 // Create axios instance with default config for cookie-based auth
 const apiClient: AxiosInstance = axios.create({
-  baseURL: ACTIVE_API_URL,
+  // Use relative URLs in development to leverage the proxy
+  baseURL: IS_PRODUCTION ? ACTIVE_API_URL : '/api',
   timeout: 30000, // 30 seconds
   withCredentials: true,
   headers: {
@@ -68,10 +69,12 @@ const apiClient: AxiosInstance = axios.create({
 // Function to update axios instance with new base URL
 const updateAxiosInstance = (config?: RequestConfig): AxiosInstance => {
   const newBaseURL = getBaseUrl(config);
+  const effectiveBaseURL = IS_PRODUCTION ? newBaseURL : '/api';
+  
   if (newBaseURL !== currentBaseURL) {
     currentBaseURL = newBaseURL;
-    apiClient.defaults.baseURL = newBaseURL;
-    console.log("Updated API base URL to:", newBaseURL);
+    apiClient.defaults.baseURL = effectiveBaseURL;
+    console.log("Updated API base URL to:", effectiveBaseURL);
   }
   return apiClient;
 };
@@ -195,7 +198,7 @@ apiClient.interceptors.request.use(
       }
 
       // Configure credentials for protected endpoints
-      requestConfig.withCredentials = requestConfig.requiresAuth !== false;
+      requestConfig.withCredentials = true; // Always send credentials with cookies
 
       // Ensure we have proper headers
       requestConfig.headers = {

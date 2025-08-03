@@ -1,29 +1,13 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import { Typography } from "@/utils/typography";
-import { Paper } from "@/utils/paper";
-
-import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
-import FormHelperText from "@mui/material/FormHelperText";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-
-// GridItem component that properly extends MUI Grid item
-const GridItem = (props: any) => <Grid item {...props} />;
-
-import SendIcon from "@mui/icons-material/Send";
-import PeopleIcon from "@mui/icons-material/People";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import CodeIcon from "@mui/icons-material/Code";
-import PreviewIcon from "@mui/icons-material/Preview";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Send, Code, Eye, Loader2 } from "lucide-react";
 import {
   sendNewsletter,
   getNewsletterStats,
@@ -49,7 +33,6 @@ const Newsletter = () => {
     formState: { errors },
   } = useForm<NewsletterFormData>({
     defaultValues: {
-      subject: "",
       content: "",
       isHtml: false,
       template: "default",
@@ -57,7 +40,6 @@ const Newsletter = () => {
   });
 
   const content = watch("content");
-  const subject = watch("subject");
 
   useEffect(() => {
     const loadStats = async () => {
@@ -129,96 +111,80 @@ const Newsletter = () => {
 
   if (isLoading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="50vh"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={3}>
-        <GridItem xs={12} md={8}>
-          <Paper sx={{ p: 2 }}>
-
-              <h5>Send Newsletter</h5>
-
-              <Box
-                component="form"
-                onSubmit={handleSubmit(onSubmit)}
-                sx={{ mt: 3 }}
-              >
-                <TextField
-                  fullWidth
-                  label="Subject"
-                  variant="outlined"
-                  margin="normal"
-                  {...register("subject", { required: "Subject is required" })}
-                  error={!!errors.subject}
-                  helperText={errors.subject?.message}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Content"
-                  variant="outlined"
-                  margin="normal"
-                  multiline
-                  rows={10}
-                  {...register("content", {
-                    required: "Content is required",
-                    minLength: {
-                      value: 10,
-                      message: "Content should be at least 10 characters long",
-                    },
-                  })}
-                  error={!!errors.content}
-                  helperText={errors.content?.message}
-                  sx={{ mt: 2 }}
-                />
-
-                <FormGroup sx={{ mb: 2 }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={isHtml}
-                        onChange={(e) => setIsHtml(e.target.checked)}
-                        color="primary"
-                      />
-                    }
-                    label="HTML Content"
+    <div className="container mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Send Newsletter</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div>
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    {...register("subject", { required: "Subject is required" })}
+                    className={errors.subject ? "border-red-500" : ""}
                   />
-                  <FormHelperText>
-                    Toggle to switch between plain text and HTML content
-                  </FormHelperText>
-                </FormGroup>
+                  {errors.subject && (
+                    <p className="text-sm text-red-500 mt-1">{errors.subject.message}</p>
+                  )}
+                </div>
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 2,
-                    mt: 3,
-                    justifyContent: "space-between",
-                  }}
-                >
+                <div>
+                  <Label htmlFor="content">Content</Label>
+                  <Textarea
+                    id="content"
+                    rows={10}
+                    {...register("content", {
+                      required: "Content is required",
+                      minLength: {
+                        value: 10,
+                        message: "Content should be at least 10 characters long",
+                      },
+                    })}
+                    className={errors.content ? "border-red-500" : ""}
+                  />
+                  {errors.content && (
+                    <p className="text-sm text-red-500 mt-1">{errors.content.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={isHtml}
+                      onCheckedChange={setIsHtml}
+                    />
+                    <Label>HTML Content</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle to switch between plain text and HTML content
+                  </p>
+                </div>
+
+                <div className="flex gap-2 mt-4 justify-between">
                   <Button
                     type="button"
-                    variant="outlined"
+                    variant="outline"
                     onClick={() => setShowPreview(!showPreview)}
-                    startIcon={<PreviewIcon />}
                   >
+                    <Eye className="w-4 h-4 mr-2" />
                     {showPreview ? "Hide Preview" : "Show Preview"}
                   </Button>
 
-                  <Box sx={{ display: "flex", gap: 2 }}>
+                  <div className="flex gap-2">
                     <Button
                       type="button"
-                      variant="outlined"
+                      variant="outline"
                       onClick={() => {
                         if (
                           window.confirm(
@@ -234,109 +200,81 @@ const Newsletter = () => {
                     </Button>
                     <Button
                       type="submit"
-                      variant="contained"
-                      color="primary"
                       disabled={isSending}
-                      startIcon={
-                        isSending ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <SendIcon />
-                        )
-                      }
                     >
+                      {isSending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4 mr-2" />
+                      )}
                       {isSending
                         ? "Sending..."
                         : `Send to ${stats.totalSubscribers} Users`}
                     </Button>
-                  </Box>
-                </Box>
-              </Box>
+                  </div>
+                </div>
 
-          </Paper>
+              </form>
+            </CardContent>
+          </Card>
 
           {showPreview && (
-            <Paper sx={{ mt: 3, p: 2 }}>
-  
-                <h6>Preview</h6>
-                <Divider sx={{ mb: 2 }} />
-                <Box
-                  sx={{
-                    p: 2,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 1,
-                    minHeight: 200,
-                    bgcolor: "background.paper",
-                    whiteSpace: "pre-wrap",
-                    ...(isHtml && {
-                      "& *": { all: "revert" },
-                      "&": {
-                        fontFamily: "Arial, sans-serif",
-                        fontSize: "16px",
-                        lineHeight: 1.5,
-                      },
-                    }),
-                  }}
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle>Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="p-4 border rounded min-h-[200px] bg-background whitespace-pre-wrap"
+                  style={isHtml ? { fontFamily: 'Arial, sans-serif', fontSize: '16px', lineHeight: 1.5 } : {}}
                   dangerouslySetInnerHTML={{
                     __html: isHtml ? preview : preview.replace(/\n/g, "<br>"),
                   }}
                 />
-  
-            </Paper>
+              </CardContent>
+            </Card>
           )}
-        </GridItem>
+        </div>
 
-        <GridItem xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Newsletter Stats</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">Total Users</p>
+                <h6 className="text-2xl font-bold">{stats.totalSubscribers.toLocaleString()}</h6>
+              </div>
 
-              <h6>Newsletter Stats</h6>
-              <Divider sx={{ my: 2 }} />
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">Last Sent</p>
+                <p className="text-sm">{formatDate(stats.lastSent)}</p>
+              </div>
 
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <p style={{ color: 'text.secondary' }}>Total Users</p>
-                <h6>{stats.totalSubscribers.toLocaleString()}</h6>
-              </Box>
-
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <p style={{ color: 'text.secondary' }}>Last Sent</p>
-                <p>{formatDate(stats.lastSent)}</p>
-              </Box>
-
-              <p style={{ fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                Tips for effective newsletters:
-              </p>
-              <ul style={{ paddingLeft: 20, margin: "8px 0" }}>
-                <li>Keep subject lines clear and engaging</li>
-                <li>Use a friendly, conversational tone</li>
-                <li>Include a clear call-to-action</li>
-                <li>Ensure mobile-friendly content</li>
-                <li>Test before sending to all users</li>
-              </ul>
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">Tips for effective newsletters:</p>
+                <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1">
+                  <li>Keep subject lines concise and engaging</li>
+                  <li>Use personalization when possible</li>
+                  <li>Include clear call-to-action buttons</li>
+                  <li>Test your emails before sending</li>
+                </ul>
+              </div>
 
               {isHtml && (
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: "warning.light",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="body2" color="warning">
-                    <CodeIcon
-                      fontSize="small"
-                      sx={{ verticalAlign: "middle", mr: 0.5 }}
-                    />
-                    HTML Mode: Make sure your HTML is properly formatted and
-                    tested.
-                  </Typography>
-                </Box>
+                <div className="p-2 bg-yellow-50 rounded">
+                  <p className="text-sm text-yellow-800">
+                    <Code className="w-4 h-4 mr-2 inline" />
+                    HTML Mode: Make sure your HTML is properly formatted and tested.
+                  </p>
+                </div>
               )}
-
-          </Paper>
-        </GridItem>
-      </Grid>
-    </Container>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,14 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import {
-  FaTimes,
-  FaCrop,
-  FaEraser,
-  FaSave,
-  FaUndo,
-  FaSlidersH,
-  FaRedo,
-  FaUndoAlt,
-} from "react-icons/fa";
+import { FaTimes } from "@react-icons/all-files/fa/FaTimes";
+import { FaCrop } from "@react-icons/all-files/fa/FaCrop";
+import { FaEraser } from "@react-icons/all-files/fa/FaEraser";
+import { FaSave } from "@react-icons/all-files/fa/FaSave";
+import { FaUndo } from "@react-icons/all-files/fa/FaUndo";
+import { FaSlidersH } from "@react-icons/all-files/fa/FaSlidersH";
+import { FaRedo } from "@react-icons/all-files/fa/FaRedo";
+import { FaUndoAlt } from "@react-icons/all-files/fa/FaUndoAlt";
 import { useTranslation } from "react-i18next";
 
 interface ImageEditorOptimizedProps {

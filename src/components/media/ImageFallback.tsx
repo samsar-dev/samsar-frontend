@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef, memo } from "react";
-import {
-  FaCar,
-  FaHome,
-  FaTruck,
-  FaMotorcycle,
-  FaBus,
-  FaTractor,
-  FaCarSide,
-  FaBuilding,
-  FaLandmark,
-} from "react-icons/fa";
-import { FiMapPin, FiTool } from "react-icons/fi";
-import { IoBusinessOutline } from "react-icons/io5";
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaHome } from "@react-icons/all-files/fa/FaHome";
+import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
+import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
+import { FaBus } from "@react-icons/all-files/fa/FaBus";
+import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
+import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
+import { FaBuilding } from "@react-icons/all-files/fa/FaBuilding";
+import { FaLandmark } from "@react-icons/all-files/fa/FaLandmark";
+import { FiMapPin } from "@react-icons/all-files/fi/FiMapPin";
+import { FiTool } from "@react-icons/all-files/fi/FiTool";
+import { IoBusinessOutline } from "@react-icons/all-files/io5/IoBusinessOutline";
 import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 
 // Category icons mapping with proper typing

@@ -15,18 +15,16 @@ import {
 } from "@/utils/notificationUtils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  FaBell,
-  FaEnvelope,
-  FaTag,
-  FaCheckCircle,
-  FaHeart,
-  FaPlusCircle,
-  FaSearch,
-  FaExclamationTriangle,
-  FaBullhorn,
-  FaInfoCircle,
-} from "react-icons/fa";
+import { FaBell } from "@react-icons/all-files/fa/FaBell";
+import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
+import { FaTag } from "@react-icons/all-files/fa/FaTag";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaHeart } from "@react-icons/all-files/fa/FaHeart";
+import { FaPlusCircle } from "@react-icons/all-files/fa/FaPlusCircle";
+import { FaSearch } from "@react-icons/all-files/fa/FaSearch";
+import { FaExclamationTriangle } from "@react-icons/all-files/fa/FaExclamationTriangle";
+import { FaBullhorn } from "@react-icons/all-files/fa/FaBullhorn";
+import { FaInfoCircle } from "@react-icons/all-files/fa/FaInfoCircle";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 

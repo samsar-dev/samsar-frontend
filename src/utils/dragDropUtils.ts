@@ -1,30 +1,32 @@
+import React from 'react';
+
 /**
  * Lightweight drag and drop utilities to replace react-dnd
  * Provides HTML5 drag and drop functionality without heavy dependencies
  */
 
-export interface DragDropState {
+export interface DragDropState<T> {
   isDragging: boolean;
   dragIndex: number | null;
   hoverIndex: number | null;
-  dragData: any;
+  dragData: T | null;
 }
 
-export interface DragDropCallbacks {
-  onDragStart?: (index: number, data: any) => void;
-  onDragEnd?: (index: number, data: any) => void;
-  onDrop?: (fromIndex: number, toIndex: number, data: any) => void;
+export interface DragDropCallbacks<T = any> {
+  onDragStart?: (index: number, data: T) => void;
+  onDragEnd?: (index: number, data: T) => void;
+  onDrop?: (fromIndex: number, toIndex: number, data: T) => void;
   onHover?: (hoverIndex: number) => void;
 }
 
 /**
  * Custom hook for drag and drop functionality
  */
-export const useDragDrop = (
-  items: any[],
-  callbacks: DragDropCallbacks = {}
+export const useDragDrop = <T = any>(
+  items: T[],
+  callbacks: DragDropCallbacks<T> = {}
 ) => {
-  const [state, setState] = React.useState<DragDropState>({
+  const [state, setState] = React.useState<DragDropState<T>>({
     isDragging: false,
     dragIndex: null,
     hoverIndex: null,
@@ -87,10 +89,10 @@ export const useDragDrop = (
       e.preventDefault();
       
       try {
-        const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const dragData = JSON.parse(e.dataTransfer.getData('text/plain')) as { index: number; data: T };
         const fromIndex = dragData.index;
         
-        if (fromIndex !== toIndex) {
+        if (fromIndex !== toIndex && fromIndex >= 0 && fromIndex < items.length) {
           callbacks.onDrop?.(fromIndex, toIndex, dragData.data);
         }
       } catch (error) {
@@ -108,7 +110,7 @@ export const useDragDrop = (
   );
 
   const handleDragEnd = React.useCallback(
-    (e: React.DragEvent, index: number, data?: any) => {
+    (_: React.DragEvent, index: number, data: T) => {
       setState({
         isDragging: false,
         dragIndex: null,
@@ -137,10 +139,10 @@ export const useDragDrop = (
 /**
  * Drag source hook for individual draggable items
  */
-export const useDragSource = (
+export const useDragSource = <T = any>(
   index: number,
-  data: any,
-  callbacks: DragDropCallbacks = {}
+  data: T,
+  callbacks: Pick<DragDropCallbacks<T>, 'onDragStart' | 'onDragEnd'> = {}
 ) => {
   const [isDragging, setIsDragging] = React.useState(false);
 
@@ -152,7 +154,7 @@ export const useDragSource = (
       setIsDragging(true);
       callbacks.onDragStart?.(index, data);
     },
-    onDragEnd: (e: React.DragEvent) => {
+    onDragEnd: (_: React.DragEvent) => {
       setIsDragging(false);
       callbacks.onDragEnd?.(index, data);
     },
@@ -167,9 +169,10 @@ export const useDragSource = (
 /**
  * Drop target hook for drop zones
  */
-export const useDropTarget = (
+export const useDropTarget = <T = any>(
   index: number,
-  callbacks: DragDropCallbacks = {}
+  items: T[],
+  callbacks: Pick<DragDropCallbacks<T>, 'onHover' | 'onDrop'> = {}
 ) => {
   const [isHovered, setIsHovered] = React.useState(false);
 
@@ -194,10 +197,10 @@ export const useDropTarget = (
       setIsHovered(false);
       
       try {
-        const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const dragData = JSON.parse(e.dataTransfer.getData('text/plain')) as { index: number; data: T };
         const fromIndex = dragData.index;
         
-        if (fromIndex !== index) {
+        if (fromIndex !== index && fromIndex >= 0 && fromIndex < items.length) {
           callbacks.onDrop?.(fromIndex, index, dragData.data);
         }
       } catch (error) {
@@ -377,5 +380,4 @@ export const createDragPreview = (
   return preview;
 };
 
-// Re-export React for the hooks
-import React from 'react';
+

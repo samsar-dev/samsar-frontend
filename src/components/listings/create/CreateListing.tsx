@@ -11,8 +11,8 @@ import {
   TransmissionType,
   VehicleType,
 } from "@/types/enums";
-import { AnimatePresence, motion } from "framer-motion";
-import isEqual from "lodash/isEqual";
+// Removed framer-motion import - using Tailwind CSS transitions instead
+import isEqual from "lodash-es/isEqual";
 import React, {
   Suspense,
   lazy,
@@ -22,9 +22,12 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { FaCarSide, FaCheckCircle, FaCog } from "react-icons/fa";
+import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
+import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
+import { FaCog } from "@react-icons/all-files/fa/FaCog";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { FormState } from "../../../types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
@@ -35,17 +38,6 @@ import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
 const BasicDetailsForm = lazy(() => import("./steps/BasicDetailsForm"));
 const AdvancedDetailsForm = lazy(() => import("./steps/AdvancedDetailsForm"));
 const ReviewSection = lazy(() => import("./steps/ReviewSection"));
-
-// Animation variants for lightweight transitions - optimized for performance
-const pageTransition = {
-  initial: { opacity: 0, y: 10 }, // Reduced y distance for faster animation
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 }, // Reduced y distance for faster animation
-  transition: {
-    duration: 0.2, // Reduced duration for faster transitions
-    ease: "easeInOut",
-  },
-};
 
 // Memoized step components to prevent unnecessary re-renders
 const MemoizedBasicDetailsForm = memo(BasicDetailsForm);
@@ -635,12 +627,7 @@ const CreateListing = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="space-y-6"
-      >
+      <div className="space-y-6 animate-fadeIn">
         <div className="mb-6">
           <h1
             className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
@@ -705,11 +692,9 @@ const CreateListing = () => {
         </div>
 
         <div className={isSubmitting ? "opacity-60 pointer-events-none" : ""}>
-          <AnimatePresence mode="wait">
-            <div key={step} {...pageTransition}>
-              <div className="pb-10">{bodyContent}</div>
-            </div>
-          </AnimatePresence>
+          <div className="transition-all duration-200 ease-in-out pb-10">
+            <div className="pb-10">{bodyContent}</div>
+          </div>
         </div>
 
         {isSubmitting && (
@@ -725,7 +710,7 @@ const CreateListing = () => {
             </div>
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

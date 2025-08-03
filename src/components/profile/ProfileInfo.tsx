@@ -1,22 +1,19 @@
 import * as React from 'react';
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types/user";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-toastify";
-import {
-  FaCamera,
-  FaUser,
-  FaEnvelope,
-  FaInfoCircle,
-  FaCalendarAlt,
-  FaMapMarkerAlt,
-  FaCity,
-  FaPhone,
-} from "react-icons/fa";
+import { FaCamera } from "@react-icons/all-files/fa/FaCamera";
+import { FaUser } from "@react-icons/all-files/fa/FaUser";
+import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
+import { FaInfoCircle } from "@react-icons/all-files/fa/FaInfoCircle";
+import { FaCalendarAlt } from "@react-icons/all-files/fa/FaCalendarAlt";
+import { FaMapMarkerAlt } from "@react-icons/all-files/fa/FaMapMarkerAlt";
+import { FaCity } from "@react-icons/all-files/fa/FaCity";
+import { FaPhone } from "@react-icons/all-files/fa/FaPhone";
 import { useNavigate } from "react-router-dom";
 
 interface ProfileInfoFormData {

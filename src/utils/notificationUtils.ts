@@ -47,25 +47,16 @@ const NOTIFICATION_ICONS: Record<NotificationType, string> = {
   [NotificationType.SYSTEM_NOTICE]: "info",
 };
 
-const NOTIFICATION_MESSAGES: Record<NotificationType, string> = {
-  [NotificationType.NEW_MESSAGE]: "You have received a new message",
-  [NotificationType.PRICE_UPDATE]: "The price of a listing you're interested in has been updated",
-  [NotificationType.LISTING_SOLD]: "A listing you were interested in has been sold",
-  [NotificationType.LISTING_INTEREST]: "Someone is interested in your listing",
-  [NotificationType.LISTING_CREATED]: "A new listing has been created",
-  [NotificationType.NEW_LISTING_MATCH]: "A new listing matches your saved search criteria",
-  [NotificationType.ACCOUNT_WARNING]: "There's an important notice about your account",
-  [NotificationType.SYSTEM_ANNOUNCEMENT]: "There's a new system announcement",
-  [NotificationType.SYSTEM_NOTICE]: "There's a new system notice",
-};
 
 /**
  * Get the appropriate action for a notification based on its type
  */
 export const getNotificationAction = (
   notification: Notification,
-): { path: string; query?: Record<string, string> } => 
-  NOTIFICATION_ACTIONS[notification.type]?.(notification) || { path: `/notifications` };
+): { path: string; query?: Record<string, string> } => {
+  const action = NOTIFICATION_ACTIONS[notification.type];
+  return action ? action(notification) : { path: '/notifications' };
+};
 
 /**
  * Get the appropriate icon name for a notification based on its type
@@ -86,14 +77,14 @@ export const formatNotificationMessage = (
 
   const baseMessages: Record<NotificationType, string> = {
     [NotificationType.NEW_MESSAGE]: "You have received a new message",
-    [NotificationType.PRICE_UPDATE]: "Price update for your listing",
-    [NotificationType.LISTING_SOLD]: "Your listing has been sold",
+    [NotificationType.PRICE_UPDATE]: "The price of a listing you're interested in has been updated",
+    [NotificationType.LISTING_SOLD]: "A listing you were interested in has been sold",
     [NotificationType.LISTING_INTEREST]: "Someone is interested in your listing",
-    [NotificationType.LISTING_CREATED]: "New listing created",
-    [NotificationType.NEW_LISTING_MATCH]: "New listing matches your search",
-    [NotificationType.ACCOUNT_WARNING]: "Important account notice",
-    [NotificationType.SYSTEM_ANNOUNCEMENT]: "System announcement",
-    [NotificationType.SYSTEM_NOTICE]: "System notice",
+    [NotificationType.LISTING_CREATED]: "A new listing has been created",
+    [NotificationType.NEW_LISTING_MATCH]: "A new listing matches your saved search criteria",
+    [NotificationType.ACCOUNT_WARNING]: "There's an important notice about your account",
+    [NotificationType.SYSTEM_ANNOUNCEMENT]: "There's a new system announcement",
+    [NotificationType.SYSTEM_NOTICE]: "There's a new system notice",
   };
 
   return baseMessages[notification.type] || "New notification";

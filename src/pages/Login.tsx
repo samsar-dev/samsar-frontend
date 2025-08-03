@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
 import { useTranslation } from "react-i18next";
 
 const Login = () => {

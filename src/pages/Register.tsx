@@ -1,9 +1,11 @@
 import { FormEvent, ChangeEvent } from "react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
+
 import { useTranslation } from "react-i18next";
 
 interface RegisterFormData {

@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaLock } from "@react-icons/all-files/fa/FaLock";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const PasswordResetVerification = () => {

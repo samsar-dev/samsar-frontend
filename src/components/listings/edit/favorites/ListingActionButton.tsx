@@ -1,7 +1,8 @@
 import React from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useSavedListings } from "@/contexts/SavedListingsContext";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaHeart } from "@react-icons/all-files/fa/FaHeart";
+import { FaRegHeart } from "@react-icons/all-files/fa/FaRegHeart";
 
 interface ListingActionButtonProps {
   itemId: string;

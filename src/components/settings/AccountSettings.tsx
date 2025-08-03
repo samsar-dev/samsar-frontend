@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUserShield } from "react-icons/fa";
+import { FaUserShield } from "@react-icons/all-files/fa/FaUserShield";
 import { useTranslation } from "react-i18next";
 
 interface Props {

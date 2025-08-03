@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FiMapPin, FiX } from "react-icons/fi";
+import { FiMapPin } from "@react-icons/all-files/fi/FiMapPin";
+import { FiX } from "@react-icons/all-files/fi/FiX";
+
 import { syrianCities } from "@/utils/syrianCitiesEnglish";
 
 // Simple debounce hook to replace react-use dependency

@@ -3,9 +3,10 @@ import {
   useNavigate,
   useLocation,
   useParams,
-  Routes,
-  Route,
+  Outlet,
+  useMatch,
 } from "react-router-dom";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { PublicProfileInfo } from "@/components/profile";
 import { lazy, Suspense } from "react";
 
@@ -41,10 +42,10 @@ export const Profile = () => {
       icon: "👤",
     },
     {
-      id: "listings",
+      id: "mylistings",
       path: isViewingOtherProfile
         ? `/profile/${userId}/listings`
-        : "/profile/listings",
+        : "/profile/mylistings",
       label: t("my_listings"),
       icon: "📂",
     },
@@ -64,6 +65,17 @@ export const Profile = () => {
     navigate(path);
   };
 
+  // Determine active tab based on current path
+  const getActiveTab = () => {
+    if (currentPath.includes('/mylistings')) return 'mylistings';
+    if (currentPath.includes('/listings')) return 'mylistings'; // Fallback for old URLs
+    if (currentPath.includes('/change-password')) return 'password';
+    if (currentPath.includes('/saved')) return 'saved';
+    return 'profile';
+  };
+
+  console.log('Rendering Profile', { currentPath, isViewingOtherProfile, userId, user: user?.id });
+  
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -75,10 +87,7 @@ export const Profile = () => {
             </h2>
             <nav className="space-y-2">
               {tabs.map((tab) => {
-                const isActive =
-                  currentPath === tab.path ||
-                  (tab.path !== "/profile" && currentPath.startsWith(tab.path));
-
+                const isActive = tab.id === getActiveTab();
                 return (
                   <button
                     key={tab.id}
@@ -99,24 +108,34 @@ export const Profile = () => {
 
           {/* Content Area */}
           <div className="flex-1 p-6 md:p-8">
-                        <Suspense
-              fallback={
-                <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <ErrorBoundary fallback={
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                <h3 className="text-red-800 dark:text-red-200 font-medium">
+                  {t("error_occurred")}
+                </h3>
+                <p className="text-red-700 dark:text-red-300 text-sm mt-1">
+                  {t("error_loading_content")}
+                </p>
+              </div>
+            }>
+              <Suspense
+                fallback={
+                  <div className="flex flex-col justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    <span className="mt-4 text-gray-500 dark:text-gray-400">
+                      {t("loading")}...
+                    </span>
+                    <div className="mt-2 text-sm text-gray-400">
+                      Loading profile content...
+                    </div>
+                  </div>
+                }
+              >
+                <div className="h-full">
+                  <Outlet />
                 </div>
-              }
-            >
-              <Routes>
-                <Route index element={<ProfileInfo />} />
-                <Route path="listings" element={<MyListings />} />
-                <Route path="password" element={<ChangePassword />} />
-                <Route path=":userId" element={<PublicProfileInfo />} />
-                <Route
-                  path=":userId/listings"
-                  element={<PublicProfileInfo showListings />}
-                />
-              </Routes>
-            </Suspense>
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
       </div>

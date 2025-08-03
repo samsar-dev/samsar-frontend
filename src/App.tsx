@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { UIProvider } from "@/contexts/UIContext";
 import { ListingsProvider } from "@/contexts/ListingsContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { MessagesProvider } from "@/contexts/MessagesContext";
 
 // Layout component (navigation, header, etc.) — must render immediately
 import Layout from "@/components/layout/Layout";
@@ -47,11 +49,15 @@ const App: () => ReactElement = () => {
         <SocketProvider>
           <UIProvider>
             <ListingsProvider>
-              <Layout>
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes />
-                </Suspense>
-              </Layout>
+              <SettingsProvider>
+                <MessagesProvider>
+                  <Layout>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <Routes />
+                    </Suspense>
+                  </Layout>
+                </MessagesProvider>
+              </SettingsProvider>
             </ListingsProvider>
           </UIProvider>
         </SocketProvider>

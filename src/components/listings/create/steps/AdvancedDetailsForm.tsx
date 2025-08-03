@@ -1,25 +1,24 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  FaCarSide,
-  FaCogs,
-  FaCouch,
-  FaShieldAlt,
-  FaBuilding,
-  FaCog,
-  FaList,
-  FaTachometerAlt,
-  FaWheelchair,
-  FaPaintBrush,
-  FaTree,
-  FaClock,
-  FaMusic,
-  FaLightbulb,
-  FaCamera,
-  FaShieldVirus,
-  FaWind,
-  FaTractor,
-} from "react-icons/fa";
+import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
+import { FaCogs } from "@react-icons/all-files/fa/FaCogs";
+import { FaCouch } from "@react-icons/all-files/fa/FaCouch";
+
+import { FaBuilding } from "@react-icons/all-files/fa/FaBuilding";
+import { FaCog } from "@react-icons/all-files/fa/FaCog";
+import { FaList } from "@react-icons/all-files/fa/FaList";
+import { FaTachometerAlt } from "@react-icons/all-files/fa/FaTachometerAlt";
+import { FaWheelchair } from "@react-icons/all-files/fa/FaWheelchair";
+import { FaPaintBrush } from "@react-icons/all-files/fa/FaPaintBrush";
+import { FaTree } from "@react-icons/all-files/fa/FaTree";
+import { FaClock } from "@react-icons/all-files/fa/FaClock";
+import { FaMusic } from "@react-icons/all-files/fa/FaMusic";
+import { FaLightbulb } from "@react-icons/all-files/fa/FaLightbulb";
+import { FaCamera } from "@react-icons/all-files/fa/FaCamera";
+import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
+import { FaWind } from "@react-icons/all-files/fa/FaWind";
+import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
+
 import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 import {
   ListingAction,
@@ -96,7 +95,6 @@ export function getIconComponent(iconName: string) {
     FaMusic,
     FaLightbulb,
     FaCamera,
-    FaShieldVirus,
     FaWind,
     FaTractor,
   };
@@ -525,7 +523,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         entertainment: FaMusic,
         lighting: FaLightbulb,
         cameras: FaCamera,
-        safety: FaShieldVirus,
+        safety: FaShieldAlt,
         climate: FaWind,
         convenience: FaCogs,
         default: FaCog,

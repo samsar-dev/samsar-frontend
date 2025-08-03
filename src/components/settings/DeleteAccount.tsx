@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { FaExclamationTriangle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaExclamationTriangle } from "@react-icons/all-files/fa/FaExclamationTriangle";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
+
 
 import { ACTIVE_API_URL } from "@/config";
 

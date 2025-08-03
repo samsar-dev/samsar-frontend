@@ -373,10 +373,10 @@ class AuthAPI {
       const axiosError = error as AxiosError;
 
       if (axiosError.response?.status === 401) {
-        // For 401, return success with null data (user not authenticated - normal state)
+        // For 401, return success false to indicate unauthenticated
         return {
-          success: true,
-          data: null,
+          success: false,
+          data: undefined,
         };
       }
 

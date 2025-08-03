@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import ImageFallback from "@/components/media/ImageFallback";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaTimes,
-  FaEdit,
-  FaMapMarkerAlt,
-  FaTrash,
-  FaEye,
-} from "react-icons/fa";
+ 
+ 
+import { FaChevronLeft } from "@react-icons/all-files/fa/FaChevronLeft";
+import { FaChevronRight } from "@react-icons/all-files/fa/FaChevronRight";
+import { FaTimes } from "@react-icons/all-files/fa/FaTimes";
+import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
+import { FaMapMarkerAlt } from "@react-icons/all-files/fa/FaMapMarkerAlt";
+import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
+import { FaEye } from "@react-icons/all-files/fa/FaEye";
+
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ListingCategory } from "@/types/enums";
 import type {
   Listing,
   RealEstateDetails,
@@ -240,123 +239,85 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
   const currentImageUrl = imageUrls[selectedImage] || "";
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.8 }}
-          className="relative w-full max-w-6xl max-h-[90vh] flex flex-col"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex justify-between items-center mb-4 px-2">
-            <div className="text-white text-lg font-medium">
-              {selectedImage + 1} of {imageUrls.length}
-            </div>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-300 transition-colors p-2"
-              aria-label="Close gallery"
-            >
-              <FaTimes size={24} />
-            </button>
+    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+      <div className="relative w-full max-w-6xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4 px-2">
+          <div className="text-white text-lg font-medium">
+            {selectedImage + 1} of {imageUrls.length}
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-300 transition-colors p-2"
+            aria-label="Close gallery"
+          >
+            <FaTimes size={24} />
+          </button>
+        </div>
+
+        <div className="relative flex-1 flex items-center justify-center bg-black rounded-lg overflow-hidden">
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageFallback
+              src={currentImageUrl}
+              alt={`Image ${selectedImage + 1}`}
+              className="max-w-full max-h-[70vh] object-contain"
+            />
           </div>
 
-          <div className="relative flex-1 flex items-center justify-center bg-black rounded-lg overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedImage}
-                initial={{
-                  opacity: 0,
-                  x:
-                    previousImageIndex !== null &&
-                    previousImageIndex < selectedImage
-                      ? 100
-                      : -100,
+          {hasPrev && (
+            <button
+              onClick={() => navigateImage("prev")}
+              disabled={isLoading}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all disabled:opacity-50"
+              aria-label="Previous image"
+            >
+              <FaChevronLeft size={20} />
+            </button>
+          )}
+
+          {hasNext && (
+            <button
+              onClick={() => navigateImage("next")}
+              disabled={isLoading}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all disabled:opacity-50"
+              aria-label="Next image"
+            >
+              <FaChevronRight size={20} />
+            </button>
+          )}
+        </div>
+
+        {imageUrls.length > 1 && (
+          <div className="flex justify-center mt-4 space-x-2 overflow-x-auto py-2">
+            {imageUrls.map((url, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  if (!isLoading) {
+                    setIsLoading(true);
+                    setPreviousImageIndex(selectedImage);
+                    setSelectedImage(index);
+                    setTimeout(() => setIsLoading(false), 150);
+                  }
                 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{
-                  opacity: 0,
-                  x:
-                    previousImageIndex !== null &&
-                    previousImageIndex < selectedImage
-                      ? -100
-                      : 100,
-                }}
-                transition={{ duration: 0.15 }}
-                className="w-full h-full flex items-center justify-center"
+                className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-150 ${
+                  selectedImage === index
+                    ? "border-blue-500"
+                    : "border-transparent"
+                }`}
+                aria-label={`View image ${index + 1}`}
               >
                 <ImageFallback
-                  src={currentImageUrl}
-                  alt={`Image ${selectedImage + 1}`}
-                  className="max-w-full max-h-[70vh] object-contain"
+                  src={url}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
                 />
-              </motion.div>
-            </AnimatePresence>
-
-            {hasPrev && (
-              <button
-                onClick={() => navigateImage("prev")}
-                disabled={isLoading}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all disabled:opacity-50"
-                aria-label="Previous image"
-              >
-                <FaChevronLeft size={20} />
               </button>
-            )}
-
-            {hasNext && (
-              <button
-                onClick={() => navigateImage("next")}
-                disabled={isLoading}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all disabled:opacity-50"
-                aria-label="Next image"
-              >
-                <FaChevronRight size={20} />
-              </button>
-            )}
+            ))}
           </div>
-
-          {imageUrls.length > 1 && (
-            <div className="flex justify-center mt-4 space-x-2 overflow-x-auto py-2">
-              {imageUrls.map((url, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (!isLoading) {
-                      setIsLoading(true);
-                      setPreviousImageIndex(selectedImage);
-                      setSelectedImage(index);
-                      setTimeout(() => setIsLoading(false), 150);
-                    }
-                  }}
-                  className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${
-                    selectedImage === index
-                      ? "border-blue-500"
-                      : "border-transparent"
-                  }`}
-                  aria-label={`View image ${index + 1}`}
-                >
-                  <ImageFallback
-                    src={url}
-                    alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        )}
+      </div>
+    </div>
   );
 };
 
 export default UnifiedImageGallery;
-

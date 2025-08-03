@@ -15,18 +15,17 @@ import type {
   RealEstateDetails,
 } from "@/types/listings";
 import { ListingCategory, ListingAction, ListingStatus } from "@/types/enums";
-import { motion } from "framer-motion";
+
 import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
 import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
 import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
+import { MdRemoveRedEye } from "@react-icons/all-files/md/MdRemoveRedEye";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
 import {
   useState,
   useEffect,
   useCallback,
-  useMemo,
   memo
 } from "react";
  
@@ -75,16 +74,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
 
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [distance] = useState<number | null>(null); // Distance will be implemented later
-
-  // Memoize expensive computations
-  const formattedTitle = useMemo(() => listing.title, [listing.title]);
-  const formattedPrice = useMemo(() => listing.price, [listing.price]);
-  const formattedLocation = useMemo(
-    () => cleanLocationString(listing.location),
-    [listing.location],
-  );
-
   const {
     id,
     title,
@@ -92,7 +81,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
     images = [],
     category,
     location,
-    createdAt,
     // Note: listingAction is missing from the API response
     vehicleDetails: directVehicleDetails,
     realEstateDetails: directRealEstateDetails,
@@ -121,14 +109,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
     directVehicleDetails || details?.vehicles || ({} as VehicleDetails);
   const realEstateDetails =
     directRealEstateDetails || details?.realEstate || ({} as RealEstateDetails);
-
-  // Normalize vehicle details to handle both transmission and transmissionType
-  const normalizedVehicleDetails = {
-    ...vehicleDetails,
-    transmission:
-      vehicleDetails.transmission || vehicleDetails.transmissionType || "",
-    fuelType: vehicleDetails.fuelType || "",
-  };
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -317,7 +297,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
     const price = typeof listing.price === "number" ? listing.price : 0;
     const priceCurrency = "SYP"; // Syrian Pound
 
-    const structuredData = {
+    const structuredData: any = {
       "@context": "https://schema.org",
       "@type": "Product",
       name: title || "",
@@ -432,23 +412,10 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
   const structuredData = generateStructuredData();
 
   return (
-    <motion.article
+    <article
       itemScope
       itemType="https://schema.org/Product"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{
-        y: -6,
-        boxShadow:
-          "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)",
-        transition: { duration: 0.3 },
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 25,
-      }}
-      className="w-full bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-sm hover:shadow-xl dark:shadow-lg dark:shadow-black/30 overflow-hidden group relative transition-all duration-300 border-0 sm:border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
+      className="w-full bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-sm hover:shadow-xl dark:shadow-lg dark:shadow-black/30 overflow-hidden group relative transition-all duration-300 border-0 sm:border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 animate-fadeIn"
     >
       {/* Structured Data */}
       <script
@@ -667,7 +634,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     </button>
                   </div>
                   <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <MdOutlineRemoveRedEye className="mr-1 text-gray-400" />
+                    <MdRemoveRedEye className="mr-1 text-gray-400" />
                     <span>{formatViews(listing.views)}</span>
                   </div>
                 </div>
@@ -742,9 +709,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           if (!transmissionValue)
                             return <span className="text-gray-400">-</span>;
 
-                          // Convert to lowercase for consistent comparison
-                          const lowerCaseValue = transmissionValue.toLowerCase();
-                          
                           // Normalize the transmission value to match our translation keys
                           let translationKey = '';
                           
@@ -902,24 +866,20 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
         <div className="border-t border-gray-100 dark:border-gray-800 px-5 py-3 bg-white/80 dark:bg-gray-900/95">
           <div className="flex justify-end gap-3">
             {editable && (
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   window.location.href = `/listings/${id}/edit`;
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 hover:scale-105 active:scale-95 transform transition-transform duration-200"
               >
                 <FaEdit className="w-3.5 h-3.5" />
                 {t("edit")}
-              </motion.button>
+              </button>
             )}
             {deletable && (
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -927,11 +887,11 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     onDelete?.(id as string);
                   }
                 }}
-                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700/80 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+                className="px-4 py-2 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-700/80 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 hover:scale-105 active:scale-95 transform transition-transform duration-200"
               >
                 <FaTrash className="w-3.5 h-3.5" />
                 {t("delete")}
-              </motion.button>
+              </button>
             )}
           </div>
         </div>
@@ -1034,7 +994,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
           </div>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 };
 
