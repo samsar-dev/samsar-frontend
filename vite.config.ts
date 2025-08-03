@@ -56,6 +56,10 @@ export default defineConfig(({ mode, command }) => {
       // Define feature flags for better tree shaking
       'process.env.NODE_DEBUG': JSON.stringify(false),
       'process.env.DEBUG': JSON.stringify(false),
+      // Disable development features in production
+      '__DEVELOPMENT__': JSON.stringify(!isProduction),
+      // Socket.io optimizations
+      'process.env.EIO_WS': JSON.stringify(false), // Disable WebSocket debugging
     },
     plugins: [
       react(),
@@ -156,6 +160,11 @@ export default defineConfig(({ mode, command }) => {
         '@store': path.resolve(__dirname, "src/store"),
         '@types': path.resolve(__dirname, "src/types"),
         '@utils': path.resolve(__dirname, "src/utils"),
+        // Force production builds in production mode
+        ...(isProduction ? {
+          'react-router/dist/development': 'react-router/dist/production',
+          'react-router-dom/dist/development': 'react-router-dom/dist/production',
+        } : {}),
       },
     },
 
@@ -229,16 +238,33 @@ export default defineConfig(({ mode, command }) => {
       // Enable advanced optimizations
       reportCompressedSize: false, // Faster builds
       rollupOptions: {
-        // Don't externalize React or critical dependencies
+          // Don't externalize React or critical dependencies
         external: [],
+        // Force production builds for all dependencies
+        plugins: [
+          {
+            name: 'force-production-builds',
+            resolveId(id) {
+              // Force React Router to use production build
+              if (id.includes('react-router') && id.includes('/dist/development/')) {
+                return id.replace('/dist/development/', '/dist/production/');
+              }
+              return null;
+            }
+          }
+        ],
         output: {
           compact: true,
           manualChunks: (id) => {
-            // Core React - keep together with React-dependent libraries to prevent initialization issues
-            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-jsx-runtime') ||
-                id.includes('react-i18next') || id.includes('react-redux') || id.includes('use-sync-external-store') ||
-                id.includes('react-hook-form') || id.includes('react-hot-toast') || id.includes('react-helmet-async')) {
+            // Core React - only essential React libraries to prevent initialization issues
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-jsx-runtime')) {
               return 'react-core';
+            }
+            
+            // React libraries that depend on React but can be separate
+            if (id.includes('react-i18next') || id.includes('react-redux') || id.includes('use-sync-external-store') ||
+                id.includes('react-hook-form') || id.includes('react-hot-toast') || id.includes('react-helmet-async')) {
+              return 'react-libs';
             }
             
             // React Router - separate chunk
@@ -276,12 +302,12 @@ export default defineConfig(({ mode, command }) => {
               return 'ref-utils';
             }
             
-            // Network libraries
+            // Network libraries - split for better tree shaking
             if (id.includes('axios')) {
-              return 'network';
+              return 'axios';
             }
             if (id.includes('socket.io-client')) {
-              return 'network';
+              return 'socket-io';
             }
             
             // Utility libraries
