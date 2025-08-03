@@ -6,7 +6,7 @@ import {
   TransmissionType,
   VehicleType,
 } from "@/types/enums";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import type {
   FormState,
   RealEstateDetails,

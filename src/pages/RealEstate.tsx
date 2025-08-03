@@ -4,7 +4,37 @@ import type { ExtendedListing } from "@/types/listings";
 import type { PropertyType } from "@/types/enums";
 import { ListingCategory } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
-import debounce from 'lodash-es/debounce';
+// Enhanced debounce implementation with cancel method
+const debounce = <F extends (...args: any[]) => any>(
+  func: F,
+  wait: number,
+  immediate = false
+) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  
+  const debounced = function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) func.apply(this, args);
+    };
+    
+    const callNow = immediate && !timeout;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    
+    if (callNow) func.apply(this, args);
+  };
+
+  // Add cancel method to match lodash's API
+  debounced.cancel = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+  };
+
+  return debounced;
+};
 import { toast } from "sonner";
 import { SEO } from "@/utils/seo";
 

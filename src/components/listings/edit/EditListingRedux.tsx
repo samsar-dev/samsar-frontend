@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 // Hooks
 import { useListingStore } from "@/hooks/useListingEdit";

@@ -12,7 +12,14 @@ import {
   VehicleType,
 } from "@/types/enums";
 // Removed framer-motion import - using Tailwind CSS transitions instead
-import isEqual from "lodash-es/isEqual";
+// Using JSON.stringify for simple deep equality check
+const isDeepEqual = (a: any, b: any): boolean => {
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false; // Fallback for circular references or other errors
+  }
+};
 import React, {
   Suspense,
   lazy,
@@ -23,7 +30,7 @@ import React, {
   useState,
 } from "react";
 
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
 import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
@@ -207,7 +214,7 @@ const CreateListing = () => {
   // (early return removed – we now render conditionally in the main JSX)
 
   // Track form changes to ensure hasUnsavedChanges works correctly
-  const hasUnsavedChanges = !isEqual(formData, initialFormState);
+  const hasUnsavedChanges = !isDeepEqual(formData, initialFormState);
 
   // Log changes state for debugging
   useEffect(() => {

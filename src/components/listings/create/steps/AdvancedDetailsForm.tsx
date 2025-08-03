@@ -42,7 +42,7 @@ import {
 } from "../advanced/listingsAdvancedFieldSchema";
 import FormField from "@/components/form/FormField";
 import ColorPickerField from "@/components/listings/forms/ColorPickerField";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 export interface ExtendedFormState extends Omit<FormState, "details"> {
   category: {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Form, Field } from "houseform";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,25 +21,9 @@ const Newsletter = () => {
     totalSubscribers: 0,
     lastSent: null as string | null,
   });
-  const [preview, setPreview] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [isHtml, setIsHtml] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<NewsletterFormData>({
-    defaultValues: {
-      content: "",
-      isHtml: false,
-      template: "default",
-    },
-  });
-
-  const content = watch("content");
 
   useEffect(() => {
     const loadStats = async () => {
@@ -57,11 +41,7 @@ const Newsletter = () => {
     loadStats();
   }, []);
 
-  useEffect(() => {
-    if (showPreview) {
-      setPreview(content);
-    }
-  }, [content, showPreview]);
+  // Preview will be updated via Field component changes
 
   const onSubmit = async (data: NewsletterFormData) => {
     if (
@@ -89,7 +69,7 @@ const Newsletter = () => {
             `Failed to send to ${response.data.failedCount} subscribers`,
           );
         }
-        reset();
+        // Reset form manually
         // Refresh stats after sending
         const updatedStats = await getNewsletterStats();
         setStats(updatedStats);
@@ -126,37 +106,74 @@ const Newsletter = () => {
               <CardTitle>Send Newsletter</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input
-                    id="subject"
-                    {...register("subject", { required: "Subject is required" })}
-                    className={errors.subject ? "border-red-500" : ""}
-                  />
-                  {errors.subject && (
-                    <p className="text-sm text-red-500 mt-1">{errors.subject.message}</p>
-                  )}
-                </div>
+              <Form onSubmit={onSubmit}>
+                {() => (
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const data = {
+                      subject: formData.get('subject') as string,
+                      content: formData.get('content') as string,
+                      isHtml: isHtml,
+                      template: formData.get('template') as string,
+                    };
+                    
+                    // Manual validation
+                    let hasError = false;
+                    if (!data.subject) {
+                      toast.error("Subject is required");
+                      hasError = true;
+                    }
+                    if (!data.content) {
+                      toast.error("Content is required");
+                      hasError = true;
+                    } else if (data.content.length < 10) {
+                      toast.error("Content should be at least 10 characters long");
+                      hasError = true;
+                    }
+                    
+                    if (!hasError) {
+                      onSubmit(data);
+                    }
+                  }} className="space-y-4">
+                    <Field name="subject">
+                      {({ value: subjectValue, setValue: setSubjectValue, errors: subjectErrors }) => (
+                        <div>
+                          <Label htmlFor="subject">Subject</Label>
+                          <Input
+                            id="subject"
+                            name="subject"
+                            value={subjectValue || ""}
+                            onChange={(e) => setSubjectValue(e.target.value)}
+                            className={subjectErrors.length > 0 ? "border-red-500" : ""}
+                          />
+                          {subjectErrors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">{subjectErrors[0]}</p>
+                          )}
+                        </div>
+                      )}
+                    </Field>
 
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea
-                    id="content"
-                    rows={10}
-                    {...register("content", {
-                      required: "Content is required",
-                      minLength: {
-                        value: 10,
-                        message: "Content should be at least 10 characters long",
-                      },
-                    })}
-                    className={errors.content ? "border-red-500" : ""}
-                  />
-                  {errors.content && (
-                    <p className="text-sm text-red-500 mt-1">{errors.content.message}</p>
-                  )}
-                </div>
+                    <Field name="content">
+                      {({ value: contentValue, setValue: setContentValue, errors: contentErrors }) => (
+                        <div>
+                          <Label htmlFor="content">Content</Label>
+                          <Textarea
+                            id="content"
+                            name="content"
+                            rows={10}
+                            value={contentValue || ""}
+                            onChange={(e) => {
+                              setContentValue(e.target.value);
+                            }}
+                            className={contentErrors.length > 0 ? "border-red-500" : ""}
+                          />
+                          {contentErrors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">{contentErrors[0]}</p>
+                          )}
+                        </div>
+                      )}
+                    </Field>
 
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
@@ -191,7 +208,8 @@ const Newsletter = () => {
                             "Are you sure you want to discard this draft?",
                           )
                         ) {
-                          reset();
+                          const form = document.querySelector('form');
+                          if (form) form.reset();
                         }
                       }}
                       disabled={isSending}
@@ -213,9 +231,10 @@ const Newsletter = () => {
                     </Button>
                   </div>
                 </div>
-
               </form>
-            </CardContent>
+            )}
+          </Form>
+        </CardContent>
           </Card>
 
           {showPreview && (
@@ -224,13 +243,17 @@ const Newsletter = () => {
                 <CardTitle>Preview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div
-                  className="p-4 border rounded min-h-[200px] bg-background whitespace-pre-wrap"
-                  style={isHtml ? { fontFamily: 'Arial, sans-serif', fontSize: '16px', lineHeight: 1.5 } : {}}
-                  dangerouslySetInnerHTML={{
-                    __html: isHtml ? preview : preview.replace(/\n/g, "<br>"),
-                  }}
-                />
+                <Field name="content">
+                  {({ value }) => (
+                    <div
+                      className="p-4 border rounded min-h-[200px] bg-background whitespace-pre-wrap"
+                      style={isHtml ? { fontFamily: 'Arial, sans-serif', fontSize: '16px', lineHeight: 1.5 } : {}}
+                      dangerouslySetInnerHTML={{
+                        __html: isHtml ? (value || "") : (value || "").replace(/\n/g, "<br>"),
+                      }}
+                    />
+                  )}
+                </Field>
               </CardContent>
             </Card>
           )}

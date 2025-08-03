@@ -8,7 +8,7 @@ import {
 } from "@/types/enums";
 import type { TFunction } from "i18next";
 import type { Dispatch, SetStateAction } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import type { FormState } from "../../../../types/listings";
 import { cleanLocationString } from "@/utils/locationUtils";
 

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import PreloadImages from "@/components/media/PreloadImages";
 import { Link } from "react-router-dom";
 import { FaEdit } from "@react-icons/all-files/fa/FaEdit";

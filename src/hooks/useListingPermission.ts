@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
+import { toast } from "sonner";
 import { apiClient } from "../api/apiClient";
 import { useAuth } from "./useAuth";
 
@@ -28,7 +28,6 @@ export const useListingPermission = (): ListingPermission => {
     error: null,
   });
 
-  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -79,9 +78,7 @@ export const useListingPermission = (): ListingPermission => {
           // Not authenticated
           navigate("/login", { state: { from: window.location.pathname } });
         } else {
-          enqueueSnackbar("Failed to check listing permissions", {
-            variant: "error",
-          });
+          toast.error("Failed to check listing permissions");
           setPermission((prev) => ({
             ...prev,
             userRole:
@@ -113,7 +110,7 @@ export const useListingPermission = (): ListingPermission => {
         canCreate: false,
       }));
     }
-  }, [enqueueSnackbar, navigate, user]);
+  }, [navigate, user]);
 
   return permission;
 };

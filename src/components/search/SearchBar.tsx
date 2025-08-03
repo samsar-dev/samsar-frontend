@@ -5,9 +5,8 @@ import { listingsAPI } from "@/api/listings.api";
 import { SearchSuggestionsDropdown } from "./SearchSuggestionsDropdown";
 import { useNavigate } from "react-router-dom";
 import { ListingCategory } from "@/types/enums";
-import type Fuse from "fuse.js";
 import type { Listing } from "@/types/listings";
-import { createFuse, searchListings } from "@/utils/searchUtils";
+import { createSearchEngine, searchListings } from "@/utils/searchUtils";
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
@@ -20,7 +19,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [suggestions, setSuggestions] = useState<Listing[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const fuseRef = useRef<Fuse<Listing> | null>(null);
+  const searchEngineRef = useRef<ReturnType<typeof createSearchEngine> | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -49,7 +48,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         setIsLoading(true);
         const response = await listingsAPI.getAll({ limit: 100 });
         if (response.success && response.data?.listings) {
-          fuseRef.current = createFuse(response.data.listings);
+          const engine = createSearchEngine(response.data.listings);
+          searchEngineRef.current = engine;
         }
       } catch (error) {
         console.error("Failed to load listings:", error);
@@ -75,9 +75,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         setIsLoading(true);
 
         // First try client-side fuzzy search
-        if (fuseRef.current) {
-          const results = searchListings(fuseRef.current, searchTerm);
-          setSuggestions(results.slice(0, 4));
+        if (searchEngineRef.current && searchTerm.trim()) {
+          const results = searchListings(searchEngineRef.current, searchTerm);
+          setSuggestions(results);
           setShowSuggestions(true);
           return;
         }
@@ -91,8 +91,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               category === "vehicles"
                 ? ListingCategory.VEHICLES
                 : ListingCategory.REAL_ESTATE,
-            ...(subcategory ? { subCategory: subcategory } : {}),
+            subCategory: subcategory || undefined,
           };
+          searchParams.search = searchTerm;
         }
 
         const response = await listingsAPI.search(searchTerm, searchParams);

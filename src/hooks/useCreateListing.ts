@@ -10,7 +10,7 @@ import {
 } from "@/types/enums";
 import type { FormState, VehicleFeatures } from "@/types/listings";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 export interface UseCreateListingReturn {
   formData: FormState;

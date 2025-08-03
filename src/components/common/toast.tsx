@@ -1,4 +1,4 @@
-import { toast as hotToast } from "react-hot-toast";
+import { toast as hotToast } from "sonner";
 
 interface ToastOptions {
   duration?: number;

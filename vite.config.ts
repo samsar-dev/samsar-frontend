@@ -60,7 +60,12 @@ export default defineConfig(({ mode, command }) => {
       '__DEVELOPMENT__': JSON.stringify(!isProduction),
       // Socket.io optimizations
       'process.env.EIO_WS': JSON.stringify(false), // Disable WebSocket debugging
+      // React Router v7 optimizations (minimal defines needed)
+      '__REACT_ROUTER_FUTURE_V7__': JSON.stringify(true),
     },
+    
+
+    
     plugins: [
       react(),
       visualizer({
@@ -150,6 +155,7 @@ export default defineConfig(({ mode, command }) => {
     },
 
     resolve: {
+      conditions: isProduction ? ['production', 'default'] : ['development', 'default'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         '@components': path.resolve(__dirname, "src/components"),
@@ -160,11 +166,7 @@ export default defineConfig(({ mode, command }) => {
         '@store': path.resolve(__dirname, "src/store"),
         '@types': path.resolve(__dirname, "src/types"),
         '@utils': path.resolve(__dirname, "src/utils"),
-        // Force production builds in production mode
-        ...(isProduction ? {
-          'react-router/dist/development': 'react-router/dist/production',
-          'react-router-dom/dist/development': 'react-router-dom/dist/production',
-        } : {}),
+        // React Router v7 handles production builds automatically
       },
     },
 
@@ -240,19 +242,8 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
           // Don't externalize React or critical dependencies
         external: [],
-        // Force production builds for all dependencies
-        plugins: [
-          {
-            name: 'force-production-builds',
-            resolveId(id) {
-              // Force React Router to use production build
-              if (id.includes('react-router') && id.includes('/dist/development/')) {
-                return id.replace('/dist/development/', '/dist/production/');
-              }
-              return null;
-            }
-          }
-        ],
+        // React Router v7 has better production builds by default
+        plugins: [],
         output: {
           compact: true,
           manualChunks: (id) => {
@@ -311,7 +302,7 @@ export default defineConfig(({ mode, command }) => {
             }
             
             // Utility libraries
-            if (id.includes('lodash') || id.includes('date-fns') || id.includes('fuse.js')) {
+            if (id.includes('lodash') || id.includes('date-fns')) {
               return 'utils';
             }
             
@@ -423,12 +414,12 @@ export default defineConfig(({ mode, command }) => {
       },
     },
     
-    // Mobile performance optimizations
+    // Mobile performance optimizations and production builds
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom'],
+      include: ['react', 'react-dom', 'react-router', 'react-router-dom'],
       exclude: [
         'socket.io-client',
-        'fuse.js',
+
         'date-fns',
         'lodash-es',
         'i18next',
@@ -439,6 +430,11 @@ export default defineConfig(({ mode, command }) => {
         treeShaking: true,
         // Target modern browsers
         target: 'es2020',
+        // Force production conditions
+        conditions: isProduction ? ['production'] : ['development'],
+        define: {
+          'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+        },
       },
     },
 
