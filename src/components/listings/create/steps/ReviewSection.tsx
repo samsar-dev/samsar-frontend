@@ -2,7 +2,6 @@ import type {
   Condition,
   FuelType,
   ListingAction,
-  TransmissionType,
 } from "@/types/enums";
 import { ListingCategory, VehicleType } from "@/types/enums";
 import type { FormState } from "@/types/forms";
@@ -48,7 +47,6 @@ const transitionClasses = "transition-all duration-300 ease-in-out";
 const ReviewSection = React.memo<ReviewSectionProps>(
   ({ formData, onSubmit, onBack, onEdit, isSubmitting, error }) => {
     const { t } = useTranslation();
-    const [loading, setLoading] = useState(false);
 
     // Format price with currency and thousands separator
     const formatPrice = (price: number) => {
@@ -71,10 +69,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       return condition.charAt(0).toUpperCase() + condition.slice(1);
     };
 
-    // Format transmission with proper capitalization
-    const formatTransmission = (transmission: TransmissionType) => {
-      return transmission.charAt(0).toUpperCase() + transmission.slice(1);
-    };
+
 
     // Format fuel type with proper capitalization
     const formatFuelType = (fuelType: FuelType) => {
@@ -159,19 +154,24 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         formData.category?.mainCategory === ListingCategory.REAL_ESTATE
       ) {
         const realEstateDetails = formData.details?.realEstate;
-        const realEstateSchema =
-          listingsAdvancedFieldSchema["realEstate"] || [];
-        const requiredRealEstateFields = realEstateSchema.filter(
-          (field: ListingFieldSchema) => field.required,
-        );
+        const subCategory = formData.category?.subCategory;
+        if (!subCategory) {
+          newErrors.push(t("errors.subcategoryRequired"));
+        } else {
+          const realEstateSchema =
+            listingsAdvancedFieldSchema[subCategory] || [];
+          const requiredRealEstateFields = realEstateSchema.filter(
+            (field: ListingFieldSchema) => field.required,
+          );
 
-        requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
-          const value =
-            realEstateDetails?.[field.name as keyof RealEstateDetails];
-          if (!value) {
-            newErrors.push(t(`errors.${field.name}Required`));
-          }
-        });
+          requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
+            const value =
+              realEstateDetails?.[field.name as keyof RealEstateDetails];
+            if (!value) {
+              newErrors.push(t(`errors.${field.name}Required`));
+            }
+          });
+        }
       }
 
       // Image validation
@@ -738,7 +738,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       );
     };
 
-    const getAdvancedFieldList = () => {
+    const getAdvancedFieldList = (): ListingFieldSchema[] => {
       if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
         const subCat = formData.category.subCategory;
         return (

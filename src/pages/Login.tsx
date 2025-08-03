@@ -29,9 +29,8 @@ const Login = () => {
         if (seconds <= 0) clearInterval(interval);
       }, 1000);
       return () => clearInterval(interval);
-    } else {
-      setCooldown(null);
     }
+    return undefined;
   }, [retryAfter]);
 
   const handleSubmit = async (e: React.FormEvent) => {

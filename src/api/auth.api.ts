@@ -6,7 +6,8 @@ import type {
   AuthUser,
 } from "../types/auth.types";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
+import axios, { AxiosError } from "axios";
 import { ACTIVE_API_URL } from "@/config";
 
 // Configure axios to include credentials

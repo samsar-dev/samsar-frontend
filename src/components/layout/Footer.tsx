@@ -1,17 +1,11 @@
-import { memo } from "react";
+
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FaFacebook } from "@react-icons/all-files/fa/FaFacebook";
 import { FaInstagram } from "@react-icons/all-files/fa/FaInstagram";
 import { FaTwitter } from "@react-icons/all-files/fa/FaTwitter";
 
-// Use lightweight social icons instead of react-icons
-const SocialIcon = ({ name, url }: { name: string; url: string }) => (
-  <a href={url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
-    <span className="sr-only">{name}</span>
-    <span className="text-lg">{name.slice(0, 1)}</span>
-  </a>
-);
+
 
 const Footer: React.FC = () => {
   const { t } = useTranslation("footer");

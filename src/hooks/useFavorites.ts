@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { APIResponse } from "@/types/api";
+import { useState } from "react";
+import type { APIResponse } from "@/types/api";
 
 export interface FavoritesContextType {
   favorites: string[];

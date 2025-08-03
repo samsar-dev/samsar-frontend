@@ -1,4 +1,4 @@
-import { Listing, ListingFieldSchema } from "@/types/listings";
+import type { Listing, ListingFieldSchema } from "@/types/listings";
 import { VehicleType, PropertyType } from "@/types/enums";
 
 export { VehicleType, PropertyType };

@@ -160,7 +160,7 @@ export interface SearchFilters {
 }
 
 // Socket Types
-import { SocketEvent } from "./enums";
+import type { SocketEvent } from "./enums";
 
 export interface SocketResponse {
   event: SocketEvent;

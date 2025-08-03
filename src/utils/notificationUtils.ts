@@ -1,4 +1,5 @@
-import { NotificationType, Notification } from "@/types/notifications";
+import type { Notification } from "@/types/notifications";
+import { NotificationType } from "@/types/notifications";
 
 // Color mapping for notifications - optimized for bundle size
 const NOTIFICATION_COLORS: Record<NotificationType, string> = {

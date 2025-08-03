@@ -4,15 +4,11 @@ import {
   useLocation,
   useParams,
   Outlet,
-  useMatch,
+
 } from "react-router-dom";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import { PublicProfileInfo } from "@/components/profile";
-import { lazy, Suspense } from "react";
 
-const MyListings = lazy(() => import("@/components/profile/MyListings"));
-const ProfileInfo = lazy(() => import("@/components/profile/ProfileInfo"));
-const ChangePassword = lazy(() => import("@/components/profile/ChangePassword"));
+import { Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface TabItem {

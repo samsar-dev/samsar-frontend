@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 
 export const motorcycleSchema: ListingFieldSchema[] = [
   // Essential Section

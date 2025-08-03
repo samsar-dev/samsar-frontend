@@ -1,5 +1,5 @@
 import { FILTERS_TYPES } from "./filters.types";
-import {
+import type {
   ListingAction,
   VehicleType,
   PropertyType,
@@ -65,7 +65,7 @@ export const resetFilters = () => ({
 });
 
 // Thunk action for applying filters
-export const applyFilters = () => async (dispatch: any, getState: any) => {
+export const applyFilters = () => async (_: any, getState: any) => {
   try {
     // Here you would typically make an API call with the current filters
     const { filters } = getState();

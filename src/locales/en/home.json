@@ -46,6 +46,18 @@
     "commercial": "Commercial",
     "commercial_desc": "Shops & offices"
   },
+  "meta": {
+    "vehicles": {
+      "title": "Best Cars for Sale in Syria | Samsar",
+      "description": "Browse the latest listings of used and new cars in Syria. Cars for sale directly from owners or trusted dealers. Competitive prices and quality assurance"
+    },
+    "properties": {
+      "title": "Best Properties for Sale in Syria | Samsar",
+      "description": "Browse the best real estate offers in Syria. Apartments, villas, commercial properties, and land for sale or rent. Competitive prices and prime locations"
+    },
+    "seo_title": "Cars for Sale in Syria | Properties for Sale & Rent | Samsar Platform",
+    "seo_description": "Discover the best offers on cars and properties in Syria"
+  },
   "about_section_title": "Samsar Platform - The Leading Destination for Real Estate and Vehicles in Syria",
   "about_section_text_1": "Samsar Platform was established to provide a unique experience for customers looking for the best real estate and vehicle offers in Syria. We take pride in offering an integrated service that includes everything you need to find the perfect property or car that suits your needs and budget.",
   "about_section_text_2": "Thanks to our team of experts and specialists, we ensure you get accurate and reliable information about each listing, with high-quality images and a comprehensive detailed description. We always strive to provide the latest and best offers in the Syrian market.",
@@ -69,6 +81,18 @@
   "advantage": {
     "title": "Samsar's Unique Features",
     "subtitle": "Discover why thousands of customers choose Samsar",
+    "meta": {
+      "vehicles": {
+        "title": "Best Cars for Sale in Syria | Samsar",
+        "description": "Browse the latest listings of used and new cars in Syria. Cars for sale directly from owners or trusted dealers. Competitive prices and quality assurance"
+      },
+      "properties": {
+        "title": "Best Properties for Sale in Syria | Samsar",
+        "description": "Browse the best real estate offers in Syria. Apartments, villas, commercial properties, and land for sale or rent. Competitive prices and prime locations"
+      },
+      "seo_title": "Cars for Sale in Syria | Properties for Sale & Rent | Samsar Platform",
+      "seo_description": "Discover the best offers on cars and properties in Syria"
+    },
     "real_time": {
       "title": "Exclusive Offers",
       "description": "Exclusive access to the latest offers before anyone else with real-time updates"

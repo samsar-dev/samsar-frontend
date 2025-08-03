@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { RouteObject } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 import PrivateRoute from "@/components/auth/AuthRoute";
 
 // Lazy load admin components

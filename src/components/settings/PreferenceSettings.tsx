@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
-import i18n from "i18next";
 import { LanguageCode, ThemeType } from "@/types/enums";
 import type { PreferenceSettings as PreferenceSettingsType } from "@/types/settings";
 
@@ -52,10 +51,7 @@ function PreferenceSettings({ settings, onUpdate, isRTL = false }: Props) {
   };
 
   // Remove the language change effect since we'll handle it in Settings component
-  const applyLanguageChange = (langCode: string) => {
-    // This function is now just a placeholder since language change is handled by Settings
-    console.log("Language change will be handled by Settings component");
-  };
+
 
   // Remove the useEffect since language change is now handled by Settings component
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
+import type { FormEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";

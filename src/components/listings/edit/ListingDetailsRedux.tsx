@@ -60,33 +60,6 @@ const UnifiedImageGallery = lazy(
   () => import("@/components/listings/images/UnifiedImageGallery"),
 );
 
-interface ExtendedListing {
-  seller?: {
-    id: string;
-    username: string;
-    profilePicture: string | null;
-    allowMessaging: boolean;
-    privateProfile: boolean;
-  };
-  sellerId?: string;
-  vehicleType?: VehicleType;
-  propertyType?: PropertyType;
-  details: {
-    vehicles?: any;
-    realEstate?: any;
-    [key: string]: any;
-  };
-  images?: (string | File)[];
-  price: number;
-  title: string;
-  description: string;
-  category: {
-    mainCategory: ListingCategory;
-    subCategory: VehicleType | PropertyType;
-  };
-  location: any;
-}
-
 // Helper component to safely convert any value to a string
 const safeString = (val: any): string => {
   if (val === null || val === undefined) return "";
@@ -491,7 +464,7 @@ const ListingDetails = () => {
   const { essentialFields, advancedFields } = useMemo(() => {
     if (!listing) {
       console.log("No listing data yet");
-      return { essentialFields: [], advancedFields: [] };
+      return { essentialFields: [] as any[], advancedFields: [] as any[] };
     }
 
     console.log("Listing category:", listing.category);

@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 export const vanSchema: ListingFieldSchema[] = [

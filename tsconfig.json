@@ -29,11 +29,11 @@
     "skipLibCheck": true,
 
     /* Disable strict checks to reduce noise */
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitAny": false
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true
   },
 
   "include": ["src", "vite.config.ts"],

@@ -1,7 +1,7 @@
 // Type declarations for @react-icons/all-files
 // This ensures TypeScript can find the type definitions for the icons
 
-import { IconType } from 'react-icons';
+import type { IconType } from 'react-icons';
 
 // Generic catch-all for all icon files
 declare module '@react-icons/all-files/*' {

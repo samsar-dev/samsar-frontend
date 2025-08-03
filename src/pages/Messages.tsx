@@ -59,7 +59,7 @@ export default function ChatInterface() {
 
   // Handle real-time updates for conversations and messages
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) return undefined;
 
     const handleNewMessage = (message: any) => {
       // If the new message is for the current chat, update the last message
@@ -83,7 +83,6 @@ export default function ChatInterface() {
     socket.on(NEW_MESSAGE, handleNewMessage);
     socket.on("conversation:updated", handleConversationUpdate);
 
-    // Clean up event listeners
     return () => {
       socket.off(NEW_MESSAGE, handleNewMessage);
       socket.off("conversation:updated", handleConversationUpdate);

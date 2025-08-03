@@ -11,7 +11,7 @@ interface NotificationsDropdownProps {
 
 const NotificationsDropdown: React.FC<NotificationsDropdownProps> = memo(({ isOpen, onClose, isRTL }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
 
   if (!isOpen) return null;
 

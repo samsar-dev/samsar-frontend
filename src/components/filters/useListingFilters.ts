@@ -1,9 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
+import type {
+  ListingAction} from "@/types/enums";
 import {
-  ListingAction,
-  VehicleType,
   ListingCategory,
-  PropertyType,
 } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 

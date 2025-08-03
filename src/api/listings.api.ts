@@ -155,7 +155,7 @@ export const createListing = async (
         }
 
         // Common numeric fields for all vehicles
-        const numericFields = {
+        const numericFields: Record<string, number | null> = {
           year: 0,
           mileage: 0,
           previousOwners: 0,
@@ -168,9 +168,9 @@ export const createListing = async (
 
         // Process numeric fields
         Object.entries(numericFields).forEach(([field, defaultValue]) => {
-          if (details.vehicles[field] !== undefined) {
-            const parsed = parseInt(details.vehicles[field].toString());
-            details.vehicles[field] = isNaN(parsed) ? defaultValue : parsed;
+          if (details.vehicles && (details.vehicles as Record<string, any>)[field] !== undefined) {
+            const parsed = parseInt((details.vehicles as Record<string, any>)[field].toString());
+            (details.vehicles as Record<string, any>)[field] = isNaN(parsed) ? defaultValue : parsed;
           }
         });
 
@@ -1817,7 +1817,7 @@ export const listingsAPI: ListingsAPI = {
           ) {
             // Filter listings by query on the client side
             const clientFilteredListings =
-              allListingsResponse.data.listings.filter((listing) => {
+              allListingsResponse.data.listings.filter((listing: any) => {
                 // First check if the listing matches the category and subcategory filters
                 if (params?.category?.mainCategory) {
                   // If category filter is provided, check if the listing matches

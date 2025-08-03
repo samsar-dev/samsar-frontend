@@ -35,7 +35,7 @@ export interface RequestConfig extends AxiosRequestConfig {
 }
 
 // Get the active base URL
-const getBaseUrl = (config?: RequestConfig): string => {
+const getBaseUrl = (): string => {
   // Use the configured active API URL
   return ACTIVE_API_URL;
 }
@@ -67,8 +67,8 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // Function to update axios instance with new base URL
-const updateAxiosInstance = (config?: RequestConfig): AxiosInstance => {
-  const newBaseURL = getBaseUrl(config);
+const updateAxiosInstance = (): AxiosInstance => {
+  const newBaseURL = getBaseUrl();
   const effectiveBaseURL = IS_PRODUCTION ? newBaseURL : '/api';
   
   if (newBaseURL !== currentBaseURL) {

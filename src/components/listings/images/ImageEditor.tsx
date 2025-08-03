@@ -42,9 +42,9 @@ const ImageEditorOptimized: React.FC<ImageEditorOptimizedProps> = ({
   onSave,
   onClose,
 }) => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<"crop" | "blur" | "filters">("crop");
   

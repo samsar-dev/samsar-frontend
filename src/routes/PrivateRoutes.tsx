@@ -1,9 +1,10 @@
-import { lazy, memo, Suspense } from "react";
-import { RouteObject, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import type { RouteObject} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/AuthRoute";
-import { Layout } from "@/components/layout";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { lazyWithPrefetch } from "@/utils/prefetch";
 
 // Layout wrapper for private routes
 const withLayout = (Component: React.ComponentType) => {
@@ -23,11 +24,11 @@ const withLayout = (Component: React.ComponentType) => {
   return WrappedComponent;
 };
 
-// Lazy load components
-const LazyProfile = withLayout(lazy(() => import("@/pages/Profile")));
-const LazySettings = withLayout(lazy(() => import("@/pages/Settings")));
-const LazyMessages = withLayout(lazy(() => import("@/pages/Messages")));
-const LazyCreateListing = withLayout(lazy(() => import("@/components/listings/create/CreateListing")));
+// Lazy load components with prefetching for better UX
+const LazyProfile = withLayout(lazyWithPrefetch(() => import("@/pages/Profile"), 1000));
+const LazySettings = withLayout(lazyWithPrefetch(() => import("@/pages/Settings"), 1500));
+const LazyMessages = withLayout(lazyWithPrefetch(() => import("@/pages/Messages"), 2000));
+const LazyCreateListing = withLayout(lazyWithPrefetch(() => import("@/components/listings/create/CreateListing"), 2500));
 const LazyEditListing = withLayout(lazy(() => import("@/components/listings/edit/EditListingRedux")));
 const LazyListingSuccess = withLayout(lazy(() => import("@/pages/ListingSuccess")));
 const LazySavedListings = withLayout(lazy(() => import("@/components/profile/SavedListings")));
@@ -113,18 +114,15 @@ export const privateRoutes: RouteObject[] = [
           </Suspense>
         ),
       },
+      {
+        path: ":userId/listings",
+        element: <LazyUserProfile />,
+      },
+      {
+        path: ":userId",
+        element: <LazyUserProfile />,
+      },
     ],
-  },
-  
-  // Public profile routes - these should come after the specific profile routes
-  // to avoid conflicts with nested routes
-  {
-    path: "/profile/:userId/listings",
-    element: <LazyUserProfile />,
-  },
-  {
-    path: "/profile/:userId",
-    element: <LazyUserProfile />,
   },
   
   // Messages route

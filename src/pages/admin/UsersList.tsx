@@ -1,4 +1,5 @@
-import { FC, useEffect, useState } from "react";
+import type { FC} from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -27,7 +28,7 @@ const UsersList: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchUsers = async () => {

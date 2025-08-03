@@ -12,9 +12,7 @@ import type { Conversation, Message } from "@/types/messaging";
 import type { User } from "@/types/user";
 import type { AuthUser } from "@/types/auth.types";
 import {
-  ImageIcon,
   MoreHorizontal,
-  Paperclip,
   Send,
   Smile,
 } from "lucide-react";
@@ -166,7 +164,7 @@ function ChatSection({
   useEffect(() => {
     if (!socket) {
       console.warn("Socket not initialized");
-      return;
+      return undefined;
     }
 
     console.log("Socket initialized", socket);

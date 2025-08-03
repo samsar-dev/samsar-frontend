@@ -25,7 +25,7 @@ let i18nInitialized = false;
 
 // Initialize heavy dependencies asynchronously
 const initializeDependencies = async () => {
-  const [storeModule, i18nModule] = await Promise.all([
+  const [storeModule] = await Promise.all([
     import("./store/store"),
     import("./config/i18n")
   ]);
@@ -63,29 +63,7 @@ const initializePerformanceMonitoring = () => {
   }
 };
 
-// Minimal loading fallback
-const LoadingFallback = () => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ffffff'
-  }}>
-    <div style={{
-      width: '32px',
-      height: '32px',
-      border: '2px solid #e5e7eb',
-      borderTop: '2px solid #2563eb',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite'
-    }} />
-  </div>
-);
+ 
 
 // Fast app initialization
 const initializeApp = async () => {
@@ -146,10 +124,7 @@ const startApp = async () => {
   }
 };
 
-// Simplified browser detection
-const checkModernBrowser = () => {
-  return typeof Symbol !== 'undefined' && typeof fetch !== 'undefined';
-};
+ 
 
 // Modern browser detection script
 const browserSupportScript = `

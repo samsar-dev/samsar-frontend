@@ -1,4 +1,4 @@
-import { VehicleDataStructure } from "../vehicleModels";
+import type { VehicleDataStructure } from "../vehicleModels";
 
 export const tractorsModels: VehicleDataStructure = {
   regular: {

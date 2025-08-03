@@ -42,8 +42,11 @@ export default function MyListings({ userId }: MyListingsProps) {
 
   // Memoize the fetchListings function to prevent unnecessary re-renders
   const fetchListings = useCallback(async () => {
-    if (!isInitialized) return;
-    if (!isAuthenticated && !userId) return;
+    // If user isn’t authenticated yet (and we don’t have an explicit userId), skip but stop loader
+    if (!isAuthenticated && !userId) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Create a unique request ID to track the latest request
@@ -114,7 +117,7 @@ export default function MyListings({ userId }: MyListingsProps) {
     } finally {
       setIsLoading(false); // Always stop loading
     }
-  }, [page, limit, isAuthenticated, isInitialized, sortBy]);
+  }, [page, limit, isAuthenticated, sortBy]);
 
   // Use a stable reference for the effect
   const handleLoadMore = useCallback(() => {
@@ -136,16 +139,18 @@ export default function MyListings({ userId }: MyListingsProps) {
   // Single effect to handle all fetching of listings
   useEffect(() => {
     console.log('🔄 MyListings useEffect triggered:', { isAuthenticated, isInitialized, page });
-    // Only fetch if authenticated and initialized
-    if (isAuthenticated && isInitialized) {
+    // Fetch as soon as user is authenticated. If auth still initializing, we'll try again once it's ready.
+    if (isAuthenticated) {
       // For initial load, mark as attempted
       if (!hasAttemptedFetch.current) {
         hasAttemptedFetch.current = true;
         console.log('📋 First fetch attempt');
       }
-      // Always fetch when authenticated and initialized
       console.log('🚀 Calling fetchListings...');
       fetchListings();
+    } else {
+      // If we can’t fetch yet, ensure we don’t show an endless spinner
+      setIsLoading(false);
     }
 
     // Cleanup function to abort any pending requests when component unmounts
@@ -154,7 +159,7 @@ export default function MyListings({ userId }: MyListingsProps) {
         abortControllerRef.current.abort();
       }
     };
-  }, [isAuthenticated, isInitialized, page]);
+   }, [isAuthenticated, page]);
 
   const handleDelete = async (listingId: string) => {
     try {

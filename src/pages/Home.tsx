@@ -53,15 +53,18 @@ const AdvantageCards = memo(lazy(() =>
 import LazyLoadOnScroll from '@/components/common/LazyLoadOnScroll';
 
 // Types and enums
-import {
-  ListingCategory,
+import type {
   VehicleType,
-  PropertyType,
+  PropertyType} from "@/types/enums";
+import {
+  ListingCategory
 } from "@/types/enums";
-import { ExtendedListing } from "@/types/listings";
+import type { ExtendedListing } from "@/types/listings";
 
 // Icons for HomeHero
-import { FaCar, FaHome } from 'react-icons/fa';
+
+import { FaCar } from '@react-icons/all-files/fa/FaCar';
+import { FaHome } from '@react-icons/all-files/fa/FaHome';
 
 // Inline HomeHero component
 interface HomeHeroProps {
@@ -569,7 +572,7 @@ const Home: React.FC = () => {
 
   // Generate dynamic title and description based on category
   // Memoize page metadata to prevent unnecessary re-renders
-  const { title, description } = useMemo(() => {
+  const { description } = useMemo(() => {
     if (selectedCategory === ListingCategory.VEHICLES) {
       return {
         title: t(
@@ -599,9 +602,9 @@ const Home: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Helmet>
         <title>
-          {title}
+          {t("home:meta.seo_title")}
         </title>
-        <meta name="description" content={description} />
+        <meta name="description" content={t("home:meta.seo_description")} />
         
         {/* Canonical and hreflang */}
         <link rel="canonical" href={window.location.href} />
@@ -630,10 +633,10 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rtl:direction-rtl">
           {/* SEO-Optimized H1 - Visible heading for better SEO */}
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-            {t("home:seo_title", "سيارات للبيع في سوريا | عقارات للبيع والايجار | منصة سمسار")}
+            {t("home:meta.seo_title")}
           </h1>
           <h2 className="text-xl text-gray-600 dark:text-gray-300 mb-12 text-center">
-            {t("home:seo_description", "اكتشف أفضل العروض على سيارات وعقارات في سوريا")}
+            {t("home:meta.seo_description")}
           </h2>
           <p className="sr-only">
             {t("home:seo_description", "أكبر سوق إلكتروني متخصص في بيع وشراء السيارات المستعملة والجديدة، الشقق، الفلل، الأراضي، والمحلات التجارية في جميع أنحاء سوريا. أسعار منافسة وضمان الجودة")}

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback } f
 import type { Socket } from "socket.io-client";
 import socketIO from "socket.io-client";
 
-type SocketType = Socket | null;
+
 import { useAuth } from "@/hooks/useAuth";
 import { ACTIVE_SOCKET_URL, SOCKET_CONFIG } from "@/config";
 

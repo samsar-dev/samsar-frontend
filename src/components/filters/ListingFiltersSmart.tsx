@@ -1,8 +1,9 @@
 import React, { memo, useCallback } from "react";
 import { ListingFilters as DumbFilters } from "./ListingFilters";
-import { useListingFilters, FiltersState } from "./useListingFilters";
+import type { FiltersState } from "./useListingFilters";
+import { useListingFilters } from "./useListingFilters";
 import { type ExtendedListing } from "@/types/listings";
-import { ListingCategory } from "@/types/enums";
+import type { ListingCategory } from "@/types/enums";
 
 interface ListingFiltersSmartProps {
   loading: boolean;

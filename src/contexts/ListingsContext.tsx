@@ -1,10 +1,11 @@
+import type {
+  ReactNode} from "react";
 import {
   createContext,
   useContext,
   useState,
   useEffect,
-  useRef,
-  ReactNode,
+  useRef
 } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings.ts";

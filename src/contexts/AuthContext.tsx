@@ -1,11 +1,10 @@
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   useCallback,
 } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+
 import { toast } from "react-toastify";
 import { AuthAPI } from "../api/auth.api";
 
@@ -13,7 +12,6 @@ import type {
   AuthContextType,
   AuthError,
   AuthState,
-  AuthErrorCode,
   AuthUser,
 } from "../types/auth.types";
 
@@ -35,9 +33,9 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const navigate = useNavigate();
+
   const [state, setState] = useState<AuthState>(initialState);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 

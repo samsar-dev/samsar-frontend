@@ -1,4 +1,4 @@
-import { VehicleType, PropertyType } from "@/types/enums";
+import type { VehicleType, PropertyType } from "@/types/enums";
 import {
   getFieldsBySection,
   getFieldValue as getFieldValueUtil,
@@ -52,7 +52,7 @@ export const validateFieldValue = (
 };
 
 // Helper function to get default value based on field type
-const getDefaultValue = (type: string) => {
+const getDefaultValue = (type: string): any => {
   switch (type) {
     case "number":
       return 0;

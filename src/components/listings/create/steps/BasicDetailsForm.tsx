@@ -1,7 +1,7 @@
 import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
-import { normalizeLocation } from "@/utils/locationUtils";
+
 import {
   ListingCategory,
   VehicleType,
@@ -24,9 +24,7 @@ import { CollapsibleTip } from "@/components/ui/CollapsibleTip";
 import { Locate } from "lucide-react";
 import * as Select from "@radix-ui/react-select";
 import { ImageManager } from "../../images/ImageManager";
-import LocationSearch, {
-  type SelectedLocation,
-} from "@/components/location/LocationSearch";
+import LocationSearch from "@/components/location/LocationSearch";
 
 // Import vehicle model data from vehicleModels file
 import {
@@ -81,7 +79,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   const commonT = (key: string) => t(key, { ns: "common" });
   const formT = (key: string) => t(key, { ns: "form" });
   const listingsT = (key: string) => t(key, { ns: "listings" });
-  const locationsT = (key: string) => t(key, { ns: "locations" });
   const [formData, setFormData] = useState<ExtendedFormState>(() => {
     const baseData = {
       title: "",
@@ -91,10 +88,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         mainCategory: ListingCategory.VEHICLES,
         subCategory: VehicleType.CAR, // Default to CAR
       },
-      condition: undefined,
+      condition: undefined as Condition | undefined,
       location: "",
       locationDisplay: "", // Initialize locationDisplay
-      images: [],
+      images: [] as File[],
       details: {
         vehicles: {
           vehicleType: VehicleType.CAR, // Default to CAR
@@ -103,25 +100,25 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           year: "",
           customMake: "",
           customModel: "",
-          condition: undefined,
-          features: [],
+          condition: undefined as Condition | undefined,
+          features: [] as string[],
         },
         realEstate: {
           id: "",
           listingId: "",
           propertyType: PropertyType.APARTMENT,
-          condition: undefined,
-          features: [],
-          accessibilityFeatures: [],
-          buildingAmenities: [],
-          exposureDirection: [],
-          fireSafety: [],
-          flooringTypes: [],
-          securityFeatures: [],
-          storageType: [],
-          soilTypes: [],
-          topography: [],
-          utilities: [],
+          condition: undefined as Condition | undefined,
+          features: [] as string[],
+          accessibilityFeatures: [] as string[],
+          buildingAmenities: [] as string[],
+          exposureDirection: [] as string[],
+          fireSafety: [] as string[],
+          flooringTypes: [] as string[],
+          securityFeatures: [] as string[],
+          storageType: [] as string[],
+          soilTypes: [] as string[],
+          topography: [] as string[],
+          utilities: [] as string[],
           bedrooms: 0,
           bathrooms: 0,
           size: 0,
@@ -151,18 +148,12 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
   const [locationMeta, setLocationMeta] = useState<{
     lat: number;
     lng: number;
     placeId?: string;
     bounds?: [number, number, number, number];
   } | null>(null);
-
-  // Helper function to convert VehicleType enum to string
-  const getVehicleDataType = (vehicleType: VehicleType): VehicleType => {
-    return vehicleType;
-  };
 
   // Generate make options for the current vehicle type
   const generateMakeOptions = () => {
@@ -754,13 +745,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     if (formData?.category?.mainCategory !== ListingCategory.VEHICLES)
       return null;
 
-    const vehicleType = formData?.category?.subCategory as VehicleType;
-    const vehicleDataType = getVehicleDataType(vehicleType);
-
-    const makes = generateMakeOptions();
-    const models = getModelOptions(formData.details?.vehicles?.make || "");
-    const years = getYearOptions();
-
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1151,7 +1135,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   typeof translatedHelpText === "string"
                     ? translatedHelpText
                     : String(translatedHelpText),
-                  field.type === "select",
                 )}
               </div>
             );
@@ -1173,12 +1156,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     step?: number,
     required: boolean = true,
     helpText?: string,
-    isSearchable?: boolean,
   ) => {
-    // Ensure label and placeholder are properly translated
-    const displayLabel = safeTranslate(label);
-    const displayPlaceholder = placeholder ? safeTranslate(placeholder) : "";
-    const displayHelpText = helpText ? safeTranslate(helpText) : undefined;
     const fieldValue = fieldName
       .split(".")
       .reduce((obj: any, key) => obj?.[key], formData);
@@ -1361,72 +1339,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     );
   };
 
-  // Function to get city and its areas with translations
-  const getCityAreas = (
-    cityKey: string,
-  ): { value: string; label: string; isArea?: boolean }[] => {
-    try {
-      // Get all cities and areas from translations
-      const allCities = t("cities", {
-        returnObjects: true,
-        ns: "locations",
-      }) as Record<string, string>;
-      const allAreas = t("areas", {
-        returnObjects: true,
-        ns: "locations",
-      }) as Record<string, string[]>;
-
-      // Normalize the city key for consistent matching
-      const normalizedKey = normalizeLocation(cityKey);
-
-      // Find the city by normalized key
-      const cityEntry = Object.entries(allCities || {}).find(
-        ([key]) => normalizeLocation(key) === normalizedKey,
-      );
-
-      if (!cityEntry) {
-        console.warn(
-          `City not found for key: ${cityKey} (normalized: ${normalizedKey})`,
-        );
-        return [];
-      }
-
-      const [cityId, cityName] = cityEntry;
-      const cityAreas = allAreas[cityId] || [];
-
-      // Return city and its areas as options
-      const result = [
-        { value: cityId, label: cityName },
-        ...cityAreas.map((area) => ({
-          value: `${cityId}_${area.replace(/\s+/g, "_").toUpperCase()}`,
-          label: `${cityName} - ${area}`,
-          isArea: true,
-        })),
-      ];
-
-      return result;
-    } catch (error) {
-      console.error("Error in getCityAreas:", error);
-      return [];
-    }
-  };
-
-  // Get all available cities from translations
-  const syrianCities = React.useMemo(() => {
-    try {
-      const allCities = t("cities", {
-        returnObjects: true,
-        ns: "locations",
-      }) as Record<string, string>;
-      return Object.entries(allCities || {}).flatMap(([cityId]) =>
-        getCityAreas(cityId),
-      );
-    } catch (error) {
-      console.error("Error loading Syrian cities:", error);
-      return [];
-    }
-  }, [t]);
-
   // Calculate distance between two coordinates in kilometers
   const getDistance = (
     lat1: number,
@@ -1579,12 +1491,11 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   // Get user's current location
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser");
+      console.warn("Geolocation is not supported by your browser");
       return;
     }
 
     setIsLocating(true);
-    setLocationError(null);
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -1615,9 +1526,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           setLocationMeta({ lat: latitude, lng: longitude });
         } catch (error) {
           console.error("Error getting location:", error);
-          setLocationError(
-            "Could not determine your location. Please try again.",
-          );
         } finally {
           setIsLocating(false);
         }
@@ -1641,7 +1549,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             errorMessage += "Please check your browser settings.";
         }
 
-        setLocationError(errorMessage);
+        console.error(errorMessage);
         setIsLocating(false);
       },
       {
@@ -1650,27 +1558,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         enableHighAccuracy: true,
       },
     );
-  };
-
-  const handleLocationChange = (
-    selected: { value: string; label: string; isArea?: boolean } | null,
-  ) => {
-    // This handler is kept for backward compatibility but is no longer used directly
-    // as LocationSearch component now handles the location selection
-    if (!selected) {
-      handleInputChange("location", "");
-      setFormData((prev) => ({
-        ...prev,
-        locationDisplay: "",
-      }));
-      return;
-    }
-
-    handleInputChange("location", normalizeLocation(selected.value));
-    setFormData((prev) => ({
-      ...prev,
-      locationDisplay: selected.label,
-    }));
   };
 
   return (
@@ -1757,7 +1644,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               formData.details?.vehicles?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
-            undefined,
           )}
 
           {/* Render Make, Model, Year fields for vehicles */}

@@ -39,7 +39,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
 
     try {
       if (isLogin) {
-        const response = await login(formData.email, formData.password);
+        await login(formData.email, formData.password);
       } else {
         if (formData.password !== formData.confirmPassword) {
           throw new Error("Passwords do not match");

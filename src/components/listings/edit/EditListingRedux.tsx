@@ -17,7 +17,7 @@ import { PRICE_CHANGE } from "@/constants/socketEvents";
 // Components
 import { ImageManager } from "@/components/listings/images/ImageManager";
 import { ACTIVE_API_URL } from "@/config";
-import { ListingFieldSchema } from "@/types/listings";
+ 
 
 // Types
 type SectionId =
@@ -959,7 +959,7 @@ const EditListingRedux = () => {
   }, [id, navigate, fetchListing]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) return undefined;
 
     const handlePriceUpdate = (data: { listingId: string; price: number }) => {
       if (data.listingId === currentListing?.id) {

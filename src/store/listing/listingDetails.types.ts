@@ -1,4 +1,4 @@
-import { Listing } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 
 export const LISTING_DETAILS_TYPES = {
   // Basic operations

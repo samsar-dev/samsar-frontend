@@ -10,6 +10,9 @@ import { ListingsProvider } from "@/contexts/ListingsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { MessagesProvider } from "@/contexts/MessagesContext";
 
+// Performance optimization hooks
+import { usePrefetchCritical } from "@/hooks/usePrefetchCritical";
+
 // Layout component (navigation, header, etc.) — must render immediately
 import Layout from "@/components/layout/Layout";
 
@@ -32,6 +35,9 @@ const LoadingFallback = () => (
 );
 
 const App: () => ReactElement = () => {
+  // Initialize critical route prefetching
+  usePrefetchCritical(4000); // Start prefetching after 4 seconds
+  
   // Preload critical routes in background (after initial paint)
   useEffect(() => {
     if ("requestIdleCallback" in window) {

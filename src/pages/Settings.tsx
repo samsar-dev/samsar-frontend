@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense , useEffect, useRef, useState } from "react";
 import NotificationSettings from "@/components/settings/NotificationSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 
@@ -8,7 +8,6 @@ const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
 const AccountSettings = lazy(() => import("@/components/settings/AccountSettings"));
 import { useSettings } from "@/contexts/SettingsContext";
 import * as Tabs from "@radix-ui/react-tabs";
-import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { SEO } from "@/utils/seo";

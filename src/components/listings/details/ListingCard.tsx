@@ -6,7 +6,12 @@ import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
 import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense ,
+  useState,
+  useEffect,
+  useCallback,
+  memo
+} from "react";
 const PriceConverter = lazy(() => import("@/components/common/PriceConverter"));
 import { cleanLocationString } from "@/utils/locationUtils";
 import type {
@@ -22,12 +27,6 @@ import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
 import { MdRemoveRedEye } from "@react-icons/all-files/md/MdRemoveRedEye";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  useState,
-  useEffect,
-  useCallback,
-  memo
-} from "react";
  
 
 // Extend the base Listing type to include our custom fields
@@ -119,7 +118,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
             .catch((error) => {
               console.error("Error fetching saved listings:", error);
               toast.error("Failed to check favorite status");
-              return { success: false, data: [] };
+              return { success: false, data: [] as any[] };
             });
           if (response.success && response.data) {
             // Handle different potential response structures
@@ -732,7 +731,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           }
                           
                           // Try to get the translation from the options namespace first
-                          let translated = t(`options:transmission.${translationKey}`, {
+                          const translated = t(`options:transmission.${translationKey}`, {
                             // Fallback to common namespace if not found in options
                             defaultValue: t(`common:fields.transmissionTypes.${translationKey}`, {
                               // Fallback to listings namespace if not found in common

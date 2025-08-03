@@ -1,5 +1,5 @@
-import { RootState } from "../store";
-import { Listing } from "@/types/listings";
+import type { RootState } from "../store";
+import type { Listing } from "@/types/listings";
 
 // Select the entire listing details state
 const selectListingDetailsState = (state: RootState) => state.listingDetails;

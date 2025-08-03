@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { RouteObject } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 import { Layout } from "@/components/layout";
 
 // Lazy load auth components

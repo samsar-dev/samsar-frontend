@@ -31,13 +31,11 @@ import { toast } from "react-toastify";
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;
   onClick?: (e: React.MouseEvent) => void;
-  isActive?: boolean;
 }
 
 export default function NotificationBell({
   onNotificationClick,
   onClick,
-  isActive = false
 }: NotificationBellProps) {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation("common");
@@ -47,7 +45,6 @@ export default function NotificationBell({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const showDropdown = onClick ? isActive : showNotifications;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { socket, connected, connectionError } = useSocket();
 
@@ -69,8 +66,7 @@ export default function NotificationBell({
       setNotifications([]);
     }
   };
-  const pathSegments = location.pathname.split("/");
-  const chatId = pathSegments.length > 2 ? pathSegments[2] : undefined;
+
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!isAuthenticated) return;
@@ -159,13 +155,8 @@ export default function NotificationBell({
   }, [isAuthenticated]);
 
   useEffect(() => {
-    // Only set up socket listeners if socket is available and connected
-    if (!socket || !connected) {
-      return;
-    }
-
-    if (connectionError) {
-      return;
+    if (!socket || !connected || connectionError) {
+      return () => {}; // Return an empty cleanup function
     }
 
     // Set up the event listener for new message alerts
@@ -181,9 +172,7 @@ export default function NotificationBell({
       // If user is in the chat related to this notification, delete it
       if (location.pathname.split("/")[2] === data.relatedId) {
         try {
-          const result = await NotificationsAPI.deleteNotification(
-            data.relatedId,
-          );
+          await NotificationsAPI.deleteNotification(data.relatedId);
           return;
         } catch (error) {
           return;

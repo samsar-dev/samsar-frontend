@@ -49,7 +49,7 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
     initialIndex,
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [previousImageIndex, setPreviousImageIndex] = useState<number | null>(
+  const [_, setPreviousImageIndex] = useState<number | null>(
     null,
   );
 
@@ -112,13 +112,15 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
   };
 
   useEffect(() => {
-    if (isModal) {
-      window.addEventListener("keydown", handleKeyDown as any);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown as any);
-      };
+    if (!isModal) {
+      return undefined;
     }
-  }, [selectedImage, isLoading, isModal]);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isModal, handleKeyDown]);
 
   const hasNext = selectedImage !== null && imageUrls.length > 1;
   const hasPrev = selectedImage !== null && imageUrls.length > 1;
@@ -129,11 +131,10 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
       id,
       title,
       price,
-      category,
+ 
       location,
       createdAt,
-      vehicleDetails,
-      realEstateDetails,
+ 
     } = listing;
 
     const formatViews = (count?: number) => {

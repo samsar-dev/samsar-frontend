@@ -15,15 +15,7 @@ import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Link } from "react-router-dom";
 
-function getInitials(name: string | undefined) {
-  if (!name) return "US";
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+
 
 export default function UserDetails({
   setInfoOpen,

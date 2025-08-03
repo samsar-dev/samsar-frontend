@@ -5,8 +5,8 @@ import { listingsAPI } from "@/api/listings.api";
 import { SearchSuggestionsDropdown } from "./SearchSuggestionsDropdown";
 import { useNavigate } from "react-router-dom";
 import { ListingCategory } from "@/types/enums";
-import Fuse from "fuse.js";
-import { Listing } from "@/types/listings";
+import type Fuse from "fuse.js";
+import type { Listing } from "@/types/listings";
 import { createFuse, searchListings } from "@/utils/searchUtils";
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -65,7 +65,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     if (!searchTerm) {
       setSuggestions([]);
       setShowSuggestions(false);
-      return;
+      return undefined;
     }
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);

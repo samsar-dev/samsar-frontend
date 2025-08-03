@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, memo } from 'react';
+import type React from 'react';
+import { useEffect, useMemo, memo } from 'react';
 
 interface PreloadImagesProps {
   imageUrls: string[];

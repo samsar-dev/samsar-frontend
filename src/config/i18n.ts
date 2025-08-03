@@ -1,66 +1,98 @@
+import type { InitOptions } from "i18next";
 import i18n from "i18next";
-import { InitOptions } from "i18next";
 import { initReactI18next } from "react-i18next";
-import Backend from "i18next-http-backend";
+import LanguageDetector from 'i18next-browser-languagedetector';
+import ChainedBackend from 'i18next-chained-backend';
+import resourcesToBackend from 'i18next-resources-to-backend';
 
-// Import all translations using the index files
-import enTranslations from "@/locales/en";
-import arTranslations from "@/locales/ar";
+// Common namespaces that are used across the app
+const defaultNS = 'common';
+const fallbackLng = 'ar';
+const supportedLngs = ['en', 'ar'];
 
-// Define the resources structure with all namespaces
-const resources = {
-  en: enTranslations,
-  ar: arTranslations,
+// List of all namespaces to preload
+const allNamespaces = [
+  'common',
+  'auth',
+  'profile',
+  'listings',
+  'filters',
+  'features',
+  'options',
+  'form',
+  'errors',
+  'home',
+  'footer',
+  'categories',
+  'enums',
+  'settings',
+  'locations',
+];
+
+// Function to load translations dynamically
+const loadTranslations = (lng: string, ns: string) => {
+  return import(`@/locales/${lng}/${ns}.json`);
 };
 
 const i18nConfig: InitOptions = {
-  resources,
-  // Load language from localStorage if available, otherwise use Arabic
-  lng: localStorage.getItem("language") || "ar",
-  fallbackLng: "ar",
-  supportedLngs: ["en", "ar"],
-  load: "languageOnly",
+  // Set the default language from localStorage or fallback to Arabic
+  lng: localStorage.getItem('language') || fallbackLng,
+  fallbackLng,
+  supportedLngs,
+  defaultNS,
+  fallbackNS: defaultNS,
+  ns: allNamespaces,
+  
+  // Performance optimizations
+  load: 'languageOnly', // Only load language code (e.g., 'en' not 'en-US')
+  saveMissing: false,   // Disable in production
   detection: {
-    // Disable all detection methods
-    order: [],
-    caches: [],
+    order: ['localStorage', 'navigator'],
+    caches: ['localStorage'],
   },
-  // Language will be set explicitly by the SettingsContext
-  ns: [
-    "common",
-    "auth",
-    "profile",
-    "listings",
-    "filters",
-    "features",
-    "options",
-    "form",
-    "errors",
-    "home",
-    "footer",
-    "categories",
-    "enums",
-    "settings",
-    "locations",
-  ],
-  defaultNS: "common",
-  fallbackNS: "common",
-  keySeparator: ".", // Use dot as key separator
+  
+  // Backend configuration for lazy loading
+  backend: {
+    backends: [
+      resourcesToBackend((lng: string, ns: string) => 
+        loadTranslations(lng, ns).catch(() => ({}))
+      ),
+    ],
+    backendOptions: [{
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    }],
+  },
+  
+  // Optimize bundle size
+  partialBundledLanguages: true, // Allow partial loading of languages
+  keySeparator: '.',
+  returnObjects: true,  // Enable object access for nested translations
   interpolation: {
-    escapeValue: false,
+    escapeValue: false, // React already escapes values
   },
-  returnObjects: true,
-  returnEmptyString: false,
-  debug: false, // Disable debug mode
-  saveMissing: false, // Disable saving missing translations
-  saveMissingTo: "all", // Keep for consistency, though not used when saveMissing is false
+  react: {
+    useSuspense: true,
+  },
+  debug: process.env.NODE_ENV === 'development',
 };
 
-i18n.use(Backend).use(initReactI18next).init(i18nConfig);
+// Initialize i18next
+i18n
+  .use(ChainedBackend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init(i18nConfig);
 
-// Language direction will be set by the SettingsContext
-if (localStorage.getItem("language")) {
-  document.dir = localStorage.getItem("language") === "ar" ? "rtl" : "ltr";
-}
+// Set document direction based on language
+const updateDocumentDirection = (lng: string) => {
+  document.documentElement.lang = lng;
+  document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+};
+
+// Listen for language changes
+i18n.on('languageChanged', updateDocumentDirection);
+
+// Initial direction setup
+updateDocumentDirection(i18n.language);
 
 export default i18n;

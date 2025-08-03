@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ListingCard from "@/components/listings/details/ListingCard";
 import SkeletonListingGrid from "@/components/common/SkeletonGrid";
-import { Listing } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 import { listingsAPI } from "@/api/listings.api";
-import { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
+import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
 
 const Search: React.FC = () => {
   const { t } = useTranslation();

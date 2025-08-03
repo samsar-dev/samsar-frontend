@@ -1,5 +1,5 @@
 import React from "react";
-import { Listing } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ListingCategory } from "@/types/enums";

@@ -227,7 +227,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode }> = ({
             } catch (error: unknown) {
               console.error(`Failed to delete conversation ${id}:`, error);
               // Continue with other deletions even if one fails
-              return null;
+              return;
             }
           }),
         );

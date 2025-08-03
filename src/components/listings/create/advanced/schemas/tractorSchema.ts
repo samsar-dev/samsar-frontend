@@ -1,5 +1,5 @@
 import { TransmissionType } from "@/types/enums";
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 
 export const tractorSchema: ListingFieldSchema[] = [
   // Essential Section

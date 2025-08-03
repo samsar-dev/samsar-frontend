@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('common');
 
   // Detect RTL based on language
   const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-")) || false;
@@ -354,7 +354,7 @@ const Navbar: React.FC = () => {
                     <button
                       onClick={(e) => toggleListingsMenu(e)}
                       className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-                      aria-label={t("listings")}
+                      aria-label={t("navigation.create_listing")}
                       aria-expanded={showListingsMenu}
                       aria-haspopup="true"
                     >
@@ -367,7 +367,6 @@ const Navbar: React.FC = () => {
                 <div className="relative">
                   <NotificationBell 
                     onClick={(e) => toggleNotifications(e)}
-                    isActive={showNotifications}
                   />
                   <div className="notifications-dropdown">
                     <NotificationsDropdown

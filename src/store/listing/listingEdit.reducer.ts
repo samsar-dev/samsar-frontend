@@ -1,7 +1,8 @@
-import {
-  LISTING_TYPES,
+import type {
   ListingState,
-  ListingAction,
+  ListingAction} from "./listingEdit.types";
+import {
+  LISTING_TYPES
 } from "./listingEdit.types";
 
 const initialState: ListingState = {

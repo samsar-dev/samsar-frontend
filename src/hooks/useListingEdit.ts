@@ -15,7 +15,7 @@ import {
 } from "@/store/listing/listingEdit.selectors";
 import * as listingActions from "@/store/listing/listingEdit.actions";
 import { getNestedValue, setNestedValue } from "@/utils/listingSchemaRedux";
-import { Listing } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 
 // Action types are now inferred from the actions themselves
 

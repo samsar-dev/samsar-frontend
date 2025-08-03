@@ -1,4 +1,4 @@
-import { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 
 export const constructionSchema: ListingFieldSchema[] = [
   // Essential Section
@@ -181,7 +181,7 @@ export const constructionSchema: ListingFieldSchema[] = [
     ],
     section: "essential",
     required: false,
-    validate: (value: string | number | boolean) => null,
+    validate: () => null,
     // Default to "none" if not provided - this will be handled in the form submission
   },
   {

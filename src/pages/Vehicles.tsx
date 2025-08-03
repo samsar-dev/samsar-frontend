@@ -4,14 +4,14 @@ import React, {
   useCallback,
   useRef,
   useMemo,
-} from "react";
+ lazy } from "react";
 import { useTranslation } from "react-i18next";
-import { Suspense, lazy } from "react";
 const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
 const ListingFilters = lazy(() => import("@/components/filters/ListingFilters"));
 const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
-import { ExtendedListing } from "@/types/listings";
-import { ListingAction, ListingCategory, VehicleType } from "@/types/enums";
+import type { ExtendedListing } from "@/types/listings";
+import type { ListingAction, VehicleType } from "@/types/enums";
+import { ListingCategory } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import debounce from 'lodash-es/debounce';
 import { toast } from "react-toastify";

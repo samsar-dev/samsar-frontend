@@ -1,5 +1,5 @@
-import React, { Suspense, lazy, useRef, useState, useEffect } from 'react';
-import type { ComponentType, LazyExoticComponent, ReactNode } from 'react';
+import React, { Suspense, useRef, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 interface LazyLoadOnScrollProps {
   children: ReactNode;

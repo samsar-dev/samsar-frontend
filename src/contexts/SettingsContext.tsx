@@ -1,8 +1,7 @@
-import React from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import type { Settings, SettingsUpdate } from "@/types/settings";
 import { LanguageCode } from "@/types/enums";
 import { defaultSettings } from "@/constants/defaultSettings";
-import { createContext, useCallback, useContext, useState } from "react";
 
 export interface SettingsContextType {
   settings: Settings;

@@ -1,4 +1,5 @@
-import { useState, useEffect, FC } from "react";
+import type { FC } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography } from "@/utils/typography";
 import { Paper } from "@/utils/paper";
@@ -26,7 +27,7 @@ const ContactSubmissions: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage] = useState(10);
   const [selectedSubmission, setSelectedSubmission] =
     useState<ContactSubmission | null>(null);
   const navigate = useNavigate();

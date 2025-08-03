@@ -19,10 +19,10 @@ import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
 import { FaWind } from "@react-icons/all-files/fa/FaWind";
 import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
 
-import type { ListingCategory, VehicleType, PropertyType } from "@/types/enums";
-import {
+import type { ListingCategory, VehicleType, PropertyType ,
   ListingAction,
-  ListingStatus,
+  ListingStatus} from "@/types/enums";
+import {
   ListingCategory as ListingCategoryValue,
   VehicleType as VehicleTypeValue,
 } from "@/types/enums";

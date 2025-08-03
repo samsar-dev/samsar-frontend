@@ -1,14 +1,14 @@
-import React from 'react';
+
 import { useTranslation } from 'react-i18next';
 import ImageFallback from '@/components/media/ImageFallback';
 
 const BASE_IMAGE_URL = 'https://pub-92a0aba78d194578adc2e95b556f09be.r2.dev/categories';
 
-const getOptimizedImageUrl = (imageName, width, quality = 75) => {
+const getOptimizedImageUrl = (imageName: string, width: number, quality = 75) => {
   return `${BASE_IMAGE_URL}/${imageName}?format=webp&width=${width}&quality=${quality}`;
 };
 
-const getImageSrcSet = (imageName) => {
+const getImageSrcSet = (imageName: string) => {
   const widths = [332, 664, 996]; // 1x, 2x, 3x for a 332px display width
   return widths.map(w => `${getOptimizedImageUrl(imageName, w)} ${w}w`).join(', ');
 };

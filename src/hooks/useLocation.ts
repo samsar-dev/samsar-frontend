@@ -41,7 +41,7 @@ export const useLocation = (props?: UseLocationProps) => {
   }, []);
 
   const startWatching = useCallback(() => {
-    if (watching) return;
+    if (watching) return undefined;
 
     setWatching(true);
     setLoading(true);

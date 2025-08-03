@@ -198,7 +198,7 @@ export const busSchema: ListingFieldSchema[] = [
     options: ["full", "partial", "none"],
     section: "essential",
     required: false,
-    validate: (value: string | number | boolean) => null,
+    validate: () => null,
   },
 
   // Advanced Section

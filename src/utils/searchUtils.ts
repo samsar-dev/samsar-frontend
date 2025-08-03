@@ -1,5 +1,5 @@
 import Fuse, { type IFuseOptions } from "fuse.js";
-import { Listing } from "@/types/listings";
+import type { Listing } from "@/types/listings";
 
 // Search configuration
 const searchOptions: IFuseOptions<Listing> = {

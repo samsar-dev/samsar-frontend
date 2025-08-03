@@ -21,7 +21,7 @@ interface Props {
 }
 
 const AccountSettings: React.FC<Props> = ({ settings, onUpdate, isRTL }) => {
-  const { t } = useTranslation();
+  useTranslation();
 
   const handleChange = (field: keyof typeof settings) => (value: any) => {
     console.log('AccountSettings: Changing', field, 'to', value);

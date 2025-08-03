@@ -1,7 +1,7 @@
 import type { Settings } from "@/types/settings";
 import type { APIResponse } from "@/types/common";
 import { LanguageCode, ThemeType } from "@/types/enums";
-import apiClient from "./apiClient";
+
 
 export interface PreferenceSettingsType {
   language: LanguageCode;
@@ -10,7 +10,7 @@ export interface PreferenceSettingsType {
 }
 
 export class SettingsAPI {
-  private static readonly BASE_PATH = "/settings";
+
 
   // Mock implementation for development
   static async getSettings(): Promise<APIResponse<Settings>> {

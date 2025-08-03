@@ -17,7 +17,7 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   const {
     savedListings,
     isLoading: savedListingsLoading,
-    isSaved,
+
   } = useSavedListings();
 
   useEffect(() => {

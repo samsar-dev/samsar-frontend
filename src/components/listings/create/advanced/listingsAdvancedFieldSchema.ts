@@ -125,51 +125,6 @@ const conditionField: ListingFieldSchema = {
   },
 };
 
-// Base schema for empty categories to avoid errors
-const baseVehicleSchema: ListingFieldSchema[] = [
-  {
-    name: "make",
-    label: "listings.make",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "model",
-    label: "listings.model",
-    type: "text",
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "condition",
-    label: "listings.condition",
-    type: "select",
-    options: Object.values(Condition),
-    section: "essential",
-    required: true,
-  },
-];
-
-const baseRealEstateSchema: ListingFieldSchema[] = [
-  {
-    name: "propertyType",
-    label: "listings.propertyType",
-    type: "select",
-    options: Object.values(PropertyType),
-    section: "essential",
-    required: true,
-  },
-  {
-    name: "condition",
-    label: "listings.condition",
-    type: "select",
-    options: Object.values(Condition),
-    section: "essential",
-    required: true,
-  },
-];
-
 // Dynamic schema loading functions
 export const loadSchema = async (type: VehicleType | PropertyType): Promise<ListingFieldSchema[]> => {
   const loader = schemaLoaders[type as keyof typeof schemaLoaders];

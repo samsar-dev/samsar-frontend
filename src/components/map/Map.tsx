@@ -45,7 +45,7 @@ const ChangeView = ({
 }: {
   center: [number, number];
   zoom: number;
-}) => {
+}): null => {
   const map = useMap();
   useEffect(() => {
     if (center && !isNaN(center[0]) && !isNaN(center[1])) {

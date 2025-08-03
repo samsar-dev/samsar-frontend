@@ -1,6 +1,6 @@
 import { listingsAPI } from "@/api/listings.api";
-import { AppDispatch } from "../store";
-import { Listing } from "@/types/listings";
+import type { AppDispatch } from "../store";
+import type { Listing } from "@/types/listings";
 
 // Action Types
 export const LISTING_DETAILS_TYPES = {

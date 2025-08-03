@@ -3,8 +3,7 @@ import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/ui/tooltip";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { HelpCircle } from "lucide-react";
+import { Check, ChevronDown, ChevronUp , HelpCircle } from "lucide-react";
 
 export type FormFieldValue = string | number | boolean | string[];
 

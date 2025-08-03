@@ -14,9 +14,10 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "@/components/listings/data/vehicleModels";
-import LocationSearch, {
+import type {
   SelectedLocation,
 } from "@/components/location/LocationSearch";
+import LocationSearch from "@/components/location/LocationSearch";
 
 interface ListingFiltersProps {
   selectedAction: ListingAction | null;

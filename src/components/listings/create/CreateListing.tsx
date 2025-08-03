@@ -309,7 +309,7 @@ const CreateListing = () => {
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (!hasUnsavedChanges || location.pathname !== "/listings/create")
-        return;
+        return undefined;
 
       const confirmationMessage =
         "You have unsaved changes. Are you sure you want to leave?";

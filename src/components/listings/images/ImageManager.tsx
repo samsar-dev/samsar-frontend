@@ -1,11 +1,10 @@
 import React, {
   useState,
-  useEffect,
   useRef,
   useCallback,
   useMemo,
-  lazy,
   Suspense,
+  lazy,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -13,17 +12,13 @@ import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaSpinner } from "@react-icons/all-files/fa/FaSpinner";
 import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
 import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
-import { FaPlus } from "@react-icons/all-files/fa/FaPlus";
-import { useDragDrop, reorderArray, useFileDropZone } from "@/utils/dragDropUtils";
-import { compressImage, formatFileSize, validateImageFile } from "@/utils/imageUtils";
+
+import { useDragDrop, useFileDropZone } from "@/utils/dragDropUtils";
+import { compressImage, validateImageFile } from "@/utils/imageUtils";
 const ImageEditor = lazy(() => import("@/components/listings/images/ImageEditor"));
 
 // Lightweight drag and drop implementation without react-dnd
-interface DragState {
-  isDragging: boolean;
-  dragIndex: number | null;
-  hoverIndex: number | null;
-}
+
 
 // Define a unified image type
 interface UnifiedImage {
@@ -73,7 +68,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [editingImage, setEditingImage] = useState<{ url: string; index: number } | null>(null);
-  const [editedImage, setEditedImage] = useState<File | null>(null);
+  const [_editedImage, _setEditedImage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,7 +97,7 @@ const ImageManager: React.FC<ImageManagerProps> = ({
   }, [existingImages, images]);
 
   const { state: dragState, handlers: dragHandlers } = useDragDrop(allImages, {
-    onDragStart: (index: number, data: any) => {
+    onDragStart: (index: number, _data: any) => {
       // Store the current state for onDrop
       const fromImage = allImages[index];
       const toImage = allImages[index];
@@ -114,11 +109,11 @@ const ImageManager: React.FC<ImageManagerProps> = ({
         toImage
       };
     },
-    onDragEnd: (index: number, data: any) => {
+    onDragEnd: (_index: number, _data: any) => {
       // Reset any drag state
       return null;
     },
-    onDrop: (fromIndex: number, toIndex: number, data: any) => {
+    onDrop: (_fromIndex: number, _toIndex: number, data: any) => {
       const fromImage = data?.fromImage;
       const toImage = data?.toImage;
 
@@ -144,7 +139,10 @@ const ImageManager: React.FC<ImageManagerProps> = ({
 
   const handleDragStart = dragHandlers.handleDragStart;
   const handleDragOver = dragHandlers.handleDragOver;
-  const handleDrop = dragHandlers.handleDrop;
+  const handleDrop = useCallback((_data: any, _index: number) => {
+    // No-op
+  }, []);
+
   const handleDragEnd = dragHandlers.handleDragEnd;
 
   const handleFileUpload = useCallback(async (files: File[]) => {
