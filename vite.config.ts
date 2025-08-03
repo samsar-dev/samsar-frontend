@@ -48,6 +48,14 @@ export default defineConfig(({ mode, command }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
       // Ensure global is defined for some libraries
       global: 'globalThis',
+      // Help with tree shaking by defining unused features as false
+      __DEV__: JSON.stringify(!isProduction),
+      __PROD__: JSON.stringify(isProduction),
+      // Disable React DevTools in production
+      '__REACT_DEVTOOLS_GLOBAL_HOOK__': isProduction ? 'undefined' : 'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__',
+      // Define feature flags for better tree shaking
+      'process.env.NODE_DEBUG': JSON.stringify(false),
+      'process.env.DEBUG': JSON.stringify(false),
     },
     plugins: [
       react(),
@@ -216,47 +224,96 @@ export default defineConfig(({ mode, command }) => {
       sourcemap: false,
       minify: 'terser',
       cssCodeSplit: true,
+      // Optimize chunk sizes for better loading
+      chunkSizeWarningLimit: 1000,
+      // Enable advanced optimizations
+      reportCompressedSize: false, // Faster builds
       rollupOptions: {
+        // Don't externalize React or critical dependencies
+        external: [],
         output: {
           compact: true,
           manualChunks: (id) => {
+            // Core React - keep together with React-dependent libraries to prevent initialization issues
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-jsx-runtime') ||
+                id.includes('react-i18next') || id.includes('react-redux') || id.includes('use-sync-external-store') ||
+                id.includes('react-hook-form') || id.includes('react-hot-toast') || id.includes('react-helmet-async')) {
+              return 'react-core';
+            }
+            
+            // React Router - separate chunk
+            if (id.includes('react-router')) {
+              return 'react-router';
+            }
+            
+            // Scroll and focus management
+            if (id.includes('react-remove-scroll') || id.includes('react-focus') || id.includes('use-sidecar')) {
+              return 'scroll-focus';
+            }
+            
+            // Lucide icons core (not individual icons)
+            if (id.includes('lucide-react') && (id.includes('createLucideIcon') || id.includes('defaultAttributes') || id.includes('shared/src'))) {
+              return 'lucide-core';
+            }
+            
+            // Style and CSS-in-JS libraries
+            if (id.includes('goober') || id.includes('react-style-singleton') || id.includes('aria-hidden')) {
+              return 'styling';
+            }
+            
+            // Utility libraries
+            if (id.includes('shallowequal') || id.includes('react-fast-compare') || id.includes('invariant') || id.includes('tslib')) {
+              return 'utilities';
+            }
+            
+            // Cookie and parsing libraries
+            if (id.includes('cookie') || id.includes('set-cookie-parser')) {
+              return 'parsers';
+            }
+            
+            // Callback and ref utilities
+            if (id.includes('use-callback-ref') || id.includes('react-use-callback-ref') || id.includes('react-compose-refs')) {
+              return 'ref-utils';
+            }
+            
+            // Network libraries
             if (id.includes('axios')) {
-              return 'axios';
+              return 'network';
             }
             if (id.includes('socket.io-client')) {
-              return 'socket';
+              return 'network';
             }
-            if (id.includes('lodash')) {
+            
+            // Utility libraries
+            if (id.includes('lodash') || id.includes('date-fns') || id.includes('fuse.js')) {
               return 'utils';
             }
-            if (id.includes('fuse.js')) {
-              return 'utils';
-            }
-            if (id.includes('date-fns')) {
-              return 'utils';
-            }
-            if (id.includes('lucide-react') || id.includes('@radix-ui') || id.includes('react-icons')) {
-              return 'ui-libs';
-            }
-      
-            if (id.includes('react-hook-form') || id.includes('fuse.js')) {
+            
+            // Form libraries
+            if (id.includes('react-hook-form')) {
               return 'forms';
             }
-    
-            if (id.includes('date-fns') || id.includes('i18next')) {
-              return 'utils';
+            
+            // UI Framework - split Radix UI more granularly
+            if (id.includes('@radix-ui/react-tabs') || id.includes('@radix-ui/react-accordion')) {
+              return 'radix-layout';
             }
+            if (id.includes('@radix-ui/react-select') || id.includes('@radix-ui/react-scroll-area')) {
+              return 'radix-interactive';
+            }
+            if (id.includes('@radix-ui/')) {
+              return 'radix-core';
+            }
+            
+            // Let Vite handle icons naturally to avoid circular dependencies
+            // Removed manual chunking for icons
+            
+            // Floating UI
             if (id.includes('@floating-ui') || id.includes('react-remove-scroll')) {
               return 'floating-ui';
             }
-      
-            if (id.includes('fa/') || id.includes('io5/') || id.includes('gi/') || id.includes('lucide-react')) {
-              return 'icons';
-            }
             
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react';
-            }
+
 
             return null; 
           },
@@ -268,27 +325,36 @@ export default defineConfig(({ mode, command }) => {
         },
         treeshake: {
           preset: 'smallest',
-          moduleSideEffects: false,
+          moduleSideEffects: (id) => {
+            // Allow side effects for CSS and some specific modules
+            if (id.includes('.css') || id.includes('.scss')) return true;
+            if (id.includes('react-hot-toast')) return true;
+            return false;
+          },
           propertyReadSideEffects: false,
           tryCatchDeoptimization: false,
+          unknownGlobalSideEffects: false,
         },
       },
       terserOptions: {
         compress: {
           drop_console: isProduction,
           drop_debugger: isProduction,
-          pure_funcs: ['console.log', 'console.warn', 'console.error', 'console.info', 'console.debug'],
-          passes: 3,
-          unsafe: true,
-          unsafe_arrows: true,
-          unsafe_comps: true,
+          pure_funcs: [
+            'console.log', 'console.warn', 'console.error', 'console.info', 'console.debug',
+            'console.trace', 'console.time', 'console.timeEnd', 'console.group', 'console.groupEnd'
+          ],
+          passes: 4,
+          unsafe: false,
+          unsafe_arrows: false,
+          unsafe_comps: false,
           unsafe_math: true,
-          unsafe_methods: true,
-          unsafe_proto: true,
+          unsafe_methods: false,
+          unsafe_proto: false,
           unsafe_regexp: true,
-          unsafe_undefined: true,
+          unsafe_undefined: false,
           booleans_as_integers: true,
-          pure_getters: true,
+          pure_getters: false,
           keep_fargs: false,
           keep_fnames: false,
           hoist_funs: true,
@@ -307,6 +373,13 @@ export default defineConfig(({ mode, command }) => {
           toplevel: true,
           top_retain: [],
           side_effects: false,
+          // Additional optimizations for unused code removal
+          join_vars: true,
+          warnings: false,
+          global_defs: {
+            '@alert': 'console.log',
+            DEBUG: false
+          },
         },
         mangle: {
           safari10: true,
