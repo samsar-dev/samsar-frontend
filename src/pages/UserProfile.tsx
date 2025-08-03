@@ -12,7 +12,7 @@ import { FaClock } from "@react-icons/all-files/fa/FaClock";
 import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 import { FaPhone } from "@react-icons/all-files/fa/FaPhone";
 import { Navigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import UserPrivateProfile from "@/components/profile/UserPrivateProfile";
 

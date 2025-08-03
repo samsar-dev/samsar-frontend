@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types/user";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaCamera } from "@react-icons/all-files/fa/FaCamera";
 import { FaUser } from "@react-icons/all-files/fa/FaUser";
 import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";

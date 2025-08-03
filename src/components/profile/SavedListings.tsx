@@ -11,7 +11,7 @@ import { BiSend } from "@react-icons/all-files/bi/BiSend";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
 import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
  
 
 interface ExtendedListing extends Omit<Listing, "details" | "seller"> {

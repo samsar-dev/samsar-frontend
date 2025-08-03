@@ -8,7 +8,7 @@ import React, {
 import type { APIResponse } from "@/types/api";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 // Define the favorite item type
 interface FavoriteItem {

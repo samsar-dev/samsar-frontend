@@ -1,6 +1,7 @@
 import { type ReactElement } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect } from "react";
+import { Toaster } from "sonner";
 
 // Core providers (load synchronously for immediate app context availability)
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -61,6 +62,7 @@ const App: () => ReactElement = () => {
                     <Suspense fallback={<LoadingFallback />}>
                       <Routes />
                     </Suspense>
+                    <Toaster position="top-right" richColors closeButton />
                   </Layout>
                 </MessagesProvider>
               </SettingsProvider>

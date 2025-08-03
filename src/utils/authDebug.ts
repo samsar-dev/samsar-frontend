@@ -7,7 +7,6 @@
 
 // Import statements are kept but not used when debugging is disabled
 
-import { toast as _toast } from "react-toastify";
 import { AuthAPI as _AuthAPI } from "../api/auth.api";
 import { AuthContext } from "../contexts/AuthContext";
 

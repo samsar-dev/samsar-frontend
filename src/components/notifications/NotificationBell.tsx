@@ -26,7 +26,7 @@ import { FaExclamationTriangle } from "@react-icons/all-files/fa/FaExclamationTr
 import { FaBullhorn } from "@react-icons/all-files/fa/FaBullhorn";
 import { FaInfoCircle } from "@react-icons/all-files/fa/FaInfoCircle";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface NotificationBellProps {
   onNotificationClick?: (notification: Notification) => void;

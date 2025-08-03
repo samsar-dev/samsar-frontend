@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ACTIVE_API_URL } from "@/config";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";

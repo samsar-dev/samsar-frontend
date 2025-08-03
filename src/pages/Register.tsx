@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaEye } from "@react-icons/all-files/fa/FaEye";
 import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
 
@@ -71,9 +71,7 @@ const Register: React.FC = () => {
       if (!/[a-z]/.test(formData.password)) issues.push("one lowercase letter");
       if (!/\d/.test(formData.password)) issues.push("one number");
 
-      toast.error(`Password must contain ${issues.join(", ")}.`, {
-        autoClose: 5000,
-      });
+      toast.error(`Password must contain ${issues.join(", ")}`);
       setLoading(false);
       return;
     }

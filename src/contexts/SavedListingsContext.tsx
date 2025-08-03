@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 // Utility functions for localStorage hydration
 const LOCAL_STORAGE_KEY = "savedListings";

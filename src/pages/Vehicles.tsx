@@ -14,7 +14,7 @@ import type { ListingAction, VehicleType } from "@/types/enums";
 import { ListingCategory } from "@/types/enums";
 import { listingsAPI } from "@/api/listings.api";
 import debounce from 'lodash-es/debounce';
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { SEO } from "@/utils/seo";
 
 interface ListingsState {

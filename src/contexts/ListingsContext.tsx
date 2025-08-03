@@ -10,7 +10,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings.ts";
 import { listingsAPI } from "@/api/listings.api";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface ListingsContextType {
   listings: Listing[];

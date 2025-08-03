@@ -5,7 +5,7 @@ import React, {
   useCallback,
 } from "react";
 
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { AuthAPI } from "../api/auth.api";
 
 import type {

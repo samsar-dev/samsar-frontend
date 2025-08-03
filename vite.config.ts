@@ -5,64 +5,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { compression } from "vite-plugin-compression2";
 import { visualizer } from 'rollup-plugin-visualizer';
-// @ts-ignore
-import * as critical from 'critical';
-import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+
+ 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Critical CSS Plugin for Vite
-function criticalCSSPlugin(options: {
-  criticalPages: Array<{ uri: string; template: string }>;
-  criticalBase?: string;
-  width?: number;
-  height?: number;
-}) {
-  return {
-    name: 'vite-plugin-critical-css',
-    apply: 'build' as const,
-    writeBundle: async () => {
-      if (process.env.NODE_ENV === 'production') {
-        try {
-          const distPath = path.resolve(__dirname, 'dist');
-          
-          for (const page of options.criticalPages) {
-            const htmlPath = path.join(distPath, `${page.template}.html`);
-            
-            // Check if HTML file exists
-            if (require('fs').existsSync(htmlPath)) {
-              console.log(`Generating critical CSS for ${page.uri}...`);
-              
-              await critical.generate({
-                base: distPath,
-                src: `${page.template}.html`,
-                dest: `${page.template}.html`,
-                width: options.width || 1300,
-                height: options.height || 900,
-                dimensions: [
-                  { width: 320, height: 568 },   // Mobile
-                  { width: 768, height: 1024 },  // Tablet
-                  { width: 1300, height: 900 }   // Desktop
-                ],
-                extract: true,
-                inlineImages: false,
-                timeout: 30000,
-                ignore: {
-                  atrule: ['@font-face'],
-                  rule: [/\.sr-only/]
-                }
-              });
-              
-              console.log(`✅ Critical CSS generated for ${page.uri}`);
-            }
-          }
-        } catch (error) {
-          console.warn('⚠️ Critical CSS generation failed:', error);
-        }
-      }
-    }
-  };
-}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -105,7 +51,6 @@ export default defineConfig(({ mode, command }) => {
     },
     plugins: [
       react(),
-      cssInjectedByJsPlugin(),
       visualizer({
         open: true,
         filename: path.join(__dirname, 'stats.html'),
@@ -171,6 +116,8 @@ export default defineConfig(({ mode, command }) => {
         }
       },
 
+    
+
       // Modern compression with parallel processing
       compression({
         algorithms: ['brotliCompress', 'gzip'],
@@ -179,18 +126,6 @@ export default defineConfig(({ mode, command }) => {
       
       // Bundle analyzer (only in analyze mode)
       mode === 'analyze' && visualizer({}),
-      
-      // Critical CSS plugin (production only)
-      isProduction && criticalCSSPlugin({
-        criticalPages: [
-          { uri: '/', template: 'index' },
-          { uri: '/login', template: 'index' },
-          { uri: '/register', template: 'index' },
-          { uri: '/listings', template: 'index' },
-        ],
-        width: 1300,
-        height: 900
-      }),
     ].filter(Boolean),
 
     // Configure static asset handling
@@ -278,63 +213,52 @@ export default defineConfig(({ mode, command }) => {
       target: ['es2020', 'chrome87', 'safari14', 'firefox78'],
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: mode !== 'production',
+      sourcemap: false,
       minify: 'terser',
       cssCodeSplit: true,
-      modulePreload: {
-        polyfill: false,
-      },
       rollupOptions: {
         output: {
           compact: true,
           manualChunks: (id) => {
-            // Axios chunk
             if (id.includes('axios')) {
               return 'axios';
             }
-            // Socket.io chunk
             if (id.includes('socket.io-client')) {
               return 'socket';
             }
-            // Lodash and other utilities
-            if (id.includes('lodash') || id.includes('fuse.js') || id.includes('date-fns')) {
+            if (id.includes('lodash')) {
               return 'utils';
             }
-            // React core
-            if (id.includes('react-dom') || id.includes('react/jsx-runtime') || id.includes('react.production.min')) {
-              return 'react-core';
+            if (id.includes('fuse.js')) {
+              return 'utils';
             }
-            // React router
-            if (id.includes('react-router')) {
-              return 'react-router';
+            if (id.includes('date-fns')) {
+              return 'utils';
             }
-            // UI components and libraries
-            if (id.includes('lucide-react') || id.includes('radix-ui') || id.includes('react-icons') || 
-                id.includes('react-select') || id.includes('react-tabs') || id.includes('react-accordion')) {
-              return 'ui-components';
+            if (id.includes('lucide-react') || id.includes('@radix-ui') || id.includes('react-icons')) {
+              return 'ui-libs';
             }
-            // UI utilities
-            if (id.includes('floating-ui') || id.includes('goober') || id.includes('clsx') || 
-                id.includes('@radix-ui') || id.includes('use-sidecar') || id.includes('use-callback-ref')) {
-              return 'ui-utilities';
-            }
-            // i18n
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'i18n';
-            }
-            // State management
-            if (id.includes('zustand') || id.includes('immer') || id.includes('redux') || id.includes('react-redux')) {
-              return 'state';
-            }
-            // Toast and notifications
-            if (id.includes('react-hot-toast') || id.includes('react-toastify')) {
-              return 'notifications';
-            }
-            // Forms
-            if (id.includes('react-hook-form')) {
+      
+            if (id.includes('react-hook-form') || id.includes('fuse.js')) {
               return 'forms';
             }
-            return null;
+    
+            if (id.includes('date-fns') || id.includes('i18next')) {
+              return 'utils';
+            }
+            if (id.includes('@floating-ui') || id.includes('react-remove-scroll')) {
+              return 'floating-ui';
+            }
+      
+            if (id.includes('fa/') || id.includes('io5/') || id.includes('gi/') || id.includes('lucide-react')) {
+              return 'icons';
+            }
+            
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react';
+            }
+
+            return null; 
           },
           hoistTransitiveImports: false,
           interop: 'auto',
@@ -347,8 +271,6 @@ export default defineConfig(({ mode, command }) => {
           moduleSideEffects: false,
           propertyReadSideEffects: false,
           tryCatchDeoptimization: false,
-          unknownGlobalSideEffects: false,
-          computedPropertySideEffects: false,
         },
       },
       terserOptions: {
@@ -356,7 +278,7 @@ export default defineConfig(({ mode, command }) => {
           drop_console: isProduction,
           drop_debugger: isProduction,
           pure_funcs: ['console.log', 'console.warn', 'console.error', 'console.info', 'console.debug'],
-          passes: 4,
+          passes: 3,
           unsafe: true,
           unsafe_arrows: true,
           unsafe_comps: true,
@@ -385,18 +307,12 @@ export default defineConfig(({ mode, command }) => {
           toplevel: true,
           top_retain: [],
           side_effects: false,
-          arguments: true,
-          properties: true,
-          join_vars: true,
         },
         mangle: {
           safari10: true,
           toplevel: true,
           eval: true,
           module: true,
-          properties: {
-            regex: '^__',
-          },
         },
         format: {
           comments: false,
@@ -411,6 +327,20 @@ export default defineConfig(({ mode, command }) => {
     // Mobile performance optimizations
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
+      exclude: [
+        'socket.io-client',
+        'fuse.js',
+        'date-fns',
+        'lodash-es',
+        'i18next',
+        'react-i18next'
+      ],
+      esbuildOptions: {
+        // Enable better tree-shaking
+        treeShaking: true,
+        // Target modern browsers
+        target: 'es2020',
+      },
     },
 
     css: {

@@ -7,7 +7,7 @@ import React, {
   lazy,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaImage } from "@react-icons/all-files/fa/FaImage";
 import { FaSpinner } from "@react-icons/all-files/fa/FaSpinner";
 import { FaTrash } from "@react-icons/all-files/fa/FaTrash";

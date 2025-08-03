@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { FaEye } from "@react-icons/all-files/fa/FaEye";
 import { FaEyeSlash } from "@react-icons/all-files/fa/FaEyeSlash";
 import { FaLock } from "@react-icons/all-files/fa/FaLock";

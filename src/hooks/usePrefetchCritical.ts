@@ -21,7 +21,7 @@ export const usePrefetchCritical = (delay: number = 3000) => {
 export const usePrefetchByAuth = (isAuthenticated: boolean, delay: number = 2000) => {
   useEffect(() => {
     if (!isAuthenticated) {
-      return;
+      return undefined;
     }
 
     const timer = setTimeout(() => {
