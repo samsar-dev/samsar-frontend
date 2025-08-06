@@ -20,8 +20,8 @@ function ChatItem({
     <div
       className={`flex items-start space-x-3 hover:bg-gray-100/30 cursor-pointer ${chatId === chat?.id && "bg-gray-100"} py-2 px-2 rounded`}
     >
-      <OptimizedAvatar 
-        src={participants.profilePicture} 
+      <OptimizedAvatar
+        src={participants.profilePicture}
         fallback={participants?.username}
         size="md"
         className="h-8 w-8"

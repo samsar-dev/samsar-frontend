@@ -1,5 +1,3 @@
- 
-
 export interface ImageDimensions {
   width: number;
   height: number;
@@ -15,15 +13,17 @@ export interface CompressOptions {
 /**
  * Get image dimensions from file or URL
  */
-export const getImageDimensions = (src: string | File): Promise<ImageDimensions> => {
+export const getImageDimensions = (
+  src: string | File,
+): Promise<ImageDimensions> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       resolve({ width: img.width, height: img.height });
     };
     img.onerror = reject;
-    
-    if (typeof src === 'string') {
+
+    if (typeof src === "string") {
       img.src = src;
     } else {
       img.src = URL.createObjectURL(src);
@@ -36,22 +36,22 @@ export const getImageDimensions = (src: string | File): Promise<ImageDimensions>
  */
 export const compressImage = async (
   file: File,
-  options: CompressOptions = {}
+  options: CompressOptions = {},
 ): Promise<File> => {
   const {
     maxWidth = 1920,
     maxHeight = 1080,
     quality = 0.8,
-    maxSizeMB = 5
+    maxSizeMB = 5,
   } = options;
 
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     if (!ctx) {
-      reject(new Error('Canvas context not available'));
+      reject(new Error("Canvas context not available"));
       return;
     }
 
@@ -59,7 +59,7 @@ export const compressImage = async (
       try {
         // Calculate new dimensions
         let { width, height } = img;
-        
+
         // Maintain aspect ratio while fitting within max dimensions
         if (width > maxWidth || height > maxHeight) {
           const aspectRatio = width / height;
@@ -82,7 +82,7 @@ export const compressImage = async (
         canvas.toBlob(
           (blob) => {
             if (!blob) {
-              reject(new Error('Failed to compress image'));
+              reject(new Error("Failed to compress image"));
               return;
             }
 
@@ -105,14 +105,14 @@ export const compressImage = async (
             resolve(compressedFile);
           },
           file.type,
-          quality
+          quality,
         );
       } catch (error) {
         reject(error);
       }
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = URL.createObjectURL(file);
   });
 };
@@ -122,15 +122,15 @@ export const compressImage = async (
  */
 export const cropImage = (
   imageUrl: string,
-  cropArea: { x: number; y: number; width: number; height: number }
+  cropArea: { x: number; y: number; width: number; height: number },
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     if (!ctx) {
-      reject(new Error('Canvas context not available'));
+      reject(new Error("Canvas context not available"));
       return;
     }
 
@@ -148,7 +148,7 @@ export const cropImage = (
           0,
           0,
           cropArea.width,
-          cropArea.height
+          cropArea.height,
         );
 
         canvas.toBlob(
@@ -156,18 +156,18 @@ export const cropImage = (
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error('Failed to crop image'));
+              reject(new Error("Failed to crop image"));
             }
           },
-          'image/jpeg',
-          0.9
+          "image/jpeg",
+          0.9,
         );
       } catch (error) {
         reject(error);
       }
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = imageUrl;
   });
 };
@@ -179,15 +179,15 @@ export const resizeImage = (
   file: File,
   targetWidth: number,
   targetHeight: number,
-  quality: number = 0.9
+  quality: number = 0.9,
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     if (!ctx) {
-      reject(new Error('Canvas context not available'));
+      reject(new Error("Canvas context not available"));
       return;
     }
 
@@ -207,18 +207,18 @@ export const resizeImage = (
               });
               resolve(resizedFile);
             } else {
-              reject(new Error('Failed to resize image'));
+              reject(new Error("Failed to resize image"));
             }
           },
           file.type,
-          quality
+          quality,
         );
       } catch (error) {
         reject(error);
       }
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = URL.createObjectURL(file);
   });
 };
@@ -228,16 +228,16 @@ export const resizeImage = (
  */
 export const convertImageFormat = (
   file: File,
-  targetFormat: 'image/jpeg' | 'image/png' | 'image/webp',
-  quality: number = 0.9
+  targetFormat: "image/jpeg" | "image/png" | "image/webp",
+  quality: number = 0.9,
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     if (!ctx) {
-      reject(new Error('Canvas context not available'));
+      reject(new Error("Canvas context not available"));
       return;
     }
 
@@ -251,27 +251,27 @@ export const convertImageFormat = (
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const extension = targetFormat.split('/')[1];
+              const extension = targetFormat.split("/")[1];
               const fileName = file.name.replace(/\.[^/.]+$/, `.${extension}`);
-              
+
               const convertedFile = new File([blob], fileName, {
                 type: targetFormat,
                 lastModified: Date.now(),
               });
               resolve(convertedFile);
             } else {
-              reject(new Error('Failed to convert image'));
+              reject(new Error("Failed to convert image"));
             }
           },
           targetFormat,
-          quality
+          quality,
         );
       } catch (error) {
         reject(error);
       }
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = URL.createObjectURL(file);
   });
 };
@@ -282,15 +282,15 @@ export const convertImageFormat = (
 export const generateThumbnail = (
   file: File,
   size: number = 150,
-  quality: number = 0.8
+  quality: number = 0.8,
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     if (!ctx) {
-      reject(new Error('Canvas context not available'));
+      reject(new Error("Canvas context not available"));
       return;
     }
 
@@ -299,8 +299,7 @@ export const generateThumbnail = (
         // Calculate dimensions for square thumbnail
         const { width, height } = img;
         const minDimension = Math.min(width, height);
-       
-        
+
         canvas.width = size;
         canvas.height = size;
 
@@ -317,34 +316,30 @@ export const generateThumbnail = (
           0,
           0,
           size,
-          size
+          size,
         );
 
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const thumbnailFile = new File(
-                [blob],
-                `thumb_${file.name}`,
-                {
-                  type: 'image/jpeg',
-                  lastModified: Date.now(),
-                }
-              );
+              const thumbnailFile = new File([blob], `thumb_${file.name}`, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
               resolve(thumbnailFile);
             } else {
-              reject(new Error('Failed to generate thumbnail'));
+              reject(new Error("Failed to generate thumbnail"));
             }
           },
-          'image/jpeg',
-          quality
+          "image/jpeg",
+          quality,
         );
       } catch (error) {
         reject(error);
       }
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = URL.createObjectURL(file);
   });
 };
@@ -362,12 +357,12 @@ export const validateImageFile = (
     maxHeight?: number;
     minWidth?: number;
     minHeight?: number;
-  } = {}
+  } = {},
 ): Promise<{ isValid: boolean; errors: string[] }> => {
   const {
     maxSize = 5 * 1024 * 1024, // 5MB
     minSize = 1024, // 1KB
-    allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"],
   } = options;
 
   return new Promise((resolve) => {
@@ -380,34 +375,51 @@ export const validateImageFile = (
 
     // Check file size
     if (file.size > maxSize) {
-      errors.push(`File size ${(file.size / 1024 / 1024).toFixed(2)}MB exceeds maximum ${(maxSize / 1024 / 1024).toFixed(2)}MB`);
+      errors.push(
+        `File size ${(file.size / 1024 / 1024).toFixed(2)}MB exceeds maximum ${(maxSize / 1024 / 1024).toFixed(2)}MB`,
+      );
     }
 
     if (file.size < minSize) {
-      errors.push(`File size ${file.size} bytes is below minimum ${minSize} bytes`);
+      errors.push(
+        `File size ${file.size} bytes is below minimum ${minSize} bytes`,
+      );
     }
 
     // If we need to check dimensions
-    if (options.maxWidth || options.maxHeight || options.minWidth || options.minHeight) {
+    if (
+      options.maxWidth ||
+      options.maxHeight ||
+      options.minWidth ||
+      options.minHeight
+    ) {
       getImageDimensions(file)
         .then(({ width, height }) => {
           if (options.maxWidth && width > options.maxWidth) {
-            errors.push(`Image width ${width}px exceeds maximum ${options.maxWidth}px`);
+            errors.push(
+              `Image width ${width}px exceeds maximum ${options.maxWidth}px`,
+            );
           }
           if (options.maxHeight && height > options.maxHeight) {
-            errors.push(`Image height ${height}px exceeds maximum ${options.maxHeight}px`);
+            errors.push(
+              `Image height ${height}px exceeds maximum ${options.maxHeight}px`,
+            );
           }
           if (options.minWidth && width < options.minWidth) {
-            errors.push(`Image width ${width}px is below minimum ${options.minWidth}px`);
+            errors.push(
+              `Image width ${width}px is below minimum ${options.minWidth}px`,
+            );
           }
           if (options.minHeight && height < options.minHeight) {
-            errors.push(`Image height ${height}px is below minimum ${options.minHeight}px`);
+            errors.push(
+              `Image height ${height}px is below minimum ${options.minHeight}px`,
+            );
           }
 
           resolve({ isValid: errors.length === 0, errors });
         })
         .catch(() => {
-          errors.push('Failed to read image dimensions');
+          errors.push("Failed to read image dimensions");
           resolve({ isValid: false, errors });
         });
     } else {
@@ -420,13 +432,13 @@ export const validateImageFile = (
  * Format file size for display
  */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
-  
+  if (bytes === 0) return "0 Bytes";
+
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 /**

@@ -83,10 +83,7 @@ export const messagesAPI = {
   getMessages: (conversationId: string) =>
     apiClient.get(`/messages/conversations/${conversationId}/messages`),
   sendMessage: (conversationId: string, input: { content: string }) =>
-    apiClient.post(
-      `/messages/conversations/${conversationId}/messages`,
-      input,
-    ),
+    apiClient.post(`/messages/conversations/${conversationId}/messages`, input),
   createConversation: (input: {
     participantIds: string[];
     initialMessage?: string;

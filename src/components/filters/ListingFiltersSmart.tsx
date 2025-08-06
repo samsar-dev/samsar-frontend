@@ -26,12 +26,15 @@ const ListingFiltersSmartComponent: React.FC<ListingFiltersSmartProps> = ({
   areas,
   onApply,
 }) => {
-  const filterHook = useListingFilters({}, {
-    listings,
-    selectedCategory,
-    cities,
-    areas,
-  });
+  const filterHook = useListingFilters(
+    {},
+    {
+      listings,
+      selectedCategory,
+      cities,
+      areas,
+    },
+  );
 
   // When user hits Search / Apply inside DumbFilters, invoke upstream handler.
   // Automatically apply when filter criteria actually change (prevents infinite render loop)

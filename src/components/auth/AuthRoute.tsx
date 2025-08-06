@@ -14,7 +14,8 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   redirectTo = "/login",
   children,
 }) => {
-  const { user, isAuthenticated, isLoading, isInitialized, checkAuth } = useAuth();
+  const { user, isAuthenticated, isLoading, isInitialized, checkAuth } =
+    useAuth();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const location = useLocation();
 
@@ -46,7 +47,10 @@ const AuthRoute: React.FC<PropsWithChildren<AuthRouteProps>> = ({
   // Show loading spinner only when we're still checking auth
   if (isLoading || !hasCheckedAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center" role="status">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        role="status"
+      >
         <LoadingSpinner size="lg" label="Loading..." />
       </div>
     );

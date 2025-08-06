@@ -38,9 +38,7 @@ export interface RequestConfig extends AxiosRequestConfig {
 const getBaseUrl = (): string => {
   // Use the configured active API URL
   return ACTIVE_API_URL;
-}
- 
- 
+};
 
 // Track the current base URL
 let currentBaseURL = ACTIVE_API_URL;
@@ -58,7 +56,7 @@ const defaultHeaders = {
 // Create axios instance with default config for cookie-based auth
 const apiClient: AxiosInstance = axios.create({
   // Use relative URLs in development to leverage the proxy
-  baseURL: IS_PRODUCTION ? ACTIVE_API_URL : '/api',
+  baseURL: IS_PRODUCTION ? ACTIVE_API_URL : "/api",
   timeout: 30000, // 30 seconds
   withCredentials: true,
   headers: {
@@ -69,8 +67,8 @@ const apiClient: AxiosInstance = axios.create({
 // Function to update axios instance with new base URL
 const updateAxiosInstance = (): AxiosInstance => {
   const newBaseURL = getBaseUrl();
-  const effectiveBaseURL = IS_PRODUCTION ? newBaseURL : '/api';
-  
+  const effectiveBaseURL = IS_PRODUCTION ? newBaseURL : "/api";
+
   if (newBaseURL !== currentBaseURL) {
     currentBaseURL = newBaseURL;
     apiClient.defaults.baseURL = effectiveBaseURL;

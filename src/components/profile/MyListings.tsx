@@ -66,14 +66,14 @@ export default function MyListings({ userId }: MyListingsProps) {
       setIsLoading(true);
       setError(null);
 
-      console.log('🔍 Fetching listings with params:', { page, limit, sortBy });
+      console.log("🔍 Fetching listings with params:", { page, limit, sortBy });
       const response = await listingsAPI.getUserListings(
         { page, limit, sortBy },
         signal,
       );
 
-      console.log('📡 API Response:', response);
-      
+      console.log("📡 API Response:", response);
+
       // Cancel if this is not the latest request
       if (activeRequestId.current !== requestId) return;
 
@@ -81,11 +81,11 @@ export default function MyListings({ userId }: MyListingsProps) {
         const listingsData = response.data.listings || [];
         const totalItems = response.data.total || 0;
 
-        console.log('✅ Listings fetched successfully:', {
+        console.log("✅ Listings fetched successfully:", {
           count: listingsData.length,
           total: totalItems,
           page,
-          limit
+          limit,
         });
 
         // Only reset listings on first page
@@ -94,13 +94,13 @@ export default function MyListings({ userId }: MyListingsProps) {
         );
         setTotal(totalItems);
         setHasMore(listingsData.length === limit);
-        
+
         // If no listings, stop loading
         if (listingsData.length === 0 && page === 1) {
           setIsLoading(false);
         }
       } else {
-        console.log('❌ API Response structure:', response);
+        console.log("❌ API Response structure:", response);
         throw new Error(response.error || "Failed to fetch listings");
       }
     } catch (err: any) {
@@ -138,15 +138,19 @@ export default function MyListings({ userId }: MyListingsProps) {
 
   // Single effect to handle all fetching of listings
   useEffect(() => {
-    console.log('🔄 MyListings useEffect triggered:', { isAuthenticated, isInitialized, page });
+    console.log("🔄 MyListings useEffect triggered:", {
+      isAuthenticated,
+      isInitialized,
+      page,
+    });
     // Fetch as soon as user is authenticated. If auth still initializing, we'll try again once it's ready.
     if (isAuthenticated) {
       // For initial load, mark as attempted
       if (!hasAttemptedFetch.current) {
         hasAttemptedFetch.current = true;
-        console.log('📋 First fetch attempt');
+        console.log("📋 First fetch attempt");
       }
-      console.log('🚀 Calling fetchListings...');
+      console.log("🚀 Calling fetchListings...");
       fetchListings();
     } else {
       // If we can’t fetch yet, ensure we don’t show an endless spinner
@@ -159,7 +163,7 @@ export default function MyListings({ userId }: MyListingsProps) {
         abortControllerRef.current.abort();
       }
     };
-   }, [isAuthenticated, page]);
+  }, [isAuthenticated, page]);
 
   const handleDelete = async (listingId: string) => {
     try {
@@ -269,7 +273,11 @@ export default function MyListings({ userId }: MyListingsProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <div key={listing.id}>
-                <UnifiedImageGallery listing={listing} onDelete={handleDelete} isModal={false} />
+                <UnifiedImageGallery
+                  listing={listing}
+                  onDelete={handleDelete}
+                  isModal={false}
+                />
               </div>
             ))}
           </div>

@@ -19,9 +19,13 @@ import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
 import { FaWind } from "@react-icons/all-files/fa/FaWind";
 import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
 
-import type { ListingCategory, VehicleType, PropertyType ,
+import type {
+  ListingCategory,
+  VehicleType,
+  PropertyType,
   ListingAction,
-  ListingStatus} from "@/types/enums";
+  ListingStatus,
+} from "@/types/enums";
 import {
   ListingCategory as ListingCategoryValue,
   VehicleType as VehicleTypeValue,
@@ -247,7 +251,9 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
       return initialData as ExtendedFormState;
     });
 
-    const [currentSchema, setCurrentSchema] = useState<ListingFieldSchema[]>([]);
+    const [currentSchema, setCurrentSchema] = useState<ListingFieldSchema[]>(
+      [],
+    );
     const [isLoadingSchema, setIsLoadingSchema] = useState(true);
 
     console.log("form", form);
@@ -399,7 +405,9 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600">Loading advanced fields...</p>
+              <p className="text-sm text-gray-600">
+                Loading advanced fields...
+              </p>
             </div>
           </div>
         );

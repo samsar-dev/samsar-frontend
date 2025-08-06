@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 type AvatarProps = {
@@ -6,22 +6,23 @@ type AvatarProps = {
   alt?: string;
   fallback?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-
-
 export const OptimizedAvatar = React.forwardRef<HTMLDivElement, AvatarProps>(
-  ({ src, alt = '', fallback, className, size = 'md', children, ...props }, ref) => {
+  (
+    { src, alt = "", fallback, className, size = "md", children, ...props },
+    ref,
+  ) => {
     const [imgError, setImgError] = React.useState(false);
 
     return (
       <div
         ref={ref}
         className={cn(
-          'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted',
-          className
+          "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted",
+          className,
         )}
         {...props}
       >
@@ -36,14 +37,14 @@ export const OptimizedAvatar = React.forwardRef<HTMLDivElement, AvatarProps>(
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center rounded-full bg-muted">
-            {children || fallback?.[0]?.toUpperCase() || 'U'}
+            {children || fallback?.[0]?.toUpperCase() || "U"}
           </span>
         )}
       </div>
     );
-  }
+  },
 );
 
-OptimizedAvatar.displayName = 'OptimizedAvatar';
+OptimizedAvatar.displayName = "OptimizedAvatar";
 
 export default OptimizedAvatar;

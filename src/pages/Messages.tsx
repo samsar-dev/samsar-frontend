@@ -15,7 +15,9 @@ import { NEW_MESSAGE } from "@/constants/socketEvents";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Lazy load components
-const ConversationsList = lazy(() => import("@/components/chat/ConversationsList"));
+const ConversationsList = lazy(
+  () => import("@/components/chat/ConversationsList"),
+);
 const UserDetails = lazy(() => import("@/components/chat/UserDetails"));
 const ChatSection = lazy(() => import("@/components/chat/ChatSection"));
 
@@ -122,7 +124,7 @@ export default function ChatInterface() {
             <div
               className={`${infoOpen ? "hidden md:block" : "w-full"} flex-1 overflow-hidden`}
             >
-                            <Suspense
+              <Suspense
                 fallback={
                   <div className="flex-1 flex items-center justify-center">
                     <LoadingSpinner />

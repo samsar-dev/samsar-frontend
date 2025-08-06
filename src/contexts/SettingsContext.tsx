@@ -11,7 +11,6 @@ export interface SettingsContextType {
   resetSettings: () => void;
 }
 
-
 export const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
@@ -97,13 +96,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings(defaultSettings);
   }, []);
 
-  const contextValue = React.useMemo(() => ({
-    settings,
-    pendingChanges,
-    updateSettings,
-    applySettings,
-    resetSettings,
-  }), [settings, pendingChanges, updateSettings, applySettings, resetSettings]);
+  const contextValue = React.useMemo(
+    () => ({
+      settings,
+      pendingChanges,
+      updateSettings,
+      applySettings,
+      resetSettings,
+    }),
+    [settings, pendingChanges, updateSettings, applySettings, resetSettings],
+  );
 
   return (
     <SettingsContext.Provider value={contextValue}>

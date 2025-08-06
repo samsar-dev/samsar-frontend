@@ -1,8 +1,8 @@
 import type {
   ListingDetailsState,
-  ListingDetailsAction} from "./listingDetails.types";
-import { LISTING_DETAILS_TYPES 
+  ListingDetailsAction,
 } from "./listingDetails.types";
+import { LISTING_DETAILS_TYPES } from "./listingDetails.types";
 
 const initialState: ListingDetailsState = {
   listing: null,

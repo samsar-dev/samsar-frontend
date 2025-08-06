@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { useEffect, useState, useCallback, useMemo, memo } from 'react';
-import type { FC } from 'react';
+import * as React from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
+import type { FC } from "react";
 import { FaCar } from "@react-icons/all-files/fa/FaCar";
 import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
 import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
@@ -14,9 +14,7 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "@/components/listings/data/vehicleModels";
-import type {
-  SelectedLocation,
-} from "@/components/location/LocationSearch";
+import type { SelectedLocation } from "@/components/location/LocationSearch";
 import LocationSearch from "@/components/location/LocationSearch";
 
 interface ListingFiltersProps {

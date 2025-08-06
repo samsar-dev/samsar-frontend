@@ -22,15 +22,17 @@ const Routes = lazy(() => import("./routes/Routes"));
 
 // Minimal non-blocking loader (tiny inline spinner)
 const LoadingFallback = () => (
-  <div style={{
-    width: "100%",
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "1rem",
-    color: "#2563eb",
-  }}>
+  <div
+    style={{
+      width: "100%",
+      height: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "1rem",
+      color: "#2563eb",
+    }}
+  >
     Loading...
   </div>
 );
@@ -38,7 +40,7 @@ const LoadingFallback = () => (
 const App: () => ReactElement = () => {
   // Initialize critical route prefetching
   usePrefetchCritical(4000); // Start prefetching after 4 seconds
-  
+
   // Preload critical routes in background (after initial paint)
   useEffect(() => {
     if ("requestIdleCallback" in window) {

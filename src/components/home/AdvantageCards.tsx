@@ -1,6 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import FAQ from './FAQ';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import FAQ from "./FAQ";
 
 interface AdvantageCardProps {
   icon: string;
@@ -23,19 +23,24 @@ const AdvantageCard: React.FC<AdvantageCardProps> = ({
 
   return (
     <div className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      <div className={`absolute -inset-0.5 bg-gradient-to-r ${color} rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-300`}>
-      </div>
+      <div
+        className={`absolute -inset-0.5 bg-gradient-to-r ${color} rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-300`}
+      ></div>
       <div className="relative flex items-start space-x-4">
         <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-2xl">
           {icon}
         </div>
         <div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-            <span className="hidden" aria-hidden="true">{titleAr}</span>
+            <span className="hidden" aria-hidden="true">
+              {titleAr}
+            </span>
             {t(title, titleAr)}
           </h3>
           <p className="mt-1 text-gray-600 dark:text-gray-300">
-            <span className="hidden" aria-hidden="true">{descriptionAr}</span>
+            <span className="hidden" aria-hidden="true">
+              {descriptionAr}
+            </span>
             {t(description, descriptionAr)}
           </p>
         </div>
@@ -90,7 +95,7 @@ const AdvantageCards: React.FC = () => {
             </span>
             {t(
               "home:advantage.subtitle",
-              "اكتشف لماذا يختار آلاف العملاء منصة سمسار"
+              "اكتشف لماذا يختار آلاف العملاء منصة سمسار",
             )}
           </p>
         </div>

@@ -6,12 +6,7 @@ import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
 import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
 import ImageFallback from "@/components/media/ImageFallback";
 import { renderIcon } from "@/components/ui/icons";
-import { lazy, Suspense ,
-  useState,
-  useEffect,
-  useCallback,
-  memo
-} from "react";
+import { lazy, Suspense, useState, useEffect, useCallback, memo } from "react";
 const PriceConverter = lazy(() => import("@/components/common/PriceConverter"));
 import { cleanLocationString } from "@/utils/locationUtils";
 import type {
@@ -27,7 +22,6 @@ import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
 import { MdRemoveRedEye } from "@react-icons/all-files/md/MdRemoveRedEye";
 import { listingsAPI } from "@/api/listings.api";
 import { useAuth } from "@/hooks/useAuth";
- 
 
 // Extend the base Listing type to include our custom fields
 interface ExtendedListing extends Omit<BaseListing, "latitude" | "longitude"> {
@@ -582,7 +576,11 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                           : "https://schema.org/OutOfStock"
                       }
                     />
-                    <Suspense fallback={<div className="font-semibold">Loading price...</div>}>
+                    <Suspense
+                      fallback={
+                        <div className="font-semibold">Loading price...</div>
+                      }
+                    >
                       <PriceConverter
                         price={price}
                         showMonthly={listingAction === ListingAction.RENT}
@@ -594,7 +592,11 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                     listing.originalPrice &&
                     listing.originalPrice > price && (
                       <p className="text-sm text-gray-500 dark:text-gray-400 line-through text-right">
-                        <Suspense fallback={<div className="line-through">Loading price...</div>}>
+                        <Suspense
+                          fallback={
+                            <div className="line-through">Loading price...</div>
+                          }
+                        >
                           <PriceConverter
                             price={listing.originalPrice}
                             className="line-through"
@@ -709,55 +711,96 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                             return <span className="text-gray-400">-</span>;
 
                           // Normalize the transmission value to match our translation keys
-                          let translationKey = '';
-                          
+                          let translationKey = "";
+
                           // Convert to lowercase and remove special characters for easier matching
-                          const normalizedValue = transmissionValue.toLowerCase().replace(/[^a-z0-9]/g, '');
-                          
+                          const normalizedValue = transmissionValue
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]/g, "");
+
                           // Map all possible variations to our translation keys
-                          if (['cvt', 'continuouslyvariable', 'continuously_variable'].includes(normalizedValue)) {
-                            translationKey = 'CVT';
-                          } else if (['semimanual', 'semiautomatic', 'semi_automatic', 'semi-automatic'].includes(normalizedValue)) {
-                            translationKey = 'SEMI_AUTOMATIC';
-                          } else if (['dualclutch', 'dual_clutch', 'dualgrip'].includes(normalizedValue)) {
-                            translationKey = 'DUAL_CLUTCH';
-                          } else if (['automatic', 'auto', 'اتوماتيك'].includes(normalizedValue)) {
-                            translationKey = 'AUTOMATIC';
-                          } else if (['manual', 'stick', 'عادي'].includes(normalizedValue)) {
-                            translationKey = 'MANUAL';
+                          if (
+                            [
+                              "cvt",
+                              "continuouslyvariable",
+                              "continuously_variable",
+                            ].includes(normalizedValue)
+                          ) {
+                            translationKey = "CVT";
+                          } else if (
+                            [
+                              "semimanual",
+                              "semiautomatic",
+                              "semi_automatic",
+                              "semi-automatic",
+                            ].includes(normalizedValue)
+                          ) {
+                            translationKey = "SEMI_AUTOMATIC";
+                          } else if (
+                            ["dualclutch", "dual_clutch", "dualgrip"].includes(
+                              normalizedValue,
+                            )
+                          ) {
+                            translationKey = "DUAL_CLUTCH";
+                          } else if (
+                            ["automatic", "auto", "اتوماتيك"].includes(
+                              normalizedValue,
+                            )
+                          ) {
+                            translationKey = "AUTOMATIC";
+                          } else if (
+                            ["manual", "stick", "عادي"].includes(
+                              normalizedValue,
+                            )
+                          ) {
+                            translationKey = "MANUAL";
                           } else {
                             // If we don't recognize the value, use it as-is
                             translationKey = transmissionValue.toUpperCase();
                           }
-                          
+
                           // Try to get the translation from the options namespace first
-                          const translated = t(`options:transmission.${translationKey}`, {
-                            // Fallback to common namespace if not found in options
-                            defaultValue: t(`common:fields.transmissionTypes.${translationKey}`, {
-                              // Fallback to listings namespace if not found in common
-                              defaultValue: t(`fields.transmissionTypes.${translationKey}`, {
-                                // If still not found, format the key nicely
-                                defaultValue: translationKey
-                                  .toLowerCase()
-                                  .replace(/([a-z])([A-Z])/g, '$1 $2')
-                                  .replace(/_/g, ' ')
-                                  .replace(/\b\w/g, (char) => char.toUpperCase())
-                              })
-                            })
-                          });
-                          
+                          const translated = t(
+                            `options:transmission.${translationKey}`,
+                            {
+                              // Fallback to common namespace if not found in options
+                              defaultValue: t(
+                                `common:fields.transmissionTypes.${translationKey}`,
+                                {
+                                  // Fallback to listings namespace if not found in common
+                                  defaultValue: t(
+                                    `fields.transmissionTypes.${translationKey}`,
+                                    {
+                                      // If still not found, format the key nicely
+                                      defaultValue: translationKey
+                                        .toLowerCase()
+                                        .replace(/([a-z])([A-Z])/g, "$1 $2")
+                                        .replace(/_/g, " ")
+                                        .replace(/\b\w/g, (char) =>
+                                          char.toUpperCase(),
+                                        ),
+                                    },
+                                  ),
+                                },
+                              ),
+                            },
+                          );
+
                           // If we still don't have a translation, format the original value nicely
-                          if (!translated || translated.startsWith('options:') || 
-                              translated.startsWith('common:') || 
-                              translated.startsWith('fields.')) {
+                          if (
+                            !translated ||
+                            translated.startsWith("options:") ||
+                            translated.startsWith("common:") ||
+                            translated.startsWith("fields.")
+                          ) {
                             return transmissionValue
                               .toLowerCase()
-                              .replace(/([a-z])([A-Z])/g, '$1 $2')
-                              .replace(/[_-]/g, ' ')
+                              .replace(/([a-z])([A-Z])/g, "$1 $2")
+                              .replace(/[_-]/g, " ")
                               .replace(/\b\w/g, (char) => char.toUpperCase())
                               .trim();
                           }
-                          
+
                           return translated;
                         })()}
                       </div>

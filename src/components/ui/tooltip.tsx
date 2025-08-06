@@ -46,9 +46,9 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           <div
             className={`absolute ${positionClasses[position]} ${horizontalClasses[position]} px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 ${className} transition-all duration-150 ease-out transform translate-y-[-6px] opacity-0 pointer-events-none`}
             style={{
-              transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+              transition: "opacity 0.15s ease-out, transform 0.15s ease-out",
               opacity: showTooltip ? 1 : 0,
-              transform: showTooltip ? 'translateY(0)' : 'translateY(-6px)',
+              transform: showTooltip ? "translateY(0)" : "translateY(-6px)",
             }}
             role="tooltip"
           >

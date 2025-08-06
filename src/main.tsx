@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 
 // Minimal critical CSS injection - defer the rest
 const injectMinimalCSS = () => {
-  if (typeof document !== 'undefined') {
-    const style = document.createElement('style');
+  if (typeof document !== "undefined") {
+    const style = document.createElement("style");
     style.textContent = `
       body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
       .hidden{display:none!important}
@@ -27,20 +27,20 @@ let i18nInitialized = false;
 const initializeDependencies = async () => {
   const [storeModule] = await Promise.all([
     import("./store/store"),
-    import("./config/i18n")
+    import("./config/i18n"),
   ]);
-  
+
   store = storeModule.store;
   i18nInitialized = true;
-  
+
   // Defer CSS optimization to after app loads
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     requestIdleCallback(async () => {
       try {
         // CSS is now handled by build tools - no manual optimization needed
         await import("@/assets/css/index.css");
       } catch (err) {
-        console.warn('CSS optimization failed:', err);
+        console.warn("CSS optimization failed:", err);
       }
     });
   }
@@ -48,22 +48,20 @@ const initializeDependencies = async () => {
 
 // Lazy load components without chunk naming for faster loading
 const BrowserRouter = lazy(() =>
-  import('react-router-dom').then(m => ({ default: m.BrowserRouter }))
+  import("react-router-dom").then((m) => ({ default: m.BrowserRouter })),
 );
 
-const App = lazy(() => import('./App'));
+const App = lazy(() => import("./App"));
 
 // Defer performance monitoring to after app loads
 const initializePerformanceMonitoring = () => {
-  if (process.env.NODE_ENV === "production" && typeof window !== 'undefined') {
+  if (process.env.NODE_ENV === "production" && typeof window !== "undefined") {
     // Delay web vitals to avoid blocking startup
     requestIdleCallback(() => {
       import("web-vitals");
     });
   }
 };
-
- 
 
 // Fast app initialization
 const initializeApp = async () => {
@@ -88,9 +86,9 @@ const initializeApp = async () => {
           <App />
         </BrowserRouter>
       </Provider>
-    </StrictMode>
+    </StrictMode>,
   );
-  
+
   // Initialize performance monitoring after render
   initializePerformanceMonitoring();
 };
@@ -123,8 +121,6 @@ const startApp = async () => {
     console.error("❌ Failed to initialize application:", error);
   }
 };
-
- 
 
 // Modern browser detection script
 const browserSupportScript = `

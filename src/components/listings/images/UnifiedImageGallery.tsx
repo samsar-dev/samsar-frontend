@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import ImageFallback from "@/components/media/ImageFallback";
- 
- 
+
 import { FaChevronLeft } from "@react-icons/all-files/fa/FaChevronLeft";
 import { FaChevronRight } from "@react-icons/all-files/fa/FaChevronRight";
 import { FaTimes } from "@react-icons/all-files/fa/FaTimes";
@@ -49,9 +48,7 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
     initialIndex,
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [_, setPreviousImageIndex] = useState<number | null>(
-    null,
-  );
+  const [_, setPreviousImageIndex] = useState<number | null>(null);
 
   const images = useMemo(
     () => listing?.images || propImages || [],
@@ -131,10 +128,9 @@ const UnifiedImageGallery: React.FC<UnifiedImageGalleryProps> = ({
       id,
       title,
       price,
- 
+
       location,
       createdAt,
- 
     } = listing;
 
     const formatViews = (count?: number) => {

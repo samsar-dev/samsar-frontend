@@ -13,7 +13,9 @@ interface Props {
 const LanguageSettings: React.FC<Props> = ({ settings, onUpdate, isRTL }) => {
   const { t } = useTranslation();
 
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
     const newLang = event.target.value as LanguageCode;
     onUpdate({ language: newLang });
     localStorage.setItem("language", newLang);

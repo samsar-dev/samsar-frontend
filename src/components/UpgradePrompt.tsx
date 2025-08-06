@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Typography } from "@/utils/typography";
 import { ArrowUpCircle, Download } from "lucide-react";
 
-
 interface UpgradePromptProps {
   maxListings: number;
   currentListings: number;
@@ -41,11 +40,7 @@ export const UpgradePrompt = ({
               and unlock additional features.
             </Typography>
 
-            <Button
-              size="lg"
-              onClick={onUpgrade}
-              className="mt-4 mr-4"
-            >
+            <Button size="lg" onClick={onUpgrade} className="mt-4 mr-4">
               <ArrowUpCircle className="w-4 h-4 mr-2" />
               Upgrade Account
             </Button>
@@ -56,8 +51,8 @@ export const UpgradePrompt = ({
               Or Use Our Mobile App
             </Typography>
             <Typography className="text-muted-foreground mb-6">
-              Download our mobile app to manage your listings on the go and
-              get exclusive mobile-only features.
+              Download our mobile app to manage your listings on the go and get
+              exclusive mobile-only features.
             </Typography>
 
             <div className="flex justify-center gap-4 mt-4">
@@ -74,9 +69,7 @@ export const UpgradePrompt = ({
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() =>
-                  window.open("https://apps.apple.com", "_blank")
-                }
+                onClick={() => window.open("https://apps.apple.com", "_blank")}
               >
                 <Download className="w-4 h-4 mr-2" />
                 App Store

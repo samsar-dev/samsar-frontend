@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import type { RouteObject} from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { prefetchRoute, lazyWithPrefetch } from "@/utils/prefetch";
 
@@ -17,22 +17,18 @@ const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 // Prefetch critical routes after initial load
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   // Prefetch commonly accessed pages after a delay
   setTimeout(() => {
-    prefetchRoute(() => import("@/pages/Search"), 0, 'search-page');
-    prefetchRoute(() => import("@/pages/Vehicles"), 500, 'vehicles-page');
-    prefetchRoute(() => import("@/pages/RealEstate"), 1000, 'realestate-page');
+    prefetchRoute(() => import("@/pages/Search"), 0, "search-page");
+    prefetchRoute(() => import("@/pages/Vehicles"), 500, "vehicles-page");
+    prefetchRoute(() => import("@/pages/RealEstate"), 1000, "realestate-page");
   }, 3000); // Wait 3 seconds after initial load
 }
 
 // Layout wrapper component for routes that need the main layout
 const withLayout = (Component: React.ComponentType) => {
-  return (
- 
-      <Component />
- 
-  );
+  return <Component />;
 };
 
 const mainRoutes: RouteObject[] = [

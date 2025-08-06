@@ -1,9 +1,6 @@
 import type { User } from "./user";
 import type { APIResponse } from "./api";
-import type {
-  ReportType,
-  ReportStatus,
-} from "./enums";
+import type { ReportType, ReportStatus } from "./enums";
 import type { NotificationType } from "./notifications";
 
 // Base Types

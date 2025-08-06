@@ -15,8 +15,6 @@ import { Copy, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { Link } from "react-router-dom";
 
-
-
 export default function UserDetails({
   setInfoOpen,
   participant,
@@ -68,9 +66,9 @@ export default function UserDetails({
             to={`/profile/${participant.id}`}
             className="flex flex-col items-center"
           >
-            <OptimizedAvatar 
+            <OptimizedAvatar
               src={participant?.profilePicture}
-              fallback={participant?.name || participant?.username || 'U'}
+              fallback={participant?.name || participant?.username || "U"}
               size="lg"
               className="h-24 w-24 mb-4"
             />

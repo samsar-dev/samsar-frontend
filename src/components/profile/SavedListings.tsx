@@ -12,7 +12,6 @@ import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
 import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
 import { toast } from "sonner";
- 
 
 interface ExtendedListing extends Omit<Listing, "details" | "seller"> {
   seller?: {
@@ -135,7 +134,6 @@ const SavedListings = () => {
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-transparent py-8">
-       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="space-y-4 animate-fadeIn">
           <div className="flex items-center gap-3 mb-2">

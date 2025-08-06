@@ -1,5 +1,5 @@
-import React, { useState, useEffect, memo } from 'react';
-import type { ReactNode, ErrorInfo } from 'react';
+import React, { useState, useEffect, memo } from "react";
+import type { ReactNode, ErrorInfo } from "react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -7,7 +7,11 @@ interface ErrorBoundaryProps {
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
-const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ children, fallback, onError }) => {
+const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({
+  children,
+  fallback,
+  onError,
+}) => {
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

@@ -110,15 +110,15 @@
   "mileage": "عدد الكيلومترات",
   "cylinders": "عدد الأسطوانات",
   "registrationExpiry": "انتهاء التسجيل",
- 
+
   "torque": "عزم الدوران",
   "seatingCapacity": "سعة المقاعد",
   "doors": "عدد الأبواب",
   "vin": "رقم الهيكل (VIN)",
   "engineNumber": "رقم المحرك",
- 
+
   "vehicleOwners": "عدد الملاك السابقين",
- 
+
   "accidentFree": "خالية من الحوادث",
   "warranty": "الضمان",
   "warrantyPeriod": "فترة الضمان",
@@ -275,7 +275,7 @@
     "wheelSize": "مقاس العجلات",
     "hp": "حصان",
     "nm": "نيوتن.متر",
- 
+
     "brakeSystem": "نظام الفرامل",
     "entertainmentFeatures": "ميزات الترفيه",
     "safetyFeatures": "ميزات السلامة",
@@ -343,7 +343,7 @@
     "foundation": "الأساس",
     "zoning": "التخطيط الحضري",
     "previousOwners": "الملاك السابقون",
- 
+
     "utilities": "المرافق",
     "floor": "الطابق",
     "totalFloors": "عدد الطوابق",
@@ -553,7 +553,6 @@
     "no": "لا",
     "roofType": "نوع السقف",
     "customsCleared": "تم التخليص الجمركي"
- 
   },
   "insuranceType": {
     "comprehensive": "تأمين شامل",
@@ -756,7 +755,7 @@
     "camera360": "كاميرا 360 درجة",
     "dashCam": "كاميرا تسجيل القيادة",
     "nightVision": "رؤية ليلية",
- 
+
     "parkingAid": "مساعد ركن السيارات",
     "parkingAidCamera": "كاميرا مساعدة الركن",
     "parkingAidSensorsRear": "أجهزة استشعار الركن الخلفية",
@@ -820,20 +819,19 @@
     "clothSeats": "مقاعد قماشية",
     "sportSeats": "مقاعد رياضية",
     "massageSeats": "مقاعد مساج",
- 
+
     "oneTouchWindows": "نوافذ بنظام اللمسة الواحدة",
     "rearPrivacyGlass": "زجاج معتم خلفي",
     "sunblinds": "ستائر شمسية",
 
- 
     "autoDimmingMirrors": "مرايا معتمة تلقائياً",
- 
+
     "autoFoldingMirrors": "مرايا قابلة للطي أوتوماتيكياً",
     "memoryMirrors": "ذاكرة للمرايا"
   },
 
   "additionalInformation": "معلومات إضافية",
- 
+
   "vehicleFeatures": "ميزات المركبة",
 
   "featureCategories": {

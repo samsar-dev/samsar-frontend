@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { ExtendedListing } from "@/types/listings";
 import type { PropertyType } from "@/types/enums";
@@ -8,20 +15,23 @@ import { listingsAPI } from "@/api/listings.api";
 const debounce = <F extends (...args: any[]) => any>(
   func: F,
   wait: number,
-  immediate = false
+  immediate = false,
 ) => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  const debounced = function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+
+  const debounced = function (
+    this: ThisParameterType<F>,
+    ...args: Parameters<F>
+  ) {
     const later = () => {
       timeout = null;
       if (!immediate) func.apply(this, args);
     };
-    
+
     const callNow = immediate && !timeout;
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-    
+
     if (callNow) func.apply(this, args);
   };
 
@@ -39,8 +49,12 @@ import { toast } from "sonner";
 import { SEO } from "@/utils/seo";
 
 // Lazy load heavy components
-const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
-const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
+const ListingCard = lazy(
+  () => import("@/components/listings/details/ListingCard"),
+);
+const SkeletonListingGrid = lazy(
+  () => import("@/components/common/SkeletonGrid"),
+);
 
 interface ListingsState {
   all: ExtendedListing[];
@@ -191,7 +205,9 @@ const RealEstatePage: React.FC = () => {
               <SkeletonListingGrid count={6} />
             </Suspense>
           ) : listings.error ? (
-            <div className="text-center text-red-500 py-8">{listings.error}</div>
+            <div className="text-center text-red-500 py-8">
+              {listings.error}
+            </div>
           ) : listings.all.length === 0 ? (
             <div className="text-center text-gray-500 dark:text-gray-400 py-8">
               No real estate listings found
@@ -199,7 +215,10 @@ const RealEstatePage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {listings.all.map((listing) => (
-                <Suspense key={listing.id} fallback={<div>Loading listing...</div>}>
+                <Suspense
+                  key={listing.id}
+                  fallback={<div>Loading listing...</div>}
+                >
                   <ListingCard listing={listing} />
                 </Suspense>
               ))}

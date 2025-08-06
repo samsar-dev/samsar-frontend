@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { prefetchCriticalRoutes } from '@/utils/prefetch';
+import { useEffect } from "react";
+import { prefetchCriticalRoutes } from "@/utils/prefetch";
 
 /**
  * Hook to prefetch critical routes after the app has loaded
@@ -18,7 +18,10 @@ export const usePrefetchCritical = (delay: number = 3000) => {
 /**
  * Hook to prefetch routes based on user authentication status
  */
-export const usePrefetchByAuth = (isAuthenticated: boolean, delay: number = 2000) => {
+export const usePrefetchByAuth = (
+  isAuthenticated: boolean,
+  delay: number = 2000,
+) => {
   useEffect(() => {
     if (!isAuthenticated) {
       return undefined;
@@ -26,10 +29,10 @@ export const usePrefetchByAuth = (isAuthenticated: boolean, delay: number = 2000
 
     const timer = setTimeout(() => {
       // Prefetch authenticated user routes
-      import('@/pages/Profile').catch(() => {});
-      import('@/pages/Settings').catch(() => {});
-      import('@/pages/Messages').catch(() => {});
-      import('@/components/listings/create/CreateListing').catch(() => {});
+      import("@/pages/Profile").catch(() => {});
+      import("@/pages/Settings").catch(() => {});
+      import("@/pages/Messages").catch(() => {});
+      import("@/components/listings/create/CreateListing").catch(() => {});
     }, delay);
 
     return () => clearTimeout(timer);

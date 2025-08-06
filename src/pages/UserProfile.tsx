@@ -193,9 +193,7 @@ export const UserProfile = () => {
               >
                 Message
               </button>
-              <button
-                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700 transition-transform duration-150 ease-in-out"
-              >
+              <button className="px-4 py-1.5 bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700 transition-transform duration-150 ease-in-out">
                 Share profile
               </button>
             </div>

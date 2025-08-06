@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 
-
 import { ACTIVE_API_URL } from "@/config";
 
 const DeleteAccount = () => {

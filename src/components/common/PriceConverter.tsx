@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-
 export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -53,7 +52,9 @@ export const PriceConverter: React.FC<PriceConverterProps> = ({
       onMouseLeave={handleMouseLeave}
       title={isHovered ? t("common.showInUSD") : t("common.showInSYP")}
     >
-      <span className={`transition-opacity duration-200 ${isHovered ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"}`}>
+      <span
+        className={`transition-opacity duration-200 ${isHovered ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"}`}
+      >
         {isHovered ? formattedSYP : formattedUSD}
         {showMonthly && (
           <span className="text-xs ml-1">{t("common.monthly")}</span>

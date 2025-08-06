@@ -13,7 +13,7 @@ export const timeAgo = (
   const dateObj = new Date(date);
   const now = new Date();
   const diffMs = now.getTime() - dateObj.getTime();
-  
+
   // Handle future dates
   if (diffMs < 0) {
     return formatDate(dateObj, locale);
@@ -29,7 +29,7 @@ export const timeAgo = (
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-  
+
   return formatDate(dateObj, locale);
 };
 
@@ -44,7 +44,7 @@ export const formatDate = (
   locale: "en" | "ar" = "en",
 ): string => {
   const dateObj = new Date(date);
-  
+
   // Use native Intl.DateTimeFormat for better performance and smaller bundle
   return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "ar-SA", {
     year: "numeric",

@@ -4,11 +4,18 @@ import React, {
   useCallback,
   useRef,
   useMemo,
- lazy } from "react";
+  lazy,
+} from "react";
 import { useTranslation } from "react-i18next";
-const SkeletonListingGrid = lazy(() => import("@/components/common/SkeletonGrid"));
-const ListingFilters = lazy(() => import("@/components/filters/ListingFilters"));
-const ListingCard = lazy(() => import("@/components/listings/details/ListingCard"));
+const SkeletonListingGrid = lazy(
+  () => import("@/components/common/SkeletonGrid"),
+);
+const ListingFilters = lazy(
+  () => import("@/components/filters/ListingFilters"),
+);
+const ListingCard = lazy(
+  () => import("@/components/listings/details/ListingCard"),
+);
 import type { ExtendedListing } from "@/types/listings";
 import type { ListingAction, VehicleType } from "@/types/enums";
 import { ListingCategory } from "@/types/enums";
@@ -17,20 +24,23 @@ import { listingsAPI } from "@/api/listings.api";
 const debounce = <F extends (...args: any[]) => any>(
   func: F,
   wait: number,
-  immediate = false
+  immediate = false,
 ) => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  const debounced = function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+
+  const debounced = function (
+    this: ThisParameterType<F>,
+    ...args: Parameters<F>
+  ) {
     const later = () => {
       timeout = null;
       if (!immediate) func.apply(this, args);
     };
-    
+
     const callNow = immediate && !timeout;
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-    
+
     if (callNow) func.apply(this, args);
   };
 

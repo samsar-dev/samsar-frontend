@@ -1,12 +1,15 @@
-import React, { Suspense, useRef, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import React, { Suspense, useRef, useState, useEffect } from "react";
+import type { ReactNode } from "react";
 
 interface LazyLoadOnScrollProps {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-const LazyLoadOnScroll: React.FC<LazyLoadOnScrollProps> = ({ children, fallback = null }) => {
+const LazyLoadOnScroll: React.FC<LazyLoadOnScrollProps> = ({
+  children,
+  fallback = null,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -19,9 +22,9 @@ const LazyLoadOnScroll: React.FC<LazyLoadOnScrollProps> = ({ children, fallback 
         }
       },
       {
-        rootMargin: '200px', // Start loading when the component is 200px away from the viewport
+        rootMargin: "200px", // Start loading when the component is 200px away from the viewport
         threshold: 0.01,
-      }
+      },
     );
 
     const currentRef = ref.current;
@@ -38,7 +41,11 @@ const LazyLoadOnScroll: React.FC<LazyLoadOnScrollProps> = ({ children, fallback 
 
   return (
     <div ref={ref}>
-      {isVisible ? <Suspense fallback={fallback}>{children}</Suspense> : fallback}
+      {isVisible ? (
+        <Suspense fallback={fallback}>{children}</Suspense>
+      ) : (
+        fallback
+      )}
     </div>
   );
 };

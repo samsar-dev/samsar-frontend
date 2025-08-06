@@ -1,5 +1,13 @@
 import { Typography } from "@/utils/typography";
-import { FileText, Shield, Scale, Info, Star, Mail, Building } from "lucide-react";
+import {
+  FileText,
+  Shield,
+  Scale,
+  Info,
+  Star,
+  Mail,
+  Building,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 import { useTranslation } from "react-i18next";
@@ -50,8 +58,13 @@ const TermsOfService = () => {
           <ul className="list-disc pl-4">
             <li>Provide accurate and complete information in all listings</li>
             <li>Comply with all applicable laws and regulations</li>
-            <li>Not engage in any fraudulent, misleading, or deceptive practices</li>
-            <li>Not post any content that is illegal, offensive, or infringes on others' rights</li>
+            <li>
+              Not engage in any fraudulent, misleading, or deceptive practices
+            </li>
+            <li>
+              Not post any content that is illegal, offensive, or infringes on
+              others' rights
+            </li>
           </ul>
           <Typography component="h4" sx={{ fontWeight: 600 }}>
             We reserve the right to remove any listings that violate these Terms
@@ -72,8 +85,12 @@ const TermsOfService = () => {
           <ul className="list-disc pl-4">
             <li>Provide accurate, current, and complete information</li>
             <li>Maintain the security of your account credentials</li>
-            <li>Be responsible for all activities that occur under your account</li>
-            <li>Immediately notify us of any unauthorized use of your account</li>
+            <li>
+              Be responsible for all activities that occur under your account
+            </li>
+            <li>
+              Immediately notify us of any unauthorized use of your account
+            </li>
           </ul>
         </>
       ),
@@ -141,9 +158,18 @@ const TermsOfService = () => {
             or transmit any of the material on our Platform, except as follows:
           </Typography>
           <ul className="list-disc pl-4">
-            <li>Your computer may temporarily store copies of such materials in RAM incidental to your accessing and viewing those materials.</li>
-            <li>You may store files that are automatically cached by your Web browser for display enhancement purposes.</li>
-            <li>You may print or download one copy of a reasonable number of pages of the Platform for your own personal, non-commercial use.</li>
+            <li>
+              Your computer may temporarily store copies of such materials in
+              RAM incidental to your accessing and viewing those materials.
+            </li>
+            <li>
+              You may store files that are automatically cached by your Web
+              browser for display enhancement purposes.
+            </li>
+            <li>
+              You may print or download one copy of a reasonable number of pages
+              of the Platform for your own personal, non-commercial use.
+            </li>
           </ul>
         </>
       ),
@@ -205,10 +231,20 @@ const TermsOfService = () => {
       />
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="animate-fadeInUp">
-          <Typography variant="h2" component="h1" align="center" className="font-bold mb-3">
+          <Typography
+            variant="h2"
+            component="h1"
+            align="center"
+            className="font-bold mb-3"
+          >
             Terms of Service
           </Typography>
-          <Typography variant="h6" color="text.secondary" align="center" className="mb-8 max-w-800 mx-auto">
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            align="center"
+            className="mb-8 max-w-800 mx-auto"
+          >
             Please read these Terms of Service carefully before using our
             Platform.
           </Typography>
@@ -216,15 +252,14 @@ const TermsOfService = () => {
 
         <div className="max-w-5xl mx-auto">
           {sections.map((section, index) => (
-            <div className="animate-fadeInUp" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div
+              className="animate-fadeInUp"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <Card className="p-6 md:p-8 mb-4 border rounded-lg">
                 <div className="flex items-center mb-3">
                   {section.icon}
-                  <Typography
-                    variant="h4"
-                    component="h2"
-                    className="font-bold"
-                  >
+                  <Typography variant="h4" component="h2" className="font-bold">
                     {section.title}
                   </Typography>
                 </div>

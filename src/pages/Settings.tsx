@@ -1,11 +1,15 @@
-import { lazy, Suspense , useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import NotificationSettings from "@/components/settings/NotificationSettings";
 import PreferenceSettings from "@/components/settings/PreferenceSettings";
 
-const SecuritySettingsComponent = lazy(() => import("@/components/settings/SecuritySettings"));
+const SecuritySettingsComponent = lazy(
+  () => import("@/components/settings/SecuritySettings"),
+);
 
 const DeleteAccount = lazy(() => import("@/components/settings/DeleteAccount"));
-const AccountSettings = lazy(() => import("@/components/settings/AccountSettings"));
+const AccountSettings = lazy(
+  () => import("@/components/settings/AccountSettings"),
+);
 import { useSettings } from "@/contexts/SettingsContext";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useTranslation } from "react-i18next";
@@ -18,8 +22,6 @@ import type {
   PreferenceSettings as PreferenceSettingsType,
   Settings as AppSettings,
 } from "@/types/settings";
-
-
 
 interface SettingsState {
   privacy: {
@@ -89,9 +91,15 @@ function Settings() {
             const newSettings: AppSettings = {
               ...localSettings,
               notifications: {
-                listingUpdates: Boolean(userSettings.notifications?.listingUpdates),
-                newInboxMessages: Boolean(userSettings.notifications?.newInboxMessages),
-                loginNotifications: Boolean(userSettings.notifications?.loginNotifications),
+                listingUpdates: Boolean(
+                  userSettings.notifications?.listingUpdates,
+                ),
+                newInboxMessages: Boolean(
+                  userSettings.notifications?.newInboxMessages,
+                ),
+                loginNotifications: Boolean(
+                  userSettings.notifications?.loginNotifications,
+                ),
                 newsletterSubscribed: Boolean(
                   userSettings.notifications?.newsletterSubscribed,
                 ),
@@ -99,9 +107,12 @@ function Settings() {
               privacy: {
                 showEmail: Boolean(userSettings.privacy?.showEmail),
                 showPhone: Boolean(userSettings.privacy?.showPhone),
-                showOnlineStatus: Boolean(userSettings.privacy?.showOnlineStatus),
+                showOnlineStatus: Boolean(
+                  userSettings.privacy?.showOnlineStatus,
+                ),
                 allowMessaging: Boolean(userSettings.privacy?.allowMessaging),
-                profileVisibility: userSettings.privacy?.profileVisibility || "public",
+                profileVisibility:
+                  userSettings.privacy?.profileVisibility || "public",
               },
               preferences: localSettings?.preferences || {
                 language: LanguageCode.AR, // Default to Arabic
@@ -168,18 +179,25 @@ function Settings() {
         ...localSettings,
         notifications: {
           listingUpdates: localSettings.notifications?.listingUpdates ?? false,
-          newInboxMessages: localSettings.notifications?.newInboxMessages ?? false,
-          loginNotifications: localSettings.notifications?.loginNotifications ?? true,
-          newsletterSubscribed: localSettings.notifications?.newsletterSubscribed ?? false,
+          newInboxMessages:
+            localSettings.notifications?.newInboxMessages ?? false,
+          loginNotifications:
+            localSettings.notifications?.loginNotifications ?? true,
+          newsletterSubscribed:
+            localSettings.notifications?.newsletterSubscribed ?? false,
           email: localSettings.notifications?.email ?? true,
           push: localSettings.notifications?.push ?? true,
           message: localSettings.notifications?.message ?? true,
           generalUpdates: localSettings.notifications?.generalUpdates ?? true,
           orderUpdates: localSettings.notifications?.orderUpdates ?? true,
-          enabledTypes: localSettings.notifications?.enabledTypes || ["message", "listing"],
+          enabledTypes: localSettings.notifications?.enabledTypes || [
+            "message",
+            "listing",
+          ],
         },
         privacy: {
-          profileVisibility: localSettings.privacy?.profileVisibility || "public",
+          profileVisibility:
+            localSettings.privacy?.profileVisibility || "public",
           showOnlineStatus: localSettings.privacy?.showOnlineStatus ?? true,
           showPhone: localSettings.privacy?.showPhone ?? true,
           showEmail: localSettings.privacy?.showEmail ?? true,
@@ -188,10 +206,13 @@ function Settings() {
         preferences: {
           language: localSettings.preferences?.language || LanguageCode.AR,
           theme: localSettings.preferences?.theme || ThemeType.LIGHT,
-          timezone: localSettings.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone:
+            localSettings.preferences?.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
         },
         security: {
-          loginNotifications: localSettings.security?.loginNotifications ?? true,
+          loginNotifications:
+            localSettings.security?.loginNotifications ?? true,
           securityQuestions: localSettings.security?.securityQuestions ?? false,
           twoFactorEnabled: localSettings.security?.twoFactorEnabled ?? false,
           autoLogoutTime: localSettings.security?.autoLogoutTime ?? 30,
@@ -202,7 +223,7 @@ function Settings() {
       if (!response || response.error) {
         throw new Error(response?.error || "Settings update failed");
       }
-      
+
       // Ensure we have valid response data
       if (response.data) {
         // Update with server response to ensure consistency
@@ -222,8 +243,12 @@ function Settings() {
       setSaveStatus({ type: "success", message: t("saveSuccess") });
     } catch (error) {
       console.error("Failed to save settings:", error);
-      const errorMessage = error instanceof Error ? error.message : "Save failed";
-      setSaveStatus({ type: "error", message: `${t("saveError")}: ${errorMessage}` });
+      const errorMessage =
+        error instanceof Error ? error.message : "Save failed";
+      setSaveStatus({
+        type: "error",
+        message: `${t("saveError")}: ${errorMessage}`,
+      });
     } finally {
       setIsSaving(false);
 
@@ -283,15 +308,16 @@ function Settings() {
     }));
   };
 
-
-
   const handlePrivacyUpdate = (updates: Partial<SettingsState["privacy"]>) => {
-    console.log('Settings: Privacy updates received', updates);
+    console.log("Settings: Privacy updates received", updates);
     setLocalSettings((prev) => {
       const newSettings = {
         ...prev,
         privacy: {
-          profileVisibility: updates.profileVisibility ?? prev.privacy?.profileVisibility ?? "public",
+          profileVisibility:
+            updates.profileVisibility ??
+            prev.privacy?.profileVisibility ??
+            "public",
           showOnlineStatus:
             updates.showOnlineStatus ?? prev.privacy?.showOnlineStatus ?? true,
           showPhone: updates.showPhone ?? prev.privacy?.showPhone ?? true,
@@ -300,7 +326,7 @@ function Settings() {
             updates.allowMessaging ?? prev.privacy?.allowMessaging ?? true,
         },
       };
-      console.log('Settings: New settings after privacy update', newSettings);
+      console.log("Settings: New settings after privacy update", newSettings);
       return newSettings;
     });
   };
@@ -338,10 +364,7 @@ function Settings() {
             <Tabs.Root defaultValue="preferences" className="w-full">
               <div className="relative">
                 <div className="relative">
-                  <div
-                    ref={tabListRef}
-                    className="overflow-x-auto pb-1"
-                  >
+                  <div ref={tabListRef} className="overflow-x-auto pb-1">
                     <Tabs.List className="flex space-x-1 w-max min-w-full border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-2">
                       {tabs.map((tab) => (
                         <Tabs.Trigger
@@ -444,7 +467,11 @@ function Settings() {
 
                 {/* Security Panel */}
                 <Tabs.Content value="security" className="p-6">
-                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                  <Suspense
+                    fallback={
+                      <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>
+                    }
+                  >
                     <SecuritySettingsComponent
                       settings={settings?.security || {}}
                       onUpdate={handleSecurityUpdate}
@@ -476,14 +503,21 @@ function Settings() {
 
                 {/* Account Panel */}
                 <Tabs.Content value="account" className="p-6">
-                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                  <Suspense
+                    fallback={
+                      <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>
+                    }
+                  >
                     <AccountSettings
                       settings={{
-                        profileVisibility: localSettings?.privacy?.profileVisibility || "public",
-                        showOnlineStatus: localSettings?.privacy?.showOnlineStatus ?? true,
+                        profileVisibility:
+                          localSettings?.privacy?.profileVisibility || "public",
+                        showOnlineStatus:
+                          localSettings?.privacy?.showOnlineStatus ?? true,
                         showPhone: localSettings?.privacy?.showPhone ?? true,
                         showEmail: localSettings?.privacy?.showEmail ?? true,
-                        allowMessaging: localSettings?.privacy?.allowMessaging ?? true,
+                        allowMessaging:
+                          localSettings?.privacy?.allowMessaging ?? true,
                       }}
                       onUpdate={handlePrivacyUpdate}
                       isRTL={isRTL}
@@ -514,7 +548,11 @@ function Settings() {
 
                 {/* Delete Account Panel */}
                 <Tabs.Content value="delete" className="p-6">
-                  <Suspense fallback={<div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>}>
+                  <Suspense
+                    fallback={
+                      <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 rounded"></div>
+                    }
+                  >
                     <DeleteAccount />
                   </Suspense>
                 </Tabs.Content>

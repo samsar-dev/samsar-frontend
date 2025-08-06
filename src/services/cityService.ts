@@ -1,8 +1,7 @@
-import type {
-  City} from "./locationService";
+import type { City } from "./locationService";
 import {
   findNearbyCities,
-  getAllCities as fetchAllCities
+  getAllCities as fetchAllCities,
 } from "./locationService";
 
 /**

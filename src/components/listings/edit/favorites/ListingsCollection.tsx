@@ -14,11 +14,7 @@ export default function ListingsCollection({ type }: ListingsCollectionProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
   const { favorites, isLoading: favoritesLoading } = useFavorites();
-  const {
-    savedListings,
-    isLoading: savedListingsLoading,
-
-  } = useSavedListings();
+  const { savedListings, isLoading: savedListingsLoading } = useSavedListings();
 
   useEffect(() => {
     const fetchListings = async () => {

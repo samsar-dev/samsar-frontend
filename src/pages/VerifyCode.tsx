@@ -10,7 +10,6 @@ import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 import { FaLock } from "@react-icons/all-files/fa/FaLock";
 
 const VerifyCode = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = location.state || {};

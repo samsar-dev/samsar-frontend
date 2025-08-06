@@ -67,7 +67,6 @@ export default function NotificationBell({
     }
   };
 
-
   const handleNotificationClick = async (notification: Notification) => {
     if (!isAuthenticated) return;
 

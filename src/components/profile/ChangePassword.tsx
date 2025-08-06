@@ -259,8 +259,8 @@ const ChangePassword = () => {
             id === "currentPassword"
               ? "current-password"
               : id === "newPassword" || id === "confirmPassword"
-              ? "new-password"
-              : undefined
+                ? "new-password"
+                : undefined
           }
           className="w-full px-4 py-2 pl-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
         />

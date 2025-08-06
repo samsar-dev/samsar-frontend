@@ -17,7 +17,6 @@ import { PRICE_CHANGE } from "@/constants/socketEvents";
 // Components
 import { ImageManager } from "@/components/listings/images/ImageManager";
 import { ACTIVE_API_URL } from "@/config";
- 
 
 // Types
 type SectionId =

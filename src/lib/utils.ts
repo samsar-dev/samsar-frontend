@@ -8,5 +8,5 @@ export function cn(...inputs: ClassValue[]) {
 
 // Ultra-lightweight version for basic class merging
 export function simpleCn(...classes: (string | undefined | null | false)[]) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }

@@ -106,7 +106,7 @@ const Map: React.FC<MapProps> = ({
 
   // Lazy-load Leaflet styles only when Map component is rendered (code-split)
   useEffect(() => {
-    import('leaflet/dist/leaflet.css');
+    import("leaflet/dist/leaflet.css");
   }, []);
   const [mapReady, setMapReady] = useState(false);
   const [geocodedCenter, setGeocodedCenter] = useState<[number, number] | null>(

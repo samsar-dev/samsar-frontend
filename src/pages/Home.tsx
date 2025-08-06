@@ -1,13 +1,13 @@
 import { listingsAPI } from "@/api/listings.api";
-import React, { 
-  Suspense, 
-  lazy, 
-  useState, 
-  useEffect, 
-  useRef, 
-  useMemo, 
-  useCallback, 
-  memo 
+import React, {
+  Suspense,
+  lazy,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  memo,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
@@ -16,10 +16,13 @@ import { Helmet } from "react-helmet-async";
 import { MdFilterList } from "@react-icons/all-files/md/MdFilterList";
 
 // Lazy load other components
-const ListingCard = React.memo(lazy(() => import("@/components/listings/details/ListingCard")));
-const ListingFilters = lazy(() => 
-  import("@/components/filters/ListingFiltersSmart")
-    .then(module => ({ default: module.default }))
+const ListingCard = React.memo(
+  lazy(() => import("@/components/listings/details/ListingCard")),
+);
+const ListingFilters = lazy(() =>
+  import("@/components/filters/ListingFiltersSmart").then((module) => ({
+    default: module.default,
+  })),
 );
 
 // Memoized lazy components
@@ -36,35 +39,29 @@ const MemoizedSkeleton: React.FC<SkeletonProps> = memo(({ count = 8 }) => (
 ));
 
 // Set display name for better debugging
-MemoizedSkeleton.displayName = 'MemoizedSkeleton';
+MemoizedSkeleton.displayName = "MemoizedSkeleton";
 
-const PopularCategories = memo(lazy(() => 
-  import("@/components/home/PopularCategories")
-));
+const PopularCategories = memo(
+  lazy(() => import("@/components/home/PopularCategories")),
+);
 
-const FAQ = memo(lazy(() => 
-  import("@/components/home/FAQ")
-));
+const FAQ = memo(lazy(() => import("@/components/home/FAQ")));
 
-const AdvantageCards = memo(lazy(() => 
-  import("@/components/home/AdvantageCards")
-));
+const AdvantageCards = memo(
+  lazy(() => import("@/components/home/AdvantageCards")),
+);
 
-import LazyLoadOnScroll from '@/components/common/LazyLoadOnScroll';
+import LazyLoadOnScroll from "@/components/common/LazyLoadOnScroll";
 
 // Types and enums
-import type {
-  VehicleType,
-  PropertyType} from "@/types/enums";
-import {
-  ListingCategory
-} from "@/types/enums";
+import type { VehicleType, PropertyType } from "@/types/enums";
+import { ListingCategory } from "@/types/enums";
 import type { ExtendedListing } from "@/types/listings";
 
 // Icons for HomeHero
 
-import { FaCar } from '@react-icons/all-files/fa/FaCar';
-import { FaHome } from '@react-icons/all-files/fa/FaHome';
+import { FaCar } from "@react-icons/all-files/fa/FaCar";
+import { FaHome } from "@react-icons/all-files/fa/FaHome";
 
 // Inline HomeHero component
 interface HomeHeroProps {
@@ -72,14 +69,16 @@ interface HomeHeroProps {
   onCategoryChange: (category: ListingCategory) => void;
 }
 
-const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryChange }) => {
-  const { t } = useTranslation(['home']);
+const HomeHero: React.FC<HomeHeroProps> = memo(
+  ({ selectedCategory, onCategoryChange }) => {
+    const { t } = useTranslation(["home"]);
 
-  return (
-    <>
-      {/* Ultra-minimal Critical CSS for Mobile LCP - Reduced Size */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+    return (
+      <>
+        {/* Ultra-minimal Critical CSS for Mobile LCP - Reduced Size */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           .hero-container{background:linear-gradient(135deg,#667eea,#764ba2);min-height:35vh;display:flex;align-items:center;justify-content:center;width:100%;direction:rtl;padding:2rem 0}
           .hero-content{text-align:center;color:white;padding:1rem}
           .hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;margin:0 0 .5rem;line-height:1.2}
@@ -88,48 +87,46 @@ const HomeHero: React.FC<HomeHeroProps> = memo(({ selectedCategory, onCategoryCh
           .hero-button{padding:.5rem 1.25rem;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:white;border-radius:20px;font-weight:600;font-size:.8rem;cursor:pointer;width:100%;max-width:160px}
           .hero-button-active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5)}
           @media(min-width:768px){.hero-container{min-height:40vh}.hero-title{font-size:clamp(1.75rem,4vw,2.5rem)}.hero-buttons{flex-direction:row;gap:1rem}}
-        `
-      }} />
-      
-      <div className="hero-container">
-        <div className="hero-content">
-          <h1 className="hero-title">
-            {t('home:hero.title')}
-          </h1>
-          <p className="hero-subtitle">
-            {t('home:hero.subtitle')}
-          </p>
-          <div className="hero-buttons">
-            <button
-              onClick={() => onCategoryChange(ListingCategory.VEHICLES)}
-              className={`hero-button ${
-                selectedCategory === ListingCategory.VEHICLES
-                  ? 'hero-button-active'
-                  : ''
-              }`}
-            >
-              <FaCar />
-              {t('home:vehicle_section.title')}
-            </button>
-            <button
-              onClick={() => onCategoryChange(ListingCategory.REAL_ESTATE)}
-              className={`hero-button ${
-                selectedCategory === ListingCategory.REAL_ESTATE
-                  ? 'hero-button-active'
-                  : ''
-              }`}
-            >
-              <FaHome />
-              {t('home:property_section.title')}
-            </button>
+        `,
+          }}
+        />
+
+        <div className="hero-container">
+          <div className="hero-content">
+            <h1 className="hero-title">{t("home:hero.title")}</h1>
+            <p className="hero-subtitle">{t("home:hero.subtitle")}</p>
+            <div className="hero-buttons">
+              <button
+                onClick={() => onCategoryChange(ListingCategory.VEHICLES)}
+                className={`hero-button ${
+                  selectedCategory === ListingCategory.VEHICLES
+                    ? "hero-button-active"
+                    : ""
+                }`}
+              >
+                <FaCar />
+                {t("home:vehicle_section.title")}
+              </button>
+              <button
+                onClick={() => onCategoryChange(ListingCategory.REAL_ESTATE)}
+                className={`hero-button ${
+                  selectedCategory === ListingCategory.REAL_ESTATE
+                    ? "hero-button-active"
+                    : ""
+                }`}
+              >
+                <FaHome />
+                {t("home:property_section.title")}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </>
-  );
-});
+      </>
+    );
+  },
+);
 
-HomeHero.displayName = 'HomeHero';
+HomeHero.displayName = "HomeHero";
 
 interface ListingParams {
   category?: {
@@ -167,15 +164,18 @@ const Home: React.FC = () => {
   // ... existing code ...
 
   // Memoized ListingFilters with proper typing
-  const LazyListingFilters = useMemo(() => 
-    memo((props: React.ComponentProps<typeof ListingFilters>) => (
-      <Suspense fallback={<div className="p-8 text-center">Loading filters…</div>}>
-        <ListingFilters {...props} />
-      </Suspense>
-    )),
-    []
+  const LazyListingFilters = useMemo(
+    () =>
+      memo((props: React.ComponentProps<typeof ListingFilters>) => (
+        <Suspense
+          fallback={<div className="p-8 text-center">Loading filters…</div>}
+        >
+          <ListingFilters {...props} />
+        </Suspense>
+      )),
+    [],
   );
-  LazyListingFilters.displayName = 'LazyListingFilters';
+  LazyListingFilters.displayName = "LazyListingFilters";
 
   const { t, i18n } = useTranslation([
     "common",
@@ -195,8 +195,7 @@ const Home: React.FC = () => {
   }) as Record<string, string>;
 
   // Track first visible listing for LCP optimization
-  const [, setFirstVisibleListing] =
-    useState<ExtendedListing | null>(null);
+  const [, setFirstVisibleListing] = useState<ExtendedListing | null>(null);
   const [sortBy, setSortBy] = useState<string>("newestFirst");
   const [selectedCategory, setSelectedCategory] = useState<ListingCategory>(
     ListingCategory.VEHICLES,
@@ -235,7 +234,7 @@ const Home: React.FC = () => {
     if (listings.all.length > 0) {
       const firstListing = listings.all[0];
       setFirstVisibleListing(firstListing);
-      
+
       // Let browser handle image preloading for non-critical images
     }
   }, [listings.all]);
@@ -247,42 +246,48 @@ const Home: React.FC = () => {
       timestamp: number;
     };
   }>({});
-  
+
   // Cache TTL (5 minutes)
   const CACHE_TTL = 5 * 60 * 1000;
 
   const toggleFilters = useCallback(() => {
-    setIsFilterOpen(prev => !prev);
+    setIsFilterOpen((prev) => !prev);
   }, []);
 
   const fetchListings = useCallback(async () => {
     // Check cache validity before using
     const cachedData = listingsCache.current[selectedCategory];
-    const isCacheValid = cachedData && 
-                         (Date.now() - cachedData.timestamp) < CACHE_TTL &&
-                         !isInitialLoad && 
-                         !forceRefresh;
+    const isCacheValid =
+      cachedData &&
+      Date.now() - cachedData.timestamp < CACHE_TTL &&
+      !isInitialLoad &&
+      !forceRefresh;
 
     if (isCacheValid) {
       const sortedListings = [...cachedData.data];
-      
+
       // Memoize sort function
       const sortFunctions = {
-        priceAsc: (a: ExtendedListing, b: ExtendedListing) => (a.price || 0) - (b.price || 0),
-        priceDesc: (a: ExtendedListing, b: ExtendedListing) => (b.price || 0) - (a.price || 0),
-        locationAsc: (a: ExtendedListing, b: ExtendedListing) => 
+        priceAsc: (a: ExtendedListing, b: ExtendedListing) =>
+          (a.price || 0) - (b.price || 0),
+        priceDesc: (a: ExtendedListing, b: ExtendedListing) =>
+          (b.price || 0) - (a.price || 0),
+        locationAsc: (a: ExtendedListing, b: ExtendedListing) =>
           (a.location || "").localeCompare(b.location || ""),
-        locationDesc: (a: ExtendedListing, b: ExtendedListing) => 
+        locationDesc: (a: ExtendedListing, b: ExtendedListing) =>
           (b.location || "").localeCompare(a.location || ""),
-        newestFirst: (a: ExtendedListing, b: ExtendedListing) => 
-          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        newestFirst: (a: ExtendedListing, b: ExtendedListing) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime(),
       };
 
       // Apply sorting
-      const sortFn = sortFunctions[sortBy as keyof typeof sortFunctions] || sortFunctions.newestFirst;
+      const sortFn =
+        sortFunctions[sortBy as keyof typeof sortFunctions] ||
+        sortFunctions.newestFirst;
       sortedListings.sort(sortFn);
 
-      setListings(prev => ({
+      setListings((prev) => ({
         ...prev,
         all: sortedListings,
         loading: false,
@@ -349,7 +354,7 @@ const Home: React.FC = () => {
       // Cache the results with timestamp
       listingsCache.current[selectedCategory] = {
         data: responseData.listings,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       setListings((prev) => ({
@@ -383,12 +388,7 @@ const Home: React.FC = () => {
         loading: false,
       }));
     }
-  }, [
-    selectedCategory,
-    sortBy,
-    isInitialLoad,
-    t,
-  ]);
+  }, [selectedCategory, sortBy, isInitialLoad, t]);
 
   // Effect for fetching listings - on category change, initial load, or force refresh
   useEffect(() => {
@@ -405,34 +405,38 @@ const Home: React.FC = () => {
     };
   }, [fetchListings, isInitialLoad, forceRefresh]);
 
-
-
-
-
-
-
   // Handle filtered results from ListingFiltersSmart (always defined at top level to avoid hook order errors)
-  const handleFilterApply = useCallback(
-    (filtered: ExtendedListing[]) => {
-      setListings((prev) => ({
-        ...prev,
-        all: filtered,
-        loading: false,
-      }));
-    },
-    [],
-  );
+  const handleFilterApply = useCallback((filtered: ExtendedListing[]) => {
+    setListings((prev) => ({
+      ...prev,
+      all: filtered,
+      loading: false,
+    }));
+  }, []);
 
   // Debug logging for i18n
 
   // Memoize sort options to prevent unnecessary re-renders
-  const sortOptions = useMemo(() => [
-    { value: "newestFirst", label: t("sorting.newest", { ns: "filters" }) },
-    { value: "priceAsc", label: t("sorting.price_asc", { ns: "filters" }) },
-    { value: "priceDesc", label: t("sorting.price_desc", { ns: "filters" }) },
-    { value: "locationAsc", label: t("sorting.location_asc", { ns: "filters" }) },
-    { value: "locationDesc", label: t("sorting.location_desc", { ns: "filters" }) },
-  ] as const, [t]);
+  const sortOptions = useMemo(
+    () =>
+      [
+        { value: "newestFirst", label: t("sorting.newest", { ns: "filters" }) },
+        { value: "priceAsc", label: t("sorting.price_asc", { ns: "filters" }) },
+        {
+          value: "priceDesc",
+          label: t("sorting.price_desc", { ns: "filters" }),
+        },
+        {
+          value: "locationAsc",
+          label: t("sorting.location_asc", { ns: "filters" }),
+        },
+        {
+          value: "locationDesc",
+          label: t("sorting.location_desc", { ns: "filters" }),
+        },
+      ] as const,
+    [t],
+  );
 
   // Debug logging sort options
 
@@ -498,7 +502,10 @@ const Home: React.FC = () => {
         >
           {listings.loading && <MemoizedSkeleton count={8} />}
           {listings.all.map((listing, index) => (
-            <Suspense key={listing.id} fallback={<div className="h-[300px] w-full" />}>
+            <Suspense
+              key={listing.id}
+              fallback={<div className="h-[300px] w-full" />}
+            >
               <ListingCard
                 listing={listing}
                 showActions={false}
@@ -563,12 +570,7 @@ const Home: React.FC = () => {
         )}
       </>
     );
-  }, [
-    listings,
-    t,
-    fetchListings,
-    isFilterOpen,
-  ]);
+  }, [listings, t, fetchListings, isFilterOpen]);
 
   // Generate dynamic title and description based on category
   // Memoize page metadata to prevent unnecessary re-renders
@@ -601,22 +603,30 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Helmet>
-        <title>
-          {t("home:meta.seo_title")}
-        </title>
+        <title>{t("home:meta.seo_title")}</title>
         <meta name="description" content={t("home:meta.seo_description")} />
-        
+
         {/* Canonical and hreflang */}
         <link rel="canonical" href={window.location.href} />
-        <link rel="alternate" hrefLang="ar" href={`https://samsar.app${i18n.language === 'ar' ? '/ar' : ''}/`} />
+        <link
+          rel="alternate"
+          hrefLang="ar"
+          href={`https://samsar.app${i18n.language === "ar" ? "/ar" : ""}/`}
+        />
         <link rel="alternate" hrefLang="x-default" href="https://samsar.app/" />
 
         {/* Open Graph - covers Facebook and most social platforms */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:title" content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")} />
+        <meta
+          property="og:title"
+          content={t("meta_title", "سوق السيارات والعقارات الأول في سوريا")}
+        />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg" />
+        <meta
+          property="og:image"
+          content="https://pub-363346cde076465bb0bb5ca74ae5d4f9.r2.dev/og-image.jpg"
+        />
         <meta property="og:locale" content="ar_AR" />
         <meta property="og:site_name" content="سمسار" />
 
@@ -626,7 +636,10 @@ const Home: React.FC = () => {
       </Helmet>
 
       {/* Inline HomeHero component - no suspense for critical hero */}
-      <HomeHero selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
+      <HomeHero
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       {/* Main Content */}
       <main className="w-full py-8 sm:py-12">
@@ -639,7 +652,10 @@ const Home: React.FC = () => {
             {t("home:meta.seo_description")}
           </h2>
           <p className="sr-only">
-            {t("home:seo_description", "أكبر سوق إلكتروني متخصص في بيع وشراء السيارات المستعملة والجديدة، الشقق، الفلل، الأراضي، والمحلات التجارية في جميع أنحاء سوريا. أسعار منافسة وضمان الجودة")}
+            {t(
+              "home:seo_description",
+              "أكبر سوق إلكتروني متخصص في بيع وشراء السيارات المستعملة والجديدة، الشقق، الفلل، الأراضي، والمحلات التجارية في جميع أنحاء سوريا. أسعار منافسة وضمان الجودة",
+            )}
           </p>
 
           {/* Featured Listings Section */}
@@ -661,8 +677,14 @@ const Home: React.FC = () => {
           </section>
 
           {/* Popular Categories Section */}
-          <section aria-labelledby="popular-categories-heading" className="w-full mb-16">
-            <h2 id="popular-categories-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          <section
+            aria-labelledby="popular-categories-heading"
+            className="w-full mb-16"
+          >
+            <h2
+              id="popular-categories-heading"
+              className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center"
+            >
               {t("home:popular_categories", "الفئات الأكثر شعبية")}
             </h2>
             <LazyLoadOnScroll fallback={<div className="h-[400px] w-full" />}>
@@ -671,8 +693,14 @@ const Home: React.FC = () => {
           </section>
 
           {/* Advantage Cards Section */}
-          <section aria-labelledby="advantage-cards-heading" className="w-full mb-16">
-            <h2 id="advantage-cards-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          <section
+            aria-labelledby="advantage-cards-heading"
+            className="w-full mb-16"
+          >
+            <h2
+              id="advantage-cards-heading"
+              className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center"
+            >
               {t("home:advantages_title", "لماذا تختار سمسار؟")}
             </h2>
             <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
@@ -682,7 +710,10 @@ const Home: React.FC = () => {
 
           {/* FAQ Section */}
           <section aria-labelledby="faq-heading" className="w-full mb-16">
-            <h2 id="faq-heading" className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            <h2
+              id="faq-heading"
+              className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center"
+            >
               {t("home:faq_title", "الأسئلة الشائعة")}
             </h2>
             <LazyLoadOnScroll fallback={<div className="h-[300px] w-full" />}>
@@ -704,12 +735,12 @@ const Home: React.FC = () => {
             potentialAction: {
               "@type": "SearchAction",
               target: "https://samsar.app/listings?search={search_term_string}",
-              "query-input": "required name=search_term_string"
+              "query-input": "required name=search_term_string",
             },
             inLanguage: ["ar", "en"],
             areaServed: {
               "@type": "Country",
-              name: "Syria"
+              name: "Syria",
             },
             itemListElement: [
               {
@@ -724,8 +755,7 @@ const Home: React.FC = () => {
                 "@type": "CategoryCode",
                 position: 2,
                 name: t("categories.real_estate", "عقارات"),
-                url:
-                  window.location.origin + "/listings?category=real_estate",
+                url: window.location.origin + "/listings?category=real_estate",
               },
               {
                 "@type": "CategoryCode",

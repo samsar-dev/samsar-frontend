@@ -1,8 +1,4 @@
-import type {
-  Condition,
-  FuelType,
-  ListingAction,
-} from "@/types/enums";
+import type { Condition, FuelType, ListingAction } from "@/types/enums";
 import { ListingCategory, VehicleType } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import React, { Suspense, lazy, useState } from "react";
@@ -68,8 +64,6 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     const formatCondition = (condition: Condition) => {
       return condition.charAt(0).toUpperCase() + condition.slice(1);
     };
-
-
 
     // Format fuel type with proper capitalization
     const formatFuelType = (fuelType: FuelType) => {
@@ -761,7 +755,10 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     const advancedFieldList = getAdvancedFieldList();
 
     return (
-      <div className={`${transitionClasses} space-y-6 opacity-0 translate-y-5 animate-fadeInUp`} style={{ animation: 'fadeInUp 0.3s ease-out forwards' }}>
+      <div
+        className={`${transitionClasses} space-y-6 opacity-0 translate-y-5 animate-fadeInUp`}
+        style={{ animation: "fadeInUp 0.3s ease-out forwards" }}
+      >
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
             <p className="text-red-700 dark:text-red-300">{error}</p>

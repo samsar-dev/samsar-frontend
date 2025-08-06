@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/ui/tooltip";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { Check, ChevronDown, ChevronUp , HelpCircle } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 
 export type FormFieldValue = string | number | boolean | string[];
 
@@ -116,9 +116,7 @@ export const FormField = forwardRef<
       );
     };
 
-    const handleMultiSelectChange = (
-      newValue: string[],
-    ) => {
+    const handleMultiSelectChange = (newValue: string[]) => {
       let newValueArr: string[] | null = null;
 
       if (Array.isArray(newValue) && newValue.length > 0) {
@@ -185,7 +183,11 @@ export const FormField = forwardRef<
           return (
             <SelectPrimitive.Root
               value={value as string}
-              onValueChange={(newValue: string) => handleChange({ target: { value: newValue } } as React.ChangeEvent<HTMLSelectElement>)}
+              onValueChange={(newValue: string) =>
+                handleChange({
+                  target: { value: newValue },
+                } as React.ChangeEvent<HTMLSelectElement>)
+              }
               disabled={disabled}
             >
               <SelectPrimitive.Trigger
@@ -193,21 +195,21 @@ export const FormField = forwardRef<
                   "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
                   "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                   "disabled:cursor-not-allowed disabled:opacity-50",
-                  error && "border-red-500"
+                  error && "border-red-500",
                 )}
               >
-                <SelectPrimitive.Value placeholder={placeholder || t("form.select_option")} />
+                <SelectPrimitive.Value
+                  placeholder={placeholder || t("form.select_option")}
+                />
                 <SelectPrimitive.Icon>
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </SelectPrimitive.Icon>
               </SelectPrimitive.Trigger>
               <SelectPrimitive.Portal>
-                <SelectPrimitive.Content 
-                  className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-                >
+                <SelectPrimitive.Content className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
                   <SelectPrimitive.Viewport className="p-1">
                     {options?.map((option) => (
-                      <SelectPrimitive.Item 
+                      <SelectPrimitive.Item
                         key={option.value}
                         value={option.value}
                         className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
@@ -218,7 +220,9 @@ export const FormField = forwardRef<
                           </SelectPrimitive.ItemIndicator>
                         </span>
                         <SelectPrimitive.ItemText>
-                          {option.translationKey ? t(option.translationKey) : option.label}
+                          {option.translationKey
+                            ? t(option.translationKey)
+                            : option.label}
                         </SelectPrimitive.ItemText>
                       </SelectPrimitive.Item>
                     ))}
@@ -233,26 +237,32 @@ export const FormField = forwardRef<
           const selectedValues = Array.isArray(value) ? value : [];
           return (
             <div className="relative">
-              <div 
+              <div
                 className={clsx(
                   "flex flex-wrap gap-1 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
                   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                   "disabled:cursor-not-allowed disabled:opacity-50",
-                  error && "border-red-500"
+                  error && "border-red-500",
                 )}
               >
                 {selectedValues.map((val) => {
-                  const option = options?.find(opt => opt.value === val);
+                  const option = options?.find((opt) => opt.value === val);
                   return (
-                    <div 
+                    <div
                       key={val}
                       className="flex items-center gap-1 bg-blue-100 text-blue-800 rounded px-2 py-1 text-xs"
                     >
-                      {option ? (option.translationKey ? t(option.translationKey) : option.label) : val}
-                      <button 
+                      {option
+                        ? option.translationKey
+                          ? t(option.translationKey)
+                          : option.label
+                        : val}
+                      <button
                         type="button"
                         onClick={() => {
-                          const newValues = selectedValues.filter(v => v !== val);
+                          const newValues = selectedValues.filter(
+                            (v) => v !== val,
+                          );
                           handleMultiSelectChange(newValues);
                         }}
                         className="ml-1 rounded-full hover:bg-blue-200"
@@ -275,28 +285,29 @@ export const FormField = forwardRef<
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </SelectPrimitive.Trigger>
                   <SelectPrimitive.Portal>
-                    <SelectPrimitive.Content 
-                      className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-                    >
+                    <SelectPrimitive.Content className="relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
                       <SelectPrimitive.Viewport className="p-1">
-                        {options?.map((option) => (
-                          !selectedValues.includes(option.value) && (
-                            <SelectPrimitive.Item 
-                              key={option.value}
-                              value={option.value}
-                              className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                            >
-                              <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                                <SelectPrimitive.ItemIndicator>
-                                  <Check className="h-4 w-4" />
-                                </SelectPrimitive.ItemIndicator>
-                              </span>
-                              <SelectPrimitive.ItemText>
-                                {option.translationKey ? t(option.translationKey) : option.label}
-                              </SelectPrimitive.ItemText>
-                            </SelectPrimitive.Item>
-                          )
-                        ))}
+                        {options?.map(
+                          (option) =>
+                            !selectedValues.includes(option.value) && (
+                              <SelectPrimitive.Item
+                                key={option.value}
+                                value={option.value}
+                                className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                              >
+                                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                  <SelectPrimitive.ItemIndicator>
+                                    <Check className="h-4 w-4" />
+                                  </SelectPrimitive.ItemIndicator>
+                                </span>
+                                <SelectPrimitive.ItemText>
+                                  {option.translationKey
+                                    ? t(option.translationKey)
+                                    : option.label}
+                                </SelectPrimitive.ItemText>
+                              </SelectPrimitive.Item>
+                            ),
+                        )}
                       </SelectPrimitive.Viewport>
                     </SelectPrimitive.Content>
                   </SelectPrimitive.Portal>

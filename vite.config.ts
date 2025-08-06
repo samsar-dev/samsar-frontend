@@ -6,16 +6,11 @@ import { fileURLToPath } from "url";
 import { compression } from "vite-plugin-compression2";
 import { visualizer } from 'rollup-plugin-visualizer';
 
- 
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
-
-  // Set base URL for assets
-  const base = process.env.NODE_ENV === "production" ? "/" : "/";
+  const isProduction = mode === "production";
 
   // Skip type checking during build
   if (command === "build") {
@@ -28,53 +23,39 @@ export default defineConfig(({ mode, command }) => {
   const allowedVars = ["NODE_ENV", "VITE_"];
 
   Object.entries(env).forEach(([key, value]) => {
-    if (
-      allowedVars.some((prefix) => key === prefix || key.startsWith(prefix))
-    ) {
+    if (allowedVars.some(prefix => key === prefix || key.startsWith(prefix))) {
       envVars[`import.meta.env.${key}`] = JSON.stringify(value);
     }
   });
 
-  const isProduction = mode === "production";
-
   return {
-    base: base,
-    // Clear cache on config change
+    base: "/",
     clearScreen: false,
-    // Improved error handling
     logLevel: mode === 'development' ? 'info' : 'warn',
+    
+    // Fixed: Remove React DevTools hook overrides completely
     define: {
       ...envVars,
       'process.env.NODE_ENV': JSON.stringify(mode),
-      // Ensure global is defined for some libraries
       global: 'globalThis',
-      // Help with tree shaking by defining unused features as false
+      // Keep only essential flags
       __DEV__: JSON.stringify(!isProduction),
       __PROD__: JSON.stringify(isProduction),
-      // Disable React DevTools in production
-      '__REACT_DEVTOOLS_GLOBAL_HOOK__': isProduction ? 'undefined' : 'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__',
-      // Define feature flags for better tree shaking
-      'process.env.NODE_DEBUG': JSON.stringify(false),
-      'process.env.DEBUG': JSON.stringify(false),
-      // Disable development features in production
-      '__DEVELOPMENT__': JSON.stringify(!isProduction),
-      // Socket.io optimizations
-      'process.env.EIO_WS': JSON.stringify(false), // Disable WebSocket debugging
-      // React Router v7 optimizations (minimal defines needed)
-      '__REACT_ROUTER_FUTURE_V7__': JSON.stringify(true),
+      // Remove React Router v7 flag if not using experimental features
     },
-    
 
-    
     plugins: [
-      react(),
+      react({
+        // Let Vite handle React DevTools
+        jsxImportSource: 'react',
+      }),
       visualizer({
         open: true,
         filename: path.join(__dirname, 'stats.html'),
         gzipSize: true,
         brotliSize: true
       }),
-      Inspect(), // Add Inspect plugin for bundle analysis
+      Inspect(),
       (() => ({
         name: 'print-chunks',
         generateBundle(_options: any, bundle: any) {
@@ -90,28 +71,21 @@ export default defineConfig(({ mode, command }) => {
           console.log('------------------------\n');
         },
       }))(),
-
-
-      // Cache headers plugin for Cloudflare
       {
         name: 'cache-headers-plugin',
         configureServer(server: any) {
           server.middlewares.use((req: any, res: any, next: any) => {
             const url = req.url || '';
             
-            // Set cache headers for static assets
             if (/\.(jpg|jpeg|png|webp|svg|ico|gif|woff2|css|js)$/.test(url)) {
-              // Cache static assets for 1 year in production (Cloudflare R2 compatible)
               if (process.env.NODE_ENV === 'production') {
                 res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
                 res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
               } else {
-                // Shorter cache for development
                 res.setHeader('Cache-Control', 'public, max-age=3600');
               }
             }
             
-            // Cache images with Cloudflare R2 optimization headers
             if (/\.(jpg|jpeg|png|webp|svg|ico|gif)$/.test(url)) {
               res.setHeader('CF-Cache-Status', 'HIT');
               res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -122,30 +96,21 @@ export default defineConfig(({ mode, command }) => {
           });
         },
         generateBundle(_: any, bundle: any) {
-          // Add cache headers for build output
           Object.keys(bundle).forEach(fileName => {
             const file = bundle[fileName];
-            if (file.type === 'asset') {
-              // Add cache metadata for CDN optimization
-              if (!file.name) file.name = fileName;
+            if (file.type === 'asset' && !file.name) {
+              file.name = fileName;
             }
           });
         }
       },
-
-    
-
-      // Modern compression with parallel processing
       compression({
         algorithms: ['brotliCompress', 'gzip'],
         threshold: 1024,
       }),
-      
-      // Bundle analyzer (only in analyze mode)
       mode === 'analyze' && visualizer({}),
     ].filter(Boolean),
 
-    // Configure static asset handling
     publicDir: "public",
     assetsInclude: ["**/*.woff2", "**/*.svg"],
 
@@ -166,21 +131,24 @@ export default defineConfig(({ mode, command }) => {
         '@store': path.resolve(__dirname, "src/store"),
         '@types': path.resolve(__dirname, "src/types"),
         '@utils': path.resolve(__dirname, "src/utils"),
-        // React Router v7 handles production builds automatically
+        // Fix html-parse-stringify CommonJS issue
+        'html-parse-stringify': path.resolve(__dirname, 'node_modules/html-parse-stringify/dist/html-parse-stringify.js'),
       },
+      // Add dedupe to prevent duplicate React
+      dedupe: ['react', 'react-dom'],
     },
 
     server: {
       port: 3000,
-      host: '0.0.0.0', 
-      strictPort: true, 
-      open: false, 
+      host: '0.0.0.0',
+      strictPort: true,
+      open: false,
       cors: true,
       hmr: {
-        port: 3001, 
+        port: 3001,
         host: 'localhost',
-        overlay: true, 
-        clientPort: 3001, 
+        overlay: true,
+        clientPort: 3001,
       },
       proxy: {
         "/api": {
@@ -188,12 +156,12 @@ export default defineConfig(({ mode, command }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path,
-          timeout: 10000, 
+          timeout: 10000,
           configure: (proxy, _options) => {
-            proxy.on('error', (err, _req, _res) => {
-              console.log('Proxy error:', err);
+            proxy.on('error', (err) => {
+              console.error('Proxy error:', err);
             });
-            proxy.on('proxyReq', (_proxyReq, req, _res) => {
+            proxy.on('proxyReq', (_proxyReq, req) => {
               console.log('Proxying request:', req.method, req.url);
             });
           },
@@ -203,16 +171,16 @@ export default defineConfig(({ mode, command }) => {
           changeOrigin: true,
           ws: true,
           timeout: 10000,
-          configure: (proxy, _options) => {
-            proxy.on('error', (err, _req, _res) => {
-              console.log('Socket proxy error:', err);
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              console.error('Socket proxy error:', err);
             });
           },
         },
       },
       watch: {
-        usePolling: false, 
-        interval: 100, 
+        usePolling: false,
+        interval: 100,
         ignored: [
           '**/node_modules/**',
           '**/.git/**',
@@ -229,18 +197,18 @@ export default defineConfig(({ mode, command }) => {
     },
 
     build: {
-      target: ['es2020', 'chrome87', 'safari14', 'firefox78'],
-      outDir: 'dist',
-      assetsDir: 'assets',
+      target: ["es2020", "chrome87", "safari14", "firefox78"],
+      outDir: "dist",
+      assetsDir: "assets",
       sourcemap: false,
-      minify: 'terser',
+      minify: "terser",
       cssCodeSplit: true,
       // Optimize chunk sizes for better loading
       chunkSizeWarningLimit: 1000,
       // Enable advanced optimizations
       reportCompressedSize: false, // Faster builds
       rollupOptions: {
-          // Don't externalize React or critical dependencies
+        // Don't externalize React or critical dependencies
         external: [],
         // React Router v7 has better production builds by default
         plugins: [],
@@ -248,104 +216,143 @@ export default defineConfig(({ mode, command }) => {
           compact: true,
           manualChunks: (id) => {
             // Core React - only essential React libraries to prevent initialization issues
-            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-jsx-runtime')) {
-              return 'react-core';
+            if (
+              id.includes("react/") ||
+              id.includes("react-dom/") ||
+              id.includes("react-jsx-runtime")
+            ) {
+              return "react-core";
             }
-            
+
             // React libraries that depend on React but can be separate
-            if (id.includes('react-i18next') || id.includes('react-redux') || id.includes('use-sync-external-store') ||
-                id.includes('react-hook-form') || id.includes('react-hot-toast') || id.includes('react-helmet-async')) {
-              return 'react-libs';
+            if (
+              id.includes("react-i18next") ||
+              id.includes("react-redux") ||
+              id.includes("use-sync-external-store") ||
+              id.includes("react-hook-form") ||
+              id.includes("react-hot-toast") ||
+              id.includes("react-helmet-async")
+            ) {
+              return "react-libs";
             }
-            
+
             // React Router - separate chunk
-            if (id.includes('react-router')) {
-              return 'react-router';
+            if (id.includes("react-router")) {
+              return "react-router";
             }
-            
+
             // Scroll and focus management
-            if (id.includes('react-remove-scroll') || id.includes('react-focus') || id.includes('use-sidecar')) {
-              return 'scroll-focus';
+            if (
+              id.includes("react-remove-scroll") ||
+              id.includes("react-focus") ||
+              id.includes("use-sidecar")
+            ) {
+              return "scroll-focus";
             }
-            
+
             // Lucide icons core (not individual icons)
-            if (id.includes('lucide-react') && (id.includes('createLucideIcon') || id.includes('defaultAttributes') || id.includes('shared/src'))) {
-              return 'lucide-core';
+            if (
+              id.includes("lucide-react") &&
+              (id.includes("createLucideIcon") ||
+                id.includes("defaultAttributes") ||
+                id.includes("shared/src"))
+            ) {
+              return "lucide-core";
             }
-            
+
             // Style and CSS-in-JS libraries
-            if (id.includes('goober') || id.includes('react-style-singleton') || id.includes('aria-hidden')) {
-              return 'styling';
+            if (
+              id.includes("goober") ||
+              id.includes("react-style-singleton") ||
+              id.includes("aria-hidden")
+            ) {
+              return "styling";
             }
-            
+
             // Utility libraries
-            if (id.includes('shallowequal') || id.includes('react-fast-compare') || id.includes('invariant') || id.includes('tslib')) {
-              return 'utilities';
+            if (
+              id.includes("shallowequal") ||
+              id.includes("react-fast-compare") ||
+              id.includes("invariant") ||
+              id.includes("tslib")
+            ) {
+              return "utilities";
             }
-            
+
             // Cookie and parsing libraries
-            if (id.includes('cookie') || id.includes('set-cookie-parser')) {
-              return 'parsers';
+            if (id.includes("cookie") || id.includes("set-cookie-parser")) {
+              return "parsers";
             }
-            
+
             // Callback and ref utilities
-            if (id.includes('use-callback-ref') || id.includes('react-use-callback-ref') || id.includes('react-compose-refs')) {
-              return 'ref-utils';
+            if (
+              id.includes("use-callback-ref") ||
+              id.includes("react-use-callback-ref") ||
+              id.includes("react-compose-refs")
+            ) {
+              return "ref-utils";
             }
-            
+
             // Network libraries - split for better tree shaking
-            if (id.includes('axios')) {
-              return 'axios';
+            if (id.includes("axios")) {
+              return "axios";
             }
-            if (id.includes('socket.io-client')) {
-              return 'socket-io';
+            if (id.includes("socket.io-client")) {
+              return "socket-io";
             }
-            
+
             // Utility libraries
-            if (id.includes('lodash') || id.includes('date-fns')) {
-              return 'utils';
+            if (id.includes("lodash") || id.includes("date-fns")) {
+              return "utils";
             }
-            
+
             // Form libraries
-            if (id.includes('react-hook-form')) {
-              return 'forms';
+            if (id.includes("react-hook-form")) {
+              return "forms";
             }
-            
+
             // UI Framework - split Radix UI more granularly
-            if (id.includes('@radix-ui/react-tabs') || id.includes('@radix-ui/react-accordion')) {
-              return 'radix-layout';
+            if (
+              id.includes("@radix-ui/react-tabs") ||
+              id.includes("@radix-ui/react-accordion")
+            ) {
+              return "radix-layout";
             }
-            if (id.includes('@radix-ui/react-select') || id.includes('@radix-ui/react-scroll-area')) {
-              return 'radix-interactive';
+            if (
+              id.includes("@radix-ui/react-select") ||
+              id.includes("@radix-ui/react-scroll-area")
+            ) {
+              return "radix-interactive";
             }
-            if (id.includes('@radix-ui/')) {
-              return 'radix-core';
+            if (id.includes("@radix-ui/")) {
+              return "radix-core";
             }
-            
+
             // Let Vite handle icons naturally to avoid circular dependencies
             // Removed manual chunking for icons
-            
+
             // Floating UI
-            if (id.includes('@floating-ui') || id.includes('react-remove-scroll')) {
-              return 'floating-ui';
+            if (
+              id.includes("@floating-ui") ||
+              id.includes("react-remove-scroll")
+            ) {
+              return "floating-ui";
             }
-            
 
-
-            return null; 
+            return null;
           },
           hoistTransitiveImports: false,
-          interop: 'auto',
-          entryFileNames: 'assets/[name].[hash].js',
-          chunkFileNames: 'assets/[name].[hash].js',
-          assetFileNames: 'assets/[name].[hash].[ext]',
+          interop: "auto",
+          entryFileNames: "assets/[name].[hash].js",
+          chunkFileNames: "assets/[name].[hash].js",
+          assetFileNames: "assets/[name].[hash].[ext]",
         },
         treeshake: {
-          preset: 'smallest',
+          preset: "smallest",
           moduleSideEffects: (id) => {
             // Allow side effects for CSS and some specific modules
-            if (id.includes('.css') || id.includes('.scss')) return true;
-            if (id.includes('react-hot-toast')) return true;
+            if (id.includes(".css") || id.includes(".scss")) return true;
+            if (id.includes("react-hot-toast")) return true;
             return false;
           },
           propertyReadSideEffects: false,
@@ -358,8 +365,16 @@ export default defineConfig(({ mode, command }) => {
           drop_console: isProduction,
           drop_debugger: isProduction,
           pure_funcs: [
-            'console.log', 'console.warn', 'console.error', 'console.info', 'console.debug',
-            'console.trace', 'console.time', 'console.timeEnd', 'console.group', 'console.groupEnd'
+            "console.log",
+            "console.warn",
+            "console.error",
+            "console.info",
+            "console.debug",
+            "console.trace",
+            "console.time",
+            "console.timeEnd",
+            "console.group",
+            "console.groupEnd",
           ],
           passes: 4,
           unsafe: false,
@@ -394,8 +409,8 @@ export default defineConfig(({ mode, command }) => {
           join_vars: true,
           warnings: false,
           global_defs: {
-            '@alert': 'console.log',
-            DEBUG: false
+            "@alert": "console.log",
+            DEBUG: false,
           },
         },
         mangle: {
@@ -413,38 +428,59 @@ export default defineConfig(({ mode, command }) => {
         },
       },
     },
-    
+
     // Mobile performance optimizations and production builds
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+      include: ["react", "react-dom", "react-router", "react-router-dom"],
       exclude: [
-        'socket.io-client',
-
-        'date-fns',
-        'lodash-es',
-        'i18next',
-        'react-i18next'
+        "socket.io-client",
+        "date-fns",
+        "lodash-es",
+        "i18next",
+        "react-i18next",
       ],
       esbuildOptions: {
         // Enable better tree-shaking
         treeShaking: true,
         // Target modern browsers
-        target: 'es2020',
+        target: "es2020",
         // Force production conditions
-        conditions: isProduction ? ['production'] : ['development'],
+        conditions: isProduction ? ["production"] : ["development"],
         define: {
-          'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+          "process.env.NODE_ENV": isProduction
+            ? '"production"'
+            : '"development"',
         },
       },
     },
-
+    
+    // CommonJS module handling
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      ignoreDynamicRequires: true,
+      requireReturnsDefault: true,
+    },
+    
+    // Add CommonJS plugin for Rollup
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-core': ['react', 'react-dom'],
+          'react-libs': ['react-router', 'react-router-dom'],
+          'network': ['axios', 'socket.io-client'],
+          'styling': ['clsx', 'tailwind-merge'],
+          'utilities': ['lodash-es', 'date-fns'],
+        },
+      },
+    },
+    
     css: {
       postcss: "./postcss.config.cjs",
       devSourcemap: mode !== "production",
       modules: {
-        generateScopedName: isProduction 
-          ? '[hash:base64:5]' 
-          : '[name]__[local]--[hash:base64:5]'
+        generateScopedName: isProduction
+          ? "[hash:base64:5]"
+          : "[name]__[local]--[hash:base64:5]",
       },
       preprocessorOptions: {
         scss: {
@@ -455,10 +491,10 @@ export default defineConfig(({ mode, command }) => {
 
     esbuild: {
       logOverride: { "this-is-undefined-in-esm": "silent" },
-      target: ['es2020', 'chrome87', 'safari14', 'firefox78'],
+      target: ["es2020", "chrome87", "safari14", "firefox78"],
       supported: {
-        'top-level-await': true,
-        'dynamic-import': true,
+        "top-level-await": true,
+        "dynamic-import": true,
       },
     },
   };

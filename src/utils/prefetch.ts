@@ -15,30 +15,30 @@ const prefetchCache = new Set<string>();
 export const prefetchRoute = <T>(
   importFn: () => Promise<T>,
   delay: number = 0,
-  key?: string
+  key?: string,
 ): void => {
   // Use cache key or function string as identifier
   const cacheKey = key || importFn.toString();
-  
+
   if (prefetchCache.has(cacheKey)) {
     return; // Already prefetched
   }
-  
+
   prefetchCache.add(cacheKey);
-  
+
   const prefetch = () => {
     importFn().catch((error) => {
-      console.warn('Prefetch failed:', error);
+      console.warn("Prefetch failed:", error);
       // Remove from cache so it can be retried
       prefetchCache.delete(cacheKey);
     });
   };
-  
+
   if (delay > 0) {
     setTimeout(prefetch, delay);
   } else {
     // Use requestIdleCallback if available, otherwise setTimeout
-    if ('requestIdleCallback' in window) {
+    if ("requestIdleCallback" in window) {
       requestIdleCallback(prefetch);
     } else {
       setTimeout(prefetch, 0);
@@ -53,11 +53,11 @@ export const prefetchRoute = <T>(
  */
 export const lazyWithPrefetch = <T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
-  prefetchDelay: number = 2000
+  prefetchDelay: number = 2000,
 ) => {
   // Start prefetching after a delay
   prefetchRoute(importFn, prefetchDelay);
-  
+
   // Return the lazy component
   return React.lazy(importFn);
 };
@@ -68,7 +68,7 @@ export const lazyWithPrefetch = <T extends React.ComponentType<any>>(
  */
 export const prefetchOnInteraction = (
   importFn: () => Promise<any>,
-  key?: string
+  key?: string,
 ) => {
   prefetchRoute(importFn, 100, key); // Small delay to avoid blocking current interaction
 };
@@ -80,13 +80,13 @@ export const prefetchOnInteraction = (
 export const prefetchCriticalRoutes = () => {
   // Prefetch commonly accessed routes
   const criticalRoutes: Array<() => Promise<any>> = [
-    () => import('@/pages/Profile'),
-    () => import('@/pages/Settings'),
-    () => import('@/pages/Messages'),
-    () => import('@/components/listings/create/CreateListing'),
-    () => import('@/pages/Search'),
+    () => import("@/pages/Profile"),
+    () => import("@/pages/Settings"),
+    () => import("@/pages/Messages"),
+    () => import("@/components/listings/create/CreateListing"),
+    () => import("@/pages/Search"),
   ];
-  
+
   criticalRoutes.forEach((route, index) => {
     // Stagger prefetching to avoid overwhelming the network
     prefetchRoute(route, index * 500, `critical-route-${index}`);
@@ -96,13 +96,16 @@ export const prefetchCriticalRoutes = () => {
 /**
  * Hook to prefetch routes on component mount
  */
-export const usePrefetch = (routes: Array<() => Promise<any>>, delay: number = 1000) => {
+export const usePrefetch = (
+  routes: Array<() => Promise<any>>,
+  delay: number = 1000,
+) => {
   React.useEffect(() => {
     routes.forEach((route, index) => {
-      prefetchRoute(route, delay + (index * 200));
+      prefetchRoute(route, delay + index * 200);
     });
   }, [routes, delay]);
 };
 
 // Import React for the lazy function
-import React from 'react';
+import React from "react";

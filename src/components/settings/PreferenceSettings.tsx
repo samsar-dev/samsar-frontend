@@ -52,7 +52,6 @@ function PreferenceSettings({ settings, onUpdate, isRTL = false }: Props) {
 
   // Remove the language change effect since we'll handle it in Settings component
 
-
   // Remove the useEffect since language change is now handled by Settings component
   useEffect(() => {
     // No-op since language change is handled by Settings component

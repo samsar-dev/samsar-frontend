@@ -1,5 +1,4 @@
-
-import { memo } from 'react';
+import { memo } from "react";
 
 const SkeletonCard = ({ className = "" }: { className?: string }) => (
   <div
@@ -14,7 +13,13 @@ const SkeletonCard = ({ className = "" }: { className?: string }) => (
   </div>
 );
 
-const SkeletonGrid = ({ count = 8, className = "" }: { count?: number; className?: string }) => (
+const SkeletonGrid = ({
+  count = 8,
+  className = "",
+}: {
+  count?: number;
+  className?: string;
+}) => (
   <div
     className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ${className}`}
   >

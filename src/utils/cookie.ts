@@ -1,9 +1,9 @@
 /**
  * Cookie utilities for session-based authentication
- * 
+ *
  * This app uses HTTP-only cookies set by the backend for authentication.
  * The frontend doesn't manage JWT tokens directly - all auth is handled via cookies.
- * 
+ *
  * Session cookies:
  * - session_token: Access token (15 minutes)
  * - refresh_token: Refresh token (7 days)
@@ -20,7 +20,10 @@ export const REFRESH_COOKIE_NAME = "refresh_token";
 export const hasSessionCookie = (): boolean => {
   // Check if session cookie exists in document.cookie
   const cookies = document.cookie;
-  return cookies.includes(`${SESSION_COOKIE_NAME}=`) || cookies.includes(`${REFRESH_COOKIE_NAME}=`);
+  return (
+    cookies.includes(`${SESSION_COOKIE_NAME}=`) ||
+    cookies.includes(`${REFRESH_COOKIE_NAME}=`)
+  );
 };
 
 /**
@@ -31,7 +34,7 @@ export const getCookie = (name: string): string | null => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(';').shift();
+    const cookieValue = parts.pop()?.split(";").shift();
     return cookieValue || null;
   }
   return null;
@@ -43,14 +46,14 @@ export const getCookie = (name: string): string | null => {
  */
 export const setLoginTimestamp = (): void => {
   const timestamp = new Date().getTime();
-  localStorage.setItem('login_timestamp', timestamp.toString());
+  localStorage.setItem("login_timestamp", timestamp.toString());
 };
 
 /**
  * Get login timestamp
  */
 export const getLoginTimestamp = (): number | null => {
-  const timestamp = localStorage.getItem('login_timestamp');
+  const timestamp = localStorage.getItem("login_timestamp");
   return timestamp ? parseInt(timestamp, 10) : null;
 };
 
@@ -58,7 +61,7 @@ export const getLoginTimestamp = (): number | null => {
  * Clear login timestamp (on logout)
  */
 export const clearLoginTimestamp = (): void => {
-  localStorage.removeItem('login_timestamp');
+  localStorage.removeItem("login_timestamp");
 };
 
 /**
@@ -68,12 +71,12 @@ export const clearLoginTimestamp = (): void => {
 export const shouldPersistLogin = (): boolean => {
   const loginTime = getLoginTimestamp();
   if (!loginTime) return false;
-  
+
   // Consider login valid for 7 days (same as refresh token)
   const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
   const now = new Date().getTime();
-  
-  return (now - loginTime) < SEVEN_DAYS;
+
+  return now - loginTime < SEVEN_DAYS;
 };
 
 /**
@@ -83,19 +86,22 @@ export const setUserPreference = (key: string, value: any): void => {
   try {
     localStorage.setItem(`user_pref_${key}`, JSON.stringify(value));
   } catch (error) {
-    console.warn('Failed to store user preference:', error);
+    console.warn("Failed to store user preference:", error);
   }
 };
 
 /**
  * Get user preference
  */
-export const getUserPreference = (key: string, defaultValue: any = null): any => {
+export const getUserPreference = (
+  key: string,
+  defaultValue: any = null,
+): any => {
   try {
     const stored = localStorage.getItem(`user_pref_${key}`);
     return stored ? JSON.parse(stored) : defaultValue;
   } catch (error) {
-    console.warn('Failed to get user preference:', error);
+    console.warn("Failed to get user preference:", error);
     return defaultValue;
   }
 };
@@ -105,8 +111,8 @@ export const getUserPreference = (key: string, defaultValue: any = null): any =>
  */
 export const clearUserPreferences = (): void => {
   const keys = Object.keys(localStorage);
-  keys.forEach(key => {
-    if (key.startsWith('user_pref_')) {
+  keys.forEach((key) => {
+    if (key.startsWith("user_pref_")) {
       localStorage.removeItem(key);
     }
   });
@@ -119,10 +125,10 @@ export const clearUserPreferences = (): void => {
 export const clearAuthData = (): void => {
   clearLoginTimestamp();
   clearUserPreferences();
-  
+
   // Clear any other auth-related localStorage items
-  localStorage.removeItem('authTokens'); // Legacy cleanup
-  localStorage.removeItem('user_data'); // Legacy cleanup
+  localStorage.removeItem("authTokens"); // Legacy cleanup
+  localStorage.removeItem("user_data"); // Legacy cleanup
 };
 
 /**
@@ -130,7 +136,7 @@ export const clearAuthData = (): void => {
  * Useful for determining cookie security settings
  */
 export const isSecureContext = (): boolean => {
-  return location.protocol === 'https:' || location.hostname === 'localhost';
+  return location.protocol === "https:" || location.hostname === "localhost";
 };
 
 /**
@@ -142,8 +148,12 @@ export const getSessionInfo = () => {
     loginTimestamp: getLoginTimestamp(),
     shouldPersist: shouldPersistLogin(),
     isSecure: isSecureContext(),
-    cookies: document.cookie.split(';').map(c => c.trim()).filter(c => 
-      c.includes(SESSION_COOKIE_NAME) || c.includes(REFRESH_COOKIE_NAME)
-    )
+    cookies: document.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .filter(
+        (c) =>
+          c.includes(SESSION_COOKIE_NAME) || c.includes(REFRESH_COOKIE_NAME),
+      ),
   };
 };

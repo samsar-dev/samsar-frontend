@@ -1,7 +1,13 @@
-import type { FC} from "react";
+import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../api/apiClient";
@@ -57,8 +63,6 @@ const UsersList: FC = () => {
     setPage(newPage);
   };
 
-
-
   if (!isAuthenticated || user?.role !== "ADMIN") return null;
 
   if (isLoading) {
@@ -75,10 +79,25 @@ const UsersList: FC = () => {
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           {error}
-          <Button variant="ghost" size="sm" onClick={() => setError("")} className="ml-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setError("")}
+            className="ml-auto"
+          >
             <span className="sr-only">Close</span>
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </Button>
         </Alert>
@@ -92,7 +111,7 @@ const UsersList: FC = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Users</h1>
-      
+
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -111,27 +130,33 @@ const UsersList: FC = () => {
               {data
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((u) => (
-                  <tr key={u.id} className="border-b hover:bg-muted/50 transition-colors">
+                  <tr
+                    key={u.id}
+                    className="border-b hover:bg-muted/50 transition-colors"
+                  >
                     <td className="p-4">{u.email}</td>
                     <td className="p-4">
                       <div className="flex items-center space-x-2">
                         <div
                           className={cn(
                             "w-2.5 h-2.5 rounded-full",
-                            u.isOnline ? "bg-green-500" : "bg-gray-400"
+                            u.isOnline ? "bg-green-500" : "bg-gray-400",
                           )}
                         />
                         <span>{u.isOnline ? "Online" : "Offline"}</span>
                         {!u.isOnline && u.lastActiveAt && (
                           <span className="text-xs text-muted-foreground">
-                            (Last seen: {new Date(u.lastActiveAt).toLocaleString()})
+                            (Last seen:{" "}
+                            {new Date(u.lastActiveAt).toLocaleString()})
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="p-4">{u.phone || "-"}</td>
                     <td className="p-4">
-                      <span className="text-sm">{u.subscriptionStatus || "INACTIVE"}</span>
+                      <span className="text-sm">
+                        {u.subscriptionStatus || "INACTIVE"}
+                      </span>
                     </td>
                     <td className="p-4 text-right">{u.listingsCount}</td>
                     <td className="p-4">
@@ -139,57 +164,57 @@ const UsersList: FC = () => {
                     </td>
                     <td className="p-4">
                       <Select
-                      value={u.role}
-                      onValueChange={async (newRole) => {
-                        const prev = u.role;
-                        // optimistic update
-                        setData((prevData) =>
-                          prevData.map((item) =>
-                            item.id === u.id
-                              ? { ...item, role: newRole }
-                              : item,
-                          ),
-                        );
-                        try {
-                          await apiClient.put(`/admin/users/${u.id}/role`, {
-                            role: newRole,
-                          });
-                        } catch (err: any) {
-                          // revert
+                        value={u.role}
+                        onValueChange={async (newRole) => {
+                          const prev = u.role;
+                          // optimistic update
                           setData((prevData) =>
                             prevData.map((item) =>
                               item.id === u.id
-                                ? { ...item, role: prev }
+                                ? { ...item, role: newRole }
                                 : item,
                             ),
                           );
-                          const maybe =
-                            err.response?.data?.error ?? err.message;
-                          setError(
-                            typeof maybe === "string"
-                              ? maybe
-                              : JSON.stringify(maybe),
-                          );
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="h-8 text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "FREE_USER",
-                          "PREMIUM_USER",
-                          "BUSINESS_USER",
-                          "ADMIN",
-                          "MODERATOR",
-                        ].map((r) => (
-                          <SelectItem key={r} value={r}>
-                            {r}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          try {
+                            await apiClient.put(`/admin/users/${u.id}/role`, {
+                              role: newRole,
+                            });
+                          } catch (err: any) {
+                            // revert
+                            setData((prevData) =>
+                              prevData.map((item) =>
+                                item.id === u.id
+                                  ? { ...item, role: prev }
+                                  : item,
+                              ),
+                            );
+                            const maybe =
+                              err.response?.data?.error ?? err.message;
+                            setError(
+                              typeof maybe === "string"
+                                ? maybe
+                                : JSON.stringify(maybe),
+                            );
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "FREE_USER",
+                            "PREMIUM_USER",
+                            "BUSINESS_USER",
+                            "ADMIN",
+                            "MODERATOR",
+                          ].map((r) => (
+                            <SelectItem key={r} value={r}>
+                              {r}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </td>
                   </tr>
                 ))}
@@ -201,11 +226,13 @@ const UsersList: FC = () => {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
         <div className="flex items-center justify-between p-4 border-t">
           <div className="text-sm text-muted-foreground">
-            {data.length === 0 ? 'No users' : `Showing ${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, data.length)} of ${data.length}`}
+            {data.length === 0
+              ? "No users"
+              : `Showing ${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, data.length)} of ${data.length}`}
           </div>
           <div className="flex items-center space-x-2">
             <Button

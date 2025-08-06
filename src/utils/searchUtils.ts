@@ -4,7 +4,7 @@ import type { Listing } from "@/types/listings";
 // Search configuration
 const SEARCH_FIELDS = [
   "title",
-  "description", 
+  "description",
   "location",
   "details.vehicles.make",
   "details.vehicles.model",
@@ -14,35 +14,37 @@ const SEARCH_FIELDS = [
 
 // Utility to get nested object values safely
 const getNestedValue = (obj: any, path: string): string => {
-  return path.split('.').reduce((current, key) => {
-    return current?.[key] ?? '';
-  }, obj) ?? '';
+  return (
+    path.split(".").reduce((current, key) => {
+      return current?.[key] ?? "";
+    }, obj) ?? ""
+  );
 };
 
 // Simple fuzzy matching function
 const fuzzyMatch = (text: string, query: string): number => {
   if (!query || !text) return 0;
-  
+
   const textLower = text.toLowerCase();
   const queryLower = query.toLowerCase();
-  
+
   // Exact match gets highest score
   if (textLower === queryLower) return 1;
-  
+
   // Contains match
   if (textLower.includes(queryLower)) return 0.9;
-  
+
   // Fuzzy match using Levenshtein-like approach
   let score = 0;
   let queryIndex = 0;
-  
+
   for (let i = 0; i < textLower.length && queryIndex < queryLower.length; i++) {
     if (textLower[i] === queryLower[queryIndex]) {
       score += 1;
       queryIndex++;
     }
   }
-  
+
   return queryIndex === queryLower.length ? score / queryLower.length : 0;
 };
 
@@ -58,11 +60,16 @@ export class SearchEngine {
 
   private buildIndex() {
     this.listings.forEach((listing) => {
-      const searchableText = SEARCH_FIELDS.map(field => 
-        getNestedValue(listing, field)
-      ).join(' ').toLowerCase();
-      
-      this.searchIndex.set(listing.id, searchableText.split(' ').filter(Boolean));
+      const searchableText = SEARCH_FIELDS.map((field) =>
+        getNestedValue(listing, field),
+      )
+        .join(" ")
+        .toLowerCase();
+
+      this.searchIndex.set(
+        listing.id,
+        searchableText.split(" ").filter(Boolean),
+      );
     });
   }
 
@@ -81,9 +88,9 @@ export class SearchEngine {
 
     this.listings.forEach((listing) => {
       let score = 0;
-      
+
       // Check each searchable field
-      SEARCH_FIELDS.forEach(field => {
+      SEARCH_FIELDS.forEach((field) => {
         const value = getNestedValue(listing, field);
         if (value) {
           score = Math.max(score, fuzzyMatch(value, queryLower));
@@ -95,7 +102,8 @@ export class SearchEngine {
         score = Math.max(score, 1.1);
       }
 
-      if (score > 0.3) { // Minimum threshold
+      if (score > 0.3) {
+        // Minimum threshold
         results.push({ listing, score });
       }
     });
@@ -103,7 +111,7 @@ export class SearchEngine {
     return results
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
-      .map(result => result.listing);
+      .map((result) => result.listing);
   }
 }
 
@@ -118,6 +126,6 @@ export const searchListings = (
   query: string,
 ): Listing[] => {
   if (!query.trim()) return [];
-  
+
   return engine.search(query, 10);
 };

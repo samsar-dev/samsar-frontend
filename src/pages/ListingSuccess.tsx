@@ -10,9 +10,7 @@ const ListingSuccess = () => {
   const { listingId, isUpdate, title, isPriceReduced } = location.state || {};
 
   return (
-    <div
-      className="max-w-xl mx-auto mt-16 text-center space-y-6 transition-all duration-300 ease-in-out animate-fadeInUp"
-    >
+    <div className="max-w-xl mx-auto mt-16 text-center space-y-6 transition-all duration-300 ease-in-out animate-fadeInUp">
       <div className="text-5xl text-green-500">
         <FaCheckCircle className="mx-auto" />
       </div>

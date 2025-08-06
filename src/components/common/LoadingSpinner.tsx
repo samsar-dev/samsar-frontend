@@ -29,7 +29,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
       "--spinner-track-color": trackColor,
       "--spinner-active-color": activeColor,
       "--spinner-animation-duration": `${speed}s`,
-      "--spinner-border-width": sizeClasses[size].includes('border-2') ? '2px' : '4px',
+      "--spinner-border-width": sizeClasses[size].includes("border-2")
+        ? "2px"
+        : "4px",
     } as React.CSSProperties & {
       "--spinner-track-color": string;
       "--spinner-active-color": string;
@@ -53,12 +55,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
             style={{
               borderColor: "var(--spinner-track-color)",
               borderWidth: "var(--spinner-border-width)",
-              transform: 'translateZ(0)',
-              willChange: 'transform',
-              animationName: 'spin',
+              transform: "translateZ(0)",
+              willChange: "transform",
+              animationName: "spin",
               animationDuration: `${speed}s`,
-              animationTimingFunction: 'linear',
-              animationIterationCount: 'infinite',
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
             }}
             aria-hidden="true"
           />
@@ -68,12 +70,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = memo(
             className="loading-spinner__indicator"
             style={{
               borderWidth: "var(--spinner-border-width)",
-              transform: 'translateZ(0)',
-              willChange: 'transform',
-              animationName: 'spin',
+              transform: "translateZ(0)",
+              willChange: "transform",
+              animationName: "spin",
               animationDuration: `${speed}s`,
-              animationTimingFunction: 'linear',
-              animationIterationCount: 'infinite',
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
             }}
             aria-hidden="true"
           />

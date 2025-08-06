@@ -1,11 +1,5 @@
 import { useTranslation } from "react-i18next";
-import {
-  useNavigate,
-  useLocation,
-  useParams,
-  Outlet,
-
-} from "react-router-dom";
+import { useNavigate, useLocation, useParams, Outlet } from "react-router-dom";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 import { Suspense } from "react";
@@ -63,15 +57,20 @@ export const Profile = () => {
 
   // Determine active tab based on current path
   const getActiveTab = () => {
-    if (currentPath.includes('/mylistings')) return 'mylistings';
-    if (currentPath.includes('/listings')) return 'mylistings'; // Fallback for old URLs
-    if (currentPath.includes('/change-password')) return 'password';
-    if (currentPath.includes('/saved')) return 'saved';
-    return 'profile';
+    if (currentPath.includes("/mylistings")) return "mylistings";
+    if (currentPath.includes("/listings")) return "mylistings"; // Fallback for old URLs
+    if (currentPath.includes("/change-password")) return "password";
+    if (currentPath.includes("/saved")) return "saved";
+    return "profile";
   };
 
-  console.log('Rendering Profile', { currentPath, isViewingOtherProfile, userId, user: user?.id });
-  
+  console.log("Rendering Profile", {
+    currentPath,
+    isViewingOtherProfile,
+    userId,
+    user: user?.id,
+  });
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -104,16 +103,18 @@ export const Profile = () => {
 
           {/* Content Area */}
           <div className="flex-1 p-6 md:p-8">
-            <ErrorBoundary fallback={
-              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-                <h3 className="text-red-800 dark:text-red-200 font-medium">
-                  {t("error_occurred")}
-                </h3>
-                <p className="text-red-700 dark:text-red-300 text-sm mt-1">
-                  {t("error_loading_content")}
-                </p>
-              </div>
-            }>
+            <ErrorBoundary
+              fallback={
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                  <h3 className="text-red-800 dark:text-red-200 font-medium">
+                    {t("error_occurred")}
+                  </h3>
+                  <p className="text-red-700 dark:text-red-300 text-sm mt-1">
+                    {t("error_loading_content")}
+                  </p>
+                </div>
+              }
+            >
               <Suspense
                 fallback={
                   <div className="flex flex-col justify-center items-center h-64">

@@ -1,9 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import type {
-  ListingAction} from "@/types/enums";
-import {
-  ListingCategory,
-} from "@/types/enums";
+import type { ListingAction } from "@/types/enums";
+import { ListingCategory } from "@/types/enums";
 import { type ExtendedListing } from "@/types/listings";
 
 export interface PriceRange {
@@ -40,7 +37,7 @@ interface UseListingFiltersProps {
  */
 export const useListingFilters = (
   initial: Partial<FiltersState> = {},
-  options: UseListingFiltersProps = {}
+  options: UseListingFiltersProps = {},
 ) => {
   /* ---------- primitive pieces of state ---------- */
   const [selectedAction, setSelectedAction] = useState<ListingAction | null>(
@@ -156,9 +153,10 @@ export const useListingFilters = (
           if (listing.details.vehicles.model !== selectedModel) return false;
         }
         if (selectedMileage && listing.details?.vehicles?.mileage) {
-          const mileageValue = typeof listing.details.vehicles.mileage === 'string' 
-            ? parseInt(listing.details.vehicles.mileage) 
-            : listing.details.vehicles.mileage;
+          const mileageValue =
+            typeof listing.details.vehicles.mileage === "string"
+              ? parseInt(listing.details.vehicles.mileage)
+              : listing.details.vehicles.mileage;
           if (mileageValue > selectedMileage) {
             return false;
           }
@@ -180,22 +178,24 @@ export const useListingFilters = (
       if (selectedLocation && selectedLocation.trim() !== "") {
         const listingLocation = listing.location || "";
         const searchLocation = selectedLocation.toLowerCase();
-        
+
         // Check if location matches
-        const locationMatches = listingLocation.toLowerCase().includes(searchLocation);
-        
+        const locationMatches = listingLocation
+          .toLowerCase()
+          .includes(searchLocation);
+
         // Check city/area translations if available
         let translationMatches = false;
         if (options.cities && options.areas) {
-          const cityMatches = Object.values(options.cities).some(city => 
-            city.toLowerCase().includes(searchLocation)
+          const cityMatches = Object.values(options.cities).some((city) =>
+            city.toLowerCase().includes(searchLocation),
           );
-          const areaMatches = Object.values(options.areas).some(area => 
-            area.toLowerCase().includes(searchLocation)
+          const areaMatches = Object.values(options.areas).some((area) =>
+            area.toLowerCase().includes(searchLocation),
           );
           translationMatches = cityMatches || areaMatches;
         }
-        
+
         if (!locationMatches && !translationMatches) {
           return false;
         }

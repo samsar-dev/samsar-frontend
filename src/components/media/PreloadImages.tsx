@@ -1,5 +1,5 @@
-import type React from 'react';
-import { useEffect, useMemo, memo } from 'react';
+import type React from "react";
+import { useEffect, useMemo, memo } from "react";
 
 interface PreloadImagesProps {
   imageUrls: string[];
@@ -8,14 +8,14 @@ interface PreloadImagesProps {
 const PreloadImages: React.FC<PreloadImagesProps> = ({ imageUrls = [] }) => {
   useMemo(() => {
     if (!imageUrls.length) return;
-    
+
     const uniqueUrls = Array.from(new Set(imageUrls));
-    uniqueUrls.forEach(url => {
+    uniqueUrls.forEach((url) => {
       if (!url) return;
-      
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
+
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
       link.href = url;
       document.head.appendChild(link);
     });
@@ -23,8 +23,10 @@ const PreloadImages: React.FC<PreloadImagesProps> = ({ imageUrls = [] }) => {
 
   useEffect(() => {
     return () => {
-      const links = document.querySelectorAll('link[rel="preload"][as="image"]');
-      links.forEach(link => link.remove());
+      const links = document.querySelectorAll(
+        'link[rel="preload"][as="image"]',
+      );
+      links.forEach((link) => link.remove());
     };
   }, []);
 

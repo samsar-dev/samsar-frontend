@@ -84,8 +84,6 @@ const ContactSubmissions: FC = () => {
     setCurrentPage(newPage);
   };
 
-
-
   const handleViewSubmission = async (submission: ContactSubmission) => {
     try {
       setSelectedSubmission(submission);
@@ -167,7 +165,12 @@ const ContactSubmissions: FC = () => {
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           {error}
-          <Button variant="ghost" size="sm" onClick={() => setError("")} className="ml-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setError("")}
+            className="ml-auto"
+          >
             <X className="h-4 w-4" />
           </Button>
         </Alert>
@@ -201,7 +204,8 @@ const ContactSubmissions: FC = () => {
             </Button>
           </div>
           <Typography variant="body2" className="text-muted-foreground mb-4">
-            {selectedSubmission.email} • {formatDate(selectedSubmission.createdAt)}
+            {selectedSubmission.email} •{" "}
+            {formatDate(selectedSubmission.createdAt)}
           </Typography>
           <Typography variant="h6" className="mb-2">
             {selectedSubmission.subject}
@@ -210,9 +214,7 @@ const ContactSubmissions: FC = () => {
             {selectedSubmission.message}
           </Typography>
           {!selectedSubmission.read && (
-            <Button
-              onClick={() => markAsRead(selectedSubmission.id)}
-            >
+            <Button onClick={() => markAsRead(selectedSubmission.id)}>
               <MailCheck className="h-4 w-4 mr-2" />
               Mark as Read
             </Button>
@@ -230,102 +232,109 @@ const ContactSubmissions: FC = () => {
                   <th className="text-left p-4 font-medium">Subject</th>
                   <th className="text-left p-4 font-medium">Status</th>
                   <th className="text-left p-4 font-medium">Actions</th>
-                <th className="text-left p-4 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {submissions.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center p-8">
-                    <Typography variant="body1" className="text-muted-foreground">
-                      No contact submissions found
-                    </Typography>
-                  </td>
+                  <th className="text-left p-4 font-medium">Actions</th>
                 </tr>
-              ) : (
-                submissions
-                  .slice(
-                    currentPage * rowsPerPage,
-                    currentPage * rowsPerPage + rowsPerPage,
-                  )
-                  .map((submission) => (
-                    <tr
-                      key={submission.id}
-                      className={cn(
-                        "border-b hover:bg-muted/50 cursor-pointer",
-                        !submission.read && "bg-muted/20"
-                      )}
-                      onClick={async () =>
-                        await handleViewSubmission(submission)
-                      }
-                    >
-                      <td className="p-4">{formatDate(submission.createdAt)}</td>
-                      <td className="p-4">{`${submission.firstName} ${submission.lastName}`}</td>
-                      <td className="p-4">{submission.email}</td>
-                      <td className="p-4">{submission.subject}</td>
-                      <td className="p-4">
-                        <Badge 
-                          variant={submission.read ? "secondary" : "default"}
-                        >
-                          {submission.read ? "Read" : "New"}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewSubmission(submission);
-                            }}
+              </thead>
+              <tbody>
+                {submissions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-8">
+                      <Typography
+                        variant="body1"
+                        className="text-muted-foreground"
+                      >
+                        No contact submissions found
+                      </Typography>
+                    </td>
+                  </tr>
+                ) : (
+                  submissions
+                    .slice(
+                      currentPage * rowsPerPage,
+                      currentPage * rowsPerPage + rowsPerPage,
+                    )
+                    .map((submission) => (
+                      <tr
+                        key={submission.id}
+                        className={cn(
+                          "border-b hover:bg-muted/50 cursor-pointer",
+                          !submission.read && "bg-muted/20",
+                        )}
+                        onClick={async () =>
+                          await handleViewSubmission(submission)
+                        }
+                      >
+                        <td className="p-4">
+                          {formatDate(submission.createdAt)}
+                        </td>
+                        <td className="p-4">{`${submission.firstName} ${submission.lastName}`}</td>
+                        <td className="p-4">{submission.email}</td>
+                        <td className="p-4">{submission.subject}</td>
+                        <td className="p-4">
+                          <Badge
+                            variant={submission.read ? "secondary" : "default"}
                           >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {!submission.read && (
-                            <Button 
-                              variant="ghost" 
+                            {submission.read ? "Read" : "New"}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
                               size="sm"
-                              onClick={async (e) => {
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                await markAsRead(submission.id);
+                                handleViewSubmission(submission);
                               }}
                             >
-                              <MailCheck className="h-4 w-4" />
+                              <Eye className="h-4 w-4" />
                             </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between px-4 py-3 border-t">
-          <div className="text-sm text-muted-foreground">
-            Showing {currentPage * rowsPerPage + 1} to {Math.min((currentPage + 1) * rowsPerPage, submissions.length)} of {submissions.length} results
+                            {!submission.read && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await markAsRead(submission.id);
+                                }}
+                              >
+                                <MailCheck className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                )}
+              </tbody>
+            </table>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handlePageChange(null, currentPage - 1)}
-              disabled={currentPage === 0}
-            >
-              Previous
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handlePageChange(null, currentPage + 1)}
-              disabled={(currentPage + 1) * rowsPerPage >= submissions.length}
-            >
-              Next
-            </Button>
+          <div className="flex items-center justify-between px-4 py-3 border-t">
+            <div className="text-sm text-muted-foreground">
+              Showing {currentPage * rowsPerPage + 1} to{" "}
+              {Math.min((currentPage + 1) * rowsPerPage, submissions.length)} of{" "}
+              {submissions.length} results
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(null, currentPage - 1)}
+                disabled={currentPage === 0}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(null, currentPage + 1)}
+                disabled={(currentPage + 1) * rowsPerPage >= submissions.length}
+              >
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
-      </Paper>
+        </Paper>
       )}
     </div>
   );

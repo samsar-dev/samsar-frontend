@@ -2,7 +2,6 @@ import type { Settings } from "@/types/settings";
 import type { APIResponse } from "@/types/common";
 import { LanguageCode, ThemeType } from "@/types/enums";
 
-
 export interface PreferenceSettingsType {
   language: LanguageCode;
   theme: ThemeType;
@@ -10,13 +9,11 @@ export interface PreferenceSettingsType {
 }
 
 export class SettingsAPI {
-
-
   // Mock implementation for development
   static async getSettings(): Promise<APIResponse<Settings>> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // Return mock data
     return {
       status: 200,
@@ -52,10 +49,12 @@ export class SettingsAPI {
     };
   }
 
-  static async updateSettings(settings: Partial<Settings>): Promise<APIResponse<Settings>> {
+  static async updateSettings(
+    settings: Partial<Settings>,
+  ): Promise<APIResponse<Settings>> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
     // Return the updated settings
     return {
       status: 200,
@@ -66,7 +65,9 @@ export class SettingsAPI {
     };
   }
 
-  static async updatePrivacySettings(settings: Settings['privacy']): Promise<APIResponse<Settings>> {
+  static async updatePrivacySettings(
+    settings: Settings["privacy"],
+  ): Promise<APIResponse<Settings>> {
     return this.updateSettings({ privacy: settings });
   }
 }

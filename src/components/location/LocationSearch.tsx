@@ -8,17 +8,17 @@ import { syrianCities } from "@/utils/syrianCitiesEnglish";
 // Simple debounce hook to replace react-use dependency
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
-  
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
-    
+
     return () => {
       clearTimeout(handler);
     };
   }, [value, delay]);
-  
+
   return debouncedValue;
 };
 
@@ -259,7 +259,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   // Debounce search
   const debouncedQuery = useDebounce(query, 300);
-  
+
   useEffect(() => {
     if (debouncedQuery.length > 2) {
       searchLocations(debouncedQuery);

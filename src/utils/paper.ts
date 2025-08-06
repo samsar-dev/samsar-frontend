@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface PaperProps {
   elevation?: number;
-  variant?: 'outlined' | 'elevation';
+  variant?: "outlined" | "elevation";
   className?: string;
   children?: React.ReactNode;
 }
@@ -16,20 +16,26 @@ const elevationClasses = {
   5: "shadow-xl",
 };
 
-export const Paper = ({ 
-  elevation = 1, 
-  variant = 'elevation', 
-  className, 
-  children, 
-  ...props 
+export const Paper = ({
+  elevation = 1,
+  variant = "elevation",
+  className,
+  children,
+  ...props
 }: PaperProps) => {
-  return React.createElement('div', {
-    className: cn(
-      "bg-background rounded-lg",
-      variant === 'outlined' ? "border border-border" : "",
-      variant === 'elevation' ? elevationClasses[elevation as keyof typeof elevationClasses] : "",
-      className
-    ),
-    ...props
-  }, children);
+  return React.createElement(
+    "div",
+    {
+      className: cn(
+        "bg-background rounded-lg",
+        variant === "outlined" ? "border border-border" : "",
+        variant === "elevation"
+          ? elevationClasses[elevation as keyof typeof elevationClasses]
+          : "",
+        className,
+      ),
+      ...props,
+    },
+    children,
+  );
 };

@@ -1,5 +1,5 @@
 // Type declarations for critical package
-declare module 'critical' {
+declare module "critical" {
   interface CriticalOptions {
     base?: string;
     src: string;
@@ -23,8 +23,8 @@ declare module 'critical' {
   }
 
   function generate(options: CriticalOptions): Promise<CriticalResult>;
-  
+
   export = {
-    generate
+    generate,
   };
 }

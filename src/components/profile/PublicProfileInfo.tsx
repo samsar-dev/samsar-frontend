@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-const OptimizedAvatar = React.lazy(() => import('@/components/ui/avatar'));
+const OptimizedAvatar = React.lazy(() => import("@/components/ui/avatar"));
 import { useTranslation } from "react-i18next";
 import { UserAPI } from "@/api/auth.api";
 import type { UserProfile } from "@/types/user";
@@ -211,14 +211,16 @@ const PublicProfileInfo = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex items-center space-x-6">
             <div className="relative">
-              <React.Suspense fallback={
-                <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">Loading...</span>
-                </div>
-              }>
+              <React.Suspense
+                fallback={
+                  <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400">Loading...</span>
+                  </div>
+                }
+              >
                 <OptimizedAvatar
                   src={avatarPreview}
-                  fallback={user?.name || user?.username || 'U'}
+                  fallback={user?.name || user?.username || "U"}
                   className="w-full h-full object-cover"
                 />
               </React.Suspense>

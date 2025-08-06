@@ -7,20 +7,24 @@ const preloadAssetsInternal = async (): Promise<void> => {
   if (typeof window === "undefined") return;
 
   // Preload critical routes
-  const preloadRoute = async (importFn: () => Promise<unknown>): Promise<void> => {
+  const preloadRoute = async (
+    importFn: () => Promise<unknown>,
+  ): Promise<void> => {
     try {
       await importFn();
     } catch (error) {
-      console.error('Failed to preload route:', error);
+      console.error("Failed to preload route:", error);
     }
   };
 
   // Preload critical components
-  const preloadComponent = async (importFn: () => Promise<unknown>): Promise<void> => {
+  const preloadComponent = async (
+    importFn: () => Promise<unknown>,
+  ): Promise<void> => {
     try {
       await importFn();
     } catch (error) {
-      console.error('Failed to preload component:', error);
+      console.error("Failed to preload component:", error);
     }
   };
 
@@ -36,7 +40,7 @@ const preloadAssetsInternal = async (): Promise<void> => {
     preloadRoute(() => import("@/pages/Search")),
     preloadRoute(() => import("@/pages/Vehicles")),
     preloadRoute(() => import("@/pages/RealEstate")),
-    preloadComponent(() => import("@/components/listings/details/ListingCard"))
+    preloadComponent(() => import("@/components/listings/details/ListingCard")),
   ]);
 
   // Preload critical images
@@ -45,7 +49,7 @@ const preloadAssetsInternal = async (): Promise<void> => {
     "/placeholder.jpg",
     "/icons/favicon.ico",
     "/icons/favicon-32x32.png",
-    "/icons/favicon-16x16.png"
+    "/icons/favicon-16x16.png",
   ];
 
   criticalImages.forEach(preloadImage);

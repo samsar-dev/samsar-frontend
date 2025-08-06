@@ -1,12 +1,5 @@
-import type {
-  ReactNode} from "react";
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef
-} from "react";
+import type { ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { Listing } from "@/types/listings.ts";
 import { listingsAPI } from "@/api/listings.api";
@@ -89,7 +82,7 @@ export const ListingsProvider = ({ children }: ListingsProviderProps) => {
       }
     } catch (error: any) {
       if (!isMountedRef.current) return;
-      
+
       // Don't show error toast for authentication errors
       if (error.message === "User not authenticated") {
         setUserListings([]);

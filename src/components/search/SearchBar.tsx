@@ -19,7 +19,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [suggestions, setSuggestions] = useState<Listing[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const searchEngineRef = useRef<ReturnType<typeof createSearchEngine> | null>(null);
+  const searchEngineRef = useRef<ReturnType<typeof createSearchEngine> | null>(
+    null,
+  );
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();

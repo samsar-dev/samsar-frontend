@@ -26,9 +26,7 @@ const Layout: React.FC<LayoutProps> = memo(({ children }) => {
           </div>
         </div>
       </main>
-      <div className="w-full">
-        {!isMessagesPage && <Footer />}
-      </div>
+      <div className="w-full">{!isMessagesPage && <Footer />}</div>
     </div>
   );
 });

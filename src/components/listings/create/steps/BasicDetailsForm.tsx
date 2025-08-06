@@ -1,7 +1,6 @@
 import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
-
 import {
   ListingCategory,
   VehicleType,
@@ -31,7 +30,10 @@ import {
   getMakesForType,
   getModelsForMakeAndType,
 } from "../../data/vehicleModels";
-import { realEstateBasicFields, type PropertySubtype } from "../basic/BasicFieldSchemas";
+import {
+  realEstateBasicFields,
+  type PropertySubtype,
+} from "../basic/BasicFieldSchemas";
 import type { ListingStatus } from "@/types/enums";
 
 interface ExtendedVehicleDetails {
@@ -1076,17 +1078,19 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       realEstateBasicFields[subType as keyof typeof realEstateBasicFields];
 
     // Validate field types
-    fields.forEach((field: typeof realEstateBasicFields[PropertySubtype][number]) => {
-      if (typeof field.label !== "string") {
-        console.error("❌ Invalid label type:", field);
-      }
-      if (field.placeholder && typeof field.placeholder !== "string") {
-        console.error("❌ Invalid placeholder type:", field);
-      }
-      if (field.helpText && typeof field.helpText !== "string") {
-        console.error("❌ Invalid helpText type:", field);
-      }
-    });
+    fields.forEach(
+      (field: (typeof realEstateBasicFields)[PropertySubtype][number]) => {
+        if (typeof field.label !== "string") {
+          console.error("❌ Invalid label type:", field);
+        }
+        if (field.placeholder && typeof field.placeholder !== "string") {
+          console.error("❌ Invalid placeholder type:", field);
+        }
+        if (field.helpText && typeof field.helpText !== "string") {
+          console.error("❌ Invalid helpText type:", field);
+        }
+      },
+    );
 
     if (!fields) return null;
 
@@ -1107,12 +1111,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               : undefined;
             const translatedOptions =
               field.type === "select"
-                ? field.options?.map((opt: { value: string; label: string }) => ({
-                    ...opt,
-                    label: /^\d+$/.test(opt.label)
-                      ? opt.label
-                      : safeTranslate(opt.label),
-                  }))
+                ? field.options?.map(
+                    (opt: { value: string; label: string }) => ({
+                      ...opt,
+                      label: /^\d+$/.test(opt.label)
+                        ? opt.label
+                        : safeTranslate(opt.label),
+                    }),
+                  )
                 : undefined;
 
             return (
@@ -1181,20 +1187,48 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               onValueChange={(value) => handleInputChange(fieldName, value)}
             >
               <Select.Trigger className="inline-flex items-center justify-between rounded px-[15px] text-[13px] leading-none h-[35px] gap-[5px] bg-white text-violet11 shadow-[0_2px_10px] shadow-black/10 hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-violet9 outline-none">
-                <Select.Value placeholder={placeholder || `Select ${label.toLowerCase()}`} />
+                <Select.Value
+                  placeholder={placeholder || `Select ${label.toLowerCase()}`}
+                />
                 <Select.Icon className="text-violet11">
-                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 15 15"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+                      fill="currentColor"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
                 </Select.Icon>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Content className="overflow-hidden bg-white rounded shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]">
                   <Select.ScrollUpButton className="flex items-center justify-center h-[25px] bg-white text-violet11 cursor-default">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 15 15"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+                        fill="currentColor"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
                   </Select.ScrollUpButton>
                   <Select.Viewport className="p-[5px]">
                     {options.map((option) => (
-                      <Select.Item 
-                        key={option.value} 
+                      <Select.Item
+                        key={option.value}
                         value={option.value}
                         className="text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] pr-[35px] pl-[25px] relative select-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:outline-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1"
                       >
@@ -1203,7 +1237,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                     ))}
                   </Select.Viewport>
                   <Select.ScrollDownButton className="flex items-center justify-center h-[25px] bg-white text-violet11 cursor-default">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 15 15"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+                        fill="currentColor"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
                   </Select.ScrollDownButton>
                 </Select.Content>
               </Select.Portal>

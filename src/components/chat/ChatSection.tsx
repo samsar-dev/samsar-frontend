@@ -11,11 +11,7 @@ import { useSocket } from "@/contexts/SocketContext";
 import type { Conversation, Message } from "@/types/messaging";
 import type { User } from "@/types/user";
 import type { AuthUser } from "@/types/auth.types";
-import {
-  MoreHorizontal,
-  Send,
-  Smile,
-} from "lucide-react";
+import { MoreHorizontal, Send, Smile } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
@@ -432,7 +428,7 @@ const UserMessageBubble = ({ message, user }: UserMessageBubbleProps) => {
       </div>
       <OptimizedAvatar
         src={user?.profilePicture}
-        fallback={user?.username || 'U'}
+        fallback={user?.username || "U"}
         size="md"
         className="h-8 w-8"
       />

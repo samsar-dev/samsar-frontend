@@ -1,11 +1,8 @@
-
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FaFacebook } from "@react-icons/all-files/fa/FaFacebook";
 import { FaInstagram } from "@react-icons/all-files/fa/FaInstagram";
 import { FaTwitter } from "@react-icons/all-files/fa/FaTwitter";
-
-
 
 const Footer: React.FC = () => {
   const { t } = useTranslation("footer");
@@ -20,14 +17,12 @@ const Footer: React.FC = () => {
             <span aria-hidden="true" className="hidden">
               منصة سمسار | سوق السيارات والعقارات الأول في سوريا
             </span>
-            
           </h2>
           <p>
             <span aria-hidden="true" className="hidden">
               بيع وشراء سيارات، عقارات، دراجات نارية، ومحلات تجارية في سوريا |
               إعلانات موثوقة ومجانية
             </span>
-             
           </p>
         </div>
 
@@ -158,8 +153,8 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-           {/* Social Links */}
-           <div>
+          {/* Social Links */}
+          <div>
             <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">
               <span aria-hidden="true" className="hidden">
                 اتصل بنا
@@ -216,7 +211,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
         </div>
-
 
         {/* Copyright */}
         <div className="border-t border-border-primary dark:border-border-primary-dark pt-6 mt-8">

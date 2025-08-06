@@ -168,9 +168,16 @@ export const createListing = async (
 
         // Process numeric fields
         Object.entries(numericFields).forEach(([field, defaultValue]) => {
-          if (details.vehicles && (details.vehicles as Record<string, any>)[field] !== undefined) {
-            const parsed = parseInt((details.vehicles as Record<string, any>)[field].toString());
-            (details.vehicles as Record<string, any>)[field] = isNaN(parsed) ? defaultValue : parsed;
+          if (
+            details.vehicles &&
+            (details.vehicles as Record<string, any>)[field] !== undefined
+          ) {
+            const parsed = parseInt(
+              (details.vehicles as Record<string, any>)[field].toString(),
+            );
+            (details.vehicles as Record<string, any>)[field] = isNaN(parsed)
+              ? defaultValue
+              : parsed;
           }
         });
 
@@ -1118,9 +1125,13 @@ export const listingsAPI: ListingsAPI = {
       // Ensure listingId is a string
       const id = String(listingId);
 
-      const response = await apiClient.post(`/listings/${id}/view`, {}, {
-        withCredentials: true,
-      });
+      const response = await apiClient.post(
+        `/listings/${id}/view`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
 
       if (!response.data.success) {
         throw new Error(response.data.error || "Failed to save listing");

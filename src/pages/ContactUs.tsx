@@ -8,7 +8,6 @@ import { toast } from "@/components/common/toast";
 import { Send, Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/apiClient";
- 
 
 interface FormData {
   firstName: string;
@@ -31,7 +30,7 @@ const ContactUs = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -119,15 +118,15 @@ const ContactUs = () => {
 
       <div className="container mx-auto px-4">
         <div className="mb-6">
-          <Alert className="mb-4">
-            {t("contact_page.formInfo")}
-          </Alert>
+          <Alert className="mb-4">{t("contact_page.formInfo")}</Alert>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-6">{t("contact_page.formTitle")}</h2>
+              <h2 className="text-2xl font-bold mb-6">
+                {t("contact_page.formTitle")}
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -142,7 +141,9 @@ const ContactUs = () => {
                       className={formErrors.firstName ? "border-red-500" : ""}
                     />
                     {formErrors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.firstName}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -157,7 +158,9 @@ const ContactUs = () => {
                       className={formErrors.lastName ? "border-red-500" : ""}
                     />
                     {formErrors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.lastName}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -176,7 +179,9 @@ const ContactUs = () => {
                       className={formErrors.email ? "border-red-500" : ""}
                     />
                     {formErrors.email && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.email}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -191,7 +196,9 @@ const ContactUs = () => {
                       className={formErrors.subject ? "border-red-500" : ""}
                     />
                     {formErrors.subject && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.subject}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -209,7 +216,9 @@ const ContactUs = () => {
                     className={formErrors.message ? "border-red-500" : ""}
                   />
                   {formErrors.message && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.message}
+                    </p>
                   )}
                 </div>
 
@@ -236,48 +245,72 @@ const ContactUs = () => {
 
           <div>
             <Card className="p-6 mb-6">
-              <h3 className="text-xl font-semibold mb-4">{t("contact_page.contactInfo.title")}</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                {t("contact_page.contactInfo.title")}
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <MapPin className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="font-medium">{t("contact_page.contactInfo.address.label")}</p>
-                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.address.value")}</p>
+                    <p className="font-medium">
+                      {t("contact_page.contactInfo.address.label")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("contact_page.contactInfo.address.value")}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   <Phone className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="font-medium">{t("contact_page.contactInfo.phone.label")}</p>
-                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.phone.number")}</p>
+                    <p className="font-medium">
+                      {t("contact_page.contactInfo.phone.label")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("contact_page.contactInfo.phone.number")}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   <Mail className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="font-medium">{t("contact_page.contactInfo.email.label")}</p>
-                    <p className="text-sm text-muted-foreground">{t("contact_page.contactInfo.email.address")}</p>
+                    <p className="font-medium">
+                      {t("contact_page.contactInfo.email.label")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("contact_page.contactInfo.email.address")}
+                    </p>
                   </div>
                 </div>
               </div>
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4">{t("contact_page.businessHours.title")}</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                {t("contact_page.businessHours.title")}
+              </h3>
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="font-medium">{t("contact_page.businessHours.weekdays")}</span>
-                  <span className="text-sm text-muted-foreground">{t("contact_page.businessHours.weekdaysTime")}</span>
+                  <span className="font-medium">
+                    {t("contact_page.businessHours.weekdays")}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("contact_page.businessHours.weekdaysTime")}
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>{t("contact_page.businessHours.saturday")}</span>
-                  <span className="text-sm">{t("contact_page.businessHours.saturdayTime")}</span>
+                  <span className="text-sm">
+                    {t("contact_page.businessHours.saturdayTime")}
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>{t("contact_page.businessHours.sunday")}</span>
-                  <span className="text-sm">{t("contact_page.businessHours.sundayTime")}</span>
+                  <span className="text-sm">
+                    {t("contact_page.businessHours.sundayTime")}
+                  </span>
                 </div>
               </div>
             </Card>

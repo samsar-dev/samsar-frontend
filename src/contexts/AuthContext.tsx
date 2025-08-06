@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 
 import { toast } from "sonner";
 import { AuthAPI } from "../api/auth.api";
@@ -33,7 +28,6 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-
   const [state, setState] = useState<AuthState>(initialState);
   const [isInitialized] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(false);
@@ -69,17 +63,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuth = useCallback(async () => {
     // Prevent multiple simultaneous auth checks
     if (isCheckingAuth || hasCheckedAuth) {
-      console.log('⏭️ Skipping auth check - already checking or already checked');
+      console.log(
+        "⏭️ Skipping auth check - already checking or already checked",
+      );
       return;
     }
 
     try {
-      console.log('🔍 Starting auth check...');
+      console.log("🔍 Starting auth check...");
       setIsCheckingAuth(true);
       setState((prev) => ({ ...prev, isLoading: true }));
 
       const response = await AuthAPI.getMe();
-      console.log('📡 Auth check response:', response);
+      console.log("📡 Auth check response:", response);
 
       if (response?.success && response?.data) {
         // User is authenticated
@@ -273,18 +269,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log("🚪 Starting logout process...");
       // Show loading state
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: true,
-        error: null
+        error: null,
       }));
 
       await AuthAPI.logout();
       setState({ ...initialState, isInitialized: true });
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error) {
       toast.error("Logout failed. Please try again.");
-      setState(prev => ({ ...prev, isLoading: false, error: { code: 'UNAUTHORIZED', message: 'Logout failed' } }));
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: { code: "UNAUTHORIZED", message: "Logout failed" },
+      }));
     }
   };
 
@@ -301,12 +301,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state once on mount
   useEffect(() => {
-    console.log('🔄 AuthContext useEffect triggered', { hasCheckedAuth, isInitialized, isCheckingAuth });
+    console.log("🔄 AuthContext useEffect triggered", {
+      hasCheckedAuth,
+      isInitialized,
+      isCheckingAuth,
+    });
     if (!hasCheckedAuth && !isCheckingAuth) {
-      console.log('🚀 Running initial auth check...');
+      console.log("🚀 Running initial auth check...");
       checkAuth();
     } else {
-      console.log('⏭️ Skipping auth check:', { hasCheckedAuth, isCheckingAuth });
+      console.log("⏭️ Skipping auth check:", {
+        hasCheckedAuth,
+        isCheckingAuth,
+      });
     }
   }, [hasCheckedAuth, checkAuth, isCheckingAuth]);
 

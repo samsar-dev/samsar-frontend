@@ -11,7 +11,7 @@ import { SearchBar } from "@/components/search/SearchBar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 
 // Import only necessary icons to reduce bundle size
- 
+
 import { FaUser } from "@react-icons/all-files/fa/FaUser";
 import { FaCog } from "@react-icons/all-files/fa/FaCog";
 import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
@@ -30,10 +30,13 @@ const Navbar: React.FC = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   // --- END ---
 
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation("common");
 
   // Detect RTL based on language
-  const isRTL = i18n.language === "ar" || (i18n.language && i18n.language.startsWith("ar-")) || false;
+  const isRTL =
+    i18n.language === "ar" ||
+    (i18n.language && i18n.language.startsWith("ar-")) ||
+    false;
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -46,19 +49,28 @@ const Navbar: React.FC = () => {
   // Memoize click outside handler - close all dropdowns when clicking outside or on other icons
   const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as HTMLElement;
-    
+
     // Close profile menu when clicking outside profile area
-    if (!target.closest(".profile-menu") && !target.closest("button[aria-label='profile']")) {
+    if (
+      !target.closest(".profile-menu") &&
+      !target.closest("button[aria-label='profile']")
+    ) {
       setShowProfileMenu(false);
     }
-    
-    // Close listings menu when clicking outside listings area  
-    if (!target.closest(".listings-menu") && !target.closest("button[aria-label='listings']")) {
+
+    // Close listings menu when clicking outside listings area
+    if (
+      !target.closest(".listings-menu") &&
+      !target.closest("button[aria-label='listings']")
+    ) {
       setShowListingsMenu(false);
     }
-    
+
     // Close notifications when clicking outside notifications area
-    if (!target.closest(".notifications-dropdown") && !target.closest("button[aria-label='notifications']")) {
+    if (
+      !target.closest(".notifications-dropdown") &&
+      !target.closest("button[aria-label='notifications']")
+    ) {
       setShowNotifications(false);
     }
   }, []);
@@ -107,7 +119,7 @@ const Navbar: React.FC = () => {
   // Memoize toggle functions - close other dropdowns when opening new ones
   const toggleProfileMenu = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setShowProfileMenu(prev => {
+    setShowProfileMenu((prev) => {
       if (!prev) {
         // Close other dropdowns when opening profile menu
         setShowNotifications(false);
@@ -119,7 +131,7 @@ const Navbar: React.FC = () => {
 
   const toggleNotifications = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setShowNotifications(prev => {
+    setShowNotifications((prev) => {
       if (!prev) {
         // Close other dropdowns when opening notifications
         setShowProfileMenu(false);
@@ -131,7 +143,7 @@ const Navbar: React.FC = () => {
 
   const toggleListingsMenu = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setShowListingsMenu(prev => {
+    setShowListingsMenu((prev) => {
       if (!prev) {
         // Close other dropdowns when opening listings menu
         setShowProfileMenu(false);
@@ -142,11 +154,14 @@ const Navbar: React.FC = () => {
   }, []);
 
   // Memoize dropdown classes
-  const dropdownClasses = useMemo(() => ({
-    base: `fixed mt-2 w-64 max-w-sm bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 transition-all duration-200 ${isRTL ? 'left-0' : 'right-0'} top-16`,
-    active: "transform opacity-100 scale-100",
-    inactive: "transform opacity-0 scale-95 pointer-events-none"
-  }), [isRTL]);
+  const dropdownClasses = useMemo(
+    () => ({
+      base: `fixed mt-2 w-64 max-w-sm bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 transition-all duration-200 ${isRTL ? "left-0" : "right-0"} top-16`,
+      active: "transform opacity-100 scale-100",
+      inactive: "transform opacity-0 scale-95 pointer-events-none",
+    }),
+    [isRTL],
+  );
 
   // Memoize dropdown menu items to prevent unnecessary re-renders
   const ListingsMenu = memo(() => (
@@ -179,41 +194,49 @@ const Navbar: React.FC = () => {
     </div>
   ));
 
-  const ProfileMenu = memo(({ onLogout, isLoggingOut }: { onLogout: () => void, isLoggingOut: boolean }) => (
-    <div
-      className={`${dropdownClasses.base} ${
-        showProfileMenu ? dropdownClasses.active : dropdownClasses.inactive
-      }`}
-    >
-      <Link
-        to="/profile"
-        onClick={() => setShowProfileMenu(false)}
-        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+  const ProfileMenu = memo(
+    ({
+      onLogout,
+      isLoggingOut,
+    }: {
+      onLogout: () => void;
+      isLoggingOut: boolean;
+    }) => (
+      <div
+        className={`${dropdownClasses.base} ${
+          showProfileMenu ? dropdownClasses.active : dropdownClasses.inactive
+        }`}
       >
-        <FaUser />
-        {t("navigation.profile")}
-      </Link>
-      <Link
-        to="/settings"
-        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-      >
-        <FaCog />
-        {t("navigation.settings")}
-      </Link>
-      <button
-        onClick={onLogout}
-        disabled={isLoggingOut}
-        className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-      >
-        {isLoggingOut ? (
-          <FaSpinner className="animate-spin" />
-        ) : (
-          <FaSignOutAlt />
-        )}
-        {isLoggingOut ? t("loggingOut") : t("logout")}
-      </button>
-    </div>
-  ));
+        <Link
+          to="/profile"
+          onClick={() => setShowProfileMenu(false)}
+          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <FaUser />
+          {t("navigation.profile")}
+        </Link>
+        <Link
+          to="/settings"
+          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <FaCog />
+          {t("navigation.settings")}
+        </Link>
+        <button
+          onClick={onLogout}
+          disabled={isLoggingOut}
+          className="w-full flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+        >
+          {isLoggingOut ? (
+            <FaSpinner className="animate-spin" />
+          ) : (
+            <FaSignOutAlt />
+          )}
+          {isLoggingOut ? t("loggingOut") : t("logout")}
+        </button>
+      </div>
+    ),
+  );
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md fixed top-0 left-0 right-0 z-30">
@@ -365,9 +388,7 @@ const Navbar: React.FC = () => {
                 </div>
 
                 <div className="relative">
-                  <NotificationBell 
-                    onClick={(e) => toggleNotifications(e)}
-                  />
+                  <NotificationBell onClick={(e) => toggleNotifications(e)} />
                   <div className="notifications-dropdown">
                     <NotificationsDropdown
                       isOpen={showNotifications}
@@ -409,7 +430,10 @@ const Navbar: React.FC = () => {
                       )}
                     </button>
                   </Tooltip>
-                  <ProfileMenu onLogout={handleLogout} isLoggingOut={isLoggingOut} />
+                  <ProfileMenu
+                    onLogout={handleLogout}
+                    isLoggingOut={isLoggingOut}
+                  />
                 </div>
               </>
             ) : (

@@ -122,7 +122,10 @@ const PrivacyPolicy = () => {
   ];
 
   return (
-    <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8" dir="rtl">
+    <div
+      className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8"
+      dir="rtl"
+    >
       <SEO
         title={pageTitle}
         description={pageDescription}

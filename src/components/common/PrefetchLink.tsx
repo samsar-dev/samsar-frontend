@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link, LinkProps } from 'react-router-dom';
-import { prefetchOnInteraction } from '@/utils/prefetch';
+import React from "react";
+import { Link, LinkProps } from "react-router-dom";
+import { prefetchOnInteraction } from "@/utils/prefetch";
 
 interface PrefetchLinkProps extends LinkProps {
   prefetchRoute?: () => Promise<any>;
@@ -36,11 +36,7 @@ const PrefetchLink: React.FC<PrefetchLinkProps> = ({
   };
 
   return (
-    <Link
-      {...linkProps}
-      onMouseEnter={handleMouseEnter}
-      onFocus={handleFocus}
-    >
+    <Link {...linkProps} onMouseEnter={handleMouseEnter} onFocus={handleFocus}>
       {children}
     </Link>
   );
@@ -50,11 +46,11 @@ export default PrefetchLink;
 
 // Pre-defined prefetch routes for common pages
 export const prefetchRoutes = {
-  profile: () => import('@/pages/Profile'),
-  settings: () => import('@/pages/Settings'),
-  messages: () => import('@/pages/Messages'),
-  createListing: () => import('@/components/listings/create/CreateListing'),
-  search: () => import('@/pages/Search'),
-  vehicles: () => import('@/pages/Vehicles'),
-  realEstate: () => import('@/pages/RealEstate'),
+  profile: () => import("@/pages/Profile"),
+  settings: () => import("@/pages/Settings"),
+  messages: () => import("@/pages/Messages"),
+  createListing: () => import("@/components/listings/create/CreateListing"),
+  search: () => import("@/pages/Search"),
+  vehicles: () => import("@/pages/Vehicles"),
+  realEstate: () => import("@/pages/RealEstate"),
 };
