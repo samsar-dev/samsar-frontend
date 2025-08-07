@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
 
 import { toast } from "sonner";
 import { AuthAPI } from "../api/auth.api";
@@ -176,8 +176,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }));
       return true;
     } catch (error) {
-      // Clear any existing session
-      await AuthAPI.logout();
+      // Clear any existing session, but don't let it block error reporting
+      try {
+        await AuthAPI.logout();
+      } catch (logoutError) {
+        console.error("Failed to clear session during login error:", logoutError);
+      }
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -250,8 +254,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }));
       return true;
     } catch (error) {
-      // Clear any existing session
-      await AuthAPI.logout();
+      // Clear any existing session, but don't let it block error reporting
+      try {
+        await AuthAPI.logout();
+      } catch (logoutError) {
+        console.error("Failed to clear session during registration error:", logoutError);
+      }
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -288,7 +296,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({ 
     ...state,
     login,
     register,
@@ -297,7 +305,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateAuthUser,
     checkAuth,
     isInitialized,
-  };
+  }), [state, isInitialized]);
 
   // Initialize auth state once on mount
   useEffect(() => {

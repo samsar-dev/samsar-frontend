@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import commonjs from '@rollup/plugin-commonjs';
+
 import Inspect from 'vite-plugin-inspect';
 import path from "path";
 import { fileURLToPath } from "url";
@@ -46,7 +46,6 @@ export default defineConfig(({ mode, command }) => {
     },
 
     plugins: [
-      commonjs(),
       react({
         // Let Vite handle React DevTools
         jsxImportSource: 'react',
@@ -122,19 +121,24 @@ export default defineConfig(({ mode, command }) => {
     },
 
     resolve: {
-      conditions: isProduction ? ['production', 'default'] : ['development', 'default'],
       alias: {
+        // Your existing aliases
         '@': path.resolve(__dirname, './src'),
         '@components': path.resolve(__dirname, "src/components"),
         '@pages': path.resolve(__dirname, "src/pages"),
+        '@utils': path.resolve(__dirname, "src/utils"),
         '@assets': path.resolve(__dirname, "src/assets"),
         '@hooks': path.resolve(__dirname, "src/hooks"),
+        '@contexts': path.resolve(__dirname, "src/contexts"),
         '@services': path.resolve(__dirname, "src/services"),
+        '@config': path.resolve(__dirname, "src/config"),
+        '@api': path.resolve(__dirname, "src/api"),
         '@store': path.resolve(__dirname, "src/store"),
-        '@types': path.resolve(__dirname, "src/types"),
-        '@utils': path.resolve(__dirname, "src/utils"),
-        // Fix html-parse-stringify CommonJS issue
+        '@styles': path.resolve(__dirname, "src/styles"),
+        '@public': path.resolve(__dirname, "public"),
         'html-parse-stringify': path.resolve(__dirname, 'node_modules/html-parse-stringify/dist/html-parse-stringify.js'),
+        // Fix for react-redux build error
+        'use-sync-external-store/with-selector': path.resolve(__dirname, 'node_modules/use-sync-external-store/esm/with-selector.js'),
       },
       // Add dedupe to prevent duplicate React
       dedupe: ['react', 'react-dom'],
@@ -363,83 +367,21 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       terserOptions: {
-        compress: {
-          drop_console: isProduction,
-          drop_debugger: isProduction,
-          pure_funcs: [
-            "console.log",
-            "console.warn",
-            "console.error",
-            "console.info",
-            "console.debug",
-            "console.trace",
-            "console.time",
-            "console.timeEnd",
-            "console.group",
-            "console.groupEnd",
-          ],
-          passes: 4,
-          unsafe: false,
-          unsafe_arrows: false,
-          unsafe_comps: false,
-          unsafe_math: true,
-          unsafe_methods: false,
-          unsafe_proto: false,
-          unsafe_regexp: true,
-          unsafe_undefined: false,
-          booleans_as_integers: true,
-          pure_getters: false,
-          keep_fargs: false,
-          keep_fnames: false,
-          hoist_funs: true,
-          hoist_vars: true,
-          reduce_vars: true,
-          reduce_funcs: true,
-          collapse_vars: true,
-          sequences: true,
-          dead_code: true,
-          conditionals: true,
-          comparisons: true,
-          evaluate: true,
-          booleans: true,
-          loops: true,
-          unused: true,
-          toplevel: true,
-          top_retain: [],
-          side_effects: false,
-          // Additional optimizations for unused code removal
-          join_vars: true,
-          warnings: false,
-          global_defs: {
-            "@alert": "console.log",
-            DEBUG: false,
-          },
-        },
+        compress: false, // <-- Critical change to diagnose production build issue
         mangle: {
           safari10: true,
-          toplevel: true,
-          eval: true,
-          module: true,
         },
         format: {
           comments: false,
-          beautify: false,
-          indent_level: 0,
-          max_line_len: 0,
-          preserve_annotations: false,
         },
       },
     },
 
     // Mobile performance optimizations and production builds
     optimizeDeps: {
-      include: ["react", "react-dom", "react-router", "react-router-dom"],
-      exclude: [
-        "socket.io-client",
-        "date-fns",
-        "lodash-es",
-        "i18next",
-        "react-i18next",
+      include: [
+        'react-helmet-async',
+        'use-sync-external-store/with-selector',
       ],
       esbuildOptions: {
         // Enable better tree-shaking

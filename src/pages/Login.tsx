@@ -12,7 +12,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState<number | null>(null);
-  const { login, error: authError, clearError, retryAfter } = useAuth();
+  const auth = useAuth();
+  const { error: authError, clearError, retryAfter } = auth;
   // Removed unused updateSettings to clean up code
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,9 +35,12 @@ const Login = () => {
   }, [retryAfter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    console.log("=== HANDLESUBMIT CALLED ===");
+    try {
+      e.preventDefault();
+      console.log("=== AFTER PREVENT DEFAULT ===");
 
-    // Enhanced input validation
+      // Enhanced input validation
     if (!email.trim()) {
       toast.error("Please enter your email address");
       return;
@@ -63,9 +67,15 @@ const Login = () => {
     setLoading(true);
     clearError();
 
+    console.log("Auth object:", auth);
+
     try {
       // Only navigate to home page if login is successful
-      const success = await login(email, password);
+      if (!auth.login) {
+        toast.error("Fatal Error: Login function not available. Please refresh.");
+        return;
+      }
+      const success = await auth.login(email, password);
 
       // The navigation now only happens if login is successful
       if (success) {
@@ -115,14 +125,12 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+    } catch (fatalError) {
+      console.error("=== FATAL ERROR IN HANDLESUBMIT ===", fatalError);
+      toast.error("Fatal error: " + (fatalError instanceof Error ? fatalError.message : String(fatalError)));
+      setLoading(false);
+    }
   };
-
-  const handleInputChange =
-    (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      clearError();
-      setter(e.target.value);
-    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
@@ -147,7 +155,10 @@ const Login = () => {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder={t("email")}
                 value={email}
-                onChange={handleInputChange(setEmail)}
+                onChange={(e) => {
+                  clearError();
+                  setEmail(e.target.value);
+                }}
                 disabled={loading}
               />
             </div>
@@ -165,7 +176,10 @@ const Login = () => {
                   className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10"
                   placeholder={t("password")}
                   value={password}
-                  onChange={handleInputChange(setPassword)}
+                  onChange={(e) => {
+                  clearError();
+                  setPassword(e.target.value);
+                }}
                   disabled={loading}
                 />
                 <button
