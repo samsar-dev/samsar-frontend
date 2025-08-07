@@ -446,11 +446,7 @@ export default defineConfig(({ mode, command }) => {
         target: "es2020",
         // Force production conditions
         conditions: isProduction ? ["production"] : ["development"],
-        define: {
-          "process.env.NODE_ENV": isProduction
-            ? '"production"'
-            : '"development"',
-        },
+
       },
     },
     
