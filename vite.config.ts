@@ -138,7 +138,7 @@ export default defineConfig(({ mode, command }) => {
         '@public': path.resolve(__dirname, "public"),
         'html-parse-stringify': path.resolve(__dirname, 'node_modules/html-parse-stringify/dist/html-parse-stringify.js'),
         // Fix for react-redux build error
-        'use-sync-external-store/with-selector': path.resolve(__dirname, 'node_modules/use-sync-external-store/esm/with-selector.js'),
+        'use-sync-external-store/with-selector': path.resolve(__dirname, 'node_modules/use-sync-external-store/with-selector.js'),
       },
       // Add dedupe to prevent duplicate React
       dedupe: ['react', 'react-dom'],
