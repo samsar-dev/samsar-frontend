@@ -11,10 +11,18 @@ const DEV_SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "ws://localhost:5000";
 
 // Production Endpoints (NO DEFAULTS - these MUST be set in the environment)
 const PROD_API_URL = import.meta.env.VITE_API_URL_PROD;
+
+// ==========================================================================
+// VERCEL DEBUGGING LOGS
+// ==========================================================================
+console.log("[Samsar Debug] VITE_API_URL_PROD:", import.meta.env.VITE_API_URL_PROD);
+console.log("[Samsar Debug] IS_PRODUCTION (import.meta.env.PROD):", import.meta.env.PROD);
+console.log("[Samsar Debug] PROD_API_URL (derived):", PROD_API_URL);
 const PROD_SOCKET_URL = import.meta.env.VITE_SOCKET_URL_PROD;
 
 // Final, active URLs to be used by the application
 export const ACTIVE_API_URL = IS_PRODUCTION ? PROD_API_URL : DEV_API_URL;
+console.log("[Samsar Debug] ACTIVE_API_URL (final):", ACTIVE_API_URL);
 export const ACTIVE_SOCKET_URL = IS_PRODUCTION
   ? PROD_SOCKET_URL
   : DEV_SOCKET_URL;
