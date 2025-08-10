@@ -3,9 +3,6 @@ import { FaCar } from "@react-icons/all-files/fa/FaCar";
 import { FaHome } from "@react-icons/all-files/fa/FaHome";
 import { FaBuilding } from "@react-icons/all-files/fa/FaBuilding";
 import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
-import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
-import { FaBus } from "@react-icons/all-files/fa/FaBus";
-import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
 import { FaTachometerAlt } from "@react-icons/all-files/fa/FaTachometerAlt"; // Mileage
 import { FaCalendarAlt } from "@react-icons/all-files/fa/FaCalendarAlt"; // Year
 import { FaGasPump } from "@react-icons/all-files/fa/FaGasPump"; // Fuel Type
@@ -50,9 +47,6 @@ const icons: { [key: string]: React.ComponentType<any> } = {
   FaHome,
   FaBuilding,
   FaMotorcycle,
-  FaTruck,
-  FaBus,
-  FaTractor,
   FaTachometerAlt, // Mileage
   FaCalendarAlt, // Year
   FaGasPump, // Fuel Type

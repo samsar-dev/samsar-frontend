@@ -4,15 +4,7 @@
   "subcategories": {
     "vehicle": {
       "CAR": "Cars",
-      "TRUCK": "Trucks",
-      "MOTORCYCLE": "Motorcycles",
-      "RV": "RVs",
-      "BUS": "Buses",
-      "VAN": "Vans",
-      "TRACTOR": "Tractors",
-      "CONSTRUCTION": "Construction Equipment",
-      "HOUSE": "Houses",
-      "OTHER": "Other Vehicles"
+      "MOTORCYCLE": "Motorcycles"
     },
     "realEstate": {
       "HOUSE": "Houses",
@@ -27,9 +19,7 @@
     "vehicles": [
       "Luxury Cars",
       "SUVs",
-      "Electric Vehicles",
-      "Trucks",
-      "Family Cars"
+      "Electric Vehicles"
     ],
     "realEstate": [
       "Apartments",

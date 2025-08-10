@@ -28,7 +28,7 @@ const PopularCategories = () => {
       title: t("home:categories.cars", "سيارات"),
       description: t("home:categories.cars_desc", "أحدث الموديلات والماركات"),
       imageName: "vehicles-cars-bmw.webp",
-      href: "/listings?category=vehicles&subCategory=CAR",
+      href: "/listings?category=vehicles&subCategory=CARS",
       alt: t("home:categories.cars", "سيارات"),
     },
     {
@@ -50,7 +50,7 @@ const PopularCategories = () => {
         "أحدث الموديلات بأسعار منافسة",
       ),
       imageName: "vehicles-motorcycle.webp",
-      href: "/listings?category=vehicles&subCategory=MOTORCYCLE",
+      href: "/listings?category=vehicles&subCategory=MOTORCYCLES",
       alt: t("home:categories.motorcycles", "دراجات نارية"),
     },
     {

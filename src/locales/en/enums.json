@@ -63,14 +63,7 @@
   },
   "vehicleType": {
     "CAR": "Car",
-    "TRUCK": "Truck",
-    "MOTORCYCLE": "Motorcycle",
-    "RV": "RV",
-    "BUS": "Bus",
-    "VAN": "Van",
-    "TRACTOR": "Tractor",
-    "CONSTRUCTION": "Construction Equipment",
-    "OTHER": "Other"
+    "MOTORCYCLE": "Motorcycle"
   },
   "propertyType": {
     "HOUSE": "House",

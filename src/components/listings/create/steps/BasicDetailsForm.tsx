@@ -88,7 +88,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       price: 0,
       category: {
         mainCategory: ListingCategory.VEHICLES,
-        subCategory: VehicleType.CAR, // Default to CAR
+        subCategory: VehicleType.CARS, // Default to CARS
       },
       condition: undefined as Condition | undefined,
       location: "",
@@ -96,7 +96,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       images: [] as File[],
       details: {
         vehicles: {
-          vehicleType: VehicleType.CAR, // Default to CAR
+          vehicleType: VehicleType.CARS, // Default to CARS
           make: "",
           model: "",
           year: "",
@@ -166,7 +166,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return [];
     }
 
-    const vehicleType = formData.category?.subCategory as VehicleType;
+    const vehicleType = formData.category?.mainCategory === ListingCategory.VEHICLES 
+      ? (formData.category?.subCategory as VehicleType) || VehicleType.CARS 
+      : VehicleType.CARS;
     const makes = getMakesForType(vehicleType);
 
     if (!makes || makes.length === 0) {
@@ -194,7 +196,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       return [];
     }
 
-    const vehicleType = formData.category.subCategory as VehicleType;
+    const vehicleType = formData.category.mainCategory === ListingCategory.VEHICLES 
+      ? (formData.category.subCategory as VehicleType) || VehicleType.CARS 
+      : VehicleType.CARS;
     const models = getModelsForMakeAndType(make, vehicleType);
 
     if (!models || models.length === 0) {
@@ -233,7 +237,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           ...prev.details?.vehicles,
           make: makeStr,
           model: "", // Reset model when make changes
-          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
+          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CARS,
         } as ExtendedVehicleDetails,
       },
     }));
@@ -266,7 +270,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         vehicles: {
           ...prev.details?.vehicles,
           model: modelStr,
-          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CAR,
+          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CARS,
         } as ExtendedVehicleDetails,
       },
     }));
@@ -669,7 +673,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           formData?.category?.mainCategory === ListingCategory.VEHICLES
             ? {
                 ...(formData.details?.vehicles || {}),
-                vehicleType: formData?.category?.subCategory as VehicleType,
+                vehicleType: formData.category?.mainCategory === ListingCategory.VEHICLES 
+                  ? (formData.category?.subCategory as VehicleType) || VehicleType.CARS 
+                  : VehicleType.CARS,
                 make: formData.details?.vehicles?.make || "",
                 model: formData.details?.vehicles?.model || "",
                 year: formData.details?.vehicles?.year || "",
@@ -1623,7 +1629,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                 onClick={() =>
                   handleCategoryChange(
                     ListingCategory.VEHICLES,
-                    VehicleType.CAR,
+                    VehicleType.CARS,
                   )
                 }
                 className={`px-4 py-2 text-sm font-medium rounded-l-md focus:outline-none focus:z-10 ${

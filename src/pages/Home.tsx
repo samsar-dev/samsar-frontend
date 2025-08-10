@@ -749,7 +749,7 @@ const Home: React.FC = () => {
                 name: t("categories.cars", "سيارات"),
                 url:
                   window.location.origin +
-                  "/listings?category=vehicles&subCategory=CAR",
+                  "/listings?category=vehicles&subCategory=CARS",
               },
               {
                 "@type": "CategoryCode",
@@ -763,7 +763,7 @@ const Home: React.FC = () => {
                 name: t("categories.motorcycles", "دراجات نارية"),
                 url:
                   window.location.origin +
-                  "/listings?category=vehicles&subCategory=MOTORCYCLE",
+                  "/listings?category=vehicles&subCategory=MOTORCYCLES",
               },
               {
                 "@type": "CategoryCode",

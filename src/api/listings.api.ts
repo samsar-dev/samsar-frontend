@@ -219,34 +219,35 @@ export const createListing = async (
           : [];
 
         // Handle specific vehicle type details
-        const vehicleTypeFields: Record<VehicleType, string[]> = {
-          [VehicleType.CAR]: [
+        type VehicleTypePlural = Exclude<VehicleType, 'CAR' | 'MOTORCYCLE'>;
+        const vehicleTypeFields: Record<VehicleTypePlural, string[]> = {
+          // Map both old and new enum values to the same field sets
+          [VehicleType.CARS]: [
             "fuelEfficiency",
             "emissionClass",
             "driveType",
             "wheelSize",
             "wheelType",
           ],
-          [VehicleType.MOTORCYCLE]: [
+      
+          [VehicleType.MOTORCYCLES]: [
             "engineDisplacement",
             "startingSystem",
             "coolingSystem",
           ],
-          [VehicleType.TRUCK]: ["loadCapacity", "axleConfiguration", "cabType"],
-          [VehicleType.VAN]: ["cargoCapacity", "cargoDimensions"],
-          [VehicleType.TRACTOR]: ["horsepower", "torque", "tractiveEffort"],
-          [VehicleType.RV]: ["sleepingCapacity", "freshWaterCapacity"],
-          [VehicleType.BUS]: ["seatingCapacity", "standingCapacity"],
-          [VehicleType.CONSTRUCTION]: [
-            "operatingWeight",
-            "maximumLiftCapacity",
-          ],
-          [VehicleType.OTHER]: [],
+          // Only CARS and MOTORCYCLES are supported vehicle types now
         };
 
         // Apply vehicle type specific fields
+        // Convert singular enum values to plural if needed
+        const vehicleType = details.vehicles.vehicleType;
+        const pluralVehicleType = 
+          vehicleType === 'CAR' ? 'CARS' :
+          vehicleType === 'MOTORCYCLE' ? 'MOTORCYCLES' :
+          vehicleType as VehicleType;
+          
         const typeFields =
-          vehicleTypeFields[details.vehicles.vehicleType as VehicleType] || [];
+          vehicleTypeFields[pluralVehicleType as keyof typeof vehicleTypeFields] || [];
         typeFields.forEach((field: string) => {
           details.vehicles[field] = details.vehicles[field] || "";
         });
@@ -1237,24 +1238,9 @@ export const listingsAPI: ListingsAPI = {
         // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
         vehicles: responseData.details.vehicles
           ? {
-              vehicleType: (() => {
-                switch (responseData.category.subCategory) {
-                  case VehicleType.CAR:
-                    return VehicleType.CAR;
-                  case VehicleType.MOTORCYCLE:
-                    return VehicleType.MOTORCYCLE;
-                  case VehicleType.TRUCK:
-                    return VehicleType.TRUCK;
-                  case VehicleType.VAN:
-                    return VehicleType.VAN;
-                  case VehicleType.BUS:
-                    return VehicleType.BUS;
-                  case VehicleType.TRACTOR:
-                    return VehicleType.TRACTOR;
-                  default:
-                    return VehicleType.CAR;
-                }
-              })(),
+              vehicleType: responseData.category.subCategory === VehicleType.MOTORCYCLES 
+                ? VehicleType.MOTORCYCLES 
+                : VehicleType.CARS,
               make: responseData.details.vehicles.make || "",
               model: responseData.details.vehicles.model || "",
               year: responseData.details.vehicles.year || "",
@@ -1606,28 +1592,19 @@ export const listingsAPI: ListingsAPI = {
       if (detailsStr && typeof detailsStr === "string") {
         const details = JSON.parse(detailsStr);
 
-        // If this is a tractor, ensure all required fields are present
-        if (details.vehicles?.vehicleType === VehicleType.TRACTOR) {
-          const tractorDetails = {
-            vin: details.vehicles.vin || "",
+        // Ensure all required vehicle fields are present
+        if (details.vehicles) {
+          const vehicleDetails = {
             ...details.vehicles,
+            vin: details.vehicles.vin || ""
           } as VehicleDetails;
 
-          // Ensure required tractor fields
-          tractorDetails.horsepower = parseInt(
-            tractorDetails.horsepower?.toString() || "",
-          );
-          tractorDetails.attachments = tractorDetails.attachments || [];
-          tractorDetails.fuelTankCapacity =
-            tractorDetails.fuelTankCapacity || "";
-          tractorDetails.tires = tractorDetails.tires || "";
-
-          // Update the formData with the validated tractor details
+          // Update the formData with the validated vehicle details
           formData.set(
             "details",
             JSON.stringify({
               ...details,
-              vehicles: tractorDetails,
+              vehicles: vehicleDetails,
             }),
           );
         }

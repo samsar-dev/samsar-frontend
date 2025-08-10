@@ -17,7 +17,6 @@ import { FaLightbulb } from "@react-icons/all-files/fa/FaLightbulb";
 import { FaCamera } from "@react-icons/all-files/fa/FaCamera";
 import { FaShieldAlt } from "@react-icons/all-files/fa/FaShieldAlt";
 import { FaWind } from "@react-icons/all-files/fa/FaWind";
-import { FaTractor } from "@react-icons/all-files/fa/FaTractor";
 
 import type {
   ListingCategory,
@@ -26,10 +25,7 @@ import type {
   ListingAction,
   ListingStatus,
 } from "@/types/enums";
-import {
-  ListingCategory as ListingCategoryValue,
-  VehicleType as VehicleTypeValue,
-} from "@/types/enums";
+import { ListingCategory as ListingCategoryValue } from "@/types/enums";
 import type { FormState } from "@/types/forms";
 import type { ListingFieldSchema } from "@/types/listings";
 
@@ -100,7 +96,6 @@ export function getIconComponent(iconName: string) {
     FaLightbulb,
     FaCamera,
     FaWind,
-    FaTractor,
   };
   return iconMap[iconName] || FaCog;
 }
@@ -303,14 +298,6 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
         const value = isVehicle
           ? (form.details?.vehicles?.[field.name] ?? "")
           : (form.details?.realEstate?.[field.name] ?? "");
-
-        // Skip validation for tractor-specific fields if not a tractor
-        if (
-          field.name === "horsepower" &&
-          form.category.subCategory !== VehicleTypeValue.TRACTOR
-        ) {
-          return;
-        }
 
         if (field.required && (!value || value === "" || value === null)) {
           // Use a field-specific required error message

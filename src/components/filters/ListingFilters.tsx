@@ -3,9 +3,6 @@ import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import type { FC } from "react";
 import { FaCar } from "@react-icons/all-files/fa/FaCar";
 import { FaMotorcycle } from "@react-icons/all-files/fa/FaMotorcycle";
-import { FaTruck } from "@react-icons/all-files/fa/FaTruck";
-import { FaCaravan } from "@react-icons/all-files/fa/FaCaravan";
-import { FaBus } from "@react-icons/all-files/fa/FaBus";
 import { MdSend } from "@react-icons/all-files/md/MdSend";
 import { useTranslation } from "react-i18next";
 
@@ -75,49 +72,14 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
   const vehicleTypes = useMemo(() => {
     return [
       {
-        id: VehicleType.CAR,
+        id: VehicleType.CARS,
         name: tEnums("vehicleType.CAR"),
         icon: <FaCar className="w-6 h-6" />,
       },
       {
-        id: VehicleType.MOTORCYCLE,
+        id: VehicleType.MOTORCYCLES,
         name: tEnums("vehicleType.MOTORCYCLE"),
         icon: <FaMotorcycle className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.TRUCK,
-        name: tEnums("vehicleType.TRUCK"),
-        icon: <FaTruck className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.VAN,
-        name: tEnums("vehicleType.VAN"),
-        icon: <FaTruck className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.RV,
-        name: tEnums("vehicleType.RV"),
-        icon: <FaCaravan className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.BUS,
-        name: tEnums("vehicleType.BUS"),
-        icon: <FaBus className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.CONSTRUCTION,
-        name: tEnums("vehicleType.CONSTRUCTION"),
-        icon: <FaTruck className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.TRACTOR,
-        name: tEnums("vehicleType.TRACTOR"),
-        icon: <FaTruck className="w-6 h-6" />,
-      },
-      {
-        id: VehicleType.OTHER,
-        name: tEnums("vehicleType.OTHER"),
-        icon: <FaTruck className="w-6 h-6" />,
       },
     ];
   }, []);

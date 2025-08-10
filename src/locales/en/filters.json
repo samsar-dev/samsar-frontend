@@ -58,12 +58,7 @@
   "categories": {
     "vehicle": {
       "CAR": "Car",
-      "TRUCK": "Truck",
-      "MOTORCYCLE": "Motorcycle",
-      "VAN": "Van",
-      "BUS": "Bus",
-      "TRACTOR": "Tractor",
-      "RV": "RV"
+      "MOTORCYCLE": "Motorcycle"
     }
   },
   "subcategories": {

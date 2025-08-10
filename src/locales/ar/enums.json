@@ -34,14 +34,7 @@
   },
   "vehicleType": {
     "CAR": "سيارة",
-    "TRUCK": "شاحنة",
-    "MOTORCYCLE": "دراجة نارية",
-    "RV": "مركبة ترفيهية",
-    "BUS": "حافلة",
-    "VAN": "فان",
-    "TRACTOR": "جرار",
-    "CONSTRUCTION": "معدات إنشائية",
-    "OTHER": "أخرى"
+    "MOTORCYCLE": "دراجة نارية"
   },
   "propertyType": {
     "HOUSE": "منزل",

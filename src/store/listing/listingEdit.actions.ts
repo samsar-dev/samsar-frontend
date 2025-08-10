@@ -138,7 +138,7 @@ export const updateListing =
         price: Number(responseData.price) || 0,
         category: responseData.category || {
           mainCategory: ListingCategory.VEHICLES,
-          subCategory: VehicleType.CAR,
+          subCategory: VehicleType.CARS,
         },
         location: responseData.location || "",
         latitude: responseData.latitude || 0,
@@ -198,7 +198,7 @@ export const updateListing =
           // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'details' object
           details.vehicles = {
             // Required fields with defaults
-            vehicleType: VehicleType.CAR,
+            vehicleType: VehicleType.CARS,
             transmissionType: "",
             serviceHistory: false,
             engineType: "",

@@ -30,11 +30,8 @@ export enum ListingCategory {
 }
 
 export enum VehicleType {
-  CAR = "CAR",
-  TRUCK = "TRUCK",
-  MOTORCYCLE = "MOTORCYCLE",
-  RV = "RV",
-  OTHER = "OTHER",
+  CARS = "CARS",
+  MOTORCYCLES = "MOTORCYCLES",
 }
 
 export enum PropertyType {

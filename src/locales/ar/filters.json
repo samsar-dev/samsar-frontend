@@ -58,12 +58,7 @@
   "categories": {
     "vehicle": {
       "CAR": "سيارة",
-      "TRUCK": "شاحنة",
-      "MOTORCYCLE": "دراجة نارية",
-      "VAN": "فان",
-      "BUS": "حافلة",
-      "TRACTOR": "جرار",
-      "RV": "سيارة منزلية"
+      "MOTORCYCLE": "دراجة نارية"
     }
   },
   "subcategories": {

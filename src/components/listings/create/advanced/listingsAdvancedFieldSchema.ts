@@ -7,20 +7,10 @@ type SchemaKey = VehicleType | PropertyType;
 
 // Schema loading functions to reduce bundle size
 const schemaLoaders = {
-  [VehicleType.CAR]: () =>
+  [VehicleType.CARS]: () =>
     import("./schemas/carSchema").then((m) => m.carSchema),
-  [VehicleType.MOTORCYCLE]: () =>
+  [VehicleType.MOTORCYCLES]: () =>
     import("./schemas/motorcycleSchema").then((m) => m.motorcycleSchema),
-  [VehicleType.TRUCK]: () =>
-    import("./schemas/truckSchema").then((m) => m.truckSchema),
-  [VehicleType.TRACTOR]: () =>
-    import("./schemas/tractorSchema").then((m) => m.tractorSchema),
-  [VehicleType.CONSTRUCTION]: () =>
-    import("./schemas/constructionSchema").then((m) => m.constructionSchema),
-  [VehicleType.VAN]: () =>
-    import("./schemas/vanSchema").then((m) => m.vanSchema),
-  [VehicleType.BUS]: () =>
-    import("./schemas/busSchema").then((m) => m.busSchema),
   [PropertyType.HOUSE]: () =>
     import("./schemas/houseSchema").then((m) => m.houseSchema),
   [PropertyType.APARTMENT]: () =>
@@ -146,12 +136,8 @@ export const loadSchema = async (
 
   // Add common fields based on type
   if (Object.values(VehicleType).includes(type as VehicleType)) {
-    if (type === VehicleType.CAR) return schema; // CAR schema already has all fields
-    if (
-      [VehicleType.MOTORCYCLE, VehicleType.VAN, VehicleType.BUS].includes(
-        type as VehicleType,
-      )
-    ) {
+    if (type === VehicleType.CARS) return schema; // CARS schema already has all fields
+    if (type === VehicleType.MOTORCYCLES) {
       return [...schema, colorField];
     }
     return schema;
@@ -176,23 +162,14 @@ export const listingsAdvancedFieldSchema: Record<
   SchemaKey,
   ListingFieldSchema[]
 > = {
-  // Vehicle types
-  [VehicleType.CAR]: [],
-  [VehicleType.MOTORCYCLE]: [],
-  [VehicleType.TRUCK]: [],
-  [VehicleType.TRACTOR]: [],
-  [VehicleType.CONSTRUCTION]: [],
-  [VehicleType.VAN]: [],
-  [VehicleType.BUS]: [],
-  [VehicleType.RV]: [],
-  [VehicleType.OTHER]: [],
-
-  // Property types
+  [VehicleType.CARS]: [],
+  [VehicleType.MOTORCYCLES]: [],
   [PropertyType.HOUSE]: [],
   [PropertyType.APARTMENT]: [],
   [PropertyType.LAND]: [],
   [PropertyType.CONDO]: [],
   [PropertyType.COMMERCIAL]: [],
+  [PropertyType.OTHER]: [],
 };
 
 // Dynamic field list loading functions
@@ -204,12 +181,7 @@ export const loadFieldList = async (
 
 // Legacy static field lists (deprecated - use loadFieldList instead)
 export const carAdvancedFieldList: ListingFieldSchema[] = [];
-export const busAdvancedFieldList: ListingFieldSchema[] = [];
 export const motorcycleAdvancedFieldList: ListingFieldSchema[] = [];
-export const truckAdvancedFieldList: ListingFieldSchema[] = [];
-export const vanAdvancedFieldList: ListingFieldSchema[] = [];
-export const tractorAdvancedFieldList: ListingFieldSchema[] = [];
-export const constructionAdvancedFieldList: ListingFieldSchema[] = [];
 export const houseAdvancedFieldList: ListingFieldSchema[] = [];
 export const apartmentAdvancedFieldList: ListingFieldSchema[] = [];
 export const landAdvancedFieldList: ListingFieldSchema[] = [];

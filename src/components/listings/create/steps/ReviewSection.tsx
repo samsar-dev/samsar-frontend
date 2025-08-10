@@ -18,7 +18,6 @@ const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
 import type {
   ListingFieldSchema,
   RealEstateDetails,
-  TractorDetails,
   VehicleDetails,
 } from "@/types/listings";
 import { AlertCircle, ChevronLeft, DollarSign, MapPin } from "lucide-react";
@@ -124,7 +123,9 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           newErrors.push(t("errors.conditionRequired"));
 
         // Additional required fields from schema
-        const subcategory = formData.category?.subCategory || VehicleType.CAR;
+        const subcategory = formData.category?.mainCategory === ListingCategory.VEHICLES 
+          ? (formData.category?.subCategory as VehicleType) || VehicleType.CARS 
+          : VehicleType.CARS;
         const vehicleSchema = listingsAdvancedFieldSchema[subcategory] || [];
         const requiredVehicleFields = vehicleSchema.filter(
           (field: ListingFieldSchema) => field.required,
@@ -137,13 +138,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           }
         });
 
-        // Special validation for tractors
-        if (subcategory === "TRACTOR") {
-          const tractorDetails = vehicleDetails as TractorDetails;
-          if (!tractorDetails?.horsepower) {
-            newErrors.push(t("errors.horsepowerRequired"));
-          }
-        }
+        // No special validation needed for cars and motorcycles
       } else if (
         formData.category?.mainCategory === ListingCategory.REAL_ESTATE
       ) {
@@ -198,7 +193,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           category: {
             mainCategory:
               formData.category?.mainCategory || ListingCategory.VEHICLES,
-            subCategory: formData.category?.subCategory || VehicleType.CAR,
+            subCategory: formData.category?.subCategory || VehicleType.CARS,
           },
           details: {
             vehicles:
@@ -284,11 +279,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       const vehicleDetails = formData.details?.vehicles;
       if (!vehicleDetails) return null;
 
-      // Check if this is a tractor
-      const isTractor = formData.category?.subCategory === VehicleType.TRACTOR;
-      const tractorDetails = isTractor
-        ? (vehicleDetails as TractorDetails)
-        : null;
+      // Check if this is a motorcycle
+      // Only cars and motorcycles are supported
 
       return (
         <div className="space-y-4">
@@ -366,48 +358,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                     : t("common.notProvided")}
                 </div>
               </div>
-              {isTractor && tractorDetails && (
-                <>
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      {t("listings.horsepower")}
-                    </div>
-                    <div className="font-medium">
-                      {tractorDetails.horsepower
-                        ? `${tractorDetails.horsepower} hp`
-                        : t("common.notProvided")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      {t("listings.attachments")}
-                    </div>
-                    <div className="font-medium">
-                      {tractorDetails.attachments?.length > 0
-                        ? tractorDetails.attachments.join(", ")
-                        : t("common.notProvided")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      {t("listings.fuelTankCapacity")}
-                    </div>
-                    <div className="font-medium">
-                      {tractorDetails.fuelTankCapacity
-                        ? `${tractorDetails.fuelTankCapacity} L`
-                        : t("common.notProvided")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      {t("listings.tires")}
-                    </div>
-                    <div className="font-medium">
-                      {tractorDetails.tires || t("common.notProvided")}
-                    </div>
-                  </div>
-                </>
-              )}
+              {/* Only cars and motorcycles are supported, no special fields for motorcycles */}
             </div>
           </div>
 

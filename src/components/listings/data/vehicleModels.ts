@@ -10,65 +10,30 @@ export type VehicleDataStructure = {
 };
 
 import { carModels } from "@/components/listings/data/subcategories/carModels";
-import { trucksModels } from "@/components/listings/data/subcategories/trucksModels";
+ 
 import { motorcycleModels } from "@/components/listings/data/subcategories/motorcyclesModels";
-import { busesModels } from "@/components/listings/data/subcategories/busesModels";
-import { vansModels } from "@/components/listings/data/subcategories/vansModels";
-import { tractorsModels } from "@/components/listings/data/subcategories/tractorsModels";
-import { constructionModels } from "@/components/listings/data/subcategories/constructionModels";
+ 
 
 // Define the vehicle models mapping with proper type checking
 const vehicleModelsByType: Record<VehicleType, VehicleDataStructure> = {
-  [VehicleType.CAR]: {
+  
+  [VehicleType.CARS]: {
     regular: {
       ...(carModels.regular || {}),
     },
     electric: carModels.electric || {},
   },
-  [VehicleType.TRUCK]: {
-    regular: {
-      ...(trucksModels.regular || {}),
-    },
-    electric: trucksModels.electric || {},
-  },
-  [VehicleType.MOTORCYCLE]: {
+  
+   
+ 
+  [VehicleType.MOTORCYCLES]: {
     regular: {
       ...(motorcycleModels.regular || {}),
     },
     electric: motorcycleModels.electric || {},
   },
-  [VehicleType.RV]: {
-    regular: {},
-    electric: {},
-  },
-  [VehicleType.BUS]: {
-    regular: {
-      ...(busesModels.regular || {}),
-    },
-    electric: busesModels.electric || {},
-  },
-  [VehicleType.VAN]: {
-    regular: {
-      ...(vansModels.regular || {}),
-    },
-    electric: vansModels.electric || {},
-  },
-  [VehicleType.TRACTOR]: {
-    regular: {
-      ...(tractorsModels.regular || {}),
-    },
-    electric: tractorsModels.electric || {},
-  },
-  [VehicleType.CONSTRUCTION]: {
-    regular: {
-      ...(constructionModels.regular || {}),
-    },
-    electric: constructionModels.electric || {},
-  },
-  [VehicleType.OTHER]: {
-    regular: {},
-    electric: {},
-  },
+ 
+  
 };
 
 // Improved getMakesForType with better error handling and type safety

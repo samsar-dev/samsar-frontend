@@ -57,7 +57,7 @@ const initialFormState: FormState = {
   price: 0,
   category: {
     mainCategory: ListingCategory.VEHICLES,
-    subCategory: VehicleType.CAR,
+    subCategory: VehicleType.CARS,
   },
   location: "",
   images: [],
@@ -65,7 +65,7 @@ const initialFormState: FormState = {
   details: {
     // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
     vehicles: {
-      vehicleType: VehicleType.CAR,
+      vehicleType: VehicleType.CARS,
       make: "",
       model: "",
       year: "",

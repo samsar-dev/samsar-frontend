@@ -313,14 +313,7 @@ const Navbar: React.FC = () => {
                     >
                       <option value="">All Types</option>
                       <option value="CAR">Car</option>
-                      <option value="TRUCK">Truck</option>
                       <option value="MOTORCYCLE">Motorcycle</option>
-                      <option value="RV">RV</option>
-                      <option value="BUS">Bus</option>
-                      <option value="VAN">Van</option>
-                      <option value="TRACTOR">Tractor</option>
-                      <option value="CONSTRUCTION">Construction</option>
-                      <option value="OTHER">Other</option>
                     </select>
                   </div>
                 )}

@@ -28,14 +28,14 @@ const initialFormState: FormState = {
   price: 0,
   category: {
     mainCategory: ListingCategory.VEHICLES,
-    subCategory: VehicleType.CAR,
+    subCategory: VehicleType.CARS,
   },
   location: "",
   images: [],
   details: {
     // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
     vehicles: {
-      vehicleType: VehicleType.CAR,
+      vehicleType: VehicleType.CARS,
       make: "",
       model: "",
       year: new Date().getFullYear().toString(),
@@ -255,7 +255,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         // Add category information
         const category = {
           mainCategory: data.category?.mainCategory || ListingCategory.VEHICLES,
-          subCategory: data.category?.subCategory || VehicleType.CAR,
+          subCategory: data.category?.subCategory || VehicleType.CARS,
         };
         formData.append("category", JSON.stringify(category));
 
@@ -266,7 +266,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
               ? {
                   ...data.details?.vehicles,
                   vehicleType:
-                    data.details?.vehicles?.vehicleType || VehicleType.CAR,
+                    data.details?.vehicles?.vehicleType || VehicleType.CARS,
                   make:
                     data.details?.vehicles?.make === "OTHER_MAKE" &&
                     data.details?.vehicles?.customMake

@@ -1,11 +1,6 @@
 import type { ListingFieldSchema, SelectOption } from "@/types/listings";
 import { carSchema } from "@/components/listings/create/advanced/schemas/carSchema";
 import { motorcycleSchema } from "@/components/listings/create/advanced/schemas/motorcycleSchema";
-import { truckSchema } from "@/components/listings/create/advanced/schemas/truckSchema";
-import { tractorSchema } from "@/components/listings/create/advanced/schemas/tractorSchema";
-import { constructionSchema } from "@/components/listings/create/advanced/schemas/constructionSchema";
-import { vanSchema } from "@/components/listings/create/advanced/schemas/vanSchema";
-import { busSchema } from "@/components/listings/create/advanced/schemas/busSchema";
 import { houseSchema } from "@/components/listings/create/advanced/schemas/houseSchema";
 import { apartmentSchema } from "@/components/listings/create/advanced/schemas/apartmentSchema";
 import { landSchema } from "@/components/listings/create/advanced/schemas/landSchema";
@@ -16,7 +11,6 @@ type ListingType =
   | VehicleType
   | PropertyType
   | "OTHER"
-  | "RV"
   | "CONDO"
   | "COMMERCIAL";
 
@@ -29,24 +23,16 @@ const emptySchema: ListingFieldSchema[] = [];
 
 const schemaMap: SchemaMap = {
   // Vehicle types
-  [VehicleType.CAR]: carSchema,
-  [VehicleType.MOTORCYCLE]: motorcycleSchema,
-  [VehicleType.TRUCK]: truckSchema,
-  [VehicleType.TRACTOR]: tractorSchema,
-  [VehicleType.CONSTRUCTION]: constructionSchema,
-  [VehicleType.VAN]: vanSchema,
-  [VehicleType.BUS]: busSchema,
+  [VehicleType.CARS]: carSchema,
+  [VehicleType.MOTORCYCLES]: motorcycleSchema,
 
   // Property types
   [PropertyType.HOUSE]: houseSchema,
   [PropertyType.APARTMENT]: apartmentSchema,
   [PropertyType.LAND]: landSchema,
-
-  // Additional types with empty schemas
-  RV: emptySchema,
-  OTHER: emptySchema,
-  CONDO: emptySchema,
-  COMMERCIAL: emptySchema,
+  [PropertyType.CONDO]: emptySchema,
+  [PropertyType.COMMERCIAL]: emptySchema,
+  [PropertyType.OTHER]: emptySchema,
 };
 
 export const getListingSchema = (
