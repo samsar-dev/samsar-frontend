@@ -8,7 +8,7 @@ import {
   TransmissionType,
   VehicleType,
 } from "@/types/enums";
-import type { FormState, VehicleFeatures } from "@/types/listings";
+import type { FormState } from "@/types/listings";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -264,9 +264,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
           vehicles:
             data.category?.mainCategory === ListingCategory.VEHICLES
               ? {
-                  ...data.details?.vehicles,
-                  vehicleType:
-                    data.details?.vehicles?.vehicleType || VehicleType.CARS,
+                  vehicleType: data.details?.vehicles?.vehicleType || VehicleType.CARS,
                   make:
                     data.details?.vehicles?.make === "OTHER_MAKE" &&
                     data.details?.vehicles?.customMake
@@ -288,9 +286,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
                   color: data.details?.vehicles?.color || "#000000",
                   condition:
                     data.details?.vehicles?.condition || Condition.GOOD,
-                  features: {
-                    ...(data.details?.vehicles?.features as VehicleFeatures),
-                  },
+                  features: data.details?.vehicles?.features || {},
                   interiorColor:
                     data.details?.vehicles?.interiorColor || "#000000",
                   warranty: data.details?.vehicles?.warranty?.toString() || "",
