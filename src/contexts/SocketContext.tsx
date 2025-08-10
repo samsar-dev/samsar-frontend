@@ -28,17 +28,7 @@ const SocketContext = createContext<SocketContextType>({
   reconnectAttempts: 0,
 });
 
-// Debug logging utility
-const debugLog = (message: string, data?: any) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[SocketContext ${timestamp}] ${message}`, data || "");
-};
 
-// Error logging utility
-const errorLog = (message: string, error?: any) => {
-  const timestamp = new Date().toISOString();
-  console.error(`[SocketContext ${timestamp}] ❌ ${message}`, error || "");
-};
 
 export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   children,
@@ -64,7 +54,6 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     if (reconnectTimerRef.current) {
       clearTimeout(reconnectTimerRef.current);
       reconnectTimerRef.current = null;
-      debugLog("🧹 Cleared reconnect timer");
     }
   }, []);
 
@@ -77,17 +66,14 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
 
   // Disconnect socket utility
   const disconnectSocket = useCallback(() => {
-    debugLog("🔌 Disconnecting socket...");
-
     if (socketRef.current) {
       // Avoid disconnecting during INITIAL connecting phase to prevent premature closure warnings
       if (socketRef.current.connected) {
         try {
           socketRef.current.removeAllListeners();
           socketRef.current.disconnect();
-          debugLog("✅ Socket disconnected successfully");
         } catch (error) {
-          errorLog("Failed to disconnect socket", error);
+          // Silent error handling
         }
       }
       socketRef.current = null;
@@ -107,25 +93,12 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
   const initializeSocket = useCallback(() => {
     // Prevent multiple simultaneous connections
     if (isConnectingRef.current || !mountedRef.current) {
-      debugLog("⚠️ Connection already in progress or component unmounted");
       return;
     }
 
-    // Check prerequisites
     if (!isAuthenticated || !user || !isInitialized) {
-      debugLog("⚠️ Cannot connect socket - missing prerequisites", {
-        isAuthenticated,
-        hasUser: !!user,
-        isInitialized,
-      });
       return;
     }
-
-    debugLog("🚀 Initializing socket connection", {
-      url: ACTIVE_SOCKET_URL,
-      userId: user.id,
-      userName: user.name,
-    });
 
     isConnectingRef.current = true;
 
@@ -135,25 +108,15 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     });
 
     try {
-      // Get session token from cookies for socket authentication (direct parsing)
       const sessionToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('session_token='))
-        ?.split('=')[1];
-      
-      // Debug all available cookies
-      debugLog("🍪 Available cookies", {
-        allCookies: document.cookie,
-        sessionToken: sessionToken ? `${sessionToken.substring(0, 20)}...` : null,
-        hasToken: !!sessionToken,
-        tokenLength: sessionToken?.length || 0
-      });
+        .split("; ")
+        .find((row) => row.startsWith("session_token="))
+        ?.split("=")[1];
 
       if (!sessionToken) {
-        debugLog("⚠️ No session token found - socket connection may fail");
+        return;
       }
 
-      // Create socket configuration with proper token handling
       const socketConfig: any = {
         ...SOCKET_CONFIG,
         withCredentials: true,
@@ -170,10 +133,9 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
           },
         },
         transports: ["websocket", "polling"],
-        forceNew: true, // Force new connection
+        forceNew: true,
       };
 
-      // Only add token-related config if we have a valid token
       if (sessionToken) {
         socketConfig.auth = {
           token: `Bearer ${sessionToken}`,
@@ -185,16 +147,9 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
         socketConfig.transportOptions.websocket.extraHeaders.Authorization = `Bearer ${sessionToken}`;
       }
 
-      // Create new socket connection with enhanced configuration
       const newSocket = socketIO(ACTIVE_SOCKET_URL, socketConfig);
 
-      // Enhanced event handlers with debugging
       newSocket.on("connect", () => {
-        debugLog("✅ Socket connected successfully", {
-          socketId: newSocket.id,
-          transport: newSocket.io.engine.transport.name,
-        });
-
         isConnectingRef.current = false;
 
         safeSetState(() => {
@@ -206,31 +161,24 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
       });
 
       newSocket.on("disconnect", (reason: string) => {
-        debugLog("🔌 Socket disconnected", { reason });
-
         safeSetState(() => {
           setConnected(false);
           setConnectionState("disconnected");
         });
 
-        // Handle different disconnect reasons
-        if (
-          reason === "io server disconnect" ||
-          reason === "io client disconnect"
-        ) {
-          debugLog("🔄 Manual disconnect - not attempting reconnection");
-        } else if (isAuthenticated && mountedRef.current) {
-          debugLog("🔄 Unexpected disconnect - socket will auto-reconnect");
-        }
+        if (reason === "io server disconnect" || reason === "io client disconnect") {}
+        else if (isAuthenticated && mountedRef.current) {}
       });
 
       newSocket.on("connect_error", (error: any) => {
-        errorLog("Socket connection error", {
-          message: error?.message,
-          description: error?.description,
-          context: error?.context,
-          type: error?.type,
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Socket connection error", {
+            message: error?.message,
+            description: error?.description,
+            context: error?.context,
+            type: error?.type,
+          });
+        }
 
         isConnectingRef.current = false;
 
@@ -244,44 +192,34 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
         });
       });
 
-      newSocket.on("reconnect", (attemptNumber: number) => {
-        debugLog("🔄 Socket reconnected", { attemptNumber });
-
+      newSocket.on("reconnect", () => {
         safeSetState(() => {
           setReconnectAttempts(0);
         });
       });
 
       newSocket.on("reconnect_attempt", (attemptNumber: number) => {
-        debugLog("🔄 Socket reconnection attempt", { attemptNumber });
-
         safeSetState(() => {
           setConnectionState("connecting");
           setReconnectAttempts(attemptNumber);
         });
       });
 
-      newSocket.on("reconnect_error", (error: any) => {
-        errorLog("Socket reconnection error", error);
-      });
+      newSocket.on("reconnect_error", () => {});
 
       newSocket.on("reconnect_failed", () => {
-        errorLog("Socket reconnection failed after all attempts");
-
         safeSetState(() => {
           setConnectionState("error");
           setConnectionError("Failed to reconnect after multiple attempts");
         });
       });
 
-      // Store socket reference
       socketRef.current = newSocket;
 
       safeSetState(() => {
         setSocket(newSocket);
       });
     } catch (error) {
-      errorLog("Failed to initialize socket", error);
       isConnectingRef.current = false;
 
       safeSetState(() => {
@@ -291,24 +229,17 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     }
   }, [isAuthenticated, user, isInitialized, safeSetState, clearReconnectTimer]);
 
-  // Main effect for socket lifecycle management
   useEffect(() => {
-    debugLog("🔄 Socket effect triggered", {
-      isAuthenticated,
-      hasUser: !!user,
-      isInitialized,
-      currentState: connectionState,
-    });
+
 
     if (isAuthenticated && user && isInitialized) {
-      // Only initialize if not already connected or connecting
       if (connectionState === "disconnected" || connectionState === "error") {
         initializeSocket();
       }
     } else {
       // Disconnect if user is not authenticated
       if (socketRef.current) {
-        debugLog("🔌 User not authenticated - disconnecting socket");
+
         disconnectSocket();
       }
     }
@@ -329,7 +260,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     mountedRef.current = true;
 
     return () => {
-      debugLog("🧹 SocketProvider unmounting");
+
       mountedRef.current = false;
 
       // Force cleanup only if socket is connected to avoid premature WebSocket closure warnings
@@ -338,7 +269,7 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
           socketRef.current.removeAllListeners();
           socketRef.current.disconnect();
         } catch (error) {
-          errorLog("Error during unmount cleanup", error);
+
         }
       }
 

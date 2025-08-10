@@ -68,7 +68,7 @@ class APIPerformanceMonitor {
       .filter(timestamp => timestamp >= windowStart).length;
 
     if (requestsInWindow >= SECURITY_CONFIG.MAX_REQUESTS_PER_WINDOW) {
-      console.warn(`🚫 Rate limit exceeded for ${endpoint}`);
+
       return false;
     }
 
@@ -94,7 +94,7 @@ const getDomainInfo = () => {
   );
 
   if (!isDomainAllowed && isProduction) {
-    console.warn('⚠️ Unexpected domain detected:', hostname);
+
   }
 
   return {
@@ -163,7 +163,7 @@ const updateAxiosInstance = (): AxiosInstance => {
   
   if (apiClient.defaults.baseURL !== effectiveBaseURL) {
     apiClient.defaults.baseURL = effectiveBaseURL;
-    console.log("API client configured for proxy:", effectiveBaseURL);
+
   }
   return apiClient;
 };
@@ -172,7 +172,7 @@ const updateAxiosInstance = (): AxiosInstance => {
 try {
   updateAxiosInstance();
 } catch (error) {
-  console.error("Failed to initialize API client:", error);
+
 }
 
 // 🛡️ Enhanced Response Interceptor with Security & Performance
@@ -193,7 +193,7 @@ apiClient.interceptors.response.use(
     };
 
     if (domainInfo.isProduction && !securityHeaders['x-content-type-options']) {
-      console.warn('⚠️ Missing security header: X-Content-Type-Options');
+
     }
 
     return response;
@@ -219,7 +219,7 @@ apiClient.interceptors.response.use(
     );
 
     if (hasSuspiciousContent) {
-      console.error('🚨 Suspicious content detected in request');
+
       return Promise.reject(new Error('Request blocked for security reasons'));
     }
 
@@ -252,9 +252,7 @@ apiClient.interceptors.response.use(
       const jitter = Math.random() * 1000; // Add randomness to prevent thundering herd
       const delay = Math.min(exponentialDelay + jitter, 10000); // Cap at 10s
 
-      console.log(
-        `🔄 Smart retry (${config._retryCount}/${SECURITY_CONFIG.MAX_RETRIES}) in ${Math.round(delay)}ms`,
-      );
+      // Silent retry - no console logging
 
       await new Promise(resolve => setTimeout(resolve, delay));
 
@@ -268,22 +266,9 @@ apiClient.interceptors.response.use(
       return apiClient.request(retryConfig);
     }
 
-    // 🚨 Enhanced Error Logging
-    const errorContext = {
-      url: config.url,
-      method: config.method?.toUpperCase(),
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      retryCount: config._retryCount,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-    };
-
-    console.error('🚨 API Request Failed:', errorContext);
-
     // 📊 Log performance metrics for debugging
     if (config._retryCount >= SECURITY_CONFIG.MAX_RETRIES) {
-      console.warn('📊 Performance Metrics:', APIPerformanceMonitor.getMetrics());
+
     }
 
     return Promise.reject(error);
@@ -338,22 +323,17 @@ apiClient.interceptors.request.use(
 
       // 📊 Debug logging in development
       if (!domainInfo.isProduction) {
-        console.log(`🚀 API Request [${requestId.slice(0, 8)}]:`, {
-          method: config.method?.toUpperCase(),
-          url: config.url,
-          hasData: !!config.data,
-          timestamp: new Date().toISOString(),
-        });
+
       }
 
       return requestConfig as InternalAxiosRequestConfig;
     } catch (error) {
-      console.error('🚨 Request interceptor error:', error);
+
       return Promise.reject(error);
     }
   },
   (error) => {
-    console.error("Request interceptor error:", error);
+
     return Promise.reject(error);
   },
 );

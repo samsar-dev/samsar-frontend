@@ -532,10 +532,7 @@ class AuthAPI {
         };
       }
 
-      // Only log non-401 errors to avoid console spam
-      if (axiosError.response?.status !== 401) {
-        console.error("AuthAPI.getMe error:", error);
-      }
+      // Don't log 401 errors to avoid console spam when users aren't logged in
 
       // For other errors, return the error details
       return {

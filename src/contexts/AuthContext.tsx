@@ -140,18 +140,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = useCallback(async () => {
     // Prevent multiple simultaneous auth checks
-    if (isCheckingAuth || hasCheckedAuth) {
-      console.log(
-        "⏭️ Skipping auth check - already checking or already checked",
-      );
+    if (isCheckingAuth) {
       return;
     }
 
+    // Always trust the backend - make the API call and let httpOnly cookies handle auth
+
     const startTime = Date.now();
-    let authSuccess = false;
 
     try {
-      console.log("🔍 Starting auth check...");
       setIsCheckingAuth(true);
       setState((prev) => ({ ...prev, isLoading: true }));
       
@@ -160,13 +157,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const response = await AuthAPI.getMe();
       const responseTime = Date.now() - startTime;
-      console.log("📡 Auth check response:", response, `(${responseTime}ms)`);
 
       if (response?.success && response?.data) {
         // User is authenticated
-        authSuccess = true;
         const userData = response.data as AuthUser;
-        console.log("✅ User authenticated:", userData.name);
         
         // Record successful auth check
         AuthPerformanceTracker.recordAuthCheck(true, responseTime);
@@ -180,10 +174,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isInitialized: true,
         });
       } else {
-        console.log("❌ User not authenticated - response:", response);
+
         
         // Record failed auth check
         AuthPerformanceTracker.recordAuthCheck(false, responseTime);
+        
+        // Auth failed - user not authenticated (this is normal when not logged in)
         
         setState({
           user: null,
@@ -196,10 +192,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      console.error("❌ Unexpected auth check error:", error, `(${responseTime}ms)`);
+
       
       // Record failed auth check
       AuthPerformanceTracker.recordAuthCheck(false, responseTime);
+      
+      // Auth check failed - this is normal when not logged in
       
       setState({
         user: null,
@@ -215,10 +213,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsCheckingAuth(false);
       setHasCheckedAuth(true);
-      
-      // Log final auth check result
-      const totalTime = Date.now() - startTime;
-      console.log(`📈 Auth check completed in ${totalTime}ms - Success: ${authSuccess}`);
     }
   }, [isCheckingAuth, hasCheckedAuth]);
 
@@ -473,26 +467,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isInitialized: !isInitializing,
   }), [state, login, register, logout, clearError, updateAuthUser, checkAuth, isInitializing]);
 
-  // Initialize auth state once on mount
+  // Initialize auth state once on mount - always check auth on app start
   useEffect(() => {
-    console.log("🔄 AuthContext useEffect triggered", {
-      hasCheckedAuth,
-      isInitializing,
-      isCheckingAuth,
-    });
     if (!hasCheckedAuth && !isCheckingAuth) {
-      console.log("🚀 Running initial auth check...");
       checkAuth().finally(() => {
+        setHasCheckedAuth(true);
         setIsInitializing(false);
       });
-    } else {
-      console.log("⏭️ Skipping auth check:", {
-        hasCheckedAuth,
-        isCheckingAuth,
-      });
-      setIsInitializing(false);
     }
-  }, [hasCheckedAuth, checkAuth, isCheckingAuth]);
+  }, [hasCheckedAuth, isCheckingAuth]);
 
   // 🔒 Security Monitoring Effects
   useEffect(() => {
