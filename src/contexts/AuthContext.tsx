@@ -253,6 +253,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log("Login UserData >>>>>>>>>>>>>>>>>>>>>", response.data);
 
+      // 🍪 Debug cookies in AuthContext after login response
+      console.log("🍪 AuthContext cookie check after login:", {
+        allCookies: document.cookie,
+        cookieCount: document.cookie.split(';').filter(c => c.trim()).length,
+        hasSessionToken: document.cookie.includes('session_token='),
+        hasRefreshToken: document.cookie.includes('refresh_token='),
+        timestamp: new Date().toISOString(),
+      });
+
       const { user, tokens } = response.data as {
         user: AuthState["user"];
         tokens: any;
@@ -277,6 +286,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
         retryAfter: null,
       }));
+
+      // 🍪 Debug cookies after state update
+      setTimeout(() => {
+        console.log("🍪 AuthContext cookie check after state update:", {
+          allCookies: document.cookie,
+          cookieCount: document.cookie.split(';').filter(c => c.trim()).length,
+          hasSessionToken: document.cookie.includes('session_token='),
+          hasRefreshToken: document.cookie.includes('refresh_token='),
+          timestamp: new Date().toISOString(),
+        });
+      }, 100);
+
       return true;
     } catch (error) {
       // Clear any existing session, but don't let it block error reporting

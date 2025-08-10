@@ -272,6 +272,29 @@ class AuthAPI {
         timestamp: new Date().toISOString(),
       });
 
+      // 🍪 Debug cookie setting process
+      console.log("🍪 Cookie debugging after login:", {
+        allCookies: document.cookie,
+        cookieCount: document.cookie.split(';').filter(c => c.trim()).length,
+        responseHeaders: response.headers,
+        setCookieHeader: response.headers['set-cookie'],
+        withCredentials: response.config?.withCredentials,
+        requestUrl: response.config?.url,
+        requestBaseURL: response.config?.baseURL,
+      });
+
+      // Check for session token specifically
+      const sessionToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('session_token='))
+        ?.split('=')[1];
+      
+      console.log("🔑 Session token check after login:", {
+        hasSessionToken: !!sessionToken,
+        tokenLength: sessionToken?.length || 0,
+        tokenPreview: sessionToken ? `${sessionToken.substring(0, 20)}...` : null,
+      });
+
       // 🍪 Server returns success with httpOnly cookies
       // Cookie presence cannot be verified from JavaScript (security feature)
       return response.data;
