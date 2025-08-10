@@ -30,18 +30,7 @@
   "vehicleType": "نوع المركبة",
   "vehicleTypes": {
     "car": "سيارة",
-    "truck": "شاحنة",
-    "bus": "حافلة",
-    "suv": "دفع رباعي",
-    "motorcycle": "دراجة نارية",
-    "atv": "مركبة لجميع التضاريس",
-    "rv": "عربة سكنية",
-    "boat": "قارب",
-    "trailer": "مقطورة",
-    "heavy_equipment": "معدات ثقيلة",
-    "construction_equipment": "معدات بناء",
-    "agricultural_equipment": "معدات زراعية",
-    "industrial_equipment": "معدات صناعية"
+    "motorcycle": "دراجة نارية"
   },
   "propertyType": "نوع العقار",
   "customMake": "شركة مُخصصة",

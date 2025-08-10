@@ -66,17 +66,7 @@
   },
   "vehicleTypes": {
     "CAR": "Car",
-    "TRUCK": "Truck",
     "MOTORCYCLE": "Motorcycle",
-    "RV": "RV",
-    "BUS": "Bus",
-    "VAN": "Van",
-    "TRACTOR": "Tractor",
-    "CONSTRUCTION": "Construction",
-    "OTHER": "Other",
-    "SUV": "SUV",
-    "ATV": "ATV",
-    "BOAT": "Boat",
     "TRAILER": "Trailer",
     "HEAVY_EQUIPMENT": "Heavy Equipment",
     "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
@@ -192,20 +182,7 @@
   "categories": {
     "vehicle": {
       "CAR": "Car",
-      "TRUCK": "Truck",
-      "MOTORCYCLE": "Motorcycle",
-      "VAN": "Van",
-      "BUS": "Bus",
-      "TRACTOR": "Tractor",
-      "RV": "RV",
-      "SUV": "SUV",
-      "ATV": "ATV",
-      "BOAT": "Boat",
-      "TRAILER": "Trailer",
-      "HEAVY_EQUIPMENT": "Heavy Equipment",
-      "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
-      "AGRICULTURAL_EQUIPMENT": "Agricultural Equipment",
-      "INDUSTRIAL_EQUIPMENT": "Industrial Equipment"
+      "MOTORCYCLE": "Motorcycle"
     }
   },
 
@@ -219,20 +196,7 @@
     },
     "vehicle": {
       "CAR": "Car",
-      "TRUCK": "Truck",
-      "MOTORCYCLE": "Motorcycle",
-      "VAN": "Van",
-      "BUS": "Bus",
-      "TRACTOR": "Tractor",
-      "RV": "RV",
-      "SUV": "SUV",
-      "ATV": "ATV",
-      "BOAT": "Boat",
-      "TRAILER": "Trailer",
-      "HEAVY_EQUIPMENT": "Heavy Equipment",
-      "CONSTRUCTION_EQUIPMENT": "Construction Equipment",
-      "AGRICULTURAL_EQUIPMENT": "Agricultural Equipment",
-      "INDUSTRIAL_EQUIPMENT": "Industrial Equipment"
+      "MOTORCYCLE": "Motorcycle"
     },
     "OTHER": "Other"
   },

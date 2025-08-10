@@ -31,18 +31,7 @@
   "vehicleType": "Vehicle Type",
   "vehicleTypes": {
     "car": "Car",
-    "truck": "Truck",
-    "bus": "Bus",
-    "suv": "SUV",
-    "motorcycle": "Motorcycle",
-    "atv": "ATV",
-    "rv": "RV",
-    "boat": "Boat",
-    "trailer": "Trailer",
-    "heavy_equipment": "Heavy Equipment",
-    "construction_equipment": "Construction Equipment",
-    "agricultural_equipment": "Agricultural Equipment",
-    "industrial_equipment": "Industrial Equipment"
+    "motorcycle": "Motorcycle"
   },
   "propertyType": "Property Type",
   "customMake": "Custom Make",
@@ -224,7 +213,6 @@
     "warranty": "Warranty",
     "navigationSystem": "Navigation System",
     "additionalNotes": "Additional Notes",
-    "busType": "Bus Type",
     "emissionStandard": "Emission Standard",
     "brakeSystem": "Brake System",
     "entertainmentFeatures": "Entertainment Features",

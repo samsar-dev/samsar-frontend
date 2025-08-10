@@ -135,19 +135,38 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     });
 
     try {
+      // Get session token from cookies for socket authentication
+      const sessionToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('session_token='))
+        ?.split('=')[1];
+
+      debugLog("🔑 Socket authentication token", {
+        hasToken: !!sessionToken,
+        tokenLength: sessionToken?.length || 0
+      });
+
       // Create new socket connection with enhanced configuration
       const newSocket = socketIO(ACTIVE_SOCKET_URL, {
         ...SOCKET_CONFIG,
         withCredentials: true,
+        auth: {
+          token: sessionToken ? `Bearer ${sessionToken}` : undefined,
+        },
+        query: {
+          token: sessionToken ? `Bearer ${sessionToken}` : undefined,
+        },
         transportOptions: {
           polling: {
             extraHeaders: {
               ...(document.cookie && { Cookie: document.cookie }),
+              ...(sessionToken && { Authorization: `Bearer ${sessionToken}` }),
             },
           },
           websocket: {
             extraHeaders: {
               ...(document.cookie && { Cookie: document.cookie }),
+              ...(sessionToken && { Authorization: `Bearer ${sessionToken}` }),
             },
           },
         },

@@ -615,9 +615,6 @@ export interface BusDetails extends BaseVehicleDetails {
   roofHeight: string;
   interiorLength: string;
 
-  // Bus specific required fields
-  busType: string;
-
   // Optional fields from BaseVehicleDetails
   driveType?: string;
   emissionClass?: string;

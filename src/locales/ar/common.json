@@ -82,17 +82,10 @@
   },
   "vehicleTypes": {
     "CAR": "سيارة",
-    "TRUCK": "شاحنة",
     "MOTORCYCLE": "دراجة نارية",
-    "RV": "سيارة سكنية",
-    "BUS": "حافلة",
-    "VAN": "فان",
-    "TRACTOR": "جرار",
-    "CONSTRUCTION": "معدات بناء",
     "OTHER": "أخرى",
     "SUV": "دفع رباعي",
     "ATV": "دراجة نارية رباعية",
-    "BOAT": "قارب",
     "TRAILER": "مقطورة",
     "HEAVY_EQUIPMENT": "معدات ثقيلة",
     "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
@@ -211,20 +204,7 @@
   "categories": {
     "vehicle": {
       "CAR": "سيارة",
-      "TRUCK": "شاحنة",
-      "MOTORCYCLE": "دراجة نارية",
-      "VAN": "فان",
-      "BUS": "حافلة",
-      "TRACTOR": "جرار",
-      "RV": "سيارة سكنية",
-      "SUV": "دفع رباعي",
-      "ATV": "دراجة نارية رباعية",
-      "BOAT": "قارب",
-      "TRAILER": "مقطورة",
-      "HEAVY_EQUIPMENT": "معدات ثقيلة",
-      "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
-      "AGRICULTURAL_EQUIPMENT": "معدات زراعية",
-      "INDUSTRIAL_EQUIPMENT": "معدات صناعية"
+      "MOTORCYCLE": "دراجة نارية"
     }
   },
   "subcategories": {
@@ -237,20 +217,7 @@
     },
     "vehicle": {
       "CAR": "سيارة",
-      "TRUCK": "شاحنة",
-      "MOTORCYCLE": "دراجة نارية",
-      "VAN": "فان",
-      "BUS": "حافلة",
-      "TRACTOR": "جرار",
-      "RV": "سيارة سكنية",
-      "SUV": "دفع رباعي",
-      "ATV": "دراجة نارية رباعية",
-      "BOAT": "قارب",
-      "TRAILER": "مقطورة",
-      "HEAVY_EQUIPMENT": "معدات ثقيلة",
-      "CONSTRUCTION_EQUIPMENT": "معدات إنشائية",
-      "AGRICULTURAL_EQUIPMENT": "معدات زراعية",
-      "INDUSTRIAL_EQUIPMENT": "معدات صناعية"
+      "MOTORCYCLE": "دراجة نارية"
     },
     "OTHER": "أخرى"
   },
