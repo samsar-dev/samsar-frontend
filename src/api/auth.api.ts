@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+import apiClient, { APIPerformanceMonitor, isRateLimited } from "./apiClient";
 import type {
   AuthResponse,
   AuthError,
@@ -7,14 +7,109 @@ import type {
 } from "../types/auth.types";
 
 import type { AxiosResponse } from "axios";
-import axios, { AxiosError } from "axios";
-import { ACTIVE_API_URL } from "@/config";
+import { AxiosError } from "axios";
 
-// Configure axios to include credentials
-axios.defaults.withCredentials = true;
+// 🔒 Security Configuration for Auth API
+const AUTH_SECURITY_CONFIG = {
+  RETRY_DELAY: 1000,
+  MAX_RETRIES: 3,
+  RATE_LIMIT_COOLDOWN: 30000, // 30 seconds
+  MAX_LOGIN_ATTEMPTS: 5,
+  LOCKOUT_DURATION: 300000, // 5 minutes
+  PASSWORD_MIN_LENGTH: 8,
+  SESSION_TIMEOUT: 3600000, // 1 hour
+} as const;
 
-const RETRY_DELAY = 1000; // 1 second
-const MAX_RETRIES = 3;
+// 📊 Performance & Security Tracking
+class AuthSecurityMonitor {
+  private static readonly CONFIG = {
+    MAX_LOGIN_ATTEMPTS: 3,
+    LOCKOUT_DURATION: 900000, // 15 minutes
+    SUSPICIOUS_ACTIVITY_THRESHOLD: 3,
+    RAPID_REQUEST_WINDOW: 30000, // 30 seconds
+  } as const;
+
+  private static loginAttempts = new Map<string, {
+    count: number;
+    lastAttempt: number;
+    lockedUntil?: number;
+  }>();
+
+  private static suspiciousActivity = new Map<string, {
+    rapidRequests: number;
+    lastRequest: number;
+  }>();
+
+  static recordLoginAttempt(identifier: string, success: boolean): boolean {
+    const now = Date.now();
+    const attempts = this.loginAttempts.get(identifier) || { count: 0, lastAttempt: 0 };
+
+    // Check if still locked out
+    if (attempts.lockedUntil && now < attempts.lockedUntil) {
+      const remainingTime = Math.ceil((attempts.lockedUntil - now) / 1000);
+      console.warn(`🔒 Account locked for ${remainingTime} more seconds`);
+      return false;
+    }
+
+    // Reset if lockout period has passed
+    if (attempts.lockedUntil && now >= attempts.lockedUntil) {
+      attempts.count = 0;
+      attempts.lockedUntil = undefined;
+    }
+
+    if (success) {
+      // Reset on successful login
+      attempts.count = 0;
+      attempts.lockedUntil = undefined;
+    } else {
+      // Increment failed attempts
+      attempts.count++;
+      attempts.lastAttempt = now;
+
+      // Lock account if too many attempts
+      if (attempts.count >= this.CONFIG.MAX_LOGIN_ATTEMPTS) {
+        attempts.lockedUntil = now + this.CONFIG.LOCKOUT_DURATION;
+        console.warn(`🚨 Account locked due to ${attempts.count} failed attempts`);
+      }
+    }
+
+    this.loginAttempts.set(identifier, attempts);
+    return true;
+  }
+
+  static detectSuspiciousActivity(endpoint: string): boolean {
+    const now = Date.now();
+    const activity = this.suspiciousActivity.get(endpoint) || { rapidRequests: 0, lastRequest: 0 };
+
+    // Check for rapid requests (more than 10 per minute)
+    if (now - activity.lastRequest < 6000) { // Less than 6 seconds apart
+      activity.rapidRequests++;
+      if (activity.rapidRequests > 10) {
+        console.warn(`🚨 Suspicious rapid requests detected for ${endpoint}`);
+        return true;
+      }
+    } else {
+      activity.rapidRequests = 0;
+    }
+
+    activity.lastRequest = now;
+    this.suspiciousActivity.set(endpoint, activity);
+    return false;
+  }
+
+  static getSecurityMetrics() {
+    return {
+      lockedAccounts: Array.from(this.loginAttempts.entries())
+        .filter(([, data]) => data.lockedUntil && Date.now() < data.lockedUntil)
+        .length,
+      totalAttempts: Array.from(this.loginAttempts.values())
+        .reduce((sum, data) => sum + data.count, 0),
+      suspiciousEndpoints: Array.from(this.suspiciousActivity.entries())
+        .filter(([, data]) => data.rapidRequests > 5)
+        .map(([endpoint]) => endpoint),
+    };
+  }
+}
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -33,8 +128,8 @@ class AuthAPI {
    */
   protected static async retryRequest<T>(
     requestFn: () => Promise<AxiosResponse<T>>,
-    retries = MAX_RETRIES,
-    delay = RETRY_DELAY,
+    retries = 3,
+    delay = 1000,
     skip429Retry = false,
     skip401Retry = false,
   ): Promise<AxiosResponse<T>> {
@@ -114,17 +209,43 @@ class AuthAPI {
   }
 
   /**
-   * Logs in a user with email and password
+   * 🔐 Secure login with enhanced security monitoring
    * @param email User's email
    * @param password User's password
    * @returns Authentication response
    */
   static async login(email: string, password: string): Promise<AuthResponse> {
+    const startTime = Date.now();
+    
     try {
+      // 🔒 Input validation
+      if (!email || !password) {
+        throw new Error('Email and password are required');
+      }
+      
+      if (password.length < AUTH_SECURITY_CONFIG.PASSWORD_MIN_LENGTH) {
+        throw new Error(`Password must be at least ${AUTH_SECURITY_CONFIG.PASSWORD_MIN_LENGTH} characters`);
+      }
+
+      // 🚫 Rate limiting check
+      if (isRateLimited('/auth/login')) {
+        throw new Error('Too many requests. Please try again later.');
+      }
+
+      // 🚨 Check for suspicious activity
+      if (AuthSecurityMonitor.detectSuspiciousActivity('/auth/login')) {
+        await wait(AUTH_SECURITY_CONFIG.RATE_LIMIT_COOLDOWN);
+      }
+
+      // 🔒 Check account lockout
+      if (!AuthSecurityMonitor.recordLoginAttempt(email, false)) {
+        throw new Error('Account temporarily locked due to too many failed attempts');
+      }
+
       const response = await apiClient.post<AuthResponse>(
         "/auth/login",
         {
-          email,
+          email: email.toLowerCase().trim(), // Normalize email
           password,
         },
         {
@@ -132,20 +253,27 @@ class AuthAPI {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            'X-Login-Attempt': Date.now().toString(),
           },
         },
       );
 
-      console.log("Login response:", {
+      // 📊 Record successful login performance
+      const duration = Date.now() - startTime;
+      APIPerformanceMonitor.recordRequest('/auth/login', duration, true);
+      
+      // 🎉 Record successful login attempt
+      AuthSecurityMonitor.recordLoginAttempt(email, true);
+      
+      console.log("✅ Login successful:", {
         status: response.status,
-        data: response.data,
-        headers: response.headers,
-        config: response.config,
+        duration: `${duration}ms`,
+        hasData: !!response.data,
+        timestamp: new Date().toISOString(),
       });
 
-      // Server returns success; no need to validate httpOnly cookie on the client.
-      // The presence of the cookie cannot be verified from JavaScript when it is httpOnly, so we trust the server response.
-
+      // 🍪 Server returns success with httpOnly cookies
+      // Cookie presence cannot be verified from JavaScript (security feature)
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -616,21 +744,18 @@ class UserAPI extends AuthAPI {
     token?: string,
   ): Promise<{ success: boolean; data?: AuthUser; error?: AuthError }> {
     try {
-      // Create a new axios instance for this request to avoid auth headers
-      const publicApiClient = axios.create({
-        baseURL: ACTIVE_API_URL,
-        timeout: 30000, // 30 seconds
+      // Use apiClient with custom headers for this request
+      const response = await apiClient.get<{
+        success: boolean;
+        data: AuthUser;
+      }>(`/users/public-profile/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
-
-      const response = await publicApiClient.get<{
-        success: boolean;
-        data: AuthUser;
-      }>(`/users/public-profile/${userId}`);
+      
       console.log("Public profile response:>>>>>>>>>>>>", response);
       if (typeof response.data === "object") return response.data;
 
