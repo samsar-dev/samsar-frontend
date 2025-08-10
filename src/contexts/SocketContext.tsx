@@ -135,44 +135,58 @@ export const SocketProvider: React.FC<React.PropsWithChildren> = ({
     });
 
     try {
-      // Get session token from cookies for socket authentication
+      // Get session token from cookies for socket authentication (direct parsing)
       const sessionToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('session_token='))
         ?.split('=')[1];
-
-      debugLog("🔑 Socket authentication token", {
+      
+      // Debug all available cookies
+      debugLog("🍪 Available cookies", {
+        allCookies: document.cookie,
+        sessionToken: sessionToken ? `${sessionToken.substring(0, 20)}...` : null,
         hasToken: !!sessionToken,
         tokenLength: sessionToken?.length || 0
       });
 
-      // Create new socket connection with enhanced configuration
-      const newSocket = socketIO(ACTIVE_SOCKET_URL, {
+      if (!sessionToken) {
+        debugLog("⚠️ No session token found - socket connection may fail");
+      }
+
+      // Create socket configuration with proper token handling
+      const socketConfig: any = {
         ...SOCKET_CONFIG,
         withCredentials: true,
-        auth: {
-          token: sessionToken ? `Bearer ${sessionToken}` : undefined,
-        },
-        query: {
-          token: sessionToken ? `Bearer ${sessionToken}` : undefined,
-        },
         transportOptions: {
           polling: {
             extraHeaders: {
               ...(document.cookie && { Cookie: document.cookie }),
-              ...(sessionToken && { Authorization: `Bearer ${sessionToken}` }),
             },
           },
           websocket: {
             extraHeaders: {
               ...(document.cookie && { Cookie: document.cookie }),
-              ...(sessionToken && { Authorization: `Bearer ${sessionToken}` }),
             },
           },
         },
         transports: ["websocket", "polling"],
         forceNew: true, // Force new connection
-      });
+      };
+
+      // Only add token-related config if we have a valid token
+      if (sessionToken) {
+        socketConfig.auth = {
+          token: `Bearer ${sessionToken}`,
+        };
+        socketConfig.query = {
+          token: `Bearer ${sessionToken}`,
+        };
+        socketConfig.transportOptions.polling.extraHeaders.Authorization = `Bearer ${sessionToken}`;
+        socketConfig.transportOptions.websocket.extraHeaders.Authorization = `Bearer ${sessionToken}`;
+      }
+
+      // Create new socket connection with enhanced configuration
+      const newSocket = socketIO(ACTIVE_SOCKET_URL, socketConfig);
 
       // Enhanced event handlers with debugging
       newSocket.on("connect", () => {
