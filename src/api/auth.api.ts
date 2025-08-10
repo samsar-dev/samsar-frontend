@@ -494,6 +494,92 @@ class UserAPI extends AuthAPI {
       };
     }
   }
+
+  /**
+   * Requests a verification code for email change
+   * @param newEmail New email address
+   * @returns Promise with success status
+   */
+  static async requestEmailChangeVerification(
+    newEmail: string,
+  ): Promise<{ success: boolean; message?: string; error?: AuthError }> {
+    try {
+      const response = await apiClient.post(
+        "/auth/send-email-change-verification",
+        {
+          newEmail,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      return {
+        success: true,
+        message: response.data.message || "Verification code sent to new email",
+      };
+    } catch (error) {
+      console.error("Error requesting email change verification:", error);
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: {
+          code:
+            (axiosError.response?.data as any)?.error?.code ||
+            ("EMAIL_CHANGE_REQUEST_FAILED" as AuthErrorCode),
+          message:
+            (axiosError.response?.data as any)?.error?.message ||
+            (error instanceof Error
+              ? error.message
+              : "Failed to send verification code"),
+        },
+      };
+    }
+  }
+
+  /**
+   * Changes email with verification code
+   * @param verificationCode Verification code sent to new email
+   * @returns Promise with success status and new email
+   */
+  static async changeEmailWithVerification(
+    verificationCode: string,
+  ): Promise<{ success: boolean; message?: string; newEmail?: string; error?: AuthError }> {
+    try {
+      const response = await apiClient.post(
+        "/auth/change-email-with-verification",
+        {
+          verificationCode,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      return {
+        success: true,
+        message: response.data.message || "Email changed successfully",
+        newEmail: response.data.newEmail,
+      };
+    } catch (error) {
+      console.error("Error changing email:", error);
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: {
+          code:
+            (axiosError.response?.data as any)?.error?.code ||
+            ("EMAIL_CHANGE_FAILED" as AuthErrorCode),
+          message:
+            (axiosError.response?.data as any)?.error?.message ||
+            (error instanceof Error
+              ? error.message
+              : "Failed to change email"),
+        },
+      };
+    }
+  }
+
   /**
    * Updates user profile
    */

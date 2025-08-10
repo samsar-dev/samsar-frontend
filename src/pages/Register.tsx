@@ -85,21 +85,53 @@ const Register: React.FC = () => {
     } catch (error: any) {
       console.error("Registration error:", error);
       // Handle specific error codes
-      if (error.response?.data?.error?.code === "USER_EXISTS") {
-        toast.error(
-          "An account with this email already exists. Please log in instead.",
-        );
-      } else if (error.response?.data?.error?.code === "VALIDATION_ERROR") {
-        toast.error(
-          error.response.data.error.message ||
-            "Please check your information and try again.",
-        );
-      } else if (error.response?.status === 429) {
-        toast.error("Too many attempts. Please try again later.");
-      } else {
-        toast.error(
-          error.message || "Registration failed. Please try again later.",
-        );
+      const errorCode = error.response?.data?.error?.code;
+      const errorMessage = error.response?.data?.error?.message;
+      const retryAfter = error.response?.data?.error?.retryAfter;
+      
+      switch (errorCode) {
+        case "USER_ALREADY_VERIFIED":
+          toast.error(t("auth.errors.userAlreadyVerified"));
+          // Redirect to login after showing error
+          setTimeout(() => navigate("/login"), 2000);
+          break;
+          
+        case "REGISTRATION_RATE_LIMITED":
+          if (retryAfter) {
+            toast.error(t("auth.errors.registrationRateLimited", { seconds: retryAfter }));
+          } else {
+            toast.error(errorMessage || t("auth.errors.registrationRateLimited", { seconds: "" }));
+          }
+          break;
+          
+        case "EMAIL_SEND_FAILED":
+          toast.error(t("auth.errors.emailSendFailed"));
+          break;
+          
+        case "DATABASE_ERROR":
+          toast.error(t("auth.errors.databaseError"));
+          break;
+          
+        case "USER_EXISTS":
+          toast.error(
+            "An account with this email already exists. Please log in instead.",
+          );
+          break;
+          
+        case "VALIDATION_ERROR":
+          toast.error(
+            errorMessage || "Please check your information and try again.",
+          );
+          break;
+          
+        default:
+          if (error.response?.status === 429) {
+            toast.error("Too many attempts. Please try again later.");
+          } else {
+            toast.error(
+              errorMessage || error.message || "Registration failed. Please try again later.",
+            );
+          }
       }
     } finally {
       setLoading(false);

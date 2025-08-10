@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { ACTIVE_API_URL } from "@/config";
@@ -10,6 +10,7 @@ import { FaEnvelope } from "@react-icons/all-files/fa/FaEnvelope";
 import { FaLock } from "@react-icons/all-files/fa/FaLock";
 
 const VerifyCode = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { email } = location.state || {};
@@ -61,10 +62,34 @@ const VerifyCode = () => {
           navigate("/login");
         }, 3000);
       } else {
-        setError(
-          data.error?.message ||
-            "Failed to verify email. Please check your code and try again.",
-        );
+        const errorCode = data.error?.code;
+        const errorMessage = data.error?.message;
+        
+        // Handle specific error codes
+        switch (errorCode) {
+          case "INVALID_CODE":
+            setError(t("auth.errors.invalidCode"));
+            toast.error(t("auth.errors.invalidCode"));
+            break;
+          case "CODE_EXPIRED":
+            setError(t("auth.errors.codeExpired"));
+            toast.error(t("auth.errors.codeExpired"));
+            break;
+          case "USER_NOT_FOUND":
+            setError(t("auth.errors.userNotFound"));
+            toast.error(t("auth.errors.userNotFound"));
+            setTimeout(() => navigate("/register"), 2000);
+            break;
+          case "ALREADY_VERIFIED":
+            setError(t("auth.errors.alreadyVerified"));
+            toast.success(t("auth.errors.alreadyVerified"));
+            setTimeout(() => navigate("/login"), 2000);
+            break;
+          default:
+            const defaultMessage = errorMessage || "Failed to verify email. Please check your code and try again.";
+            setError(defaultMessage);
+            toast.error(defaultMessage);
+        }
       }
     } catch (err) {
       console.error("Error verifying email:", err);
@@ -99,9 +124,33 @@ const VerifyCode = () => {
       if (response.ok && data.success) {
         toast.success("Verification code has been resent to your email");
       } else {
-        toast.error(
-          data.error?.message || "Failed to resend verification code",
-        );
+        const errorCode = data.error?.code;
+        const errorMessage = data.error?.message;
+        const retryAfter = data.error?.retryAfter;
+        
+        // Handle specific error codes
+        switch (errorCode) {
+          case "RESEND_RATE_LIMITED":
+            if (retryAfter) {
+              toast.error(t("auth.errors.resendRateLimited", { seconds: retryAfter }));
+            } else {
+              toast.error(t("auth.errors.resendRateLimited", { seconds: "" }));
+            }
+            break;
+          case "USER_NOT_FOUND":
+            toast.error(t("auth.errors.userNotFound"));
+            setTimeout(() => navigate("/register"), 2000);
+            break;
+          case "ALREADY_VERIFIED":
+            toast.success(t("auth.errors.alreadyVerified"));
+            setTimeout(() => navigate("/login"), 2000);
+            break;
+          case "EMAIL_SEND_FAILED":
+            toast.error(t("auth.errors.emailSendFailed"));
+            break;
+          default:
+            toast.error(errorMessage || "Failed to resend verification code");
+        }
       }
     } catch (err) {
       console.error("Error resending verification:", err);

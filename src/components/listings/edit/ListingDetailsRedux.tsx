@@ -84,15 +84,27 @@ const FieldValue = ({
 }): React.ReactNode => {
   const { t } = useTranslation("listings");
 
+  // Skip rendering entirely for empty/meaningless values
+  const hasMeaningfulValue = 
+    value !== undefined && 
+    value !== null && 
+    value !== "" &&
+    value !== "Not provided" &&
+    value !== "None" &&
+    value !== "-" &&
+    (typeof value !== "string" || value.trim() !== "") &&
+    String(value).toLowerCase() !== "no" &&
+    String(value).toLowerCase() !== "لا";
+
+  if (!hasMeaningfulValue) {
+    return null;
+  }
+
   // Helper function to render translated text
   const renderText = (
     text: string | number | boolean,
     options?: { capitalize?: boolean },
   ): React.ReactNode => {
-    if (text === undefined || text === null || text === "") {
-      return <span className="text-gray-400">-</span>;
-    }
-
     const strValue = safeString(text);
 
     // Try to translate the value
@@ -143,10 +155,44 @@ const FieldValue = ({
     typeof value === "number" ||
     typeof value === "boolean"
   ) {
-    // For boolean values, show Yes/No
-    if (typeof value === "boolean") {
-      return renderText(value ? "Yes" : "No");
+    // Handle Yes/No values - show checkmark for Yes, hide No completely
+    if (typeof value === "string") {
+      const lowerValue = value.toLowerCase().trim();
+      if (lowerValue === "yes") {
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-green-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        );
+      }
+      if (lowerValue === "no") {
+        return null; // Hide "No" values completely
+      }
     }
+    
+    // For boolean values, show checkmark for true, hide false
+    if (typeof value === "boolean") {
+      return value ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-green-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      ) : null;
+    }
+    
     return renderText(value);
   }
 
@@ -212,6 +258,24 @@ const FieldValue = ({
       // If no matching option found, try to display the raw value
       return renderText(value, { capitalize: true });
 
+    case "boolean":
+    case "checkbox":
+      if (value === true || (typeof value === 'string' && value.toLowerCase() === 'yes')) {
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-green-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        );
+      }
+      return null;
+
     case "number":
       return (
         <span>
@@ -271,6 +335,28 @@ const FieldValue = ({
       // For unknown types, try to handle common cases
       const strValue = safeString(value);
 
+      // Handle Yes/No values - show checkmark for Yes, hide No completely
+      if (typeof strValue === "string") {
+        const lowerValue = strValue.toLowerCase().trim();
+        if (lowerValue === "yes" || lowerValue === "نعم") {
+          return (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-green-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          );
+        }
+        if (lowerValue === "no" || lowerValue === "لا") {
+          return null; // Hide "No" values completely
+        }
+      }
+
       // If it looks like a translation key (contains dots), try to translate it
       if (typeof strValue === "string" && strValue.includes(".")) {
         const translated = renderTranslatedText(t, strValue, strValue);
@@ -313,6 +399,23 @@ const Field = ({
   children: React.ReactNode;
 }) => {
   const { t } = useTranslation("listings");
+  
+  // Skip rendering entirely if children is empty/meaningless
+  const hasMeaningfulContent = 
+    children !== null && 
+    children !== undefined && 
+    children !== "" &&
+    String(children).trim() !== "" &&
+    String(children) !== "-" &&
+    String(children).toLowerCase() !== "no" &&
+    String(children).toLowerCase() !== "لا" &&
+    String(children).toLowerCase() !== "none" &&
+    String(children).toLowerCase() !== "not provided";
+    
+  if (!hasMeaningfulContent) {
+    return null;
+  }
+  
   const displayLabel = label.startsWith("fields.") ? t(label) : label;
 
   return (
@@ -586,8 +689,17 @@ const ListingDetails = () => {
           value = features.length > 0 ? features : undefined;
         }
 
-        // Only add the field if it has a value or is required
-        if (value !== undefined && value !== null && value !== "") {
+        // Only add the field if it has a meaningful value
+        const hasMeaningfulValue = 
+          value !== undefined && 
+          value !== null && 
+          value !== "" && 
+          value !== "Not provided" && 
+          value !== "None" && 
+          value !== "-" &&
+          (typeof value !== "string" || value.trim() !== "");
+        
+        if (hasMeaningfulValue) {
           const processedField = {
             ...field,
             value,
@@ -618,11 +730,15 @@ const ListingDetails = () => {
         if (!fieldMap.has(fieldName)) {
           const value = getFieldValue(listing, fieldName);
 
-          // Skip empty values except for booleans (which can be false)
+          // Skip empty values, null values, empty strings, and "Not provided"
           const shouldInclude =
             value !== undefined &&
             value !== null &&
-            (value !== "" || typeof value === "boolean");
+            value !== "" &&
+            value !== "Not provided" &&
+            value !== "None" &&
+            value !== "-" &&
+            (typeof value !== "string" || value.trim() !== "");
 
           if (shouldInclude) {
             const field = {
@@ -955,50 +1071,31 @@ const ListingDetails = () => {
         </div>
       </div>
 
-      {/* Debug Info - Only show in development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-          <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">
-            Debug Info
-          </h3>
-          <div className="text-sm mb-2">
-            Listing Type: {listing.category?.mainCategory} /{" "}
-            {listing.category?.subCategory}
-          </div>
-          <pre className="text-xs overflow-auto p-2 bg-white dark:bg-gray-800 rounded mt-2">
-            {JSON.stringify(
-              {
-                essentialFields: essentialFields.map((f) => ({
-                  name: f.name,
-                  label: f.label,
-                  value: getFieldValue(listing, f.name),
-                })),
-                advancedFields: advancedFields.map((f) => ({
-                  name: f.name,
-                  label: f.label,
-                  value: getFieldValue(listing, f.name),
-                })),
-                listingKeys: Object.keys(listing),
-                detailsKeys: listing.details
-                  ? Object.keys(listing.details)
-                  : [],
-              },
-              null,
-              2,
-            )}
-          </pre>
-        </div>
-      )}
 
-      {/* Essential Details */}
+
+      {/* التفاصيل الأساسية */}
       {essentialFields.length > 0 && (
         <Section
-          title={t("essentialDetails", { ns: "listings" })}
+          title="التفاصيل الأساسية"
           className="mt-8"
         >
           {essentialFields.map((field) => {
             const value = getFieldValue(listing, field.name);
-            // Always render the field if it's in essentialFields (already filtered)
+            
+            // Skip rendering if value is empty or meaningless
+            const hasMeaningfulValue = 
+              value !== undefined && 
+              value !== null && 
+              value !== "" && 
+              value !== "Not provided" && 
+              value !== "None" && 
+              value !== "-" &&
+              (typeof value !== "string" || value.trim() !== "");
+            
+            if (!hasMeaningfulValue) {
+              return null;
+            }
+            
             return (
               <Field key={field.name} label={field.label}>
                 <FieldValue field={field} value={value} />
@@ -1008,15 +1105,29 @@ const ListingDetails = () => {
         </Section>
       )}
 
-      {/* Advanced Details */}
+      {/* التفاصيل المتقدمة */}
       {advancedFields.length > 0 && (
         <Section
-          title={t("technicalSpecs", { ns: "listings" })}
-          className="mt-6"
+          title="التفاصيل المتقدمة"
+          className="mt-8"
         >
           {advancedFields.map((field) => {
             const value = getFieldValue(listing, field.name);
-            // Always render the field if it's in advancedFields (already filtered)
+            
+            // Skip rendering if value is empty or meaningless
+            const hasMeaningfulValue = 
+              value !== undefined && 
+              value !== null && 
+              value !== "" && 
+              value !== "Not provided" && 
+              value !== "None" && 
+              value !== "-" &&
+              (typeof value !== "string" || value.trim() !== "");
+            
+            if (!hasMeaningfulValue) {
+              return null;
+            }
+            
             return (
               <Field key={field.name} label={field.label}>
                 <FieldValue field={field} value={value} />

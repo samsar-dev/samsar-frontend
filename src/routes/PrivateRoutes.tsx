@@ -55,6 +55,9 @@ const LazyMyListings = lazy(() => import("@/components/profile/MyListings"));
 const LazyChangePassword = lazy(
   () => import("@/components/profile/ChangePassword"),
 );
+const LazyChangeEmail = lazy(
+  () => import("@/components/profile/ChangeEmail"),
+);
 const LazyProfileInfo = lazy(() => import("@/components/profile/ProfileInfo"));
 const LazyUserProfile = withLayout(lazy(() => import("@/pages/UserProfile")));
 
@@ -129,6 +132,23 @@ export const privateRoutes: RouteObject[] = [
             }
           >
             <LazyChangePassword />
+          </Suspense>
+        ),
+      },
+      {
+        path: "email",
+        element: (
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <span className="ml-3 text-gray-500">
+                  Loading email form...
+                </span>
+              </div>
+            }
+          >
+            <LazyChangeEmail />
           </Suspense>
         ),
       },

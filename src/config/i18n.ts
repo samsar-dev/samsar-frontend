@@ -44,8 +44,8 @@ const i18nConfig: InitOptions = {
   ns: allNamespaces,
 
   // Performance optimizations
-  load: "languageOnly", // Only load language code (e.g., 'en' not 'en-US')
-  saveMissing: false, // Disable in production
+  load: "languageOnly",
+  saveMissing: false,
   detection: {
     order: ["localStorage", "navigator"],
     caches: ["localStorage"],
@@ -65,17 +65,16 @@ const i18nConfig: InitOptions = {
     ],
   },
 
-  // Optimize bundle size
-  partialBundledLanguages: true, // Allow partial loading of languages
+  // Bundle optimization
+  partialBundledLanguages: true,
   keySeparator: ".",
-  returnObjects: true, // Enable object access for nested translations
+  returnObjects: true,
   interpolation: {
-    escapeValue: false, // React already escapes values
+    escapeValue: false,
   },
   react: {
     useSuspense: true,
   },
-  debug: process.env.NODE_ENV === "development",
 };
 
 // Initialize i18next

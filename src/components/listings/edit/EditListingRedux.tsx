@@ -44,7 +44,7 @@ interface FieldOption {
 
 interface IFormData {
   [key: string]: any;
-  images?: File[];
+  images?: (File | string)[];
   details?: {
     [key: string]: any;
     vehicles?: { [key: string]: any };
@@ -111,38 +111,49 @@ const EditListingRedux = () => {
 
   const setFieldValue = useCallback(
     (name: string, value: any) => {
-      setFormDataAction((prev: IFormData) => {
-        const setNestedValue = (obj: any, path: string, val: any): any => {
-          const [current, ...rest] = path.split(".");
-          const arrayMatch = current.match(/(.*?)\[(\d+)\]/);
-          if (arrayMatch) {
-            const arrayPath = arrayMatch[1];
-            const index = parseInt(arrayMatch[2], 10);
-            const array = obj[arrayPath] || [];
-            if (rest.length === 0) {
-              const newArray = [...array];
-              newArray[index] = val;
-              return { ...obj, [arrayPath]: newArray };
-            } else {
-              const item = array[index] || {};
-              const updatedItem = setNestedValue(item, rest.join("."), val);
-              const newArray = [...array];
-              newArray[index] = updatedItem;
-              return { ...obj, [arrayPath]: newArray };
-            }
-          }
+      // Create a deep copy of the current form data
+      const updateNestedValue = (obj: any, path: string, val: any): any => {
+        const [current, ...rest] = path.split(".");
+        const arrayMatch = current.match(/(.*?)\[(\d+)\]/);
+        
+        // Handle array indices (e.g., 'features[0].name')
+        if (arrayMatch) {
+          const arrayPath = arrayMatch[1];
+          const index = parseInt(arrayMatch[2], 10);
+          const array = Array.isArray(obj[arrayPath]) ? [...obj[arrayPath]] : [];
+          
           if (rest.length === 0) {
-            return { ...obj, [current]: val };
+            // Direct array index assignment (e.g., 'features[0]')
+            const newArray = [...array];
+            newArray[index] = val;
+            return { ...obj, [arrayPath]: newArray };
+          } else {
+            // Nested property within array item (e.g., 'features[0].name')
+            const item = array[index] || {};
+            const updatedItem = updateNestedValue({...item}, rest.join("."), val);
+            const newArray = [...array];
+            newArray[index] = updatedItem;
+            return { ...obj, [arrayPath]: newArray };
           }
-          return {
-            ...obj,
-            [current]: setNestedValue(obj[current] || {}, rest.join("."), val),
-          };
+        }
+        
+        // Handle regular object properties
+        if (rest.length === 0) {
+          return { ...obj, [current]: val };
+        }
+        
+        // Handle nested properties
+        return {
+          ...obj,
+          [current]: updateNestedValue({ ...(obj[current] || {}) }, rest.join("."), val),
         };
-        return setNestedValue(prev, name, value);
-      });
+      };
+      
+      // Update the form data with the new value
+      const updatedFormData = updateNestedValue({ ...formData }, name, value);
+      setFormDataAction(updatedFormData);
     },
-    [setFormDataAction],
+    [formData, setFormDataAction],
   );
 
   const mapFieldType = useCallback((field: any): SupportedFieldType => {
@@ -213,25 +224,18 @@ const EditListingRedux = () => {
   );
 
   const processFieldValue = (field: any, value: any) => {
-    if (value === undefined || value === null) return value;
-    switch (field.type) {
-      case "number":
-      case "integer":
-      case "float":
-      case "decimal":
-        return Number(value);
-      case "boolean":
-      case "checkbox":
-      case "toggle":
-        return Boolean(value);
-      case "date":
-      case "datetime":
-        return value ? new Date(value).toISOString() : null;
-      case "multiselect":
-        return Array.isArray(value) ? value : [value].filter(Boolean);
-      default:
-        return value;
+    if (value === undefined || value === null || value === '') return value;
+
+    if (field.type === 'number' || field.type === 'price' || field.name === 'price' || field.type === 'integer' || field.type === 'float' || field.type === 'decimal') {
+      const num = Number(value);
+      return isNaN(num) ? value : num;
     }
+
+    if (field.type === 'boolean' || field.type === 'checkbox' || field.type === 'toggle') {
+      return Boolean(value);
+    }
+
+    return value;
   };
 
   const getAllNestedFields = useCallback(
@@ -338,30 +342,39 @@ const EditListingRedux = () => {
     });
   }, [sectionFields, formData, currentListing, getFieldValue, mapFieldType, listingType, activeTab, createFieldChangeHandler, getAllNestedFields]);
 
-  const prepareFormData = (data: any) => {
+  const prepareFormData = (data: IFormData): FormData => {
     const formData = new FormData();
-    const appendFormData = (key: string, value: any) => {
-      if (value === undefined || value === null) return;
-      if (Array.isArray(value)) {
-        value.forEach((item) => appendFormData(key, item));
-      } else if (value instanceof File) {
-        formData.append(key, value);
-      } else if (typeof value === "object") {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, String(value));
-      }
-    };
 
-    const processObject = (obj: any, prefix = "") => {
-      Object.entries(obj).forEach(([key, value]) => {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (value && typeof value === "object" && !Array.isArray(value) && !(value instanceof File)) {
-          processObject(value, fullKey);
-        } else {
-          appendFormData(fullKey, value);
+    const processObject = (obj: any, parentKey = "") => {
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          const propName = parentKey ? `${parentKey}[${key}]` : key;
+          const value = obj[key];
+
+          if (key === 'images' && Array.isArray(value)) {
+            value.forEach((item) => {
+              if (item instanceof File) {
+                formData.append('images', item);
+              } else if (typeof item === 'string') {
+                formData.append('existingImages[]', item);
+              }
+            });
+          } else if (value instanceof File) {
+            formData.append(propName, value);
+          } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            // For nested objects like 'details', we stringify them
+            if (key === 'details') {
+              formData.append('details', JSON.stringify(value));
+            } else {
+              processObject(value, propName);
+            }
+          } else if (Array.isArray(value)) {
+            formData.append(propName, JSON.stringify(value));
+          } else if (value !== null && value !== undefined) {
+            formData.append(propName, String(value));
+          }
         }
-      });
+      }
     };
 
     processObject(data);
@@ -404,25 +417,76 @@ const EditListingRedux = () => {
 
       try {
         dispatch(setLoading(true));
-        const processedData = { ...formData };
-        const allFields = getAllNestedFields(schemaFields);
-        allFields.forEach((field) => {
-          const fieldName = field.path || field.name;
-          const value = formData[fieldName];
-          if (value !== undefined) {
-            processedData[fieldName] = processFieldValue(field, value);
-          }
+
+        const submissionData: IFormData = { id: currentListing.id };
+        const detailsPath = listingType && Object.values(VehicleType).includes(listingType as VehicleType) ? 'vehicles' : 'realEstate';
+
+        // Initialize details object
+        submissionData.details = { [detailsPath]: {} };
+
+        // Basic fields that are not in the schema
+        const basicFields = ['title', 'description', 'price', 'location', 'listingAction'];
+        const detailsFields = getAllNestedFields(schemaFields);
+        const schemaFieldNames = new Set(detailsFields.map(f => f.name));
+        const allFields = [...detailsFields, ...basicFields.map(name => ({ name, type: name === 'price' ? 'price' : 'text' }))];
+
+        allFields.forEach(fieldObj => {
+            const fieldName = fieldObj.name;
+            const isDetailsField = schemaFieldNames.has(fieldName);
+
+            const originalValue = isDetailsField 
+                ? getFieldValue(currentListing.details?.[detailsPath], fieldName) 
+                : (currentListing as any)[fieldName];
+
+            const value = getFieldValue(formData, fieldName) ?? originalValue;
+
+            if (value !== undefined) {
+                const processedValue = processFieldValue(fieldObj, value);
+                if (isDetailsField) {
+                    submissionData.details[detailsPath][fieldName] = processedValue;
+                } else {
+                    submissionData[fieldName] = processedValue;
+                }
+            }
         });
 
-        const { images, ...otherData } = processedData;
-        const uploadedImages = await handleFileUploads(images || []);
-        const submissionData = { ...otherData, images: uploadedImages };
+
+
+        // Handle images
+        const images = getFieldValue(formData, 'images') ?? currentListing.images;
+        submissionData.images = await handleFileUploads(images || []);
+
+        console.log('Final Submission Data:', JSON.stringify(submissionData, null, 2));
+
         const formDataToSubmit = prepareFormData(submissionData);
 
         const result = await dispatch(updateListingAction(currentListing.id, formDataToSubmit));
+
         if (result?.success) {
-          toast.success("Listing updated successfully");
-          navigate(`/listings/${currentListing.id}`);
+          toast.custom((t) => (
+            <div className="bg-white p-4 rounded-lg shadow-lg flex items-center space-x-4 w-full max-w-md">
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">Listing updated successfully</p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    navigate(`/listings/${currentListing.id}`);
+                    toast.dismiss(t);
+                  }}
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-sm font-medium"
+                >
+                  View Listing
+                </button>
+                <button
+                  onClick={() => toast.dismiss(t)}
+                  className="px-3 py-1.5 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 text-sm font-medium"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          ));
         } else {
           throw new Error(result?.error || "Failed to update listing");
         }
@@ -433,7 +497,7 @@ const EditListingRedux = () => {
         dispatch(setLoading(false));
       }
     },
-    [currentListing, formData, dispatch, navigate, schemaFields, getAllNestedFields],
+    [currentListing, formData, dispatch, navigate, schemaFields, getAllNestedFields, getFieldValue],
   );
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -501,7 +565,7 @@ const EditListingRedux = () => {
       const commonProps = {
         id: field.name,
         name: field.name,
-        value: field.value ?? "",
+        value: field.value != null ? field.value : "", // Ensure value is always a scalar
         onChange: (
           e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
         ) => {
@@ -523,10 +587,14 @@ const EditListingRedux = () => {
 
         case "select":
           return (
-            <select {...commonProps} value={field.value || ""} className={`${commonProps.className} cursor-pointer`}>
+            <select 
+              {...commonProps} 
+              value={field.value != null ? String(field.value) : ""} // Ensure value is always a string
+              className={`${commonProps.className} cursor-pointer`}
+            >
               <option value="">Select {field.label}</option>
               {field.options?.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={String(option.value)}>
                   {option.label}
                 </option>
               ))}

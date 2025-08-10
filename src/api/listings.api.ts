@@ -1085,9 +1085,31 @@ export const listingsAPI: ListingsAPI = {
     });
 
     if (!response.ok) {
+      // Backend returns 400 if the viewer has already viewed this listing.
+      // Treat this as a non-fatal condition so the UI flow continues smoothly.
+      if (response.status === 400) {
+        try {
+          const data = await response.json();
+          return {
+            success: true,
+            data: {
+              message: data?.message || "You have already viewed this listing",
+              views: data?.view ?? 1,
+            },
+          } as APIResponse<ViewCountResponse>;
+        } catch {
+          return {
+            success: true,
+            data: {
+              message: "You have already viewed this listing",
+              views: 1,
+            },
+          } as APIResponse<ViewCountResponse>;
+        }
+      }
       const errorText = await response.text();
       console.error(
-        "Failed to update view listing:",
+        "Failed to increase view count:",
         response.status,
         errorText,
       );

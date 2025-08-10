@@ -41,13 +41,19 @@ export const Profile = () => {
     },
   ];
 
-  // Only show password tab for own profile
+  // Only show password and email tabs for own profile
   if (!isViewingOtherProfile) {
     tabs.push({
       id: "password",
       path: "/profile/password",
       label: t("change_password"),
       icon: "🔒",
+    });
+    tabs.push({
+      id: "email",
+      path: "/profile/email",
+      label: t("change_email"),
+      icon: "📧",
     });
   }
 
@@ -59,7 +65,8 @@ export const Profile = () => {
   const getActiveTab = () => {
     if (currentPath.includes("/mylistings")) return "mylistings";
     if (currentPath.includes("/listings")) return "mylistings"; // Fallback for old URLs
-    if (currentPath.includes("/change-password")) return "password";
+    if (currentPath.includes("/password")) return "password";
+    if (currentPath.includes("/email")) return "email";
     if (currentPath.includes("/saved")) return "saved";
     return "profile";
   };
