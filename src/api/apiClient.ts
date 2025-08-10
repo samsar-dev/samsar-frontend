@@ -6,13 +6,13 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
-import { ACTIVE_API_URL, IS_PRODUCTION } from "../config";
+// Note: Using relative URLs for proxy compatibility, no config imports needed
 
 // Storage key for persisting the active API URL (kept for backward compatibility)
 const API_URL_STORAGE_KEY = "active_api_url";
 
 // For backward compatibility only - will be removed in future
-const FALLBACK_API_URL = ACTIVE_API_URL;
+const FALLBACK_API_URL = "/api";
 
 // Define API response type
 export interface APIResponse<T = any> {
@@ -34,14 +34,7 @@ export interface RequestConfig extends AxiosRequestConfig {
   _isFallback?: boolean;
 }
 
-// Get the active base URL
-const getBaseUrl = (): string => {
-  // Use the configured active API URL
-  return ACTIVE_API_URL;
-};
-
-// Track the current base URL
-let currentBaseURL = ACTIVE_API_URL;
+// Note: Using fixed relative URLs for proxy compatibility
 
 // Configure retry settings
 const MAX_RETRIES = 3;
@@ -55,8 +48,8 @@ const defaultHeaders = {
 
 // Create axios instance with default config for cookie-based auth
 const apiClient: AxiosInstance = axios.create({
-  // Use relative URLs in development to leverage the proxy
-  baseURL: IS_PRODUCTION ? ACTIVE_API_URL : "/api",
+  // Always use relative URLs to leverage proxy in both dev and production
+  baseURL: "/api",
   timeout: 30000, // 30 seconds
   withCredentials: true,
   headers: {
@@ -66,13 +59,12 @@ const apiClient: AxiosInstance = axios.create({
 
 // Function to update axios instance with new base URL
 const updateAxiosInstance = (): AxiosInstance => {
-  const newBaseURL = getBaseUrl();
-  const effectiveBaseURL = IS_PRODUCTION ? newBaseURL : "/api";
-
-  if (newBaseURL !== currentBaseURL) {
-    currentBaseURL = newBaseURL;
+  // Always use relative URLs for proxy compatibility
+  const effectiveBaseURL = "/api";
+  
+  if (apiClient.defaults.baseURL !== effectiveBaseURL) {
     apiClient.defaults.baseURL = effectiveBaseURL;
-    console.log("Updated API base URL to:", effectiveBaseURL);
+    console.log("API client configured for proxy:", effectiveBaseURL);
   }
   return apiClient;
 };
@@ -135,12 +127,10 @@ apiClient.interceptors.response.use(
     }
 
     // If we've exhausted retries or got a CORS error, try the fallback URL if available
-    if (
-      FALLBACK_API_URL &&
-      (currentBaseURL === ACTIVE_API_URL || isCorsError)
-    ) {
+    // Note: Using relative URLs, no fallback switching needed
+    if (false) { // Disabled fallback logic
       console.warn(
-        `${isCorsError ? "CORS/Network" : "Primary API"} error, switching to fallback...`,
+        `${isCorsError ? "CORS/Network" : "Primary API"} error, but using proxy...`,
       );
 
       // Create a clean config without axios internals that might cause issues
@@ -178,22 +168,8 @@ apiClient.interceptors.request.use(
       // Cast to our extended config type
       const requestConfig = config as RequestConfig;
 
-      // Determine if we should use the fallback URL
-      const shouldUseFallback =
-        requestConfig._useFallback || currentBaseURL === FALLBACK_API_URL;
-
-      // Update the base URL if needed
-      if (shouldUseFallback && currentBaseURL !== FALLBACK_API_URL) {
-        currentBaseURL = FALLBACK_API_URL;
-        apiClient.defaults.baseURL = FALLBACK_API_URL;
-        localStorage.setItem(API_URL_STORAGE_KEY, FALLBACK_API_URL);
-        console.log("Switched to fallback API URL:", FALLBACK_API_URL);
-      } else if (!shouldUseFallback && currentBaseURL !== ACTIVE_API_URL) {
-        currentBaseURL = ACTIVE_API_URL;
-        apiClient.defaults.baseURL = ACTIVE_API_URL;
-        localStorage.setItem(API_URL_STORAGE_KEY, ACTIVE_API_URL);
-        console.log("Using primary API URL:", ACTIVE_API_URL);
-      }
+      // Using relative URLs - no URL switching needed
+      // All requests go through proxy
 
       // Configure credentials for protected endpoints
       requestConfig.withCredentials = true; // Always send credentials with cookies
