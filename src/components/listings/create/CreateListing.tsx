@@ -333,14 +333,32 @@ const CreateListing = () => {
 
   const handleFinalSubmit = useCallback(
     async (data: FormState) => {
+      console.log("=== DETAILED LISTING CREATION DEBUG ===");
+      console.log("1. Starting handleFinalSubmit with data:", data);
+      console.log("2. Form data structure:");
+      console.log("   - Title:", data.title);
+      console.log("   - Description:", data.description);
+      console.log("   - Price:", data.price);
+      console.log("   - Location:", data.location);
+      console.log("   - Action:", data.listingAction);
+      console.log("   - Category:", data.category);
+      console.log("   - Details:", data.details);
+      console.log("   - Images count:", data.images?.length || 0);
+
+      if (data.details?.vehicles) {
+        console.log("3. Vehicle details breakdown:");
+        console.log("   - vehicleType:", data.details.vehicles.vehicleType);
+        console.log("   - make:", data.details.vehicles.make);
+        console.log("   - model:", data.details.vehicles.model);
+        console.log("   - year:", data.details.vehicles.year);
+        console.log("   - Full vehicle object:", data.details.vehicles);
+      }
+
       try {
         setIsSubmitting(true);
 
         // Create FormData object
         const formData = new FormData();
-
-        // Log the data being submitted
-        console.log("Submitting form data:", data);
 
         // Add basic fields
         formData.append("title", data.title || "");
@@ -355,12 +373,16 @@ const CreateListing = () => {
         formData.append("mainCategory", data.category?.mainCategory || "");
         formData.append("subCategory", data.category?.subCategory || "");
 
+        console.log("4. Added basic fields to FormData");
+
         // Add details
         if (data.details) {
           // Ensure we have valid category data
           if (!data.category?.mainCategory || !data.category?.subCategory) {
             throw new Error("Category and subcategory are required");
           }
+
+          console.log("5. Processing details object:", data.details);
 
           // Process vehicle details to ensure serviceHistory is properly formatted
           const processedDetails: {
@@ -372,46 +394,52 @@ const CreateListing = () => {
           };
 
           if (data.details.vehicles) {
+            console.log("6. Processing vehicle details:", data.details.vehicles);
+            
             // Format serviceHistory as an object with a set property if it exists
             const vehicleDetails: any = { ...data.details.vehicles };
 
+            // Ensure vehicleType is always set for vehicle listings
+            if (!vehicleDetails.vehicleType) {
+              console.log("7. WARNING: vehicleType is missing, setting default to CARS");
+              vehicleDetails.vehicleType = VehicleType.CARS;
+            }
+
+            console.log("8. Final vehicle details with vehicleType:", vehicleDetails.vehicleType);
+
             // Handle serviceHistory - ensure it's formatted as expected by the backend
-            // The backend expects serviceHistory as an object with a set property
             if (vehicleDetails.serviceHistory !== undefined) {
-              // If it's an empty string or falsy value, set it to a valid default format
               if (!vehicleDetails.serviceHistory) {
                 vehicleDetails.serviceHistory = { set: [] };
-              }
-              // If it's a string value, convert it to the expected object format
-              else if (typeof vehicleDetails.serviceHistory === "string") {
+              } else if (typeof vehicleDetails.serviceHistory === "string") {
                 vehicleDetails.serviceHistory = {
                   set: [vehicleDetails.serviceHistory],
                 };
-              }
-              // If it's already an array, ensure it's in the correct format
-              else if (Array.isArray(vehicleDetails.serviceHistory)) {
+              } else if (Array.isArray(vehicleDetails.serviceHistory)) {
                 vehicleDetails.serviceHistory = {
                   set: vehicleDetails.serviceHistory,
                 };
               }
             } else {
-              // If serviceHistory is undefined, set a default empty value
               vehicleDetails.serviceHistory = { set: [] };
             }
 
             processedDetails.vehicles = vehicleDetails;
+            console.log("9. Processed vehicle details:", processedDetails.vehicles);
           }
 
           if (data.details.realEstate) {
+            console.log("10. Processing real estate details:", data.details.realEstate);
             processedDetails.realEstate = data.details.realEstate;
           }
 
-          formData.append("details", JSON.stringify(processedDetails));
+          const detailsJson = JSON.stringify(processedDetails);
+          console.log("11. Final processed details JSON:", detailsJson);
+          formData.append("details", detailsJson);
         }
 
         // Add images
         if (data.images && data.images.length > 0) {
-          // Filter to only include valid File objects
           const fileImages = data.images.filter(
             (image): image is File => image instanceof File,
           );
@@ -443,7 +471,18 @@ const CreateListing = () => {
         }
 
         // Submit the form
+        console.log("12. About to call submitListing with FormData");
+        console.log("13. FormData summary before API call:");
+        for (const [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`    ${key}: File - ${value.name} (${value.size} bytes)`);
+          } else {
+            console.log(`    ${key}: ${value}`);
+          }
+        }
+        
         const response = await submitListing(formData);
+        console.log("14. Response received from API:", response);
 
         // Clear form data from session storage after successful submission
         clearSavedFormData();
@@ -459,7 +498,7 @@ const CreateListing = () => {
 
         // Navigate to ListingSuccess with the listingId
         if (response && response.id) {
-          navigate("/listingsuccess", { state: { listingId: response.id } });
+          navigate("/listing-success", { state: { listingId: response.id } });
         } else {
           navigate("/listings");
         }

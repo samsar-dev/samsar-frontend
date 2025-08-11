@@ -332,6 +332,13 @@ export const useCreateListing = (): UseCreateListingReturn => {
             }
           });
         }
+        
+        // Debug logging to see what's being sent
+        console.log("=== DEBUG: useCreateListing Hook ===");
+        console.log("Details object:", details);
+        console.log("Vehicle details:", details.vehicles);
+        console.log("Vehicle type:", details.vehicles?.vehicleType);
+        console.log("=== END DEBUG ===");
 
         // Log the FormData entries for debugging
         console.log("FormData entries:");

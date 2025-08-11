@@ -36,7 +36,7 @@ export enum TransmissionType {
   AUTOMATIC = "automatic",
   MANUAL = "manual",
   SEMI_AUTOMATIC = "semiAutomatic",
-  CONTINUOUSLY_VARIABLE = "cvt",
+  CONTINUOUSLY_VARIABLE = "continuouslyVariable",
   DUAL_CLUTCH = "dualClutch",
   OTHER = "other",
 }

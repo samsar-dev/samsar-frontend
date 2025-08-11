@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samsar.app Syria Connectivity Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .test { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            backdrop-filter: blur(5px);
+        }
+        .success { 
+            background: rgba(40, 167, 69, 0.3); 
+            border: 1px solid rgba(40, 167, 69, 0.5);
+        }
+        .error { 
+            background: rgba(220, 53, 69, 0.3); 
+            border: 1px solid rgba(220, 53, 69, 0.5);
+        }
+        .info { 
+            background: rgba(23, 162, 184, 0.3); 
+            border: 1px solid rgba(23, 162, 184, 0.5);
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+        }
+        button { 
+            padding: 12px 25px; 
+            margin: 8px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        pre { 
+            background: rgba(0, 0, 0, 0.3); 
+            padding: 15px; 
+            border-radius: 6px; 
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .flag { font-size: 24px; margin-right: 10px; }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-green { background-color: #28a745; }
+        .status-red { background-color: #dc3545; }
+        .status-yellow { background-color: #ffc107; }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .syria-flag { 
+            background: linear-gradient(to bottom, #ff0000 33%, #ffffff 33%, #ffffff 66%, #000000 66%);
+            display: inline-block;
+            width: 30px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="syria-flag"></span>Samsar.app Syria Test <span class="syria-flag"></span></h1>
+        <p style="text-align: center; font-size: 18px; margin-bottom: 30px;">
+            🇸🇾 مرحباً! This tool tests if Samsar.app works from Syria
+        </p>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button onclick="runAllTests()" style="font-size: 18px; padding: 15px 30px;">
+                🚀 Start Complete Test
+            </button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div class="info test" style="margin-top: 30px;">
+            <h3>📋 Manual Test Instructions for Syrian Users:</h3>
+            <ol>
+                <li><strong>Visit Main Site:</strong> <a href="https://samsar.app" target="_blank" style="color: #fff;">https://samsar.app</a></li>
+                <li><strong>Test Backend:</strong> <a href="https://samsar-backend-production.up.railway.app/api/syria-test" target="_blank" style="color: #fff;">Backend Test</a></li>
+                <li><strong>Check Mobile:</strong> Test on both WiFi and mobile data</li>
+                <li><strong>Try Different Times:</strong> Test during peak and off-peak hours</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(title, content, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            
+            let statusIcon = '';
+            switch(type) {
+                case 'success': statusIcon = '<span class="status-indicator status-green"></span>'; break;
+                case 'error': statusIcon = '<span class="status-indicator status-red"></span>'; break;
+                case 'warning': statusIcon = '<span class="status-indicator status-yellow"></span>'; break;
+                default: statusIcon = '<span class="status-indicator status-yellow"></span>';
+            }
+            
+            div.innerHTML = `<h3>${statusIcon}${title}</h3><div>${content}</div>`;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+        }
+
+        async function testLocation() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                
+                const isFromSyria = data.country_code === 'SY';
+                const content = `
+                    <strong>Your Location:</strong> ${data.city}, ${data.country_name} (${data.country_code})<br>
+                    <strong>IP Address:</strong> ${data.ip}<br>
+                    <strong>ISP:</strong> ${data.org}<br>
+                    <strong>Syria Test:</strong> ${isFromSyria ? '🇸🇾 YES - Testing from Syria!' : '❌ Not from Syria'}<br>
+                    ${isFromSyria ? '<strong style="color: #28a745;">This test is running from Syria - results are accurate!</strong>' : '<strong style="color: #ffc107;">This test is not from Syria - results may not reflect Syrian access</strong>'}
+                `;
+                
+                addResult('📍 Location Detection', content, isFromSyria ? 'success' : 'warning');
+                return isFromSyria;
+            } catch (error) {
+                addResult('📍 Location Detection', `❌ Failed to detect location: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testFrontend() {
+            try {
+                const start = Date.now();
+                const response = await fetch('https://samsar.app', { 
+                    method: 'HEAD', 
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                const time = Date.now() - start;
+                
+                addResult('🌐 Frontend (Vercel)', `✅ Accessible (${time}ms)<br><strong>Status:</strong> Samsar.app frontend is working from your location!`, 'success');
+            } catch (error) {
+                addResult('🌐 Frontend (Vercel)', `❌ Failed: ${error.message}<br><strong>This suggests Vercel may be blocked in your area</strong>`, 'error');
+            }
+        }
+
+        async function testBackend() {
+            try {
+                const start = Date.now();
+                const response = await fetch('https://samsar-backend-production.up.railway.app/api/syria-test');
+                const time = Date.now() - start;
+                const data = await response.json();
+                
+                const content = `
+                    ✅ Backend accessible (${time}ms)<br>
+                    <strong>Server Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    ${data.isFromSyria ? '<strong style="color: #28a745;">🎉 Confirmed: Railway backend works from Syria!</strong>' : '<strong>Backend is accessible from your location</strong>'}
+                `;
+                
+                addResult('🚂 Backend (Railway)', content, 'success');
+            } catch (error) {
+                addResult('🚂 Backend (Railway)', `❌ Failed: ${error.message}<br><strong>This suggests Railway may be blocked in your area</strong>`, 'error');
+            }
+        }
+
+        async function testFullApp() {
+            try {
+                // Test if we can load the main app
+                const start = Date.now();
+                const response = await fetch('https://samsar.app/api/health', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const time = Date.now() - start;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('🔗 Full App Integration', `✅ Complete app works (${time}ms)<br><strong>Frontend + Backend integration successful!</strong>`, 'success');
+                } else {
+                    addResult('🔗 Full App Integration', `⚠️ Frontend works but backend connection failed<br><strong>Status:</strong> ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                addResult('🔗 Full App Integration', `❌ App integration failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDNS() {
+            try {
+                // Test DNS resolution speed
+                const start = Date.now();
+                await fetch('https://samsar.app', { method: 'HEAD', mode: 'no-cors' });
+                const time = Date.now() - start;
+                
+                addResult('🌐 DNS Resolution', `✅ DNS resolves quickly (${time}ms)<br><strong>No DNS blocking detected</strong>`, 'success');
+            } catch (error) {
+                addResult('🌐 DNS Resolution', `❌ DNS issues: ${error.message}<br><strong>Possible DNS blocking</strong>`, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addResult('🚀 Starting Tests', 'Running comprehensive Syria connectivity tests...', 'info');
+            
+            // Test location first
+            const isFromSyria = await testLocation();
+            
+            if (isFromSyria) {
+                addResult('🎯 Syria Test Mode', '🇸🇾 Running tests from Syria - results are accurate for Syrian users!', 'success');
+            } else {
+                addResult('🌍 Global Test Mode', '⚠️ Testing from outside Syria - results may not reflect Syrian access. Ask Syrian users to run this test.', 'warning');
+            }
+            
+            // Run all tests
+            await testDNS();
+            await testFrontend();
+            await testBackend();
+            await testFullApp();
+            
+            // Final summary
+            const successTests = document.querySelectorAll('.success').length;
+            const errorTests = document.querySelectorAll('.error').length;
+            
+            if (errorTests === 0) {
+                addResult('🎉 Test Complete', `✅ All tests passed! Samsar.app should work perfectly from ${isFromSyria ? 'Syria' : 'your location'}.`, 'success');
+            } else if (successTests > errorTests) {
+                addResult('⚠️ Test Complete', `${successTests} tests passed, ${errorTests} failed. App partially accessible.`, 'warning');
+            } else {
+                addResult('❌ Test Complete', `${errorTests} tests failed. App may be blocked in your area.`, 'error');
+            }
+        }
+
+        // Auto-run location test on page load
+        window.onload = () => {
+            testLocation();
+        };
+    </script>
+</body>
+</html>
