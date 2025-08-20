@@ -14,13 +14,7 @@ export const getAllCities = async (): Promise<City[]> => {
     return response.data || [];
   } catch (error) {
     console.error("Error fetching cities:", error);
-    // Fallback to local cities data if API fails
-    const { syrianCities } = await import("../utils/syrianCitiesEnglish");
-    return syrianCities.map((city) => ({
-      name: city.name,
-      latitude: city.latitude,
-      longitude: city.longitude,
-    }));
+    throw new Error("Failed to fetch cities from backend API");
   }
 };
 
@@ -41,44 +35,10 @@ export const getNearbyCities = async (
     return response.data?.cities || [];
   } catch (error) {
     console.error("Error finding nearby cities:", error);
-    // Fallback to local cities data if API fails
-    const { syrianCities } = await import("../utils/syrianCitiesEnglish");
-    return syrianCities
-      .map((city) => ({
-        ...city,
-        distance: calculateDistance(lat, lng, city.latitude, city.longitude),
-      }))
-      .filter((city) => city.distance <= radiusKm)
-      .sort((a, b) => a.distance - b.distance);
+    throw new Error("Failed to fetch nearby cities from backend API");
   }
 };
 
-/**
- * Calculate distance between two points using Haversine formula
- */
-const calculateDistance = (
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number => {
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-/**
- * Convert degrees to radians
- */
-const toRad = (value: number): number => (value * Math.PI) / 180;
 
 /**
  * Get city coordinates by name

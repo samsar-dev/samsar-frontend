@@ -7,7 +7,6 @@ import {
   FuelType,
   ListingAction,
   ListingCategory,
-  PropertyType,
   TransmissionType,
   VehicleType,
 } from "@/types/enums";
@@ -36,7 +35,7 @@ import { FaCarSide } from "@react-icons/all-files/fa/FaCarSide";
 import { FaCheckCircle } from "@react-icons/all-files/fa/FaCheckCircle";
 import { FaCog } from "@react-icons/all-files/fa/FaCog";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { FormState } from "../../../types/listings";
+import type { FormState } from "@/types/listings";
 import { handleAdvancedDetailsSubmit } from "./advanced/handleAdvancedDetailsSubmit";
 import { handleBasicDetailsSubmit } from "./basic/handleBasicDetailsSubmit";
 // Import types from the components where they're used directly
@@ -62,113 +61,84 @@ const initialFormState: FormState = {
   location: "",
   images: [],
   listingAction: ListingAction.SALE, // Default to SALE
+  locationMeta: undefined,
+  latitude: 0,
+  longitude: 0,
   details: {
-    // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
-    vehicles: {
-      vehicleType: VehicleType.CARS,
-      make: "",
-      model: "",
-      year: "",
-      mileage: "",
-      fuelType: FuelType.GASOLINE,
-      transmissionType: TransmissionType.AUTOMATIC,
-      color: "",
-      condition: Condition.NEW,
-      features: {},
-      interiorColor: "",
-      engine: "",
-      warranty: "",
-      serviceHistory: "",
-      previousOwners: 0,
-      registrationStatus: "",
-      accidentFree: false,
-      customsCleared: false,
-      fuelEfficiency: "",
-      emissionClass: "",
-      driveType: "",
-      wheelSize: "",
-      wheelType: "",
-      // Safety Features
-      blindSpotMonitor: false,
-      laneAssist: false,
-      adaptiveCruiseControl: false,
-      tractionControl: false,
-      abs: false,
-      emergencyBrakeAssist: false,
-      tirePressureMonitoring: false,
-      // Camera Features
-      rearCamera: false,
-      camera360: false,
-      dashCam: false,
-      nightVision: false,
-      parkingSensors: false,
-      // Climate Features
-      climateControl: false,
-      heatedSeats: false,
-      ventilatedSeats: false,
-      dualZoneClimate: false,
-      rearAC: false,
-      airQualitySensor: false,
-      // Entertainment Features
-      bluetooth: false,
-      appleCarPlay: false,
-      androidAuto: false,
-      premiumSound: false,
-      wirelessCharging: false,
-      usbPorts: false,
-      cdPlayer: false,
-      dvdPlayer: false,
-      rearSeatEntertainment: false,
-      // Lighting Features
-      ledHeadlights: false,
-      adaptiveHeadlights: false,
-      ambientLighting: false,
-      fogLights: false,
-      automaticHighBeams: false,
-      // Convenience Features
-      keylessEntry: false,
-      sunroof: false,
-      spareKey: false,
-      remoteStart: false,
-      powerTailgate: false,
-      autoDimmingMirrors: false,
-      rainSensingWipers: false,
-    },
-    // @ts-expect-error: The 'realEstate' property is not guaranteed to exist in the 'responseData.details' object
-    realEstate: {
-      propertyType: PropertyType.APARTMENT,
-      totalArea: 0,
-      bedrooms: 0,
-      bathrooms: 0,
-      yearBuilt: 0,
-      condition: Condition.NEW,
-      features: [],
-      floor: 0,
-      totalFloors: 0,
-      elevator: false,
-      balcony: false,
-      storage: false,
-      heating: "",
-      cooling: "",
-      buildingAmenities: [],
-      energyRating: "",
-      furnished: "", // Changed from boolean to string to match RealEstateDetails interface
-      view: "",
-      securityFeatures: [],
-      fireSafety: [],
-      flooringType: "",
-      internetIncluded: false,
-      windowType: "",
-      accessibilityFeatures: [],
-      renovationHistory: "",
-      parkingType: "",
-      utilities: [],
-      exposureDirection: [],
-      storageType: [],
-    },
+    vehicleType: VehicleType.CARS,
+    make: "",
+    model: "",
+    year: "",
+    mileage: "",
+    fuelType: FuelType.GASOLINE,
+    transmissionType: TransmissionType.AUTOMATIC,
+    color: "",
+    condition: Condition.NEW,
+    features: [],
+    interiorColor: "",
+    engine: "",
+    warranty: "",
+    serviceHistory: "",
+    previousOwners: 0,
+    registrationStatus: "",
+    accidentFree: false,
+    customsCleared: false,
+    fuelEfficiency: "",
+    emissionClass: "",
+    driveType: "",
+    wheelSize: "",
+    wheelType: "",
+    // Safety Features
+    blindSpotMonitor: false,
+    laneAssist: false,
+    adaptiveCruiseControl: false,
+    tractionControl: false,
+    abs: false,
+    emergencyBrakeAssist: false,
+    tirePressureMonitoring: false,
+    // Camera Features
+    rearCamera: false,
+    camera360: false,
+    dashCam: false,
+    nightVision: false,
+    parkingSensors: false,
+    // Climate Features
+    climateControl: false,
+    heatedSeats: false,
+    ventilatedSeats: false,
+    dualZoneClimate: false,
+    rearAC: false,
+    airQualitySensor: false,
+    // Entertainment Features
+    bluetooth: false,
+    appleCarPlay: false,
+    androidAuto: false,
+    premiumSound: false,
+    wirelessCharging: false,
+    usbPorts: false,
+    cdPlayer: false,
+    dvdPlayer: false,
+    rearSeatEntertainment: false,
+    // Lighting Features
+    ledHeadlights: false,
+    adaptiveHeadlights: false,
+    ambientLighting: false,
+    fogLights: false,
+    automaticHighBeams: false,
+    // Convenience Features
+    keylessEntry: false,
+    sunroof: false,
+    spareKey: false,
+    remoteStart: false,
+    powerTailgate: false,
+    autoDimmingMirrors: false,
+    rainSensingWipers: false,
+    // New required fields
+    doors: 4,
+    seats: 5,
   },
-  // Removed duplicate listingAction property
-};
+  features: [],
+}
 
 const CreateListing = () => {
   const { user } = useAuth();
@@ -345,13 +315,13 @@ const CreateListing = () => {
       console.log("   - Details:", data.details);
       console.log("   - Images count:", data.images?.length || 0);
 
-      if (data.details?.vehicles) {
+      if ((data.details as any)?.vehicleType) {
         console.log("3. Vehicle details breakdown:");
-        console.log("   - vehicleType:", data.details.vehicles.vehicleType);
-        console.log("   - make:", data.details.vehicles.make);
-        console.log("   - model:", data.details.vehicles.model);
-        console.log("   - year:", data.details.vehicles.year);
-        console.log("   - Full vehicle object:", data.details.vehicles);
+        console.log("   - vehicleType:", (data.details as any).vehicleType);
+        console.log("   - make:", (data.details as any).make);
+        console.log("   - model:", (data.details as any).model);
+        console.log("   - year:", (data.details as any).year);
+        console.log("   - Full vehicle object:", data.details);
       }
 
       try {
@@ -385,52 +355,34 @@ const CreateListing = () => {
           console.log("5. Processing details object:", data.details);
 
           // Process vehicle details to ensure serviceHistory is properly formatted
-          const processedDetails: {
-            vehicles: any | undefined;
-            realEstate: any | undefined;
-          } = {
-            vehicles: undefined,
-            realEstate: undefined,
-          };
+          // Use the new flat structure - details object contains vehicle/real estate fields directly
+          const processedDetails = { ...data.details } as any;
 
-          if (data.details.vehicles) {
-            console.log("6. Processing vehicle details:", data.details.vehicles);
-            
-            // Format serviceHistory as an object with a set property if it exists
-            const vehicleDetails: any = { ...data.details.vehicles };
+          console.log("6. Processing flat details structure:", processedDetails);
 
-            // Ensure vehicleType is always set for vehicle listings
-            if (!vehicleDetails.vehicleType) {
-              console.log("7. WARNING: vehicleType is missing, setting default to CARS");
-              vehicleDetails.vehicleType = VehicleType.CARS;
-            }
-
-            console.log("8. Final vehicle details with vehicleType:", vehicleDetails.vehicleType);
-
-            // Handle serviceHistory - ensure it's formatted as expected by the backend
-            if (vehicleDetails.serviceHistory !== undefined) {
-              if (!vehicleDetails.serviceHistory) {
-                vehicleDetails.serviceHistory = { set: [] };
-              } else if (typeof vehicleDetails.serviceHistory === "string") {
-                vehicleDetails.serviceHistory = {
-                  set: [vehicleDetails.serviceHistory],
-                };
-              } else if (Array.isArray(vehicleDetails.serviceHistory)) {
-                vehicleDetails.serviceHistory = {
-                  set: vehicleDetails.serviceHistory,
-                };
-              }
-            } else {
-              vehicleDetails.serviceHistory = { set: [] };
-            }
-
-            processedDetails.vehicles = vehicleDetails;
-            console.log("9. Processed vehicle details:", processedDetails.vehicles);
+          // Ensure vehicleType is always set for vehicle listings
+          if (data.category.mainCategory === ListingCategory.VEHICLES && !processedDetails.vehicleType) {
+            console.log("7. WARNING: vehicleType is missing, setting default to CARS");
+            processedDetails.vehicleType = VehicleType.CARS;
           }
 
-          if (data.details.realEstate) {
-            console.log("10. Processing real estate details:", data.details.realEstate);
-            processedDetails.realEstate = data.details.realEstate;
+          console.log("8. Final processed details:", processedDetails);
+
+          // Handle serviceHistory for vehicles - ensure it's formatted as expected by the backend
+          if (processedDetails.serviceHistory !== undefined) {
+            if (!processedDetails.serviceHistory) {
+              processedDetails.serviceHistory = { set: [] };
+            } else if (typeof processedDetails.serviceHistory === "string") {
+              processedDetails.serviceHistory = {
+                set: [processedDetails.serviceHistory],
+              };
+            } else if (Array.isArray(processedDetails.serviceHistory)) {
+              processedDetails.serviceHistory = {
+                set: processedDetails.serviceHistory,
+              };
+            }
+          } else if (data.category.mainCategory === ListingCategory.VEHICLES) {
+            processedDetails.serviceHistory = { set: [] };
           }
 
           const detailsJson = JSON.stringify(processedDetails);
@@ -543,7 +495,6 @@ const CreateListing = () => {
         return (
           <Suspense fallback={<div>Loading...</div>}>
             <MemoizedBasicDetailsForm
-              // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
               initialData={formData}
               onSubmit={(data, isValid) =>
                 // @ts-expect-error: The 'vehicles' property is not guaranteed to exist because it's optional

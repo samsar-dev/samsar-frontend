@@ -132,7 +132,6 @@
     "fieldRequired": "This field is required",
     "mileageInvalid": "Mileage must be a positive number",
     "transmissionRequired": "Transmission type is required",
-    "invalidVin": "Invalid VIN format. Must be 17 alphanumeric characters.",
     "invalidYear": "Please enter a valid year",
     "priceRequired": "Price is required",
     "pricePositive": "Price must be a positive number"
@@ -141,7 +140,7 @@
     "exteriorColor": "The color of the vehicle's exterior paint or finish.",
     "interiorColor": "The color of the vehicle's interior upholstery and trim.",
     "condition": "The overall state of the vehicle, indicating how well it has been maintained and its current working condition.",
-    "transmissionType": "The type of transmission system in the vehicle. Common types include Automatic, Manual, and CVT (Continuously Variable Transmission).",
+    "transmissionType": "The type of transmission system in the vehicle. Common types include Automatic, Manual.",
     "mileage": "The total distance the vehicle has traveled, typically measured in kilometers or miles.",
     "fuelType": "The type of fuel the vehicle uses. Common types include Petrol, Diesel, Electric, and Hybrid.",
     "previousOwners": "The number of previous owners the vehicle has had. A lower number generally indicates better maintenance history.",
@@ -471,10 +470,7 @@
 
     "transmissionTypes": {
       "automatic": "Automatic",
-      "manual": "Manual",
-      "semiAutomatic": "Semi-automatic",
-      "continuouslyVariable": "CVT",
-      "dualClutch": "Dual Clutch"
+      "manual": "Manual"
     },
     "conditionTypes": {
       "NEW": "New",

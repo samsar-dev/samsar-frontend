@@ -24,9 +24,6 @@
   "transmission": {
     "AUTOMATIC": "Automatic",
     "MANUAL": "Manual",
-    "SEMI_AUTOMATIC": "Semi-Automatic",
-    "CONTINUOUSLY_VARIABLE": "CVT",
-    "DUAL_CLUTCH": "Dual Clutch",
     "OTHER": "Other"
   },
   "fuelType": {

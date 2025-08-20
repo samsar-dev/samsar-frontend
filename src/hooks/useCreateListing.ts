@@ -31,38 +31,45 @@ const initialFormState: FormState = {
     subCategory: VehicleType.CARS,
   },
   location: "",
+  locationMeta: undefined,
+  latitude: undefined,
+  longitude: undefined,
   images: [],
   details: {
-    // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
-    vehicles: {
-      vehicleType: VehicleType.CARS,
-      make: "",
-      model: "",
-      year: new Date().getFullYear().toString(),
-      mileage: 0,
-      fuelType: "",
-      transmissionType: TransmissionType.AUTOMATIC,
-      color: "#000000",
-      condition: Condition.GOOD,
-      features: {},
-      interiorColor: "#000000",
-      engine: "",
-      horsepower: undefined,
-      torque: undefined,
-      warranty: "",
-      serviceHistory: "",
-      previousOwners: undefined,
-      registrationStatus: "",
-      engineNumber: "",
-      accidentFree: false,
-      importStatus: "",
-      registrationExpiry: "",
-      insuranceType: "",
-      upholsteryMaterial: "",
-      tireCondition: "",
-      customMake: "",
-      customModel: "",
-    },
+    // Flat structure for listing details
+    vehicleType: VehicleType.CARS,
+    make: "",
+    model: "",
+    year: new Date().getFullYear().toString(),
+    mileage: 0,
+    fuelType: "",
+    transmissionType: TransmissionType.AUTOMATIC,
+    color: "#000000",
+    condition: Condition.GOOD,
+    features: [],
+    interiorColor: "#000000",
+    engine: "",
+    horsepower: undefined,
+    torque: undefined,
+    warranty: "",
+    serviceHistory: "",
+    previousOwners: undefined,
+    registrationStatus: "",
+    engineNumber: "",
+    accidentFree: false,
+    importStatus: "",
+    registrationExpiry: "",
+    insuranceType: "",
+    upholsteryMaterial: "",
+    tireCondition: "",
+    customMake: "",
+    customModel: "",
+    // Real estate fields
+    propertyType: PropertyType.HOUSE,
+    area: 0,
+    yearBuilt: new Date().getFullYear(),
+    bedrooms: "",
+    bathrooms: "",
   },
   listingAction: ListingAction.SALE,
 };
@@ -127,62 +134,51 @@ export const useCreateListing = (): UseCreateListingReturn => {
     }
 
     // Category-specific validation with detailed logging
-    if (data.category?.mainCategory === ListingCategory.VEHICLES) {
-      const vehicles = data.details?.vehicles;
-      if (!vehicles) {
-        newErrors["details.vehicles"] = "Vehicle details are required";
-        missingFields.push("details.vehicles");
-      } else {
-        const vehicleFields = {
-          make: vehicles.make,
-          model: vehicles.model,
-          year: vehicles.year,
-          mileage: vehicles.mileage,
-          fuelType: vehicles.fuelType,
-          transmissionType: vehicles.transmissionType,
-          color: vehicles.color,
-          condition: vehicles.condition,
-          interiorColor: vehicles.interiorColor,
-          warranty: vehicles.warranty?.toString(),
-          serviceHistory: vehicles.serviceHistory?.toString(),
-          previousOwners: vehicles.previousOwners,
-          registrationStatus: vehicles.registrationStatus?.toString(),
-        };
-
-        // Log vehicle field values
-        console.log("Vehicle field values:", vehicleFields);
-
-        Object.entries(vehicleFields).forEach(([field, value]) => {
-          if (!value) {
-            newErrors[`details.vehicles.${field}`] = `${field} is required`;
-            missingFields.push(`details.vehicles.${field}`);
-          }
-        });
+    if (data.category?.mainCategory === ListingCategory.VEHICLES && data.details?.vehicleType) {
+      console.log("Vehicle details found:", data.details);
+      console.log("Vehicle type:", data.details.vehicleType);
+      if (!data.details?.make?.trim()) {
+        newErrors["details.make"] = "Make is required";
+        missingFields.push("details.make");
       }
-    } else if (data.category?.mainCategory === ListingCategory.REAL_ESTATE) {
-      const realEstate = data.details?.realEstate;
-      if (!realEstate) {
-        newErrors["details.realEstate"] = "Real estate details are required";
-        missingFields.push("details.realEstate");
-      } else {
-        const realEstateFields = {
-          propertyType: realEstate.propertyType,
-          size: realEstate.size,
-          yearBuilt: realEstate.yearBuilt,
-          bedrooms: realEstate.bedrooms,
-          bathrooms: realEstate.bathrooms,
-          condition: realEstate.condition,
-        };
+      if (!data.details?.model?.trim()) {
+        newErrors["details.model"] = "Model is required";
+        missingFields.push("details.model");
+      }
+      if (!data.details?.year?.toString().trim()) {
+        newErrors["details.year"] = "Year is required";
+        missingFields.push("details.year");
+      }
+      // Validate mileage only if it's been set to something other than empty string
+      // Allow empty string as "not yet provided" for advanced fields
+      const mileageValue = data.details?.mileage;
+      if (mileageValue !== undefined && mileageValue !== "" && !mileageValue?.toString().trim()) {
+        newErrors["details.mileage"] = "Mileage is required";
+        missingFields.push("details.mileage");
+      } else if (mileageValue === "" || mileageValue === undefined) {
+        // Allow empty/undefined for now - will be validated in advanced step
+        // This prevents validation errors when moving from basic to review
+      }
+      if (!data.details?.fuelType?.trim()) {
+        newErrors["details.fuelType"] = "Fuel type is required";
+        missingFields.push("details.fuelType");
+      }
+      if (!data.details?.transmissionType?.trim()) {
+        newErrors["details.transmissionType"] = "Transmission type is required";
+        missingFields.push("details.transmissionType");
+      }
+    }
 
-        // Log real estate field values
-        console.log("Real estate field values:", realEstateFields);
-
-        Object.entries(realEstateFields).forEach(([field, value]) => {
-          if (!value) {
-            newErrors[`details.realEstate.${field}`] = `${field} is required`;
-            missingFields.push(`details.realEstate.${field}`);
-          }
-        });
+    if (data.category?.mainCategory === ListingCategory.REAL_ESTATE && data.details?.propertyType) {
+      console.log("Real estate details found:", data.details);
+      console.log("Property type:", data.details.propertyType);
+      if (!data.details?.area?.toString().trim()) {
+        newErrors["details.area"] = "Area is required";
+        missingFields.push("details.area");
+      }
+      if (!data.details?.condition?.trim()) {
+        newErrors["details.condition"] = "Condition is required";
+        missingFields.push("details.condition");
       }
     }
 
@@ -259,67 +255,39 @@ export const useCreateListing = (): UseCreateListingReturn => {
         };
         formData.append("category", JSON.stringify(category));
 
-        // Add details based on category
+        // Add details using flat structure
         const details = {
-          vehicles:
-            data.category?.mainCategory === ListingCategory.VEHICLES
-              ? {
-                  vehicleType: data.details?.vehicles?.vehicleType || VehicleType.CARS,
-                  make:
-                    data.details?.vehicles?.make === "OTHER_MAKE" &&
-                    data.details?.vehicles?.customMake
-                      ? data.details?.vehicles?.customMake
-                      : data.details?.vehicles?.make || "",
-                  model:
-                    data.details?.vehicles?.model === "CUSTOM_MODEL" &&
-                    data.details?.vehicles?.customModel
-                      ? data.details?.vehicles?.customModel
-                      : data.details?.vehicles?.model || "",
-                  year:
-                    data.details?.vehicles?.year ||
-                    new Date().getFullYear().toString(),
-                  mileage: data.details?.vehicles?.mileage || "",
-                  fuelType: data.details?.vehicles?.fuelType || "",
-                  transmissionType:
-                    data.details?.vehicles?.transmissionType ||
-                    TransmissionType.AUTOMATIC,
-                  color: data.details?.vehicles?.color || "#000000",
-                  condition:
-                    data.details?.vehicles?.condition || Condition.GOOD,
-                  features: data.details?.vehicles?.features || {},
-                  interiorColor:
-                    data.details?.vehicles?.interiorColor || "#000000",
-                  warranty: data.details?.vehicles?.warranty?.toString() || "",
-                  serviceHistory: data.details?.vehicles?.serviceHistory || "",
-                  previousOwners:
-                    data.details?.vehicles?.previousOwners?.toString() || "",
-                  registrationStatus:
-                    data.details?.vehicles?.registrationStatus || "",
-                  engine: data.details?.vehicles?.engine || "",
-                  horsepower:
-                    data.details?.vehicles?.horsepower?.toString() || "",
-                  torque: data.details?.vehicles?.torque?.toString() || "",
-                }
-              : undefined,
-          realEstate:
-            data.category?.mainCategory === ListingCategory.REAL_ESTATE
-              ? {
-                  ...data.details?.realEstate,
-                  propertyType:
-                    data.details?.realEstate?.propertyType ||
-                    PropertyType.HOUSE,
-                  size: data.details?.realEstate?.size || "",
-                  yearBuilt: parseInt(
-                    data.details?.realEstate?.yearBuilt.toString() ||
-                      new Date().getFullYear().toString(),
-                  ),
-                  bedrooms: data.details?.realEstate?.bedrooms || "",
-                  bathrooms: data.details?.realEstate?.bathrooms || "",
-                  condition:
-                    data.details?.realEstate?.condition || Condition.GOOD,
-                  features: data.details?.realEstate?.features || [],
-                }
-              : undefined,
+          // Use flat structure - merge all details directly
+          ...(data.details || {}),
+          // Set category-specific defaults for vehicles
+          // Flat structure - all fields are directly on details object
+          vehicleType: data.details?.vehicleType || VehicleType.CARS,
+          make: data.details?.make === "OTHER_MAKE" && data.details?.customMake
+            ? data.details?.customMake
+            : data.details?.make || "",
+          model: data.details?.model === "CUSTOM_MODEL" && data.details?.customModel
+            ? data.details?.customModel
+            : data.details?.model || "",
+          year: data.details?.year || new Date().getFullYear().toString(),
+          mileage: data.details?.mileage || "",
+          fuelType: data.details?.fuelType || "",
+          transmissionType: data.details?.transmissionType || TransmissionType.AUTOMATIC,
+          color: data.details?.color || "#000000",
+          condition: data.details?.condition || Condition.GOOD,
+          features: data.details?.features || {},
+          interiorColor: data.details?.interiorColor || "#000000",
+          warranty: data.details?.warranty?.toString() || "",
+          serviceHistory: data.details?.serviceHistory || "",
+          previousOwners: data.details?.previousOwners?.toString() || "",
+          registrationStatus: data.details?.registrationStatus || "",
+          engine: data.details?.engine || "",
+          horsepower: data.details?.horsepower?.toString() || "",
+          torque: data.details?.torque?.toString() || "",
+          propertyType: data.details?.propertyType || PropertyType.HOUSE,
+          area: data.details?.area || "",
+          yearBuilt: parseInt(data.details?.yearBuilt?.toString() || new Date().getFullYear().toString()),
+          bedrooms: data.details?.bedrooms || "",
+          bathrooms: data.details?.bathrooms || "",
         };
         formData.append("details", JSON.stringify(details));
 
@@ -336,8 +304,7 @@ export const useCreateListing = (): UseCreateListingReturn => {
         // Debug logging to see what's being sent
         console.log("=== DEBUG: useCreateListing Hook ===");
         console.log("Details object:", details);
-        console.log("Vehicle details:", details.vehicles);
-        console.log("Vehicle type:", details.vehicles?.vehicleType);
+        console.log("Vehicle type:", details?.vehicleType);
         console.log("=== END DEBUG ===");
 
         // Log the FormData entries for debugging

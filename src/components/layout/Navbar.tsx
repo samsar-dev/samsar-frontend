@@ -156,7 +156,7 @@ const Navbar: React.FC = () => {
   // Memoize dropdown classes
   const dropdownClasses = useMemo(
     () => ({
-      base: `fixed mt-2 w-64 max-w-sm bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 transition-all duration-200 ${isRTL ? "left-0" : "right-0"} top-16`,
+      base: `absolute mt-2 w-56 sm:w-64 max-w-sm bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-50 transition-all duration-200 ${isRTL ? "left-0 sm:left-0" : "right-0 sm:right-0"} top-full`,
       active: "transform opacity-100 scale-100",
       inactive: "transform opacity-0 scale-95 pointer-events-none",
     }),
@@ -269,81 +269,85 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Center section - Search */}
-          <div className="flex-1 max-w-2xl mx-4 hidden md:flex items-center">
+          <div className="flex-1 max-w-2xl mx-2 sm:mx-4 hidden lg:flex items-center">
             <div className="w-full">
-              <div className="flex gap-2 items-center w-full">
-                {/* Category Dropdown */}
-                <div className="relative">
-                  <label htmlFor="category-select" className="sr-only">
-                    {t("selectCategory")}
-                  </label>
-                  <select
-                    id="category-select"
-                    className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={selectedCategory}
-                    onChange={(e) => {
-                      setSelectedCategory(e.target.value);
-                      setSelectedSubcategory("");
-                    }}
-                    aria-label={t("selectCategory")}
-                  >
-                    <option value="all">{t("all")}</option>
-                    <option value="vehicles">{t("navigation.vehicles")}</option>
-                    <option value="realEstate">
-                      {t("navigation.real_estate")}
-                    </option>
-                  </select>
+              <div className="flex flex-col lg:flex-row gap-2 items-stretch lg:items-center w-full">
+                {/* Category and Subcategory Row */}
+                <div className="flex gap-2 flex-shrink-0">
+                  {/* Category Dropdown */}
+                  <div className="relative min-w-0">
+                    <label htmlFor="category-select" className="sr-only">
+                      {t("selectCategory")}
+                    </label>
+                    <select
+                      id="category-select"
+                      className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-2 sm:px-3 text-xs sm:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full min-w-[80px]"
+                      value={selectedCategory}
+                      onChange={(e) => {
+                        setSelectedCategory(e.target.value);
+                        setSelectedSubcategory("");
+                      }}
+                      aria-label={t("selectCategory")}
+                    >
+                      <option value="all">{t("all")}</option>
+                      <option value="vehicles">{t("navigation.vehicles")}</option>
+                      <option value="realEstate">
+                        {t("navigation.real_estate")}
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* Subcategory Dropdown (conditional) */}
+                  {selectedCategory === "vehicles" && (
+                    <div className="relative min-w-0">
+                      <label
+                        htmlFor="vehicles-subcategory-select"
+                        className="sr-only"
+                      >
+                        {t("selectVehicleType")}
+                      </label>
+                      <select
+                        id="vehicles-subcategory-select"
+                        className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-2 sm:px-3 text-xs sm:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full min-w-[100px]"
+                        value={selectedSubcategory}
+                        onChange={(e) => setSelectedSubcategory(e.target.value)}
+                        aria-label={t("selectVehicleType")}
+                      >
+                        <option value="">All Types</option>
+                        <option value="CAR">Car</option>
+                        <option value="MOTORCYCLE">Motorcycle</option>
+                      </select>
+                    </div>
+                  )}
+                  {selectedCategory === "realEstate" && (
+                    <div className="relative min-w-0">
+                      <label
+                        htmlFor="realestate-subcategory-select"
+                        className="sr-only"
+                      >
+                        {t("selectPropertyType")}
+                      </label>
+                      <select
+                        id="realestate-subcategory-select"
+                        className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-2 sm:px-3 text-xs sm:text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full min-w-[100px]"
+                        value={selectedSubcategory}
+                        onChange={(e) => setSelectedSubcategory(e.target.value)}
+                        aria-label={t("selectPropertyType")}
+                      >
+                        <option value="">All Types</option>
+                        <option value="HOUSE">House</option>
+                        <option value="APARTMENT">Apartment</option>
+                        <option value="CONDO">Condo</option>
+                        <option value="LAND">Land</option>
+                        <option value="COMMERCIAL">Commercial</option>
+                        <option value="OTHER">Other</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
 
-                {/* Subcategory Dropdown (conditional) */}
-                {selectedCategory === "vehicles" && (
-                  <div className="relative">
-                    <label
-                      htmlFor="vehicles-subcategory-select"
-                      className="sr-only"
-                    >
-                      {t("selectVehicleType")}
-                    </label>
-                    <select
-                      id="vehicles-subcategory-select"
-                      className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      value={selectedSubcategory}
-                      onChange={(e) => setSelectedSubcategory(e.target.value)}
-                      aria-label={t("selectVehicleType")}
-                    >
-                      <option value="">All Types</option>
-                      <option value="CAR">Car</option>
-                      <option value="MOTORCYCLE">Motorcycle</option>
-                    </select>
-                  </div>
-                )}
-                {selectedCategory === "realEstate" && (
-                  <div className="relative">
-                    <label
-                      htmlFor="realestate-subcategory-select"
-                      className="sr-only"
-                    >
-                      {t("selectPropertyType")}
-                    </label>
-                    <select
-                      id="realestate-subcategory-select"
-                      className="rounded-lg border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      value={selectedSubcategory}
-                      onChange={(e) => setSelectedSubcategory(e.target.value)}
-                      aria-label={t("selectPropertyType")}
-                    >
-                      <option value="">All Types</option>
-                      <option value="HOUSE">House</option>
-                      <option value="APARTMENT">Apartment</option>
-                      <option value="CONDO">Condo</option>
-                      <option value="LAND">Land</option>
-                      <option value="COMMERCIAL">Commercial</option>
-                      <option value="OTHER">Other</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="flex-1">
+                {/* Search Bar */}
+                <div className="flex-1 min-w-0">
                   <SearchBar
                     onSearch={handleSearch}
                     placeholder={t("search")}
@@ -357,7 +361,7 @@ const Navbar: React.FC = () => {
 
           {/* Right section */}
           <div
-            className={`flex items-center ${isRTL ? "flex-row-reverse" : "flex-row"} space-x-4 sm:space-x-4`}
+            className={`flex items-center ${isRTL ? "flex-row-reverse" : "flex-row"} space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0`}
           >
             {isLoading ? (
               <div className="flex items-center justify-center w-8 h-8">
@@ -369,15 +373,17 @@ const Navbar: React.FC = () => {
                   <Tooltip content="Listings" position="bottom">
                     <button
                       onClick={(e) => toggleListingsMenu(e)}
-                      className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                      className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors p-1 sm:p-2"
                       aria-label={t("navigation.create_listing")}
                       aria-expanded={showListingsMenu}
                       aria-haspopup="true"
                     >
-                      <FaList className="h-5 w-5 mx-1 sm:mx-0" />
+                      <FaList className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                   </Tooltip>
-                  <ListingsMenu />
+                  <div className="listings-menu">
+                    <ListingsMenu />
+                  </div>
                 </div>
 
                 <div className="relative">
@@ -394,10 +400,10 @@ const Navbar: React.FC = () => {
                 <Tooltip content={t("navigation.messages")} position="bottom">
                   <Link
                     to="/messages"
-                    className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                    className="flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors p-1 sm:p-2"
                     aria-label={t("messages")}
                   >
-                    <FaEnvelope className="h-5 w-5 mx-1 sm:mx-0" />
+                    <FaEnvelope className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Link>
                 </Tooltip>
 
@@ -414,33 +420,35 @@ const Navbar: React.FC = () => {
                         <img
                           src={user.profilePicture}
                           alt={user.name || "Profile"}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white">
+                        <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white text-sm">
                           {(user.name || user.email)[0].toUpperCase()}
                         </div>
                       )}
                     </button>
                   </Tooltip>
-                  <ProfileMenu
-                    onLogout={handleLogout}
-                    isLoggingOut={isLoggingOut}
-                  />
+                  <div className="profile-menu">
+                    <ProfileMenu
+                      onLogout={handleLogout}
+                      isLoggingOut={isLoggingOut}
+                    />
+                  </div>
                 </div>
               </>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 <Link
                   to="/login"
-                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm sm:text-base"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {t("auth.login")}
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-4 py-2 rounded-md"
+                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {t("auth.register")}
@@ -451,7 +459,7 @@ const Navbar: React.FC = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="p-1 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               aria-label={
                 theme === "dark"
                   ? t("switchToLightMode")
@@ -459,9 +467,9 @@ const Navbar: React.FC = () => {
               }
             >
               {theme === "dark" ? (
-                <FaSun className="h-5 w-5" />
+                <FaSun className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
-                <FaMoon className="h-5 w-5" />
+                <FaMoon className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </button>
           </div>

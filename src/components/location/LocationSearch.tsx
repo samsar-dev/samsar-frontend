@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiMapPin } from "@react-icons/all-files/fi/FiMapPin";
 import { FiX } from "@react-icons/all-files/fi/FiX";
 
-import { syrianCities } from "@/utils/syrianCitiesEnglish";
+import { getAllCities } from "@/services/cityService";
 
 // Simple debounce hook to replace react-use dependency
 const useDebounce = (value: string, delay: number) => {
@@ -107,6 +107,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [apiResults, setApiResults] = useState<LocationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [syrianCities, setSyrianCities] = useState<any[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -139,15 +141,41 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     return governorateMap[cityName] || "Unknown";
   };
 
-  // Get all predefined areas from the locations data
+  // Load cities from backend API
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        setCitiesLoading(true);
+        const cities = await getAllCities();
+        // Transform backend city data to match expected format
+        const transformedCities = cities.map(city => ({
+          name: city.name,
+          latitude: city.latitude,
+          longitude: city.longitude,
+          neighbors: [] as any[] // Backend flattens neighbors, so we'll work with individual cities
+        }));
+        setSyrianCities(transformedCities);
+      } catch (error) {
+        console.error('Failed to load cities from backend:', error);
+        setSyrianCities([]);
+      } finally {
+        setCitiesLoading(false);
+      }
+    };
+
+    loadCities();
+  }, []);
+
+  // Get all predefined areas from the loaded cities data
   const allPredefinedAreas = useMemo<LocationArea[]>(() => {
-    const currentLang = i18n.language;
-    const isArabic = currentLang.startsWith("ar");
+    if (citiesLoading || syrianCities.length === 0) {
+      return [];
+    }
 
     const areas: LocationArea[] = [];
 
-    // Add cities with their coordinates
-    syrianCities.forEach((city) => {
+    // Add cities with their coordinates (backend already includes all cities and neighborhoods)
+    syrianCities.forEach((city: any) => {
       areas.push({
         name: city.name,
         city: city.name,
@@ -163,27 +191,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       });
     });
 
-    // Add neighbors with their coordinates
-    syrianCities.forEach((city) => {
-      city.neighbors.forEach((neighbor) => {
-        areas.push({
-          name: neighbor.name,
-          city: isArabic ? city.name : city.name,
-          enName: neighbor.name,
-          enCity: city.name,
-          arName: neighbor.name,
-          arCity: city.name,
-          latitude: neighbor.latitude,
-          longitude: neighbor.longitude,
-          isNeighbor: true,
-          areaType: "neighbor",
-          governorate: getGovernorate(city.name),
-        });
-      });
-    });
-
     return areas;
-  }, [i18n.language]);
+  }, [i18n.language, syrianCities, citiesLoading]);
 
   // Combine API results with predefined areas
   const results = useMemo(() => {

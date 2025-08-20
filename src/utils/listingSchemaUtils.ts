@@ -110,10 +110,10 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
   const paths = [
     // Direct property
     fieldName,
-    // Nested under details.vehicles
-    `details.vehicles.${fieldName}`,
-    // Nested under details.realEstate
-    `details.realEstate.${fieldName}`,
+    // Nested under details
+    `details.${fieldName}`,
+    // Nested under details
+    `details.${fieldName}`,
     // Try with camelCase if fieldName is in snake_case
     fieldName.includes("_")
       ? fieldName
@@ -142,7 +142,7 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
   // Handle special cases for vehicle features and arrays
   if (listing.details?.vehicles) {
     // Check if features is an array and fieldName is in it
-    const vehicleFeatures = listing.details.vehicles.features;
+    const vehicleFeatures = listing.details.features;
     if (Array.isArray(vehicleFeatures)) {
       if (vehicleFeatures.includes(fieldName)) {
         return true; // Feature exists in the features array
@@ -159,13 +159,13 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
     }
 
     // Check if field exists directly in vehicles with case-insensitive match
-    const vehicleFields = Object.keys(listing.details.vehicles);
+    const vehicleFields = Object.keys(listing.details);
     const matchingField = vehicleFields.find(
       (field) => field.toLowerCase() === fieldName.toLowerCase(),
     );
 
     if (matchingField) {
-      const value = listing.details.vehicles[matchingField];
+      const value = listing.details[matchingField];
       if (value !== undefined && value !== null) {
         if (process.env.NODE_ENV === "development") {
           console.log(
@@ -214,16 +214,16 @@ export const getFieldValue = (listing: any, fieldName: string): any => {
     console.log("Available keys in listing:", Object.keys(listing));
     if (listing.details) {
       console.log("Available keys in details:", Object.keys(listing.details));
-      if (listing.details.vehicles) {
+      if (listing.details) {
         console.log(
           "Available keys in vehicles:",
-          Object.keys(listing.details.vehicles),
+          Object.keys(listing.details),
         );
       }
-      if (listing.details.realEstate) {
+      if (listing.details) {
         console.log(
           "Available keys in realEstate:",
-          Object.keys(listing.details.realEstate),
+          Object.keys(listing.details),
         );
       }
     }

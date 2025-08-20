@@ -191,12 +191,12 @@ export const updateListing =
         const details = { ...responseData.details };
 
         // Transform vehicle details if they exist
-        if (details.vehicles && typeof details.vehicles === "object") {
-          const vehicleDetails = details.vehicles as Record<string, any>;
+        if (details && typeof details === "object") {
+          const vehicleDetails = details as Record<string, any>;
 
           // Create a new vehicle details object with the correct type
           // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'details' object
-          details.vehicles = {
+          details = {
             // Required fields with defaults
             vehicleType: VehicleType.CARS,
             transmissionType: "",
@@ -300,11 +300,11 @@ export const fetchListing = (id: string) => async (dispatch: AppDispatch) => {
       }),
       // Flatten vehicle details if they exist
       ...(listing.details?.vehicles && {
-        ...listing.details.vehicles,
+        ...listing.details,
       }),
       // Flatten real estate details if they exist
       ...(listing.details?.realEstate && {
-        ...listing.details.realEstate,
+        ...listing.details,
       }),
     };
 

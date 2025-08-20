@@ -36,22 +36,10 @@ import {
 } from "../basic/BasicFieldSchemas";
 import type { ListingStatus } from "@/types/enums";
 
-interface ExtendedVehicleDetails {
-  vehicleType: VehicleType;
-  make: string;
-  model: string;
-  year: string;
-  customMake?: string;
-  customModel?: string;
-  condition?: Condition;
-  features?: string[];
-}
+
 
 interface ExtendedFormState extends Omit<BaseFormState, "details"> {
-  details: {
-    vehicles?: ExtendedVehicleDetails;
-    realEstate?: RealEstateDetails;
-  };
+  details?: Record<string, any>;
   existingImages?: string[];
   locationMeta?: LocationMeta;
   status?: ListingStatus;
@@ -82,7 +70,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   const formT = (key: string) => t(key, { ns: "form" });
   const listingsT = (key: string) => t(key, { ns: "listings" });
   const [formData, setFormData] = useState<ExtendedFormState>(() => {
-    const baseData = {
+    const baseData: ExtendedFormState = {
       title: "",
       description: "",
       price: 0,
@@ -90,43 +78,34 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         mainCategory: ListingCategory.VEHICLES,
         subCategory: VehicleType.CARS, // Default to CARS
       },
-      condition: undefined as Condition | undefined,
       location: "",
       locationDisplay: "", // Initialize locationDisplay
       images: [] as File[],
       details: {
-        vehicles: {
-          vehicleType: VehicleType.CARS, // Default to CARS
-          make: "",
-          model: "",
-          year: "",
-          customMake: "",
-          customModel: "",
-          condition: undefined as Condition | undefined,
-          features: [] as string[],
-        },
-        realEstate: {
-          id: "",
-          listingId: "",
-          propertyType: PropertyType.APARTMENT,
-          condition: undefined as Condition | undefined,
-          features: [] as string[],
-          accessibilityFeatures: [] as string[],
-          buildingAmenities: [] as string[],
-          exposureDirection: [] as string[],
-          fireSafety: [] as string[],
-          flooringTypes: [] as string[],
-          securityFeatures: [] as string[],
-          storageType: [] as string[],
-          soilTypes: [] as string[],
-          topography: [] as string[],
-          utilities: [] as string[],
-          bedrooms: 0,
-          bathrooms: 0,
-          size: 0,
-          yearBuilt: new Date().getFullYear(),
-        },
-      },
+        vehicleType: VehicleType.CARS,
+        make: "",
+        model: "",
+        year: "",
+        customMake: "",
+        customModel: "",
+        condition: undefined as Condition | undefined,
+        features: [] as string[],
+        // Real estate fields (will be ignored for vehicles)
+        bedrooms: 0,
+        bathrooms: 0,
+        size: 0,
+        yearBuilt: new Date().getFullYear(),
+        accessibilityFeatures: [] as string[],
+        buildingAmenities: [] as string[],
+        exposureDirection: [] as string[],
+        fireSafety: [] as string[],
+        flooringTypes: [] as string[],
+        securityFeatures: [] as string[],
+        storageType: [] as string[],
+        soilTypes: [] as string[],
+        topography: [] as string[],
+        utilities: [] as string[],
+      }
     };
 
     // Merge with initialData
@@ -233,23 +212,24 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       ...prev,
       details: {
         ...prev.details,
-        vehicles: {
-          ...prev.details?.vehicles,
-          make: makeStr,
-          model: "", // Reset model when make changes
-          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CARS,
-        } as ExtendedVehicleDetails,
+        make: makeStr,
+        vehicleType: prev.details?.vehicleType || VehicleType.CARS,
       },
     }));
 
     // Clear customMake if not OTHER_MAKE
     if (makeStr !== "OTHER_MAKE") {
-      handleInputChange("details.vehicles.customMake", "");
+      handleInputChange("details.customMake", "");
     }
 
-    // Update title if year is available
-    if (formData.details?.vehicles?.year) {
-      const year = formData.details.vehicles.year;
+    // Auto-generate title if all fields are filled
+    if (
+      formData.details?.make &&
+      formData.details?.model &&
+      formData.details.year
+    ) {
+      const makeStr = formData.details.make;
+      const year = formData.details.year;
       // Only update title if make is not OTHER_MAKE or if it's a regular make
       if (makeStr !== "OTHER_MAKE") {
         const autoTitle = `${makeStr} ${year}`;
@@ -267,21 +247,18 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       ...prev,
       details: {
         ...prev.details,
-        vehicles: {
-          ...prev.details?.vehicles,
-          model: modelStr,
-          vehicleType: prev.details?.vehicles?.vehicleType || VehicleType.CARS,
-        } as ExtendedVehicleDetails,
+        model: modelStr,
+        vehicleType: prev.details?.vehicleType || VehicleType.CARS,
       },
     }));
 
     // Auto-generate title if all fields are filled
     if (
-      formData.details?.vehicles?.make &&
+      formData.details?.make &&
       modelStr &&
-      formData.details.vehicles.year
+      formData.details.year
     ) {
-      const autoTitle = `${formData.details.vehicles.make} ${modelStr} ${formData.details.vehicles.year}`;
+      const autoTitle = `${formData.details.make} ${modelStr} ${formData.details.year}`;
       handleInputChange("title", autoTitle);
     }
   };
@@ -303,13 +280,9 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             // Handle size field for real estate
             if (
               parent === "details" &&
-              child === "realEstate" &&
-              subChild === "size"
+              child === "size"
             ) {
-              parentObj[child] = {
-                ...parentObj[child],
-                size: value,
-              };
+              parentObj.size = value;
             } else if (subChild) {
               parentObj[child] = {
                 ...parentObj[child],
@@ -357,8 +330,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       };
 
       if (mainCategory === ListingCategory.VEHICLES) {
-        updatedData.details.vehicles = {
-          ...prev.details?.vehicles,
+        updatedData.details = {
           vehicleType: subCategory as VehicleType,
           make: "",
           model: "",
@@ -366,7 +338,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           condition: Condition.GOOD,
           features: [],
         };
-        delete updatedData.details.realEstate;
       } else if (mainCategory === ListingCategory.REAL_ESTATE) {
         const propertyType = subCategory as PropertyType;
         if (
@@ -400,10 +371,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           }
 
           // Assign the details to the form data
-          updatedData.details.realEstate =
-            realEstateDetails as RealEstateDetails;
+          updatedData.details = realEstateDetails;
         }
-        delete updatedData.details.vehicles;
       }
 
       return updatedData;
@@ -467,71 +436,71 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     // Vehicle specific validation
     if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
-      const vehicles = formData.details?.vehicles;
+      const details = formData.details;
 
-      if (!vehicles?.vehicleType) {
-        newErrors["details.vehicles.vehicleType"] = formT(
+      if (!details?.vehicleType) {
+        newErrors["details.vehicleType"] = formT(
           "validation.required",
         );
       }
 
       // Validate make
-      if (!vehicles?.make) {
-        newErrors["details.vehicles.make"] = formT("validation.required");
-      } else if (vehicles.make === "OTHER_MAKE") {
+      if (!details?.make) {
+        newErrors["details.make"] = formT("validation.required");
+      } else if (details.make === "OTHER_MAKE") {
         // Validate custom make when "Other" is selected
-        if (!vehicles.customMake?.trim()) {
-          newErrors["details.vehicles.customMake"] = formT("fieldRequired");
+        if (!details.customMake?.trim()) {
+          newErrors["details.customMake"] = formT("fieldRequired");
         }
       }
 
       // Validate model
-      if (!vehicles?.model) {
-        newErrors["details.vehicles.model"] = formT("validation.required");
-      } else if (vehicles.model === "CUSTOM_MODEL") {
+      if (!details?.model) {
+        newErrors["details.model"] = formT("validation.required");
+      } else if (details.model === "CUSTOM_MODEL") {
         // Validate custom model when "Custom" is selected
-        if (!vehicles.customModel?.trim()) {
-          newErrors["details.vehicles.customModel"] = formT("fieldRequired");
+        if (!details.customModel?.trim()) {
+          newErrors["details.customModel"] = formT("fieldRequired");
         }
       }
 
       // Validate year
-      if (!vehicles?.year) {
-        newErrors["details.vehicles.year"] = formT("validation.required");
+      if (!details?.year) {
+        newErrors["details.year"] = formT("validation.required");
       } else {
-        const year = parseInt(vehicles.year.toString());
+        const year = parseInt(details.year.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-          newErrors["details.vehicles.year"] = formT("validYearRequired");
+          newErrors["details.year"] = formT("validYearRequired");
         }
       }
     }
 
     // Real estate specific validation
     if (formData.category?.mainCategory === ListingCategory.REAL_ESTATE) {
-      const realEstate = formData.details?.realEstate;
+      const details = formData.details;
       const propertyType = formData.category?.subCategory as PropertyType;
 
       // Validate size (required for all property types)
-      if (!realEstate?.size) {
-        newErrors["details.realEstate.size"] = formT("validation.required");
+      if (!details?.size) {
+        newErrors["details.size"] = formT("validation.required");
       } else {
-        const area = parseFloat(realEstate.size.toString());
+        const area = parseFloat(details.size.toString());
         if (isNaN(area) || area <= 0) {
-          newErrors["details.realEstate.size"] = formT("validAreaRequired");
+          newErrors["details.size"] = formT("validAreaRequired");
         }
       }
 
       // Validate year built (required for all property types)
-      if (!realEstate?.yearBuilt) {
-        newErrors["details.realEstate.yearBuilt"] = formT(
+      if (!details?.yearBuilt) {
+        newErrors["details.yearBuilt"] = formT(
           "validation.required",
         );
       } else {
-        const year = parseInt(realEstate.yearBuilt.toString());
+        const year = parseInt(details.yearBuilt.toString());
         const currentYear = new Date().getFullYear();
         if (isNaN(year) || year < 1900 || year > currentYear + 1) {
-          newErrors["details.realEstate.yearBuilt"] =
+          newErrors["details.yearBuilt"] =
             formT("validYearRequired");
         }
       }
@@ -542,28 +511,28 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.APARTMENT:
         case PropertyType.CONDO:
           // Validate bedrooms for house, apartment, and condo
-          if (!realEstate?.bedrooms) {
-            newErrors["details.realEstate.bedrooms"] = formT(
+          if (!details?.bedrooms) {
+            newErrors["details.bedrooms"] = formT(
               "validation.required",
             );
           } else {
-            const bedrooms = parseFloat(realEstate.bedrooms.toString());
+            const bedrooms = parseFloat(details.bedrooms.toString());
             if (isNaN(bedrooms) || bedrooms <= 0) {
-              newErrors["details.realEstate.bedrooms"] = formT(
+              newErrors["details.bedrooms"] = formT(
                 "validBedroomsRequired",
               );
             }
           }
 
           // Validate bathrooms for house, apartment, and condo
-          if (!realEstate?.bathrooms) {
-            newErrors["details.realEstate.bathrooms"] = formT(
+          if (!details?.bathrooms) {
+            newErrors["details.bathrooms"] = formT(
               "validation.required",
             );
           } else {
-            const bathrooms = parseFloat(realEstate.bathrooms.toString());
+            const bathrooms = parseFloat(details.bathrooms.toString());
             if (isNaN(bathrooms) || bathrooms <= 0) {
-              newErrors["details.realEstate.bathrooms"] = formT(
+              newErrors["details.bathrooms"] = formT(
                 "validBathroomsRequired",
               );
             }
@@ -573,14 +542,14 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         case PropertyType.APARTMENT:
         case PropertyType.CONDO:
           // Validate floor for apartment and condo
-          if (!realEstate?.floor) {
-            newErrors["details.realEstate.floor"] = formT(
+          if (!details?.floor) {
+            newErrors["details.floor"] = formT(
               "validation.required",
             );
           } else {
-            const floor = parseInt(realEstate.floor.toString());
+            const floor = parseInt(details.floor.toString());
             if (isNaN(floor) || floor < 1 || floor > 100) {
-              newErrors["details.realEstate.floor"] =
+              newErrors["details.floor"] =
                 formT("validFloorRequired");
             }
           }
@@ -588,15 +557,15 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
         case PropertyType.LAND:
           // Validate buildable for land
-          if (realEstate?.buildable === undefined) {
-            newErrors["details.realEstate.buildable"] = formT("fieldRequired");
+          if (details?.buildable === undefined) {
+            newErrors["details.buildable"] = formT("fieldRequired");
           }
           break;
 
         case PropertyType.COMMERCIAL:
           // Validate usage type for commercial
-          if (!realEstate?.usageType) {
-            newErrors["details.realEstate.usageType"] = formT(
+          if (!details?.usageType) {
+            newErrors["details.usageType"] = formT(
               "validation.required",
             );
           }
@@ -635,26 +604,26 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     // Category-specific fields
     if (formData?.category?.mainCategory === ListingCategory.VEHICLES) {
       const vehicleFields = [
-        "details.vehicles.vehicleType",
-        "details.vehicles.make",
-        "details.vehicles.model",
-        "details.vehicles.year",
+        "details.vehicleType",
+        "details.make",
+        "details.model",
+        "details.year",
       ];
       vehicleFields.forEach((field) => {
         allFieldsTouched[field] = true;
       });
 
       // Add custom fields if needed
-      if (formData.details?.vehicles?.make === "OTHER") {
-        allFieldsTouched["details.vehicles.customMake"] = true;
+      if (formData.details?.make === "OTHER") {
+        allFieldsTouched["details.customMake"] = true;
       }
-      if (formData.details?.vehicles?.model === "CUSTOM_MODEL") {
-        allFieldsTouched["details.vehicles.customModel"] = true;
+      if (formData.details?.model === "CUSTOM_MODEL") {
+        allFieldsTouched["details.customModel"] = true;
       }
     } else if (
       formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
     ) {
-      allFieldsTouched["details.realEstate.propertyType"] = true;
+      allFieldsTouched["details.propertyType"] = true;
     }
 
     setTouched(allFieldsTouched);
@@ -664,31 +633,24 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
     console.log("Form validation result:", isValid);
 
     // Prepare the data to be submitted
-    console.log("Form data real estate:", formData.details?.realEstate);
+    console.log("Form data details:", formData.details);
     const dataToSubmit: ExtendedFormState = {
       ...formData,
       details: {
         ...formData.details,
-        vehicles:
-          formData?.category?.mainCategory === ListingCategory.VEHICLES
-            ? {
-                ...(formData.details?.vehicles || {}),
-                vehicleType: formData.category?.mainCategory === ListingCategory.VEHICLES 
-                  ? (formData.category?.subCategory as VehicleType) || VehicleType.CARS 
-                  : VehicleType.CARS,
-                make: formData.details?.vehicles?.make || "",
-                model: formData.details?.vehicles?.model || "",
-                year: formData.details?.vehicles?.year || "",
-              }
-            : undefined,
-        //@ts-expect-error: Some fields are optional
-        realEstate:
-          formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
-            ? {
-                ...(formData.details?.realEstate || {}),
-                propertyType: formData?.category?.subCategory as PropertyType,
-              }
-            : undefined,
+        // Use flat structure directly
+        ...(formData.details || {}),
+        // Ensure category-specific fields are set
+        ...(formData?.category?.mainCategory === ListingCategory.VEHICLES
+          ? {
+              vehicleType: (formData.category?.subCategory as VehicleType) || VehicleType.CARS,
+            }
+          : {}),
+        ...(formData?.category?.mainCategory === ListingCategory.REAL_ESTATE
+          ? {
+              propertyType: formData?.category?.subCategory as PropertyType,
+            }
+          : {}),
       },
       // Include location metadata and coordinates if available
       ...(locationMeta
@@ -717,10 +679,10 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
     // If we don't have a selected make or model, just provide a reasonable range of years
     if (
-      !formData.details?.vehicles?.make ||
-      !formData.details?.vehicles?.model ||
-      formData.details?.vehicles?.make === "OTHER" ||
-      formData.details?.vehicles?.model === "CUSTOM_MODEL"
+      !formData.details?.make ||
+      !formData.details?.model ||
+      formData.details?.make === "OTHER" ||
+      formData.details?.model === "CUSTOM_MODEL"
     ) {
       // Default range: 30 years back to next year
       const currentYear = new Date().getFullYear();
@@ -763,42 +725,42 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           <div className="md:col-span-1">
             {renderModelField()}
-            {formData.details?.vehicles?.model === "OTHER_MODEL" && (
+            {formData.details?.model === "OTHER_MODEL" && (
               <div className="mt-2">
                 <FormField
-                  name="details.vehicles.customModel"
+                  name="details.customModel"
                   label={t("customModel")}
                   type="text"
-                  value={formData.details?.vehicles?.customModel || ""}
+                  value={formData.details?.customModel || ""}
                   onChange={(value: FormFieldValue) => {
                     const customModelStr = String(value);
                     handleInputChange(
-                      "details.vehicles.customModel",
+                      "details.customModel",
                       customModelStr,
                     );
 
                     // Update title immediately when custom model changes
-                    if (formData.details?.vehicles?.year) {
+                    if (formData.details?.year) {
                       let make = "";
 
                       if (
-                        formData.details?.vehicles?.make === "OTHER_MAKE" &&
-                        formData.details.vehicles.customMake
+                        formData.details?.make === "OTHER_MAKE" &&
+                        formData.details.customMake
                       ) {
-                        make = formData.details.vehicles.customMake;
-                      } else if (formData.details?.vehicles?.make) {
-                        make = formData.details.vehicles.make;
+                        make = formData.details.customMake;
+                      } else if (formData.details?.make) {
+                        make = formData.details.make;
                       }
 
                       const autoTitle = make
-                        ? `${make} ${customModelStr} ${formData.details.vehicles.year}`
-                        : `${customModelStr} ${formData.details.vehicles.year}`;
+                        ? `${make} ${customModelStr} ${formData.details.year}`
+                        : `${customModelStr} ${formData.details.year}`;
                       handleInputChange("title", autoTitle);
                     }
                   }}
                   error={
-                    touched["details.vehicles.customModel"]
-                      ? errors["details.vehicles.customModel"]
+                    touched["details.customModel"]
+                      ? errors["details.customModel"]
                       : undefined
                   }
                   placeholder={t("enterModel")}
@@ -815,7 +777,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const renderMakeField = () => {
-    const makeValue = formData.details?.vehicles?.make || "";
+    const makeValue = formData.details?.make || "";
     const makes = generateMakeOptions();
 
     return (
@@ -826,8 +788,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         value={makeValue}
         onChange={(value) => handleMakeChange(value as string)}
         error={
-          touched["details.vehicles.make"]
-            ? errors["details.vehicles.make"]
+          touched["details.make"]
+            ? errors["details.make"]
             : undefined
         }
         options={makes}
@@ -838,8 +800,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const renderModelField = () => {
-    const modelValue = formData.details?.vehicles?.model || "";
-    const models = getModelOptions(formData.details?.vehicles?.make || "");
+    const modelValue = formData.details?.model || "";
+    const models = getModelOptions(formData.details?.make || "");
 
     return (
       <FormField
@@ -849,8 +811,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         value={modelValue}
         onChange={(value) => handleModelChange(value as string)}
         error={
-          touched["details.vehicles.model"]
-            ? errors["details.vehicles.model"]
+          touched["details.model"]
+            ? errors["details.model"]
             : undefined
         }
         options={models}
@@ -861,7 +823,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   };
 
   const renderYearField = () => {
-    const yearValue = formData.details?.vehicles?.year || "";
+    const yearValue = formData.details?.year || "";
     const years = getYearOptions();
 
     return (
@@ -872,7 +834,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         value={yearValue}
         onChange={(value) => {
           const yearStr = value as string;
-          handleInputChange("details.vehicles.year", yearStr);
+          handleInputChange("details.year", yearStr);
 
           // Auto-generate title if fields are filled
           let make = "";
@@ -880,22 +842,22 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
           // Get make (custom or regular)
           if (
-            formData.details?.vehicles?.make === "OTHER_MAKE" &&
-            formData.details.vehicles.customMake
+            formData.details?.make === "OTHER_MAKE" &&
+            formData.details.customMake
           ) {
-            make = formData.details.vehicles.customMake;
-          } else if (formData.details?.vehicles?.make) {
-            make = formData.details.vehicles.make;
+            make = formData.details.customMake;
+          } else if (formData.details?.make) {
+            make = formData.details.make;
           }
 
           // Get model (custom or regular)
           if (
-            formData.details?.vehicles?.model === "CUSTOM_MODEL" &&
-            formData.details.vehicles.customModel
+            formData.details?.model === "CUSTOM_MODEL" &&
+            formData.details.customModel
           ) {
-            model = formData.details.vehicles.customModel;
-          } else if (formData.details?.vehicles?.model) {
-            model = formData.details.vehicles.model;
+            model = formData.details.customModel;
+          } else if (formData.details?.model) {
+            model = formData.details.model;
           }
 
           // Generate title based on available information
@@ -912,8 +874,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
           handleInputChange("title", autoTitle);
         }}
         error={
-          touched["details.vehicles.year"]
-            ? errors["details.vehicles.year"]
+          touched["details.year"]
+            ? errors["details.year"]
             : undefined
         }
         options={years}
@@ -925,8 +887,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   // Render the custom make field if "Other" is selected
   const renderCustomMakeField = () => {
-    const makeValue = formData.details?.vehicles?.make || "";
-    const customMakeValue = formData.details?.vehicles?.customMake || "";
+    const makeValue = formData.details?.make || "";
+    const customMakeValue = formData.details?.customMake || "";
 
     if (makeValue === "OTHER_MAKE") {
       return (
@@ -938,20 +900,20 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             value={customMakeValue}
             onChange={(value) => {
               const newValue = typeof value === "string" ? value : "";
-              handleInputChange("details.vehicles.customMake", newValue);
+              handleInputChange("details.customMake", newValue);
 
               // Update the title with the custom make
-              if (formData.details?.vehicles?.year) {
-                const year = formData.details.vehicles.year;
+              if (formData.details?.year) {
+                const year = formData.details.year;
                 let model = "";
 
                 if (
-                  formData.details?.vehicles?.model === "CUSTOM_MODEL" &&
-                  formData.details.vehicles.customModel
+                  formData.details?.model === "CUSTOM_MODEL" &&
+                  formData.details.customModel
                 ) {
-                  model = formData.details.vehicles.customModel;
-                } else if (formData.details?.vehicles?.model) {
-                  model = formData.details.vehicles.model;
+                  model = formData.details.customModel;
+                } else if (formData.details?.model) {
+                  model = formData.details.model;
                 }
 
                 const autoTitle = model
@@ -961,8 +923,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               }
             }}
             error={
-              touched["details.vehicles.customMake"]
-                ? errors["details.vehicles.customMake"]
+              touched["details.customMake"]
+                ? errors["details.customMake"]
                 : undefined
             }
             placeholder={formT("enterMake")}
@@ -1133,7 +1095,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
                   typeof translatedLabel === "string"
                     ? translatedLabel
                     : String(translatedLabel),
-                  `details.realEstate.${field.name}`,
+                  `details.${field.name}`,
                   field.type,
                   translatedOptions,
                   undefined,
@@ -1693,8 +1655,8 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             undefined,
             undefined,
             true,
-            formData.details?.vehicles?.make &&
-              formData.details?.vehicles?.model
+            formData.details?.make &&
+              formData.details?.model
               ? t("autoGeneratedFromDetails")
               : undefined,
           )}

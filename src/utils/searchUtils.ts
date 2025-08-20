@@ -6,10 +6,10 @@ const SEARCH_FIELDS = [
   "title",
   "description",
   "location",
-  "details.vehicles.make",
-  "details.vehicles.model",
-  "details.vehicles.vehicleType",
-  "details.realEstate.propertyType",
+  "details.make",
+  "details.model",
+  "details.vehicleType",
+  "details.propertyType",
 ];
 
 // Utility to get nested object values safely

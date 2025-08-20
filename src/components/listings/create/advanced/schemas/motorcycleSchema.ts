@@ -57,21 +57,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
         label: "AUTOMATIC",
         translationKey: "enums.transmission.AUTOMATIC",
       },
-      {
-        value: "semiAutomatic",
-        label: "SEMI_AUTOMATIC",
-        translationKey: "enums.transmission.SEMI_AUTOMATIC",
-      },
-      {
-        value: "dct",
-        label: "DUAL_CLUTCH",
-        translationKey: "enums.transmission.DUAL_CLUTCH",
-      },
-      {
-        value: "cvt",
-        label: "CONTINUOUSLY_VARIABLE",
-        translationKey: "enums.transmission.CONTINUOUSLY_VARIABLE",
-      },
+      
     ],
     section: "essential",
     required: true,

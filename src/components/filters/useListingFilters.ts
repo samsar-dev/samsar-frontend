@@ -134,7 +134,7 @@ export const useListingFilters = (
       if (options.selectedCategory === ListingCategory.VEHICLES) {
         // Vehicle filtering
         if (selectedYear && listing.details?.vehicles?.year) {
-          if (parseInt(listing.details.vehicles.year) !== selectedYear) {
+          if (parseInt(listing.details.year) !== selectedYear) {
             return false;
           }
         }
@@ -147,16 +147,16 @@ export const useListingFilters = (
           }
         }
         if (selectedMake && listing.details?.vehicles?.make) {
-          if (listing.details.vehicles.make !== selectedMake) return false;
+          if (listing.details.make !== selectedMake) return false;
         }
         if (selectedModel && listing.details?.vehicles?.model) {
-          if (listing.details.vehicles.model !== selectedModel) return false;
+          if (listing.details.model !== selectedModel) return false;
         }
         if (selectedMileage && listing.details?.vehicles?.mileage) {
           const mileageValue =
-            typeof listing.details.vehicles.mileage === "string"
-              ? parseInt(listing.details.vehicles.mileage)
-              : listing.details.vehicles.mileage;
+            typeof listing.details.mileage === "string"
+              ? parseInt(listing.details.mileage)
+              : listing.details.mileage;
           if (mileageValue > selectedMileage) {
             return false;
           }

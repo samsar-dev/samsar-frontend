@@ -75,13 +75,13 @@ const SearchSuggestionsDropdown: React.FC<SearchSuggestionsDropdownProps> = ({
             listing.details?.vehicles?.vehicleType
           ) {
             categoryLabel = t("navigation.vehicles");
-            subcategoryLabel = listing.details.vehicles.vehicleType;
+            subcategoryLabel = listing.details.vehicleType;
           } else if (
             listing.category?.mainCategory === ListingCategory.REAL_ESTATE &&
             listing.details?.realEstate?.propertyType
           ) {
             categoryLabel = t("navigation.real_estate");
-            subcategoryLabel = listing.details.realEstate.propertyType;
+            subcategoryLabel = listing.details.propertyType;
           }
 
           return (

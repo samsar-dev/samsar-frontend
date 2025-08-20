@@ -9,7 +9,7 @@ import {
 import type { TFunction } from "i18next";
 import type { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
-import type { FormState } from "../../../../types/listings";
+import type { FormState } from "@/types/listings";
 import { cleanLocationString } from "@/utils/locationUtils";
 
 import type { ExtendedFormState } from "../steps/AdvancedDetailsForm";
@@ -42,118 +42,65 @@ export const handleBasicDetailsSubmit = (
           ...(data.category || {}),
         },
         details: {
-          vehicles:
-            data.category?.mainCategory === ListingCategory.VEHICLES
-              ? {
-                  ...prev.details?.vehicles,
-                  ...data.details?.vehicles,
-                  vehicleType: VehicleType.CAR,
-                  make:
-                    data.details?.vehicles?.make ||
-                    prev.details?.vehicles?.make ||
-                    "",
-                  model:
-                    data.details?.vehicles?.model ||
-                    prev.details?.vehicles?.model ||
-                    "",
-                  year: (
-                    data.details?.vehicles?.year ||
-                    prev.details?.vehicles?.year ||
-                    new Date().getFullYear()
-                  ).toString(),
-                  mileage: Number(
-                    data.details?.vehicles?.mileage ||
-                      prev.details?.vehicles?.mileage ||
-                      0,
-                  ),
-                  fuelType:
-                    data.details?.vehicles?.fuelType ||
-                    prev.details?.vehicles?.fuelType ||
-                    FuelType.GASOLINE,
-                  transmissionType:
-                    data.details?.vehicles?.transmissionType ||
-                    prev.details?.vehicles?.transmissionType ||
-                    TransmissionType.AUTOMATIC,
-                }
-              : undefined,
-          realEstate:
-            data.category?.mainCategory === ListingCategory.REAL_ESTATE
-              ? {
-                  ...prev.details?.realEstate,
-                  ...data.details?.realEstate,
-                  id: prev.details?.realEstate?.id || "",
-                  listingId: prev.details?.realEstate?.listingId || "",
-                  propertyType: PropertyType.HOUSE,
-                  size:
-                    data.details?.realEstate?.size ||
-                    prev.details?.realEstate?.size ||
-                    "0",
-                  yearBuilt: parseInt(
-                    data.details?.realEstate?.yearBuilt?.toString() ||
-                      prev.details?.realEstate?.yearBuilt?.toString() ||
-                      new Date().getFullYear().toString(),
-                  ),
-                  bedrooms:
-                    data.details?.realEstate?.bedrooms ||
-                    prev.details?.realEstate?.bedrooms ||
-                    "0",
-                  bathrooms:
-                    data.details?.realEstate?.bathrooms ||
-                    prev.details?.realEstate?.bathrooms ||
-                    "0",
-                  condition:
-                    data.details?.realEstate?.condition ||
-                    prev.details?.realEstate?.condition ||
-                    Condition.LIKE_NEW,
-                  floor: Number(
-                    data.details?.realEstate?.floor ||
-                      prev.details?.realEstate?.floor ||
-                      1,
-                  ),
-                  internetIncluded: Boolean(
-                    data.details?.realEstate?.internetIncluded ??
-                      prev.details?.realEstate?.internetIncluded,
-                  ),
-
-                  houseDetails: {
-                    propertyType: PropertyType.HOUSE,
-                    totalArea:
-                      data.details?.realEstate?.size ||
-                      prev.details?.realEstate?.size ||
-                      0,
-                    bedrooms: Number(
-                      data.details?.realEstate?.bedrooms ||
-                        prev.details?.realEstate?.bedrooms ||
-                        0,
-                    ),
-                    livingArea: Number(
-                      data.details?.realEstate?.livingArea ||
-                        prev.details?.realEstate?.livingArea ||
-                        0,
-                    ),
-                    stories: Number(
-                      data.details?.realEstate?.stories ||
-                        prev.details?.realEstate?.stories ||
-                        0,
-                    ),
-                    bathrooms: Number(
-                      data.details?.realEstate?.bathrooms ||
-                        prev.details?.realEstate?.bathrooms ||
-                        0,
-                    ),
-                    yearBuilt: Number(
-                      data.details?.realEstate?.yearBuilt ||
-                        prev.details?.realEstate?.yearBuilt ||
-                        new Date().getFullYear(),
-                    ),
-                    halfBathrooms: Number(
-                      data.details?.realEstate?.halfBathrooms ||
-                        prev.details?.realEstate?.halfBathrooms ||
-                        0,
-                    ),
-                  },
-                }
-              : undefined,
+          ...prev.details,
+          ...data.details,
+          // Flat structure - all fields directly on details object
+          ...(data.category?.mainCategory === ListingCategory.VEHICLES && {
+            vehicleType: VehicleType.CARS,
+            make: data.details?.make || prev.details?.make || "",
+            model: data.details?.model || prev.details?.model || "",
+            year: (
+              data.details?.year ||
+              prev.details?.year ||
+              new Date().getFullYear()
+            ).toString(),
+            mileage: Number(
+              data.details?.mileage ||
+                prev.details?.mileage ||
+                0,
+            ),
+            fuelType:
+              data.details?.fuelType ||
+              prev.details?.fuelType ||
+              FuelType.GASOLINE,
+            transmissionType:
+              data.details?.transmissionType ||
+              prev.details?.transmissionType ||
+              TransmissionType.AUTOMATIC,
+          }),
+          ...(data.category?.mainCategory === ListingCategory.REAL_ESTATE && {
+            propertyType: PropertyType.HOUSE,
+            area:
+              data.details?.area ||
+              prev.details?.area ||
+              0,
+            yearBuilt: parseInt(
+              data.details?.yearBuilt?.toString() ||
+                prev.details?.yearBuilt?.toString() ||
+                new Date().getFullYear().toString(),
+            ),
+            bedrooms:
+              data.details?.bedrooms ||
+              prev.details?.bedrooms ||
+              "0",
+            bathrooms:
+              data.details?.bathrooms ||
+              prev.details?.bathrooms ||
+              "0",
+            condition:
+              data.details?.condition ||
+              prev.details?.condition ||
+              Condition.LIKE_NEW,
+            floor: Number(
+              data.details?.floor ||
+                prev.details?.floor ||
+                1,
+            ),
+            internetIncluded: Boolean(
+              data.details?.internetIncluded ??
+                prev.details?.internetIncluded,
+            ),
+          }),
         },
       };
       // Save to session storage

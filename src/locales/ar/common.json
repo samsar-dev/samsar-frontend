@@ -140,14 +140,8 @@
       },
       "transmissionTypes": {
         "automatic": "أوتوماتيك",
-        "semiAutomatic": "نصف أوتوماتيك",
-        "continuouslyVariable": "سي في تي",
-        "dualClutch": "دوبال كلتش",
         "manual": "يدوي",
-        "other": "أخرى",
-        "months": "أشهر",
-        "hp": "حصان",
-        "nm": "نيوتن متر"
+        "other": "أخرى"
       },
       "conditions": {
         "new": "جديد",

@@ -27,7 +27,7 @@ import type {
 } from "@/types/enums";
 import { ListingCategory as ListingCategoryValue } from "@/types/enums";
 import type { FormState } from "@/types/forms";
-import type { ListingFieldSchema } from "@/types/listings";
+import type { ListingFieldSchema, FlatListingDetails } from "@/types/listings";
 
 interface FeatureItem {
   name: string;
@@ -49,14 +49,7 @@ export interface ExtendedFormState extends Omit<FormState, "details"> {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
   };
-  details: {
-    vehicles?: {
-      [key: string]: any;
-    };
-    realEstate?: {
-      [key: string]: any;
-    };
-  };
+  details: FlatListingDetails;
   listingAction: ListingAction;
   status: ListingStatus;
 }
@@ -239,9 +232,9 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
       if (!initialData.details) {
         initialData.details = {};
       }
-      if (!initialData.details.vehicles && !initialData.details.realEstate) {
-        initialData.details.vehicles = {};
-        initialData.details.realEstate = {};
+      if (!initialData.details && !initialData.details) {
+        initialData.details = {};
+        initialData.details = {};
       }
       return initialData as ExtendedFormState;
     });
@@ -295,9 +288,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
       const newErrors: Record<string, string> = {};
 
       currentSchema.forEach((field: ListingFieldSchema) => {
-        const value = isVehicle
-          ? (form.details?.vehicles?.[field.name] ?? "")
-          : (form.details?.realEstate?.[field.name] ?? "");
+        const value = form.details?.[field.name] ?? "";
 
         if (field.required && (!value || value === "" || value === null)) {
           // Use a field-specific required error message
@@ -316,28 +307,18 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
       return Object.keys(newErrors).length === 0;
     };
 
-    const handleInputChange = (
-      field: string,
-      value: string | number | boolean | string[],
-    ) => {
-      console.log(
-        "[AdvancedDetailsForm] handleInputChange event:",
-        field,
-        value,
-      );
+    const handleInputChange = (field: string, value: any) => {
+      console.log("[AdvancedDetailsForm] handleInputChange:", { field, value, currentForm: form.details });
       setForm((prevForm) => {
-        const detailsKey = isVehicle ? "vehicles" : "realEstate";
-
-        return {
+        const newForm = {
           ...prevForm,
           details: {
             ...prevForm.details,
-            [detailsKey]: {
-              ...prevForm.details[detailsKey],
-              [field]: value,
-            },
+            [field]: value,
           },
         };
+        console.log('[AdvancedDetailsForm] new form state:', newForm);
+        return newForm;
       });
 
       // Clear error when field is modified
@@ -352,15 +333,11 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
     const handleFeatureChange = (field: string, value: boolean) => {
       setForm((prevForm) => {
-        const detailsKey = isVehicle ? "vehicles" : "realEstate";
         return {
           ...prevForm,
           details: {
             ...prevForm.details,
-            [detailsKey]: {
-              ...prevForm.details[detailsKey],
-              [field]: value,
-            },
+            [field]: value,
           },
         };
       });
@@ -369,6 +346,13 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
     const renderFields = () => {
       const activeFields =
         sections.find((s) => s.id === activeSection)?.fields || [];
+      
+      console.log('[AdvancedDetailsForm] renderFields:', { 
+        activeSection, 
+        activeFields, 
+        formDetails: form.details,
+        mileageValue: form.details?.mileage 
+      });
 
       // Group fields by their feature category
       const featureGroups = activeFields.reduce(
@@ -421,11 +405,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                           title={group.label}
                           icon={getFeatureIcon(category)}
                           features={group.features}
-                          values={
-                            isVehicle
-                              ? form.details?.vehicles || {}
-                              : form.details?.realEstate || {}
-                          }
+                          values={form.details || {}}
                           onChange={handleFeatureChange}
                         />
                       ),
@@ -442,12 +422,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                     <ColorPickerField
                       key={field.name}
                       label={t(field.label)}
-                      value={
-                        isVehicle
-                          ? (form.details?.vehicles?.[field.name] ?? "#000000")
-                          : (form.details?.realEstate?.[field.name] ??
-                            "#000000")
-                      }
+                      value={form.details?.[field.name] ?? "#000000"}
                       onChange={(value) => handleInputChange(field.name, value)}
                       error={errors[`details.${field.name}`]}
                       required={field.required}
@@ -474,11 +449,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                             }
                           : { value: opt, label: t(`options.${opt}`) },
                     )}
-                    value={
-                      isVehicle
-                        ? (form.details?.vehicles?.[field.name] ?? "")
-                        : (form.details?.realEstate?.[field.name] ?? "")
-                    }
+                    value={form.details?.[field.name] ?? ""}
                     onChange={(value) => handleInputChange(field.name, value)}
                     error={errors[`details.${field.name}`]}
                     required={field.required}
@@ -497,11 +468,7 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
                 title={t(`featureCategories.${category}`)}
                 icon={getFeatureIcon(category)}
                 features={features}
-                values={
-                  isVehicle
-                    ? form.details?.vehicles || {}
-                    : form.details?.realEstate || {}
-                }
+                values={form.details || {}}
                 onChange={handleFeatureChange}
               />
             ))}
@@ -553,37 +520,21 @@ const AdvancedDetailsForm = React.memo<AdvancedDetailsFormProps>(
 
         // Format date fields before submission
         const formattedForm = { ...form };
-        const detailsKey = isVehicle ? "vehicles" : "realEstate";
-        const details = formattedForm.details[detailsKey];
+        const details = formattedForm.details || {};
 
-        if (details) {
-          const dateFields = currentSchema
-            .filter(
-              (field) =>
-                field.type === "date" &&
-                details[field.name as keyof typeof details],
-            )
-            .map((field) => field.name);
+        const dateFields = currentSchema.filter(
+          (field) => field.type === "date" && details[field.name]
+        );
 
-          if (dateFields.length > 0) {
-            formattedForm.details = {
-              ...formattedForm.details,
-              [detailsKey]: {
-                ...details,
-                ...Object.fromEntries(
-                  dateFields.map((field) => {
-                    const value = details[field as keyof typeof details];
-                    return [
-                      field,
-                      value
-                        ? new Date(value as string).toISOString().split("T")[0]
-                        : "",
-                    ];
-                  }),
-                ),
-              },
-            };
-          }
+        if (dateFields.length > 0) {
+          const updatedDetails = { ...details };
+          dateFields.forEach((field) => {
+            const value = details[field.name];
+            if (value) {
+              updatedDetails[field.name] = new Date(value as string).toISOString().split("T")[0];
+            }
+          });
+          formattedForm.details = updatedDetails;
         }
 
         console.log(

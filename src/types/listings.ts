@@ -266,7 +266,6 @@ export interface VehicleFeatures {
 // Base interface for all vehicles
 export interface BaseVehicleDetails {
   // Basic info
-  vin?: string;
   customMake?: string;
   customModel?: string;
   make: string;
@@ -514,6 +513,8 @@ export interface CarDetails extends BaseVehicleDetails {
   warranty?: string;
   modifications?: string[];
   seatingCapacity?: number;
+  seats?: number;
+  doors?: number;
   trunkCapacity?: number;
   acceleration?: string;
   maxSpeed?: number;
@@ -789,10 +790,7 @@ export interface ListingUpdateInput {
   latitude: number;
   longitude: number;
   category: Category;
-  details?: {
-    vehicles?: Record<string, string | number | boolean | string[]>;
-    realEstate?: Record<string, string | number | boolean | string[]>;
-  };
+  details?: VehicleDetails | RealEstateDetails | Record<string, any>;
   status?: ListingStatus;
 }
 
@@ -818,6 +816,43 @@ export interface UserListingsResponse {
   hasMore: boolean;
 }
 
+// Flat listing details interface that combines all possible fields
+export interface FlatListingDetails extends Record<string, any> {
+  // Vehicle fields
+  vehicleType?: VehicleType;
+  make?: string;
+  model?: string;
+  year?: string | number;
+  mileage?: string | number;
+  fuelType?: string;
+  transmissionType?: string;
+  color?: string;
+  interiorColor?: string;
+  warranty?: string | boolean;
+  serviceHistory?: string | boolean;
+  previousOwners?: string | number;
+  registrationStatus?: string;
+  engine?: string;
+  horsepower?: string | number;
+  torque?: string | number;
+  customMake?: string;
+  customModel?: string;
+  
+  // Real estate fields
+  propertyType?: PropertyType;
+  area?: string | number;
+  yearBuilt?: string | number;
+  bedrooms?: string | number;
+  bathrooms?: string | number;
+  condition?: Condition;
+  floor?: string | number;
+  internetIncluded?: boolean;
+  
+  // Common fields
+  features?: string[];
+  [key: string]: any;
+}
+
 // Base form state with all fields optional for form handling
 export interface BaseFormState {
   title?: string;
@@ -828,10 +863,7 @@ export interface BaseFormState {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
   };
-  details?: {
-    vehicles?: VehicleDetails;
-    realEstate?: RealEstateDetails;
-  };
+  details?: FlatListingDetails;
   images?: Array<string | File>;
   features?: string[];
   listingAction?: ListingAction;
@@ -952,8 +984,5 @@ export interface RealEstateDetails {
   otherDetails?: OtherDetails;
 }
 
-// Update ListingDetails and FormState to use the new RealEstateDetails interface
-export interface ListingDetails {
-  vehicles?: VehicleDetails;
-  realEstate?: RealEstateDetails;
-}
+// Updated ListingDetails to use flat structure - details can be either VehicleDetails or RealEstateDetails directly
+export type ListingDetails = Record<string, any>; // Flat structure for all listing details

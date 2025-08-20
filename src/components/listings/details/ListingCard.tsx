@@ -210,17 +210,8 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                   transmissionValue === "continuously_variable" ||
                   transmissionValue === "continuouslyvariable"
                 ) {
-                  return "CVT";
-                } else if (
-                  transmissionValue === "semi_automatic" ||
-                  transmissionValue === "semi-automatic"
-                ) {
-                  translationKey = "semiAutomatic";
-                } else if (
-                  transmissionValue === "dual_clutch" ||
-                  transmissionValue === "dualclutch"
-                ) {
-                  translationKey = "dualClutch";
+            
+                 
                 } else if (
                   transmissionValue === "manual" ||
                   transmissionValue === "automatic"
@@ -720,30 +711,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
 
                           // Map all possible variations to our translation keys
                           if (
-                            [
-                              "cvt",
-                              "continuouslyvariable",
-                              "continuously_variable",
-                            ].includes(normalizedValue)
-                          ) {
-                            translationKey = "CVT";
-                          } else if (
-                            [
-                              "semimanual",
-                              "semiautomatic",
-                              "semi_automatic",
-                              "semi-automatic",
-                            ].includes(normalizedValue)
-                          ) {
-                            translationKey = "SEMI_AUTOMATIC";
-                          } else if (
-                            ["dualclutch", "dual_clutch", "dualgrip"].includes(
-                              normalizedValue,
-                            )
-                          ) {
-                            translationKey = "DUAL_CLUTCH";
-                          } else if (
-                            ["automatic", "auto", "اتوماتيك"].includes(
+                             ["automatic", "auto", "اتوماتيك"].includes(
                               normalizedValue,
                             )
                           ) {
@@ -797,7 +765,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                               .toLowerCase()
                               .replace(/([a-z])([A-Z])/g, "$1 $2")
                               .replace(/[_-]/g, " ")
-                              .replace(/\b\w/g, (char) => char.toUpperCase())
+                              .replace(/\b\w/g, (char: string) => char.toUpperCase())
                               .trim();
                           }
 

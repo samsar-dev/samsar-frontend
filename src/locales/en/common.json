@@ -122,9 +122,6 @@
       "transmissionTypes": {
         "automatic": "Automatic",
         "manual": "Manual",
-        "semiAutomatic": "Semi-Automatic",
-        "continuouslyVariable": "CVT",
-        "dualClutch": "Dual Clutch",
         "other": "Other"
       },
       "conditions": {

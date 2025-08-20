@@ -71,6 +71,14 @@ export const FormField = forwardRef<
         | React.ChangeEvent<HTMLTextAreaElement>
         | null,
     ) => {
+      console.log(`[FormField] handleChange for ${name}:`, {
+        type,
+        value,
+        e,
+        required,
+        placeholder
+      });
+      
       let newValue: string | boolean | string[];
 
       if (e && "target" in e) {
@@ -88,6 +96,8 @@ export const FormField = forwardRef<
         // Handle null case from react-select
         newValue = "";
       }
+
+      console.log(`[FormField] newValue for ${name}:`, newValue);
 
       // Run validation
       let validationError: string | undefined;
@@ -110,10 +120,10 @@ export const FormField = forwardRef<
         }
       }
 
-      onChange(
-        type === "number" ? Number(newValue) : newValue,
-        validationError || undefined,
-      );
+      const finalValue = type === "number" ? Number(newValue) : newValue;
+      console.log(`[FormField] onChange for ${name}:`, { finalValue, validationError });
+
+      onChange(finalValue, validationError || undefined);
     };
 
     const handleMultiSelectChange = (newValue: string[]) => {
@@ -371,7 +381,7 @@ export const FormField = forwardRef<
                   name={name}
                   value={
                     type === "number"
-                      ? value === 0
+                      ? value === 0 || value === "" || value === null || value === undefined
                         ? ""
                         : String(value)
                       : String(value)
@@ -380,11 +390,8 @@ export const FormField = forwardRef<
                   className={clsx(
                     inputClasses,
                     "relative z-10 bg-transparent",
-                    {
-                      "text-transparent": type === "number" && value === 0,
-                    },
                   )}
-                  placeholder="0"
+                  placeholder={placeholder || "0"}
                   required={required}
                   disabled={disabled}
                   min={min}
@@ -392,7 +399,7 @@ export const FormField = forwardRef<
                   aria-invalid={!!error}
                   aria-describedby={error ? `${name}-error` : undefined}
                 />
-                {type === "number" && value === 0 && (
+                {type === "number" && (value === 0 || value === "") && placeholder && (
                   <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
                     {placeholder}
                   </span>

@@ -584,11 +584,11 @@ const ListingDetails = () => {
     let listingType: SchemaType | undefined;
 
     if (listing.category?.mainCategory === ListingCategory.VEHICLES) {
-      // For vehicles, use the vehicle type from details.vehicles
+      // For vehicles, use the vehicle type from details
       listingType = vehicleType;
       console.log("Using vehicle type:", listingType);
     } else if (listing.category?.mainCategory === ListingCategory.REAL_ESTATE) {
-      // For properties, use the property type from details.realEstate
+      // For properties, use the property type from details
       listingType = propertyType;
       console.log("Using property type:", listingType);
     } else {
@@ -630,9 +630,9 @@ const ListingDetails = () => {
         }
       });
 
-      // Add all fields from listing.details.vehicles
+      // Add all fields from listing.details
       if (listing.details?.vehicles) {
-        Object.keys(listing.details.vehicles).forEach((key) => {
+        Object.keys(listing.details).forEach((key) => {
           // Skip internal fields
           if (!["id", "listingId", "createdAt", "updatedAt"].includes(key)) {
             fields.add(key);

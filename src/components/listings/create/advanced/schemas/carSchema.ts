@@ -1,4 +1,4 @@
-import type { ListingFieldSchema } from "../../../../../types/listings";
+import type { ListingFieldSchema } from "@/types/listings";
 import { Condition, FuelType, TransmissionType } from "@/types/enums";
 
 // Car Listing Schema
@@ -177,6 +177,48 @@ export const carSchema: ListingFieldSchema[] = [
     section: "advanced",
     required: false,
     tooltip: "tooltips.bodyType",
+  },
+  {
+    name: "doors",
+    label: "fields.doors",
+    type: "number",
+    section: "advanced",
+    required: false,
+    validate: (value: string | number | boolean) => {
+      if (value === "" || value === undefined || value === null) return null;
+      let numValue = value;
+      if (typeof value === "string") {
+        numValue = Number(value);
+        if (value.trim() !== "" && (isNaN(numValue) || numValue < 0)) {
+          return "errors.doorsInvalid";
+        }
+      } else if (typeof value === "number" && value < 0) {
+        return "errors.doorsInvalid";
+      }
+      return null;
+    },
+    tooltip: "tooltips.doors",
+  },
+  {
+    name: "seats",
+    label: "fields.seats",
+    type: "number",
+    section: "advanced",
+    required: false,
+    validate: (value: string | number | boolean) => {
+      if (value === "" || value === undefined || value === null) return null;
+      let numValue = value;
+      if (typeof value === "string") {
+        numValue = Number(value);
+        if (value.trim() !== "" && (isNaN(numValue) || numValue < 0)) {
+          return "errors.seatsInvalid";
+        }
+      } else if (typeof value === "number" && value < 0) {
+        return "errors.seatsInvalid";
+      }
+      return null;
+    },
+    tooltip: "tooltips.seats",
   },
   {
     name: "driveType",

@@ -12,7 +12,6 @@ import type {
 import {
   VehicleType,
   ListingAction,
-  TransmissionType,
   Condition,
 } from "@/types/enums";
 // Define custom ListingParams interface directly here to avoid import conflicts
@@ -83,20 +82,7 @@ export interface SingleListingResponse {
   listingAction: "SALE" | "RENT";
   status: "ACTIVE" | "SOLD" | "RENTED" | "EXPIRED";
   images: { url: string }[];
-  details: {
-    vehicles?: {
-      make: string;
-      model: string;
-      year: string;
-      [key: string]: any;
-    };
-    realEstate?: {
-      size: string;
-      bedrooms: string;
-      bathrooms: string;
-      [key: string]: any;
-    };
-  };
+  details: Record<string, any>; // Flat structure for details
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -126,10 +112,7 @@ export interface ListingCreateInput extends Omit<FormState, "images"> {
     mainCategory: ListingCategory;
     subCategory: VehicleType | PropertyType;
   };
-  details: {
-    vehicles?: VehicleDetails;
-    realEstate?: RealEstateDetails;
-  };
+  details: ListingDetails;
 }
 
 export const createListing = async (
@@ -145,11 +128,12 @@ export const createListing = async (
     try {
       const details = JSON.parse(detailsStr);
 
-      if (details.vehicles) {
+      // Check if this is a vehicle listing by looking for vehicleType
+      if (details.vehicleType) {
         // Validate required fields
         const requiredFields = ["vehicleType", "make", "model"];
         for (const field of requiredFields) {
-          if (!details.vehicles[field]) {
+          if (!details[field]) {
             throw new Error(`${field} is required for vehicle listings`);
           }
         }
@@ -169,13 +153,13 @@ export const createListing = async (
         // Process numeric fields
         Object.entries(numericFields).forEach(([field, defaultValue]) => {
           if (
-            details.vehicles &&
-            (details.vehicles as Record<string, any>)[field] !== undefined
+            details &&
+            (details as Record<string, any>)[field] !== undefined
           ) {
             const parsed = parseInt(
-              (details.vehicles as Record<string, any>)[field].toString(),
+              (details as Record<string, any>)[field].toString(),
             );
-            (details.vehicles as Record<string, any>)[field] = isNaN(parsed)
+            (details as Record<string, any>)[field] = isNaN(parsed)
               ? defaultValue
               : parsed;
           }
@@ -190,7 +174,7 @@ export const createListing = async (
         ];
 
         booleanFields.forEach((field) => {
-          details.vehicles[field] = Boolean(details.vehicles[field]);
+          details[field] = Boolean(details[field]);
         });
 
         // Common string fields with empty string defaults
@@ -210,12 +194,12 @@ export const createListing = async (
         ];
 
         stringFields.forEach((field) => {
-          details.vehicles[field] = details.vehicles[field] || "";
+          details[field] = details[field] || "";
         });
 
         // Ensure features is an array
-        details.vehicles.features = Array.isArray(details.vehicles.features)
-          ? details.vehicles.features
+        details.features = Array.isArray(details.features)
+          ? details.features
           : [];
 
         // Handle specific vehicle type details
@@ -240,7 +224,7 @@ export const createListing = async (
 
         // Apply vehicle type specific fields
         // Convert singular enum values to plural if needed
-        const vehicleType = details.vehicles.vehicleType;
+        const vehicleType = details.vehicleType;
         const pluralVehicleType = 
           vehicleType === 'CAR' ? 'CARS' :
           vehicleType === 'MOTORCYCLE' ? 'MOTORCYCLES' :
@@ -249,7 +233,7 @@ export const createListing = async (
         const typeFields =
           vehicleTypeFields[pluralVehicleType as keyof typeof vehicleTypeFields] || [];
         typeFields.forEach((field: string) => {
-          details.vehicles[field] = details.vehicles[field] || "";
+          details[field] = details[field] || "";
         });
       }
 
@@ -568,25 +552,24 @@ export const listingsAPI: ListingsAPI = {
 
       // Handle different response formats
       let responseData;
-      if (data.data && typeof data.data === "object") {
-        if (data.data.items && Array.isArray(data.data.items)) {
-          responseData = {
-            listings: data.data.items,
-            total: data.data.total || 0,
-            page: data.data.page || 1,
-            limit: data.data.limit || 10,
-            hasMore: data.data.hasMore || false,
-          };
-        } else {
-          console.warn("Expected items array not found in response");
-          responseData = {
-            listings: [],
-            total: 0,
-            page: 1,
-            limit: 10,
-            hasMore: false,
-          };
-        }
+      if (data.data && Array.isArray(data.data)) {
+        // The backend returns listings directly in the data property
+        responseData = {
+          listings: data.data,
+          total: data.total ?? data.data.length,
+          page: data.page ?? 1,
+          limit: data.limit ?? 10,
+          hasMore: data.hasMore ?? false,
+        };
+      } else if (data.data && typeof data.data === "object" && Array.isArray(data.data.items)) {
+        // Handle nested structure for other potential endpoints
+        responseData = {
+          listings: data.data.items,
+          total: data.data.total || 0,
+          page: data.data.page || 1,
+          limit: data.data.limit || 10,
+          hasMore: data.data.hasMore || false,
+        };
       } else {
         console.warn("Unexpected API response format", data);
         responseData = {
@@ -601,32 +584,30 @@ export const listingsAPI: ListingsAPI = {
       // Extract only essential information for listing cards if preview mode is on
       if (params.preview && responseData.listings) {
         responseData.listings = responseData.listings.map((listing: any) => {
-          // Keep only essential vehicle or real estate details if they exist
-          const essentialDetails: any = {
-            vehicles: listing.details.vehicles
-              ? {
-                  ...listing.details.vehicles,
-                  make: listing.details.vehicles.make,
-                  model: listing.details.vehicles.model,
-                  year: listing.details.vehicles.year,
-                  mileage: listing.details.vehicles.mileage,
-                  transmissionType: listing.details.vehicles.transmissionType,
-                  fuelType: listing.details.vehicles.fuelType,
-                  color: listing.details.vehicles.color,
-                  condition: listing.details.vehicles.condition,
-                }
-              : undefined,
-          };
-
-          if (listing.details?.realEstate) {
-            essentialDetails.realEstate = {
-              propertyType: listing.details.realEstate.propertyType,
-              size: listing.details.realEstate.size,
-              bedrooms: listing.details.realEstate.bedrooms,
-              bathrooms: listing.details.realEstate.bathrooms,
-              yearBuilt: listing.details.realEstate.yearBuilt,
-              condition: listing.details.realEstate.condition,
-            };
+          // Keep only essential details - now using flat structure
+          const essentialDetails: any = {};
+          
+          // If it's a vehicle listing, keep vehicle-specific fields
+          if (listing.details?.vehicleType) {
+            essentialDetails.vehicleType = listing.details.vehicleType;
+            essentialDetails.make = listing.details.make;
+            essentialDetails.model = listing.details.model;
+            essentialDetails.year = listing.details.year;
+            essentialDetails.mileage = listing.details.mileage;
+            essentialDetails.transmissionType = listing.details.transmissionType;
+            essentialDetails.fuelType = listing.details.fuelType;
+            essentialDetails.color = listing.details.color;
+            essentialDetails.condition = listing.details.condition;
+          }
+          
+          // If it's a real estate listing, keep real estate-specific fields
+          if (listing.details?.propertyType) {
+            essentialDetails.propertyType = listing.details.propertyType;
+            essentialDetails.size = listing.details.size;
+            essentialDetails.bedrooms = listing.details.bedrooms;
+            essentialDetails.bathrooms = listing.details.bathrooms;
+            essentialDetails.yearBuilt = listing.details.yearBuilt;
+            essentialDetails.condition = listing.details.condition;
           }
 
           // Get the listing action from the response
@@ -1233,255 +1214,8 @@ export const listingsAPI: ListingsAPI = {
 
       const responseData = response.data.data;
 
-      // Transform vehicle details if present with all fields
-      const details: ListingDetails = {
-        // @ts-expect-error: The 'vehicles' property is not guaranteed to exist in the 'responseData.details' object
-        vehicles: responseData.details.vehicles
-          ? {
-              vehicleType: responseData.category.subCategory === VehicleType.MOTORCYCLES 
-                ? VehicleType.MOTORCYCLES 
-                : VehicleType.CARS,
-              make: responseData.details.vehicles.make || "",
-              model: responseData.details.vehicles.model || "",
-              year: responseData.details.vehicles.year || "",
-              // Essential fields
-              mileage:
-                typeof responseData.details.vehicles.mileage === "string"
-                  ? parseInt(responseData.details.vehicles.mileage, 10)
-                  : responseData.details.vehicles.mileage || 0,
-              fuelType: responseData.details.vehicles.fuelType || "",
-              transmissionType:
-                responseData.details.vehicles.transmissionType ||
-                TransmissionType.AUTOMATIC,
-              transmission: responseData.details.vehicles.transmission || "",
-              // Appearance fields
-              color: responseData.details.vehicles.color || "#000000",
-              interiorColor:
-                responseData.details.vehicles.interiorColor || "#000000",
-              condition:
-                responseData.details.vehicles.condition || Condition.GOOD,
-              features:
-                responseData.details.vehicles.features ||
-                ({} as Record<string, any>),
-              // Technical fields
-              brakeType:
-                responseData.details.vehicles.brakeType || "Not provided",
-              engineSize:
-                responseData.details.vehicles.engineSize || "Not provided",
-              horsepower:
-                typeof responseData.details.vehicles.horsepower === "string"
-                  ? parseInt(responseData.details.vehicles.horsepower, 10)
-                  : responseData.details.vehicles.horsepower || 0,
-              torque:
-                typeof responseData.details.vehicles.torque === "string"
-                  ? parseInt(responseData.details.vehicles.torque, 10)
-                  : responseData.details.vehicles.torque || 0,
-              previousOwners:
-                typeof responseData.details.vehicles.previousOwners === "string"
-                  ? parseInt(responseData.details.vehicles.previousOwners, 10)
-                  : responseData.details.vehicles.previousOwners || 0,
-              // Service and History
-              accidentFree:
-                responseData.details.vehicles.accidentFree === true ||
-                responseData.details.vehicles.accidentFree === "true",
-              importStatus:
-                responseData.details.vehicles.importStatus || "Local",
-              registrationExpiry:
-                responseData.details.vehicles.registrationExpiry || "",
-              warranty: responseData.details.vehicles.warranty || "No",
-              warrantyPeriod:
-                responseData.details.vehicles.warrantyPeriod || "",
-              serviceHistory:
-                responseData.details.vehicles.serviceHistory === true ||
-                responseData.details.vehicles.serviceHistory === "true",
-              serviceHistoryDetails:
-                responseData.details.vehicles.serviceHistoryDetails || "",
-              insuranceType:
-                responseData.details.vehicles.insuranceType || "None",
-              upholsteryMaterial:
-                responseData.details.vehicles.upholsteryMaterial || "Other",
-              customsCleared:
-                responseData.details.vehicles.customsCleared === true ||
-                responseData.details.vehicles.customsCleared === "true",
-              bodyType: responseData.details.vehicles.bodyType || "",
-              roofType: responseData.details.vehicles.roofType || "",
-              additionalNotes:
-                responseData.details.vehicles.additionalNotes || "",
-
-              // Safety Features
-              blindSpotMonitor:
-                responseData.details.vehicles.blindSpotMonitor === true ||
-                responseData.details.vehicles.blindSpotMonitor === "true",
-              laneAssist:
-                responseData.details.vehicles.laneAssist === true ||
-                responseData.details.vehicles.laneAssist === "true",
-              adaptiveCruiseControl:
-                responseData.details.vehicles.adaptiveCruiseControl === true ||
-                responseData.details.vehicles.adaptiveCruiseControl === "true",
-              tractionControl:
-                responseData.details.vehicles.tractionControl === true ||
-                responseData.details.vehicles.tractionControl === "true",
-              abs:
-                responseData.details.vehicles.abs === true ||
-                responseData.details.vehicles.abs === "true",
-              emergencyBrakeAssist:
-                responseData.details.vehicles.emergencyBrakeAssist === true ||
-                responseData.details.vehicles.emergencyBrakeAssist === "true",
-              tirePressureMonitoring:
-                responseData.details.vehicles.tirePressureMonitoring === true ||
-                responseData.details.vehicles.tirePressureMonitoring === "true",
-
-              // Nested Safety Features
-              frontAirbags:
-                responseData.details.vehicles.frontAirbags === true ||
-                responseData.details.vehicles.frontAirbags === "true",
-              sideAirbags:
-                responseData.details.vehicles.sideAirbags === true ||
-                responseData.details.vehicles.sideAirbags === "true",
-              curtainAirbags:
-                responseData.details.vehicles.curtainAirbags === true ||
-                responseData.details.vehicles.curtainAirbags === "true",
-              kneeAirbags:
-                responseData.details.vehicles.kneeAirbags === true ||
-                responseData.details.vehicles.kneeAirbags === "true",
-              cruiseControl:
-                responseData.details.vehicles.cruiseControl === true ||
-                responseData.details.vehicles.cruiseControl === "true",
-              laneDepartureWarning:
-                responseData.details.vehicles.laneDepartureWarning === true ||
-                responseData.details.vehicles.laneDepartureWarning === "true",
-              laneKeepAssist:
-                responseData.details.vehicles.laneKeepAssist === true ||
-                responseData.details.vehicles.laneKeepAssist === "true",
-              automaticEmergencyBraking:
-                responseData.details.vehicles.automaticEmergencyBraking ===
-                  true ||
-                responseData.details.vehicles.automaticEmergencyBraking ===
-                  "true",
-
-              // Camera Features
-              rearCamera:
-                responseData.details.vehicles.rearCamera === true ||
-                responseData.details.vehicles.rearCamera === "true",
-              camera360:
-                responseData.details.vehicles.camera360 === true ||
-                responseData.details.vehicles.camera360 === "true",
-              dashCam:
-                responseData.details.vehicles.dashCam === true ||
-                responseData.details.vehicles.dashCam === "true",
-              nightVision:
-                responseData.details.vehicles.nightVision === true ||
-                responseData.details.vehicles.nightVision === "true",
-              parkingSensors:
-                responseData.details.vehicles.parkingSensors === true ||
-                responseData.details.vehicles.parkingSensors === "true",
-
-              // Climate Features
-              climateControl:
-                responseData.details.vehicles.climateControl === true ||
-                responseData.details.vehicles.climateControl === "true",
-              heatedSeats:
-                responseData.details.vehicles.heatedSeats === true ||
-                responseData.details.vehicles.heatedSeats === "true",
-              ventilatedSeats:
-                responseData.details.vehicles.ventilatedSeats === true ||
-                responseData.details.vehicles.ventilatedSeats === "true",
-              dualZoneClimate:
-                responseData.details.vehicles.dualZoneClimate === true ||
-                responseData.details.vehicles.dualZoneClimate === "true",
-              rearAC:
-                responseData.details.vehicles.rearAC === true ||
-                responseData.details.vehicles.rearAC === "true",
-              airQualitySensor:
-                responseData.details.vehicles.airQualitySensor === true ||
-                responseData.details.vehicles.airQualitySensor === "true",
-
-              // Entertainment Features
-              bluetooth:
-                responseData.details.vehicles.bluetooth === true ||
-                responseData.details.vehicles.bluetooth === "true",
-              appleCarPlay:
-                responseData.details.vehicles.appleCarPlay === true ||
-                responseData.details.vehicles.appleCarPlay === "true",
-              androidAuto:
-                responseData.details.vehicles.androidAuto === true ||
-                responseData.details.vehicles.androidAuto === "true",
-              premiumSound:
-                responseData.details.vehicles.premiumSound === true ||
-                responseData.details.vehicles.premiumSound === "true",
-              wirelessCharging:
-                responseData.details.vehicles.wirelessCharging === true ||
-                responseData.details.vehicles.wirelessCharging === "true",
-              usbPorts:
-                responseData.details.vehicles.usbPorts === true ||
-                responseData.details.vehicles.usbPorts === "true",
-              cdPlayer:
-                responseData.details.vehicles.cdPlayer === true ||
-                responseData.details.vehicles.cdPlayer === "true",
-              dvdPlayer:
-                responseData.details.vehicles.dvdPlayer === true ||
-                responseData.details.vehicles.dvdPlayer === "true",
-              rearSeatEntertainment:
-                responseData.details.vehicles.rearSeatEntertainment === true ||
-                responseData.details.vehicles.rearSeatEntertainment === "true",
-
-              // Lighting Features
-              ledHeadlights:
-                responseData.details.vehicles.ledHeadlights === true ||
-                responseData.details.vehicles.ledHeadlights === "true",
-              adaptiveHeadlights:
-                responseData.details.vehicles.adaptiveHeadlights === true ||
-                responseData.details.vehicles.adaptiveHeadlights === "true",
-              ambientLighting:
-                responseData.details.vehicles.ambientLighting === true ||
-                responseData.details.vehicles.ambientLighting === "true",
-              fogLights:
-                responseData.details.vehicles.fogLights === true ||
-                responseData.details.vehicles.fogLights === "true",
-              automaticHighBeams:
-                responseData.details.vehicles.automaticHighBeams === true ||
-                responseData.details.vehicles.automaticHighBeams === "true",
-
-              // Convenience Features
-              keylessEntry:
-                responseData.details.vehicles.keylessEntry === true ||
-                responseData.details.vehicles.keylessEntry === "true",
-              sunroof:
-                responseData.details.vehicles.sunroof === true ||
-                responseData.details.vehicles.sunroof === "true",
-              spareKey:
-                responseData.details.vehicles.spareKey === true ||
-                responseData.details.vehicles.spareKey === "true",
-              remoteStart:
-                responseData.details.vehicles.remoteStart === true ||
-                responseData.details.vehicles.remoteStart === "true",
-              powerTailgate:
-                responseData.details.vehicles.powerTailgate === true ||
-                responseData.details.vehicles.powerTailgate === "true",
-              autoDimmingMirrors:
-                responseData.details.vehicles.autoDimmingMirrors === true ||
-                responseData.details.vehicles.autoDimmingMirrors === "true",
-              rainSensingWipers:
-                responseData.details.vehicles.rainSensingWipers === true ||
-                responseData.details.vehicles.rainSensingWipers === "true",
-
-              // Additional Technical Fields
-              driveType: responseData.details.vehicles.driveType || "",
-              wheelSize: responseData.details.vehicles.wheelSize || "",
-              wheelType: responseData.details.vehicles.wheelType || "",
-
-              // Features from vehicle category specific fields
-              safetyFeatures:
-                typeof responseData.details.vehicles.safetyFeatures === "object"
-                  ? responseData.details.vehicles.safetyFeatures || {}
-                  : {},
-              engine: responseData.details.vehicles.engine || "",
-            }
-          : undefined,
-        realEstate: responseData.details.realEstate
-          ? (responseData.details.realEstate as any)
-          : undefined,
-      };
+      // Use flat details structure directly - cast to appropriate type
+      const details = responseData.details as VehicleDetails | RealEstateDetails;
 
       // Transform the response data to match the Listing type
       const transformedData: Listing = {
@@ -1593,20 +1327,11 @@ export const listingsAPI: ListingsAPI = {
         const details = JSON.parse(detailsStr);
 
         // Ensure all required vehicle fields are present
-        if (details.vehicles) {
-          const vehicleDetails = {
-            ...details.vehicles,
-            vin: details.vehicles.vin || ""
-          } as VehicleDetails;
+        if (details.vehicleType) {
+      
 
-          // Update the formData with the validated vehicle details
-          formData.set(
-            "details",
-            JSON.stringify({
-              ...details,
-              vehicles: vehicleDetails,
-            }),
-          );
+          // Update the formData with the validated details
+          formData.set("details", JSON.stringify(details));
         }
       }
       // Let the backend handle authentication via cookies

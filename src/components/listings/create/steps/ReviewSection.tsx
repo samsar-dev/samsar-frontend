@@ -17,8 +17,6 @@ const ImageFallback = lazy(() => import("@/components/media/ImageFallback"));
 // const AdvancedDetails = lazy(() => import("@/components/common/AdvancedDetails"));
 import type {
   ListingFieldSchema,
-  RealEstateDetails,
-  VehicleDetails,
 } from "@/types/listings";
 import { AlertCircle, ChevronLeft, DollarSign, MapPin } from "lucide-react";
 import {
@@ -108,18 +106,17 @@ const ReviewSection = React.memo<ReviewSectionProps>(
 
       // Category-specific validation
       if (formData.category?.mainCategory === ListingCategory.VEHICLES) {
-        const vehicleDetails = formData.details?.vehicles;
-        if (!vehicleDetails?.make) newErrors.push(t("errors.makeRequired"));
-        if (!vehicleDetails?.model) newErrors.push(t("errors.modelRequired"));
-        if (!vehicleDetails?.year) newErrors.push(t("errors.yearRequired"));
-        if (!vehicleDetails?.mileage)
+        if (!formData.details?.make) newErrors.push(t("errors.makeRequired"));
+        if (!formData.details?.model) newErrors.push(t("errors.modelRequired"));
+        if (!formData.details?.year) newErrors.push(t("errors.yearRequired"));
+        if (formData.details?.mileage === "" || formData.details?.mileage === undefined || formData.details?.mileage === null)
           newErrors.push(t("errors.mileageRequired"));
-        if (!vehicleDetails?.fuelType)
+        if (!formData.details?.fuelType)
           newErrors.push(t("errors.fuelTypeRequired"));
-        if (!vehicleDetails?.transmissionType)
+        if (!formData.details?.transmissionType)
           newErrors.push(t("errors.transmissionRequired"));
-        if (!vehicleDetails?.color) newErrors.push(t("errors.colorRequired"));
-        if (!vehicleDetails?.condition)
+        if (!formData.details?.color) newErrors.push(t("errors.colorRequired"));
+        if (!formData.details?.condition)
           newErrors.push(t("errors.conditionRequired"));
 
         // Additional required fields from schema
@@ -132,7 +129,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
         );
 
         requiredVehicleFields.forEach((field: ListingFieldSchema) => {
-          const value = vehicleDetails?.[field.name as keyof VehicleDetails];
+          const value = formData.details?.[field.name as string];
           if (!value && value !== 0) {
             newErrors.push(t(`errors.${field.name}Required`));
           }
@@ -142,25 +139,27 @@ const ReviewSection = React.memo<ReviewSectionProps>(
       } else if (
         formData.category?.mainCategory === ListingCategory.REAL_ESTATE
       ) {
-        const realEstateDetails = formData.details?.realEstate;
-        const subCategory = formData.category?.subCategory;
-        if (!subCategory) {
-          newErrors.push(t("errors.subcategoryRequired"));
-        } else {
-          const realEstateSchema =
-            listingsAdvancedFieldSchema[subCategory] || [];
-          const requiredRealEstateFields = realEstateSchema.filter(
-            (field: ListingFieldSchema) => field.required,
-          );
+        if (!formData.details?.propertyType)
+          newErrors.push(t("errors.propertyTypeRequired"));
+        if (!formData.details?.bedrooms)
+          newErrors.push(t("errors.bedroomsRequired"));
+        if (!formData.details?.bathrooms)
+          newErrors.push(t("errors.bathroomsRequired"));
+        if (!formData.details?.area)
+          newErrors.push(t("errors.areaRequired"));
 
-          requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
-            const value =
-              realEstateDetails?.[field.name as keyof RealEstateDetails];
-            if (!value) {
-              newErrors.push(t(`errors.${field.name}Required`));
-            }
-          });
-        }
+        const realEstateSchema =
+          listingsAdvancedFieldSchema[formData.category?.subCategory] || [];
+        const requiredRealEstateFields = realEstateSchema.filter(
+          (field: ListingFieldSchema) => field.required,
+        );
+
+        requiredRealEstateFields.forEach((field: ListingFieldSchema) => {
+          const value = formData.details?.[field.name as string];
+          if (!value) {
+            newErrors.push(t(`errors.${field.name}Required`));
+          }
+        });
       }
 
       // Image validation
@@ -195,16 +194,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
               formData.category?.mainCategory || ListingCategory.VEHICLES,
             subCategory: formData.category?.subCategory || VehicleType.CARS,
           },
-          details: {
-            vehicles:
-              formData.category?.mainCategory === ListingCategory.VEHICLES
-                ? formData.details?.vehicles
-                : undefined,
-            realEstate:
-              formData.category?.mainCategory === ListingCategory.REAL_ESTATE
-                ? formData.details?.realEstate
-                : undefined,
-          },
+          details: formData.details || {},
           images: formData.images || [],
         };
 
@@ -276,8 +266,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     );
 
     const renderVehicleDetails = () => {
-      const vehicleDetails = formData.details?.vehicles;
-      if (!vehicleDetails) return null;
+      const details = formData.details;
+      if (!details) return null;
 
       // Check if this is a motorcycle
       // Only cars and motorcycles are supported
@@ -295,7 +285,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.make")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.make || t("common.notProvided")}
+                  {details.make || t("common.notProvided")}
                 </div>
               </div>
               <div>
@@ -303,7 +293,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.model")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.model || t("common.notProvided")}
+                  {details.model || t("common.notProvided")}
                 </div>
               </div>
               <div>
@@ -311,7 +301,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.year")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.year || t("common.notProvided")}
+                  {details.year || t("common.notProvided")}
                 </div>
               </div>
               <div>
@@ -319,8 +309,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.vehicleType")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.vehicleType
-                    ? t(`listings.vehicleTypes.${vehicleDetails.vehicleType}`)
+                  {details.vehicleType
+                    ? t(`listings.vehicleTypes.${details.vehicleType}`)
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -329,8 +319,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.mileage")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.mileage
-                    ? `${formatMileage(vehicleDetails.mileage)} ${t("listings.miles")}`
+                  {details.mileage
+                    ? `${formatMileage(details.mileage)} ${t("listings.miles")}`
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -339,10 +329,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.fuelType")}
                 </div>
                 <div className="font-medium">
-                  {formData.details?.vehicles?.fuelType
-                    ? formatFuelType(
-                        formData.details.vehicles.fuelType as FuelType,
-                      )
+                  {details.fuelType
+                    ? formatFuelType(details.fuelType as FuelType)
                     : "Select an option"}
                 </div>
               </div>
@@ -351,10 +339,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.transmission")}
                 </div>
                 <div className="font-medium">
-                  {formData.details?.vehicles?.transmissionType
-                    ? t(
-                        `listings.transmissionTypes.${formData.details.vehicles.transmissionType}`,
-                      )
+                  {details.transmissionType
+                    ? t(`listings.transmissionTypes.${details.transmissionType}`)
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -374,11 +360,11 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.exteriorColor")}
                 </div>
                 <div className="font-medium flex items-center gap-2">
-                  {vehicleDetails.color || t("common.notProvided")}
-                  {vehicleDetails.color && (
+                  {details.color || t("common.notProvided")}
+                  {details.color && (
                     <div
                       className="w-4 h-4 rounded-full border border-gray-300"
-                      style={{ backgroundColor: vehicleDetails.color }}
+                      style={{ backgroundColor: details.color }}
                     />
                   )}
                 </div>
@@ -388,11 +374,11 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.interiorColor")}
                 </div>
                 <div className="font-medium flex items-center gap-2">
-                  {vehicleDetails.interiorColor || t("common.notProvided")}
-                  {vehicleDetails.interiorColor && (
+                  {details.interiorColor || t("common.notProvided")}
+                  {details.interiorColor && (
                     <div
                       className="w-4 h-4 rounded-full border border-gray-300"
-                      style={{ backgroundColor: vehicleDetails.interiorColor }}
+                      style={{ backgroundColor: details.interiorColor }}
                     />
                   )}
                 </div>
@@ -404,7 +390,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.engine")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.engine || t("common.notProvided")}
+                  {details.engine || t("common.notProvided")}
                 </div>
               </div>
               <div>
@@ -412,8 +398,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.torque")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.torque
-                    ? `${vehicleDetails.torque} Nm`
+                  {details.torque
+                    ? `${details.torque} Nm`
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -424,8 +410,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.condition")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.condition
-                    ? formatCondition(vehicleDetails.condition)
+                  {details.condition
+                    ? formatCondition(details.condition)
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -434,8 +420,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.warranty")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.warranty
-                    ? `${vehicleDetails.warranty} ${t("common.months")}`
+                  {details.warranty
+                    ? `${details.warranty} ${t("common.months")}`
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -444,10 +430,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.serviceHistory")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.serviceHistory
-                    ? t(
-                        `listings.serviceHistory.${vehicleDetails.serviceHistory}`,
-                      )
+                  {details.serviceHistory
+                    ? t(`listings.serviceHistory.${details.serviceHistory}`)
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -456,7 +440,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.previousOwners")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.previousOwners || t("common.notProvided")}
+                  {details.previousOwners || t("common.notProvided")}
                 </div>
               </div>
               <div>
@@ -464,10 +448,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   {t("listings.registrationStatus")}
                 </div>
                 <div className="font-medium">
-                  {vehicleDetails.registrationStatus
-                    ? t(
-                        `listings.registrationStatus.${vehicleDetails.registrationStatus}`,
-                      )
+                  {details.registrationStatus
+                    ? t(`listings.registrationStatus.${details.registrationStatus}`)
                     : t("common.notProvided")}
                 </div>
               </div>
@@ -475,25 +457,21 @@ const ReviewSection = React.memo<ReviewSectionProps>(
           </div>
 
           {/* Features Section */}
-          {formData.details?.vehicles?.features &&
-            formData.details?.vehicles?.features &&
-            Object.keys(formData.details?.vehicles?.features).length > 0 && (
+          {details.features &&
+            Object.keys(details.features).length > 0 && (
               <div className="space-y-2">
                 <h4 className="font-semibold text-gray-700 dark:text-gray-300">
                   {t("listings.features")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {/* {formData.details?.vehicles?.features.map( */}
-                  {Object.keys(formData.details?.vehicles?.features).map(
-                    (feature: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        {feature}
-                      </span>
-                    ),
-                  )}
+                  {Object.keys(details.features).map((feature: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      {feature}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}
@@ -502,8 +480,8 @@ const ReviewSection = React.memo<ReviewSectionProps>(
     };
 
     const renderRealEstateDetails = () => {
-      const realEstateDetails = formData.details?.realEstate;
-      if (!realEstateDetails) return null;
+      const details = formData.details;
+      if (!details) return null;
 
       return (
         <div className="space-y-2">
@@ -513,18 +491,16 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 {t("listings.propertyType")}
               </div>
               <div className="font-medium">
-                {realEstateDetails.propertyType
-                  ? t(
-                      `listings.propertyTypes.${realEstateDetails.propertyType}`,
-                    )
+                {details.propertyType
+                  ? t(`listings.propertyTypes.${details.propertyType}`)
                   : t("common.notProvided")}
               </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">{t("listings.size")}</div>
               <div className="font-medium">
-                {realEstateDetails.size
-                  ? `${realEstateDetails.size} ${t("listings.sqft")}`
+                {details.area
+                  ? `${details.area} ${t("listings.sqft")}`
                   : t("common.notProvided")}
               </div>
             </div>
@@ -533,7 +509,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 {t("listings.yearBuilt")}
               </div>
               <div className="font-medium">
-                {realEstateDetails.yearBuilt || t("common.notProvided")}
+                {details.yearBuilt || t("common.notProvided")}
               </div>
             </div>
             <div>
@@ -541,7 +517,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 {t("listings.bedrooms")}
               </div>
               <div className="font-medium">
-                {realEstateDetails.bedrooms || t("common.notProvided")}
+                {details.bedrooms || t("common.notProvided")}
               </div>
             </div>
             <div>
@@ -549,11 +525,11 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                 {t("listings.bathrooms")}
               </div>
               <div className="font-medium">
-                {realEstateDetails.bathrooms || t("common.notProvided")}
+                {details.bathrooms || t("common.notProvided")}
               </div>
             </div>
-            {formData.details?.realEstate?.features &&
-              formData.details?.realEstate?.features.length > 0 && (
+            {details.features &&
+              details.features.length > 0 && (
                 <div className="col-span-2">
                   <div className="text-sm text-gray-500">
                     {t("listings.features")}

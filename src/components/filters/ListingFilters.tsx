@@ -183,12 +183,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
   ]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 p-4 relative z-20 w-full max-w-6xl mx-auto transition-colors">
-      <div className="flex flex-row gap-6 items-start">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 p-3 sm:p-4 relative z-20 w-full max-w-6xl mx-auto transition-colors">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
         {/* Vehicle Type Selector */}
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3 w-full lg:w-auto">
           <h2 className="sr-only">{t("vehicle_type")}</h2>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2">
             {vehicleTypes.map((type) => (
               <button
                 key={type.id}
@@ -198,7 +198,7 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                     type.id === selectedSubcategory ? null : type.id,
                   )
                 }
-                className={`p-3 rounded-lg flex flex-col items-center justify-center min-h-[5.5rem] min-w-[5.5rem] transition-colors ${
+                className={`p-2 sm:p-3 rounded-lg flex flex-col items-center justify-center min-h-[4rem] sm:min-h-[5.5rem] min-w-[4rem] sm:min-w-[5.5rem] transition-colors ${
                   type.id === selectedSubcategory
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-2 ring-blue-500"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -208,31 +208,31 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
               >
                 {React.cloneElement(type.icon, {
                   "aria-hidden": "true",
-                  className: "w-6 h-6",
+                  className: "w-5 h-5 sm:w-6 sm:h-6",
                 })}
-                <span className="text-xs mt-1.5 font-medium">{type.name}</span>
+                <span className="text-xs mt-1 sm:mt-1.5 font-medium text-center">{type.name}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Main Filter Area */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <form
             onSubmit={handleSearch}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 items-end"
           >
-            <div>
+            <div className="w-full">
               <label
                 id="make-label"
-                className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1.5"
+                className="block text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 sm:mb-1.5"
               >
                 {t("make")}
                 <span className="sr-only">{t("required")}</span>
               </label>
               <select
                 aria-labelledby="make-label"
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={selectedMake || ""}
                 onChange={(e) => setSelectedMake(e.target.value || null)}
                 disabled={loading}
@@ -246,12 +246,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("model")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={selectedModel || ""}
                 onChange={(e) => setSelectedModel(e.target.value || null)}
                 disabled={!selectedMake || loading}
@@ -266,12 +266,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("first_registration")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={selectedYear || ""}
                 onChange={(e) =>
                   setSelectedYear(
@@ -292,12 +292,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("kilometers_up_to")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={selectedMileage || ""}
                 onChange={(e) =>
                   setSelectedMileage(
@@ -318,12 +318,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("payment_method")}
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={selectedAction || ""}
                 onChange={(e) => handleActionChange(e.target.value)}
                 disabled={loading}
@@ -338,12 +338,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 </option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("price_up_to")} (€)
               </label>
               <select
-                className="w-full p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full p-2 sm:p-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 value={priceRange.max || ""}
                 onChange={(e) =>
                   onPriceRangeChange({
@@ -366,8 +366,8 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 ))}
               </select>
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <div className="w-full sm:col-span-2 lg:col-span-2 xl:col-span-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 {t("location")}
               </label>
               <LocationSearch
@@ -375,12 +375,12 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 onSelectLocation={handleLocationSelect}
                 placeholder={t("search_location_placeholder")}
                 className="w-full"
-                inputClassName="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md pl-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                inputClassName="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md pl-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
                 initialValue={locationData?.address || ""}
               />
               {locationData?.radius !== undefined && (
                 <div className="mt-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Within {locationData.radius} km
                   </label>
                   <input
@@ -406,28 +406,26 @@ const ListingFiltersComponent: FC<ListingFiltersProps> = ({
                 </div>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-end mt-4 gap-2">
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="px-5 py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                  disabled={loading}
-                  aria-label={t("reset_filters")}
-                >
-                  {t("reset")}
-                </button>
-                <button
-                  type="submit"
-                  className="flex items-center px-6 py-2.5 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={loading}
-                  aria-label={t("search")}
-                >
-                  <MdSend className="mr-2 w-5 h-5" aria-hidden="true" />
-                  {t("search")}
-                  <span className="sr-only">{t("search_listings")}</span>
-                </button>
-              </div>
+            <div className="w-full sm:col-span-2 lg:col-span-2 xl:col-span-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end mt-4 gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                disabled={loading}
+                aria-label={t("reset_filters")}
+              >
+                {t("reset")}
+              </button>
+              <button
+                type="submit"
+                className="w-full sm:w-auto flex items-center justify-center px-4 sm:px-6 py-2 sm:py-2.5 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+                aria-label={t("search")}
+              >
+                <MdSend className="mr-2 w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+                {t("search")}
+                <span className="sr-only">{t("search_listings")}</span>
+              </button>
             </div>
           </form>
         </div>
