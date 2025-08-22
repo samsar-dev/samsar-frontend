@@ -4,7 +4,7 @@
 
 # Build Configuration
 VITE_BUILD_DIR=dist
-# Deployment trigger
+# Deployment trigger - updated for Vercel
 
 [build.environment]
   NODE_VERSION = "18"
