@@ -7,7 +7,7 @@ import type { Listing } from "@/types/listings";
 import { locationAPI } from "@/api/location.api";
 import { useTranslation } from "react-i18next";
 
-// Fix for default marker icons
+ 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
