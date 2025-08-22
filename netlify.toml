@@ -2,7 +2,7 @@
   publish = "dist"
   command = "npm run build"
 
-# Build Configuration
+# Build Configuratio
 VITE_BUILD_DIR=dist
 
 [build.environment]
