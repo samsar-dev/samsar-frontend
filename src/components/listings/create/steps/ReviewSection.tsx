@@ -369,19 +369,7 @@ const ReviewSection = React.memo<ReviewSectionProps>(
                   )}
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-500">
-                  {t("listings.interiorColor")}
-                </div>
-                <div className="font-medium flex items-center gap-2">
-                  {details.interiorColor || t("common.notProvided")}
-                  {details.interiorColor && (
-                    <div
-                      className="w-4 h-4 rounded-full border border-gray-300"
-                      style={{ backgroundColor: details.interiorColor }}
-                    />
-                  )}
-                </div>
+              <div>  
               </div>
 
               {/* Performance */}

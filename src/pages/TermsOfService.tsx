@@ -10,22 +10,13 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-import { useTranslation } from "react-i18next";
 import { SEO } from "@/utils/seo";
 
 const TermsOfService = () => {
-  const { t } = useTranslation();
-
   // SEO Meta Tags
-  const pageTitle = t("terms.meta_title", "شروط وأحكام الاستخدام - سمسار");
-  const pageDescription = t(
-    "terms.meta_description",
-    "تعرف على الشروط والأحكام المنظمة لاستخدام منصة سمسار. يرجى قراءة هذه الشروط بعناية قبل استخدام المنصة.",
-  );
-  const pageKeywords = t(
-    "terms.meta_keywords",
-    "شروط الاستخدام, الشروط والأحكام, سياسة الاستخدام, قوانين الموقع, اتفاقية المستخدم, حقوق وواجبات المستخدمين, حماية الخصوصية, سمسار",
-  );
+  const pageTitle = "Terms of Service - Samsar";
+  const pageDescription = "Read the terms and conditions governing the use of Samsar platform. Please read these terms carefully before using the platform.";
+  const pageKeywords = "terms of service, terms and conditions, usage policy, website rules, user agreement, user rights and obligations, privacy protection, email marketing compliance";
   const sections = [
     {
       title: "1. Introduction",
@@ -33,7 +24,7 @@ const TermsOfService = () => {
       content: (
         <>
           <Typography component="p" paragraph>
-            Welcome to our marketplace platform ("Platform"). These Terms of
+            Welcome to Samsar, a marketplace platform for vehicles and real estate in Syria ("Platform"). These Terms of
             Service ("Terms") govern your access to and use of our website and
             services. Please read these Terms carefully before using the
             Platform.
@@ -41,13 +32,13 @@ const TermsOfService = () => {
           <Typography component="p" paragraph>
             By accessing or using the Platform, you agree to be bound by these
             Terms and our Privacy Policy. If you do not agree to these Terms,
-            you may not access or use the Platform.
+            you may not access or use the Platform. These Terms constitute a legally binding agreement between you and Samsar.
           </Typography>
         </>
       ),
     },
     {
-      title: "2. User Obligations",
+      title: "2. User Obligations and Acceptable Use",
       icon: <Scale className="text-primary mr-2" />,
       content: (
         <>
@@ -55,20 +46,18 @@ const TermsOfService = () => {
             Our Platform allows users to list, buy, and sell vehicles and real
             estate properties. When using these features, you agree to:
           </Typography>
-          <ul className="list-disc pl-4">
+          <ul className="list-disc pl-6 mb-4">
             <li>Provide accurate and complete information in all listings</li>
             <li>Comply with all applicable laws and regulations</li>
-            <li>
-              Not engage in any fraudulent, misleading, or deceptive practices
-            </li>
-            <li>
-              Not post any content that is illegal, offensive, or infringes on
-              others' rights
-            </li>
+            <li>Not engage in any fraudulent, misleading, or deceptive practices</li>
+            <li>Not post any content that is illegal, offensive, or infringes on others' rights</li>
+            <li>Not use the Platform for spam or unsolicited communications</li>
+            <li>Respect other users' privacy and data protection rights</li>
+            <li>Not attempt to circumvent our security measures or access unauthorized areas</li>
           </ul>
-          <Typography component="h4" sx={{ fontWeight: 600 }}>
+          <Typography component="p" paragraph sx={{ fontWeight: 600 }}>
             We reserve the right to remove any listings that violate these Terms
-            or that we determine, in our sole discretion, to be inappropriate.
+            or that we determine, in our sole discretion, to be inappropriate. Repeated violations may result in account suspension or termination.
           </Typography>
         </>
       ),
@@ -96,7 +85,48 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "4. Content Guidelines",
+      title: "4. Email Communications and Marketing",
+      icon: <Mail className="text-primary mr-2" />,
+      content: (
+        <>
+          <Typography component="h4" sx={{ fontWeight: 600, mb: 2 }}>
+            Email Collection and Consent
+          </Typography>
+          <Typography component="p" paragraph>
+            By creating an account on our Platform, you consent to receive transactional emails necessary for platform operation. These include account verification, security notifications, transaction confirmations, and important service updates.
+          </Typography>
+          <Typography component="h4" sx={{ fontWeight: 600, mb: 2 }}>
+            Marketing Communications
+          </Typography>
+          <Typography component="p" paragraph>
+            We may send marketing emails (newsletters, promotional offers, platform updates) only to users who have explicitly opted in to receive such communications. You can:
+          </Typography>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Opt in to marketing emails during account registration or through your profile settings</li>
+            <li>Unsubscribe from marketing emails at any time using the unsubscribe link in any marketing email</li>
+            <li>Contact us directly to manage your email preferences</li>
+          </ul>
+          <Typography component="h4" sx={{ fontWeight: 600, mb: 2 }}>
+            Anti-Spam Compliance
+          </Typography>
+          <Typography component="p" paragraph>
+            We maintain strict anti-spam policies and comply with applicable email marketing laws. We:
+          </Typography>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Never purchase, rent, or acquire email lists from third parties</li>
+            <li>Only send marketing emails to users who have explicitly consented</li>
+            <li>Provide clear and easy unsubscribe mechanisms in all marketing emails</li>
+            <li>Honor unsubscribe requests immediately and automatically</li>
+            <li>Maintain suppression lists to prevent sending to users who have unsubscribed</li>
+          </ul>
+          <Typography component="p" paragraph>
+            <strong>Important:</strong> You cannot unsubscribe from essential transactional emails required for platform security and operation.
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: "5. Payment Terms and Fees",
       icon: <Info className="text-primary mr-2" />,
       content: (
         <>
@@ -114,11 +144,18 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "5. Featured Offers Service (Coming Soon)",
+      title: "6. Featured Offers Service (Coming Soon)",
       icon: <Star className="text-primary mr-2" />,
+      content: (
+        <>
+          <Typography component="p" paragraph>
+            We plan to introduce featured listing services that will allow users to promote their listings for increased visibility. Details about pricing, terms, and conditions for these services will be provided before launch.
+          </Typography>
+        </>
+      ),
     },
     {
-      title: "5. Privacy & Security",
+      title: "7. Privacy & Security",
       icon: <Shield className="text-primary mr-2" />,
       content: (
         <>
@@ -138,7 +175,7 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "6. Intellectual Property",
+      title: "8. Intellectual Property",
       icon: <FileText className="text-primary mr-2" />,
       content: (
         <>
@@ -175,7 +212,7 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "7. Limitation of Liability",
+      title: "9. Limitation of Liability",
       icon: <Star className="text-primary mr-2" />,
       content: (
         <>
@@ -197,25 +234,75 @@ const TermsOfService = () => {
       ),
     },
     {
-      title: "8. Contact Information",
+      title: "10. Termination and Account Suspension",
+      icon: <Scale className="text-primary mr-2" />,
+      content: (
+        <>
+          <Typography component="p" paragraph>
+            We reserve the right to suspend or terminate your account at any time for violations of these Terms, including but not limited to:
+          </Typography>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Sending spam or unsolicited communications through our platform</li>
+            <li>Providing false or misleading information in listings</li>
+            <li>Engaging in fraudulent or illegal activities</li>
+            <li>Violating other users' rights or our community guidelines</li>
+            <li>Attempting to circumvent our security measures</li>
+          </ul>
+          <Typography component="p" paragraph>
+            Upon termination, your access to the Platform will be immediately revoked, and we may delete your account data in accordance with our Privacy Policy. You may also terminate your account at any time by contacting our support team.
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: "11. Changes to Terms",
+      icon: <FileText className="text-primary mr-2" />,
+      content: (
+        <>
+          <Typography component="p" paragraph>
+            We may modify these Terms from time to time to reflect changes in our services, legal requirements, or business practices. We will notify users of material changes by:
+          </Typography>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Posting the updated Terms on our Platform</li>
+            <li>Sending email notifications to registered users</li>
+            <li>Displaying prominent notices on our Platform</li>
+          </ul>
+          <Typography component="p" paragraph>
+            Your continued use of the Platform after such modifications constitutes acceptance of the updated Terms. If you do not agree to the modified Terms, you should discontinue use of the Platform.
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: "12. Contact Information",
       icon: <Mail className="text-primary mr-2" />,
       content: (
         <>
           <Typography component="p" paragraph>
-            If you have any questions about these Terms, please contact us at:
+            If you have any questions about these Terms, email marketing practices, or need to manage your communication preferences, please contact us at:
           </Typography>
           <Typography component="p" paragraph>
-            Email:{" "}
+            General Contact:{" "}
             <a href="mailto:contact@samsar.app" className="text-primary">
               contact@samsar.app
             </a>
             <br />
-            Phone: +1 (555) 987-6543
+            Legal & Privacy:{" "}
+            <a href="mailto:legal@samsar.app" className="text-primary">
+              legal@samsar.app
+            </a>
             <br />
-            Address: 123 Marketplace Street, New York, NY 10001, United States
+            Email Preferences:{" "}
+            <a href="mailto:unsubscribe@samsar.app" className="text-primary">
+              unsubscribe@samsar.app
+            </a>
+            <br />
+            Phone: +963 11 123 4567
+            <br />
+            Address: Damascus, Syria
           </Typography>
           <Typography component="p" paragraph>
-            <strong>Effective Date:</strong> June 5, 2025
+            <strong>Effective Date:</strong> {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </Typography>
         </>
       ),
@@ -246,7 +333,7 @@ const TermsOfService = () => {
             className="mb-8 max-w-800 mx-auto"
           >
             Please read these Terms of Service carefully before using our
-            Platform.
+            Platform. These terms include important information about email communications and marketing compliance.
           </Typography>
         </div>
 

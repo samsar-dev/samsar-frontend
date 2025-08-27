@@ -30,8 +30,6 @@
   },
   "security": {
     "burglarAlarmSystem": "نظام إنذار ضد السرقة",
-    "immobilizer": "مانع الحركة",
-    "centralLocking": "قفل مركزي",
     "isofix": "نظام تثبيت مقاعد الأطفال"
   },
   "camera": {

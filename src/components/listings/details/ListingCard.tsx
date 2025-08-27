@@ -16,6 +16,19 @@ import type {
 } from "@/types/listings";
 import { ListingCategory, ListingAction, ListingStatus } from "@/types/enums";
 
+// Utility function to shorten long subcategory names for display
+const shortenSubcategory = (subcategory: string): string => {
+  const shortNames: Record<string, string> = {
+    'CONSTRUCTION_VEHICLES': 'Construction',
+    'COMMERCIAL_TRANSPORT': 'Commercial',
+    'PASSENGER_VEHICLES': 'Passenger',
+    'MOTORCYCLES': 'Motorcycles',
+    'CARS': 'Cars',
+    // Add more mappings as needed
+  };
+  return shortNames[subcategory] || subcategory;
+};
+
 import { MdFavorite } from "@react-icons/all-files/md/MdFavorite";
 import { MdFavoriteBorder } from "@react-icons/all-files/md/MdFavoriteBorder";
 import { MdLocationOn } from "@react-icons/all-files/md/MdLocationOn";
@@ -206,7 +219,6 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
 
                 // Handle special cases
                 if (
-                  transmissionValue === "cvt" ||
                   transmissionValue === "continuously_variable" ||
                   transmissionValue === "continuouslyvariable"
                 ) {
@@ -483,7 +495,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                   >
                     {t(
                       `categories.subcategories.${category.mainCategory.toLowerCase()}.${category.subCategory}`,
-                      { defaultValue: category.subCategory },
+                      { defaultValue: shortenSubcategory(category.subCategory) },
                     )}
                   </span>
 

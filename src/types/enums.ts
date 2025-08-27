@@ -1,7 +1,7 @@
 // 🌟 Listing Categories
 export enum ListingCategory {
-  VEHICLES = "vehicles",
-  REAL_ESTATE = "realEstate",
+  VEHICLES = "VEHICLES",
+  REAL_ESTATE = "REAL_ESTATE",
 }
 
 // 🌟 Vehicle Types

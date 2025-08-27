@@ -65,7 +65,6 @@
   "listingAction": "إجراءات الإعلان",
   "appearance": "المظهر",
   "exteriorColor": "لون خارجي",
-  "interiorColor": "لون داخلي",
   "transmissionType": "نوع ناقل الحركة",
   "bodyType": "نوع الجسم",
   "bodyTypes": {
@@ -229,7 +228,6 @@
     "bathrooms": "عدد الحمامات",
     "fuelType": "نوع الوقود",
     "exteriorColor": "لون خارجي",
-    "interiorColor": "لون داخلي",
     "transmissionType": "نوع ناقل الحركة",
     "bodyStyle": "نوع الهيكل",
     "bodyType": "نوع الجسم",
@@ -737,8 +735,6 @@
     "deadAngleAssistant": "مساعد النقطة العمياء",
     "trafficSignRecognition": "تعرّف على إشارات المرور",
     "burglarAlarmSystem": "نظام إنذار ضد السرقة",
-    "immobilizer": "نظام التعطيل",
-    "centralLocking": "قفل مركزي",
 
     "rearCamera": "كاميرا خلفية",
     "camera360": "كاميرا 360 درجة",

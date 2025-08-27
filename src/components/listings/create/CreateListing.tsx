@@ -75,7 +75,6 @@ const initialFormState: FormState = {
     color: "",
     condition: Condition.NEW,
     features: [],
-    interiorColor: "",
     engine: "",
     warranty: "",
     serviceHistory: "",

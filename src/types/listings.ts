@@ -177,8 +177,6 @@ export interface VehicleFeatures {
   deadAngleAssistant?: boolean;
   trafficSignRecognition?: boolean;
   burglarAlarmSystem?: boolean;
-  immobilizer?: boolean;
-  centralLocking?: boolean;
 
   // Camera Features
   rearCamera?: boolean;
@@ -276,7 +274,6 @@ export interface BaseVehicleDetails {
   images: string[];
   insuranceType?: string;
   color: string;
-  interiorColor: string;
   condition: Condition;
   transmissionType: string;
   transmission?: string;
@@ -361,8 +358,6 @@ export interface BaseVehicleDetails {
   deadAngleAssistant?: boolean;
   trafficSignRecognition?: boolean;
   burglarAlarmSystem?: boolean;
-  immobilizer?: boolean;
-  centralLocking?: boolean;
   frontAirbags?: boolean;
   sideAirbags?: boolean;
   curtainAirbags?: boolean;
@@ -827,7 +822,6 @@ export interface FlatListingDetails extends Record<string, any> {
   fuelType?: string;
   transmissionType?: string;
   color?: string;
-  interiorColor?: string;
   warranty?: string | boolean;
   serviceHistory?: string | boolean;
   previousOwners?: string | number;

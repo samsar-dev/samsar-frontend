@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 // Base URL for the website
-const BASE_URL = import.meta.env.VITE_BASE_URL || "https://samsar.app";
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://www.samsardeal.com";
 
 // Common Syrian cities in Arabic for SEO
 const SYRIAN_CITIES = [

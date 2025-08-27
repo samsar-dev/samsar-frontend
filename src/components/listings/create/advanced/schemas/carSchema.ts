@@ -17,18 +17,6 @@ export const carSchema: ListingFieldSchema[] = [
     tooltip: "tooltips.exteriorColor",
   },
   {
-    name: "interiorColor",
-    label: "fields.interiorColor",
-    type: "colorpicker",
-    section: "essential",
-    required: true,
-    validate: (value: string | number | boolean) => {
-      if (typeof value !== "string" || !value) return "errors.fieldRequired";
-      return null;
-    },
-    tooltip: "tooltips.interiorColor",
-  },
-  {
     name: "condition",
     label: "fields.condition",
     type: "select",

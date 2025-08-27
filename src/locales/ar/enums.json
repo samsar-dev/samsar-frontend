@@ -8,12 +8,12 @@
     "OTHER": "أخرى"
   },
   "fuelType": {
-    "GASOLINE": "بنزين",
+    "BENZIN": "بنزين",
+    "GASOLINE": "غازولين",
     "DIESEL": "ديزل",
     "ELECTRIC": "كهربائي",
     "HYBRID": "هجين",
     "PLUGIN_HYBRID": "هجين قابل للشحن",
-    "LPG": "غاز البترول المسال",
     "CNG": "غاز طبيعي مضغوط",
     "HYDROGEN": "هيدروجين",
     "OTHER": "أخرى"

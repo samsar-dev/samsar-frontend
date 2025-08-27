@@ -255,13 +255,15 @@ export const useCreateListing = (): UseCreateListingReturn => {
         };
         formData.append("category", JSON.stringify(category));
 
-        // Add details using flat structure
+        // Add details using flat structure - exclude vehicleType since it's saved as subCategory
+        const detailsWithoutVehicleType = { ...(data.details || {}) };
+        delete detailsWithoutVehicleType.vehicleType; // Remove vehicleType to avoid duplication
+        
         const details = {
           // Use flat structure - merge all details directly
-          ...(data.details || {}),
+          ...detailsWithoutVehicleType,
           // Set category-specific defaults for vehicles
           // Flat structure - all fields are directly on details object
-          vehicleType: data.details?.vehicleType || VehicleType.CARS,
           make: data.details?.make === "OTHER_MAKE" && data.details?.customMake
             ? data.details?.customMake
             : data.details?.make || "",

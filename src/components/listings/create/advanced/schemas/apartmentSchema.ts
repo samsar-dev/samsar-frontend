@@ -730,11 +730,6 @@ export const apartmentSchema: ListingFieldSchema[] = [
         translationKey: "enums.smartHomeFeatures.AUTOMATED_BLINDS",
       },
       {
-        value: "securitySystem",
-        label: "SECURITY_SYSTEM",
-        translationKey: "enums.smartHomeFeatures.SECURITY_SYSTEM",
-      },
-      {
         value: "energyMonitoring",
         label: "ENERGY_MONITORING",
         translationKey: "enums.smartHomeFeatures.ENERGY_MONITORING",

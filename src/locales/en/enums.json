@@ -27,12 +27,11 @@
     "OTHER": "Other"
   },
   "fuelType": {
+    "BENZIN": "Benzin",
     "GASOLINE": "Gasoline",
     "DIESEL": "Diesel",
     "ELECTRIC": "Electric",
     "HYBRID": "Hybrid",
-    "PLUGIN_HYBRID": "Plug-in Hybrid",
-    "LPG": "LPG",
     "CNG": "CNG",
     "HYDROGEN": "Hydrogen",
     "OTHER": "Other"
@@ -200,8 +199,6 @@
   "riderAids": {
     "ABS": "ABS",
     "TRACTION_CONTROL": "Traction Control",
-    "WHEELIE_CONTROL": "Wheelie Control",
-    "LAUNCH_CONTROL": "Launch Control",
     "CRUISE_CONTROL": "Cruise Control",
     "RIDING_MODES": "Riding Modes",
     "QUICKSHIFTER": "Quick Shifter",
@@ -229,7 +226,6 @@
     "DAYTIME_RUNNING_LIGHTS": "Daytime Running Lights",
     "ADAPTIVE_LIGHTING": "Adaptive Lighting",
     "CORNERING_LIGHTS": "Cornering Lights",
-    "FOG_LIGHTS": "Fog Lights",
     "OTHER": "Other"
   },
   "seatType": {
@@ -277,8 +273,6 @@
     "OTHER": "Other"
   },
   "protectiveEquipment": {
-    "CRASH_BARS": "Crash Bars",
-    "ENGINE_GUARDS": "Engine Guards",
     "RADIATOR_GUARD": "Radiator Guard",
     "SKID_PLATE": "Skid Plate",
     "HAND_GUARDS": "Hand Guards",

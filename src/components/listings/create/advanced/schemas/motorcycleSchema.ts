@@ -586,16 +586,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
         label: "TRACTION_CONTROL",
         translationKey: "enums.riderAids.TRACTION_CONTROL",
       },
-      {
-        value: "wheelieControl",
-        label: "WHEELIE_CONTROL",
-        translationKey: "enums.riderAids.WHEELIE_CONTROL",
-      },
-      {
-        value: "launchControl",
-        label: "LAUNCH_CONTROL",
-        translationKey: "enums.riderAids.LAUNCH_CONTROL",
-      },
+  
       {
         value: "cruiseControl",
         label: "CRUISE_CONTROL",
@@ -874,16 +865,7 @@ export const motorcycleSchema: ListingFieldSchema[] = [
     label: "fields.protectiveEquipment",
     type: "multiselect",
     options: [
-      {
-        value: "crashBars",
-        label: "CRASH_BARS",
-        translationKey: "enums.protectiveEquipment.CRASH_BARS",
-      },
-      {
-        value: "engineGuards",
-        label: "ENGINE_GUARDS",
-        translationKey: "enums.protectiveEquipment.ENGINE_GUARDS",
-      },
+      
       {
         value: "radiatorGuard",
         label: "RADIATOR_GUARD",

@@ -186,7 +186,6 @@ export const createListing = async (
           "insuranceType",
           "registrationStatus",
           "color",
-          "interiorColor",
           "fuelType",
           "transmissionType",
           "serviceHistory",
@@ -482,6 +481,7 @@ export const listingsAPI: ListingsAPI = {
 
       // Add category filters if present
       if (params.category?.mainCategory) {
+        console.log('🔍 API DEBUG - Adding mainCategory filter:', params.category.mainCategory);
         queryParams.append("mainCategory", params.category.mainCategory);
       }
       if (params.category?.subCategory) {
@@ -549,11 +549,22 @@ export const listingsAPI: ListingsAPI = {
       }
 
       const data = await response.json();
+      console.log('🔍 API DEBUG - Raw backend response:', data);
 
       // Handle different response formats
       let responseData;
-      if (data.data && Array.isArray(data.data)) {
-        // The backend returns listings directly in the data property
+      if (data.data && typeof data.data === "object" && Array.isArray(data.data.listings)) {
+        // New format: data.data.listings (used by both /api/listings and /api/listings/user)
+        responseData = {
+          listings: data.data.listings,
+          total: data.data.total || 0,
+          page: data.data.page || 1,
+          limit: data.data.limit || 10,
+          hasMore: data.data.hasMore || false,
+        };
+      } else if (data.data && Array.isArray(data.data)) {
+        // Legacy format: data.data is direct array
+        console.log('🔍 API DEBUG - Using legacy format, data.data length:', data.data.length);
         responseData = {
           listings: data.data,
           total: data.total ?? data.data.length,
@@ -572,6 +583,7 @@ export const listingsAPI: ListingsAPI = {
         };
       } else {
         console.warn("Unexpected API response format", data);
+        console.log('🔍 API DEBUG - Final responseData will be empty:', { data });
         responseData = {
           listings: [],
           total: 0,
@@ -580,6 +592,8 @@ export const listingsAPI: ListingsAPI = {
           hasMore: false,
         };
       }
+      
+      console.log('🔍 API DEBUG - Final responseData:', responseData);
 
       // Extract only essential information for listing cards if preview mode is on
       if (params.preview && responseData.listings) {

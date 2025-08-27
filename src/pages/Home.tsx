@@ -311,15 +311,23 @@ const Home: React.FC = () => {
           sortOrder: sortBy === "priceDesc" ? "desc" : "asc",
         };
 
-        // Basic category filter only
-        if (selectedCategory === ListingCategory.VEHICLES) {
+        console.log('🔍 HOME DEBUG - selectedCategory:', selectedCategory);
+        console.log('🔍 HOME DEBUG - ListingCategory.VEHICLES:', ListingCategory.VEHICLES);
+        console.log('🔍 HOME DEBUG - ListingCategory.REAL_ESTATE:', ListingCategory.REAL_ESTATE);
+
+        // Basic category filter only - handle both old and new enum values
+        if (selectedCategory === ListingCategory.VEHICLES || (selectedCategory as string) === 'vehicles') {
           params.category = {
-            mainCategory: ListingCategory.VEHICLES,
+            mainCategory: ListingCategory.VEHICLES, // Use enum value
           };
-        } else if (selectedCategory === ListingCategory.REAL_ESTATE) {
+          console.log('🔍 HOME DEBUG - Adding VEHICLES filter:', params.category);
+        } else if (selectedCategory === ListingCategory.REAL_ESTATE || (selectedCategory as string) === 'realEstate') {
           params.category = {
-            mainCategory: ListingCategory.REAL_ESTATE,
+            mainCategory: ListingCategory.REAL_ESTATE, // Use enum value
           };
+          console.log('🔍 HOME DEBUG - Adding REAL_ESTATE filter:', params.category);
+        } else {
+          console.log('🔍 HOME DEBUG - No category filter applied');
         }
 
         // Add sorting
@@ -347,7 +355,13 @@ const Home: React.FC = () => {
       }
 
       const responseData = response.data; // Assign to a const to avoid null check warnings
+      console.log('🔍 HOME DEBUG - API Response:', response);
+      console.log('🔍 HOME DEBUG - Response Data:', responseData);
+      console.log('🔍 HOME DEBUG - Listings Array:', responseData.listings);
+      console.log('🔍 HOME DEBUG - Listings Length:', responseData.listings?.length);
+      
       if (!responseData.listings) {
+        console.error('❌ HOME DEBUG - No listings in response data');
         throw new Error(response.error || "Failed to fetch listings");
       }
 
